@@ -32,6 +32,7 @@ Finally, the design should provide certain features and benefits that, while not
  * Ability to implement a POSIX-ish layer on top of the VFS for legacy-app support and quick-n-dirty porting
  * Extensible API that makes adding new features and capabilities very easy without breaking compatibility (in either direction)
  * Easy to use API that makes development of secure and stable VFS usage very simple
+ * Locking and versioning
 
 == Rationalization ==
 
@@ -101,6 +102,14 @@ Using the plain asynchronous interface asynchrone partial content retrieving can
 === Locking ===
 
 TBD: do we need locking?  What are the use cases for locking?  How should locking be handled, if at all?  See [http://lists.freedesktop.org/pipermail/xdg/2005-March/006076.html dvfs locking]
+
+Some possible uses for locking are: atomic writes, avoiding concurrent edits, write-if-not-modified.
+
+Current thinking: Atomic writes should be the default on every system that can support it.  Applications should be able to check if the protocol in question can (and thus will) do an atomic write, or if the feature cannot be supported on the protocol.
+
+Write when not modified is another form of atomic write that additionally checks the file's modification time and returns an error if the time is newer than a particular timestamp (that being the time the file was last opened/saved by the application); this helps to avoid two sequential writes from different apps/users getting clobbered.  Doing this reliably requires either actual locking of the document, or that the protocol explicitly support this very operation in an atomic manner (I don't know of any that do; maybe DAV does?).  Would it be better to add yet another "begin write" function that additionally does the timestamp comparison, adding a second "lock file" function that does the timestamp comparison, or not providing any function that does this automatically but instead makign the app manually do the lock-and-check?  (The first two lead towards API bloat.)
+
+Explicit locking is also not supported on many protocols, but is supported on enough that it makes sense to include if apps need it.  Since there's no other way to implement a feature to avoid concurrent edits, this seems to be required.  Should we use read/write locks, complete locks, byte range locks, etc?  Where's the line between "it's possible on some protocols" and "we actually really need this?"
 
 == VFS Daemon ==
 
