@@ -101,7 +101,29 @@ However, it is beneficial to not force the use of a daemon.  There are some prot
 
 == Protocol Backends ==
 
-TBD
+The system will be comprised of backends which implement protocols.  A single backend may support more than one protocol.  For example, a neon backend might support both dav: and davs:, while an SFTP backend might also implement support for SCP.  It's possible that more than one backend might be installed that implements a particular protocol.
+
+The backends will provide a list of capabilities and entry points for using the backend.  A very simple model would simply provide a vtable of function pointers.  Whether a particular entry is set or not would indicate whether the capability is supported and would also provide the entry point to the backend.  It's also possible to use a more complex query interface, although complexity should be avoided wherever possible.
+
+Each backend will be usable by both the D-VFS library and the D-VFS daemon.  There will be no need to recode, recompile, or reinstall a backend in order to change whether it works with the library or daemon.  This reinforces the idea that the daemon is just used to marshal application requests through a single instance of each backend, providing connection sharing opportunies and enhanced security.
+
+Administrators will be able to configure the usage of the backends with a simple configuration file.  The file will specify for each protocol which backend to use and whether the daemon should be used.  One possible way the file might look (and there are many possibilities; I posted a different one to the xdg mailing list, located below):
+
+file file # file: protocol uses the backend prefix/lib/dvs/file.so
+http daemon:neon # http: protocol uses the backend prefix/lib/dvs/neon.so marshalled through the daemon
+https daemon:neon # same as above for https: protocol
+ftp daemon:* # ftp: protocol uses the default abckend marshalled through the daemon
+* * # all other protocols use the default backend without the daemon
+
+The 'default' backend would be whichever backend advertised support for the protocol.  If multiple backends support the protocol, it is undefined which one is used - the configuration file primarily exists to resolve that conflict, after all.
+
+The idea of using a vtable or query interface in the backends is to ensure bidirectional interface stability.  For example, D-VFS 1.1 will have some additional features and entry points compared to D-VFS 1.0.  We want to ensure that a backend developed against 1.0 is usable with 1.1, and that a backend developed with 1.1 is usable with 1.0.  An older backend used with a newer library will simply not provide implementations of the newer capabilities, but won't lose any functionality.  A newer backend used with an older library will simply support features that the library can't use, but that shouldn't stop the backend from providing the functionality that the older library does know about.
+
+By doing this, we make it much, much easier for third party developers to build, distribute, and support custom protocol backends.  This can be especially important for in-house development projects with oddball specialized protocols.
+
+== Licensing ==
+
+This is always a scary subject to approach, but it's worth mentioning in brief even at this point.  The D-VFS is intended to be of maximum utility to both users and developers.  It is important that any potentially restrictive licensing problems be avoided to ensure that the system is used by the widest range of software projects possible.  Simply following suite with D-BUS' licensing or using the MIT license (like Xorg does) is probably the best bet all around.
 
 == Discussion ==
 
