@@ -1,0 +1,71 @@
+== Xgl ==
+
+Xgl is an X server architecture layered on top of OpenGL. It is at an early stage in development and a number of important pieces are still missing. Xglx is the only server yet that use this architecture, it requires an already existing X server and is only intended for testing and development.
+
+=== TODO ===
+
+|| '''Item''' || '''Description''' || '''Contact''' ||'''Complete''' ||
+|| General || General Xgl and glitz development || DavidReveman || 50% ||
+|| GLX || Accelerated indirect GLX rendering || - || 0% ||
+|| XV || XVideo extensions support by adding a YUV surface format to glitz || - || 0% ||
+|| RandR || Full support for both resize and rotate || - || 0% ||
+|| Xagl || Server running on MacOS (AGL) || - || 50% ||
+|| Xwgl || Server running on Windows (WGL) || - || 0% ||
+|| Xgl || Server running on Linux using mesa-solo || - || 0% ||
+
+=== CVS Access ===
+
+{{{
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xserver login
+CVS password: <hit return>
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xserver co xserver
+}}}
+
+Xgl code can be found in hw/xgl sub-directory.
+
+=== Installation Instructions ===
+
+The following instructions should help you get Xglx running. However, it is highly experimental and with some OpenGL drivers it might not work at all. Nvidia hardware (geforce2 and later) with Nvidia's proprietary drivers have been proven to work quite well.
+
+Get glitz modules from cairo CVS.
+
+{{{
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo login
+CVS password: <hit return>
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo co glitz glitzinfo
+
+$ pushd glitz
+$ ./autogen.sh
+$ make
+$ sudo make install
+$ popd
+
+$ pushd glitzinfo
+$ make -f Makefile.glx
+$ ./glitzinfo
+$ popd
+}}}
+
+glitzinfo should report some info about available features, drawable formats and surface formats. The following set of features are important and if one of them is missing it is likely that it will give you performance problems.
+
+{{{
+texture rectangle
+texture border clamp
+multitexture
+texture environment combine
+}}}
+
+For accelerated offscreen rendering, a drawable format with pbuffer support is required.
+
+Configure the xserver module to build the Xgl servers with './configure --enable-xglserver'. For instructions on how to build and install all the packages required by the xserver module see ["Software/Xserver/InstallGuide"].
+
+Now type 'make' and if everything goes well, you should end up with an 'Xglx' executable in the hw/xgl/glx sub-directory. 
+
+Start the server with a command line similar to this:
+{{{
+$ ./Xglx :1 -ac -screen 640x480
+}}}
+
+X clients should now be able to connect to DISPLAY=":1".
+
+-- David Reveman - 20 Feb 2005
