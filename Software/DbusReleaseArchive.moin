@@ -1,0 +1,140 @@
+##META:TOPICINFO{author`"OwenFraserGreen" date`"1084956369" format`"1.0" version`"1.1"}%
+##META:TOPICPARENT{name="dbus"}%
+=== Release Archive ===
+
+Below, is a list of previous releases with changes they implement. The latest release can be found on the [wiki:Software/dbus main page].
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.20.tar.gz dbus-0.20.tar.gz]
+		* merges large API changes
+		* tons of other fixes
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.13.tar.gz dbus-0.13.tar.gz]
+		* this is probably the last release before landing the large 
+		  API changes from dbus-object-names branch
+		* fix system bus to always use filesystem socket; anyone 
+		  can create any abstract socket, which isn't secure 
+		  since if you can crash the system bus you'd be able
+		  to replace it.
+		* add DTD for configuration file
+		* improve specification a bit
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.12.tar.gz dbus-0.12.tar.gz]
+		* fix reentrancy issue with glib main loop integration
+		* fix "service messagebus status" on Red Hat
+		* fix demarshaling of DBUS''TYPE''NAMED
+		* fix "eval `dbus-launch --exit-with-session`" to exit properly
+		* fix build without --prefix
+		* useless fooling with Mono bindings
+		* useless fooling with gcj bindings
+		* fix srcdir != builddir
+		* fix various compiler warnings and other issues
+		* add get/set data to DBusMessage
+		* fix headers for C++
+		* OS X build fixes
+		* abstract domain sockets support (Linux only)
+		* add dbus-cleanup-sockets utility for people not using linux
+		* be consistent about defaulting to --session/--system  with command line tools
+		* merge in policies from included config files
+		* fix build on non-x86
+		* docs updates
+		* lots of other bugfixes
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.11.tar.gz dbus-0.11.tar.gz]
+		* add --enable-docs to turn off/on the docbook stuff (doesn't cover doxygen stuff yet)
+		* make people define DBUS''API''SUBJECT''TO''CHANGE and read warning in README so they don't expect the API to be frozen already
+		* rename .pc files to "dbus-1.pc" instead of  "dbus-1.0.pc" etc. - this will require changing pkg-config invocations
+		* some docs cleanups
+		* add man pages for all executables
+		* allow send to/from bus driver in the default system.conf
+		* fix user lookup bug
+		* implement dbus-launch to launch the session message bus
+		* fix some thread deadlocks
+		* some performance profiling/optimization
+		* add dbus''bus''activate_service() function
+		* fix some minor bugs here and there
+		* install Red Hat initscript in the right place
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.10.tar.gz dbus-0.10.tar.gz]
+		* reversed order of args to dbus''message''new()
+		* renamed dbus''message''name_is() and some other functions
+		* change DBusWatch to have dbus''watch''handle() similar to dbus''timeout''handle(), drop connection/server-specific handle routines
+		* change message serials to be unsigned
+		* implemented <allow>/<deny>/<limit> features for config file; system bus now has a deny-all policy by default.
+		* system.conf has <includedir>system.d</includedir> so packages can install additions to the default policy to <allow> the messages they need. e.g. CUPS might install a cups.conf - see test/data/valid-config-files/system.d/test.conf for an example.
+		* add timeouts for authentication, activation
+		* add glib-style "checks" on public API, enable those by default, disable assertions by default
+		* add GMainContext argument to GLib setup functions, can be NULL for default context. Needed for threads.
+		* add 64-bit integer type
+		* validate type of standard message header fields
+		* consider messages in the org.freedesktop.Local namespace to be invalid (to avoid fake disconnect messages for example)
+		* fix assorted memory leaks and other bugs in the SHA-1 auth mechanism
+		* cache user database information (groups user is in, etc.) helps a lot with NIS
+		* always store uid''t, pid''t, gid_t in "ulong" rather than "int"
+		* implement config file settings for which users can connect
+		* SHA-1 unit test
+		* dbus-send, dbus-monitor command line utilities
+		* fixed lots of misc crashes and other bugs
+	
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.9.tar.gz dbus-0.9.tar.gz]
+		* implemented a test case for service activation, and fixed many bugs exposed by that
+		* implemented recursive argument marshaling/demarshaling for messages, allowing multidimensional arrays
+		* fixed up integration of message dispatch with main loop by adding a callback on change of dispatch status
+		* add a pidfile feature to daemon
+		* some build fixes
+		* clean up unix domain sockets on exit
+		* add --print-address and the ability to create a random server address in a temporary directory
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.8.tar.gz dbus-0.8.tar.gz]
+		* fix silly bug in 0.7
+ 
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.7.tar.gz dbus-0.7.tar.gz]
+		* implement configuration file used to control bus characteristics
+		* implement daemon mode, changing user ID, and other system bus features
+		* add init scripts for systemwide bus
+		* add "make check-coverage" target to check test coverage
+		* more test suite additions
+		* many, many bugfixes
+		* many API changes/fixes
+	
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.6.tar.gz dbus-0.6.tar.gz]
+		* Vastly improved bus daemon test suite
+		* Lots of misc. bugfixes and memory leak fixes
+		* Support for marshalling key/value data
+		* Activation improvements.
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.5.tar.gz dbus-0.5.tar.gz]
+		* Specification updates
+		* port to OS X and other BSD variants
+		* port to Solaris
+		* Partial work on cookie-based authentication
+		* Thread safety fixes
+		* Lots of misc. bugfixes
+		* Support for more array types
+		* Add data slots to DBusServer
+		* DBusString security audit fixes
+		* Fix for systems (or valgrind) with unaligned malloc blocks
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.4.tar.gz dbus-0.4.tar.gz]
+		* Preliminary activation support.
+		* Better authentication test suite
+		* Bus test program
+		* Specification updates
+		* Thread safety
+		* Bug fixes
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.3.tar.gz dbus-0.3.tar.gz]
+		* Preliminary limitations support
+		* Message sending works
+		* Bus client
+		* Array marshalling/demarshalling
+		* Services
+		* Better OOM handling in the bus
+		* In-proc debug transport
+		* Transport/server address support
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.2.tar.gz dbus-0.2.tar.gz]
+		* Include test/* files in the distribution.
+
+	* [http://www.freedesktop.org/software/dbus/releases/dbus-0.1.tar.gz dbus-0.1.tar.gz]
+		* Initial snapshot.
+
