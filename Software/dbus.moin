@@ -1,0 +1,94 @@
+##META:TOPICINFO{author`"OlivierAndrieu" date`"1095286500" format`"1.0" version`"1.19"}%
+##META:TOPICPARENT{name="Home"}%
+<noautolink>
+
+== D-BUS ==
+
+D-BUS is a message bus system, a simple way for applications to talk to one another. 
+
+D-BUS supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). 
+
+The D-BUS API isn't finished yet, and the design is by no means set in stone. One of our main goals is for lots of projects to use it, so if you wouldn't use it, by all means mail us and say why - design, licensing, indentation style, we would rather know than not know. 
+
+D-BUS' only *required* dependency is an XML parser (either libxml or expat). D-BUS includes GLib, Qt, Python and .NET APIs to the D-BUS system, if you want to build those. The [wiki:Software/DbusProjects list of projects using D-BUS] is growing and they provide a wealth of examples of using the various APIs to learn from.
+
+Trying out D-BUS in sample applications is encouraged - we want to get it widely used and tested. It should be working pretty well these days, and when it isn't bug reports are very welcome. 
+
+Get on D-BUS today!
+
+
+=== Mailinglist ===
+
+All D-BUS discussion is currently on [http://freedesktop.org/mailman/listinfo/dbus/ dbus@freedesktop.org] (formerly !message-bus-list@freedesktop.org).
+
+
+=== CVS ===
+
+The [wiki:GettingInvolved CVS] module for this spec is "dbus". You can browse it with [http://freedesktop.org/cgi-bin/viewcvs.cgi/dbus/dbus/ ViewCVS].
+
+CVS commits can be monitored on the [http://freedesktop.org/mailman/listinfo/dbus-commit/ dbus-commit] mailing list.
+
+
+=== Bugs & Patches ===
+
+Please report bugs (and submit patches) through the freedesktop.org [http://freedesktop.org/bugzilla/index.cgi Bugzilla].
+
+=== Docs ===
+
+Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're new to D-BUS, the tutorial is 
+probably the best place to start (even though it is very incomplete, the basics are covered).
+
+	* [[%ATTACHURL%/doc/dbus-tutorial.html][D-BUS tutorial]]
+	* [[%ATTACHURL%/doc/dbus-specification.html][D-BUS specification]]
+	* [[%ATTACHURL%/doc/api/html/index.html][Doxygen manual]]
+	* [[%ATTACHURL%/doc/api/html/todo.html][@todo items from manual]] and high-level [[%ATTACHURL%/doc/TODO][TODO]]
+	* [[%ATTACHURL%/doc/api/html/files.html][Browse source]]
+	* [[%ATTACHURL%/doc/dbus-daemon-1.1.html][dbus-daemon-1(1)]] (includes configuration file docs)  
+	* [[%ATTACHURL%/doc/dbus-send.1.html][dbus-send(1)]] [[%ATTACHURL%/doc/dbus-monitor.1.html][dbus-monitor(1)]] [[%ATTACHURL%/doc/dbus-launch.1.html][dbus-launch(1)]]
+	* [[%ATTACHURL%/doc/HACKING][HACKING]] [[%ATTACHURL%/doc/AUTHORS][AUTHORS]]
+	* [[%ATTACHURL%/doc/NEWS][NEWS]] [[%ATTACHURL%/doc/ChangeLog][ChangeLog]] [[%ATTACHURL%/doc/README][README]]
+	* [[%ATTACHURL%/doc/dbus-test-plan.html][Test plan]]
+	* [[%ATTACHURL%/dbus-docs.tar.gz][Tarball]] with all the above docs.
+
+== Download ==
+
+The latest release is [[%ATTACHURL%/releases/dbus-0.22.tar.gz][dbus-0.22.tar.gz]]. (2004-08-12)
+
+	* add --reply-timeout to dbus-send
+	* fix a memleak
+	* fix Solaris/Forte build
+	* switch to AFL 2.1 rather than 2.0 to address patent termination clause concerns
+	* add SELinux support
+	* mostly repair libxml backend for config parser, still doesn't pass out of memory tests
+	* fix distcheck to include language bindings
+	* add GetConnectionUnixUser method on bus driver
+	* also for UnixProcessID
+	* lots of Python, Mono, other binding fixes
+	* change GLib bindings to not include dbus/dbus.h (fully encapsulate libdbus)
+	* pass paths as strings, not arrays of string
+	* add message signature header field
+	* cleanups to marshaling code
+	* clean up authentication code
+	* reload conf files on SIGHUP
+	* rename SERVICE/SENDER_SERVICE to DESTINATION/SENDER
+	* fix circular conf file inclusion
+	* allow empty arrays
+	* tons of other small bugfixes
+
+The previous release is [[%ATTACHURL%/releases/dbus-0.21.tar.gz][dbus-0.21.tar.gz]]. (2004-03-19)
+	* implement "auto activation" flag on messages, so the destination service can 
+	  be launched automatically
+	* fix a bug in custom type marshaling
+	* optimize case where multiple apps activate the same service 
+	  (avoid "thundering herd")
+	* add dynamic service file discovery/reloading
+	* fix a busy loop when blocking for a reply
+	* fix a 64-bit crash involving varargs
+	* fix a bus crash when processing an AcquireService
+	* allow appending TYPE''BYTE via append''args_valist
+	* fix dicts-inside-dicts
+	* enhancements to Python and Qt bindings
+
+Previous releases can be found in the [wiki:Software/DbusReleaseArchive release archive].
+
+</noautolink>
