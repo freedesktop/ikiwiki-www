@@ -46,15 +46,27 @@ $ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/sysadmin co tinderclient
 
 Browse CVS with [http://cvs.freedesktop.org/sysadmin/ View  CVS].
 
+=== Required software: XMonolithic ===
+	* libwww-perl
+	* ccache (recommended)
+=== Required software: kaffe ===
+	* libwww-perl
+	* libart2
+	* esound
+	* zip
+	* libgmp
+	* jikes (recommended)
+	* ccache (recommended)
+
 === Tinderclient Installation ===
 
 Installing a client is very easy.
 	* find some machine you don't mind keeping busy with sufficient disk space.
-	* check the perl on that machine for the appropriate package; you need libwww-perl, available in Debian as libwww-perl, and in FreeBSD as p5-libwww.
 	* download the current tinderclient scripts from CVS. I make no guarantees about whether CVS is necessarily sane, though if you are going to work on the scripts themselves, you should work from the CVS version of the scripts.
 	* If using kaffe, comment the XMonolithic command line in run-client.sh and uncomment the kaffe one.
-	* choose a short machine id for the build (so you don't use too much column space) which is useful to identify the machine/OS version you are running it on.  Please use the format name-architecture (for example, anholt-i386 --EricAnholt)
+	* choose a short machine id for the build (so you don't use too much column space) which is useful to identify the machine/OS version you are running it on.  Please use the format name-architecture (for example, anholt-i386 --EricAnholt).
 	* run "run-client.sh machine-id >& /dev/null".  By default, the tinderclient tee's its output to a tinderclient.log file and standard output, so once you are up and running, you probably don't want to have it blathering on the screen constantly.
+	* If you'd like to have your build use ccache or jikes if you have them installed, get EricAnholt to fix up your machine configuration.  ccache cuts build times in approximately half.  jikes cuts kaffe builds down even more.
 	* add an option to do a lndir'ed tree, to shorten the log of all the synthesized files.
 
 The script will create a directory of the tree's name in whatever directory you are in when you run "run-client", and do a CVS checkout and build of the module
@@ -63,7 +75,7 @@ specified in the tinderbox itself in a subdirectory of that. Once a day, it is s
 One way to run this is to place them in a detached screen:
 
 {{{
- # screen -d ./tinderclient/run-client.sh you.yourbox.knoppix3.4
+ # screen -d ./run-client.sh somebody-i386
 }}}
 
 You can then review and re-attach to them as follows:
