@@ -1,16 +1,24 @@
 {{{
 #! /bin/sh
 
+# Before starting the script, make sure you have these set correctly
+# If you use distcc and/or ccache you will want to set these variables
+
+# export CC="ccache distcc gcc34"
+# export DISTCC_HOSTS=""
+
+# If you have a symmetric multi processing machine or if you are going
+# to use distcc, you want to set this variable. The '5' should be replaced
+# with the amount of processors that will be used multiplied by two
+
+# MAKEOPTS=-j5
+
+
 if [ -z "$PKG_CONFIG_PATH" ]; then
 export PKG_CONFIG_PATH=/opt/fdo/lib/pkgconfig
 else
 export PKG_CONFIG_PATH="/opt/fdo/lib/pkgconfig:$PKG_CONFIG_PATH"
 fi
-
-# export CC="ccache distcc gcc34"
-# export DISTCC_HOSTS=""
-# MAKEOPTS=-j5
-
 
 cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xproto || exit 1
 pushd Xproto
