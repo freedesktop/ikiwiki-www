@@ -127,6 +127,8 @@ By doing this, we make it much, much easier for third party developers to build,
 
 Threading in the daemon will be required for several protocols, such as file: or smb:, due to either limitations in the syscall interface or due to bad library API.  While I (SeanMiddleditch) was originally opposed to threading, it does seem to be a necessary evil.  Given that I hadn't previously put much thought into the threading model, input on the best model to use here would be useful.  I'm thinking that the daemon can start a thread for each session (ie connection) if the backend says that it is needed.  The daemon core should handle the threading to avoid duplicating that effort in each backend.
 
+(AlexanderLarsson) On the client side, the library needs to be threadsafe. We've had problems in gnome-vfs with apps like OOo using gnome-vfs async operations which weren't always threadsafe.
+
 === Authentication ===
 
 The daemon will need to authenticate to most remote resources.  Authentication can take several forms, many of which require interaction with the user or an external authentication information store.
