@@ -6,7 +6,104 @@ D-VFS is not oriented towards general purpose usage.  The design goal is specifi
 
 D-VFS is in the first stages of design. The requirements and api are being fleshed out at this location.  Adding your comments to the design of D-VFS is very simple.  First, get a freedesktop [Login login].  Second, edit this page by hitting the [[Icon(edit)]] icon.  Once you have edited this page, you will be signed up for email notifications of any future edits on this page.
 
-== Design Goals ==
+== Design ==
+
+Desktop VFS is intended to be used primarily by desktop apps like office suites and by desktop file managers like Nautilus or Konquerer.  These applications have a certain set of operations which they must perform in order to operate correctly.
+
+ * Save and load documents
+ * Manipulate document metadata
+ * List files in a folder
+ * Move, copy, and delete documents
+ * Create, move, copy, and delete folders
+
+Additionally, desktop application have certain requirements in terms of implementation details and API features.
+
+ * Asynchronous operation
+ * Complete error reporting with user-oriented messages available
+ * Monitor progress of any operation
+ * Cancel any in-progress operation
+ * Resume operations with non-critical errors ("failed to make backup; save anyhow?")
+ * Threads
+ * Change notification for folders and documents
+
+Finally, the design should provide certain features and benefits that, while not being critical to basic operation, will increase the viability of using the system and the ease of developing against the system.
+
+ * Ability to implement a POSIX-ish layer on top of the VFS for legacy-app support and quick-n-dirty porting
+ * Able to marshal all file operation through a per-user daemon for enhanced security context and data flow control
+ * Extensible API that makes adding new features and capabilities very easy without breaking compatibility (in either direction)
+ * Easy to use API that makes development of secure and stable VFS usage very simple
+
+== Rationalization ==
+
+Simply stating that we have certain goals is useless without explaining why we have certain goals.
+
+=== Save and Load Interface ===
+
+Traditional file APIs, such as POSIX, are based on a concept of reading and writing bytes.  When you develop an application that reads a file with these APIs, your application is not truly written around the concept of reading the file; instead, it's written around the concept of reading chunks of bytes.  The same goes for writing files.  Additionally, these interfaces are very complex to use.  Operations can be interrupted in the middle of their work, resulting in syscalls that can do only half of what you asked them to do.  The random-access nature of the file system also results in a lot of complication in the entire design of the system.
+
+While these APIs are very useful to certain classes of applications - database apps, for example - they are often far more complicated and detailed than your average desktop application needs.  A desktop application saves and loads files.  That is pretty much it.  Your word processor loads a document, then saves it.  Your text editor does the same.  Your email client might save copies of message or attachments.  Your web browser saves downloads.  These types of applications save and load whole files as their basic file-level operation.  Making these two operations as easy and efficient as possible will result in an API that is ideal for desktop-appliaction usage.
+
+It is noted that desktop apps often do access files besides the user's documents.  Your word processor might save configuration files, for example, or a recently-used files list, and so on.  The Desktop VFS is ''not'' designed for these files.  Those files are typically stored in the user's home folder in a dot-directory.  That is a local file system.  Applications can, and absolutely should, use the system's native file API (POSIX) for these files.
+
+=== Folder Management ===
+
+Even a basic desktop application needs support for basic folder handling.  For example, the open document or save document interfaces in the application need to be able to let the user select a folder for the document.  Users usually want to be able to use a graphical file manager as well, which also requires support for managing folders.
+
+Folder operations are relatively simple in definition, but can be very complex in implementation.  The POSIX API is almost useless for manipulating folders.  The most basic of command-line tools, such as rm, ls, cp, and mv, spend a disproportional amount of code dealing with the ineffectiveness of the POSIX APIs for dealing with folders.
+
+POSIX cannot delete a folder unless you empty it first.  POSIX cannot move a folder (or a file) across file-system boundaries, which under the UNIX system are difficult to even know exist (/home/user/docs can be on a different file-system than /home/user/code, for example).  Basic operations that a user or file manager would want to perform, such as "copy folder," require a very large amount of work.
+
+D-VFS will simplify this.  The API will provide functinos for "move folder" and similar operations.  As with all other operations, these will be asynchronous, provide progress feedback, be cancelable, and hide implementation details.
+
+=== Change Notification ===
+
+Change notification is primarily useful to file managers.  A file manager displaying a folder might want to automatically update the display if the user saves or deletes a document from within that folder using a different application, for example.
+
+Change notification is slightly complex due to the fact that most interesting protocols that will be in use with D-VFS do not actually support change notification.  This will result in one of two scenarios: either those protocols will simply not support change notification at all, or a polling method will be put in place so that change notification is transparently supported.
+
+If change notification is simply left unsupported on most protocols, it is reasonable to expect that applications themselvs may resort to implementing their own polling method.  It is not optimal to have this code duplicated between multiple projects.  It therefor makes sense to offer a built-in polling solution that can be used with all protocols that do not have built-in change notification support.
+
+Change notification works by registering a URI to receive notifications, and potentially the types of events that the application is interested in.
+
+TODO: go into more depth here, change notification is kind of a complex beast.
+
+=== POSIX Compatibility ===
+
+Being POSIX compatible is not a goal of the core API at all.  In fact, one of the driving forces behind this project is that the POSIX API is inadequate in far too many ways.
+
+However, it should be possible to build a POSIX API on top of D-VFS.  Some of the operations may not have perfectly clean mappings to POSIX, and many of the details may be incompatible with a strict interpretation of the POSIX specification, but in general such a mapping will work "well enough."
+
+Providing this POSIX layer is not a goal of D-VFS, and any such efforts will likely occur outside the D-VFS project itself.  One of the more promising uses of such a layer would be in [http://fuse.sourceforge.net FUSE], a user-space file-system layer for the Linux kernel.
+
+=== Asynchronous Operation ===
+
+TBD
+
+=== Threads ===
+
+TBD
+
+== VFS Daemon ==
+
+The easiest and more obvious way to implement a protocol in the D-VFS library is to simply provide a shared library loaded at runtime which interacts with the protocol directly.  For example, if an app wants to access an SMB share, the application process itself would run that code that connected to the share, authenticated the user, and performed the operations.
+
+This implementation has several disadvantages.  First, for certain protocols such as FTP, connection sharing is fairly important.  FTP servers usually have a limit on the number of connections they support.  If a user has an FTP folder open in their file manager, and then wants to load a file in their word processor, and the FTP server supports only a single connection from a given user/IP, the word processor could not open the document until the user closes the file manager.  This situation is not acceptable.  By using a daemon, the file manager and word processor would marshal all operations through the daemon and that daemon can support both applications using only  a single connection to the FTP server.
+
+The second disadvantage of not using a daemon is the protection of user passwords.  If each application must have access to the user's password, that makes it very easy for a malicious piece of software or a virus to read the user's stored passwords or snoop the password as the user enters it.  With a daemon, the system can be configured in such a fashion that only the daemon can access the user's passwords, and that the daemon alone (or a helper process) asks the user for authentication.  This ensures that any random app can't just read the user's passwords, and makes it possible for systems with secure X extensions to ensure that apps can't spoof the authentication dialog and steal the user's passwords.
+
+The third advantage of a daemon is also related to security.  A well secured system will heavily restrict many apps.  This is especially true on systems using SELinux (or the equivalents on the target operating system).  The system might be configured such that the word processor can only access documents in the user's home folder and that it can't connect to the network.  (That way a virus could not infect the word processor or its macros and try to download a rootkit or something like that.)  However, this lockdown would make it impossible for D-VFS to operate if the word processor itself performed the network operations.  By using a daemon, the security contexts can be configured such that the daemon can access the network (and even then it can be restricted to which networks and protocols it can use, and which applications can connect to the daemon) resulting an overall more secure system that is still usefully functional.  Making D-VFS with technologies like SELinux is very important to the future of the system, as these technologies are expected to be major backbones of the UNIX security model in the future.
+
+A final broad advantage of a daemon is that certain features, such as change notification polling, become a lot easier when they're done in a separate process from the application itself.
+
+The main disadvantage of using a daemon is the potential speed degradation.  Two processes become involved in every operation, including transfer of data.  However, fast file operation is not very important for the D-VFS use case.  The target apps of D-VFS are far more concerned with perceived speed increases, such as those obtained with asynchronous folder listings, than they are with raw throughput or latency.  Even then, the actual degredation in throughput and latency should be well within acceptable margins, to the point of being unnoticable by users.
+
+However, it is beneficial to not force the use of a daemon.  There are some protocols where a daemon would provide no additional utility (such as the file: protocol), and there are cases where the speed degration or overhead of an additional process are just too much (such as embedded apps on a palm-device).  Desktop VFS will not require a daemon.  The protocol backends will use an interface such that an application can directly use the backend, or marshal operations through a daemon which can use the exact same backend shared object.  The administrator can then dictate whether a particular protocol should be used in-process or with the daemon.
+
+== Protocol Backends ==
+
+TBD
+
+== Discussion ==
 
 The mailing list threads which recently started this discussion are:
  * [http://lists.freedesktop.org/archives/xdg/2003-September/002322.html A virtual filesystem standard]
