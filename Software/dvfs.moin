@@ -18,7 +18,7 @@ Desktop VFS is intended to be used primarily by desktop apps like office suites 
 
 Additionally, desktop application have certain requirements in terms of implementation details and API features.
 
- * Asynchronous operation
+ * Event-based (asynchronous) API
  * Complete error reporting with user-oriented messages available
  * Monitor progress of any operation
  * Cancel any in-progress operation
@@ -28,8 +28,8 @@ Additionally, desktop application have certain requirements in terms of implemen
 
 Finally, the design should provide certain features and benefits that, while not being critical to basic operation, will increase the viability of using the system and the ease of developing against the system.
 
+ * Push/pull (synchronous) API
  * Ability to implement a POSIX-ish layer on top of the VFS for legacy-app support and quick-n-dirty porting
- * Able to marshal all file operation through a per-user daemon for enhanced security context and data flow control
  * Extensible API that makes adding new features and capabilities very easy without breaking compatibility (in either direction)
  * Easy to use API that makes development of secure and stable VFS usage very simple
 
@@ -75,15 +75,25 @@ However, it should be possible to build a POSIX API on top of D-VFS.  Some of th
 
 Providing this POSIX layer is not a goal of D-VFS, and any such efforts will likely occur outside the D-VFS project itself.  One of the more promising uses of such a layer would be in [http://fuse.sourceforge.net FUSE], a user-space file-system layer for the Linux kernel.
 
-=== Asynchronous Operation ===
+=== Event Based API ===
 
-TBD
+A GUI application is expected to remain responsive to user and system events.  If a GUI application blocked on a syscall like stat(), it would no longer be able to respond to user input events, X expose events, and so on.  Some apps also have constant work to do perform (such as animations or other processing) that must continue even while VFS operations are being performed.
 
-=== Threads ===
+An event-based API allows these applications to function as expected.  The application tells teh VFS to begin an operation, and gets a handle refering to that operation.  The VFS system then sends progress update events to the application, which can be used for GUI progress meters.  The handle can be used to cancel the operation (perhaps on user request).
 
-TBD
+=== Push/Pull API ===
+
+While the event-based API makes it easiest to build responsive, dynamic applications, an event-based API is simply harder to use that traditional file-access APIs.  An event-based API requests event handlers, callbacks, state tracking, and so on; in most popular programming languages (including C and C++) coding against such an API can be difficult.
+
+A push/pull API works differently.  The application initiates an operation and waits until its complete.  It decides when to push and pull data during a file read or save instead of having the VFS tell the application what to do with callbacks.  GUI apps can still use such a model in a way very similar to how they handle modal dialogs.  The biggest problem is that such code likely *would* be "modal" in nature, or require a more complex application in areas other than the VFS.
+
+However, there are enough applications that would work fine with a push/pull API, and the difference in ease of development against such an API is large enough, that providing this API is worth-while.
 
 == VFS Daemon ==
+
+The VFS daemon will be a per-user process that is initiated during login, or on demand if not already running.  The daemon is responsible for doing the meat of all the VSF work.
+
+=== Advantages ===
 
 The easiest and more obvious way to implement a protocol in the D-VFS library is to simply provide a shared library loaded at runtime which interacts with the protocol directly.  For example, if an app wants to access an SMB share, the application process itself would run that code that connected to the share, authenticated the user, and performed the operations.
 
@@ -93,33 +103,29 @@ The second disadvantage of not using a daemon is the protection of user password
 
 The third advantage of a daemon is also related to security.  A well secured system will heavily restrict many apps.  This is especially true on systems using SELinux (or the equivalents on the target operating system).  The system might be configured such that the word processor can only access documents in the user's home folder and that it can't connect to the network.  (That way a virus could not infect the word processor or its macros and try to download a rootkit or something like that.)  However, this lockdown would make it impossible for D-VFS to operate if the word processor itself performed the network operations.  By using a daemon, the security contexts can be configured such that the daemon can access the network (and even then it can be restricted to which networks and protocols it can use, and which applications can connect to the daemon) resulting an overall more secure system that is still usefully functional.  Making D-VFS with technologies like SELinux is very important to the future of the system, as these technologies are expected to be major backbones of the UNIX security model in the future.
 
+The fourth advantage of the daemon is that it makes it much easier to handling threading, as you don't have to worry about how threads will interact with the client application.  Threading will likely be required for certain protocols, such as handling file: (slow NFS shares) or SMB (as the libsmbclient API is braindead).
+
 A final broad advantage of a daemon is that certain features, such as change notification polling, become a lot easier when they're done in a separate process from the application itself.
+
+=== Disadvantages ===
 
 The main disadvantage of using a daemon is the potential speed degradation.  Two processes become involved in every operation, including transfer of data.  However, fast file operation is not very important for the D-VFS use case.  The target apps of D-VFS are far more concerned with perceived speed increases, such as those obtained with asynchronous folder listings, than they are with raw throughput or latency.  Even then, the actual degredation in throughput and latency should be well within acceptable margins, to the point of being unnoticable by users.
 
-However, it is beneficial to not force the use of a daemon.  There are some protocols where a daemon would provide no additional utility (such as the file: protocol), and there are cases where the speed degration or overhead of an additional process are just too much (such as embedded apps on a palm-device).  Desktop VFS will not require a daemon.  The protocol backends will use an interface such that an application can directly use the backend, or marshal operations through a daemon which can use the exact same backend shared object.  The administrator can then dictate whether a particular protocol should be used in-process or with the daemon.
+The daemon will be a required part of the implementation.  While it might seem advantageous to make the daemon optional, due to the requirement of threads for certain protocols, it would be overly complicated to make the API cleanly and easily handle backends run in-process.
 
-== Protocol Backends ==
+=== Protocol Backends ===
 
 The system will be comprised of backends which implement protocols.  A single backend may support more than one protocol.  For example, a neon backend might support both dav: and davs:, while an SFTP backend might also implement support for SCP.  It's possible that more than one backend might be installed that implements a particular protocol.
 
-The backends will provide a list of capabilities and entry points for using the backend.  A very simple model would simply provide a vtable of function pointers.  Whether a particular entry is set or not would indicate whether the capability is supported and would also provide the entry point to the backend.  It's also possible to use a more complex query interface, although complexity should be avoided wherever possible.
+The backends will provide a list of capabilities and entry points for using the backend.  A very simple model would simply provide a vtable of function pointers.  Whether a particular entry is set or not would indicate whether the capability is supported and would also provide the entry point to the backend.  It's also possible to use a more complex query interface.  This is necessary for applications to potentially alter behavior based on which capabilities a backend has - a client that can handle versioned file systems would want to grey-out menu items for versioning on a file system that doesn't support that feature, for example.
 
-Each backend will be usable by both the D-VFS library and the D-VFS daemon.  There will be no need to recode, recompile, or reinstall a backend in order to change whether it works with the library or daemon.  This reinforces the idea that the daemon is just used to marshal application requests through a single instance of each backend, providing connection sharing opportunies and enhanced security.
+The idea of using a vtable or query interface in the backends also helps ensure bidirectional interface stability.  For example, D-VFS 1.1 will have some additional features and entry points compared to D-VFS 1.0.  We want to ensure that a backend developed against 1.0 is usable with 1.1, and that a backend developed with 1.1 is usable with 1.0.  An older backend used with a newer library will simply not provide implementations of the newer capabilities, but won't lose any functionality.  A newer backend used with an older library will simply support features that the library can't use, but that shouldn't stop the backend from providing the functionality that the older library does know about.
 
-Administrators will be able to configure the usage of the backends with a simple configuration file.  The file will specify for each protocol which backend to use and whether the daemon should be used.  One possible way the file might look (and there are many possibilities; I posted a different one to the xdg mailing list, located below):
+By doing this, we make it much, much easier for third party developers to build, distribute, and support custom protocol backends.  This can be especially important for in-house development projects with oddball specialized protocols that need to be usable on a variety of machines in the organization.
 
-file file # file: protocol uses the backend prefix/lib/dvs/file.so
-http daemon:neon # http: protocol uses the backend prefix/lib/dvs/neon.so marshalled through the daemon
-https daemon:neon # same as above for https: protocol
-ftp daemon:* # ftp: protocol uses the default abckend marshalled through the daemon
-* * # all other protocols use the default backend without the daemon
+=== Threading ===
 
-The 'default' backend would be whichever backend advertised support for the protocol.  If multiple backends support the protocol, it is undefined which one is used - the configuration file primarily exists to resolve that conflict, after all.
-
-The idea of using a vtable or query interface in the backends is to ensure bidirectional interface stability.  For example, D-VFS 1.1 will have some additional features and entry points compared to D-VFS 1.0.  We want to ensure that a backend developed against 1.0 is usable with 1.1, and that a backend developed with 1.1 is usable with 1.0.  An older backend used with a newer library will simply not provide implementations of the newer capabilities, but won't lose any functionality.  A newer backend used with an older library will simply support features that the library can't use, but that shouldn't stop the backend from providing the functionality that the older library does know about.
-
-By doing this, we make it much, much easier for third party developers to build, distribute, and support custom protocol backends.  This can be especially important for in-house development projects with oddball specialized protocols.
+Threading in the daemon will be required for several protocols, such as file: or smb:, due to either limitations in the syscall interface or due to bad library API.  While I (SeanMiddleditch) was originally opposed to threading, it does seem to be a necessary evil.  Given that I hadn't previously put much thought into the threading model, input on the best model to use here would be useful.  I'm thinking that the daemon can start a thread for each session (ie connection) if the backend says that it is needed.  The daemon core should handle the threading to avoid duplicating that effort in each backend.
 
 == Licensing ==
 
