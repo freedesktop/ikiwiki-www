@@ -9,27 +9,31 @@ does not depend on the [http://www.cygwin.com Cygwin] environment.
 
 == Release Notes ==
 
-=== Xming 6.8.1.99 (2005-01-06) ===
+=== Xming 6.8.1.99 (2005-01-10) ===
 
 '''Changes'''
 
-         * Fix crash with non-nullterminated strings (Alexander Gottwald, reported by Ãyvind Harboe)
+         * Fix null-pointer dereference in winBlockHandler (Keishi Suenaga)
 
-         * !EnumDisplayMonitors is not available on Window NT4 and 95. Resolve the function dynamicly (Alexander Gottwald)
+         * Replace many occurrences of Cygwin/X to Xming and adjust the mailing list address (Alexander Gottwald)
+
+         * Fix buffer overruns in XKB code because of long TMP path (Keishi Suenaga, Alexander Gottwald)
+
+         * The 75dpi fonts have been moved to another package. See below (Alexander Gottwald)
 
 '''Download'''
 
-	 * [http://www.freedesktop.org/~ago/Xming/Xming-20050106-setup.exe Installer] (20MB) 
+	 * [http://www.freedesktop.org/~ago/Xming/Xming-20050110-setup.exe Installer] (9.0MB) 
 
-	 * [http://www.freedesktop.org/~ago/Xming/Xming-20050106.exe.bz2 Xming-20050106.exe.bz2] (1.3MB)
+	 * [http://www.freedesktop.org/~ago/Xming/Xming-20050110.exe.bz2 Xming-20050110.exe.bz2] (1.2MB)
 
-	 * [http://www.freedesktop.org/~ago/Xming/Xming-20050106.dbg.bz2 Debug symbols] (2.4MB)
+	 * [http://www.freedesktop.org/~ago/Xming/Xming-20050110.dbg.bz2 Debug symbols] (2.4MB)
 
          * Source is available from CVS.
 
 '''CVS Download'''
 {{{
-$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co -D "2005-01-06 14:30 UTC" xc
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co -D "2005-01-06 11:00 UTC" xc
 }}}            
 
 === Older releases ===
@@ -105,23 +109,23 @@ GLWIN_ENABLE_DEBUG=1 GLWIN_DUMP_PFD=1 Xming
 
 == Why ==
 
-There have been controverse discussions about the MinGW port of X11. Actually it has the same goals as the [wiki:CygwinX Cygwin/X] project: Provide an opensource xserver for windows. What are the main differences
+There have been controversial discussions about the MinGW port of X11. Actually it has the same goals as the [wiki:CygwinX Cygwin/X] project: Provide an opensource xserver for windows. What are the main differences
 
 	 * Xming does not depend on any external package while Cygwin/X is closely bound into the package structure of Cygwin.
 
-	 * Xming installs everything in one directory. It does not install files everwhere in the filesystem. This makes it easier to install and to remove. On the other hand other programs can not take advantage of the shared installation.
+	 * Xming installs everything in one directory. It does not install files everywhere in the filesystem. This makes it easier to install and to remove. On the other hand other programs can not take advantage of the shared installation.
 
-	 * Xming does not depend on cygwin1.dll. This was a major problem for standalone installations of Cygwin/X. You can not have different versions of cygwin1.dll working together. Installing our version would break Cygwin itself and other programs which depend on cygwin1.dll. So we decided to offer no standalone version of Cygwin/X. Chris Faylor statet that this could be changed, but I'm not sure if it is worth the time.
+	 * Xming does not depend on cygwin1.dll. This was a major problem for standalone installations of Cygwin/X. You can not have different versions of cygwin1.dll working together. Installing our version would break Cygwin itself and other programs which depend on cygwin1.dll. So we decided to offer no standalone version of Cygwin/X. Chris Faylor stated that this could be changed, but I'm not sure if it is worth the time.
 
 	 * Xming is only the server. I have no plans to port all the client libraries and clients. If you want a full X11 installation on windows there is Cygwin/X. Or you can use Xming together with Microsoft Services for Unix (SFU). Both provide a UNIX environment on Windows. 
 
 My view on the topic is: Use Xming if you want just the xserver for remote usage or with SFU and [http://www.colinux.org CoLinux]. If you want to use Cygwin anyway stay with Cygwin/X.
 
-== Developement ==
+== Development ==
 
 === Source ===
 
-The whole source tree can be obained from the freedesktop.org xorg CVS repository
+The whole source tree can be obtained from the freedesktop.org xorg CVS repository
 
 {{{
 $ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
