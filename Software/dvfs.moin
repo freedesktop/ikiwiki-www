@@ -127,6 +127,16 @@ By doing this, we make it much, much easier for third party developers to build,
 
 Threading in the daemon will be required for several protocols, such as file: or smb:, due to either limitations in the syscall interface or due to bad library API.  While I (SeanMiddleditch) was originally opposed to threading, it does seem to be a necessary evil.  Given that I hadn't previously put much thought into the threading model, input on the best model to use here would be useful.  I'm thinking that the daemon can start a thread for each session (ie connection) if the backend says that it is needed.  The daemon core should handle the threading to avoid duplicating that effort in each backend.
 
+=== Authentication ===
+
+The daemon will need to authenticate to most remote resources.  Authentication can take several forms, many of which require interaction with the user or an external authentication information store.
+
+Existing VFS systems put the burden of retrieving authentication information to the application that initiates the request.  However, this has several drawbacks.  The first is that it requires that the application actually include a method for handling the authentication request.  The second is that it makes it impossible to limit which applications have access to your authentication information.  If you run an untrusted application, even in a secured context (like under SELinux), you would have to type your password into a dialog owned by that application, making it possible for the app to steal that key.
+
+D-VFS should instead rely entirely on itself or a trusted helper process to do all user interaction for authentication.  Only these two trusted apps will ever access a user's passwords or other credentials.  This makes it far easier to lock down the system using SELinxu or TrustedBSD/Solaris, and can completely eliminate the possibility of a malicious or buggy application getting access to your authentication secrets.
+
+The daemon will also be responsible for determing whether a particular application is allowed to access a given share.  In a locked-down system, an administrator might decide that all trusted app may ever access files on the company CIFS server, for example.  The daemon can use various means, including SELinux contexts, to enforce these policies.
+
 == Licensing ==
 
 This is always a scary subject to approach, but it's worth mentioning in brief even at this point.  The D-VFS is intended to be of maximum utility to both users and developers.  It is important that any potentially restrictive licensing problems be avoided to ensure that the system is used by the widest range of software projects possible.  Simply following suite with D-BUS' licensing or using the MIT license (like Xorg does) is probably the best bet all around.
