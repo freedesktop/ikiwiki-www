@@ -27,6 +27,8 @@ Xgl code can be found in hw/xgl sub-directory.
 
 The following instructions should help you get Xglx running. However, it is highly experimental and with some OpenGL drivers it might not work at all. Nvidia hardware (geforce2 and later) with Nvidia's proprietary drivers have been proven to work quite well.
 
+Install packages like (on Debian and Ubuntu) xlibmesa-gl-dev xlibmesa-glu-dev xlibmesa-dev xlibmesa-gl-dev xlibmesa-glu-dev
+
 Get glitz modules from cairo CVS.
 
 {{{
@@ -35,14 +37,14 @@ CVS password: <hit return>
 $ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo co glitz glitzinfo
 
 $ pushd glitz
-$ ./autogen.sh
+$ ./autogen.sh --prefix=/opt/fdo/
 $ make
 $ sudo make install
 $ popd
 
 $ pushd glitzinfo
-$ make -f Makefile.glx
-$ ./glitzinfo
+$ PKG_CONFIG_PATH=/opt/fdo/lib/pkgconfig/ make -f Makefile.glx
+$ LD_LIBRARY_PATH=/opt/fdo/lib/ ./glitzinfo
 $ popd
 }}}
 
