@@ -1,24 +1,34 @@
 ##META:TOPICINFO{author`"HeinrichWendel" date`"1091570847" format`"1.0" version`"1.6"}%
 ##META:TOPICPARENT{name="xorg"}%
-The debrix project is for work on making the X.Org X Server use automake and friends, and may be used for X.org development that's likely to require GDB (such as new integration work like Composite merging).  It was in the debrix module of the xserver in an arch repository hosted by daniels.  You should get baz from your distribution or http://bazaar.canonical.com/ and follow the instructions below to check out the repository:
+The debrix project is for work on making the X.Org X Server use automake and friends, and may be used for X.org development that's likely to require GDB (such as new integration work like Composite merging). It's in an arch repository hosted by daniels. You should get baz from your distribution or http://bazaar.canonical.com/ and follow the instructions below to check out the repository:
 
-First, introduce yourself to arch, substituting your name/mail for mine:
+First, introduce yourself to arch, substituting your name/mail. You should need to do this if you will be committing code changes:
 {{{
 baz my-id "First M. Last <my@email.com>"
 }}}
 
+== Checking out an arch repository ==
+ 
 Tell baz about daniels's repository:
 {{{
 baz register-archive daniel@fooishbar.org http://arch.fooishbar.org/daniel@fooishbar.org
 }}}
 
-Check it out:
+Check out the debrix Xserver, and drivers:
 {{{
 baz get -A daniel@fooishbar.org debrix--devel--0.1
-cd debrix--devel--0.1
+
+'''Note:''' ''Currently only the ATI driver, keyboard, and mouse driver split from the monolithic tree work with debrix.
+
+baz get -A daniel@fooishbar.org debrix-driver-ati--devel--0.1
+baz get -A daniel@fooishbar.org debrix-input-keyboard--devel--0.1
+baz get -A daniel@fooishbar.org debrix-input-mouse--devel--0.1
+
+Change directory to the repository of your choice.
+ie, cd debrix--devel--0.1
 }}}
 
-Build, etc.  Then, when new things happen in the repo,
+Build, etc. Then, when new things happen in the repository, just run:
 {{{
 baz update
 }}}
@@ -38,7 +48,7 @@ to your /etc/hosts
 
 == How to setup a local branch ==
 
-One of the cool features of tla is that you can easily set up a local branch of the upstream archive.
+One of the cool features of baz is that you can easily set up a local branch of the upstream archive.
 To do this, it's a good idea to first mirror daniels's archive locally as described above.
 Then create you own local archive which is a bit like a local !CVS repository. When you make your archive, please please [http://wiki.gnuarch.org/moin.cgi/Signing_20Archives sign your archive with GnuPG].
 
@@ -66,15 +76,7 @@ If you want to merge in changes from the upstream branch use the star-merge comm
 baz star-merge daniel@fooishbar.org/debrix--devel--0.1
 }}}
 
-'''Note:''' ''Currently only the ATI driver, keyboard, and mouse driver split from the monolithic tree work with debrix. You can get them in the instructions below.''
-
-{{{
-To check out the drivers:
-baz get -A daniel@fooishbar.org debrix-driver-ati--devel--0.1 
-baz get -A daniel@fooishbar.org debrix-driver-mouse--devel--0.1 
-baz get -A daniel@fooishbar.org debrix-driver-keyboard--devel--0.1 
-}}}
-
 '''Note:''' ''This project needs your help. You can find out more information on the xorg''[http://xorg.freedesktop.org/wiki/XorgMailingLists MailingLists] ''The mailing list for debrix is xorg. 
 You can also help by coming on IRC to '''irc.freenode.net''', ''channel'' '''#xorg-devel''' ''to get started!''
 More info about local branches can be found in the [http://gnuarch.org/tutorial/html/elementary-branches.html#Elementary''Branches''--''Maintaining''Private''Changes tla tutorial].  The [http://gnuarch.org/tutorial/html/shared-and-public-archives.html#Shared''and''Public''Archives section on mirroring] is useful if you want to share your local branch.
+
