@@ -1,0 +1,117 @@
+##META:TOPICINFO{author`"ThomasLeonard" date`"1098362137" format`"1.0" version`"1.21"}%
+##META:TOPICPARENT{name="Home"}%
+---++!! Shared MIME Database
+
+##TOC%
+
+=== Overview ===
+
+Many programs and desktops use the MIME system to represent the types of files. Frequently, it is necessary to work out the correct MIME type for a file. This is generally done by examining the file's name or contents, and looking up the correct MIME type in a database. 
+
+For interoperability, it is useful for different programs to use the same database so that different programs agree on the type of a file, and new rules for determining the type apply to all programs. 
+
+Here you will find: 
+
+	* A specification which describes how the new system works.
+
+	* A package containing a large number of common MIME types, created by converting the existing KDE and GNOME databases to the new format and merging them together, and software for updating the database.
+
+The system allows the following types of operation: 
+
+	* A single place for applications to register information about MIME types: 
+		* A text/html file should be described as an "HTML Page" in English.
+
+	* A way for applications to extend the rules for guessing the type of a file: 
+		* Files with names matching *.html are text/html files. 
+		* Files with <html> near the start are text/html files.
+
+
+	* The system is extensible, so other specifications can define extra information that can be added to a type: 
+		* This .desktop file provides a way to view text/html files.
+
+The system does not provide a system for storing user preferences (Bob likes to view text/html files in Mozilla).
+
+=== Shared MIME database package ===
+
+The core database and the *update-mime-database* program for extending it are available from the
+[http://www.freedesktop.org/software/shared-mime-info software pages].
+
+If you have added types that should go in the common freedesktop.org base list of types, you should create an enhancement request 
+on [https://bugs.freedesktop.org/buglist.cgi?product=shared-mime-info&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED the MIME bugtracker] with your new XML file.
+
+=== Tutorials ===
+
+Application authors and users who want to extend the database should read the [:Standards/AddingMIMETutor: Adding to the database tutorial]. This explains how to add information to the database such as:
+
+	''' '''image/png* can be *edited* using the *Gimp*.
+	''' '''image/png* should be *described* in *English* as *"Portable Network Graphics file"*.
+	* Files whose *names* end in *.png* should have the type *image/png*.
+
+If you want to ''read'' the database instead (eg, to work out the MIME type of a file, or find a textual description of a type) then you should use one of the various libraries listed in the *Current implementors* section below, or read the full specification.
+
+=== Mailinglist ===
+
+Discussion of this specification should occur on [http://www.freedesktop.org/mailman/listinfo/xdg-list xdg-list].
+
+
+=== CVS ===
+
+The [:GettingInvolved: CVS] module for this spec is [http://cvs.freedesktop.org/mime/shared-mime-info/ shared-mime-info]. 
+
+=== Current status ===
+
+The specification is now quite stable and not expected to change in incompatible ways. Integration with icon themes has not been finalised (and is not currently part of the specification).
+
+	* ROX has used the system since July 2002.
+	* GTK has support since version 2.4.
+	* GNOME uses the system since version 2.8.
+	* Current XFCE developer versions support the system.
+	* KDE is planning to support it for their next major release.
+
+Current issues keeping this as 'draft' are: 
+
+	* The Desktop Base Directory Specification, which this relies on, is still a draft.
+
+=== Full specification ===
+
+	* Version 0.11 - [http://www.freedesktop.org/software/shared-mime-info/shared-mime-info-spec-0.11.html html (one page)] - [http://www.freedesktop.org/software/shared-mime-info/0.11/ html (multiple pages)] - [http://www.freedesktop.org/software/shared-mime-info/shared-mime-info-spec-0.11.xml xml]
+	* Version 0.12 - [http://www.freedesktop.org/software/shared-mime-info/shared-mime-info-spec-0.12.html html (one page)] - [http://www.freedesktop.org/software/shared-mime-info/0.12/ html (multiple pages)] - [http://www.freedesktop.org/software/shared-mime-info/shared-mime-info-spec-0.12.xml xml]
+
+	* [http://www.ecs.soton.ac.uk/~tal00r/info.html Latest version] (no one seems to know who's responsible for putting new versions on the web site, and the internal links are broken even in the old copies that are up; this link is to my copy of today's CVS version, 2004-05-11)
+
+	* [:Standards/OtherSystems: History and related systems]
+
+=== Current implementors ===
+
+	[http://cvs.freedesktop.org/mime/xdgmime/ xdgmime]: Reference implementation of the spec.  It is dual licensed under the GNU-LGPL and AFL v2.0.  It has no dependencies and is written in straight C.  It is intended to be included by other libraries that want to support the standard.
+
+	[http://www.memecode.com/libsharedmime.php libsharedmime]: Another shared library to query the database.
+
+	[http://www.gtk.org/ GTK+ file selector]: The new file selector in GTK+-2.4 uses the MIME spec to determine icons in it.
+
+	[http://rox.sourceforge.net/mime_editor.html MIME-Editor]: Graphical editor with a GTK interface, written in python.
+
+	[http://search.cpan.org/search?query=File%3A%3AMimeInfo&mode=module Perl module File::MimeInfo](CPAN): Provides a simple Perl interface to query the database.
+
+	[http://www.liacs.nl/~dvbeelen/MIME.php.txt PHP library]: Provides a simple PHP5 interface to query the database.
+
+	[http://rox.sourceforge.net/phpwiki/index.php/ROX-Lib ROX-Lib]: Provides a Python module to query the database.
+
+	[http://rox.sourceforge.net/phpwiki/index.php/ROX-Filer ROX-Filer]: Graphical file manager which uses the database to match filenames and provide textual descriptions for each type.
+
+	[http://www.gnome.org/ gnome-vfs]: The GNOME VFS library provides mime information to all GNOME applications.
+
+	[http://code-monkey.de/?mime_info_rb Ruby library]: A Ruby module to query the database.
+
+=== Links to other specifications ===
+
+	[:Standards/basedir-spec: Base directory specification]: This is used to locate the MIME database. It lets the user override the system settings, and the system settings override the distribution settings.
+
+	[:Standards/mime-actions-spec: MIME actions specification]: This specification describes how applications should be associated with MIME types. This covers both recording that an application is capable of opening files of a particular type, and configuring which application should be the default.
+
+	[:Standards/desktop-entry-spec: Desktop entry specification]: There needs to be a way to indicate which applications can handle a file of a particular type. In the future, this will probably take the form of a link to a .desktop file, as shown in the tutorial above.
+
+	[:Standards/icon-theme-spec: Icon theme specification]: This can be used to locate an icon to represent a given MIME type. The icon name is of the form *mime-media:subtype* (for example: *mime-text:plain*). If no specific icon is found, fallback to *mime-media* (eg, *mime-text*). Note that there is an older (GNOME-specific) set of icon names. These do not correspond to the MIME names used in this new database, although they may be useful as a fallback. See the [http://thread.gmane.org/gmane.linux.xdg.devel/669 Mime Icons and weak aliases thread] for the discussion leading to this. However, the colon character has been reported to cause problems for users of Windows and !MacOS X systems.
+
+##META:FILEATTACHMENT{name`"shared-mime-info-spec-0.11.xml" attr`"h" comment`"" date`"1063630925" path`"shared-mime-info-spec-0.11.xml" size`"35292" user`"HeinrichWendel" version`"1.1"}%
+##META:FILEATTACHMENT{name`"shared-mime-info-spec-0.12.xml" attr`"h" comment`"" date`"1063630935" path`"shared-mime-info-spec-0.12.xml" size`"36094" user`"HeinrichWendel" version`"1.1"}%
