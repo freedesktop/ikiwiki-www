@@ -35,7 +35,7 @@ does not depend on the [http://www.cygwin.com Cygwin] environment.
 
 === Xming 6.8.1.99 (2004-11-15) ===
 
-Some features have been added (and the .exe.bz2 download contains some fixes not in the Installer exe)
+Some features have been added
 
 '''New features'''
 
@@ -75,6 +75,32 @@ for productive use.
 == Troubleshooting ==
 
 Because Xming and [wiki:CygwinX Cygwin/X] are very common many solutions from the [wiki:CygwinXTroubleShooting Cygwin/X Troubleshooting] page apply to Xming too.
+
+=== Fonts ===
+
+You want to add new fonts? Fine. Copy them into the fonts/TTF directory and run [http://www.freedesktop.org/~ago/Xming/mkfontscale.exe mkfontscale] to create the font liating fonts.dir.
+
+{{{
+cd c:\Program Files\Xming\fonts
+mkfontscale TTF
+mkfontscale -b -s -l TTF
+}}}
+
+From 2004-11-24 mkfontscale will be included in the installer. For older versions download it from [http://www.freedesktop.org/~ago/Xming/mkfontscale.exe here] and place it in the fonts directory.
+
+You want to add another directory? Fine do the same as above. But you'll have to tell Xming to use the path. Start it
+like this:
+
+{{{
+Xming -fp "C:/Program Files/Xming/fonts/misc/,C:/Program Files/Xming/fonts/TTF/,C:/Program Files/Xming/fonts/Type1/,C:/Program Files/Xming/fonts/CID/,C:/Program Files/Xming/fonts/75dpi/,C:/Program Files/Xming/fonts/100dpi/:C:/Program Files/Xming/fonts/windows" -multiwindow -clipboard
+}}}
+
+or add the path during runtime
+
+{{{
+xset fp+ "C:/Program Files/Xming/fonts/windows"
+}}}
+
 
 === OpenGL ===
 
@@ -178,6 +204,6 @@ Until a mailinglist is setup for Xming I've hijacked [mailto:win32-x11@sources.r
 
 === Support Development ===
 
-If you think Xming is a useful tool and want to encourage further development then you can send a [http://www-user.tu-chemnitz.de/~goal/xfree/donations.html donation] via PayPal.
+If you think Xming is a useful tool and want to encourage further development then you can send a [http://www-user.tu-chemnitz.de/~goal/xfree/donations.html donation] via !PayPal.
 
 -- AlexanderGottwald 2004 Nov 22
