@@ -1,0 +1,69 @@
+##META:TOPICINFO{author`"HeinrichWendel" date`"1091570847" format`"1.0" version`"1.6"}%
+##META:TOPICPARENT{name="xorg"}%
+The debrix project is for work on making the X.Org X Server use automake and friends, and may be used for X.org development that's likely to require GDB (such as new integration work like Composite merging).  It was in the debrix module of the xserver in an arch repository hosted by daniels.  You should get baz from your distribution or http://bazaar.canonical.com/ and follow the instructions below to check out the repository:
+
+First, introduce yourself to arch, substituting your name/mail for mine:
+{{{
+baz my-id "First M. Last <my@email.com>"
+}}}
+
+Tell baz about daniels's repository:
+{{{
+baz register-archive daniel@fooishbar.org--2004 http://arch.fooishbar.org/daniel@fooishbar.org--2004
+}}}
+
+Check it out:
+{{{
+baz get -A daniel@fooishbar.org--2004 debrix--devel--0.1
+cd debrix--devel--0.1
+}}}
+
+Build, etc.  Then, when new things happen in the repo,
+{{{
+baz update
+}}}
+
+You may want to make a mirror of daniels's repository, so you can look through revisions while you're on the plane.  If so, then do the following.
+{{{
+baz register-archive --delete daniel@fooishbar.org--2004
+baz register-archive daniel@fooishbar.org--2004-SOURCE http://arch.fooishbar.org/daniel@fooishbar.org--2004
+baz make-archive --mirror-from daniel@fooishbar.org--2004-SOURCE /home/anholt/tla-archives
+baz archive-mirror daniel@fooishbar.org--2004
+baz get -A daniel@fooishbar.org--2004 debrix--devel--0.1
+}}}
+
+If you get "webdav error: Could not resolve hostname `arch.fooishbar.org': Host not found" add line
+195.54.228.42  arch.fooishbar.org
+to your /etc/hosts
+
+== How to setup a local branch ==
+
+One of the cool features of tla is that you can easily set up a local branch of the upstream archive.
+To do this, it's a good idea to first mirror daniels's archive locally as described above.
+Then create you own local archive which is a bit like a local !CVS repository. When you make your archive, please please [http://wiki.gnuarch.org/moin.cgi/Signing_20Archives sign your archive with GnuPG].
+
+{{{
+baz make-archive krh@freedesktop.org--2004 /home/krh/archives/2004
+baz my-default-archive krh@freedesktop.org--2004
+}}}
+
+Now create a branch in your local archive and tag the upstream branch into that:
+
+{{{
+baz archive-setup debrix--krh--0.1
+baz tag daniel@fooishbar--2004/debrix--devel--0.1 debrix--krh--0.1
+}}}
+
+At this point you can check out your local branch and start hacking
+
+{{{
+baz get debrix--krh--0.1 mydebrix
+}}}
+
+If you want to merge in changes from the upstream branch use the star-merge command from the mydebrix directory:
+
+{{{
+baz star-merge daniel@fooishbar.org--2004/debrix--devel--0.1
+}}}
+
+More info about local branches can be found in the [http://gnuarch.org/tutorial/html/elementary-branches.html#Elementary''Branches''--''Maintaining''Private''Changes tla tutorial].  The [http://gnuarch.org/tutorial/html/shared-and-public-archives.html#Shared''and''Public''Archives section on mirroring] is useful if you want to share your local branch.
