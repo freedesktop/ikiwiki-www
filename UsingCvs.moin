@@ -1,0 +1,26 @@
+##META:TOPICINFO{author`"MurrayCumming" date`"1082294136" format`"1.0" version`"1.2"}%
+##META:TOPICPARENT{name="MurrayCumming"}%
+= Using anonymous CVS =
+
+{{{
+cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/<project> login
+cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/<project> co <module>
+}}}
+
+= Using developer CVS =
+
+	* Get a username:
+		* Ask the project maintainer to create a username for you. Send:
+			* Your preferred username.
+			* Your ssh public key. This key is the contents of your $HOME/.ssh/ida_dsa.pub file. You can generate this file with "ssh-keygen -t dsa". It's a good idea to enter a passphrase when ssh-keygen asks.
+
+	* Using your username.
+		{{{export CVS_RSH=ssh
+export CVSROOT=:ext:<developer>@cvs.freedesktop.org:/cvs/<project>
+cvs -z3 co <module>}}}
+		* If you specified a passphrase when running ssh-keygen, then you must enter that passphrase now.
+
+	* Using your username from a different account (I think this should work, MurrayCumming):
+		* Take the second public ssh key from the other .ssh/ida_dsa.pub file.
+		* ssh into your freedesktop.org shell acount. For instance, {{{ssh developername@dbus.freedesktop.org}}}
+		* Add the second public ssh key to your $HOME/.ssh/authorized_keys file.
