@@ -4,7 +4,7 @@ Desktop VFS aims to provide a system allowing desktop-oriented applications, suc
 
 D-VFS is not oriented towards general purpose usage.  The design goal is specifically desktop applications and their needs.  The project is not an attempt to build a low-level system-wide VFS (see [http://fuse.sourceforge.net FUSE]) but instead is an attempt to establish an API based on the operations desktop application wish to perform.  For example, instead of building on the POSIX API, the D-VFS API will be based on operations like "save whole document," "read whole document," "list files in folder," and so on.
 
-D-VFS is in the first stages of design. The requirements and api are being fleshed out at this location.  Adding your comments to the design of D-VFS is very simple.  First, get a freedesktop [Login login].  Second, edit this page by hitting the [[Icon(edit)]] icon.  Once you have edited this page, you will be signed up for email notifications of any future edits on this page.
+D-VFS is in the first stages of design. The requirements and api are being fleshed out at this location.  Adding your comments to the design of D-VFS is very simple.  First, get a freedesktop [wiki:UserPreferences login].  Second, edit this page by hitting the [[Icon(edit)]] icon.  Once you have edited this page, you will be signed up for email notifications of any future edits on this page.
 
 == Design ==
 
@@ -42,7 +42,7 @@ Simply stating that we have certain goals is useless without explaining why we h
 
 Traditional file APIs, such as POSIX, are based on a concept of reading and writing bytes.  When you develop an application that reads a file with these APIs, your application is not truly written around the concept of reading the file; instead, it's written around the concept of reading chunks of bytes.  The same goes for writing files.  Additionally, these interfaces are very complex to use.  Operations can be interrupted in the middle of their work, resulting in syscalls that can do only half of what you asked them to do.  The random-access nature of the file system also results in a lot of complication in the entire design of the system.
 
-While these APIs are very useful to certain classes of applications - database apps, for example - they are often far more complicated and detailed than your average desktop application needs.  A desktop application saves and loads files.  That is pretty much it.  Your word processor loads a document, then saves it.  Your text editor does the same.  Your email client might save copies of message or attachments.  Your web browser saves downloads.  These types of applications save and load whole files as their basic file-level operation.  Making these two operations as easy and efficient as possible will result in an API that is ideal for desktop-appliaction usage.
+While these APIs are very useful to certain classes of applications - database apps, for example - they are often far more complicated and detailed than your average desktop application needs.  A desktop application saves and loads files.  That is pretty much it.  Your word processor loads a document, then saves it.  Your text editor does the same.  Your email client might save copies of message or attachments.  Your web browser saves downloads.  These types of applications save and load whole files as their basic file-level operation.  Making these two operations as easy and efficient as possible will result in an API that is ideal for desktop-application usage.
 
 It is noted that desktop apps often do access files besides the user's documents.  Your word processor might save configuration files, for example, or a recently-used files list, and so on.  The Desktop VFS is ''not'' designed for these files.  Those files are typically stored in the user's home folder in a dot-directory.  That is a local file system.  Applications can, and absolutely should, use the system's native file API (POSIX) for these files.
 
@@ -54,7 +54,7 @@ Folder operations are relatively simple in definition, but can be very complex i
 
 POSIX cannot delete a folder unless you empty it first.  POSIX cannot move a folder (or a file) across file-system boundaries, which under the UNIX system are difficult to even know exist (/home/user/docs can be on a different file-system than /home/user/code, for example).  Basic operations that a user or file manager would want to perform, such as "copy folder," require a very large amount of work.
 
-D-VFS will simplify this.  The API will provide functinos for "move folder" and similar operations.  As with all other operations, these will be asynchronous, provide progress feedback, be cancelable, and hide implementation details.
+D-VFS will simplify this.  The API will provide functions for "move folder" and similar operations.  As with all other operations, these will be asynchronous, provide progress feedback, be cancelable, and hide implementation details.
 
 === Change Notification ===
 
@@ -62,7 +62,7 @@ Change notification is primarily useful to file managers.  A file manager displa
 
 Change notification is slightly complex due to the fact that most interesting protocols that will be in use with D-VFS do not actually support change notification.  This will result in one of two scenarios: either those protocols will simply not support change notification at all, or a polling method will be put in place so that change notification is transparently supported.
 
-If change notification is simply left unsupported on most protocols, it is reasonable to expect that applications themselvs may resort to implementing their own polling method.  It is not optimal to have this code duplicated between multiple projects.  It therefor makes sense to offer a built-in polling solution that can be used with all protocols that do not have built-in change notification support.
+If change notification is simply left unsupported on most protocols, it is reasonable to expect that applications may resort to implementing their own polling method.  It is not optimal to have this code duplicated between multiple projects.  It therefore makes sense to offer a built-in polling solution that can be used with all protocols that do not have built-in change notification support.
 
 Change notification works by registering a URI to receive notifications, and potentially the types of events that the application is interested in.
 
@@ -80,7 +80,7 @@ Providing this POSIX layer is not a goal of D-VFS, and any such efforts will lik
 
 A GUI application is expected to remain responsive to user and system events.  If a GUI application blocked on a syscall like stat(), it would no longer be able to respond to user input events, X expose events, and so on.  Some apps also have constant work to do perform (such as animations or other processing) that must continue even while VFS operations are being performed.
 
-An event-based API allows these applications to function as expected.  The application tells teh VFS to begin an operation, and gets a handle refering to that operation.  The VFS system then sends progress update events to the application, which can be used for GUI progress meters.  The handle can be used to cancel the operation (perhaps on user request).
+An event-based API allows these applications to function as expected.  The application tells the VFS to begin an operation, and gets a handle referring to that operation.  The VFS system then sends progress update events to the application, which can be used for GUI progress meters.  The handle can be used to cancel the operation (perhaps on user request).
 
 === Push/Pull API ===
 
@@ -91,13 +91,13 @@ A push/pull API works differently.  The application initiates an operation and w
 However, there are enough applications that would work fine with a push/pull API, and the difference in ease of development against such an API is large enough, that providing this API is worth-while.
 
 === Partial content retrieving and seeking API ===
-While event-based- and a Push/Pull API's probably cover most cases of I/O operations, the vfs also supports (will support) both synchrone and asynchrone partial content retrieving and seeking of resources.
+While event-based- and a Push/Pull API's probably cover most cases of I/O operations, the vfs also supports (will support) both synchronous and asynchronous partial content retrieving and seeking of resources.
 
-Imagine when a "filetype-displayer" wants to display a very large file originating from a slow source. For such cases it's not always desired to read the entire content of the file, and then only display a small portion of it to the user. Therefor the vfs can be asked to seek a resource to a specific location. And to retrieve a certain amount of data from the current location in the resource. For sources who don't support seeking (lot's of network-sources don't). The behaviour can often be emulated.
+Imagine when a "filetype-displayer" wants to display a very large file originating from a slow source. For such cases it's not always desired to read the entire content of the file, and then only display a small portion of it to the user. Therefore the vfs can be asked to seek a resource to a specific location. And to retrieve a certain amount of data from the current location in the resource. For sources who don't support seeking (lot's of network-sources don't). The behaviour can often be emulated.
 
 We are thinking about whether it would be beneficial to introduce caching data that has already been retrieved.
 
-Using the plain asynchronous interface asynchrone partial content retrieving can be used for resources that support streaming. The API can be told to start retrieving content, and while it's retrieving content an event launches each time a certain amount of data became available.
+Using the plain asynchronous interface, asynchronous partial content retrieving can be used for resources that support streaming. The API can be told to start retrieving content, and while it's retrieving content an event launches each time a certain amount of data became available.
 
 === Locking ===
 
@@ -107,7 +107,7 @@ Some possible uses for locking are: atomic writes, avoiding concurrent edits, wr
 
 Current thinking: Atomic writes should be the default on every system that can support it.  Applications should be able to check if the protocol in question can (and thus will) do an atomic write, or if the feature cannot be supported on the protocol.
 
-Write when not modified is another form of atomic write that additionally checks the file's modification time and returns an error if the time is newer than a particular timestamp (that being the time the file was last opened/saved by the application); this helps to avoid two sequential writes from different apps/users getting clobbered.  Doing this reliably requires either actual locking of the document, or that the protocol explicitly support this very operation in an atomic manner (I don't know of any that do; maybe DAV does?).  Would it be better to add yet another "begin write" function that additionally does the timestamp comparison, adding a second "lock file" function that does the timestamp comparison, or not providing any function that does this automatically but instead makign the app manually do the lock-and-check?  (The first two lead towards API bloat.)
+Write when not modified is another form of atomic write that additionally checks the file's modification time and returns an error if the time is newer than a particular timestamp (that being the time the file was last opened/saved by the application); this helps to avoid two sequential writes from different apps/users getting clobbered.  Doing this reliably requires either actual locking of the document, or that the protocol explicitly support this very operation in an atomic manner (I don't know of any that do; maybe DAV does?).  Would it be better to add yet another "begin write" function that additionally does the timestamp comparison, adding a second "lock file" function that does the timestamp comparison, or not providing any function that does this automatically but instead making the app manually do the lock-and-check?  (The first two lead towards API bloat.)
 
 Explicit locking is also not supported on many protocols, but is supported on enough that it makes sense to include if apps need it.  Since there's no other way to implement a feature to avoid concurrent edits, this seems to be required.  Should we use read/write locks, complete locks, byte range locks, etc?  Where's the line between "it's possible on some protocols" and "we actually really need this?"
 
@@ -131,7 +131,7 @@ A final broad advantage of a daemon is that certain features, such as change not
 
 === Disadvantages ===
 
-The main disadvantage of using a daemon is the potential speed degradation.  Two processes become involved in every operation, including transfer of data.  However, fast file operation is not very important for the D-VFS use case.  The target apps of D-VFS are far more concerned with perceived speed increases, such as those obtained with asynchronous folder listings, than they are with raw throughput or latency.  Even then, the actual degredation in throughput and latency should be well within acceptable margins, to the point of being unnoticable by users.
+The main disadvantage of using a daemon is the potential speed degradation.  Two processes become involved in every operation, including transfer of data.  However, fast file operation is not very important for the D-VFS use case.  The target apps of D-VFS are far more concerned with perceived speed increases, such as those obtained with asynchronous folder listings, than they are with raw throughput or latency.  Even then, the actual degradation in throughput and latency should be well within acceptable margins, to the point of being unnoticable by users.
 
 The daemon will be a required part of the implementation.  While it might seem advantageous to make the daemon optional, due to the requirement of threads for certain protocols, it would be overly complicated to make the API cleanly and easily handle backends run in-process.
 
@@ -159,7 +159,7 @@ Existing VFS systems put the burden of retrieving authentication information to 
 
 D-VFS should instead rely entirely on itself or a trusted helper process to do all user interaction for authentication.  Only these two trusted apps will ever access a user's passwords or other credentials.  This makes it far easier to lock down the system using SELinxu or TrustedBSD/Solaris, and can completely eliminate the possibility of a malicious or buggy application getting access to your authentication secrets.
 
-The daemon will also be responsible for determing whether a particular application is allowed to access a given share.  In a locked-down system, an administrator might decide that all trusted app may ever access files on the company CIFS server, for example.  The daemon can use various means, including SELinux contexts, to enforce these policies.
+The daemon will also be responsible for determining whether a particular application is allowed to access a given share.  In a locked-down system, an administrator might decide that all trusted app may ever access files on the company CIFS server, for example.  The daemon can use various means, including SELinux contexts, to enforce these policies.
 
 == Licensing ==
 
