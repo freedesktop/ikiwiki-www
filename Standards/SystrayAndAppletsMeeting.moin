@@ -2,6 +2,8 @@ Notes from the Systray and Panel Applets meeting:
 
  * Just for minimizing is the wrong approach - use the taskbar
  * What should (and shouldn't) be the systray?
+        * This is made more difficult to control because of the literal representation of a system tray item as an actual icon.
+        * having a "systray" that is really nothing more than information published on an IPC bus would make splitting up the functions into the taskbar, the systray or other presentation mechanisms a matter of policy defined by the host application rather than by the application publishing the system tray item/icon. this allows greater flexibility today and in the future by not tieing ourselves down to a specific interpretation of how it should look and how the user should be allowed to interact with it, but by simply defining the actual information that needs to be presented and communicated between the host application (e.g. the desktop panel) and the application associated with the systray entry.
  * Provide a menu like the OS X dock in the taskbar
  * Current uses:
         * minimization (bad?)
@@ -15,7 +17,8 @@ Notes from the Systray and Panel Applets meeting:
  * cross desktop applications needs to be fixed
  * notifications need to be fixed?
 
- * strip current spec down to Windows API at most, and promote panel applets instead
+ * redefine the current spec to be more purposeful and focused, and promote panel applets instead
+        * a better design than the current OOP icons via XEmbed is needed for the various reasons noted at http://aseigo.bddf.ca/?pID=1092 (and probably other reasons too =)
 
  * how to make cross-platform applets
         * Add applet menu
@@ -44,3 +47,11 @@ Notes from the Systray and Panel Applets meeting:
         * Saving config
                 * sometimes deleting an applet should delete config, sometimes it should not
         * Middle-click move?
+                * shouldn't interaction policies be up to the host application? -AJS
+
+ * Breaking Up the Systray into the Taskbar and Individual Applets
+
+        * the systray is a well-known concept to users and developers, and one that isn't completely broken if done properly
+        * the taskbar should be for management of windows, not all items in the systray map cleanly to windows. if we simply add systray icons to the taskbar when no window for it exists, we start to confuse the purpose of the taskbar which leads to a confusing and unclear (read: not usable) interface for users. the MacOS X dock is rife with these issues, and users tend to struggle with it because of that.
+        * the taskbar currently has flexibility that remove the guarnatee that you can always see these icons/menus (such as "only show windows on the current desktop" or "show only minimized windows"). so we either limit the taskbar, or we lose one of the benefits of the systray: constant and universal visibility. trying to present two separate concepts in the same gui leads to making both less expressive.
+        * moving the systray into individual applets means, really, just making little individual systrays. systrays with one icon each, if you will.
