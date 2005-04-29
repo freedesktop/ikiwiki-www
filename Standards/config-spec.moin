@@ -7,7 +7,10 @@ All desktops currently have their own configuration systems. They should be unif
 	* Settings can easily be shared.
 	* The [[xsettings-spec][XSettings]] system can be replaced (it is too limited, because only one application can change the settings).
 	* Notification of changes is sent to all interested applications.
+	* Importing/Exporting Configuration
+	* Looking up Configuration of System or other Applications
 	* Users know where their settings are saved, without having to care about which desktop an application is affiliated to.
+
 
 == Requirements ==
 
@@ -54,7 +57,7 @@ Change notification could be done using [[Software.dbus][D-BUS]].
 	[[Software.CFG][Config4GNU]]: An abstraction layer over many different config file syntaxes (.ini files, fstab, apache, etc). For example to an editor all config files are presented as a XML structure with comments available options and defaults. This is mainly intended for system-level configuration, rather than for user settings. It doesn't not handle notification of changes. Several interfaces to access the complete configuration tree exist, yet the applications themselves are not required to switch to them.
 	A special feature is that the semantic meta-data (options, types, assumed defaults and even wizard logic etc.) for applications are kept as separate description textfiles and thus can be updated together with the app (idealy even kept in sync in cvs)  without the need to update or recompile Config4GNU or any frontends.
 
-	[http://elektra.sourceforge.net/ Elektra Project]: Previously known as the [http://registry.sourceforge.net/ Linux Registry]. "Elektra provides a sigle unified system-wide namespace to represent keys, and a clean API to access it, with many language bindings." Elektra stores every (key, value) pair in a separate file in the filesystem. On most filesystems, this is very inefficient, although systems such as reiserfs support it well. It also makes accessing the keys slow if many values need to be read (which is typically the case when an application starts, and especially at boot time when it causes many disc seeks). The registry does not support, locking, networking or cascading, all of which are required for a desktop registry.
+	[http://elektra.sourceforge.net/ Elektra Project]: "Elektra provides a sigle unified system-wide namespace to represent keys, and a clean API to access it, with many language bindings and some backends." Elektra uses backends to store every (key, value) pair. That can be a separate file in the filesystem, ini-style like, berkleydb or everything else. If locking, networking or cascading is supported is decided by the backend. There is no backend available now for networking. There are no dependencies (except of libc) of the core library. The backends may add dependency (like berkleydb, gconf).
 
 	[http://freax.be/wiki/index.php/Temporary_location_for_D-Conf_specs D-Conf]: Wiki page with more plans for freedesktop.org config system.
 
