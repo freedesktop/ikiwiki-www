@@ -1,0 +1,42 @@
+= Help System =
+== Locating Help Files ==
+=== GNOME ===
+Currently, Gnome uses ScrollKeeper to install, register, and
+locate help files.  Packages install OMF files along with
+their documentation and call scrollkeeper-install to register
+them with the system.
+
+Many other systems also use a separate metadata file, and
+this approach tends to work well.  We need to decide on a
+metadata file format (probably .desktop files), where they
+are to be installed, and whether or not we need to call any
+installation scripts.
+
+=== TheGIMP ===
+The helpbrowser in GIMP uses an xml mapping file provided by the documentation package. Each language has his own XML mapping file, which is generated beside the generation of the HTML pages for the helpbrowser. A line in a mapping file looks like the following example:
+{{{<help-item id="introduction" ref="ch01.html" title="Introduction"/>}}}
+The mapping maps each unique id to a HTML file. The actual language dependend content is distinguished by the language variable set in the system.
+
+== Identifying Help Files ==
+
+Documents need to have a unique identifier.  For instance,
+the German and English translations of a document need to
+be identifiable as the same document, so that only one is
+presented to the user.  Furthermore, document identifiers
+are necessary for invoking particular help files, either
+from applications, or from hyperlinks in other help files.
+
+Here are a number of proposals for identifiers:
+
+ * Functional namespacing:
+   All applications manuals would have identifiers such
+   as app.*appname*.*docname*.  Other manuals would live
+   in top-level namespaces such as desktop or system.
+ * Reverse-DNS namespacing:
+   Identifiers would begin with the reverse domain name
+   of the group that produced the document.  So the Gnome
+   User Guide might be org.gnome.user-guide.
+ * Canonical URIs:
+   Identifiers would simply be the URI of a canonical
+   location of the document.  The Gnome User Guide would
+   be identified by http://www.gnome.org/learn/users-guide/
