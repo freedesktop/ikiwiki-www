@@ -47,3 +47,13 @@ Finally, perhaps we can come up with some sort of database of information about 
 ChrisLahey
 
 ----
+
+I like the idea of having a help: URI namespace.  We should really use the XDG data dirs standard for this.  We should map <help:/path/to/file.ext> to <$XDG_DATA_DIRS/help/$lang/path/to/file.ext>.  I'm totally fine with namespacing the path/to/file.ext with the project name, for example.  Having all gnome docs be in <help:/gnome/> would be 100% fine with me.  We could also have a <help:/common/> section for css and stuff like that.
+
+As far as pages inside a file, I'm fairly happy with the behavior that KDE has.  <help:/path/to/file.ext> first checks for the given file.  It then looks in the same directory for a file called index.docbook and sees if processing that file gives the file being looked for and uses that output if it does.  This file isn't generated, but is stored in a cache index.cache.bz2 (that can be shipped so that it uses the cache on the first viewing.)
+
+One of the advantages of using XDG_DATA_DIRS is that we get the ability for user installed apps to have help very easily.  The user can also do things like put a file in $XDG_DATA_HOME/help/common/default.css to change their stylesheet for accessibility or style reasons.
+
+ChrisLahey
+
+----
