@@ -19,3 +19,31 @@ The first issue I think of is the fact that a single docbook file often maps to 
 ChrisLahey
 
 ----
+
+I've thought of three possibilities for local cache mapping.  Let's call them methods 1, 2, and 3.
+
+Methods 1 and 2 have in common that they're an arbitrary mapping from URL to filename.  Method 1 is to have a database mapping the information and method 2 is to have individual files (probably .desktop file format) each one describing a single document.  With method 2, you can have a database with a cache of all the information, but it's not the cononical source.
+
+For packaging purposes, method 2 is very clearly preferred to method 1.  It's much easier for a distro to install an extra file than to modify a file that's already there.  This is the reason, for example, that the menu spec allows you to search a directory and add any menu files found to the current menu.
+
+Method 3 is to have a specified mapping from URL to file name.  For example, http://www.clahey.net/docs/present.html might map to /usr/share/docs/www.clahey.net/docs/present.html with a backup to look for present.docbook or something like that.
+
+Of these 3, my favorite is method 2.  However, I don't actually like any of them.  I don't want a local cache mapping.
+
+First, it has the conceptual problem that a URL is variable whereas the docs on a particular distro are not.  Or at the very least, they're variable in different dimensions.
+
+For example, if a distro makes changes to a program that lead to changes in documentation, that particular version of the doc is different from the one at the "cononical" source.  Theoretically, you could put the docs in a different place, but there could be links all over the place to those docs.  For instance, if docs for another program refer to docs for this program, when the user clicks on that link, you want them to get the docs for the version of the program that they will run, not the docs for some theoretical upstream version.
+
+Whereas online docs change in a different dimension, that of time.  Say someone is using the upstream version of a program.  They want the docs for their version, not the ones for the latest version.  However, the link is to the online version which is going to be the latest version.  Yes, it's going to try to map to the local copy, but which is the correct version of the document?
+
+The reason using online mappings like this works for DTDs is that they're defining something which isn't nearly as variable.  Yes, the language described by the DTD changes over time, but you'll also note that the URL changes when the DTD does, and the documents described by the old DTD still point to the old URL as they should.
+
+That makes sense because DTDs are about describing the type of the current document.  But that's not what links in help docs are for.  They're for referring to other help, which should change, even if the referencing document doesn't.  Having versioned URLs for the help means a huge maintenance pain keeping the links up to date.
+
+Local cache mapping is also a problem if a project doesn't have a web space of their own.  Or say that the web space is small and won't handle high bandwidth.  No matter whether we put the cache in or not, people will sometimes link to it.  Or say that the web space is some awful URL.  All in all, it seems like an odd requirement to have a web space to be able to link to your docs.
+
+Finally, perhaps we can come up with some sort of database of information about where the cononical docs are kept and include that in the docs themselves.  Perhaps in some metadata.  That way we make the cononical version an optional thing instead of a requirement that doesn't really make sense anyway.
+
+ChrisLahey
+
+----
