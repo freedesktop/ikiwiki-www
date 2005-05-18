@@ -5,3 +5,17 @@ Don't forget to sign your entries with your wiki name and to split entries.
 ChrisLahey
 
 ----
+
+There's a number of possibilities for how we find help files.  This is all about coming up with a mapping from URIs to file names.
+
+The first question is what we use for URIs.  There're basically two possibilities here.  The first is to use https URLs that resolve to actual files on the internet.  We then create some sort of local mapping to find those files on the local box.  Let's call this local cache mapping.
+
+The second possibility is to have a specific URI domain that things map to.  For example, we could map help:gnumeric/gnumeric.xml to $XDG_DATA_DIRS/help/C/gnumeric/gnumeric.xml (using the XDG base directory spec.)  Of course, the app would look under different languages based on what locale the user was in.  A variation on this is what KDE uses.
+
+There are a number of issues that have to be dealt with in both cases, as well as issues specific to one method or the other.
+
+The first issue I think of is the fact that a single docbook file often maps to multiple pages of data.  This is the case in how help is displayed in both Gnome and KDE.  I'm not sure how yelp solves this problem, but khelpcenter, if it can't find the given url, searches the directory given for an index.docbook file and uses that to generate the required html file.  It saves this information to a cache file and just loads from that cache file if it exists.  This solution works quite well.
+
+ChrisLahey
+
+----
