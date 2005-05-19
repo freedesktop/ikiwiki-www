@@ -57,3 +57,21 @@ One of the advantages of using XDG_DATA_DIRS is that we get the ability for user
 ChrisLahey
 
 ----
+
+The next problem we need to solve is the table of contents of help (TOC).
+
+KDE's solution is to use the menu system and just put a reference to the help in the desktop files.  This has the advantage that the help is arranged in the same way as the menus, so if the user knows how to find the app, they can find the help for it.
+
+KDE has the menu system as a subdirectory and keeps some other docs in a different hierarchy, but this is overly complicated.  Instead, the help TOC should be a .menu file of its own with the main menu file as a subdirectory.
+
+One of the things that can be done is to match other elements of the menu system in the TOC.  For instance, if a DE adds recently used apps to the menus, those apps can have a special section in the help TOC.
+
+Gnome uses scrollkeeper.  One thing to note about scrollkeeper is that it requires keeping a database which takes up a bit of time every time we install.  This also allows for the categories of help to be completely distinct from the applications themselves.  This is a problem, since repeating the structure of the menus here means that the user only has to learn one location for a particular app.  It would be possible to do the same thing with scrollkeeper, but it would add a whole lot of maintenance work to keep the two structures in sync.
+
+The one thing I'm not sure how to handle is an app with multiple help files, or even an extendable set of help files.
+
+For multiple help files, I suppose you could just list them all in the desktop file, but an extendable set of help files creates problems.  The example I'm thinking of here is control center.  In Novell's Gnome, control center is a single app, but the docs for it are split up into a bunch of bits.  Does anyone have any suggestions for this problem?
+
+ChrisLahey
+
+----
