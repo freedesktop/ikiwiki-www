@@ -3,6 +3,24 @@
 
 If you have ideas you want to suggest but don't want to edit this main document, please go to the [wiki:/Discussion Discussion Page].
 
+== clahey's suggested standard ==
+
+There are a few sections to this standard.  The first is a method for finding a file on the file system given a help uri.
+
+The list of languages to search for is decided by the environment.  Applications MUST set a list of languages.  Applications SHOULD set the list of languages as locale, locale truncated to 2 characters, en_US, en.  If the environment has a list of preferred languages, applications MAY use that list, with en appended to the end, or some similar scheme.
+
+Given a uri starting with help:, split it into 2 parts.  The first part is the path, the second is the filename.  We'll call these $path and $filename.  $filename may be empty if the uri ends with a /.  If so, set $filename to index.html.
+
+FIXME: How do we detect a path to a directory if the uri doesn't end in a /?  We'd rather not require the / at the end.
+
+First we search for the file to exist on the file system itself.  In language order, we search for $XDG_DATA_DIRS/help/$lang/$path/$filename.  Search $XDG_DATA_DIRS for each language in turn.  I.e., assuming standard $XDG_DATA_DIRS and a non en language, /usr/share/help/locale/$path/$filename takes precedence over $HOME/.share/help/en/$path/$filename.
+
+If the file doesn't exist in any of these locations, we search for a docbook file that generates the file.
+
+In language order, we search for $XDG_DATA_DIRS/help/$lang/$path/index.docbook.  As soon as we find such a file, we assume it will contain the required file.  Process this index.docbook to find the desired file and then display that output.  If this index.docbook doesn't contain the required file, the file is considered to not exist.
+
+If no index.docbook is found, the file is considered to not exist.
+
 == Locating Help Files ==
 === GNOME ===
 Currently, Gnome uses ScrollKeeper to install, register, and
