@@ -9,7 +9,7 @@ If you have ideas you want to suggest but don't want to edit this main document,
 
 There are a few sections to this standard.  The first is a method for finding a file on the file system given a help uri.
 
-The list of languages to search for is decided by the environment.  Applications MUST set a list of languages.  Applications SHOULD set the list of languages as locale, locale truncated to 2 characters, en_US, en.  If the environment has a list of preferred languages, applications MAY use that list, with en appended to the end, or some similar scheme.
+The list of languages to search for is decided by the environment.  Help browsers MUST set a list of languages.  Help browsers SHOULD set the list of languages as locale, locale truncated to 2 characters, en_US, en.  If the environment has a list of multiple preferred languages, help browsers MAY use that list, with en appended to the end, or some similar scheme.
 
 Given a uri starting with help:, split it into 2 parts.  The first part is the path, the second is the filename.  We'll call these $path and $filename.  $filename may be empty if the uri ends with a /.  If so, set $filename to index.html.
 
@@ -21,16 +21,40 @@ If the file doesn't exist in any of these locations, we search for a docbook fil
 
 In language order, we search for $XDG_DATA_DIRS/help/$lang/$path/index.docbook.  As soon as we find such a file, we assume it will contain the required file.  Process this index.docbook to find the desired file and then display that output.  If this index.docbook doesn't contain the required file, the file is considered to not exist.
 
-The processing of this index.docbook is defined to produce the same set of output as the standard docbook xslt with chunks on does.
+The processing of this index.docbook is defined to produce the same set of output files as the standard docbook xslt with chunks on does.
+
+FIXME: Include definition of the output files produced.
 
 If no index.docbook is found, the file is considered to not exist.
 
 
 === Indexing help files ===
 
-Use the menu spec.
+The help browser SHOULD display a table of contents.  The contents are described by the menu spec.  The root is help.menu.  This file SHOULD include a link to the main applications.menu file.
 
-More to come.
+This spec adds two new tags to .desktop files.  The first is DocPath.  This is the uri for the help to display.  If this uri is a directory, the table of contents SHOULD check the contents and include the contents of the help file in the TOC if appropriate.  This expansion will be described later.
+
+The second is DocDir.  This is a path to a directory of .desktop files.  The contents are displayed as children of the element in the TOC.  This is to be used if an app has more than one doc.  This way a single entry in the launch menus can correspond to a directory of documentation.
+
+This can also be used for apps that are internally extensible.  Any extensions to the app can add help files to the given DocDir.
+
+Each file in the DocDir SHOULD be checked for including the contents of the help file in the TOC if appropriate.  This expansion will be described later.
+
+DocPath and DocDir are mutually exclusive.
+
+When a document specified by an external uri is given, the TOC should be searched for a reference to that uri and that line in the TOC should be selected and displayed (expanding parents if necessary.)
+
+==== Expanding the contents of each document ====
+
+If a help uri is a directory or an index.html, then the help browser TOC SHOULD check if it will be handled by an index.docbook file.  If so, that index.docbook file SHOULD be parsed for internal structure.  This structure should be included in the TOC as children of the given desktop file.
+
+The structure MUST correspond to the internal structure of chapters, sections, and subsections.  Chapters should be toplevels, as should sections that are not inside chapters.  Subsections and sections that are inside chapters should be children of their parent nodes.
+
+Links should be to help: uris corresponding to the given chapter, section, or subsection.  This may include a reference inside a single .html file if it contains multiple chapters, sections, or subsections.
+
+This expansion MAY be delayed until a given uri is displayed in the display area, but in this case, when an index.docbook file is processed, the TOC should be checked for uris that point to the top level inside the index.docbook.
+
+If displaying a URI from an external source, make sure to do this expansion before selecting the URI in the TOC because otherwise the URI might not be in the TOC.
 
 == Locating Help Files ==
 === GNOME ===
