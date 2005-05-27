@@ -3,9 +3,12 @@
 [:Standards/arabic-spec: Arabic Specification] provides the information needed to support Arabic script in Desktop Applications such as Web Browsers, Desktop Publishing and Graphic Applications.
 
 
+''Text alignment'' is not the only problem of [:Standards/bidi-spec:BiDirectional scripts] (As many users/developers think so).  Alignment is just the first step for supporting bidi scripts.  The are many problems in ''shaping''/''joining'', ''elongation'', ''justification'', etc too.
+
 
 === Arabic is a BiDirectional Script ===
   * [:Standards/bidi-spec:Bidirectional Scripts in Desktop Software]
+
 
 
 === Arabic characters need Shaping and Joining ===
@@ -81,10 +84,20 @@ The possible values for the text-justify property are:
 
 auto
     The UA determines the justification algorithm to follow, based on a balance between performance and adequate presentation quality. Inter-word expansion is typically used for all scripts that use space as word delimiter. The concept of a word is script dependent, although the user agent determines the exact algorithm. If the 'text-kashida-space' property has a non zero percent value it is recommended to use kashida elongation for Arabic text. Inter-cluster spacing may also occur.
+
 inter-word
     Selects the simplest and fastest full justification behavior, which spreads the text evenly across the line by increasing the width of the space between words only. The concept of a word is script dependent, although the user agent determines the exact algorithm. At minimum, justification is expected to occur at each white space boundary. No expansion or compression occurs within the words, i.e. no additional letter spacing is created. No kashida effect takes place.
 
+kashida
+    This is the Arabic counterpart to 'inter-ideograph'. Letter spacing may be increased between Arabic letters, the extra space being filled by kashida. The amount of kashida elongation is controlled by the 'text-kashida-space' property. If 'text-kashida-space' is set to '0%' (which is the initial value), there will be no kashida effect. No letter spacing occurs for other scripts.
+
     Note: White space does not include zero-width-space, therefore justification should not expand these characters. However justification is expected to expand white space with explicit width set by the 'word-spacing' property.
+------------
+
+
+[http://www.w3.org/TR/2003/CR-css3-text-20030514/#text-kashida-space CSS3 - Text Module - Kashida effect]:
+----
+Kashida is a typographic effect used in Arabic writing systems that allows glyph elongation at some carefully chosen points. Each elongation can be accomplished using a number of kashida glyphs, a single graphic or character elongation on each side of the kashida point. (The user agent MAY use either mechanism based on font or system capability). The 'text-kashida-space' property expresses the ratio of the kashida expansion size to the white space expansion size. The value '0%' means no kashida expansion. The value '100%' means kashida expansion only. This property has a visible effect with any justification style where kashida expansion is allowed (currently if the 'text-justify' property is set to: auto, kashida, distribute or newspaper).
 ------------
 
 
