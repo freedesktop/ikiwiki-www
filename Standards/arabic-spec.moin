@@ -1,4 +1,4 @@
-== Arabic Script Requirements on Desktop Applications ==
+== Arabic Script Requirements in Desktop Software ==
 
 [:Standards/arabic-spec: Arabic Specification] provides the information needed to support Arabic script in Desktop Applications such as Console Programs, Web Browsers, Desktop Publishing and Graphic Applications.
 
@@ -13,12 +13,52 @@
 
 
 === Arabic texts need Protraction ===
-Application needed to support protraction for Arabic words and lines.  Protraction for lines of a paragraph is named Justification.  There is no name for in-word protraction, but typists usually do that with inserting Kashida (= U+0640 ARABIC TATWEEL) between joined letters.  Also graphists use Latin letter-spacing in graphic applications, but it can make joined letters disjoined.
+Application needed to support protraction for Arabic words and lines.
+
+==== Line Protraction ====
+Protraction for lines of a paragraph to make all lines same width is named Justification.  
+
+In Latin script, line protraction applied with in-word spacing and inter-word spacing.  In arabic we have inter-word spacing, but there's no in-word spacing.
+
+There is no distinct way for in-word protraction in Arabic script, but typists usually do that with inserting Kashida (= U+0640 ARABIC TATWEEL) between joined letters.  Some graphists use Latin's letter-spacing in graphic applications, but it can make joined letters disjoined; It's a misfeature and should not be used at all.
 
 
+Here are current situation of Arabic Protraction in some Software/Standards:
+||                      || ''Line Protraction'' ||            || ''Word Protraction'' ||
+|| CSS2 (Manual)        || {{{ word-space }}}   ||            || {{{ letter-space }}} ||
+|| CSS2 (Justification) || {{{ text-align }}}   ||            ||     NONE             ||
+||
+|| CSS3 (Manual)        || {{{ word-space }}}   ||            || {{{ letter-space }}} ||
+|| CSS3 (Justification) || {{{ }}}
 
-==== Mailinglist ====
+
+==== Quotes ====
+[http://www.w3.org/TR/REC-CSS2/text.html#alignment-prop CSS2 - Text - Alignment]: {{{
+This property describes how inline content of a block is aligned. Values have the following meanings:
+
+left, right, center, and justify
+    Left, right, center, and double justify text, respectively.
+
+A block of text is a stack of line boxes. In the case of 'left', 'right' and 'center', this property specifies how the inline boxes within each line box align with respect to the line box's left and right sides; alignment is not with respect to the viewport. In the case of 'justify', the UA may stretch the inline boxes in addition to adjusting their positions. (See also 'letter-spacing' and 'word-spacing'.)
+
+Conforming user agents may interpret the value 'justify' as 'left' or 'right', depending on whether the element's default writing direction is left-to-right or right-to-left, respectively.
+}}}
+
+[http://www.w3.org/TR/2003/CR-css3-text-20030514/#text-alignment CSS3 - Text Module - Text alignment and justification]: {{{
+start
+    The text is aligned on the start of the inline-progression. 
+end
+    The text is aligned on the end of the inline-progression. 
+left, right
+    In horizontal flow orientation, the text is aligned on the left or right respectively. In vertical flow orientation, the alignment SHOULD be interpreted relative to the 'block-progression'. That is, if the 'block-progression' value is 'rl', 'left' means 'the top of the block' and 'right' means 'the bottom of the block'. If the 'block-progression' value is 'lr', 'left' means 'the bottom of the block' and 'right' means 'the top of the block'. Unlike the 'start' and 'end' values, 'left' and 'right' are not related to the current inline-progression. 
+center
+    The text is center aligned. 
+justify
+    The text is justified. The justification algorithm can be further refined by using the 'text-justify' property. Although conforming CSS2 user agents could interpret the value 'justify' as 'start', conforming CSS3 user agents may not, unless a profile specifies otherwise.
+}}}
+
+=== Mailinglist ===
 Discussion of this specification should occur on [http://freedesktop.org/mailman/listinfo/bidi/ bidi at lists freedesktop org].  The archives are [http://freedesktop.org/pipermail/bidi/ here].
 
 
--- BehnamEsfahbod - 27 May 2005
+-- BehnamEsfahbod [[DateTime(2005-05-27T14:56:12Z)]]
