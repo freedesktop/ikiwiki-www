@@ -16,24 +16,26 @@
 Application needed to support elongation for Arabic words and lines.
 
 ==== Line Elongation ====
-Protraction for lines of a paragraph to make all lines same width is named Justification.  
+Elongating lines of a paragraph to make all lines same width is named Justification.  
 
-In Latin script, line elongation applied with in-word spacing and inter-word spacing.  In arabic we have inter-word spacing, but there's no in-word spacing.
+In Latin script, line elongation applied with inter-letter and inter-word spacing.  In arabic we have inter-word spacing, but there's no inter-letter spacing.
 
 There is no distinct way for word elongation in Arabic script, but typists usually do that with inserting Kashida (= U+0640 ARABIC TATWEEL) between joined letters.  Some graphists use Latin's letter-spacing in graphic applications, but it can make joined letters disjoined; It's a misfeature and should not be used at all.
 
 
 Here are current situation of Arabic Elongation in some Software/Standards:
-||                      || ''Line Elongation'' ||            || ''Word Elongation''  ||
-|| CSS2 (Manual)        || {{{ word-space }}}  ||            || {{{ letter-space }}} ||
-|| CSS2 (Justification) || {{{ text-align }}}  ||            || NONE                 ||
-||
-|| CSS3 (Manual)        || {{{ word-space }}}  ||            || {{{ letter-space }}} ||
-|| CSS3 (Justification) || {{{ }}} ||
+||             ||              ||<:> ''Inter-word Elongation'' ||<:> Trade-off  ||<:> ''Word Elongation''  ||
+||<|2> CSS2    || (Manual)     ||<:> {{{ word-space }}}        ||               ||<:> {{{ letter-space }}} ||
+||             (Justification) ||<:> {{{ text-align }}}        ||               ||<:> NONE                 ||
+||<|2> CSS3    || (Manual)     ||<:> {{{ word-space }}}        ||               ||<:#ff0000> NONE          ||
+||             (Justification) ||<:> {{{ text-justify=inter-word }}} ||<:> {{{ text-kashida-space=%nn }}} ||<:> {{{ text-justify=kashida }}} ||
+||<|2> MS Word || (Manual)     ||<:> ??? || ||<:#ff0000> NONE ||
+||             (Justification) ||<:> ||
 
 
 ==== Quotes ====
-[http://www.w3.org/TR/REC-CSS2/text.html#alignment-prop CSS2 - Text - Alignment]: {{{
+[http://www.w3.org/TR/REC-CSS2/text.html#alignment-prop CSS2 - Text - Alignment]:
+----
 This property describes how inline content of a block is aligned. Values have the following meanings:
 
 left, right, center, and justify
@@ -42,9 +44,10 @@ left, right, center, and justify
 A block of text is a stack of line boxes. In the case of 'left', 'right' and 'center', this property specifies how the inline boxes within each line box align with respect to the line box's left and right sides; alignment is not with respect to the viewport. In the case of 'justify', the UA may stretch the inline boxes in addition to adjusting their positions. (See also 'letter-spacing' and 'word-spacing'.)
 
 Conforming user agents may interpret the value 'justify' as 'left' or 'right', depending on whether the element's default writing direction is left-to-right or right-to-left, respectively.
-}}}
+------------
 
-[http://www.w3.org/TR/2003/CR-css3-text-20030514/#text-align CSS3 - Text Module - Text alignment]: {{{
+[http://www.w3.org/TR/2003/CR-css3-text-20030514/#text-align CSS3 - Text Module - Text alignment]:
+----
 start
     The text is aligned on the start of the inline-progression. 
 end
@@ -55,10 +58,11 @@ center
     The text is center aligned. 
 justify
     The text is justified. The justification algorithm can be further refined by using the 'text-justify' property. Although conforming CSS2 user agents could interpret the value 'justify' as 'start', conforming CSS3 user agents may not, unless a profile specifies otherwise.
-}}}
+------------
 
 
-[http://www.w3.org/TR/2003/CR-css3-text-20030514/#text-justify Justification]: {{{
+[http://www.w3.org/TR/2003/CR-css3-text-20030514/#text-justify CSS3 - Text Module - Justification]:
+----
 This property selects the justification algorithm used when 'text-align' is set to 'justify'. Most values affects different type of writing systems in different ways. Writing systems are grouped as follows:
 
     * CJK and Hangul and by extension all 'wide' characters,
@@ -77,8 +81,8 @@ inter-word
     Selects the simplest and fastest full justification behavior, which spreads the text evenly across the line by increasing the width of the space between words only. The concept of a word is script dependent, although the user agent determines the exact algorithm. At minimum, justification is expected to occur at each white space boundary. No expansion or compression occurs within the words, i.e. no additional letter spacing is created. No kashida effect takes place.
 
     Note: White space does not include zero-width-space, therefore justification should not expand these characters. However justification is expected to expand white space with explicit width set by the 'word-spacing' property.
+------------
 
-}}}
 
 === Mailinglist ===
 Discussion of this specification should occur on [http://freedesktop.org/mailman/listinfo/bidi/ bidi at lists freedesktop org].  The archives are [http://freedesktop.org/pipermail/bidi/ here].
