@@ -1,0 +1,15 @@
+##META:TOPICINFO{author`"EricAnholt" date`"1073439670" format`"1.0" version`"1.2"}%
+##META:TOPICPARENT{name="xserver"}%
+*Q: With the ATI driver I get "No matching card found."*
+
+A: If your card is actually a Rage 128 or Radeon, submit a [http://bugzilla.freedesktop.org/ bug] and assign it to EricAnholt (eta@lclark.edu) with the output of "scanpci | grep 1002" (or "lspci -n | grep 1002" or "pciconf -l | grep 1002"). Better would be to use that output yourself to make a patch to xserver/hw/kdrive/ati/ati.c to add your PCI ID, test it, and then submit a patch.
+
+*Q: With the Xnvidia driver, I just get "No matching card found."*
+
+A: The driver's author (Keith Packard) says that the driver shouldn't be used because it's only for one card, and doesn't accelerate that one because of lack of docs and obfuscation in open-source code.  Xvesa is an alternative.  Should someone want to pick up and maintain this driver, it would be welcomed, but will be a challenge.
+
+*Q: Couldn't we just write a wrapper for XFree86 drivers and use them?*
+
+A: Essentially, no.  There are a large number of calls from XFree86 drivers into XFree86's DDX layer.  Furthermore, XFree86 drivers don't support acceleration in the same way, so offscreen pixmaps wouldn't be supportable as far as I know.
+
+-- Main.EricAnholt - 23 Nov 2003
