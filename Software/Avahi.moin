@@ -4,6 +4,14 @@ Avahi is a library which facilitates service discovery on a local network -- thi
 
 Avahi is based on LennartPoettering's flexmdns mDNS implemenation for Linux which has been discontinued in favour of Avahi.
 
+----
+
+'''Avahi needs a logo. If you are well versed with The Gimp, feel free to send us your logo suggestion to [mailto:lathiat@bur.st], thank you!''' 
+
+''(It may help your for this to know that Avahi is [http://en.wikipedia.org/wiki/Avahi a kind of monkey])''
+
+----
+
 == Update ==
  * The Avahi mDNS responder is now feature complete implementing all MUSTs and the majority of the SHOULDs of the mDNS RFC. It passes all (except a questionable one) tests in the Apple Bonjour conformance test suite. In addition it supports some nifty things that have never been seen elsewhere like correct mDNS reflection accross LAN segments. A small debugging tool "avahi-discover" is now included which browses for all available services on the network. The mDNS responder is implemented as a GLIB based C library ("avahi-core") which is embeddable into other applications. One of these applications will be a daemon which will be distributed together with avahi-core and will provide a DBUS API for client applications. This daemon is currently being worked on. 
 
@@ -57,5 +65,22 @@ Everybody loves screenshots:
 == FAQ ==
  * '''Is it OK to run multiple mDNS responders on the same machine?''' No, it is not OK. Sooner or later some mDNS feature known as "Known Answer Suppression" and "Unicast Reply" (and probably some more) will result in problems if more than one responder runs on the same machine.
  * '''May I enable the mDNS reflector on multiple hosts accessing the same two networks?''' No, don't do that. Queries will be looped, and sooner or later your network will be stalled with mDNS traffic.
+
+== Architectural Overview ==
+
+avahi consists of several parts:
+
+ * '''libavahi-common''' - a library containing some function used both by clients to the avahi-daemon and the mDNS stack itself.
+ * '''libavahi-core''' - A library implementing a flexible mDNS/DNS-SD stack. The most prominent consumer is avahi-daemon. Besides that primarily useful for developers of embedded applications. This stack is very avanced and has some uncommon features like mDNS reflection. A preliminary (doxygen generated) API documentation for this and libavahi-common is [http://0pointer.de/public/avahi-doxygen/ available.]
+ * '''avahi-discover''' - A tool for enumerating all available services on the local LAN. Its links directly against libavahi-core, i.e. embedds its own mDNS stack. You should use it only for debugging, since it's not a good idea to run multiple mDNS stacks simultaneously on the same machine. (Screenshot above)
+ * '''avahi-daemon''' - The avahi daemon which makes use of libavahi-core to implement an mDNS stack which is accessible by different ways:
+  * System administrators may put short XML fragments in /etc/avahi/services to publish semi-static services (e.g. SSH)
+  * A so called "simple protocol" whith a very limited command set which is used exclusively by nss-mdns (to resolve host names via mDNS) and avahi-dnsconfd
+  * The DBUS interface for normal clients (like nautilus or gaim) which is an IPC wrapper around the functions provided by libavahi-core - Not yet finished
+ * '''libavahi-client''' - A minimal wrapper around the DBUS API to simplify its usage. Hides the DBUS internals completely. This will resemble the API of libavahi-core more or less. - Not yet finished
+ * '''[http://0pointer.de/lennart/projects/nss-mdns/ nss-mdns]''' - A GNU libc NSS module for host name resolving using mDNS. This is an external project maintained by Lennart and not part of avahi since it doesn't require avahi to be useful. But if it finds a running avahi daemon it makes use of its superior RR cacheing.
+ * '''avahi-dnsconfd''' - A small daemon which may be used to configure conventional DNS servers using mDNS in a DHCP-like fashion. Especially useful on IPv6.
+
+Please have a look on [http://freedesktop.org/~lennart/overview.png this graphic] which illustrates a little how these parts play together. (The white rectangles are already completed, the gray rectangles are external components and the red rectangles are still missing)
 
 -- LennartPoettering, June 2005
