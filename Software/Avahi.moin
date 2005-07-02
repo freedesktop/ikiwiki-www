@@ -66,7 +66,10 @@ Everybody loves screenshots:
 == FAQ ==
  * '''Is it OK to run multiple mDNS responders on the same machine?''' No, it is not OK. Sooner or later some mDNS feature known as "Known Answer Suppression" and "Unicast Reply" (and probably some more) will result in problems if more than one responder runs on the same machine.
  * '''May I enable the mDNS reflector on multiple hosts accessing the same two networks?''' No, don't do that. Queries will be looped, and sooner or later your network will be stalled with mDNS traffic.
-
+ * '''Avahi doesn't work, it doesn't register or find any services and doesn't resolve mDNS host names!''' Make sure:
+  * That you run a recent Kernel (both 2.4 and 2.6 should work) with IP Multicasting enabled
+  * That you run only one mDNS stack 
+  * That you disable all local firewalls (This includes disabling the Firestarter default FW), at least for UDP traffic from and to port 5353
 == Architectural Overview ==
 
 avahi consists of several parts:
