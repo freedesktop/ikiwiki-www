@@ -204,6 +204,13 @@ Please append your comments here:
 
 (SeanMiddleditch) Cleaned up the document, including incorporating some of the comments (if you're wondering where they went).  In regards to a shared HTTP implementation: I think web browsers and download are a somewhat separate topic, although they have a strong relationship to some things D-VFS will do.  I think a shared HTTP implementation (possibly built on an existing implemetnation) is a great idea, but should be done separately from D-VFS.  Once such an implementation exists, though, it would be great for D-VFS to support it so applications can seamlessly access content from URIs retrieved from the browser (and possibly needing cookies or whatnot to read).
 
+(MortenSvantesson) I can't see why you claim that FTP doesn't support seeking. Sending the commands ABOR and REST ''offset'' seems enough like seeking to me and I've seen them used as such. Granted, ''offset'' is not guaranteed by the RFC to be a byte offset, but I don't know of any implementations where it isn't.
+
+Since I'm a heavy user of AFS there are some issues I want to press: 
+ * Access rights are not covered yet.
+ * File managers have use of knowing quotas or more to the point: how much more can be stored. Gnome VFS has [http://developer.gnome.org/doc/API/gnome-vfs/gnome-vfs-gnome-vfs-utils.html#GNOME-VFS-GET-VOLUME-FREE-SPACE gnome_vfs_get_volume_free_space] (but doesn't support AFS).
+ * AFS is accessed by the user through paths but need a special backend for support of quotas and access rights. How should this be handled? The problem might arise for users of other protocols&#8212;like SMB&#8212;as well.
+
 == CVS ==
 
 There is no CVS repository as there is no api or documentation.
