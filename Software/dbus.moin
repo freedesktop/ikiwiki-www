@@ -54,7 +54,23 @@ probably the best place to start (even though it is very incomplete, the basics 
 	
 
 == Download ==
-The latest release is [http://dbus.freedesktop.org/releases/dbus-0.34.tar.gz dbus-0.34.tar.gz]. (2005-06-15)
+The latest release is [http://dbus.freedesktop.org/releases/dbus-0.35.tar.gz dbus-0.35.tar.gz]. (2005-07-15)
+	* Huge auto-start bug squashed which caused some services not to start when requested in rapid succession
+	* SE-Linux security contexts can now be appended to messages for inspection by services that enforce their own security policies
+	* Colin says the GLib binding are ready for general consumption
+	* New GLib tutorial
+	* New GLib example code
+	* Python bindings are now version (0,42,0)
+	* Python bindings API has changed on the service side
+	* dbus.service has been split out as a seperate module
+	* dbus.service.Service is renamed to dbus.service.BusName
+	* dbus.service.Object has swapped the bus_name and object_path constructor parameters to make it easier to do inheritance over the bus
+	* dbus.glib has been seperated out in order to lessen the dependency on glib and to allow other mainloops to be integrated with the bindings including a planned generic mainloop for non-gui apps.
+	* Python bindings now aquire the GIL when calling back into the python interpreter.  Fixes crashes when using threading and other random segfaults.
+	* New Python tutorial
+	* Numerous D-Bus bug fixes all around
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus-0.34.tar.gz dbus-0.34.tar.gz]. (2005-06-15)
 	* dbus_connection_disconnect is deprecated in favor of dbus_connection_close
 	* The bus can now use D_NOTIFY (if available) to check when configuration files have changed and reload them
 	* New dbus_message_has_path/member/interface API added
@@ -66,14 +82,6 @@ The latest release is [http://dbus.freedesktop.org/releases/dbus-0.34.tar.gz dbu
 	* Python added new type classes for hinting to the marshaler what type to send over the wire
 	* Python bindings now have decorators for specifying exported methods and signals
 	* Numerous bug fixes
-
-The previous release is [http://dbus.freedesktop.org/releases/dbus-0.33.tar.gz dbus-0.33.tar.gz]. (2005-04-25)
-	* downgrade requirement from GTK+-2.6 to 2.4 for building gtk components
-	* python binding API's have been overhauled to be more "pythonic" and cleaner
-	* python bindings now export dbus.version which is set to (0,40,0)
-	* python bindings now implement the org.freedesktop.DBus.Introspectable interface
-	* make check has been fixed
-	* many, many major bug fixes
 
 The latest release of the old API's is [http://dbus.freedesktop.org/releases/dbus-0.23.4.tar.gz dbus-0.23.4.tar.gz]. (2005-03-11)
 	* fix a failed assertion when trying to get replies from certain pending calls
