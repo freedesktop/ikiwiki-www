@@ -34,8 +34,6 @@ This project was stemmed from interest gathered at Linux.conf.au 2004, where I w
 == What it solves ==
  * DNS-SD brings about a solution to a big problem in IPv6, that is its auto-configuration can only configure an address, netmask and router. It does not specify DNS Servers, Proxy Servers, etc.
 
--- Main.TrentLloyd - 16 Feb 2005
-
 == Download ==
 
 We've not released any final version yet. You can checkout the current development code using Subversion:
@@ -51,11 +49,13 @@ You have a chance to meet the developers on #avahi on irc.freenode.org.
 == Requirements ==
  * glib2
  * expat
- * DBUS 0.3x or newer
- * gtk2 + glade2 (for the graphical avahi-discover tool)
- * doxygen for the API documentation
  * libdaemon
  * Linux 2.4 or 2.6 with IP multicasting enabled
+ * DBUS 0.3x or newer (optional, for IPC with client applications)
+ * gtk2 + glade2 (optional, for the GUI avahi-discover tool)
+ * doxygen (optional, for the API documentation)
+ * python-gtk2 (optional, for the client tools)
+ * pyhton-twisted (optional, for the tool avahi-bookmarks)
 
 == Screenshot ==
 
@@ -82,11 +82,26 @@ avahi consists of several parts:
  * '''avahi-daemon''' - The avahi daemon which makes use of libavahi-core to implement an mDNS stack which is accessible by different ways:
   * System administrators may put short XML fragments in /etc/avahi/services to publish semi-static services (e.g. SSH)
   * A so called "simple protocol" whith a very limited command set which is used exclusively by nss-mdns (to resolve host names via mDNS) and avahi-dnsconfd
-  * The DBUS interface for normal clients (like nautilus or gaim) which is an IPC wrapper around the functions provided by libavahi-core - Not yet finished
+  * The DBUS interface for normal clients (like nautilus or gaim) which is an IPC wrapper around the functions provided by libavahi-core 
  * '''libavahi-client''' - A minimal wrapper around the DBUS API to simplify its usage. Hides the DBUS internals completely. This will resemble the API of libavahi-core more or less. - Not yet finished
  * '''[http://0pointer.de/lennart/projects/nss-mdns/ nss-mdns]''' - A GNU libc NSS module for host name resolving using mDNS. This is an external project maintained by Lennart and not part of avahi since it doesn't require avahi to be useful. But if it finds a running avahi daemon it makes use of its superior RR cacheing.
  * '''avahi-dnsconfd''' - A small daemon which may be used to configure conventional DNS servers using mDNS in a DHCP-like fashion. Especially useful on IPv6.
 
 Please have a look on [http://freedesktop.org/~lennart/overview.png this graphic] which illustrates a little how these parts play together. (The white rectangles are already completed, the gray rectangles are external components and the red rectangles are still missing)
 
+== Developing with Avahi ==
+
+The DBUS API of Avahi is fairly complete now. Though no real documentation is available, you may browse the DBUS introspection data online:
+ * [http://www.freedesktop.org/~lennart/Server.introspect.xml org.freedesktop.Avahi.Server]
+ * [http://www.freedesktop.org/~lennart/EntryGroup.introspect.xml org.freedesktop.Avahi.EntryGroup]
+ * [http://www.freedesktop.org/~lennart/DomainBrowser.introspect.xml org.freedesktop.Avahi.DomainBrowser]
+ * [http://www.freedesktop.org/~lennart/ServiceTypeBrowser.introspect.xml org.freedesktop.Avahi.ServiceTypeBrowser]
+ * [http://www.freedesktop.org/~lennart/ServiceBrowser.introspect.xml org.freedesktop.Avahi.ServiceBrowser]
+
+Three examle Python scripts illustrating the use of the DBUS API are available in the CVS:
+ * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/avahi-utils/avahi-publish-service.in?root=flexmdns avahi-publish-service]
+ * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/avahi-utils/avahi-publish-address.in?root=flexmdns avahi-publish-address]
+ * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/avahi-utils/avahi-dump-all.in?root=flexmdns avahi-dump-all]
 -- LennartPoettering, June 2005
+
+-- TrentLloyd, 16 Feb 2005
