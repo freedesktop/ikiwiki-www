@@ -1,4 +1,4 @@
-Xegl is built on many layers.
+Xegl is built on many layers that you will need to get from several different places. Currently only Radeon R200 hardware under Linux is functioning.
 
  * [http://linuxconsole.sourceforge.net/ fbdev - Linux framebuffer console graphics]
 
@@ -6,15 +6,28 @@ Xegl is built on many layers.
 
  * [http://dri.freedesktop.org/wiki/DRM DRM - Direct Rendering Manager]
 
- DRM is a kernel driver that controls the 3D capabilities of the graphics hardware.
+ DRM provides an interface to the 3D portion of the graphics chip. Currently Xegl only works on the r200 DRM driver. The r200 DRM driver in the kernel does not contain the needed changes, you will need to compile the driver from CVS.
+
+  {{{
+cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri login
+}}}
+
+ Hit `Enter` for the password.
+
+ Then, check out the drm module:
+
+  {{{
+cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
+}}}
+
+ Xegl is designed to run without needing root priviledge. The DRM code currently in CVS still requires that you be root to use DRM. You can either choose to run everything as root or apply this patch which opens up DRM for non-root use: [http://dri.freedesktop.org/~jonsmirl/drm_no_root.patch drm_no_root.patch]
+
+ Change directory to drm/linux-core and make
 
  * [http://mesa3d.sourceforge.net/ Mesa - Open source OpenGL]
-
- dkdkd
-
  * [http://dri.freedesktop.org/wiki/ DRI - Direct Rendering Infrastructure]
 
- dkdkd
+ 
 
  * [http://www.freedesktop.org/wiki/Software_2fglitz Cairo/glitz - Cairo running on OpenGL]
 
