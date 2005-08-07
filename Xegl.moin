@@ -8,16 +8,10 @@ Xegl is built on many layers that you will need to get from several different pl
 
  DRM provides an interface to the 3D portion of the graphics chip. Currently Xegl only works on the r200 DRM driver. The r200 DRM driver in the kernel does not contain the needed changes, you will need to compile the driver from CVS.
 
-  {{{
-cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri login
-}}}
-
- Hit `Enter` for the password.
-
- Then, check out the drm module:
-
-  {{{
-cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
+ {{{
+$ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri login
+CVS password: <hit return>
+$ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
 }}}
 
  Xegl is designed to run without needing root priviledge. The DRM code currently in CVS still requires that run as root to use DRM. You can either choose to run everything as root or apply this patch which opens up DRM for non-root use: [http://dri.freedesktop.org/~jonsmirl/drm_no_root.patch drm_no_root.patch]
@@ -29,22 +23,35 @@ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
 
  Mesa and DRI are in the same source code tree. Login as an anonymous user:
 
-  {{{
-cvs -d:pserver:anonymous@pdx.freedesktop.org:/cvs/mesa login
+ {{{
+$ cvs -d:pserver:anonymous@pdx.freedesktop.org:/cvs/mesa login
+CVS password: <hit return>
+$ cvs -d:pserver:anonymous@pdx.freedesktop.org:/cvs/mesa co Mesa
 }}}
 
- Hit `Enter` for the password.
-
- Then, check out the Mesa module:
-
-  {{{
-cvs -d:pserver:anonymous@pdx.freedesktop.org:/cvs/mesa co Mesa
-}}}
-
+ Change into the mesa directory and 'make linux-dri'. This will build libGL.so, r200_dri.so, libEGL.so, libEGLdri.so and some other libraries. libGL is the generic OpenGL code, libEGL is the generic EGL code, r200_dri is the r200 chip specific DRI driver, libEGLdri is an EGL driver for DRI. There are some sample programs in progs/egl.
 
  * [http://www.freedesktop.org/wiki/Software_2fglitz Cairo/glitz - Cairo running on OpenGL]
 
- kdkdk
+ Glitz implements [http://www.keithp.com/~keithp/render/protocol.html X Render] using OpenGL. This serves two purposes, glitz can be a backend for the Cairo drawing library and it can also be a backend for an X server. Xegl uses glitz as its backend library for drawing.
+
+ {{{
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo login
+CVS password: <hit return>
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo co glitz
+}}}
+
+ You will need to pick somewhere to install glitz and other libraries that are built later. The install location is controlled with --prefix on ./configure
+
+ {{{
+$ cd glitz
+$ ./autogen.sh
+$ ./configure --enable-egl --prefix=/opt/xegl
+$ make
+$ su
+Password:
+$ make install
+}}}
 
  * [http://www.freedesktop.org/wiki/Software_2fXgl Xgl - X running on OpenGL]
 
