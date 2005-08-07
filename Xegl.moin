@@ -14,7 +14,7 @@ CVS password: <hit return>
 $ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
 }}}
 
- Xegl is designed to run without needing root priviledge. The DRM code currently in CVS still requires that run as root to use DRM. You can either choose to run everything as root or apply this patch which opens up DRM for non-root use: [http://dri.freedesktop.org/~jonsmirl/drm_no_root.patch drm_no_root.patch]
+ Xegl is designed to run without needing root privilege. The DRM code currently in CVS still requires that run as root to use DRM. You can either choose to run everything as root or apply this patch which opens up DRM for non-root use: [http://dri.freedesktop.org/~jonsmirl/drm_no_root.patch drm_no_root.patch]
 
  Change directory to drm/linux-core and make
 
@@ -51,6 +51,25 @@ $ make
 $ su
 Password:
 $ make install
+}}}
+
+ * [http://www.freedesktop.org/wiki/Software_2fxlibs xlibs - modularized X libraries]
+
+ Xegl is derived from kdrive which is part of the Xserver project. Xserver needs these modular X libraries to run.
+
+ {{{
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs login
+CVS password: <hit return>
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co xlibs
+}}}
+
+ This will bring down a small script called build-em. Run this script with your install prefix. The script will checkout the needed subprojects and build and install them. You need to run this script as root if you need root priv to access the install destination. The PKG_CONFIG variable needs to point at your install destination.
+
+ {{{
+su
+Password:
+$ export PKG_CONFIG=/opt/xegl/lib/pkgconfig
+$ ./build-em --prefix=/opt/xegl
 }}}
 
  * [http://www.freedesktop.org/wiki/Software_2fXgl Xgl - X running on OpenGL]
