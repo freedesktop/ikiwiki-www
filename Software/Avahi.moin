@@ -69,12 +69,18 @@ Everybody loves screenshots:
 (This shows a debugging tool which makes direct use of the Avahi mDNS stack for browsing every available DNS-SD service on all local networks)
 
 == FAQ ==
- * '''Is it OK to run multiple mDNS responders on the same machine?''' No, it is not OK. Sooner or later some mDNS feature known as "Known Answer Suppression" and "Unicast Reply" (and probably some more) will result in problems if more than one responder runs on the same machine.
+ * '''Is it OK to run multiple mDNS responders on the same machine?''' No, it is not OK. Sooner or later some mDNS features known as "Known Answer Suppression" and "Unicast Reply" (and probably some more) will result in problems if more than one responder runs on the same machine.
  * '''May I enable the mDNS reflector on multiple hosts accessing the same two networks?''' No, don't do that. Queries will be looped, and sooner or later your network will be stalled with mDNS traffic.
  * '''Avahi doesn't work, it doesn't register or find any services and doesn't resolve mDNS host names!''' Make sure:
   * That you run a recent Kernel (both 2.4 and 2.6 should work) with IP Multicasting enabled
   * That you run only one mDNS stack 
   * That you disabled all local firewalls (This includes disabling the Firestarter default FW), at least for UDP traffic from and to port 5353
+ * '''Does avahi run on non-Linux operating systems?''' No, currently Avahi is available for Linux only. Ports to other (Unix-like) operating systems are not trivial, but feasible. (The major issue here is the replacement for Netlink) Patches are welcome!
+ * '''Blah, you fools, glib is bloat and sucks!''' Then Avahi is not for you, sorry. As it seems we think a little different about glib than you.
+ * '''Blah, you fools, DBUS is bloat and sucks!''' Then Avahi is not for you, sorry. As it seems we think a little different about DBUS than you.
+ * '''What about a stripping glib support out of Avahi?''' Send us a clean patch, and we will merge it. Avahi uses glib for the main loop and hash tables, everything else should be a matter of search-and-replace.
+ * '''Why did you implement yet another free mDNS stack? Apple released their code under a free license!''' The "freeness" of the license Apple used is questionnable, e.g. the Debian project decided to not include code under AFPL. In addition we consider our code superior to Apple's in many aspects. In case you want to flame us on this topic, our email address is /dev/null.
+
 == Architectural Overview ==
 
 avahi consists of several parts:
@@ -89,10 +95,15 @@ avahi consists of several parts:
  * '''libavahi-client''' - A minimal wrapper around the DBUS API to simplify its usage. Hides the DBUS internals completely. This will resemble the API of libavahi-core more or less. - Not yet finished
  * '''[http://0pointer.de/lennart/projects/nss-mdns/ nss-mdns]''' - A GNU libc NSS module for host name resolving using mDNS. This is an external project maintained by Lennart and not part of avahi since it doesn't require avahi to be useful. But if it finds a running avahi daemon it makes use of its superior RR cacheing.
  * '''avahi-dnsconfd''' - A small daemon which may be used to configure conventional DNS servers using mDNS in a DHCP-like fashion. Especially useful on IPv6.
+ * '''avahi-browse''', '''avahi-publish-service''', '''avahi-publish-address''', '''avahi-resolve-address''', '''avahi-resolve-host-name''' - Some command line utilities written in Python which use the DBUS API to take care of simple tasks.
+ * '''avahi-discover''' - An implementation of an '''avahi-discover-standalone'''-like tool, but written in Python using pygtk and using DBUS to communicate with an Avahi daemon.
+ * '''avahi-bookmarks''' - A Python based miniature web server that browses for mDNS/DNS-SD services of type '_http._tcp' (i.e. web sites) and makes them available as HTML links on http://localhost:8080.
 
 Please have a look on [http://freedesktop.org/~lennart/overview.png this graphic] which illustrates a little how these parts play together. (The white rectangles are already completed, the gray rectangles are external components and the red rectangles are still missing)
 
 == Developing with Avahi ==
+
+Most applications will want to use the DBUS API avahi provides. Therefore some notes on the DBUS API here:
 
 The DBUS API of Avahi is fairly complete now. Though no real documentation is available, you may browse the DBUS introspection data online:
  * [http://www.freedesktop.org/~lennart/Server.introspect.xml org.freedesktop.Avahi.Server]
@@ -107,6 +118,11 @@ Three example Python scripts illustrating the use of the DBUS API are available 
  * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/avahi-utils/avahi-browse.in?root=flexmdns avahi-browse]
  * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/avahi-utils/avahi-resolve-address.in?root=flexmdns avahi-resolve-address]
  * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/avahi-utils/avahi-resolve-host-name.in?root=flexmdns avahi-resolve-host-name]
+
+In case you plan to embedd an mDNS stack directly in your software, you can browse the doxygen-generated [http://0pointer.de/public/avahi-doxygen/ libavahi-core reference] online. Please note that it is not a good idea to run multiple mDNS stacks on the same host! Some examples are available in the SVN:
+
+  * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/examples/browse-services.c?content-type=text%2Fplain&root=flexmdns browse-services.c]
+  * [http://0pointer.de/cgi-bin/viewcvs.cgi/*checkout*/trunk/examples/publish-service.c?content-type=text%2Fplain&root=flexmdns publish-service.c]
 
 -- LennartPoettering, June 2005
 
