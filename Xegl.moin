@@ -31,7 +31,7 @@ $ cvs -d:pserver:anonymous@pdx.freedesktop.org:/cvs/mesa co Mesa
 
  Change into the mesa directory and 'make linux-dri'. This will build libGL.so, r200_dri.so, libEGL.so, libEGLdri.so and some other libraries. libGL is the generic OpenGL code, libEGL is the generic EGL code, r200_dri is the r200 chip specific DRI driver, libEGLdri is an EGL driver for DRI. There are some sample programs in progs/egl.
 
- * [http://www.freedesktop.org/wiki/Software_2fglitz Cairo/glitz - Cairo running on OpenGL]
+ * [:Software_2fglitz:Cairo/glitz - Cairo running on OpenGL]
 
  Glitz implements [http://www.keithp.com/~keithp/render/protocol.html X Render] using OpenGL. This serves two purposes, glitz can be a backend for the Cairo drawing library and it can also be a backend for an X server. Xegl uses glitz as its backend library for drawing.
 
@@ -48,28 +48,50 @@ $ cd glitz
 $ ./autogen.sh
 $ ./configure --enable-egl --prefix=/opt/xegl
 $ make
-$ su
-Password:
 $ make install
 }}}
 
- * [http://www.freedesktop.org/wiki/Software_2fxlibs xlibs - modularized X libraries]
+ * [:ModularDevelopersGuide:Modularized X libraries]
 
- Xegl is derived from kdrive which is part of the Xserver project. Xserver needs these modular X libraries to run.
-
+ To check out the modular tree, you will need to check out each of the modules:
  {{{
-$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs login
+$ cd xorg
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
 CVS password: <hit return>
-$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co xlibs
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg -f co app data doc driver font lib proto util xserver
 }}}
 
- This will bring down a small script called build-em. Run this script with your install prefix. The script will checkout the needed subprojects and build and install them. You need to run this script as root if you need root priv to access the install destination. The PKG_CONFIG variable needs to point at your install destination.
+ Note the `-f` option, which will override your current `.cvsrc` defaults.  This is necessary to make sure that you do not use the `-P` option to remove empty directories, which will cause problems with the symlink script.  Also note that if other people add directories to a module and you already have that module checked out, you need to run `cvs -f update -d` to make sure that new and possibly empty directories will be created.
+
+ After checking out the modular tree, you will also need to check out a monolithic tree, if you don't already have one checked out.  This tree is required by the symlink script.
+ {{{
+$ cd xorg
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co xc
+}}}
+
+ Once you have both the modular and monolithic trees checked out, you can use the symlink script, `util/modular/symlink.sh`, to link the source files as follows:
+ {{{
+$ cd xorg
+$ util/modular/symlink.sh /fullpath/xorg/xc .
+}}}
+
+ Note that the symlink script requires a full path to the modular tree.
+
+ Now that you have a modular tree ready to use in `xorg`, the proto module components can be built, installed and packaged as follows:
+ {{{
+$ cd xorg/src/proto/X11
+$ ./autogen.sh --prefix=/opt/xegl
+$ make install
+$ make distcheck
+}}}
+
+ There is nothing to make in the proto module components since there are only header files that need to be installed.  `make install` will create the directories in `/opt/egl` as needed and then install the headers and the pkgconfig metadata file.  Creating the packages for the various components is very easy with the autotools -- simply run `make dist` or `make distcheck`.  I would recommend using `distcheck` since it will both create the package as well as test it to make sure that it builds properly.
+
+ You need to build all the modular components, a script has been developed to run the above steps for each module in the order required by their various interdependencies.   It can be found in the modular tree in `modular/util/build.sh`. It requires the path to the `prefix` directory you want all the modules to be installed under as it's first argument. If you don't have a full existing recent X build on your system, you may also need to set your PATH to include the bin subdirectory from the install area so that later components can find the programs installed by the earlier ones.
 
  {{{
-su
-Password:
-$ export PKG_CONFIG=/opt/xegl/lib/pkgconfig
-$ ./build-em --prefix=/opt/xegl
+$ cd xorg
+$ PATH=/opt/xegl/bin:$PATH ./util/modular/build.sh /opt/xegl
 }}}
 
  * [http://www.freedesktop.org/wiki/Software_2fXgl Xgl - X running on OpenGL]
