@@ -5,7 +5,7 @@
 All desktops currently have their own configuration systems. They should be unified so that:
 
 	* Settings can easily be shared.
-	* The [[xsettings-spec][XSettings]] system can be replaced (it is too limited, because only one application can change the settings).
+	* The [:Standards/xsettings-spec: XSettings] system can be replaced (it is too limited, because only one application can change the settings).
 	* Notification of changes is sent to all interested applications.
 	* Importing/Exporting Configuration
 	* Looking up Configuration of System or other Applications
@@ -36,13 +36,13 @@ Useful bonus features:
 
 == Plan ==
 
-This specification is expected to use the [[basedir-spec][Base directory spec]] for the location of configuration files (under *~/.config* by default).
+This specification is expected to use the [:Standards/basedir-spec: Base directory spec] for the location of configuration files (under *~/.config* by default).
 
 Ideally, the system should be fast but also network transparent. Possibly, applications could read the database directly if running on the same machine as the config files, or read them via the notification process if not.
 
 We should define a simple API for setting and getting configuration settings and provide a small library that implements it. It should be possible to use multiple backends (XML files, database, etc) to actually store the settings.
 
-Change notification could be done using [[Software.dbus][D-BUS]].
+Change notification could be done using [:Software/dbus: D-BUS].
 
 == References ==
 
@@ -54,7 +54,7 @@ Change notification could be done using [[Software.dbus][D-BUS]].
 
 	[http://thread.gmane.org/gmane.linux.xdg.devel/2941 Configuration API thread] (requirements, types, backends, schemas)
 
-	[[Software.CFG][Config4GNU]]: An abstraction layer over many different config file syntaxes (.ini files, fstab, apache, etc). For example to an editor all config files are presented as a XML structure with comments available options and defaults. This is mainly intended for system-level configuration, rather than for user settings. It doesn't not handle notification of changes. Several interfaces to access the complete configuration tree exist, yet the applications themselves are not required to switch to them.
+	[:Software/CFG: Config4GNU]: An abstraction layer over many different config file syntaxes (.ini files, fstab, apache, etc). For example to an editor all config files are presented as a XML structure with comments available options and defaults. This is mainly intended for system-level configuration, rather than for user settings. It doesn't not handle notification of changes. Several interfaces to access the complete configuration tree exist, yet the applications themselves are not required to switch to them.
 	A special feature is that the semantic meta-data (options, types, assumed defaults and even wizard logic etc.) for applications are kept as separate description textfiles and thus can be updated together with the app (idealy even kept in sync in cvs)  without the need to update or recompile Config4GNU or any frontends.
 
 	[http://elektra.sourceforge.net/ Elektra Project]: "Elektra provides a sigle unified system-wide namespace to represent keys, and a clean API to access it, with many language bindings and some backends." Elektra uses backends to store every (key, value) pair. That can be a separate file in the filesystem, ini-style like, berkleydb or everything else. If locking, networking or cascading is supported is decided by the backend. There is no backend available now for networking. There are no dependencies (except of libc) of the core library. The backends may add dependency (like berkleydb, gconf).
