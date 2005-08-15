@@ -1,0 +1,196 @@
+##META:TOPICINFO{author`"RichardWorth" date`"1083283253" format`"1.0" version`"1.6"}%
+##META:TOPICPARENT{name="clipart"}%
+= [[clipart][Open Clip Art Project]] - [[clipart][MetadataDiscussion]] =
+
+##TOC%
+
+== Overview ==
+=== The Technologies ===
+Four technologies have come up in previous discussions of metadata on openclipart.org:
+
+---++++[http://www.w3.org/TR/2004/REC-rdf-primer-20040210/ RDF]
+RDF is a metadata framework. To put it simply: RDF is language for describing things.
+
+---++++[http://dublincore.org/documents/dces/ Dublin Core]
+Dublin Core builds upon RDF/XML. It defines (among other things) some core elements:
+	* Title
+	* Creator
+	* Subject
+	* Description
+	* Publisher
+	* Contributor
+	* Date
+	* Format
+	* Identifier
+	* Source
+	* Language
+	* Relation
+	* Coverage
+	* Rights
+These aid in describing an information resource (defined to be "anything that has identity").
+
+---++++[http://creativecommons.org/technology/metadata/implement Creative Commons Metadata]
+Creative Commons Metadata is built upon RDF and Dublin Core. It defines two main elements:
+	* Work
+	* License
+It uses many of the Dublin Core Elements listed above to provide information about the work.
+
+---++++[http://www.adobe.com/products/xmp/in-depth.html Adobe XMP]
+XMP is also built upon RDF and Dublin Core. This is a ''large'' specification, well-suited for enterprise content management tools, covering such areas as content creation, workflow, and rights management.
+
+In looking at the XMP specification over at [http://partners.adobe.com/asn/tech/xmp/download.jsp adobe.com - XMP Resources], it seems that the only interesting parts of XMP for openclipart.org are the Dublin Core Elements.
+
+== The Winner : Creative Commons Metadata ==
+=== It's got what we need ===
+Since we have already decided that in order for clip art to be accepted it must first be dedicated to the public domain with the help of Creative Commons, we have basically already chosen RDF/XML + Dublin Core + Creative Commons Metadata as our metadata standard.
+
+(''A note about Creative Commons XMP support: Looking at [http://creativecommons.org/technology/xmp], it seems Creative Commons XMP support only has to do with Rights Management. Probably not that useful, as everything will be dedicated to the public domain.'')
+
+Dublin Core Elements should provide everything we need. A sampling of the Element Definitions:
+{{{
+  title
+	 Definition: A name given to the resource.
+		 Comment: Typically, a Title will be a name by which the resource is formally known.
+
+  creator
+	 Definition: An entity primarily responsible for making the content of the resource.
+		 Comment: Examples of a Creator include a person, an organisation, or a service. Typically, the name of a Creator should be
+					 used to indicate the entity.
+
+  subject
+	 Definition: The topic of the content of the resource.
+		 Comment: Typically, a Subject will be expressed as keywords, key phrases or classification codes that describe a topic of the
+					 resource. Recommended best practice is to select a value from a controlled vocabulary or formal classification scheme.
+
+  description
+	 Definition: An account of the content of the resource.
+		 Comment: Description may include but is not limited to: an abstract, table of contents, reference to a graphical representation
+					 of content or a free-text account of the content.
+
+  publisher
+	 Definition: An entity responsible for making the resource available.
+		 Comment: Examples of a Publisher include a person, an organisation, or a service. Typically, the name of a Publisher should
+					 be used to indicate the entity.
+
+  contributor
+	 Definition: An entity responsible for making contributions to the content of the resource.
+		 Comment: Examples of a Contributor include a person, an organisation, or a service. Typically, the name of a Contributor
+					 should be used to indicate the entity.
+}}}
+
+=== What does it look like? ===
+When you dedicate something to the public domain with the help of Creative Commons, you are provided with the following RDF chunk:
+
+{{{
+<rdf:RDF
+	xmlns="http://web.resource.org/cc/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+	<Work rdf:about="">
+		<dc:title>EAN-13 Bar Code</dc:title>
+		<dc:rights>
+			<Agent>
+				<dc:title>Richard D. Worth</dc:title>
+			</Agent>
+		</dc:rights>
+		<license rdf:resource="http://web.resource.org/cc/PublicDomain" />
+	</Work>
+	<License rdf:about="http://web.resource.org/cc/PublicDomain">
+		<permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+		<permits rdf:resource="http://web.resource.org/cc/Distribution" />
+		<permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+	</License>
+</rdf:RDF>
+}}}
+
+Of course, that's sort of like a bare minimum. And it's not quite ready to go into an .svg file.
+== Metadata Proposal (RDF in SVG) ==
+Here's what I propose:
+=== Sample ===
+{{{
+<svg>
+<metadata>
+	<rdf:RDF
+		xmlns="http://web.resource.org/cc/"
+		xmlns:dc="http://purl.org/dc/elements/1.1/"
+		xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	>
+		<Work rdf:about="http://www.openclipart.org/incoming/2004/04/contents/barcode_ean13.svg">
+			<dc:title>EAN-13 Bar Code</dc:title>
+			<dc:description>A Bar Code: EAN-13.</dc:description>
+			<dc:subject>barcode, bar code, bar, code, UPC, EAN, EAN-13, universal product code, universal, product, code, product code</dc:subject>
+			<dc:publisher><Agent rdf:about="http://www.openclipart.org/"><dc:title>Open Clip Art Project</dc:title></Agent></dc:publisher>
+			<dc:creator><Agent rdf:about="http://www.theworths.org/richard/"><dc:title>Richard D. Worth</dc:title></Agent></dc:creator>
+			<dc:rights><Agent rdf:about="http://web.resource.org/cc/PublicDomain"><dc:title>Public Domain</dc:title></Agent></dc:rights>
+			<dc:date>2004-04-27</dc:date>
+			<dc:format>image/svg+xml</dc:format>
+			<dc:type>http://purl.org/dc/dcmitype/StillImage</dc:type>
+			<license rdf:resource="http://web.resource.org/cc/PublicDomain" />
+		</Work>
+		<License rdf:about="http://web.resource.org/cc/PublicDomain">
+			<permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+			<permits rdf:resource="http://web.resource.org/cc/Distribution" />
+			<permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+		</License>
+	</rdf:RDF>
+</metadata>
+<!-- The rest of the image goes here -->
+</svg>
+}}}
+=== Sample clip art w/ metadata ===
+I have contributed 4 sample pieces of clip art with full proposed metadata included. They are:
+	* Yield Sign ([http://www.openclipart.org/incoming/2004/04/contents/yield.svg yield.svg])
+	* Stop Sign ([http://www.openclipart.org/incoming/2004/04/contents/stop.svg stop.svg])
+	* UPC-A Barcode ([http://www.openclipart.org/incoming/2004/04/contents/barcode''upca.svg barcode''upca.svg])
+	* EAN-13 Barcode ([http://www.openclipart.org/incoming/2004/04/contents/barcode''ean13.svg barcode''ean13.svg])
+
+== Other file formats (png, jpg) ==
+=== How? ===
+==== Writing RDF/XML metadata to png file ====
+Adapted From [http://www.tasi.ac.uk/2000/09/rdfmeta/ RDF for self-describing images]
+
+	1 Take the inner Creative Commons RDF Chunk from &lt;Work&gt; to &lt;/License&gt; and strip all newline characters
+	1 Create filename.xrd:<br>
+	  XMLRDFDATA &lt;Work&gt; [...] &lt;/License&gt;
+	1 $ pngtopnm filename.png &gt; filename.pnm
+	1 $ pnmtopng -text filename.xrd filename.pnm &gt; filename.png
+
+(''Note: So far, I get a segfault if I try and run pnmtopng in step 4 with an .xrd file larger than 280 characters'')
+
+==== Reading RDF/XML metadata from png file ====
+	1 Download and install [http://pmt.sourceforge.net/pngmeta/index.html Pngmeta]
+	1 $ pngmeta --xrdf filename.png
+
+
+=== Why? ===
+
+==== Why not? Let's not throw away metadata ====
+If we have metadata in an svg file, and then we create a png of it, why not embed that metadata in the png image? We're talking about maybe 1 or 2 kb of data here. It is information that describes the drawing depicted in the file, regardless of whether it is in vector or bitmap format. A small portion of the metadata will be changed to reflect the type (ex: image/svg+xml becomes image/png) but for the most part, an image is an image and the metadata describes that image.
+
+==== Thumbnails are important too ====
+Metadata should be included in all images (where possible), even in a thumbnail. Imagine an RDF-aware search engine (maybe even one on our site). It would search through the thumbnail image and find information describing that image in machine-readable form. This is a huge step up from folder/filename only information, or having the information somewhere else.
+
+-- Main.RichardWorth - 29 Apr 2004
+
+= Older Comments =
+
+I think we should just use SVG. Bitmap sucks for clipart IMHO and I don't see what WMF offers that SVG don't. Christian S.
+
+The only point I might see for including WMF as a format is that there are a number of WMF-based clipart packages that 
+could be aggregated with the SVG clipart.  -- Bryce
+
+I'd suggest limiting to 2d vector formats though, just for the sake of tightening focus.  Leave the other stuff for later, or to other
+projects to focus on.  -- Bryce
+
+
+-- Main.JonPhillips - 11 Apr 2004
+
+What Metadata do we want? 
+A brief look at the XMP spec seems to suggest that it will support pretty much any metadata we want.
+
+So my suggestions: 
+author, public domain stuff, author contact details, creation date/app, keywords
+
+-- Main.DavidIllsley - 11 Apr 2004
+
