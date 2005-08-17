@@ -1,0 +1,24 @@
+##META:TOPICINFO{author`"EricAnholt" date`"1063747451" format`"1.0" version`"1.1"}%
+##META:TOPICPARENT{name="dri"}%
+cvsup is a tool which allows quick checking out of cvs or mirroring of a CVS repository.
+
+To use it, first install cvsup. It can installed using "apt-get install cvsup" on debian, "yum install cvsup" on fedora, or "portupgrade -RiN cvsup" on !FreeBSD. Then grab the [http://dri.freedesktop.org/~dri/dri-supfile dri-supfile].
+
+Next, edit your dri-supfile for your configuration. The dri-supfile tells cvsup to place checked out files in /usr/src/dri and cvsup's extra state in /etc/cvsup/drisup. If you wish to check out a branch other than the trunk of CVS, edit the tag in the line:
+
+{{{
+	 * default release`cvs tag`. 
+}}}
+
+to the name of your branch, e.g:
+
+{{{
+	 * default release`cvs tag`mach64-0-0-6-branch 
+}}}
+
+If you wish to check out the entire CVS repository, remove the "tag=." entirely. If you choose to do that, you can then check out CVS from your local machine using cvs -d<prefix> checkout xc, which allows for fast checkouts and diffing without hitting the network.
+
+Below that is the collection name, "dri-xc." Two collections are offered. The "dri-xc" collection contains just the xc/ directory, which is what most people want from DRI CVS. Changing that to the "dri" collection will get you all of CVS, including the agpgart WIP an other projects.
+
+When you are finished configuring, run "cvsup dri-supfile". You may want to check out the cvsup manpage for extra flags to add. My standard set is "cvsup -s -g -L 2 dri-supfile". The process can be killed and restarted as necessary, if your connection is slow. 
+
