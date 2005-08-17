@@ -9,20 +9,20 @@ has been the standard C binding for the
 [http://www.xfree86.org X Window System] protocol
 for many years now.  It is an excellent piece of work, but
 there are applications for which it is not ideal, for example
- * Small platforms: Xlib is a large piece of code, and it is difficult to make it smaller.
- * Latency hiding: Xlib requests requiring a reply are effectively synchronous: they block until the reply appears, whether the result is needed immediately or not.
- * Direct access to the protocol: Xlib does quite a bit of caching, layering, and similar optimizations. While this is normally a feature, it makes it difficult to simply emit specified X protocol requests and process specific responses.
- * Threaded applications: While Xlib does attempt to support multithreading, the API makes this difficult and error-prone.
- * New extensions: The Xlib infrastructure provides limited support for the creation of X extension client side code.
+	''' '''Small platforms*: Xlib is a large piece of code, and it is difficult to make it smaller.
+	''' '''Latency hiding*: Xlib requests requiring a reply are effectively synchronous: they block until the reply appears, whether the result is needed immediately or not.
+	''' '''Direct access to the protocol*: Xlib does quite a bit of caching, layering, and similar optimizations. While this is normally a feature, it makes it difficult to simply emit specified X protocol requests and process specific responses.
+	''' '''Threaded applications*: While Xlib does attempt to support multithreading, the API makes this difficult and error-prone.
+	''' '''New extensions*: The Xlib infrastructure provides limited support for the creation of X extension client side code.
 
 === XCB: an X C Binding ===
 
 For these reasons, among others, we are
 working on XCB, an X C Binding which is designed to solve
 the above problems and thus provide a base for
- * Toolkit implementation.
- * Direct protocol-level programming.
- * Lightweight emulation of commonly used portions of the Xlib API (in progress, see below).
+	* Toolkit implementation.
+	* Direct protocol-level programming.
+	* Lightweight emulation of commonly used portions of the Xlib API (in progress, see below).
 
 === XCL: an Xlib Compatibility Layer ===
 
@@ -34,41 +34,36 @@ advantage of XCB's capabilities.
 
 == Availability ==
 
-XCB and Xlib development efforts are coordinated using CVS, this Wiki, and the mailing list.
+XCB and Xlib development efforts are coordinated using CVS, TWiki, and the mailing list.
 
-The CVS repository is hosted by freedesktop.org since October 2003, replacing the repository on [http://home.keithp.com Keith Packard's server]. See the [:GettingInvolved: instructions for freedesktop.org CVS]; our CVSROOT is in [http://cvs.freedesktop.org/xcb/ /cvs/xcb].
+The CVS repository is hosted by freedesktop.org since October 2003, replacing the repository on [http://home.keithp.com Keith Packard's server]. See the [[Main.GettingInvolved#CVS][instructions for freedesktop.org CVS]]; our CVSROOT is in /cvs/xcb.
 
 To build XCB from source, you need to have installed at least:
- * pkgconfig 0.15.0
- * automake 1.7
- * autoconf 2.50
- * [http://check.sourceforge.net check]
- * xsltproc
+	* pkgconfig 0.15.0
+	* automake 1.7
+	* autoconf 2.50
+	* [http://check.sourceforge.net check]
+	* xsltproc
 (Trivial patches to support earlier versions would be welcome.)
 
 There are multiple modules in CVS. The modules you need to checkout, build, and install for each part of the project are, in order:
- * Xproto from [:Software/xlibs: xlibs]
- * Xau from [:Software/xlibs: xlibs]
- * xcb-proto
- * xcb
+	* Xproto from ["xlibs"], Xau from ["xlibs"], xcb-proto, xcb
 
 To build Xlib with support for XCB, first build XCB as above. After that, the modules you need to checkout, build, and install for each part of the project are, in order:
- * XExtensions from [:Software/xlibs: xlibs]
- * xtrans from [:Software/xlibs: xlibs]
- * X11 from [:Software/xlibs: xlibs]
+	* xextensions from ["xlibs"], xtrans from ["xlibs"], X11 from ["xlibs"]
 When you configure the X11 module, give the '--with-xcb' flag.
 
-This is a fairly complex operation at this point. Watch out for pkgconfig problems, esp. distinguishing {{{/usr/local}}}, {{{/usr}}}, and {{{/usr/X11R6}}} in the config. Note that Xproto and xcb-proto exist only to install header files, so typing `make` or `make all` will produce the message "Nothing to be done for 'all'". That's normal.
+This is a fairly complex operation at this point. Watch out for pkgconfig problems, esp. distinguishing /usr/local, /usr, and /usr/X11R6 in the config. Note that Xproto and xcb-proto exist only to install header files, so typing `make` or `make all` will produce the message "Nothing to be done for 'all'". That's normal.
 
-The [http://www.freedesktop.org/mailman/listinfo/xcb mailing list] has been hosted by freedesktop.org since October 2003, taking over from BartMassey, who hosted it from February 2003. Before that it was hosted by KeithPackard, beginning in June 2002. Old mailing list addresses are being forwarded to the current list; and everyone who was subscribed to those earlier lists should still be subscribed to this one.
+The [http://freedesktop.org/mailman/listinfo/xcb mailing list] has been hosted by freedesktop.org since October 2003, taking over from Main.BartMassey, who hosted it from February 2003. Before that it was hosted by Main.KeithPackard, beginning in June 2002. Old mailing list addresses are being forwarded to the current list; and everyone who was subscribed to those earlier lists should still be subscribed to this one.
 
 == Implementation and Status ==
 
-Both XCB and our Xlib compatibility efforts are works in progress; we have an [:Software/XCBDevelopmentPlan: XCBDevelopmentPlan] that is also a work in progress.  Some brief notes:
+Both XCB and our Xlib compatibility efforts are works in progress; we have an XCBDevelopmentPlan that is also a work in progress.  Some brief notes:
 
 === XCB ===
 
-[:Software/XCBToDo: XCBToDo] describes current work needed and in progress. Also available: [:Software/XcbRationale: XcbRationale] and [:Software/XcbApi: XcbApi] documentation.
+XCBToDo describes current work needed and in progress. Also available: XcbRationale and XcbApi documentation.
 
 The protocol layer of XCB is implemented as a set of [http://www.w3.org/XML XML] protocol descriptions, along with an [http://www.w3.org/TR/xslt XSLT]-based C binding generator.  The remainder of XCB consists of C code.
 
@@ -79,13 +74,11 @@ Thread programs or single-threaded programs: on platforms
 where POSIX threads are unavailable, it will be compilable
 without.
 
-The X core requests have been implemented in XCB, as well as the BIG-REQUESTS, XC-Misc, SHAPE, SHM, DPMS, Render, [:Software/FixesExt: XFIXES], [:Software/CompositeExt: Composite], [:Software/XDamage: DAMAGE], and [:Software/XEvIE: XEvIE] extensions.  A multithreaded demonstration program uses XCB for animated graphics in multiple windows.  Other demos for Render, event monitoring, access to connection setup data, and DPMS also exist.
+The X core requests have been implemented in XCB, as well as the BIG-REQUESTS, XC-Misc, SHAPE, SHM, DPMS, Render, [[FixesExt][XFIXES]], [[CompositeExt][Composite]], [[XDamage][DAMAGE]], and [[XEvIE][XEvIE]] extensions.  A multithreaded demonstration program uses XCB for animated graphics in multiple windows.  Other demos for Render, event monitoring, access to connection setup data, and DPMS also exist.
 
-JoshTriplett has documented the [http://cvs.freedesktop.org/xcb/xcb-proto/doc/xml-xcb.txt XML-XCB protocol description format]; this documentation is included in the xcb-proto package.
+Main.JameySharp has written some documentation for those who might want to understand the M4-based [[XCBProtocolLanguage][protocol description language]] previously used in XCB.  Documentation for the new XML-based protocol description language is in progress.
 
-JameySharp has written some documentation for those who might want to understand the M4-based [:Software/XCBProtocolLanguage: protocol description language] previously used in XCB.
-
-BartMassey has done some work on establishing correctness properties
+Main.BartMassey has done some work on establishing correctness properties
 of the core data dispatch mechanism of XCB using a model of
 XCB written in the 
 [http://www.afm.sbu.ac.uk/z/ Z] formal
@@ -93,17 +86,15 @@ specification notation (see below).  This is good, since the
 mechanism is complex, and the previous version was known to
 have defects.
 
-JameySharp has begun early work on new [:Software/usingxcb: XCB-based libraries and applications], in addition to the Xlib work described below.
-
-VincentTorri has begun a [http://www.iecn.u-nancy.fr/~torri/files/xcb/doc/index.html tutorial] on XCB. There are also some simple [http://www.iecn.u-nancy.fr/~torri/files/xcb/examples/ examples] on how to use XCB, like drawing points and lines
+Main.JameySharp has begun early work on new [[usingxcb][XCB-based libraries and applications]], in addition to the Xlib work described below.
 
 === Xlib on XCB ===
 
-In September 2002, JameySharp
+In September 2002, Main.JameySharp
 [http://nexp.cs.pdx.edu/pipermail/xcb/2002-September/000031.html proposed]
 a modification to Xlib that would maintain binary compatibility
 with Xlib extensions and applications. The day before Halloween 2003,
-JameySharp and KeithPackard hashed out a better-informed
+Main.JameySharp and Main.KeithPackard hashed out a better-informed
 approach, which certainly maintains binary compatibility
 with applications, and might not require recompiles of extensions
 either. This was mostly implemented two days later. As of
@@ -124,43 +115,43 @@ making gratuitous modifications now.
 
 === XML-XCB ===
 
-In 2004, JoshTriplett replaced the M4-based protocol description macros with an XML-based protocol description data format and an XSLT-based C binding generator, as part of the [:Software/XML-XCB:XML-XCB] project.  This work has been merged into XCB.
+In 2004, Main.JoshTriplett replaced the M4-based protocol description macros with an XML-based protocol description data format and an XSLT-based C binding generator, as part of the XML-XCB project.  This work has been merged into XCB.
 
 == Publications ==
 
-BartMassey and JameySharp.[[BR]]
-XCB: An X Protocol C Binding.[[BR]]
-In ''Proc. [http://www.usenix.org/events/xfree86/ 2001 XFree86 Technical Conference]'', Oakland, CA, November 2001. USENIX.[[BR]]
-URL [http://www.linuxshowcase.org/2001/full_papers/massey/massey.pdf].[[BR]]
-Local copies: [http://www.freedesktop.org/software/xcb/xfree86-xcb.pdf PDF], [http://www.freedesktop.org/software/xcb/xfree86-xcb.ps PS].
+Main.BartMassey and Main.JameySharp.<br />
+XCB: An X Protocol C Binding.<br />
+In ''Proc. [http://www.usenix.org/events/xfree86/ 2001 XFree86 Technical Conference]'', Oakland, CA, November 2001. USENIX.<br />
+URL [http://www.linuxshowcase.org/2001/full_papers/massey/massey.pdf].<br />
+Local copies: [[%ATTACHURL%/xfree86-xcb.pdf][PDF]], [[%ATTACHURL%/xfree86-xcb.ps][PS]].
 
-BartMassey and Robert Bauer.[[BR]]
-X meets Z: Verifying correctness in the presence of POSIX Threads.[[BR]]
-In ''Proc. [http://www.usenix.org/events/usenix02/ 2002 Usenix Annual Technical Conference], Freenix Track'', Monterey, CA, June 2002.[[BR]]
-URL [http://www.usenix.org/events/usenix02/tech/freenix/massey.html].[[BR]]
-Local copies: [http://www.freedesktop.org/software/xcb/usenix-zxcb.pdf PDF], [http://www.freedesktop.org/software/xcb/usenix-zxcb.ps PS].
+Main.BartMassey and Robert Bauer.<br />
+X meets Z: Verifying correctness in the presence of POSIX Threads.<br />
+In ''Proc. [http://www.usenix.org/events/usenix02/ 2002 Usenix Annual Technical Conference], Freenix Track'', Monterey, CA, June 2002.<br />
+URL [http://www.usenix.org/events/usenix02/tech/freenix/massey.html].<br />
+Local copies: [[%ATTACHURL%/usenix-zxcb.pdf][PDF]], [[%ATTACHURL%/usenix-zxcb.ps][PS]].
 
-JameySharp and BartMassey.[[BR]]
-XCL: An Xlib Compatibility Layer for XCB.[[BR]]
-In ''Proc. [http://www.usenix.org/events/usenix02/ 2002 Usenix Annual Technical Conference], Freenix Track'', Monterey, CA, June 2002.[[BR]]
-URL [http://www.usenix.org/events/usenix02/tech/freenix/sharp.html].[[BR]]
-Local copies: [http://www.freedesktop.org/software/xcb/usenix-xcl.pdf PDF], [http://www.freedesktop.org/software/xcb/usenix-xcl.ps PS].[[BR]]
-Slides: [http://www.freedesktop.org/software/xcb/xcl-talk.pdf PDF], [http://www.freedesktop.org/software/xcb/xcl-talk.ps PS].
+Main.JameySharp and Main.BartMassey.<br />
+XCL: An Xlib Compatibility Layer for XCB.<br />
+In ''Proc. [http://www.usenix.org/events/usenix02/ 2002 Usenix Annual Technical Conference], Freenix Track'', Monterey, CA, June 2002.<br />
+URL [http://www.usenix.org/events/usenix02/tech/freenix/sharp.html].<br />
+Local copies: [[%ATTACHURL%/usenix-xcl.pdf][PDF]], [[%ATTACHURL%/usenix-xcl.ps][PS]].<br />
+Slides: [[%ATTACHURL%/xcl-talk.pdf][PDF]], [[%ATTACHURL%/xcl-talk.ps][PS]].
 
-JameySharp.[[BR]]
-How Xlib is Implemented (And What We're Doing About It).[[BR]]
-In ''Proc. [http://www.usenix.org/events/usenix04/ 2004 Usenix Annual Technical Conference], Freenix Track'', Boston, MA, June 2004.[[BR]]
-URL [http://www.usenix.org/events/usenix04/tech/freenix/sharp.html].[[BR]]
-Local copies: [http://www.freedesktop.org/software/xcb/xlib_impl.pdf PDF], [http://www.freedesktop.org/software/xcb/xlib_impl.ps PS].[[BR]]
-Slides: [http://www.freedesktop.org/software/xcb/xlib_impl_slides.pdf PDF].
+Main.JameySharp.<br />
+How Xlib is Implemented (And What We're Doing About It).<br />
+In ''Proc. [http://www.usenix.org/events/usenix04/ 2004 Usenix Annual Technical Conference], Freenix Track'', Boston, MA, June 2004.<br />
+URL [http://www.usenix.org/events/usenix04/tech/freenix/sharp.html].<br />
+Local copies: [[%ATTACHURL%/xlib''impl.pdf][PDF]], [[%ATTACHURL%/xlib''impl.ps][PS]].<br />
+Slides: [[%ATTACHURL%/xlib''impl''slides.pdf][PDF]].
 
 == Acknowledgements ==
 
-The authors are grateful to KeithPackard for his advice
+The authors are grateful to Main.KeithPackard for his advice
 and assistance with X and XCB issues both philosophical and
 technical, and to Xlib author
-JimGettys for his advice and support.
-We are also grateful to AndyHowe for his efforts in testing
+Main.JimGettys for his advice and support.
+We are also grateful to Main.AndyHowe for his efforts in testing
 XCB and finding ways to improve its implementation and documentation,
 and in implementing a significant portion of XCL.
 
@@ -182,7 +173,7 @@ for their support and forbearance
 during this work.  Bart's travel expenses
 for the 2001 XFree86 Technical Conference and for Usenix 2002
 were paid by the PSU CS Dept., making it possible for
-him to attend.  The University is also currently providing the bandwidth and rack space to host [http://www.freedesktop.org freedesktop.org], including this project.  [http://hp.com HP] has generously provided the machine hosting `freedesktop.org`.
+him to attend.  The University is also currently providing the bandwidth and rack space to host <tt><a href`"freedesktop.org">freedesktop.org</a></tt>, including this project.  [http://hp.com HP] has generously provided the machine hosting `freedesktop.org=.
 
 ##META:FILEATTACHMENT{name`"usenix-xcl.pdf" attr`"h" comment`"" date`"1066857072" path`"usenix-xcl.pdf" size`"104966" user`"JameySharp" version`"1.1"}%
 ##META:FILEATTACHMENT{name`"usenix-xcl.ps" attr`"h" comment`"" date`"1066857102" path`"usenix-xcl.ps" size`"141725" user`"JameySharp" version`"1.1"}%
