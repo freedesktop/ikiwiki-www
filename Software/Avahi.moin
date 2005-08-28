@@ -117,12 +117,13 @@ avahi consists of several parts:
 
  * '''libavahi-common''' - a library containing some function used both by clients to the avahi-daemon and the mDNS stack itself.
  * '''libavahi-core''' - A library implementing a flexible mDNS/DNS-SD stack. The most prominent consumer is avahi-daemon. Besides that primarily useful for developers of embedded applications. This stack is very avanced and has some uncommon features like mDNS reflection. A preliminary (doxygen generated) API documentation for this and libavahi-common is [http://www.freedesktop.org/~lennart/doxygen/ available.]
+ * '''libavahi-client''' - A minimal wrapper around the DBUS API to simplify its usage. Hides the DBUS internals completely. This resembles the API of libavahi-core more or less.
+ * '''libavahi-glib''' - An adapter for connection avahi-client or avahi-core to a GLib main loop.
  * '''avahi-discover-standalone''' - A GTK tool for enumerating all available services on the local LAN. Its links directly against libavahi-core, i.e. embedds its own mDNS stack. You should use it only for debugging, since it's not a good idea to run multiple mDNS stacks simultaneously on the same machine. (Screenshot above)
  * '''avahi-daemon''' - The avahi daemon which makes use of libavahi-core to implement an mDNS stack which is accessible by different ways:
   * System administrators may put short XML fragments in /etc/avahi/services to publish semi-static services (e.g. SSH)
   * A so called "simple protocol" whith a very limited command set which is used exclusively by nss-mdns (to resolve host names via mDNS) and avahi-dnsconfd
   * The DBUS interface for normal clients (like nautilus or gaim) which is an IPC wrapper around the functions provided by libavahi-core 
- * '''libavahi-client''' - A minimal wrapper around the DBUS API to simplify its usage. Hides the DBUS internals completely. This will resemble the API of libavahi-core more or less. - Not yet finished
  * '''[http://0pointer.de/lennart/projects/nss-mdns/ nss-mdns]''' - A GNU libc NSS module for host name resolving using mDNS. This is an external project maintained by Lennart and not part of avahi since it doesn't require avahi to be useful. But if it finds a running avahi daemon it makes use of its superior RR cacheing.
  * '''avahi-dnsconfd''' - A small daemon which may be used to configure conventional DNS servers using mDNS in a DHCP-like fashion. Especially useful on IPv6.
  * '''avahi-browse''', '''avahi-publish-service''', '''avahi-publish-address''', '''avahi-resolve-address''', '''avahi-resolve-host-name''' - Some command line utilities written in Python which use the DBUS API to take care of simple tasks.
