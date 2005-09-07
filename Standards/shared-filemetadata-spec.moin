@@ -1,0 +1,16 @@
+= Shared File Metadata Specification (draft) =
+
+== Introduction ==
+
+ There are a number of metadata frameworks and indexers currently being developed such as Beagle and Kat that provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and Virtual Folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata. 
+
+== The Interface ==
+ 
+ The Interface should be accessible via the Dbus session bus with the interface name ''''org/freedesktop/file/metadata''''. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface.
+
+ === Methods ===
+
+   * GetMetaDataForFile (returns a specific type of metadata for a given uri)
+    || input DBUS_TYPE_STRING s (the file's uri) ||
+    || input DBUS_TYPE_STRING s (the metadata type name) ||
+    || output DBUS_TYPE_VARIANT v (the metadata value) ||
