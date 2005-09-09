@@ -82,20 +82,9 @@ For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard a
 || {{{Image.CameraModel}}}  || string || Camera Model used to take the image ||
 
 
-
-
-
-
-
-
 == The Interface ==
 
-The Interface should either be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata''' or be accessible in P2P mode where the address of the server to use can be read/set from a configu
-
-
-== The Interface ==
-
-The Interface should either be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata''' or be accessible in P2P mode where the address of the server to use can be read/set from a configuration key. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface. The interface must implement all methods and signals on object '''org.freedesktop.file.metadata''' as follows:
+The Interface should be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata''' or be accessible in P2P mode where the address of the server to use can be read/set from a known configuration key. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface. The interface must implement all methods and signals on object '''org.freedesktop.file.metadata''' as follows:
 
  === Methods ===
 
@@ -111,7 +100,7 @@ The Interface should either be accessible via the Dbus session bus with the inte
 
    * {{{GetMultipleMetaDataForFile}}} (returns mutliple metadata types/values for a given uri)
     || ''input DBUS_TYPE_STRING'' s (the file's uri) ||
-    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve or "*" to get all available) ||
+    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve including wildcards or if NULL gets all available metadata) ||
     || ''output DBUS_TYPE_DICT  a{sv}'' (the metadata as key,value pairs) ||
 
    * {{{GetMetaDataForFilesInFolder}}} (returns a specific type of metadata for all files in a given folder's uri)
@@ -121,7 +110,7 @@ The Interface should either be accessible via the Dbus session bus with the inte
 
    * {{{GetMultipleMetaDataForFilesInFolder}}} (returns multiple types of metadata for all files in a given folder's uri)
     || ''input DBUS_TYPE_STRING s'' (the parent folder's uri) ||
-    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve or "*" to get all available) ||
+    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve including wildcards or if NULL gets all available metadata) ||
     || ''output DBUS_TYPE_DICT  a{sv}'' (returns filename as the key and the value as all requested metadata for that file in an array of struct "a(sv)" of key/value pairs which can be recursed) ||
 
    * {{{RefreshFileMetaData}}} (asks the framework to reindex and regenerate a file's metadata)
