@@ -6,40 +6,46 @@ There are a number of metadata frameworks and indexers currently being developed
 
 Metadata is usually defined as data about data. In our case the metadata describes data about files and such metadata is user visible in office applications, document viewers and audio players. Metadata can typically be viewed or written by selecting "properties" from the file menu of one of these applications. 
 
-Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3], [http://en.wikipedia.org/wiki/EXIF EXIF] as well as application specific metadata names. The purpose of these common matadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. This specification only defines a common subset of all possible metadata and is not desingned to limit what metadata any file can have nor does it provide any formal names for custom or non-standard metadata. The only requirement for metadata names is that they are unique and do not overload or cause confusion with others. For non-generic metadata, each metadata item needs to be namespaced with its type using a '.' qualifier (EG ID3.Artist represents the metadata Artist for an audio file based on ID3 standard).
+Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3], [http://en.wikipedia.org/wiki/EXIF EXIF] as well as application specific metadata names. The purpose of these common matadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. This specification only defines a common subset of all possible metadata and is not desingned to limit what metadata any file can have nor does it provide any formal names for custom or non-standard metadata. The only requirement for metadata names is that they are unique and do not overload or cause confusion with existing ones. For non-generic metadata, each metadata item needs to be namespaced with its category type using a '.' qualifier (EG Audio.Artist represents the metadata Artist for an audio type file).
 
 === Generic Metadata ===
 
-Generic metadata is applicable to all files regardless of their format. The specified metadata uses some [http://dublincore.org/documents/dces/ Dublin Core] based types and some custom ones. Note generic metadata types are not namespaced.
+Generic metadata is applicable to all files regardless of their format. The specified metadata uses a few [http://dublincore.org/documents/dces/ Dublin Core] based types where applicable with the rest being custom ones. Note generic metadata types are not namespaced.
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
-|| {{{Format}}}  || string ||  Mime type of the file ||
-|| {{{Type}}}  || string || descriptive type of the file ||
-|| {{{Size}}}  || uint64 || size of the file in bytes||
-|| {{{Owner}}}  || string || size of the file in bytes||
-|| {{{Description }}}|| string ||  User defined free text/notes ||
+|| {{{Name}}} || string || File name excluding path but including the file extension ||
+|| {{{Extension}}} || string || File name extension ||
+|| {{{Path}}}  || string ||  full file path of file excluding the filename ||
+|| {{{Link}}}  || string ||  Uri of link target ||
+|| {{{Format}}}  || string ||  Mime type of the file or if a directory it should contain value "folder"||
+|| {{{Size}}}  || uint64 || size of the file in bytes or if a directory no. of items it contains||
+|| {{{Owner}}}  || string || Owner of the file ||
+|| {{{Group}}}  || string || File group ||
+|| {{{Permissions}}} || string || Permission string in unix format eg "-rw-r--r--" ||
+|| {{{Description}}} || string ||  User defined free text/notes ||
 || {{{Tags }}} || string ||  List of tags/keywords/emblems ||
+|| {{{IconPath }}} || string ||  file uri for a custom icon for the file ||
 || {{{SmallThumbnailPath}}} || string || file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{LargeThumbnailPath}}} || string || file uri for a larger thumbnail of the file suitable for previews ||
-|| {{{DateModified }}} || string ||  Last modified date in format YYYY-MM-DD-hh:mm:ss ||
-|| {{{DateAccessed }}} || string ||  Last access date in format YYYY-MM-DD-hh:mm:ss ||
-|| {{{DateIndexed }}} || string ||  Last indexed date in format YYYY-MM-DD-hh:mm:ss ||
+|| {{{Modified }}} || string ||  Last modified date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Accessed }}} || string ||  Last access date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Indexed }}} || string ||  Last indexed date in format "YYYY-MM-DD hh:mm:ss" ||
 
 === Audio Metadata ===
 
-Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similiar files. These are already defined in that specification. All metadata in this section is prefixed with "ID3" and it is recommended that any other metadata not listed below also uses this prefix if its ID3 related. 
+Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similiar files. These are already defined in that specification. All metadata in this section is prefixed with "Audio" and it is recommended that any other metadata not listed below also uses this prefix if its audio related. 
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
-|| {{{ID3.Title }}} || string ||  title of the track ||
-|| {{{ID3.Artist}}} || string ||  artist of the track ||
-|| {{{ID3.Album }}} || string ||  name of the album ||
-|| {{{ID3.Year}}}    || integer || year track was released ||
-|| {{{ID3.Comment}}}       || string || user definable comments on the track ||
-|| {{{ID3.Genre }}}   || string || type of music classification for the track as defined in ID3 spec ||
+|| {{{Audio.Title }}} || string ||  title of the track ||
+|| {{{Audio.Artist}}} || string ||  artist of the track ||
+|| {{{Audio.Album }}} || string ||  name of the album ||
+|| {{{Audio.Year}}}    || integer || year track was released ||
+|| {{{Audio.Comment}}}       || string || user definable comments on the track ||
+|| {{{Audio.Genre }}}   || string || type of music classification for the track as defined in ID3 spec ||
 
 === Document Metadata ===
 
-For documents, applications have typically used a mixture of Dublin Core types and propriety types. In order to be consistent with them, we have based our metadata names likewise. We have also based these names on metadata names found in OpenOffice and PDF documents. All metadata in this section is prefixed with "Doc" and any other custom document metadata should be likewise.
+For documents, applications have typically used a mixture of Dublin Core types and propriety types. In order to be consistent with them, we have based our metadata names likewise. We have also based these names on metadata names found in Open Office, Ms Word and PDF documents. All metadata in this section is prefixed with "Doc" and any other custom document metadata should be likewise.
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
 || {{{Doc.Title}}}  || string ||  Title of document ||
@@ -52,13 +58,13 @@ For documents, applications have typically used a mixture of Dublin Core types a
 
 == The Interface ==
 
-The Interface should be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata'''. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface. The interface must implement all methods and signals on object '''org.freedesktop.file.metadata''' as follows:
+The Interface should either be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata''' or be accessible in P2P mode where the address of the server to use can be read/set from a configuration key. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface. The interface must implement all methods and signals on object '''org.freedesktop.file.metadata''' as follows:
 
  === Methods ===
 
    * {{{GetMetaDataForFile}}} (returns a specific type of metadata for a given uri)
     || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
-    || ''input DBUS_TYPE_STRING s'' (the metadata type name) ||
+    || ''input DBUS_TYPE_STRING s'' (metadata type name to retrieve) ||
     || ''output DBUS_TYPE_VARIANT v'' (the metadata value) ||
 
    * {{{SetMetaDataForFile}}} (sets a specific type of metadata for a given uri)
@@ -66,8 +72,9 @@ The Interface should be accessible via the Dbus session bus with the interface n
     || ''input DBUS_TYPE_STRING s'' (the metadata type name) ||
     || ''input DBUS_TYPE_VARIANT v'' (the metadata value) ||
 
-   * {{{GetAllMetaDataForFile}}} (returns all available metadata for a given uri)
+   * {{{GetMultipleMetaDataForFile}}} (returns mutliple metadata types/values for a given uri)
     || ''input DBUS_TYPE_STRING'' s (the file's uri) ||
+    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve or "*" to get all available) ||
     || ''output DBUS_TYPE_DICT  a{sv}'' (the metadata as key,value pairs) ||
 
    * {{{GetMetaDataForFilesInFolder}}} (returns a specific type of metadata for all files in a given folder's uri)
@@ -75,9 +82,10 @@ The Interface should be accessible via the Dbus session bus with the interface n
     || ''input DBUS_TYPE_STRING s'' (the metadata type name) ||
     || ''output DBUS_TYPE_DICT  a{sv}'' (the metadata as filename, metadata key/value pairs) ||
 
-   * {{{IsMetaDataForFileUpToDate}}} (returns whether a file's metadata is up to date)
-    || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
-    || ''output DBUS_TYPE_BOOLEAN b'' (returns true if metadata is up to date on the given file uri. Usually this involves comparing the last modified date via a stat() call with the last indexed date generated by the framework for the file)||
+   * {{{GetMultipleMetaDataForFilesInFolder}}} (returns multiple types of metadata for all files in a given folder's uri)
+    || ''input DBUS_TYPE_STRING s'' (the parent folder's uri) ||
+    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve or "*" to get all available) ||
+    || ''output DBUS_TYPE_DICT  a{sv}'' (returns filename as the key and the value as all requested metadata for that file in an array of struct "a(sv)" of key/value pairs which can be recursed) ||
 
    * {{{RefreshFileMetaData}}} (asks the framework to reindex and regenerate a file's metadata)
     || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
