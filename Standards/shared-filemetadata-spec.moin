@@ -1,14 +1,14 @@
-== Introduction ==
+= Introduction =
 
 There are a number of metadata frameworks and indexers currently being developed such as Beagle and Kat that provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and Virtual Folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
 
-== Metadata ==
+= Metadata =
 
 Metadata is usually defined as data about data. In our case the metadata describes data about files that is often user visible in file managers, office applications, document viewers and audio players. Metadata can typically be viewed or written by selecting "properties" from the file menu of one of these applications. 
 
 Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3] for audio files, [http://en.wikipedia.org/wiki/EXIF EXIF] for image files as well as application specific metadata names. The purpose of these common matadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. 
 
-=== Metadata rules ===
+== Metadata rules ==
 
 The only requirement for metadata names is that they are unique and do not overload or cause confusion with each other. To make this possible, all metadata is namespaced by an appropriate class based on the type of the file or the application name (if the metadata is application specific).
 
@@ -23,9 +23,9 @@ Only metadata that is not derived from the file or file contents may be editable
 
 
 
-=== Metadata Namespaces ===
+== Metadata Namespaces ==
 
-For all metadata, each metadata item needs to be namespaced with its class type using a '.' qualifier (EG Audio.Artist represents the metadata Artist for an audio class file). Metadata that is strictly application specific should use a namespace class based on the application name (EG "Nautilus.WindowGeometry").
+For all metadata, each metadata item needs to be namespaced with its class type using a "." qualifier (EG Audio.Artist represents the metadata Artist for an audio class file). Metadata that is strictly application specific should use a namespace class based on the application name (EG "Nautilus.Window_Geometry").
 
 This specification defines the following built-in classes:
  * File
@@ -34,7 +34,7 @@ This specification defines the following built-in classes:
  * Image
 
 
-=== Generic File Metadata ===
+== Generic File Metadata ==
 
 Generic file metadata is applicable to all files regardless of their format. The specified metadata uses a few [http://dublincore.org/documents/dces/ Dublin Core] based types where applicable with the rest being custom ones. Generic file metadata types are namespaced with the "File" class. Only some of the generic metadata may be writable. Custom metadata not listed below that is generic and applies to all files should also be namespaced with the "File" class unless it is strictly application specific.
 
@@ -59,7 +59,7 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss" ||
 || {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss" ||
 
-=== Audio Metadata ===
+== Audio Metadata ==
 
 Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similiar files. These are already defined in that specification. All metadata in this section is prefixed with "Audio" and it is recommended that any other metadata not listed below also uses this prefix if its audio related (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
@@ -77,7 +77,7 @@ Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.
 
 
 
-=== Document Metadata ===
+== Document Metadata ==
 
 For documents, applications have typically used a mixture of Dublin Core types and propriety types. In order to be consistent with them, we have based our metadata names likewise. We have also based these names on metadata names found in Open Office, Ms Word and PDF documents. All metadata in this section is prefixed with the "Doc" class and any otherd ocument based metadata should also have this prefix (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
@@ -91,7 +91,7 @@ For documents, applications have typically used a mixture of Dublin Core types a
 || {{{Doc.WordCount}}} || integer || total no. of chars in document ||
 || {{{Doc.Created }}} || string || date document was originally created in format "YYYY-MM-DD hh:mm:ss" ||
 
-=== Image Metadata ===
+== Image Metadata ==
 
 For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard and so a subset of this makes up part of this specification. SVG files have user definable non-standard metadata so a subset of Dublin Core is also provided here. All metadata in this section is prefixed with the "Image" class and any other image based metadata should also have this prefix (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
@@ -109,11 +109,11 @@ For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard a
 || {{{Image.CameraModel}}}  || string || model of camera used to take the image ||
 
 
-== The Interface ==
+= The Interface =
 
 The Interface should be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata''' or be accessible in P2P mode where the address of the server to use can be read/set from a known configuration key. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface. The interface must implement all methods and signals on object '''org.freedesktop.file.metadata''' as follows:
 
-=== Methods ===
+== Methods ==
 
  * {{{GetMetaDataForFile}}}
  || Input || ||
@@ -166,7 +166,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
 
 ----
 
-=== Signals ===
+== Signals ==
 
  * {{{FileMetaDataChanged}}}
  || Output || ||
@@ -176,6 +176,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Description || ||
  || || emitted when any metadata has changed for the specified file. you can use Dbus arguement matching/filtering to watch for changes in specific files and/or specific metadata ||
 
+----
 
-== Searching Metadata ==
+= Searching Metadata =
 
