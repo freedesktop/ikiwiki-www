@@ -40,10 +40,9 @@ Generic file metadata is applicable to all files regardless of their format. The
 
 || ''' Name    ''' || '''   Type     ''' || '''Writable''' || '''    Description''' ||
 || {{{File.Name}}} || string || No || File name excluding path but including the file extension ||
-|| {{{File.Extension}}} || string || No ||  File name extension ||
 || {{{File.Path}}}  || string || No ||   full file path of file excluding the filename ||
 || {{{File.Link}}}  || string || No ||   Uri of link target ||
-|| {{{File.Format}}}  || string || No ||   Mime type of the file or if a directory it should contain value "folder"||
+|| {{{File.Format}}}  || string || No ||   Mime type of the file or if a directory it should contain value "Folder"||
 || {{{File.Size}}}  || uint64 ||  No || size of the file in bytes or if a directory no. of items it contains||
 || {{{File.Owner}}}  || string ||  No || Owner of the file ||
 || {{{File.Group}}}  || string ||  No || File group ||
@@ -122,7 +121,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Output || ||
  || || DBUS_TYPE_DICT  a{sv} ||
  || Description || ||
- || || Returns specified types of metadata for a given file as key value pairs. If NULL is passed to the 2nd parmeter array then all available metadata is returned. You can easily get an entire metadata section by passing wildcards like "File.*" which will return all generic file metadata for the file ||
+ || || Returns specified types of metadata for a given file as key value pairs. If NULL is passed to the 2nd parmeter array then all available metadata is returned. You can easily get an entire metadata section by passing wildcards like "Audio.*" which will return all Audio related metadata for the file ||
 
 ----
 
@@ -145,7 +144,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Output || ||
  || || DBUS_TYPE_DICT  a{sv} ||
  || Description || ||
- || || returns the specificed types of metadata for all files in a given folder's uri. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be in the same order as inputted in the array of metadata types. The array of metadata types cannot contain wildcards and must explicity state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. ||
+ || || returns the specificed types of metadata for all files in a given folder's uri and is designed for use by file managers to retrieve in bulk metadata for all files in a folder and thereby eliminate the IPC overhead involved in retrieving metadata on a per file basis. The array of metadata types cannot contain wildcards and must explicity state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be of the same type and in the same order as inputted in the array of metadata types. EG passing an array containing the values "File.Name" "File.Size" "File.Type" returns a key/variant array where variant is a struct containing corresponding values of File.Name, File.Size and File.Type in that order||
 
 ----
 
@@ -160,11 +159,22 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Input || ||
  || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
  || Output || ||
- || || DBUS_TYPE_ARRAY as (array of file uris that matched the search string criteria) ||
+ || || DBUS_TYPE_ARRAY as (array of file uris) ||
  || Description || ||
- || || searches for files that matches a search criteria string ||
+ || || searches for files that matches a search criteria string and returns an array of file URIs that matched ||
 
 ----
+
+ * {{{SearchFileMetaDataDetailed}}} 
+ || Input || ||
+ || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
+ || Output || ||
+ || || DBUS_TYPE_DICT  a{sv}  (returns file uri as key and variant as struct of metadata that matched) ||
+ || Description || ||
+ || || searches for files that matches a search criteria string and returns a detailed breakdown of what metadata matched what on a file. The return value variant is a struct containing up to three fields - 1) metadata type that was successfully matched, 2) the metadata value that matched (which can be empty) and optionally 3) if the file contains indexed text then 100 or less characters from the files text to use as a preview summary in a search results display (a la Google). ||
+
+----
+
 
 == Signals ==
 
