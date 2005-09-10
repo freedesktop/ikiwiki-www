@@ -4,45 +4,44 @@ There are a number of metadata frameworks and indexers currently being developed
 
 == Metadata ==
 
-Metadata is usually defined as data about data. In our case the metadata describes data about files and is user visible in office applications, document viewers and audio players. Metadata can typically be viewed or written by selecting "properties" from the file menu of one of these applications. 
+Metadata is usually defined as data about data. In our case the metadata describes data about files that is often user visible in file managers, office applications, document viewers and audio players. Metadata can typically be viewed or written by selecting "properties" from the file menu of one of these applications. 
 
-Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3] for audio files, [http://en.wikipedia.org/wiki/EXIF EXIF] for image files as well as application specific metadata names. The purpose of these common matadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. This specification only defines a common subset of all possible metadata and is not designed to limit what metadata any file can have nor does it provide any formal names for custom or non-standard metadata other than a namespace class. The only requirement for metadata names is that they are unique and do not overload or cause confusion with existing ones. For all metadata, each metadata item needs to be namespaced with its class type using a '.' qualifier (EG Audio.Artist represents the metadata Artist for an audio class file).
+Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3] for audio files, [http://en.wikipedia.org/wiki/EXIF EXIF] for image files as well as application specific metadata names. The purpose of these common matadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. This specification only defines a common subset of all possible metadata and is not designed to limit what metadata any file can have nor does it provide any formal names for custom or non-standard metadata other than a namespace class. The only requirement for metadata names is that they are unique and do not overload or cause confusion with existing ones. For all metadata, each metadata item needs to be namespaced with its class type using a '.' qualifier (EG Audio.Artist represents the metadata Artist for an audio class file). Only metadata that is not derived from the file or file contents may be editable in the interface (applications that want to change non-writable metadata need to modify the embedded metadata in the file's contents themselves). Metadata that is strictly application specific should use a namespace class based on the application name (EG "Nautilus.window_geometry").
 
 === Generic File Metadata ===
 
-Generic metadata is applicable to all files regardless of their format. The specified metadata uses a few [http://dublincore.org/documents/dces/ Dublin Core] based types where applicable with the rest being custom ones.Generic file metadata types are namespaced with "File".
+Generic metadata is applicable to all files regardless of their format. The specified metadata uses a few [http://dublincore.org/documents/dces/ Dublin Core] based types where applicable with the rest being custom ones. Generic file metadata types are namespaced with the "File" class. Only some of the generic metadata may be writable. Custom metadata not listed below that is generic and applies to all files should also be namespaced with the "File" class unless it is strictly application specific.
 
-|| ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
-|| {{{File.Name}}} || string || File name excluding path but including the file extension ||
-|| {{{File.Extension}}} || string || File name extension ||
-|| {{{File.Path}}}  || string ||  full file path of file excluding the filename ||
-|| {{{File.Link}}}  || string ||  Uri of link target ||
-|| {{{File.Format}}}  || string ||  Mime type of the file or if a directory it should contain value "folder"||
-|| {{{File.Size}}}  || uint64 || size of the file in bytes or if a directory no. of items it contains||
-|| {{{File.Owner}}}  || string || Owner of the file ||
-|| {{{File.Group}}}  || string || File group ||
-|| {{{File.Permissions}}} || string || Permission string in unix format eg "-rw-r--r--" ||
-|| {{{File.Description}}} || string ||  User defined free text/notes ||
-|| {{{File.Keywords }}} || string array || array of tags/emblems ||
-|| {{{File.IconPath }}} || string ||  file uri for a custom icon for the file ||
-|| {{{File.SmallThumbnailPath}}} || string || file uri for a small thumbnail of the file suitable for use in icon views ||
-|| {{{File.LargeThumbnailPath}}} || string || file uri for a larger thumbnail of the file suitable for previews ||
-|| {{{File.Modified }}} || string ||  Last modified date in format "YYYY-MM-DD hh:mm:ss" ||
-|| {{{File.Accessed }}} || string ||  Last access date in format "YYYY-MM-DD hh:mm:ss" ||
-|| {{{File.Indexed }}} || string ||  Last indexed date in format "YYYY-MM-DD hh:mm:ss" ||
+|| ''' Name    ''' || '''   Type     ''' || '''Writable''' || '''    Description''' ||
+|| {{{File.Name}}} || string || No || File name excluding path but including the file extension ||
+|| {{{File.Extension}}} || string || No ||  File name extension ||
+|| {{{File.Path}}}  || string || No ||   full file path of file excluding the filename ||
+|| {{{File.Link}}}  || string || No ||   Uri of link target ||
+|| {{{File.Format}}}  || string || No ||   Mime type of the file or if a directory it should contain value "folder"||
+|| {{{File.Size}}}  || uint64 ||  No || size of the file in bytes or if a directory no. of items it contains||
+|| {{{File.Owner}}}  || string ||  No || Owner of the file ||
+|| {{{File.Group}}}  || string ||  No || File group ||
+|| {{{File.Permissions}}} || string ||  No || Permission string in unix format eg "-rw-r--r--" ||
+|| {{{File.Description}}} || string ||   Yes || Editable free text/notes ||
+|| {{{File.Keywords }}} || array of string ||   Yes ||  Editable array of keywords ||
+|| {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
+|| {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
+|| {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
+|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss" ||
 
 === Audio Metadata ===
 
-Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similiar files. These are already defined in that specification. All metadata in this section is prefixed with "Audio" and it is recommended that any other metadata not listed below also uses this prefix if its audio related. 
+Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similiar files. These are already defined in that specification. All metadata in this section is prefixed with "Audio" and it is recommended that any other metadata not listed below also uses this prefix if its audio related (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
 || {{{Audio.Title }}} || string ||  title of the track ||
 || {{{Audio.Artist}}} || string ||  artist of the track ||
 || {{{Audio.Album }}} || string ||  name of the album ||
 || {{{Audio.Year}}}    || integer || year track was released ||
-|| {{{Audio.Comment}}}       || string || user definable comments on the track ||
+|| {{{Audio.Comment}}}       || string ||  comments on the track ||
 || {{{Audio.Genre }}}   || string || type of music classification for the track as defined in ID3 spec ||
-|| {{{Audio.Comment}}}       || string || user definable comments on the track ||
 || {{{Audio.Codec}}}       || string || codec encoding description ||
 || {{{Audio.Samplerate}}}       || float || samplerate in Hz ||
 || {{{Audio.Bitrate}}}       || float || bitrate in kbps ||
@@ -52,13 +51,13 @@ Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.
 
 === Document Metadata ===
 
-For documents, applications have typically used a mixture of Dublin Core types and propriety types. In order to be consistent with them, we have based our metadata names likewise. We have also based these names on metadata names found in Open Office, Ms Word and PDF documents. All metadata in this section is prefixed with the "Doc" class and any otherdocument based metadata should also have this prefix.
+For documents, applications have typically used a mixture of Dublin Core types and propriety types. In order to be consistent with them, we have based our metadata names likewise. We have also based these names on metadata names found in Open Office, Ms Word and PDF documents. All metadata in this section is prefixed with the "Doc" class and any otherd ocument based metadata should also have this prefix (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
 || {{{Doc.Title}}}  || string ||  Title of document ||
 || {{{Doc.Subject}}} || string ||  document subject ||
 || {{{Doc.Author}}}  || string ||  name of the author ||
-|| {{{Doc.Keywords}}}  || string array || array of keywords||
+|| {{{Doc.Keywords}}}  || string  || string of keywords||
 || {{{Doc.Comments}}}  || string || user definable free text ||
 || {{{Doc.PageCount}}}  || integer || no. of pages in document ||
 || {{{Doc.WordCount}}} || integer || total no. of chars in document ||
@@ -66,14 +65,14 @@ For documents, applications have typically used a mixture of Dublin Core types a
 
 === Image Metadata ===
 
-For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard and so a subset of this makes up part of this specification. SVG files have user definable non-standard metadata so a subset of Dublin Core is also provided here. All metadata in this section is prefixed with the "Image" class and any other image based metadata should also have this prefix.
+For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard and so a subset of this makes up part of this specification. SVG files have user definable non-standard metadata so a subset of Dublin Core is also provided here. All metadata in this section is prefixed with the "Image" class and any other image based metadata should also have this prefix (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
 || {{{Image.Height}}}  || integer || Height in pixels ||
 || {{{Image.Width}}} || integer || Width in pixels ||
 || {{{Image.Title}}}  || string ||  Title of image ||
 || {{{Image.Date }}} || string || date image was originally created in format "YYYY-MM-DD hh:mm:ss" ||
-|| {{{Image.Keywords}}} || string array ||  array of keywords ||
+|| {{{Image.Keywords}}} || string ||  string of keywords ||
 || {{{Image.Creator}}}  || string ||  name of the author ||
 || {{{Image.Comments}}}  || string || user definable free text ||
 || {{{Image.Description}}}  || string || description of the image ||
@@ -88,10 +87,12 @@ The Interface should be accessible via the Dbus session bus with the interface n
 
  === Methods ===
 
-   * {{{GetMetaDataForFile}}} (returns a specific type of metadata for a given uri)
-    || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
-    || ''input DBUS_TYPE_STRING s'' (metadata type name to retrieve) ||
-    || ''output DBUS_TYPE_VARIANT v'' (the metadata value) ||
+   * {{{GetMetaDataForFile
+    || Input || DBUS_TYPE_STRING s (the file's uri) ||
+    || || DBUS_TYPE_ARRAY as (the metadata types to retrieve including wildcards or if NULL gets all available metadata) ||
+    || Output || DBUS_TYPE_DICT  a{sv} (the metadata as key,value pairs) ||
+    || Description || 
+    ||  || (returns specified types of metadata for a given file) }}}
 
    * {{{SetMetaDataForFile}}} (sets a specific type of metadata for a given uri)
     || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
