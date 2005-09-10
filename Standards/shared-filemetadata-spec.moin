@@ -1,6 +1,6 @@
 = Introduction =
 
-There are a number of metadata frameworks and indexers currently being developed such as Beagle and Kat that provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and Virtual Folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
+There are a number of metadata frameworks and indexers currently being developed such as Beagle and Kat that provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and virtual folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
 
 = Metadata =
 
@@ -144,7 +144,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Output || ||
  || || DBUS_TYPE_DICT  a{sv} ||
  || Description || ||
- || || returns the specificed types of metadata for all files in a given folder's uri and is designed for use by file managers to retrieve in bulk metadata for all files in a folder and thereby eliminate the IPC overhead involved in retrieving metadata on a per file basis. The array of metadata types cannot contain wildcards and must explicity state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be of the same type and in the same order as inputted in the array of metadata types. EG passing an array containing the values "File.Name" "File.Size" "File.Type" returns a key/variant array where variant is a struct containing corresponding values of File.Name, File.Size and File.Type in that order||
+ || || returns the specificed types of metadata for all files in a given folder and is designed for use by file managers to retrieve metadata in bulk. By getting metadata for all files in a folder we can eliminate the IPC overhead which would be quite significant when retrieving metadata on a per file basis. The array of metadata types cannot contain wildcards and must explicity state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be of the same type and in the same order as inputted in the array of metadata types. EG passing an array containing the values "File.Name" "File.Size" "File.Type" returns a key/variant array where variant is a struct containing corresponding values of File.Name, File.Size and File.Type in that order||
 
 ----
 
@@ -190,3 +190,32 @@ The Interface should be accessible via the Dbus session bus with the interface n
 
 = Searching Metadata =
 
+To search metadata, we need a common search string format that allows both free text search (like google) and also structured metadata searches (searching specific metadata types).
+
+The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. For structured searches the type of metadata should be specfied in sqaure brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators:
+
+|| ''' Operator   ''' || '''   Description     ''' ||
+|| = || Tests values for equality ||
+|| > || Tests value is greater than another ||
+|| < || Tests value is lessor than another ||
+|| >= || Tests value is greater or equal than another ||
+|| <= || Tests value is lessor or equal than another ||
+
+
+A search term is considered to be a whole word without spaces.
+
+Multiple search terms in double quotes are searched as one whole term.
+
+A search term may contain the wildcard character * at the end of a term. 
+
+The layout of a structured search expression is [metadata to search] -> operator -> search term
+
+Multiple search expression are always "ANDED" together and should be seperated by a space.
+
+Examples of metadata search expressions :
+
+ * [Doc.Author] = myname
+ * [Doc.Author] = "firstname surname"
+ * [File.Size] > 1024
+ * [Doc.Author] = myname [File.Size] >= 2048
+ * John Smith [File.Format] = images*
