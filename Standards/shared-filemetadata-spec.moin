@@ -48,8 +48,10 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.Owner}}}  || string ||  No || Owner of the file ||
 || {{{File.Group}}}  || string ||  No || File group ||
 || {{{File.Permissions}}} || string ||  No || Permission string in unix format eg "-rw-r--r--" ||
+|| {{{File.Content}}}  || string ||  No || File's contents filtered as plain text (IE as stored by the indexer) ||
 || {{{File.Description}}} || string ||   Yes || Editable free text/notes ||
 || {{{File.Keywords }}} || array of string ||   Yes ||  Editable array of keywords ||
+|| {{{File.Rank }}} || integer ||   Yes ||  Editable file rank for grading favourites. Value sould be in the range 1..10 ||
 || {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
 || {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
@@ -114,47 +116,65 @@ The Interface should be accessible via the Dbus session bus with the interface n
 === Methods ===
 
  * {{{GetMetaDataForFile}}}
- || Input || DBUS_TYPE_STRING s (the file's uri) ||
- || || DBUS_TYPE_ARRAY as (the metadata types to retrieve including wildcards or if NULL gets all available metadata) ||
- || Output || DBUS_TYPE_DICT  a{sv} (the metadata as key,value pairs) ||
- || Description || 
- ||  || (returns specified types of metadata for a given file) ||
+ || Input || ||
+ || || DBUS_TYPE_STRING s (the file's uri) ||
+ || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve including wildcards) ||
+ || Output || ||
+ || || DBUS_TYPE_DICT  a{sv} ||
+ || Description || ||
+ || || Returns specified types of metadata for a given file as key value pairs. If NULL is passed to the 2nd parmeter array then all available metadata is returned. You can easily get an entire metadata section by passing wildcards like "File.*" which will return all generic file metadata for the file ||
 
-   * {{{SetMetaDataForFile}}} (sets a specific type of metadata for a given uri)
-    || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
-    || ''input DBUS_TYPE_STRING s'' (the metadata type name) ||
-    || ''input DBUS_TYPE_VARIANT v'' (the metadata value) ||
+----
 
-   * {{{GetMultipleMetaDataForFile}}} (returns mutliple metadata types/values for a given uri)
-    || ''input DBUS_TYPE_STRING'' s (the file's uri) ||
-    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve including wildcards or if NULL gets all available metadata) ||
-    || ''output DBUS_TYPE_DICT  a{sv}'' (the metadata as key,value pairs) ||
+ * {{{SetMetaDataForFile}}} 
+ || Input || ||
+ || || DBUS_TYPE_STRING s (the file's uri) ||
+ || || DBUS_TYPE_STRING s (the metadata type name) ||
+ || || DBUS_TYPE_VARIANT v (the metadata value) ||
+ || Output || ||
+ || || DBUS_TYPE_BOOL b (returns true if metadata was successfully written) ||
+ || Description || ||
+ || || Sets the specified types of metadata for a given file to the variant value. If metadata is not writable or is invalid then this method will return FALSE ||
 
-   * {{{GetMetaDataForFilesInFolder}}} (returns a specific type of metadata for all files in a given folder's uri)
-    || ''input DBUS_TYPE_STRING s'' (the parent folder's uri) ||
-    || ''input DBUS_TYPE_STRING s'' (the metadata type name) ||
-    || ''output DBUS_TYPE_DICT  a{sv}'' (the metadata as filename, metadata key/value pairs) ||
+----
 
-   * {{{GetMultipleMetaDataForFilesInFolder}}} (returns multiple types of metadata for all files in a given folder's uri)
-    || ''input DBUS_TYPE_STRING s'' (the parent folder's uri) ||
-    || ''input DBUS_TYPE_ARRAY as'' (the metadata types to retrieve including wildcards or if NULL gets all available metadata) ||
-    || ''output DBUS_TYPE_DICT  a{sv}'' (returns filename as the key and the value as all requested metadata for that file in an array of struct "a(sv)" of key/value pairs which can be recursed) ||
+ * {{{GetMetaDataForFilesInFolder}}} 
+ || Input || ||
+ || || DBUS_TYPE_STRING s (the folder uri) ||
+ || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve but no wildcards may be used) ||
+ || Output || ||
+ || || DBUS_TYPE_DICT  a{sv} ||
+ || Description || ||
+ || || returns the specificed types of metadata for all files in a given folder's uri. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be in the same order as inputted in the array of metadata types. The array of metadata types cannot contain wildcards and must explicity state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. ||
 
-   * {{{RefreshFileMetaData}}} (asks the framework to reindex and regenerate a file's metadata)
-    || ''input DBUS_TYPE_STRING s'' (the file's uri) ||
+----
 
-   * {{{SearchFileMetaData}}} (searches for files that matches a search criteria string)
-    || ''input DBUS_TYPE_STRING s'' (the search string - format of this string can be found below) ||
-    || ''output DBUS_TYPE_ARRAY as'' (array of file uris that matched the search string criteria) ||
+ * {{{RefreshFileMetaData}}}
+ || Input || ||
+ || || DBUS_TYPE_STRING s (the file's uri) ||
+ || Description || ||
+ || || asks the framework to reindex and regenerate a file's metadata ||
+----
 
+ * {{{SearchFileMetaData}}} 
+ || Input || ||
+ || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
+ || Output || ||
+ || || DBUS_TYPE_ARRAY as (array of file uris that matched the search string criteria) ||
+ || Description || ||
+ || || searches for files that matches a search criteria string ||
 
+----
 
- === Signals ===
+=== Signals ===
 
-   * {{{FileMetaDataChanged'}}} (emitted when any metadata has changed)
-    || ''output DBUS_TYPE_STRING s'' (the file's uri) ||
-    || ''output DBUS_TYPE_STRING s'' (the metadata type name that was changed) ||
-    || ''output DBUS_TYPE_VARIANT v'' (the new value for the metadata type) ||
+ * {{{FileMetaDataChanged}}}
+ || Output || ||
+ || || DBUS_TYPE_STRING s (the file's uri) ||
+ || || DBUS_TYPE_STRING s (the metadata type name that was changed) ||
+ || || DBUS_TYPE_VARIANT v (the new value for the metadata type) ||
+ || Description || ||
+ || || emitted when any metadata has changed for the specified file. you can use Dbus arguement matching/filtering to watch for changes in specific files and/or specific metadata ||
 
 
 == Searching Metadata ==
