@@ -168,10 +168,11 @@ The Interface should be accessible via the Dbus session bus with the interface n
  * {{{SearchFileMetaDataDetailed}}} 
  || Input || ||
  || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
+ || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve but no wildcards may be used) ||
  || Output || ||
- || || DBUS_TYPE_DICT  a{sv}  (returns file uri as key and variant as struct of metadata that matched) ||
+ || || DBUS_TYPE_DICT  a{sv}  (returns matched file uri as key and variant as struct of the single matched metadata type followed by all the requested metadata in the array input parameter) ||
  || Description || ||
- || || searches for files that matches a search criteria string and returns a detailed breakdown of what metadata matched what on a file. The return value variant is a struct containing up to three fields - 1) metadata type that was successfully matched, 2) the metadata value that matched (which can be empty) and optionally 3) if the file contains indexed text then 100 or less characters from the files text to use as a preview summary in a search results display (a la Google). ||
+ || || searches for files that matches a search criteria string and returns matched files with a corresponding struct containing the metadata type that matched the file and all the requested metadata values. This method is very useful for implementing virtual folders as it provides a single method for returning matched files complete with any needed metadata to realise that folder without having to stat() any files. The struct layout is as follows: first item is the name of the metadata type that matched during the search, the remaining items correspond to metadata values requested in the array parameter as in {{{GetMetaDataForFilesInFolder}}} ||
 
 ----
 
@@ -192,7 +193,11 @@ The Interface should be accessible via the Dbus session bus with the interface n
 
 To search metadata, we need a common search string format that allows both free text search (like google) and also structured metadata searches (searching specific metadata types).
 
-The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. For structured searches the type of metadata should be specfied in sqaure brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators:
+The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. Multiple search terms are seperaqted by whitespace. A search term is considered to be a whole word without spaces while multiple words in double quotes are searched as one whole term.
+
+EG the search expression '''John Smith''' will individually match the two strings '''Jonh''' and '''Smith''' against all metadata during a search whilst the search term "John Smith" will only match that whole term against the metadata.
+
+For structured searches the type of metadata should be specfied in sqaure brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators after the metadata type in the search expression:
 
 || ''' Operator   ''' || '''   Description     ''' ||
 || = || Tests values for equality ||
@@ -201,21 +206,43 @@ The search string can consist of a mixture of these two search types. For free t
 || >= || Tests value is greater or equal than another ||
 || <= || Tests value is lessor or equal than another ||
 
-
-A search term is considered to be a whole word without spaces.
-
-Multiple search terms in double quotes are searched as one whole term.
-
 A search term may contain the wildcard character * at the end of a term. 
 
-The layout of a structured search expression is [metadata to search] -> operator -> search term
+The layout of a structured search expression is [metadata type to search] -> operator -> search term
 
-Multiple search expression are always "ANDED" together and should be seperated by a space.
+Multiple search expression are always "ANDED" together and should be seperated by whitespace.
 
-Examples of metadata search expressions :
+Examples of metadata search expressions which can contain a mixture of both search types:
 
- * [Doc.Author] = myname
- * [Doc.Author] = "firstname surname"
+ * [Doc.Author] = A*
+ * [Doc.Author] = "John Smith" [Doc.Subject] = Letter*
  * [File.Size] > 1024
- * [Doc.Author] = myname [File.Size] >= 2048
+ * [Doc.Author] = Smith [File.Size] >= 2048
  * John Smith [File.Format] = images*
+
+== Virtual folders ==
+
+The above search methods and search strings make it easy to implement virtual folder capability in VFS, file managers and other applications.
+
+A quick example to create a vfolder showing all image files would be (with glib bindings):
+{{{
+  GHashTable *vfolder = NULL;
+  char *folder_metadata[] = {"File.Name", "File.Size", "File.Format", "File.Modified", "File.Permissions", "File.Link", NULL};
+  char *search_string = "[File.Format] = images*";
+
+  error = NULL;
+
+  if (!dbus_g_proxy_call (proxy, "SearchFileMetaDataDetailed", &error, 
+                          G_TYPE_STRING, search_string,
+                          G_TYPE_STRV, folder_metadata, G_TYPE_INVALID,
+                          dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &vfolder,
+			  G_TYPE_INVALID))
+  {
+    g_warning ("an error occurred");
+  }
+
+  /* do something useful with hash table here*/
+
+  g_hash_table_destroy (vfolder);
+
+}}}
