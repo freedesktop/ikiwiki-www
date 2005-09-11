@@ -6,7 +6,7 @@ There are a number of metadata frameworks and indexers such as [http://beaglewik
 
 Metadata is usually defined as data about data. In our case the metadata describes data about files that is often user visible in file managers, office applications, document viewers and audio players. Metadata can typically be viewed or written by selecting "properties" from the file menu of one of these applications. 
 
-Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3] for audio files, [http://en.wikipedia.org/wiki/EXIF EXIF] for image files as well as application specific metadata names. The purpose of these common matadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. 
+Whilst there are some standards for naming document metadata like [http://dublincore.org/documents/dces/ Dublin Core], most desktop applications use a propriety set of metadata names. This specification will attempt to define a common set of metadata using a mixture of [http://dublincore.org/documents/dces/ Dublin Core], [http://en.wikipedia.org/wiki/Id3 ID3] for audio files, [http://en.wikipedia.org/wiki/EXIF EXIF] for image files as well as application specific metadata names. The purpose of these common metadata names is not just for the benefit of metadata frameworks and search engines but also for standardising the display of metadata in all applications. 
 
 == Metadata rules ==
 
@@ -50,7 +50,7 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.Content}}}  || string ||  No || File's contents filtered as plain text (IE as stored by the indexer) ||
 || {{{File.Description}}} || string ||   Yes || Editable free text/notes ||
 || {{{File.Keywords }}} || array of string ||   Yes ||  Editable array of keywords ||
-|| {{{File.Rank }}} || integer ||   Yes ||  Editable file rank for grading favourites. Value sould be in the range 1..10 ||
+|| {{{File.Rank }}} || integer ||   Yes ||  Editable file rank for grading favourites. Value should be in the range 1..10 ||
 || {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
 || {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
@@ -60,7 +60,7 @@ Generic file metadata is applicable to all files regardless of their format. The
 
 == Audio Metadata ==
 
-Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similiar files. These are already defined in that specification. All metadata in this section is prefixed with "Audio" and it is recommended that any other metadata not listed below also uses this prefix if its audio related (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
+Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.1] tags embedded in mp3, ogg and similar files. These are already defined in that specification. All metadata in this section is prefixed with "Audio" and it is recommended that any other metadata not listed below also uses this prefix if its audio related (unless it is application specific). All the metadata here is not editable through the interface as all of it is derived from the file contents.
 
 || ''' Name    ''' || '''   Type     ''' || '''    Description''' ||
 || {{{Audio.Title }}} || string ||  title of the track ||
@@ -121,7 +121,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Output || ||
  || || DBUS_TYPE_DICT  a{sv} ||
  || Description || ||
- || || Returns specified types of metadata for a given file as key value pairs. If NULL is passed to the 2nd parmeter array then all available metadata is returned. You can easily get an entire metadata section by passing wildcards like "Audio.*" which will return all Audio related metadata for the file ||
+ || || Returns specified types of metadata for a given file as key value pairs. If NULL is passed to the 2nd parameter array then all available metadata is returned. You can easily get an entire metadata section by passing wildcards like "Audio.*" which will return all Audio related metadata for the file ||
 
 ----
 
@@ -144,7 +144,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || Output || ||
  || || DBUS_TYPE_DICT  a{sv} ||
  || Description || ||
- || || returns the specificed types of metadata for all files in a given folder and is designed for use by file managers to retrieve metadata in bulk. By getting metadata for all files in a folder we can eliminate the IPC overhead which would be quite significant when retrieving metadata on a per file basis. The array of metadata types cannot contain wildcards and must explicity state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be of the same type and in the same order as inputted in the array of metadata types. EG passing an array containing the values "File.Name" "File.Size" "File.Type" returns a key/variant array where variant is a struct containing corresponding values of File.Name, File.Size and File.Type in that order||
+ || || returns the specified types of metadata for all files in a given folder and is designed for use by file managers to retrieve metadata in bulk. By getting metadata for all files in a folder we can eliminate the IPC overhead which would be quite significant when retrieving metadata on a per file basis. The array of metadata types cannot contain wildcards and must explicitly state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be of the same type and in the same order as inputted in the array of metadata types. EG passing an array containing the values "File.Name" "File.Size" "File.Type" returns a key/variant array where variant is a struct containing corresponding values of File.Name, File.Size and File.Type in that order||
 
 ----
 
@@ -185,7 +185,7 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || || DBUS_TYPE_STRING s (the metadata type name that was changed) ||
  || || DBUS_TYPE_VARIANT v (the new value for the metadata type) ||
  || Description || ||
- || || emitted when any metadata has changed for the specified file. you can use Dbus arguement matching/filtering to watch for changes in specific files and/or specific metadata ||
+ || || emitted when any metadata has changed for the specified file. you can use Dbus argument matching/filtering to watch for changes in specific files and/or specific metadata ||
 
 ----
 
@@ -193,11 +193,11 @@ The Interface should be accessible via the Dbus session bus with the interface n
 
 To search metadata, we need a common search string format that allows both free text search (like google) and also structured metadata searches (searching specific metadata types).
 
-The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. Multiple search terms are seperaqted by whitespace. A search term is considered to be a whole word without spaces while multiple words in double quotes are searched as one whole term.
+The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. Multiple search terms are separated by whitespace. A search term is considered to be a whole word without spaces while multiple words in double quotes are searched as one whole term.
 
 EG the search expression '''John Smith''' will individually match the two strings '''Jonh''' and '''Smith''' against all metadata during a search whilst the search term "John Smith" will only match that whole term against the metadata.
 
-For structured searches the type of metadata should be specfied in sqaure brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators after the metadata type in the search expression:
+For structured searches the type of metadata should be specified in square brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators after the metadata type in the search expression:
 
 || ''' Operator   ''' || '''   Description     ''' ||
 || = || Tests values for equality ||
@@ -210,7 +210,7 @@ A search term may contain the wildcard character * at the end of a term.
 
 The layout of a structured search expression is [metadata type to search] -> operator -> search term
 
-Multiple search expression are always "ANDED" together and should be seperated by whitespace.
+Multiple search expression are always "ANDED" together and should be separated by whitespace.
 
 Examples of metadata search expressions which can contain a mixture of both search types:
 
