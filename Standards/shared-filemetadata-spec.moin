@@ -1,6 +1,6 @@
 = Introduction =
 
-There are a number of metadata frameworks and indexers currently being developed such as Beagle and Kat that provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and virtual folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
+There are a number of metadata frameworks and indexers currently being developed such as [http://beaglewiki.org/Main_Page Beagle], [http://rcappuccio.altervista.org/ Kat] as well as a new system currently under development [http://freedesktop.org/wiki/Software/Tracker Tracker]. These frameworks provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and virtual folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
 
 = Metadata =
 
@@ -214,35 +214,9 @@ Multiple search expression are always "ANDED" together and should be seperated b
 
 Examples of metadata search expressions which can contain a mixture of both search types:
 
- * [Doc.Author] = A*
+ * [Doc.Author] = Smith
  * [Doc.Author] = "John Smith" [Doc.Subject] = Letter*
  * [File.Size] > 1024
  * [Doc.Author] = Smith [File.Size] >= 2048
  * John Smith [File.Format] = images*
 
-== Virtual folders ==
-
-The above search methods and search strings make it easy to implement virtual folder capability in VFS, file managers and other applications.
-
-A quick example to create a vfolder showing all image files would be (with glib bindings):
-{{{
-  GHashTable *vfolder = NULL;
-  char *folder_metadata[] = {"File.Name", "File.Size", "File.Format", "File.Modified", "File.Permissions", "File.Link", NULL};
-  char *search_string = "[File.Format] = images*";
-
-  error = NULL;
-
-  if (!dbus_g_proxy_call (proxy, "SearchFileMetaDataDetailed", &error, 
-                          G_TYPE_STRING, search_string,
-                          G_TYPE_STRV, folder_metadata, G_TYPE_INVALID,
-                          dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &vfolder,
-			  G_TYPE_INVALID))
-  {
-    g_warning ("an error occurred");
-  }
-
-  /* do something useful with hash table here*/
-
-  g_hash_table_destroy (vfolder);
-
-}}}
