@@ -54,9 +54,9 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
 || {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
-|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss" ||
-|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss" ||
-|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss:ms" ||
+|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss:ms" ||
+|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss:ms" ||
 
 == Audio Metadata ==
 
@@ -88,7 +88,7 @@ For documents, applications have typically used a mixture of Dublin Core types a
 || {{{Doc.Comments}}}  || string || user definable free text ||
 || {{{Doc.PageCount}}}  || integer || no. of pages in document ||
 || {{{Doc.WordCount}}} || integer || total no. of chars in document ||
-|| {{{Doc.Created }}} || string || date document was originally created in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Doc.Created }}} || string || date document was originally created in format "YYYY-MM-DD hh:mm:ss:ms" ||
 
 == Image Metadata ==
 
@@ -98,7 +98,7 @@ For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard a
 || {{{Image.Height}}}  || integer || Height in pixels ||
 || {{{Image.Width}}} || integer || Width in pixels ||
 || {{{Image.Title}}}  || string ||  Title of image ||
-|| {{{Image.Date }}} || string || date image was originally created in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Image.Date }}} || string || date image was originally created in format "YYYY-MM-DD hh:mm:ss:ms" ||
 || {{{Image.Keywords}}} || string ||  string of keywords ||
 || {{{Image.Creator}}}  || string ||  name of the author ||
 || {{{Image.Comments}}}  || string || user definable free text ||
@@ -195,7 +195,7 @@ To search metadata, we need a common search string format that allows both free 
 
 The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. Multiple search terms are separated by whitespace. A search term is considered to be a whole word without spaces while multiple words in double quotes are searched as one whole term.
 
-EG the search expression '''John Smith''' will individually match the two strings '''Jonh''' and '''Smith''' against all metadata during a search whilst the search term "John Smith" will only match that whole term against the metadata.
+EG the search expression '''John Smith''' will individually match the two strings '''John''' and '''Smith''' against all metadata during a search whilst the search term "John Smith" will only match that whole term against the metadata.
 
 For structured searches the type of metadata should be specified in square brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators after the metadata type in the search expression:
 
@@ -205,6 +205,7 @@ For structured searches the type of metadata should be specified in square brack
 || < || Tests value is lessor than another ||
 || >= || Tests value is greater or equal than another ||
 || <= || Tests value is lessor or equal than another ||
+|| <> || Tests value is not equal ||
 
 A search term may contain the wildcard character * at the end of a term. 
 
