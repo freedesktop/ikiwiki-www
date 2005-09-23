@@ -54,9 +54,9 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
 || {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
-|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss:ms" ||
-|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss:ms" ||
-|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss:ms" ||
+|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss,xxx" ||
+|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss,xxx" ||
+|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss,xxx" ||
 
 == Audio Metadata ==
 
@@ -88,7 +88,7 @@ For documents, applications have typically used a mixture of Dublin Core types a
 || {{{Doc.Comments}}}  || string || user definable free text ||
 || {{{Doc.PageCount}}}  || integer || no. of pages in document ||
 || {{{Doc.WordCount}}} || integer || total no. of chars in document ||
-|| {{{Doc.Created }}} || string || date document was originally created in format "YYYY-MM-DD hh:mm:ss:ms" ||
+|| {{{Doc.Created }}} || string || date document was originally created in format "YYYY-MM-DD hh:mm:ss" ||
 
 == Image Metadata ==
 
@@ -98,7 +98,7 @@ For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard a
 || {{{Image.Height}}}  || integer || Height in pixels ||
 || {{{Image.Width}}} || integer || Width in pixels ||
 || {{{Image.Title}}}  || string ||  Title of image ||
-|| {{{Image.Date }}} || string || date image was originally created in format "YYYY-MM-DD hh:mm:ss:ms" ||
+|| {{{Image.Date }}} || string || date image was originally created in format "YYYY-MM-DD hh:mm:ss" ||
 || {{{Image.Keywords}}} || string ||  string of keywords ||
 || {{{Image.Creator}}}  || string ||  name of the author ||
 || {{{Image.Comments}}}  || string || user definable free text ||
@@ -170,9 +170,9 @@ The Interface should be accessible via the Dbus session bus with the interface n
  || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
  || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve but no wildcards may be used) ||
  || Output || ||
- || || DBUS_TYPE_DICT  a{sv}  (returns matched file uri as key and variant as struct of the single matched metadata type followed by all the requested metadata in the array input parameter) ||
+ || || DBUS_TYPE_DICT  a{sv}  (returns matched file uri as key and variant as struct of all the requested metadata in the array input parameter) ||
  || Description || ||
- || || searches for files that matches a search criteria string and returns matched files with a corresponding struct containing the metadata type that matched the file and all the requested metadata values. This method is very useful for implementing virtual folders as it provides a single method for returning matched files complete with any needed metadata to realise that folder without having to stat() any files. The struct layout is as follows: first item is the name of the metadata type that matched during the search, the remaining items correspond to metadata values requested in the array parameter as in {{{GetMetaDataForFilesInFolder}}} ||
+ || || searches for files that matches a search criteria string and returns matched files with a corresponding struct containing all the requested metadata values. This method is very useful for implementing virtual folders as it provides a single method for returning matched files complete with any needed metadata to realise that folder without having to stat() any files. The struct contains items that correspond to metadata values requested in the array parameter as in {{{GetMetaDataForFilesInFolder}}} ||
 
 ----
 
