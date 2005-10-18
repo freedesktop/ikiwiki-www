@@ -59,22 +59,32 @@ Browse CVS with [http://cvs.freedesktop.org/sysadmin/ View  CVS].
  * libpng
  * libdrm (if DRI is supported on your platform)
  * (debian:)
+  * build-essential
   * bison
   * flex
-  * zlib-dev
-  * libpam-dev
+  * zlib1g-dev
+  * libpam0g-dev
   * libfreetype6-dev
   * libpng12-dev
+  * libdrm-dev
+  * automake1.8
+  * autoconf
+  * pkg-config
+  * libtool
+  * ccache
+  * libwww-perl
+  * fontconfig
+  * cvs
 
 === Required software: XMonolithic ===
  * libwww-perl
  * ccache (recommended)
  * (debian:)
-  * make, gcc, g++
+  * build-essential
   * bison
   * flex
-  * zlib-dev
-  * libpam-dev
+  * zlib1g-dev
+  * libpam0g-dev
   * libexpat-dev
   * libfreetype6-dev
   * libpng12-dev
@@ -105,9 +115,11 @@ Installing a client is very easy.
 	* If you'd like to have your build use ccache or jikes if you have them installed, get EricAnholt to fix up your machine configuration.  ccache cuts build times in approximately half.  jikes cuts kaffe builds down even more.
 	* add an option to do a lndir'ed tree, to shorten the log of all the synthesized files.
 	* if installing on OS X/Darwin you will need to create a link from gnumake to gmake 'ln -s /usr/bin/gnumake /usr/bin/gmake'
+	* if tindering the xorg modular tree, you must copy xorg-macros.m4 from util/macros/ to /usr/share/aclocal, or your builds will all fail really really miserably.
 
-The script will create a directory of the tree's name in whatever directory you are in when you run "run-client", and do a CVS checkout and build of the module
-specified in the tinderbox itself in a subdirectory of that. Once a day, it is supposed to do a "clobber" build, where the entire directory is deleted and the files checked out fresh, and performs a "make World".  Once the initial build is complete, the script we use (confusingly also called !XMonolithic) will do just do a cvs update and another make, rather than a "make -k World".
+The script will create a directory of the tree's name in whatever directory you are in when you run "run-client", and do a CVS checkout and build of the module specified in the tinderbox itself in a subdirectory of that. Once a day, it is supposed to do a "clobber" build, where the entire directory is deleted and the files checked out fresh, and performs a "make World".  Once the initial build is complete, the script we use (confusingly also called !XMonolithic) will do just do a cvs update and another make, rather than a "make -k World".
+
+Since CVS is so broken, the xorg and probably XMonolith trees now always clobber, and never cvs up.  You probably want to keep a mirror: start keeping one with rsync, and bug EricAnholt to change your config; especially if you're running multiple clients.
 
 One way to run this is to place them in a detached screen:
 
@@ -151,5 +163,3 @@ This version of tinderbox is based on the tinderbox3 work that Cliff White and C
 Our great thanks for all the help Cliff and Christian have provided and the funding that OSDL provided to them for working on Tinderbox 3.
 
 John Dennis was very helpful getting the client XMonolithic.pm client into better shape.
-
--- JimGettys - 10 Mar 2004
