@@ -28,3 +28,17 @@ Currently, OpenICC is an informal group of developers exchanging ideas and conce
 The ICC itself has began an opensource project:
  *[http://sourceforge.net/projects/sampleicc/]
 SampleICC provides an open source platform independent C++ library for reading, writing, manipulating, and applying ICC profiles along with applications that make use of this library.
+
+= legal issues =
+In the middle of the 90ties, there were some patent wars concerning colormanagement. Especialy the company EFI suited a lot of companies, which implemented a RGB to CMYK conversion into their applications.
+Actually, it is important to watch, which colormanagement-functionalities are described in the ICC-specs, and which are going beyond the ICC specs. Implementing colormanagement according ICC-specs is very save. Implementing more special functions could may be dangerous.
+This concerns especialy littleCMS, which is the standard CMM for more or less all opensource applications dealing with colormanagement. (Of course, argyllCMS also contains a CMM...)
+Some of such special functions are very helpful to for some usecases. So from the point of view of the user, it makes a lot of sense to implement and use them. This are e.g. enhanced options for CMYK to CMYK conversions. Such functions are useful for the colormanagement of documents for the graphic arts.
+It can be implemented as special function for the CMM, or it can be solved by precalculating a devicelink-profile, which is used with a ICC-conform CMM.
+If it is e.g. implemented as special function in littleCMS, a legal issue concerning littleCMS would 
+may touch all applications, which make use of littleCMS.
+If it is implemented in a standalone software, which generates and delivers a devicelink-profile, the legal issue covers only the standalone software. The usage of devicelink-profiles in other softwares is a standard functionality of the ICC-specs.
+
+
+
+
