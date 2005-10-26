@@ -31,9 +31,20 @@ There are a few sections to this standard.  The first is a method for finding a 
 
 The list of languages to search for is decided by the environment.  Help browsers MUST set a list of languages.  Help browsers SHOULD set the list of languages as locale, locale truncated to 2 characters, en_US, en.  If the environment has a list of multiple preferred languages, help browsers MAY use that list, with en appended to the end, or some similar scheme.
 
+Help browsers SHOULD support the "man:" and "info:" URIs (these URI schemes are not registered by the IETF):
+* "man:" URIs have the form "man:command-name", "man:command-name(section)", or "man:command-name#section". This refers to reference pages in "man" format. The command name can optionally be followed by a parenthesis and section number; see man(7) for more information on the meaning of the section numbers.  An example is "man:ls(1)".
+* "info:" URIs have the form "info:virtual-filename", "info:virtual-filename#nodename", "info:(virtual-filename)", or "info:(virtual-filename)nodename". This scheme refers to online info reference pages (generated from texinfo files), a documentation format used by programs such as the GNU tools.  The first two formats are the GNOME format; in nodenames all spaces are written as underscores. The second two formats are the KDE format; spaces in nodenames must be written as %20 (URI escaped). If the form without the nodename is used the nodename is "Top". Examples are "info:gcc", "info:gcc#G++_and_GCC>, "info:(gcc)", and "info:(gcc)G++ and GCC".
+
+See url(7) at http://www.die.net/doc/linux/man/man7/url.7.html for more information about URIs for man pages and info pages.
+
 Given a uri starting with help:, we take everything after the : and before the # and call it the $path.  Now we search for the file.  In language order, we search for $XDG_DATA_DIRS/help/$lang/$path/$filename.  Search $XDG_DATA_DIRS for each language in turn.  I.e., assuming standard $XDG_DATA_DIRS and a non en locale, /usr/share/help/$locale/$path/$filename takes precedence over $HOME/.share/help/en/$path/$filename.
 
-If we find the file, we look at the type.  If it's html, the # refers to a standard html lookup.  If it's docbook, the # refers to the blockid and the help browser needs to display that blockid.  If the help browser displays the docbook file as multiple pages, it MUST display the page containing the given blockid and SHOULD scroll to the given block.
+If we find the file, we look at the type:
+* If it's html, the # refers to a standard html lookup.
+* If it's docbook, the # refers to the blockid and the help browser needs to display that blockid.  If the help browser displays the docbook file as multiple pages, it MUST display the page containing the given blockid and SHOULD scroll to the given block.
+* If it's a man page, the # refers to the section name; it SHOULD scroll to the given section.
+* If it's an info page, the # refers to the node name.
+
 
 If the type is a folder, we then look for an index file.  First we check for index.html, then for index.docbook and then treat them as above if found.
 
