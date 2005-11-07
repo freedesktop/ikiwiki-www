@@ -29,18 +29,18 @@ and to provide meta-data (such as a URI from which the data can be fetched).
 
 == Wart 1: Requesting unknown types ==
 
-Example 1:
+=== Example 1: ===
 
 Select some text in gedit (GNOME's text editor) and drag it to konqueror.
 A new file is created which, instead of containing the dragged text, contains
 four random characters.
 
-Example 2:
+=== Example 2: ===
 
 Drag some text from Edit (ROX's text editor) to kate (KDE's). The pointer indicates
 that a drag is allowed, but nothing happens.
 
-Explanation:
+=== Explanation: ===
 
 The problems are caused by the target applications requesting targets they know
 nothing about (usually, the first one on the list of targets offered).
@@ -49,7 +49,7 @@ Konqueror and kate both requested the internal address (a 32 bit pointer)
 of the !GtkTextBuffer object, rather than the text. Konqueror saved the
 four bytes, and kate silently rejected them as invalid text.
 
-Recommendations:
+=== Recommendations: ===
 
  1. Applications should not simply request the first target on the list. They should only request targets they understand. gedit offered text/plain and UTF8_STRING, two well-known targets that would be suitable for a text editor to fetch.
 
@@ -71,7 +71,7 @@ Since few filemanagers default to sending correct messages, no application
 author has any incentive to support them. Since few applications support
 them, the filemanagers can't be fixed.
 
-Recommendations:
+=== Recommendations: ===
 
  1. Applications should accept a hostname in a text/uri-list target. If the hostname does not match, they may either report an error or try to fetch some other target.
 
@@ -83,17 +83,17 @@ Recommendations:
 
 == Wart 3: Malformed URIs in text/uri-list ==
 
-Example 1:
+=== Example 1: ===
 
 Drag an email attachment from sylpheed's attachments list to Edit.
 Edit complains that the data is on a remote machine.
 
-Example 2:
+=== Example 2: ===
 
 Drag a message from evolution to a ROX-Filer window. ROX-Filer complains
 'Incorrect or missing line break in text/uri-list data'.
 
-Explanation:
+=== Explanation: ===
 
 The URI provided by sylpheed was
 'file://home/tal00r/.sylpheed/mimetmp/tal00r.zip'. That is, the file
@@ -101,7 +101,7 @@ The URI provided by sylpheed was
 
 Evolution does not put a newline at the end of the URI it provides.
 
-Recommendations:
+=== Recommendations: ===
 
  1. Use the correct URI syntax: 'file://host/path'. If no host is to be given (illegal, but see Wart 2), the syntax should be 'file:///path'.
  1. Use \r\n at the end of each line.
@@ -111,7 +111,7 @@ See the freedesktop.org [[Standards.file-uri-spec][File URI Specification]] for 
 
 == Wart 4: Drag-and-drop saving support is often kludged ==
 
-Example:
+=== Example: ===
 
 Drag a message from evolution to a Vim window. The message opens correctly,
 but the titlebar shows the path as
@@ -119,7 +119,7 @@ but the titlebar shows the path as
 If the user does ZZ (save and quit), the data is saved back to the temporary
 file without confirmation and the editor window closes.
 
-Explanation:
+=== Explanation: ===
 
 Instead of using the XDS protocol (designed for this purpose) evolution creates
 a temporary file and pretends to be a file manager. This causes Vim to think
@@ -132,7 +132,7 @@ requires twice as much disk space as is necessary, and may fail if the
 the filemanager has finished using the file, the temporary file is never
 deleted.
 
-Recommendations:
+=== Recommendations: ===
 
  1. Programs saving by drag and drop should use the [http://www.newplanetsoftware.com/xds/ XDS protocol]. This allows efficient saving, and can indicate when a temporary file is used.
  1. File managers should ensure they support the XDS protocol.
@@ -184,3 +184,4 @@ Note that:
 == See also ==
 
 ["Standards/XDNDRevision"]
+
