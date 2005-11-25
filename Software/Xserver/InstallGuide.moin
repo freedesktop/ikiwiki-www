@@ -31,6 +31,38 @@ The KDrive xserver isn't supported in FreeBSD. Anyone interested in porting it i
 
 Note that xcompmgr and window borders don't mix. Most window managers disable window borders but twm users may find that `BorderWidth 0` in ~/.twmrc helps.
 
+In case you get an error while compiling such as this:
+{{{
+checking for pkg-config... /opt/gnome2/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for XDMCP... yes
+checking for XdmcpWrap in -lXdmcp... yes
+checking for XEPHYR... yes
+checking for XSERVER... configure: error: Package requirements (randrproto renderproto fixesproto damageproto xextproto xfont xproto xtrans xau compositeproto resourceproto recordproto xdmcp xdmcp) were not met.
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+ 
+Alternatively you may set the XSERVER_CFLAGS and XSERVER_LIBS environment variables
+to avoid the need to call pkg-config.  See the pkg-config man page for
+more details.
+*** error during stage configure of xserver: could not configure module *** [32/38]
+}}}
+
+You might want to try this workaround:
+{{{
+cd /opt/fdo/lib/pkgconfig
+ln -s randr.pc randrproto.pc
+ln -s render.pc renderproto.pc
+ln -s fixesext.pc fixesproto.pc
+ln -s damageext.pc damageproto.pc
+ln -s xext.pc xextproto.pc
+ln -s compositeext.pc compositeproto.pc
+ln -s resourceext.pc resourceproto.pc
+ln -s recordext.pc recordproto.pc
+}}}
+
+And rerun the build. It helped here, but it's just a workaround, the real problem is somewhere else. If anyone knows better please fix the real problem instead.
+
 == Build Commands ==
 Script version of these commands: XserverBuildScript
 {{{
