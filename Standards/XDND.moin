@@ -33,7 +33,7 @@ The '''target''' is the window that the cursor is on top of and which will recei
 
 You should be familiar with the '''X Selection''' mechanism described in the Xlib manuals: Volume 0, Appendix L and Volume 1, Chapter 10.
 
-All data types and actions are referred to by their corresponding '''X Atoms'''. The atom names of the data types are the corresponding [[ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/][MIME types]], in all lower case. (RFC's for MIME: [http://www.cis.ohio-state.edu/htbin/rfc/rfc2045.html 2045], [http://www.cis.ohio-state.edu/htbin/rfc/rfc2047.html 2047], [http://www.cis.ohio-state.edu/htbin/rfc/rfc2048.html 2048], [http://www.cis.ohio-state.edu/htbin/rfc/rfc2049.html 2049])
+All data types and actions are referred to by their corresponding '''X Atoms'''. The atom names of the data types are the corresponding [ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/ MIME types], in all lower case. (RFC's for MIME: RFC:2045, RFC:2047, RFC:2048, RFC:2049)
 
 All constants mentioned in this document are the string names of X atoms, capitalized as shown. This avoids the need for hard-coded values, which would require a global registry.
 
@@ -235,7 +235,7 @@ This is the name of the X Selection that is used when the target wants to examin
 
 === Data types ===
 
-All data types are referred to by their corresponding X Atoms. The atom names are the corresponding MIME types, in all lower case. (RFC's for MIME: [http://www.cis.ohio-state.edu/htbin/rfc/rfc2045.html 2045], [http://www.cis.ohio-state.edu/htbin/rfc/rfc2047.html 2047], [http://www.cis.ohio-state.edu/htbin/rfc/rfc2048.html 2048], [http://www.cis.ohio-state.edu/htbin/rfc/rfc2049.html 2049])
+All data types are referred to by their corresponding X Atoms. The atom names are the corresponding MIME types, in all lower case. (RFC's for MIME: RFC:2045, RFC:2047, RFC:2048, RFC:2049)
 
 For text, the charset attribute can be appended to the MIME type. (e.g. {{{Japanese}}} -> {{{text/plain;charset="ISO-2022-JP"}}}) If the charset attribute is not specified, it is assumed to be {{{ISO-8859-1}}}. (new in version 4)
 
@@ -414,9 +414,9 @@ August 17, 1998:
 
 	 Version 2 adds the following features:
 
-		  * The concept of an action. Previously, only copy was supported. Now, the source can specify any action, and the target can either accept it or fall back on copy or private. The predefined actions are !XdndActionCopy (the default), !XdndActionMove, !XdndActionLink, !XdndActionAsk, and !XdndActionPrivate. Ask tells the target to get a list of acceptable actions from the source's !XdndActionList and !XdndActionDescription window properties and then ask the user which one to perform.
+ * The concept of an action. Previously, only copy was supported. Now, the source can specify any action, and the target can either accept it or fall back on copy or private. The predefined actions are !XdndActionCopy (the default), !XdndActionMove, !XdndActionLink, !XdndActionAsk, and !XdndActionPrivate. Ask tells the target to get a list of acceptable actions from the source's !XdndActionList and !XdndActionDescription window properties and then ask the user which one to perform.
 
-		  * The target is required to send !XdndFinished. (Yes, I caved in :) However, if the source blocks, it must be prepared to time out in case the target is malfunctioning. Ideally, the source will not need to block because it will keep a history of past selections. The timestamp in !XdndDrop allows the source to safely avoid both blocking and keeping a history by simply rejecting outdated requests.
+ * The target is required to send !XdndFinished. (Yes, I caved in :) However, if the source blocks, it must be prepared to time out in case the target is malfunctioning. Ideally, the source will not need to block because it will keep a history of past selections. The timestamp in !XdndDrop allows the source to safely avoid both blocking and keeping a history by simply rejecting outdated requests.
 
 			 Part of the reason for adding !XdndFinished is that this allows XDND to be used with higher level API's (e.g. !JavaBeans) that require notification of the end of the operation.
 
