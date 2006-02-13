@@ -7,10 +7,10 @@ Xgl is an X server architecture layered on top of OpenGL. It is at an early stag
 === TODO ===
 
 || '''Item''' || '''Description''' || '''Contact''' ||'''Complete''' ||
-|| General || General Xgl and glitz development || DavidReveman || 60% ||
-|| GLX || Accelerated indirect GLX rendering || DavidReveman || 50% ||
-|| XV || XVideo support by adding an YUV pixel format and possibly an YUV surface format to glitz || MatthiasHopf || 60% ||
-|| RandR || Full support for both resize and rotate || - || 0% ||
+|| General || General Xgl and glitz development || DavidReveman || 70% ||
+|| GLX || Accelerated indirect GLX rendering || DavidReveman || 90% ||
+|| XV || YUV surface formats in glitz and YUV pictures in server || MatthiasHopf, DavidReveman || 80% ||
+|| RandR || Resize support || - || 100% ||
 || Xagl || Server running on MacOS (AGL) || - || 50% ||
 || Xwgl || Server running on Windows (WGL) || - || 0% ||
 || [:Xegl] || Server running on [:EGL] || AdamJackson, DaveAirlie || 60% ||
@@ -20,7 +20,7 @@ Xgl is an X server architecture layered on top of OpenGL. It is at an early stag
 {{{
 $ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
 CVS password: <hit return>
-$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co xserver
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co -r xgl-0-0-1 xserver
 }}}
 
 Xgl code can be found in hw/xgl sub-directory.
@@ -28,54 +28,5 @@ Xgl code can be found in hw/xgl sub-directory.
 === Current Installation Instructions ===
 The most current instructions for getting  [http://en.opensuse.org/Xgl Xgl] and  [http://en.opensuse.org/Compiz Compiz] up and running can be found on [http://www.opensuse.org the openSUSE wiki].
 
-=== Outdated Installation Instructions ===
 
-The following instructions should help you get Xglx running. However, it is highly experimental and with some OpenGL drivers it might not work at all. Nvidia hardware (geforce2 and later) with Nvidia's proprietary drivers have been proven to work quite well.
-
-Install packages like (on Debian and Ubuntu) xlibmesa-gl-dev xlibmesa-glu-dev xlibmesa-dev xlibmesa-gl-dev xlibmesa-glu-dev  (on Fedora) mesa-libGL-devel mesa-libGLU-devel
-
-Get glitz modules from cairo CVS.
-
-{{{
-$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo login
-CVS password: <hit return>
-$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo co glitz glitzinfo
-
-$ pushd glitz
-$ ./autogen.sh --prefix=/opt/fdo/
-$ make
-$ sudo make install
-$ popd
-
-$ pushd glitzinfo
-$ PKG_CONFIG_PATH=/opt/fdo/lib/pkgconfig/ make -f Makefile.glx
-$ LD_LIBRARY_PATH=/opt/fdo/lib/ ./glitzinfo
-$ popd
-}}}
-
-glitzinfo should report some info about available features, drawable formats and surface formats. The following set of features are important and if one of them is missing it is likely that it will give you performance problems.
-
-{{{
-texture rectangle
-texture border clamp
-multitexture
-texture environment combine
-}}}
-
-For accelerated offscreen rendering, a drawable format with pbuffer support is required.
-
-Configure the xserver module to build the Xgl servers with './configure --enable-xglserver'. For instructions on how to build and install all the packages required by the xserver module see ["Software/Xserver/InstallGuide"].
-
-Now type 'make' and if everything goes well, you should end up with an 'Xglx' executable in the hw/xgl/glx sub-directory. 
-
-Start the server with a command line similar to this:
-{{{
-$ ./Xglx :1 -ac -screen 640x480
-}}}
-
-X clients should now be able to connect to DISPLAY=":1".
-
-A modified version of xcompmgr and some other hacks that you might want to play with are available from here: [http://www.freedesktop.org/~davidr/xgl-stuff].
-
-
--- David Reveman - 28 Feb 2005
+-- David Reveman - 13 Feb 2006
