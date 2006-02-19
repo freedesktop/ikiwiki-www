@@ -1,0 +1,30 @@
+= Account Maintenance =
+
+freedesktop.org uses a user management system entitled userdir-ldap.  More information on ud-l can be found at [http://db.debian.org/doc-mail.html Debian's information page].
+
+This page describes the mail interface, which assumes you have a GPG key attached to your account.  If this is not the case, please file a bug on [https://bugs.freedesktop.org/enter_bug.cgi?product=freedesktop.org the Account Changes component] in Bugzilla first.
+
+The web interface is not operational at this time.
+
+== Adding/removing SSH keys ==
+
+The mail gateway maintains SSH keys by ''replacing'' all keys with the contents of the mail.  Send the mail, GPG-signed, each key on a new line:
+{{{
+cat ~/.ssh/key1.pub ~/.ssh/key2.pub ~/.ssh/key3.pub | gpg --clearsign | mail change@db.freedesktop.org
+}}}
+
+You will receive a mail back within a few minutes confirming your changes.  Note again that this replaces the entire list of keys: following the example above, if you previously had key1 and key4 active, the new set would be key1, key2, and key3: key4 would be excluded.  Note that this is important as password logins are not available on freedesktop.org.
+
+== Changing email address ==
+
+{{{
+echo 'emailforward: new@address.com' | gpg --clearsign | mail change@db.freedesktop.org
+}}}
+
+== Getting a copy of your current details ==
+
+{{{
+echo 'show' | gpg --clearsign | mail change@db.freedesktop.org
+}}}
+
+Your LDAP record will be mailed back to you, GPG-encrypted.
