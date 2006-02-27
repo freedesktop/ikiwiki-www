@@ -1,6 +1,6 @@
 = Introduction =
 
-There are a number of metadata frameworks and indexers such as [http://beaglewiki.org/Main_Page Beagle] and [http://rcappuccio.altervista.org/ Kat] as well as a new freedesktop system [http://freedesktop.org/wiki/Software/Tracker Tracker], which is based on this spec and is currently under development. These frameworks provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common interface that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and virtual folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
+There are a number of metadata frameworks and indexers such as [http://beaglewiki.org/Main_Page Beagle] and [http://rcappuccio.altervista.org/ Kat] as well as a new freedesktop system [http://freedesktop.org/wiki/Software/Tracker Tracker], which is based on this spec and is currently under development. These frameworks provide a rich source of metadata about files including such things as the author of a document or the artist of an mp3 file. The purpose of this specification is to define a common metadata naming scheme that each framework can implement to allow applications to tap into this wealth of information. Some examples of interested applications would include filemanagers that want to display and allow editing of this metadata as well as providing integrated search functionality and virtual folder capability (IE folders whose file contents are defined by metadata rather than physical location). This specification will define both an interface and a common set of "well-known" metadata.
 
 = Metadata =
 
@@ -54,9 +54,9 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
 || {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
-|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss,xxx" ||
-|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss,xxx" ||
-|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss,xxx" ||
+|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{File.Indexed }}} || string ||   No || Last indexed date in format "YYYY-MM-DD hh:mm:ss" ||
 
 == Audio Metadata ==
 
@@ -107,117 +107,4 @@ For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard a
 || {{{Image.CameraMake}}}  || string ||  make of camera used to take the image ||
 || {{{Image.CameraModel}}}  || string || model of camera used to take the image ||
 
-
-= The Interface =
-
-The Interface should be accessible via the Dbus session bus with the interface name '''org/freedesktop/file/metadata''' or be accessible in P2P mode where the address of the server to use can be read/set from a known configuration key. Frameworks should implement this interface with a corresponding entry in their own dbus service file so applications can activate them via that interface. The interface must implement all methods and signals on object '''org.freedesktop.file.metadata''' as follows:
-
-== Methods ==
-
- * {{{GetMetaDataForFile}}}
- || Input || ||
- || || DBUS_TYPE_STRING s (the file's uri) ||
- || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve including wildcards) ||
- || Output || ||
- || || DBUS_TYPE_DICT  a{sv} ||
- || Description || ||
- || || Returns specified types of metadata for a given file as key value pairs. If NULL is passed to the 2nd parameter array then all available metadata is returned. You can easily get an entire metadata section by passing wildcards like "Audio.*" which will return all Audio related metadata for the file ||
-
-----
-
- * {{{SetMetaDataForFile}}} 
- || Input || ||
- || || DBUS_TYPE_STRING s (the file's uri) ||
- || || DBUS_TYPE_STRING s (the metadata type name) ||
- || || DBUS_TYPE_VARIANT v (the metadata value) ||
- || Output || ||
- || || DBUS_TYPE_BOOL b (returns true if metadata was successfully written) ||
- || Description || ||
- || || Sets the specified types of metadata for a given file to the variant value. If metadata is not writable or is invalid then this method will return FALSE ||
-
-----
-
- * {{{GetMetaDataForFilesInFolder}}} 
- || Input || ||
- || || DBUS_TYPE_STRING s (the folder uri) ||
- || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve but no wildcards may be used) ||
- || Output || ||
- || || DBUS_TYPE_DICT  a{sv} ||
- || Description || ||
- || || returns the specified types of metadata for all files in a given folder and is designed for use by file managers to retrieve metadata in bulk. By getting metadata for all files in a folder we can eliminate the IPC overhead which would be quite significant when retrieving metadata on a per file basis. The array of metadata types cannot contain wildcards and must explicitly state the precise metadata type to be retrieved. If NULL is passed as the array then the returned variant will also be NULL too. The return value consists of the filename as the string key and the variant is a struct containing the metadata. The metadata values returned in the struct will be of the same type and in the same order as inputted in the array of metadata types. EG passing an array containing the values "File.Name" "File.Size" "File.Type" returns a key/variant array where variant is a struct containing corresponding values of File.Name, File.Size and File.Type in that order||
-
-----
-
- * {{{RefreshFileMetaData}}}
- || Input || ||
- || || DBUS_TYPE_STRING s (the file's uri) ||
- || Description || ||
- || || asks the framework to reindex and regenerate a file's metadata ||
-----
-
- * {{{SearchFileMetaData}}} 
- || Input || ||
- || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
- || Output || ||
- || || DBUS_TYPE_ARRAY as (array of file uris) ||
- || Description || ||
- || || searches for files that matches a search criteria string and returns an array of file URIs that matched ||
-
-----
-
- * {{{SearchFileMetaDataDetailed}}} 
- || Input || ||
- || || DBUS_TYPE_STRING s (the search string - format of this string can be found below) ||
- || || DBUS_TYPE_ARRAY as (array of metadata types to retrieve but no wildcards may be used) ||
- || Output || ||
- || || DBUS_TYPE_DICT  a{sv}  (returns matched file uri as key and variant as struct of all the requested metadata in the array input parameter) ||
- || Description || ||
- || || searches for files that matches a search criteria string and returns matched files with a corresponding struct containing all the requested metadata values. This method is very useful for implementing virtual folders as it provides a single method for returning matched files complete with any needed metadata to realise that folder without having to stat() any files. The struct contains items that correspond to metadata values requested in the array parameter as in {{{GetMetaDataForFilesInFolder}}} ||
-
-----
-
-
-== Signals ==
-
- * {{{FileMetaDataChanged}}}
- || Output || ||
- || || DBUS_TYPE_STRING s (the file's uri) ||
- || || DBUS_TYPE_STRING s (the metadata type name that was changed) ||
- || || DBUS_TYPE_VARIANT v (the new value for the metadata type) ||
- || Description || ||
- || || emitted when any metadata has changed for the specified file. you can use Dbus argument matching/filtering to watch for changes in specific files and/or specific metadata ||
-
-----
-
-= Searching Metadata =
-
-To search metadata, we need a common search string format that allows both free text search (like google) and also structured metadata searches (searching specific metadata types).
-
-The search string can consist of a mixture of these two search types. For free text, a search term is matched against all metadata for a file including its indexed file contents. Multiple search terms are separated by whitespace. A search term is considered to be a whole word without spaces while multiple words in double quotes are searched as one whole term.
-
-EG the search expression '''John Smith''' will individually match the two strings '''John''' and '''Smith''' against all metadata during a search whilst the search term "John Smith" will only match that whole term against the metadata.
-
-For structured searches the type of metadata should be specified in square brackets EG [Doc.Author]. A structured metadata search expression must contain one of the following operators after the metadata type in the search expression:
-
-|| ''' Operator   ''' || '''   Description     ''' ||
-|| = || Tests values for equality ||
-|| > || Tests value is greater than another ||
-|| < || Tests value is lessor than another ||
-|| >= || Tests value is greater or equal than another ||
-|| <= || Tests value is lessor or equal than another ||
-|| <> || Tests value is not equal ||
-
-A search term may contain the wildcard character * at the end of a term. 
-
-The layout of a structured search expression is [metadata type to search] -> operator -> search term
-
-Multiple search expression are always "ANDED" together and should be separated by whitespace.
-
-Examples of metadata search expressions which can contain a mixture of both search types:
-
- * [Doc.Author] = Smith
- * [Doc.Author] = "John Smith" [Doc.Subject] = Letter*
- * [File.Size] > 1024
- * [Doc.Author] = Smith [File.Size] >= 2048
- * John Smith [File.Format] = images*
 
