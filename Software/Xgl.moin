@@ -4,6 +4,31 @@ Xgl is an X server architecture layered on top of OpenGL. It is at an early stag
 
 [:Xegl] is a new server based on the Xgl architecture. It runs on standalone OpenGL with the [:/EGL:EGL] extensions.
 
+=== Technical Features ===
+
+Layering X on OpenGL and using a composited desktop opens the door to new features and opportunities.  The following are examples of new things which will be possible (a few of which are working today).  We'd like to dispel the myth that X on OpenGL is only good for eye candy.
+
+* Decouple window resolution from display resolution.  Applications may render windows at a particular resolution, but may be seen on-screen at a different resolution.  Consider a background/root gradient.  Such a window (texture) may only be a few pixels in size but appear at 1600x1200 or larger.
+
+* Fast, simple screen rotation/flipping/panning/magnification.
+
+* Advanced font rendering, including on-the-fly outline font rendering using textures and fragment programs (see [http://www.loria.fr/~levy/publications/papers/2005/VTM/vtm.pdf]).
+
+* Simulated hardware overlay planes.  This long-time workstation graphics feature could be implemented with texture compositing.
+
+* Full-screen color manipulation, including gamma correction, contrast enhancement, dimming/brightening, etc.
+
+* Mixed pixel depths on one screen.  Redirected, top-level windows could all have different color depths (8, 16, 24, 32bpp).  For example: XTerms may be created with 8bpp (requiring 1/4 the texmem of a 32bpp visual) and displayed with a color-lookup table (fragment program texel lookup).
+
+* Arbitrary per window colormaps (fragment program texel lookup)
+
+* Alternate window color spaces.  "video" windows may be stored as YCbCr (smaller than RGB) and converted to RGB on the fly when displayed using texture hardware.
+
+* Window image compression: Use S3TC texture compression to compress windows whose contents seldom change.  Best use would be the desktop background stored in the root window.  Potentially big memory savings.
+
+* New opportunities for antialiased X rendering with OpenGL multisampled surfaces.
+
+
 === TODO ===
 
 || '''Item''' || '''Description''' || '''Contact''' ||'''Complete''' ||
