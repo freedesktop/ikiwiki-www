@@ -14,6 +14,8 @@ First note about git: there are many commands.  Each command exists as an arugme
 
 The next thing to understand is that when you check out code from a remote git repository, you end up with a full-fledged git repository yourself.  When you diff, commit, etc. code, you are doing it against your local repository.  Clone, pull, and push are used to move changes between repositories.  Your local repository is stored in .git at the top of the tree.
 
+== Checking out repositories ==
+
 To initially check out a repository, you use git clone.  An example for libX11:
 
 {{{ git clone git://anongit.freedesktop.org/git/xorg/lib/libX11 }}}
@@ -24,13 +26,34 @@ The git:// protocol is fast, but is read-only.  Pushing requires ssh, so if you'
 
 If you become a developer at a later time, you can edit {{{.git/remotes/origin}}} and replace the contents of the {{{URL: }}} line.
 
-Now, you have a copy of the master branch of the tree.  Go ahead and build it and whatever else.  If you make some changes, you can see what you would commit with
+== Viewing diffs ==
+Now, you have a copy of the master branch of the tree.  Go ahead and build it and whatever else.  If you make some changes, you can see what files you would commit with
 {{{ git status -a }}}
 or get a diff of the local tree against the repository with
 {{{ git status -a -v}}}
 
-The {{{-a}}} flag means all local updates.  The git system actually has this concept of an index, which is managed using git-update-index, which lets you selectively commit changes.  However, because this adds to confusion, I will leave learning about the index up to you to do later.
+The {{{-a}}} flag means all local updates.  The git system actually has this concept of an "index", managed using git-update-index, which lets you selectively commit changes.  However, because this adds to confusion, I will leave learning about the index up to you to do later.
 
+== Getting the latest upstream code ==
+The command to update your local repository is:
+
+{{{git pull}}}
+
+It will pull down the latest repository information from the {{{origin}}} remote file (which points at where you initially cloned the repository from).  If the new changes don't conflict with anything locally, it will "fast-forward" your branch reference to the new head.  If new changes do conflict, it will try to do an automatic merge using a couple of different schemes, and then automatically commits the merge if it's satisfied.  If you notice that your pull resulted in a merge (in the output of pull), you might want to use {{{gitk}}} to see if the merge did what you expected it to.
+
+== Dealing with conflicts ==
+If you get a serious conflict that can't be merged automatically, git will leave familiar conflict markers in the files, and {{{ git status }}} should say that you've got unmerged files.  Go edit them and fix your conflicts, and test.  After you do so, {{{git status}}} will still be noisy about unmerged files (since you haven't updated the index to say you've merged them), but you can still do
+
+{{{git commit -a}}}
+
+and commit your merge.  It hands you a default log message for the merge, and it will retain the information on the parents of the commit you did, so that branch history is maintained.
+
+== Reverting commits ==
+It may happen that you commit something you really didn't want to go into the repository.  This is not referring to broken changes, but things like mis-merges or getting branches confused.  If you haven't pushed the code upstream, then it's really easy to make it look like the commit didn't happen.  To reset to the immediate previous revision, you would run:
+
+{{{git reset --hard HEAD^}}}
+
+== Committing code ==
 If you're satisfied with your diff, you could commit it with:
 {{{git commit -a}}}
 
@@ -38,29 +61,17 @@ After you enter your log message, it will quickly terminate.  You've now committ
 
 {{{gitk}}}
 
-to see your diff in the history now.  Note that the {{{gitk}}} output actually shows two branches: master and origin.  The "master" branch is the head of development in the local tree.  The "origin" branch is the last version from upstream.  Let's suppose we want to push our change upstream.  Since it may have been a couple of days, we would do:
+to see your diff in the history now.  Note that the {{{gitk}}} output actually shows two branches: master and origin.  The "master" branch is the head of development in the local tree.  The "origin" branch is the last version from upstream.
 
-{{{git pull}}}
-
-which pulls down the latest repository information from the {{{origin}}} remote file (which points at where you initially cloned the repository from).  If someone else made a change, that change may or may not conflict with what you had done.  If git can merge it, it will automatically commit the merge to your local repository.  Sometimes automatic merging is not the right thing -- you can avoid it with a flag to git-pull, but you can also revert it using
-
-{{{git reset --hard HEAD^}}}
-
-This means "reset everything (repository, index, checkout) to the way it was in the previous revision of the HEAD branch".  Additional carats mean previous revisions.  HEAD is a simple pointer at whatever branch you're currently on.  Since your repository is local, it will be as if this automatic merge never happened.  Then you could go back and do a git-pull with --no-commit and make your merge happen how you wanted.  Usually it's just fine, though.
-
-But let's suppose you got a serious conflict, and git decides it can't deal with it.  If so, then
-{{{ git status }}} should say that you've got unmerged files.  Go edit them and fix your conflicts, and test.  After you do so, {{{git status}}} will still be noisy about unmerged files (since you haven't updated the index to say you've merged them), but you can still do
-
-{{{git commit -a}}}
-
-and commit your merge.  It hands you a default log message for the merge, and it will retain the information on the parents of the commit you did, so that branch history is maintained.
+== Pushing your code upstream ==
 
 Now that you've resolved the conflicts (if any) with others upstream, you're ready to push your changes.  To do this, type
 
 {{{git push origin}}}
 
-This tells git to push the current branch (master) to the "origin" remote.  Unlike git pull, git push does require you to specify the remote and doesn't have a default.
+This tells git to push every branch in a "Push:" line in the "origin" remote upstream (more on the Push: lines later).  Unlike git pull, git push does require you to specify the remote and doesn't have a default.
 
+== Working on branches ==
 Now you've learned how to check out HEAD code, diff, update, commit, and push code back upstream.  The next thing to talk about is branching.
 
 You can see what branch you're on using "git branch" -- it should show "master" initially.  To switch branches in your current repository, do:
@@ -99,3 +110,14 @@ And, to push, you do it just like when you were working on master.
 
 I think that should be it for this guide.  Please feel free to edit for grammar, and send questions to me (anholt on #freedesktop) --EricAnholt
  
+Things I find unintuitive in git that I think ought to be fixed:
+ * git diff should do what git status -a -v does
+ * the index should be second-class, i.e. no -a flags to avoid the index.
+ * branch:branch-origin (or something) should be the default pull.
+ * branch:branch should be the default push for all branches, but only push the current branch unless a flag is added
+ * an update command should be created that:
+  * fetches the current branch's upstream to its -origin locally (or all branches, perhaps)
+  * merges the current branch origin to the branch locally
+  * commits if it was a fast-forward, and leaves uncommitted diffs otherwise.
+
+
