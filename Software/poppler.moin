@@ -5,12 +5,31 @@ This page has moved, see http://poppler.freedesktop.org.
 Poppler is using fontconfig to do the font searching on the system for fonts that are not embedded into the pdf files. This is a list of recommended font substitutions that distributions/users should have in their fontconfig configuration
 
 {{{
+Font A -> Font B
+Symbol -> Standard Symbols L
+ZapfDingbats -> Dingbats
+
+To do the substitution use 
 <alias>
-    <family>Symbol</family>
-    <accept><family>Standard Symbols L</family></accept>
+    <family>Font A</family>
+    <accept><family>Font B</family></accept>
 </alias>
+
+If that does not work for you use 
+
+<match target="pattern">
+ <test name="family">
+  <string>Font A</string>
+ </test>
+ <edit name="family" mode="prepend" binding="same">
+  <string>Font B</string>
+ </edit>
+</match>
+
+but what you should do is warn your distribution to improve their default fontconfig configuration
+
 }}}
-Stardard Symbols L font comes in the Free Type1 URW fonts package and is very probable distributions already ship it.
+Both fonts come in the Free Type1 URW fonts package and is very probable distributions already ship it.
 
 This list probably should go somewhere into the tarball when it's more complete.
 
