@@ -54,4 +54,138 @@ Xgl code can be found in hw/xgl sub-directory.
 The most current instructions for getting  [http://en.opensuse.org/Xgl Xgl] and  [http://en.opensuse.org/Compiz Compiz] up and running can be found on [http://www.opensuse.org the openSUSE wiki].
 
 
+=== Build Xgl and compiz from source ===
+
+'''prerequisites''': Mesa 6.5(CVS HEAD), cairo glitz >= 0.5.5 (CVS HEAD), gnome control-center 2.14 (for compiz gnome-window-decorator)  and more (please add)
+
+You'll find some suggested configure options for xgl and glitz [http://www.qdh.org.uk/wordpress/?p=24 here]. You might find that some characters have been altered, possibly by the web-editor and may  cause confusion. These instructions are included here with some extra information for your convenience.
+
+==== Fetch source code from CVS ====
+Create  a folder where you'll place the source codes. Let's say:
+
+{{{
+$ mkdir -p ~/CVS
+$ cd CVS
+}}}
+
+'''login'''
+{{{
+$ cvs -d:pserver:anonymous@anoncvs.freedesktop.org:/cvs/xorg login
+CVS password: <hit return>
+}}}
+
+'''cairo glitz'''
+{{{
+$ cvs -z3 -d:pserver:anonymous@anoncvs.freedesktop.org:/cvs/cairo co glitz
+}}}
+
+'''Mesa'''
+{{{
+$ cvs -z3 -d:pserver:anonymous@anoncvs.freedesktop.org:/cvs/mesa co Mesa
+}}}
+
+'''compiz'''
+{{{
+$ cvs -z3 -d:pserver:anonymous@anoncvs.freedesktop.org:/cvs/xorg co app/compiz
+}}}
+
+'''xserver xgl branch'''
+{{{
+$ cvs -z3 -d:pserver:anonymous@anoncvs.freedesktop.org:/cvs/xorg co -r xgl-0-0-1 xserver
+}}}
+
+==== Build components ====
+'''optional preparation'''
+
+You may want to create symbolic links of the source files by using "lndir" to some temporary folder and do the build there. This way the source directories will be kept 'clean' and you can maintain different builds using the same source tree. Also you can apply patches to the symlink directory without effecting the original source tree!
+e.g.
+{{{
+$ cd /tmp
+$ mkdir glitz
+$ cd glitz
+$ lndir ~/CVS/glitz
+}}}
+
+lndir, which is available in most distributions and can also be found in xorg's source tree, makes symbolic links of the files but not the directories, which instead re-creates in the destination folder. Thus the compilation output files are stored in the temporary folder rather than the source folder.
+
+'''optional optimisation flags'''
+
+Better performance may be achieved if compiler optimisation options, suitable for the target architecture, are used. Use the environment variables CFLAGS and CXXFLAGS for this.
+e.g. (for pentium-m CPU)
+{{{
+$ export CFLAGS="-O4 -march=pentium-m -mtune=pentium-m -pipe -fomit-frame-pointer -ffast-math"
+$ export CXXFLAGS=$CFLAGS
+}}}
+
+The following instructions assume that appropriate symbolic links for all source trees have been made in /tmp folder. Also /opt/Xgl is used as the installation folder. Change as required if that's not the case.
+
+'''cairo glitz'''
+{{{
+$ cd /tmp/glitz
+$ ./autogen.sh --prefix=/opt/Xgl
+$ make
+$ sudo make install
+}}}
+
+'''Mesa (static library)'''
+{{{
+$ cd /tmp/Mesa
+$ echo "MKLIB_OPTIONS = -static" >> configs/linux-indirect
+$ make linux-indirect
+$ sudo make install DESTDIR=/opt/Xgl
+}}}
+
+'''compiz'''
+{{{
+$ cd /tmp/glitz
+$ PKG_CONFIG_PATH=/opt/Xgl/lib/pkgconfig ./autogen.sh --prefix=/opt/Xgl --with-gl-libs="/tmp/Mesa/lib/libGL.a -pthread -ldrm"
+$ make
+$ sudo make install
+}}}
+
+'''xgl xserver'''
+{{{
+$ cd /tmp/xgl
+$ PKG_CONFIG_PATH=/opt/Xgl/lib/pkgconfig ./autogen.sh --enable-xgl --disable-xorg --disable-xprint --enable-glx --enable-dri --with-mesa-source=/tmp/Mesa --with-release-snap=1 --disable-dmx --disable-xvfb --disable-xnest --enable-xglx --enable-xkb --disable-kdriveserver --prefix=/opt/Xgl
+$ make
+$ sudo make install
+}}}
+
+==== Test that everything works fine (for gnome desktop) ====
+Assuming the above build operation finish without error, you may want to test everything works before making xgl and compiz your default configuration.
+
+'''run xgl server'''
+{{{
+$ /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:pbuffer&
+}}}
+or
+{{{
+$ /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:fbo&
+}}}
+depending if you have an ati or nvidia card (experiment with the options to see which one is more suitable for you).
+If you get errors here or you find out later that performance is bad, the following might help:
+{{{
+$ LD_PRELOAD=/usr/lib/libGL.so /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:pbuffer&
+}}}
+where /usr/lib/libGL.so is your installed opengl driver that works well with your default Xorg xserver.
+
+'''run compiz'''
+{{{
+$ DISPLAY=:1 /opt/Xgl/bin/compiz decoration wobbly fade minimize cube rotate zoom scale move resize place switcher&
+}}}
+
+'''run gnome-window-decorator'''
+{{{
+$ DISPLAY=:1 /opt/Xgl/bin/gnome-window-decorator&
+}}}
+
+'''run a terminal or nautilus if you like'''
+{{{
+$ DISPLAY=:1 /usr/bin/gnome-terminal&
+}}}
+
+If everything work fine you should now have a wobbly terminal :)
+
+
+
 -- David Reveman - 13 Feb 2006
