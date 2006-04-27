@@ -119,7 +119,7 @@ $ export CXXFLAGS=$CFLAGS
 
 The following instructions assume that appropriate symbolic links for all source trees have been made in /tmp folder. Also /opt/Xgl is used as the installation folder. Change as required if that's not the case.
 
-'''cairo glitz'''
+'''build cairo glitz'''
 {{{
 $ cd /tmp/glitz
 $ ./autogen.sh --prefix=/opt/Xgl
@@ -127,14 +127,14 @@ $ make
 $ sudo make install
 }}}
 
-'''Mesa (static library)'''
+'''build Mesa (static library)'''
 {{{
 $ cd /tmp/Mesa
 $ echo "MKLIB_OPTIONS = -static" >> configs/linux-indirect
 $ make linux-indirect
 }}}
 
-'''compiz'''
+'''build compiz'''
 {{{
 $ cd /tmp/compiz
 $ PKG_CONFIG_PATH=/opt/Xgl/lib/pkgconfig ./autogen.sh --prefix=/opt/Xgl --with-gl-libs="/tmp/Mesa/lib/libGL.a -pthread -ldrm"
@@ -142,7 +142,7 @@ $ make
 $ sudo make install
 }}}
 
-'''xgl xserver (with DPMS support)'''
+'''build xgl xserver (with DPMS support)'''
 {{{
 $ cd /tmp/xgl
 $ PKG_CONFIG_PATH=/opt/Xgl/lib/pkgconfig ./autogen.sh --enable-xgl --disable-xorg --disable-xprint --enable-glx --enable-dri --with-mesa-source=/tmp/Mesa --with-release-snap=1 --disable-xvfb --disable-xnest --enable-xglx --enable-xkb --disable-kdriveserver --prefix=/opt/Xgl
@@ -159,14 +159,19 @@ $ /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:pbuffer&
 }}}
 or
 {{{
-$ /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:fbo&
+$ /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:fbo &
 }}}
-depending if you have an ati or nvidia card (experiment with these options to see which one is more suitable for you).
+depending on your graphics card (experiment with these options to see which combination is more suitable for you).
 If you get errors here or you find out later that performance is bad, the following might help:
 {{{
 $ LD_PRELOAD=/usr/lib/libGL.so /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:pbuffer&
 }}}
 where /usr/lib/libGL.so is your installed opengl driver that works well with your default Xorg xserver.
+If Xgl fails due to missing fonts, use the font path option "-fp" and point to your "misc" fonts directory.
+{{{
+$ /opt/Xgl/bin/Xgl :1 -ac -accel glx:pbuffer -accel xv:pbuffer -fp /usr/share/X11/fonts/misc&
+}}}
+Where path "/usr/share/X11/fonts/misc" may vary depending on your distribution.
 
 '''run compiz'''
 {{{
@@ -187,4 +192,4 @@ If everything works fine you should now have a wobbly terminal :)
 
 
 
--- David Reveman - 13 Feb 2006
+''27 April 2006''
