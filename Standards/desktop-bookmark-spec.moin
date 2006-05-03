@@ -14,7 +14,7 @@ This specification aims to do the following things:
 
  * Provide a standard mechanism for storing and accessing a list of bookmarks (in form of URI);
  * Provide per-application and per-task bookmarks;
- * Replace the Recent Files Storage Specification, providing a single specification for both bookmarks and recent files;
+ * Replace the [wiki:Standards/recent-file-spec Recent Files Storage Specification], providing a single specification for both bookmarks and recent files;
 
 Applications implementing the following specification will have the ability to access all, or just a part of, the bookmarks, which will be stored in a system-wide fashion instead of re-implementing their bookmark system. This way, all the bookmarks associated to an application will be available to each instance of said application, and to other applications performing the same tasks. Also, a notification mechanism should be implemented so that every change inside the bookmarks should be propagated to each application using the bookmarks.
 
@@ -26,21 +26,21 @@ For different desktops and applications to have access to the same information, 
 
 A valid, UTF-8 encoded XML document will be used for storing the desktop bookmarks. The storage format will conform to the XBEL DTD  with custom meta-data; see the [http://pyxml.sourceforge.net/topics/xbel/ XBEL] specification for the contents of the bookmark, title, desc and info elements used in this specification.
 
-A valid desktop bookmark stream must conform to the 1.0 version of the XBEL Specification. The root element must be xbel, with its attribute version set to "1.0". No folder element should be used, as well as no alias and separator elements; if any of those elements are found, they should be ignored.
+A valid desktop bookmark stream must conform to the 1.0 version of the XBEL Specification. The root element must be the {{{xbel}}} element, with its {{{version}}} attribute set to "1.0". No {{{folder}}} element should be used, as well as no {{{alias}}} and {{{separator}}} elements; if any of those elements are found, they should be ignored.
 
-Each bookmark must have the bookmark element as root node. The target URI of the bookmark must be stored in the href attribute of the bookmark element.
+Each bookmark must have the {{{bookmark}}} element as root node. The target URI of the bookmark must be stored in the {{{href}}} attribute of the bookmark element.
 
-Each bookmark should have its attributes added, modified and visited set with date and time specified as a string conformant to the [http://www.w3.org/TR/NOTE-datetime ISO 8601] specification. The time should be relative to UTC time; local time should be converted to UTC before encoding, and converted back after reading the attribute payload. 
+Each {{{bookmark}}} element should have its {{{added}}}, {{{modified}}} and {{{visited}}} attributes set with date and time specified as a string conformant to the [http://www.w3.org/TR/NOTE-datetime ISO 8601] specification. The time should be relative to UTC time; local time should be converted to UTC before encoding, and converted back after reading the attribute payload. 
 
 == Desktop Bookmarks meta-data ==
 
-The owner for all the meta-data elements defined in this specification must be Freedesktop.Org. Thus, the owner attribute of the meta-data element containing the following elements must be set to {{{http://freedesktop.org}}}. Other metadata, enclosed inside a {{{metadata}}} element with another, or no owner, should be ignored.
+The owner for all the meta-data elements defined in this specification must be Freedesktop.Org. Thus, the {{{owner}}} attribute of the meta-data element containing the following elements must be set to {{{http://freedesktop.org}}}. Other meta-data, enclosed inside a {{{metadata}}} element with another, or no owner, should be ignored.
 
-All meta-data defined in this specification belongs to a namespace, named {{{bookmark}}} whose URI is {{{http://www.freedesktop.org/standards/desktop-bookmarks}}}, except for the mime-type element, whose namespace, named {{{mime}}}, must have this URI: {{{http://www.freedesktop.org/standards/shared-mime-info}}}.
+All meta-data defined in this specification belongs to a namespace, named {{{bookmark}}} whose URI is {{{http://www.freedesktop.org/standards/desktop-bookmarks}}}, except for the {{{mime-type}}} element, whose namespace is to be named {{{mime}}} and must have this URI: {{{http://www.freedesktop.org/standards/shared-mime-info}}}.
 
 Each {{{metadata}}} element might contain any combination of the following elements, in any order: 
 
- * The mime-type element is mandatory. It must contain the MIME Type of the target pointed by the URI, as defined by the [wiki:Standards/shared-mime-info-spec Shared MIME] Database.
+ * The {{{mime-type}}} element is mandatory. It must contain the MIME Type of the target pointed by the URI, as defined by the [wiki:Standards/shared-mime-info-spec Shared MIME] Database.
 
  * The {{{groups}}} element contains a list of {{{group}}} elements, each containing a group name. See the Registered Group Names section for more details on the group names defined by this specification.  The groups element is not mandatory.
 
@@ -132,7 +132,7 @@ Any implementor of this specification should conform to these recommendations:
 
  * Implementors should use the command line inside the exec attribute of the application element, when launching a bookmark with a specific application. If no exec attribute was found, implementors should try the application's name stored inside the name attribute, followed by a space character and the bookmark's URI. If this fails, the default application for the bookmark's MIME type should be invoked using the bookmark's URI.
 
- * No duplicate entries should be found inside a valid desktop bookmark data stream. If two or more applications register a bookmark to the same URI, implementors should update the modified attribute of the bookmark element; a new application element should be added for each application that is registering the bookmark; if any of the applications is also adding group names, all of these must be merged with the previously set group names; the private element should be set the first time an application requires it. If the same application registers the same bookmark, only the modified attribute of the bookmark element; the timestamp and count attributes of the application element with the same application's name set into the name attribute; the private element should be modified.
+ * No duplicate entries should be found inside a valid desktop bookmark data stream. If two or more applications register a bookmark to the same URI, implementors should update the modified attribute of the bookmark element; a new application element should be added for each application that is registering the bookmark; if any of the applications is also adding group names, all of these must be merged with the previously set group names; the private element should be set the first time an application requires it. If the same application registers the same bookmark, only the modified attribute of the bookmark element, the timestamp and count attributes of the application element with the same application's name set into the name attribute and the private element should be modified.
 
  * If an icon for the bookmark item is shown, it should be taken from the image file stored inside the href attribute of the icon element; if no such element exists inside the meta-data for the bookmark item, the icon should be the thumbnail of the resource (if available), retrieved using the [http://triq.net/~jens/thumbnail-spec/index.html thumbnail managing specification], or - if no thumbnail is present - the icon associated to the MIME type of the resource.
 
@@ -162,7 +162,7 @@ Remember, these are case-sensitive. When using a group name described in the lis
 
 In order to properly install a new desktop bookmark file, third party applications should:
 
-* Install new desktop bookmark files inside $XDG_DATA_DIR/desktop-bookmarks for each desktop bookmark file. Please, namespace the filename, as in "vendor-foo.xbel", or use a subdirectory or $XDG_DATA_DIR/desktop-bookmarks so you have "vendor/foo.xbel." Please ensure all desktop bookmark entries are valid.
+ * Install new desktop bookmark files inside $XDG_DATA_DIR/desktop-bookmarks for each desktop bookmark file. Please, namespace the filename, as in "vendor-foo.xbel", or use a subdirectory or $XDG_DATA_DIR/desktop-bookmarks so you have "vendor/foo.xbel." Please ensure all desktop bookmark entries are valid.
 
 ----
 
