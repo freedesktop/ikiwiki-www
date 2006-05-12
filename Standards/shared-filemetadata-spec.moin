@@ -32,9 +32,9 @@ Metadata typically comes in a variety of formats and types. In order to facilita
  * Int64   (signed 64 bit)
  * UInt64 (64 bit unsigned)
  * Float   (64 bit signed floating point number - double precision)
- * DateTime (ISO 8601 format with timezone IE YYYY-MM-DDThh:mm:ss+xx:yy EG 2006-04-01T12:30+01:00)
+ * Datetime (ISO 8601 format with timezone IE {{{yyyy-mm-ddThh:mm:ss+xx:yy}}} EG "2006-04-01T12:30+01:00")
 
-DateTime values that contain no explicit timezone info are assumed to be in the user's timezone.
+Datetime values that contain no explicit timezone info are assumed to be in the user's timezone.
 
 
 == Metadata Namespaces ==
@@ -68,8 +68,8 @@ Generic file metadata is applicable to all files regardless of their format. The
 || {{{File.IconPath }}} || string ||   Yes ||  Editable file uri for a custom icon for the file ||
 || {{{File.SmallThumbnailPath}}} || string ||   Yes || Editable file uri for a small thumbnail of the file suitable for use in icon views ||
 || {{{File.LargeThumbnailPath}}} || string ||   Yes || Editable file uri for a larger thumbnail of the file suitable for previews ||
-|| {{{File.Modified }}} || string ||  No ||  Last modified date in format "YYYY-MM-DD hh:mm:ss+hhmm" the last 4 digits optionally represent the timezone (EG +0100 or -0500)||
-|| {{{File.Accessed }}} || string ||  No ||  Last access date in format "YYYY-MM-DD hh:mm:ss+hhmm" the last 4 digits optionally represent the timezone (EG +0100 or -0500)||
+|| {{{File.Modified }}} || datetime ||  No ||  Last modified datetime ||
+|| {{{File.Accessed }}} || datetime ||  No ||  Last access datetime ||
 
 
 == Audio Metadata ==
@@ -90,7 +90,7 @@ Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.
 || {{{Audio.AlbumGain}}} || float || No ||  gain adjustment of album ||
 || {{{Audio.AlbumPeakGain}}} || float || No ||  peak gain adjustment of album ||
 || {{{Audio.Duration}}} || integer || No ||  duration of track in seconds ||
-|| {{{Audio.Date}}}    || date || No ||  date track was released in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Audio.Date}}}    || Datetime || No ||  date track was released ||
 || {{{Audio.Comment}}}       || string || No ||   comments on the track ||
 || {{{Audio.Genre }}}   || string || No ||  type of music classification for the track as defined in ID3 spec ||
 || {{{Audio.Codec}}}       || string || No ||  codec encoding description ||
@@ -98,7 +98,7 @@ Audio metadata is based on the widespread [http://en.wikipedia.org/wiki/Id3 ID3.
 || {{{Audio.Samplerate}}}       || integer || No ||  samplerate in Hz ||
 || {{{Audio.Bitrate}}}       || float || No ||  bitrate in kbps ||
 || {{{Audio.Channels}}}       || integer || No || no. of channels in the audio (2 = stereo) ||
-|| {{{Audio.LastPlay}}}    || date || Yes ||  date track was last played in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Audio.LastPlay}}}    || datetime || Yes ||  when track was last played  ||
 || {{{Audio.PlayCount}}}       || integer || Yes ||  No. of times the track has been played ||
 || {{{Audio.IsNew}}}       || integer || Yes ||  set to "1" if track is new to the user. (default "0") ||
 || {{{Audio.MBAlbumID}}}       || string || Yes ||  [http://musicbrainz.org/ MusicBrainz] album ID in UUID format ||
@@ -121,7 +121,7 @@ For documents, applications have typically used a mixture of Dublin Core types a
 || {{{Doc.Comments}}}  || string || user definable free text ||
 || {{{Doc.PageCount}}}  || integer || no. of pages in document ||
 || {{{Doc.WordCount}}} || integer || total no. of chars in document ||
-|| {{{Doc.Created }}} || string || date document was originally created in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Doc.Created }}} || datetime || datetime document was originally ||
 
 == Image Metadata ==
 
@@ -131,7 +131,7 @@ For images, most support the [http://en.wikipedia.org/wiki/EXIF EXIF] standard a
 || {{{Image.Height}}}  || integer || Height in pixels ||
 || {{{Image.Width}}} || integer || Width in pixels ||
 || {{{Image.Title}}}  || string ||  Title of image ||
-|| {{{Image.Date }}} || string || date image was originally created in format "YYYY-MM-DD hh:mm:ss" ||
+|| {{{Image.Date }}} || datetime || datetime image was originally created ||
 || {{{Image.Keywords}}} || string ||  string of keywords ||
 || {{{Image.Creator}}}  || string ||  name of the author ||
 || {{{Image.Comments}}}  || string || user definable free text ||
