@@ -3,15 +3,15 @@
 
 == D-BUS ==
 
-D-BUS is a message bus system, a simple way for applications to talk to one another. 
+D-BUS is a message bus system, a simple way for applications to talk to one another.
 
 D-BUS supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, but TCP/IP option is available and [wiki:Software/DBusRemote remote support] planned.
 
-The D-BUS API isn't finished yet, and the design is by no means set in stone. One of our main goals is for lots of projects to use it, so if you wouldn't use it, by all means mail us and say why - design, licensing, indentation style, we would rather know than not know. 
+The D-BUS API isn't finished yet, and the design is by no means set in stone. One of our main goals is for lots of projects to use it, so if you wouldn't use it, by all means mail us and say why - design, licensing, indentation style, we would rather know than not know.
 
 D-BUS' only *required* dependency is an XML parser (either libxml or expat). D-BUS includes GLib, Qt, Python and .NET APIs to the D-BUS system, if you want to build those. The [wiki:Software/DbusProjects list of projects using D-BUS] is growing and they provide a wealth of examples of using the various APIs to learn from.
 
-Trying out D-BUS in sample applications is encouraged - we want to get it widely used and tested. It should be working pretty well these days, and when it isn't bug reports are very welcome. 
+Trying out D-BUS in sample applications is encouraged - we want to get it widely used and tested. It should be working pretty well these days, and when it isn't bug reports are very welcome.
 
 Get on D-BUS today!
 
@@ -38,7 +38,7 @@ Several higher-level languages have bindings for DBus. The [wiki:Software/DBusBi
 
 === Docs ===
 
-Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're new to D-BUS, the tutorial is 
+Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're new to D-BUS, the tutorial is
 probably the best place to start (even though it is very incomplete, the basics are covered).
 
         * [http://dbus.freedesktop.org/doc/dbus-tutorial.html D-BUS tutorial]
@@ -48,7 +48,7 @@ probably the best place to start (even though it is very incomplete, the basics 
 	* [http://dbus.freedesktop.org/doc/api/html/index.html Doxygen manual]
 	* [http://dbus.freedesktop.org/doc/api/html/todo.html @todo items from manual] and high-level [http://dbus.freedesktop.org/doc/TODO TODO]
 	* [http://dbus.freedesktop.org/doc/api/html/files.html Browse source]
-	* [http://dbus.freedesktop.org/doc/dbus-daemon.1.html dbus-daemon(1)] (includes configuration file docs)  
+	* [http://dbus.freedesktop.org/doc/dbus-daemon.1.html dbus-daemon(1)] (includes configuration file docs)
 	* [http://dbus.freedesktop.org/doc/dbus-send.1.html dbus-send(1)] [http://dbus.freedesktop.org/doc/dbus-monitor.1.html dbus-monitor(1)] [http://dbus.freedesktop.org/doc/dbus-launch.1.html dbus-launch(1)]
 	* [http://dbus.freedesktop.org/doc/HACKING HACKING] [http://dbus.freedesktop.org/doc/AUTHORS AUTHORS]
 	* [http://dbus.freedesktop.org/doc/NEWS NEWS] [http://dbus.freedesktop.org/doc/ChangeLog ChangeLog] [http://dbus.freedesktop.org/doc/README README]
@@ -60,10 +60,38 @@ probably the best place to start (even though it is very incomplete, the basics 
         * [http://www.linuxjournal.com/article/7744 "Get on the D-BUS" (Linux Journal)] by Robert Love (January 2005)
         * [http://raphael.slinckx.net/dbustutorial.php "The DBus missing tutorial - DBus Activation"] by RaphaÃ«l Slinckx (2005)
         * [http://www.matthew.ath.cx/misc/dbus "DBus Low-Level API Turorial"] by Matthew Johnson (Nov 2005)
-	
+
 
 == Download ==
-The latest release is [http://dbus.freedesktop.org/releases/dbus-0.61.tar.gz dbus-0.61.tar.gz]. (2006-02-24)
+The latest release is [http://dbus.freedesktop.org/releases/dbus-0.62.tar.gz dbus-0.62.tar.gz]. (2006-06-12)
+	* Doc fixes
+	* Added support for all data-types for the dbus tools
+	* Fixed eavesdropping on method calls (dbus-monitor)
+	* Fixed silent dropping of method calls with interface=NULL
+	* Fixed console ownership problems in Solaris
+	* Fixed installation of dbus-signature.h and #include it in dbus/dbus.h
+	* Flush the user database cache on config reload
+	* GLib bindings:
+		* Fix memory leaks
+		* Fix properties in DBusGProxy so that they can be given in any order
+		* Added lots of assertions to ensure correct use
+		* Remove duplicated code
+		* Fix static string pointer uses in GPtrArray-based collections
+	* Python bindings:
+		* Remove reference to sys/cdefs.h
+	* Qt4 bindings:
+		* Code reorganized
+		* Added the dbusidl2cpp, dbuscpp2xml and dbus tools
+		* Added example programs (ping-pong, complex ping-pong, listnames, chat)
+		* Updated selftests
+		* Fixed compilation and .moc- and .ui-file processing and cleaning
+		* Made central classes derive from QObject
+		* Enhance error reporting
+		* Many bugfixes
+	* Mono bindings:
+		* Minor bugfixes
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus-0.61.tar.gz dbus-0.61.tar.gz]. (2006-02-24)
 
 	* Documentation all around
 	* dbus-launch now produces correct sh and csh syntax
@@ -83,29 +111,5 @@ The latest release is [http://dbus.freedesktop.org/releases/dbus-0.61.tar.gz dbu
 	* Mono bindings:
 		* 64bit arch fixes
 	* Massive bug fixing all around
-
-The previous release is [http://dbus.freedesktop.org/releases/dbus-0.60.tar.gz dbus-0.60.tar.gz]. (2005-11-30)
-
-	* major ABI/API changes - sonames changed
-	* RequestName queuing behavior has changed (refer to dbus-specification)
-		* DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT has been removed and DBUS_NAME_FLAG_ALLOW_REPLACEMENT has been added to the flags
-	* signals emitted by the bus now show up in the introspect data
-	* auth EXTERNAL now supported on BSD varients
-	* ReleaseName method added to the bus to allow a service to remove itself as owner of a bus name
-	* dbus_connection_read_write added for getting messages off the bus in the absence of a mainloop
-	* Qt4 bindings added and the Qt3 bindings have been depricated
-	* python bindings:
-		* marshal using introspect data if available
-		* better exception handling and propigation
-		* private connections are now supported
-		* UTF-8 cleanups
-		* out_signature added to method decorators for specifying how the return values should be marshaled
-		* sender_keyword added to method decorators for specifying and argument to provide the unique name of the method caller
-		* async_callbacks added to method decorators 
-		* multiple inheritance of classes now supported 
-	* GLib bindings:
-		* respect NoReply annotations
-		* dbus_g_method_return_get_reply and dbus_g_method_return_send_reply added to the lowlevel code for use when the dbus-glib marshalling code is not adiquate
-	* numerous bug fixes all around
 
 Previous releases can be found in the [wiki:Software/DbusReleaseArchive release archive].
