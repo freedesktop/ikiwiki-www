@@ -4,6 +4,29 @@
 
 Below, is a list of previous releases with changes they implement. The latest release can be found on the [wiki:Software/dbus main page].
 
+	* [http://dbus.freedesktop.org/releases/dbus-0.60.tar.gz dbus-0.60.tar.gz]. (2005-11-30)
+		* major ABI/API changes - sonames changed
+		* RequestName queuing behavior has changed (refer to dbus-specification)
+			* DBUS_NAME_FLAG_PROHIBIT_REPLACEMENT has been removed and DBUS_NAME_FLAG_ALLOW_REPLACEMENT has been added to the flags
+		* signals emitted by the bus now show up in the introspect data
+		* auth EXTERNAL now supported on BSD varients
+		* ReleaseName method added to the bus to allow a service to remove itself as owner of a bus name
+		* dbus_connection_read_write added for getting messages off the bus in the absence of a mainloop
+		* Qt4 bindings added and the Qt3 bindings have been depricated
+		* python bindings:
+			* marshal using introspect data if available
+			* better exception handling and propigation
+			* private connections are now supported
+			* UTF-8 cleanups
+			* out_signature added to method decorators for specifying how the return values should be marshaled
+			* sender_keyword added to method decorators for specifying and argument to provide the unique name of the method caller
+			* async_callbacks added to method decorators 
+			* multiple inheritance of classes now supported 
+		* GLib bindings:
+			* respect NoReply annotations
+			* dbus_g_method_return_get_reply and dbus_g_method_return_send_reply added to the lowlevel code for use when the dbus-glib marshalling code is not adiquate
+		* numerous bug fixes all around
+
 	* [http://dbus.freedesktop.org/releases/dbus-0.50.tar.gz dbus-0.50.tar.gz]. (2005-09-06)
 	This is a minor release from 0.36.2.  The series number has changed not because of any technical reasons but as an indication that weare moving closer to 1.0.  It is hoped that this will be the last series to see major changes, most of which will be isolated to the GLib and Python bindings, as we transition to concentrate more on bug busting and code auditing.
 
