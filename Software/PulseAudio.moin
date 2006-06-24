@@ -1,64 +1,52 @@
 [[TracNav(TOC)]]
-= Welcome to the Polypaudio Trac! =
 
-Polypaudio is a sound server for Unix/Linux, see http://0pointer.de/lennart/projects/polypaudio/ for more information.
+= Welcome to PulseAudio! =
 
-The following polypaudio drivers are currrently available for other software:
+== What Is It? ==
 
- * [http://0pointer.de/lennart/projects/libao-polyp libao] (older version merged in libao's SVN)
- * [http://0pointer.de/lennart/projects/gst-polyp GStreamer] (older version merged in gst's CVS)
- * [http://0pointer.de/lennart/projects/xmms-polyp XMMS]
+!PulseAudio is a sound server for POSIX and Win32 systems. A sound server is basically a proxy for your sound applications. It allows you to do advanced operations on your sound data as it passes between your application and your hardware. Things like transferring the audio to a different machine, changing the sample format or channel count and mixing several sounds into one are easily acheived using a sound server.
 
-Available for 0.7.0, need updating for 0.9.0:
- * The current MPlayer CVS contains a driver for polypaudio
- * PortAudio patches are in the works
- * Miguel Freitas wrote a Polypaudio driver for Xine. (already merged in Xine's CVS)
+!PulseAudio has been tested on Linux, Solaris, FreeBSD, Windows 2000 and Windows XP. It should also run on all other POSIX and Windows systems, but may require new backends to handle their sound systems.
 
-If you want to be notified when a new SVN commit is made, consider subscribing to the Timeline RSS feed.
+== News ==
 
-Have a loook on the current SVN sources of Polypaudio in source:/trunk
+=== June 2006 ===
 
-'''Due to heavy Trac spamming we were forced to disable anonymous bug reporting. We are very sorry we had to do this, and assure you that we will reenable anonymous bug report as soon as Trac offers captchas or something alike in a stable release. In the meantime you can [http://0pointer.de/trac/polypaudio/register create a user here]. It doesn't require an email address, so please don't feel annoyed too much. Thank you for your understanding.'''
+ * '''2006-06-02:''' Version 0.9.1 released; changes include: load modules even when libtool .la files are missing; generate better ALSA device names from module-detect; if an ALSA device doesn't support the requested number of channels or the frequency, accept what ALSA suggests instead; amd64 portability; drop .sh suffix of esdcompat.sh; build system fixes; No API or ABI changes were made
 
-== Contact Info ==
+=== May 2006 ===
 
-Mailing Lists:
+ * '''2006-05-26:''' Version 0.9.0 released; changes include: new module module-volume-restore; new OSS API emulation tool padsp; require valid UTF8 strings everywhere; properly support ALSA channel maps for surround sound; increase maximum number of channels per stream to 32; add new threaded main loop API for synchronous programs; introduce real shared object versioning; a few API additions; many, many bugfixes
 
- * [https://tango.0pointer.de/mailman/listinfo/polypaudio-discuss Discussion Mailing List] (Posting requires subscription)
- * [https://tango.0pointer.de/mailman/listinfo/polypaudio-commits SVN Commits Mailing List] (No posting allowed)
- * [https://tango.0pointer.de/mailman/listinfo/polypaudio-tickets Trac Tickets Mailing List] (No posting allowed) 
+=== April 2006 ===
 
-Our SVN is tracked at [http://cia.navi.cx/stats/project/polypaudio CIA].
+ * '''2006-04-28:''' Version 0.8.1 released; changes include: support for specifying the channel map on the command lines of paplay and pacat and as arguments to the driver modules; ALSA hardware mixer compatibility; fix linking; properly remove PF_UNIX sockets when unloading protocol modules; fix sample cache; many other fixes
 
-You have a chance to meet the developers on [irc://irc.freenode.org/polypaudio #polypaudio on irc.freenode.org]
+ * '''2006-04-13:''' Version 0.8 released; changes include: too many to count - consider reading this blog entry for more information; many, many minor fixes.
 
-Polypaudio has been developed by:
+=== November 2004 ===
 
- * Lennart Poettering
- * Pierre Ossman
+ * '''2004-11-21:''' Version 0.7 released; changes include: IPv6 support; PID file support; publish credentials in X11 root window (module-x11-publish; new tool pacmd; ESOUND backend; new command load-sample-dir-lazy; many, many minor fixes.
 
-== Documentation ==
+=== October 2004 ===
 
- * [http://0pointer.de/lennart/projects/polypaudio/modules.html Polypaudio Modules Manual]
- * [http://0pointer.de/lennart/projects/polypaudio/cli.html Polypaudio Command Line Manual]
- * [http://0pointer.de/lennart/projects/polypaudio/daemon.html Polypaudio Daemon Manual]
- * [http://0pointer.de/lennart/projects/polypaudio/FAQ.html Polypaudio FAQ]
- * [http://0pointer.de/lennart/projects/polypaudio/doxygen/ Polypaudio Programming Manual]
+ * '''2004-10-28:''' Version 0.6 released; changes include: TCP wrappers support; don't load the complete sound file into memory when playing back using pa_play_file(); autoload API change; don't load all sound files as FLOAT32; shorten default buffers; client-side latency interpolation; add new user volume metrics; add module-tunnel, module-null-sink, module-match and new tool paplay; new API version macros; many client API improvements; correctly lock cookie file generation; correctly lock daemon autospawning; print daemon layout to STDERR on SIGHUP; new options for pacat: allow sample type specification.
 
-== Distributions ==
+=== September 2004 ===
 
-Polypaudio is currently part of the following distributions:
- * [http://www.archlinux.org/ ArchLinux]
- * [http://www.altlinux.com/ ALT Linux]; for more information, see [http://www.freesource.info/wiki/ALTLinux/Dokumentacija/polypaudio ALT Linux and Polypaudio]
- * [http://www.freshports.org/audio/polypaudio/ FreeBSD]
- * [http://www.rocklinux.net/packages/polypaudio.html ROCK Linux]
- * [http://crux.nu/portdb/?command=viewport&repo=noneus&name=polypaudio CRUX]
- * [http://fr2.rpmfind.net/linux/rpm2html/search.php?query=polypaudio&system=&arch= Mandriva]
- * [http://distro.ibiblio.org/pub/linux/distributions/sourcemage/codex/test/audio-drivers/polypaudio/ SourceMage]
- * soon: Debian
+ * '''2004-09-24:''' Version 0.5.1 released; changes include: improve esound protocol compatibility; fix autospawning via libesd; make use of POSIX capabilities; allow SCHED_FIFO scheduling only for users in group realtime; minor build system fix.
 
-== In The Press ==
+ * '''2004-09-20:''' Version 0.5 released; changes include: extensive API improvements, new module module-combine for combining multiple sound cards into one, gcc 2.95 compatibility, configuration files, add "lazy" samples, support for source and network latency measurements, add module-pipe-source, many other fixes and improvements.
 
- * [http://lwn.net/Articles/185613/ Linux Weekly News]
- * [http://www.osnews.com/story.php?news_id=14789 OSNews]
- * [http://gnomefiles.org/ GnomeFiles Featured Application 6.2.2006]
+ * '''2004-09-08:''' Version 0.4 released; changes include: daemon auto spawning, support for SCHED_FIFO scheduling, three new modules, proper logging, CPU load watchdog, many fixes.
+
+=== August 2004 ===
+
+ * '''2004-08-27:''' Version 0.3 released; changes include: support for both glib 2.0 and glib 1.2, future cancellation, API updates, many fixes, relicense client library to LGPL.
+
+ * '''2004-08-20:''' Version 0.2 released; changes include: added sample cache, introspection API, client API documentation, module autoloading, glib support, a module for intercepting X11 bell events, and much more.
+
+=== July 2004 ===
+
+ * '''2004-07-17:''' Version 0.1 released
+
