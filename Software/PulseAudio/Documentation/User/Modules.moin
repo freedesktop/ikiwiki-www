@@ -1,0 +1,386 @@
+[[TracNav(ModulesTOC)]]
+
+= Loadable Modules =
+
+The following loadable modules are provided with the !PulseAudio distribution:
+
+== Device Drivers ==
+
+All device driver modules support the following parameters:
+
+  format
+    The sample format (one of u8, s16, s16le, s16le, float32, float32be, float32le, alaw, ulaw) (defaults to s16)
+  rate
+    The sample rate (defaults to 44100)
+  channels
+    Audio channels (defaults to 2)
+  sink_name, source_name
+    Name for the sink (resp. source)
+  channel_map
+    Channel map. A list of comma-seperated channel names. The currently defined channel names are: left, right, mono, center, front-left, front-right, front-center, rear-center, rear-left, rear-right, lfe, subwoofer, front-left-of-center, front-right-of-center, side-left, side-right, aux0, aux1 to aux15, top-center, top-front-left, top-front-right, top-front-center, top-rear-left, top-rear-right, top-rear-center, (Default depends on the number of channels and the driver)
+
+=== module-pipe-sink ===
+
+Provides a simple test sink that writes the audio data to a FIFO special file in the file system. The sink name defaults to pipe_output.
+
+The following option is supported:
+
+  file
+    The name of the FIFO special file to use. (defaults to: /tmp/music.output)
+
+=== module-pipe-source ===
+
+Provides a simple test source that reads the audio data from a FIFO special file in the file system. The source name defaults to pipe_input.
+
+The following option is supported:
+
+  file
+    The name of the FIFO special file to use. (defaults to: /tmp/music.input)
+
+=== module-null-sink ===
+
+Provides a simple null sink. All data written to this sink is silently dropped. This sink is clocked using the system time.
+
+This module doesn't support any special parameters
+
+=== module-alsa-sink ===
+
+Provides a playback sink for devices supported by the Advanced Linux Sound Architecture (ALSA). The sink name defaults to alsa_output.
+
+In addition to the general device driver options described above this module supports:
+
+  device
+    The ALSA device to use. (defaults to "plughw:0,0")
+  fragments
+    The desired fragments when opening the device. (defaults to 12)
+  fragment_size
+    The desired fragment size in bytes when opening the device (defaults to 1024)
+
+=== module-alsa-source ===
+
+Provides a recording source for devices supported by the Advanced Linux Sound Architecture (ALSA). The source name defaults to alsa_input.
+
+This module supports device=, fragments= and fragment_size= arguments the same way as module-alsa-sink.
+
+=== module-oss ===
+
+Provides both a sink and a source for playback, resp. recording on Open Sound System (OSS) compatible devices.
+
+This module supports device= (which defaults to /dev/dsp), fragments= and fragment_size= arguments the same way as module-alsa-sink.
+
+In addition this module supports the following options:
+
+  record
+    Accepts a binary numerical value for enabling (resp. disabling) the recording on this device. (defaults: to 1)
+  playback
+    Accepts a binary numerical value for enabling (resp. disabling) the playback on this device. (defaults: to 1)
+
+The sink name (resp. source name) defaults to oss_output (resp. oss_input).
+
+=== module-oss-mmap ===
+
+Similar to module-oss but uses memory mapped (mmap()) access to the input/output buffers of the audio device. This provides better latency behaviour but is not as compatible as module-oss.
+
+This module accepts exactly the same arguments as module-oss.
+
+=== module-solaris ===
+
+Provides a sink and source for the Solaris audio device.
+
+In addition to the general device driver options described above this module supports:
+
+  record
+    Accepts a binary numerical value for enabling (resp. disabling) the recording on this device. (defaults: to 1)
+  playback
+    Accepts a binary numerical value for enabling (resp. disabling) the playback on this device. (defaults: to 1)
+  buffer_size
+    Record buffer size
+
+=== module-waveout ===
+
+Provides a sink and source for the Win32 audio device.
+
+This module supports all arguments thet module-oss supports except device=.
+
+=== module-combine ===
+
+This combines two or more sinks into one. A new virtual sink is allocated. All data written to it is forwarded to all connected sinks. In aequidistant intervals the sample rates of the output sinks is recalculated: i.e. even when the sinks' crystals deviate (which is normally the case) output appears synchronously to the human ear. The resampling required for this may be very CPU intensive.
+
+  sink_name
+    The name for the combined sink. (defaults to combined)
+  master
+    The name of the first sink to link into the combined think. The sample rate/type is taken from this sink.
+  slaves
+    Name of additional sinks to link into the combined think, seperated by commas.
+  adjust_time
+    Time in seconds when to readjust the sample rate of all sinks. (defaults to 20)
+  resample_method
+    Resampling algorithm to use. See libsamplerate's documentation for more information. Use one of sinc-best-quality, sinc-medium-quality, sinc-fastest, zero-order-hold, linear. If the default happens to be to slow on your machine try using zero-order-hold. This will decrease output quality however. (defaults to sinc-fastest)
+
+=== module-tunnel-{sink,source} ===
+
+Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. It's probably a better idea to connect to the remote sink/source directly since some buffer control is lost through this tunneling.
+
+  server
+    The server to connect to
+  source
+    The source on the remote server. Only available for module-tunnel-source.
+  sink
+    The sink on the remote server. Only available for module-tunnel-sink.
+  cookie
+    The authentication cookie file to use.
+
+=== module-esound-sink ===
+
+Create a playback sink using an ESOUND server as backend. Whenever you can, try to omit this module since it has many disadvantages including bad latency and even worse latency measurement.
+
+  server
+    The server to connect to
+  cookie
+    The authentication cookie file to use.
+
+== Protocols ==
+
+=== module-cli ===
+
+Provides the user with a simple [wiki:CLI command line interface] on the controlling TTY of the daemon. This module may not be loaded more than once.
+
+  exit_on_eof
+    Accepts a binary numerical argument specifying whether the daemon shuld exit after an EOF was recieved from STDIN (default: 0)
+
+=== module-cli-protocol-{unix,tcp} ===
+
+An implemenation of a simple [wiki:CLI command line based protocol] for controlling the !PulseAudio daemon. If loaded, the user may connect with tools like {{{netcat}}}, {{{telnet}}} or {{{bidilink}}} to the listening sockets and execute commands the same way as with module-cli.
+
+'''Beware!''' Users are not authenticated when connecting to this service.
+
+This module exists in two versions: with the suffix -unix the service will listen on an UNIX domain socket in the local file system. With the suffix -tcp it will listen on a network transparent TCP/IP socket. (Both IPv6 and IPv4 - if available)
+
+This module supports the following options:
+
+  port (only for -tcp)
+    The port number to listen on (defaults to 4712)
+  loopback (only for -tcp)
+    Accepts a numerical binary value. If 1 the socket is bound to the loopback device, i.e. not publicly accessible. (defaults to 1)
+  listen (only for -tcp)
+    The IP address to listen on. If specified, supersedes the value specified in loopback=
+  socket (only for -unix)
+    The UNIX socket name (defaults to /tmp/pulse/cli)
+
+=== module-simple-protocol-{unix,tcp} ===
+
+An implementation of a simple protocol which allows playback by using simple tools like netcat. Just connect to the listening socket of this module and write the audio data to it, or read it from it for playback, resp. recording.
+
+'''Beware!''' Users are not authenticated when connecting to this service.
+
+See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module.
+
+In addition to the options supported by module-cli-protocol-*, this module supports:
+
+  rate, format, channels
+    Sample format for streams connecting to this service.
+  playback, record
+    Enable/disable playback/recording
+  sink, source
+    Specify the sink/source this service connects to
+
+=== module-esound-protocol-{unix,tcp} ===
+
+An implemenation of a protocol compatible with the Enlightened Sound Daemon (ESOUND, esd). When you load this module you may access the !PulseAudio daemon with tools like esdcat, esdrec or even esdctl. Many applications, such as XMMS, include support for this protocol.
+
+See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module.
+
+In addition to the options supported by module-cli-protocol-*, this module supports:
+  sink, source
+    Specify the sink/source this service connects to
+  auth-anonymous
+    If set to 1 no authentication is required to connect to the service
+  cookie
+    Name of the cookie file for authentication purposes
+
+This implementation misses some features the original ESOUND has: e.g. there is no sample cache yet. However: XMMS works fine.
+
+=== module-native-protocol-{unix,tcp} ===
+
+The native protocol of !PulseAudio.
+
+See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module.
+
+In addition to the options supported by module-cli-protocol-*, this module supports:
+  auth-anonymous
+    If set to 1 no authentication is required to connect to the service
+  auth-group (only for -unix)
+    members of the specified unix group may access the server without further auhentication.
+  cookie
+    Name of the cookie file for authentication purposes
+
+=== module-native-protocol-fd ===
+
+This is used internally when auto spawning a new daemon. Don't use it directly.
+
+=== module-http-protocol-tcp ===
+
+A proof-of-concept HTTP module, which can be used to introspect the current status of the !PulseAudio daemon using HTTP. Just load this module and point your browser to http://localhost:4714/. This module takes the same arguments as module-cli-protocol-tcp.
+
+== X Window System ==
+
+=== module-x11-bell ===
+
+Intercepts X11 bell events and plays a sample from the sample cache on each occurence.
+
+  display
+    X11 display to connect to. If ommited defaults to the value of $DISPLAY
+  sample
+    The sample to play. If ommited defaults to x11-bell.
+  sink
+    Name of the sink to play the sample on. If ommited defaults to the default sink.
+
+=== module-x11-publish ===
+
+Publishes the access credentials to the !PulseAudio server in the X11 root window. The following properties are used: PULSE_SERVER, POYLP_SINK, PULSE_SOURCE, PULSE_COOKIE. This is very useful when using SSH or any other remote login tool for logging into other machines and getting audio playback to your local speakers. The !PulseAudio client libraries make use of this data automatically. Instead of using this module you may use the tool pax11publish which may be used to access, modify and import credential data from/to the X11 display.
+
+  display
+    X11 display to connect to. If ommited defaults to the value of $DISPLAY
+  sink
+    Name of the default sink. If ommited this property isn't stored in the X11 display.
+  source
+    Name of the default source. If ommited this property isn't stored in the X11 display.
+  cookie
+    Name of the cookie file of the cookie to store in the X11 display. If ommited the cookie of an already loaded protocol module is used.
+
+== Volume Control ==
+
+=== module-mmkbd-evdev ===
+
+Adjust the volume of a sink when the special multimedia buttons of modern keyboards are pressed.
+
+  device
+    Linux input device ("evdev", defaults to /dev/input/event0)
+  sink
+    The sink to control
+
+=== module-lirc ===
+
+Adjust the volume of a sink when the volume buttons of an infrared remote control are pressed (through LIRC).
+
+  config
+    The LIRC configuration file
+  appname
+    The application name to pass to LIRC (defaults to !PulseAudio)
+  sink
+    The sink to control
+
+== RTP/SDP/SAP Transport ==
+
+!PulseAudio can stream audio data to an IP multicast group via the standard protocols RTP, SAP and SDP (RFC3550, RFC3551, RFC2327, RFC2327). This can be used for multiple different purposes: for sharing a single microphone on multiple computers on the local LAN, for streaming music from a single controlling PC to multiple PCs with speakers or to implement a simple "always-on" teleconferencing solution.
+
+The current implementation is designed to be used exlusively in local area networks, though Internet multicasting is theoretically supported. Only uncompressed audio is supported, hence you won't be able to multicast more than a few streams at the same time over a standard LAN.
+
+!PulseAudio implements both a sender and a reciever for RTP traffic. The sender announces itself via SAP/SDP on the same multicast group as it sends the RTP data to. The reciever picks up the SAP/SDP announcements and creates a playback stream for each session. Alternatively you can use any RTP capable client to recieve and play back the RTP data (such as mplayer).
+
+=== module-rtp-send ===
+
+This is the sender side of the RTP/SDP/SAP implementation. It reads audio data from an existing source and forwards it to the network encapsulated in RTP. In addition it sends SAP packets with an SDP session description.
+
+In combination with the monitor source of module-null-sink you can use this module to create an RTP sink.
+  source
+    The source to read the audio data from. If ommited defaults to the default source.
+  format, rate, channels
+    Sample format to use, defaults to the source's.
+  destination
+    Destination multicast group for both RTP and SAP packets, defaults to 224.0.0.56
+  port
+    Destination port number of the RTP traffic. If ommited defaults to a randomly chosen even port number. Please keep in mind that the RFC suggests to use only even port numbers for RTP traffic.
+  mtu
+    Maximum payload size for RTP packets. If ommited defaults to 1280
+  loop
+    Takes a boolean value, specifying whether locally generated RTP traffic should be looped back to the local host. Disabled by default.
+
+=== module-rtp-recv ===
+
+This is the reciever side of the RTP/SDP/SAP implementation. It picks up SAP session announcements and creates an RTP playback stream for each.
+
+In combination with module-null-sink you can use this module to create an RTP source.
+
+  sink
+    The sink to connect to. If ommited defaults to the default sink.
+  sap_address
+    The multicast group to join for SAP announcements, defaults to 224.0.0.56.
+
+== JACK Connectivity ==
+
+!PulseAudio can be hooked up to a JACK Audio Connection Kit server which is a specialized sound server used for professional audio production on Unix/Linux. Both a !PulseAudio sink and a source are available. For each channel a port is created in the JACK server.
+
+=== module-jack-sink ===
+
+This module implements a !PulseAudio sink that connects to JACK and registers as many output ports as requested.
+
+  sink_name
+    The name for the !PulseAudio sink. If ommited defaults to jack_out.
+  server_name
+    The JACK server to connect to. If ommited defaults to the default server.
+  client_name
+    The client name to tell the JACK server. If ommited defaults to !PulseAudio.
+  channels
+    Number of channels to register. If ommited defaults to the number of physical playback ports of the JACK server.
+  connect
+    Takes a boolean value. If enabled (the default) !PulseAudio will try to connect its ports to the physicial playback ports of the JACK server
+
+=== module-jack-source ===
+
+This module implements a !PulseAudio source that connects to JACK and registers as many input ports as requested. Takes the same arguments as module-jack-sink, except for sink_name which is replaced by source_name (with a default of jack_in) for obvious reasons.
+
+== Miscellaneous ==
+
+=== module-sine ===
+
+Creates a sink input and generates a sine waveform stream.
+
+  sink
+    The sink to connect to. If ommited defaults to the default sink.
+  frequency
+    The frequency to generate in Hertz. Defaults to 440.
+
+=== module-esound-compat-spawnfd ===
+
+This is a compatibility module for libesd based autospawning of !PulseAudio. Don't use it directly.
+
+=== module-esound-compat-spawnpid ===
+
+This is a compatibility module for libesd based autospawning of !PulseAudio. Don't use it directly.
+
+=== module-match ===
+
+Adjust the volume of a playback stream automatically based on its name.
+
+  table
+    The regular expression matching table file to use (defaults to ~/.pulse/match.table)
+
+The table file should contain a regexp and volume on each line, seperated by spaces. An example:
+
+{{{
+^sample: 32000
+}}}
+
+The volumes of all streams with titles starting with sample: are automatically set to 32000. (FYI: All sample cache streams start with sample:)
+
+=== module-volume-restore ===
+
+Adjust the volume of a playback stream automatically based on its name.
+
+  table
+    The table file to use (defaults to ~/.pulse/volume.table)
+
+In contrast to module-match this module needs no explicit configuration. Instead the volumes are saved and restored in a fully automatical fashion depending on the client name to identify streams. The volume for a stream is automatically saved every time it is changed and than restored when a new stream is created.
+
+=== module-detect ===
+
+Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers.
+
+  just-one
+    If set to 1 the module will only try to load a single sink/source and than stop.
+
+=== module-zeroconf-publish ===
+
+Publish all local sinks/sources using mDNS Zeroconf.
+
