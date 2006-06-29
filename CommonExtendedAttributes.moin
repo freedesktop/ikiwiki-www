@@ -1,0 +1,40 @@
+##language:en
+
+= Guidelines for extended attributes =
+
+Extended attributes can be set in different namespaces: "security", "system", "trusted", and "user". This document only describes and proposes attributes in the "user" namespace
+
+To avoid future conflicts between attributes, it is recommended that application-specific attributes are namespaced using reverse-DNS naming style. This recommendation also applies on Mac OS X, where for example the resource fork is stored as an extended attribute with the key "com.apple.ResourceFork". 
+Attributes specified by freedesktop.org are prefixed with "xdg". 
+
+Attribute strings should be in UTF-8 encoding.
+
+== General attributes in current use ==
+
+user.mime_type: Sets the MIME type of a file explicitly. This attribute is documented by the "Shared MIME-info Database Specification"(http://standards.freedesktop.org/shared-mime-info-spec). It says:
+
+"An implementation MAY also get a file's MIME type from the user.mime_type extended attribute. The type given here should normally be used in preference to any guessed type, since the user is able to set it explicitly. Applications MAY choose to set the type when saving files. Since many applications and filesystems do not support extended attributes, implementations MUST NOT rely on this method being available."
+
+user.charset: The character encoding of a file. This attribute can be useful if the encoding is different than the platform default. 
+
+user.creator: The name of the application that created the file. The ROX Contact Manager "Contact" sets this value to "Contact" (http://roxos.sunsite.dk/dev-contrib/guido/Contacts/)
+
+== Proposed attributes ==
+
+user.xdg.comment: A comment specified by the user. 
+
+user.xdg.creator: See user.creator
+
+user.xdg.origin.url: Set on a file downloaded from a url. Its value should equal the url it was downloaded from.
+
+user.xdg.origin.email.subject: Set on an email attachment when saved to disk. It should get its value from the originating email's "Subject" header
+
+user.xdg.origin.email.from: Set on an email attachment when saved to disk. It should get its value from the originating email's "From" header. For example '"John Doe" <jdoe@example.com>', or  'jdoe@example.com'
+
+user.xdg.email.message-id: Set on an email attachment when saved to disk. It should get its value from the originating email's "Message-Id" header. 
+
+
+== Application-specific attributes in current use ==
+
+user.mime_encoding: This attribute defines the MIME encoding to use when serving a file with Apache httpd. It is used by mod_mime_xattr (http://0pointer.de/lennart/projects/mod_mime_xattr). (Is this attribute useful like this for any other program?)
+user.apache_handler: This attribute is used by mod_mime_xattr to define the Apache handler for a file. 
