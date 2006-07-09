@@ -53,6 +53,12 @@ More information about available arguments and signals for the daemon can be fou
    Is not available (yet?). It is doable, but noone has implemented it yet.
  1. '''What about compatibility with aRts?'''[[BR]]
    Is not available. Since aRts is as synthesizer application you'd have to reimplement very much code for !PulseAudio. It should be easy to implement limited support for libartsc based applications. Noone has done this yet. It is probably a better idea to run arts on top of !PulseAudio (through a !PulseAudio driver for aRts, which nobody has written yet). Another solution would be to embed !PulseAudio in the aRts process.
+ 1. '''Can I get OSS and ALSA applications to work with !PulseAudio?'''[[BR]]
+   Why yes, you can! OSS applications are handled using the {{{padsp}}} utility shipped with !PulseAudio:
+{{{
+padsp myapp <arguments to myapp>
+}}}
+   ALSA applications are handled using the !PulseAudio backend for alsa-lib. Documentation and the backend itself are shipped in the alsa-plugins package as part of the ALSA project.
  1. '''I often hear noises when playing back with !PulseAudio, what can I do?'''[[BR]]
    There are to possible solutions: run !PulseAudio with argument {{{--high-priority=1}}} and make yourself member of the group realtime, or increase the fragment sizes of the audio drivers. The former will allow !PulseAudio to activate {{{SCHED_FIFO}}} high priority scheduling (root rights are dropped immediately after this). Keep in mind that this is a potential security hole!
  1. '''The pulseaudio executable is installed SUID root by default. Why this? Isn't this a potential security hole?'''[[BR]]
