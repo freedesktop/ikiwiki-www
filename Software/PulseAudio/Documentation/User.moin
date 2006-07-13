@@ -54,7 +54,7 @@ More information about available arguments and signals for the daemon can be fou
  1. '''What about compatibility with aRts?'''[[BR]]
    Is not available. Since aRts is as synthesizer application you'd have to reimplement very much code for !PulseAudio. It should be easy to implement limited support for libartsc based applications. Noone has done this yet. It is probably a better idea to run arts on top of !PulseAudio (through a !PulseAudio driver for aRts, which nobody has written yet). Another solution would be to embed !PulseAudio in the aRts process.
  1. '''Can I get OSS and ALSA applications to work with !PulseAudio?'''[[BR]]
-   Why yes, you can! OSS applications are handled using the {{{padsp}}} utility shipped with !PulseAudio:
+   Yes, you can! OSS applications are handled using the {{{padsp}}} utility shipped with !PulseAudio:
 {{{
 padsp myapp <arguments to myapp>
 }}}
@@ -71,7 +71,7 @@ pulseaudio --dump-modules
 }}}
    Add {{{-v}}} for terse usage instructions.
  1. '''How do I use !PulseAudio over the network?'''[[BR]]
-   Just set {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. For authentication you need the same auth cookies on all sides. For that copy {{{~./pulse-cookie}}} to all clients that shall be allowed to connect.
+   Just set {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. (See ServerStrings for an explanation of the format) For authentication you need the same auth cookies on all sides. For that copy {{{~./pulse-cookie}}} to all clients that shall be allowed to connect.
    Alternatively the authorization cookies can be stored in the X11 server.
  1. '''Is !PulseAudio capable of providing synchronized audio playback over the network for movie players like MPlayer?'''[[BR]]
    Yes! Unless your network is congested in some way (i.e. transfer latencies vary strongly ('jitter')) it works perfectly. Drop me an email for experimental patches for MPlayer.
@@ -79,7 +79,7 @@ pulseaudio --dump-modules
    * The client honors:
      * {{{$PULSE_SINK}}} (default sink to connect to)
      * {{{$PULSE_SOURCE}}} (default source to connect to)
-     * {{{$PULSE_SERVER}}} (default server to connect to, like {{{ESPEAKER}}})
+     * {{{$PULSE_SERVER}}} (default server to connect to, like {{{ESPEAKER}}}, see ServerStrings for an explanation of the format)
      * {{{$PULSE_BINARY}}} (the binary to start when autospawning a daemon)
      * {{{$PULSE_CLIENTCONFIG}}} (path to the client configuration file).
    * The daemon honors:
@@ -95,7 +95,7 @@ bidilink unix-client:/tmp/pulse-$USER/cli
    ''BTW: Someone should package this great tool for Debian!'' [[BR]]
    '''New:''' There's now a tool {{{pacmd}}} that automates sending {{{SIGUSR2}}} to the daemon and running a bidilink like tool for you.
  1. '''How do the !PulseAudio libraries decide where to connect to?'''[[BR]]
-   The following rule applies:
+   The following rule applies: (see ServerStrings for an explanation of the format of server specifications)
    1. If the the application using the library specifies a server to connect to it is used. If the connection fails, the library fails too.
    2. If the environment variable {{{$PULSE_SERVER}}} is defined the library connects to that server. If the connection fails, the library fails too.
    3. If {{{$DISPLAY}}} is set, the library tries to connect to that server and looks for the root window property {{{PULSE_SERVER}}} for the host to connect to. If {{{PULSE_COOKIE}}} is set it is used as authentication cookie.
