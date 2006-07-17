@@ -72,7 +72,22 @@ probably the best place to start (even though it is very incomplete, the basics 
 
 
 = Download =
-The latest release is [http://dbus.freedesktop.org/releases/dbus-0.62.tar.gz dbus-0.62.tar.gz]. (2006-06-12)
+
+Core:
+ 
+The latest release is [http://dbus.freedesktop.org/releases/dbus-0.90.tar.gz dbus-0.90.tar.gz]. (2006-07-17)
+	* API/ABI freeze for 1.0
+	* Bindings are now split out into seperate packages
+	* ListActivatableNames added as a method on the bus
+	* Removed deprecated dbus_connection_disconnect (use dbus_connection_close)
+	* Shared connections are now unreffed on disconnect
+	* Fixed pending calls for threaded enviornments
+	* Pending calls get timed out on connection disconnect
+	* dbus_connection_send_with_reply returns TRUE and a NULL pending call if you call it on a connection object which has been disconnected already (it returns FALSE on Out of Memory errors only)
+	* dbus-monitor now correctly catches methods, not just signals
+	* dbus-monitor now prints object paths 
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus-0.62.tar.gz dbus-0.62.tar.gz]. (2006-06-12)
 	* Doc fixes
 	* Added support for all data-types for the dbus tools
 	* Fixed eavesdropping on method calls (dbus-monitor)
@@ -100,25 +115,22 @@ The latest release is [http://dbus.freedesktop.org/releases/dbus-0.62.tar.gz dbu
 	* Mono bindings:
 		* Minor bugfixes
 
-The previous release is [http://dbus.freedesktop.org/releases/dbus-0.61.tar.gz dbus-0.61.tar.gz]. (2006-02-24)
+Python Bindings:
 
-	* Documentation all around
-	* dbus-launch now produces correct sh and csh syntax
-	* Nested arrays now work correctly
-	* GLib bindings:
-		* Inheriting from DBusGProxy is now possible
-		* G!PtrArrays can now be marshalled
-		* org.freedesktop.DBus.GLib.ClientCSymbol annotation added
-		* Openning connections to arbitrary addresses now supported
-	* Python bindings:
-		* sender_keyword and path_keyword keywords added to signal listener API
-		* Byte types now demarshal to unsigned char
-		* calling methods now do the correct thing
-	* Qt bindings:
-		* both Qt3 and Qt4 bindings can be built at the same time
-		* Use the standard org.freedesktop.DBus.Method.!NoReply annotation for the "async" calls instead of creating one for us.
-	* Mono bindings:
-		* 64bit arch fixes
-	* Massive bug fixing all around
+The latest release is [http://dbus.freedesktop.org/releases/dbus-python-0.70.tar.gz dbus-python-0.70.tar.gz]. (2006-07-17)
+	* First release of bindings split
+	* Move to a distutils build enviornment
+	* It is possible to now specify sender_keyword="foo", path_keyword="bar" when adding a signal listener
+
+GLib Bindings:
+
+The latest release is [http://dbus.freedesktop.org/releases/dbus-glib-0.70.tar.gz dbus-glib-0.70.tar.gz]. (2006-07-17)
+	* First release after bindings split
+	* dbus-binding-tool heeds org.freedesktop.DBus.GLib.ClientCSymbol C symbol name annotations when generating glib client bindings
+	* DBusGProxy can now be inherited from
+	* Support added for generating bindings to arrays that are represented as GPtrArrays rather than GArrays (ie size-variable things, such as strings, objects, structs, etc).
+	* Modification of the existing specialised types to have N type parameters (rather than the current 1 or 2 for arrays and dictionaries respectively). You can then use this to get a glib type to represent any arbitrary D-Bus struct type using dbus_g_type_get_struct. The only implementation of these types is with GValueArrays as before, but it's now possible to store these in arrays, emit them in signals, etc.
+	 New methodbus_g_connection_open provides a way to open connections to an arbitrary address
+	* Various bugs and memory leaks fixed
 
 Previous releases can be found in the [wiki:Software/DbusReleaseArchive release archive].
