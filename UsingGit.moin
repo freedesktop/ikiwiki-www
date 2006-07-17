@@ -10,7 +10,7 @@ Things which are not within the scope of this document:
  * Using the index for selective committing
  * Maintaining public personal repositories
 
-First note about git: there are many commands.  Each command exists as an arugment to the git command ("git clone") and also as a hyphenated version to aid in tab-completion ("git-clone").
+First note about git: there are many commands.  Each command exists as an argument to the git command ("git clone") and also as a hyphenated version to aid in tab-completion ("git-clone").
 
 The next thing to understand is that when you check out code from a remote git repository, you end up with a full-fledged git repository yourself.  When you diff, commit, etc. code, you are doing it against your local repository.  Clone, pull, and push are used to move changes between repositories.  Your local repository is stored in .git at the top of the tree.
 
@@ -134,7 +134,7 @@ Push: master:master
 Pull: new-branch:new-branch-origin
 Push: new-branch:new-branch
 }}}
-The first says "map the remote new-branch to new-branch-origin in the local repository".  The second says "when pushing code, push from new-branch locally into new-branch remotely".  If you haven't set any Push: lines, then git implies a "master:master" mapping for pushes.  Once we add our new-branch push line, we also have to addm aster:master if you intend to ever commit to master.
+The first says "map the remote new-branch to new-branch-origin in the local repository".  The second says "when pushing code, push from new-branch locally into new-branch remotely".  If you haven't set any Push: lines, then git implies a "master:master" mapping for pushes.  Once we add our new-branch push line, we also have to add master:master if you intend to ever commit to master.
 
 Now, you're set up for committing and pushing the branch.  There's one more trick to know about.  When you do "git pull", it is now pulling the remote branches into what they're mapped to locally.  So, the latest new-branch upstream code is in new-branch-origin.  To merge it to your local new-branch code, do:
 
@@ -174,12 +174,12 @@ This is a quick guide for users (not developers, developers are recommended to r
    * `git checkout master`
 
   * Bisection search:
-   * This a brute-force but very useful method to find out what change causes a given bug, specially if you are not a developer and you know (neither you want to know) nothing about what is going on in the code. You tell git what was the last version that worked, the first version where you noticed the bug (of course you need to have a reproduceable bug in order to do this ), and git will set your repository to a state somewhere in the middle of those two 'points'. After testing it, you tell git if the bug is there or not, and git will set your repository to another state which is closer to the bug. After compiling and testing a few revisions, git will be able to tell you what commit causes the bug. For example, let's say I found a reproduceable bug in libX11 between the XORG-6_8_1 tag and XORG-6_8_99_9 (cd libX11; ls .git/refs/tags).
+   * This a brute-force but very useful method to find out what change causes a given bug, specially if you are not a developer and you know (neither you want to know) nothing about what is going on in the code. You tell git what was the last version that worked, the first version where you noticed the bug (of course you need to have a reproducible bug in order to do this ), and git will set your repository to a state somewhere in the middle of those two 'points'. After testing it, you tell git if the bug is there or not, and git will set your repository to another state which is closer to the bug. After compiling and testing a few revisions, git will be able to tell you what commit causes the bug. For example, let's say I found a reproducible bug in libX11 between the XORG-6_8_1 tag and XORG-6_8_99_9 (cd libX11; ls .git/refs/tags).
    * Tell git to start bisection search: `git bisect start`
    * Tell git about the bad version: `git bisect bad XORG-6_8_99_9`
    * Tell git about the good version: `git bisect good XORG-6_8_1`
    * Compile and test. Is the bug there? Type `git bisect bad` Everything works well? Type `git bisect good`. Git will tell you how many revisions you need to test.
-   * If you can't test a given 'state' (ej: git bisectin put all your sources ina  state somewhere in the middle of a merge and it doesn't compile) type `git bisect good/bad` and Git will give you another 'state' to test.
+   * If you can't test a given 'state' (ej: git bisection put all your sources in a state somewhere in the middle of a merge and it doesn't compile) type `git bisect good/bad` and git will give you another 'state' to test.
    * More details and tricks at [http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt]
   * To summarize and extend a bit, here's Josh's quick translations of CVS commands:
    * `cvs checkout` &#8594; `git-clone git+ssh://git.freedesktop.org/git/xcb`
