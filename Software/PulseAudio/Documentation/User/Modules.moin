@@ -161,7 +161,7 @@ This module supports the following options:
   port (only for -tcp)
     The port number to listen on (defaults to 4712)
   loopback (only for -tcp)
-    Accepts a numerical binary value. If 1 the socket is bound to the loopback device, i.e. not publicly accessible. (defaults to 1)
+    '''Removed in 0.9.3''': Accepts a numerical binary value. If 1 the socket is bound to the loopback device, i.e. not publicly accessible. (defaults to 1)
   listen (only for -tcp)
     The IP address to listen on. If specified, supersedes the value specified in loopback=
   socket (only for -unix)
@@ -197,8 +197,8 @@ In addition to the options supported by module-cli-protocol-*, this module suppo
     If set to 1 no authentication is required to connect to the service
   cookie
     Name of the cookie file for authentication purposes
-
-This implementation misses some features the original ESOUND has: e.g. there is no sample cache yet. However: XMMS works fine.
+  auth-ip-acl (only for -tcp}
+    '''New in 0.9.3:''' A semicolon seperated list of IP address range to which anonymouse access is allowd. Example: ''auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8''
 
 === module-native-protocol-{unix,tcp} ===
 
@@ -210,9 +210,13 @@ In addition to the options supported by module-cli-protocol-*, this module suppo
   auth-anonymous
     If set to 1 no authentication is required to connect to the service
   auth-group (only for -unix)
-    members of the specified unix group may access the server without further auhentication.
+    members of the specified unix group may access the server without further auhentication. '''Changed in 0.9.3:''' if the daemon is running in system-wide mode ({{{--system}}} passed when starting up) defaults to {{{pulse-access}}}, otherwise is disabled.
+  auth-group-enabled (only for -unix)
+    '''New in 0.9.3:''' enable/disable auth-group authentication, takes a boolean value (0 or 1). If {{{auth-group=}}} is specified or started in system-wide mode defaults to 1, otherwise 0.
   cookie
     Name of the cookie file for authentication purposes
+  auth-ip-acl (only for -tcp}
+    '''New in 0.9.3:''' A semicolon seperated list of IP address range to which anonymouse access is allowd. Example: ''auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8''
 
 === module-native-protocol-fd ===
 
