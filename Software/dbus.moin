@@ -70,23 +70,23 @@ probably the best place to start (even though it is very incomplete, the basics 
 
 == Core ==
 
-The latest release is [http://dbus.freedesktop.org/releases/dbus-0.91.tar.gz dbus-0.91.tar.gz]. (2006-07-24)
+The latest release is [http://dbus.freedesktop.org/releases/dbus-0.92.tar.gz dbus-0.92.tar.gz]. (2006-08-18)
+
+	* Proper thread locking added to pending calls
+	* Threading semantics changed from init early to init before the second thread is started
+	* Correctly error out when an application tries to acquire or release the org.freedesktop.DBus name instead of sending false result codes
+	* kqueue directory watching code can now be used to monitor config file changes on FreeBSD
+	* --with-dbus-daemondir configure switch added so the daemon can be installed separate from the user binaries
+	* Makefiles fixed for cygwin
+	* Various fixes for the ongoing Windows port
+	* Fixed docs and comments to use the D-Bus spelling instead of D-BUS
+	* Many memleaks and bugs fixed
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus-0.91.tar.gz dbus-0.91.tar.gz]. (2006-07-24)
 
 	* Remove some lingering bits left over from the bindings split
 	* Fix assertion causing D-Bus applications to crash when checks are enabled
 	* Fix a timeout bug which would block applications from being auto started
-
-The previous release is [http://dbus.freedesktop.org/releases/dbus-0.90.tar.gz dbus-0.90.tar.gz]. (2006-07-17)
-	* API/ABI freeze for 1.0
-	* Bindings are now split out into seperate packages
-	* !ListActivatableNames added as a method on the bus
-	* Removed deprecated dbus_connection_disconnect (use dbus_connection_close)
-	* Shared connections are now unreffed on disconnect
-	* Fixed pending calls for threaded enviornments
-	* Pending calls get timed out on connection disconnect
-	* dbus_connection_send_with_reply returns TRUE and a NULL pending call if you call it on a connection object which has been disconnected already (it returns FALSE on Out of Memory errors only)
-	* dbus-monitor now correctly catches methods, not just signals
-	* dbus-monitor now prints object paths 
 
 == Python Bindings ==
 
