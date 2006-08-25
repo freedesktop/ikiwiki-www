@@ -2,52 +2,85 @@ This page lists the language bindings for D-Bus, their status and, if appropriat
 
 == GLib ==
 
-The current packaged GLib bindings are distributed with D-Bus.  They are in the process of being removed from the core.  You can find latest glib bindings in Freedesktop's [http://gitweb.freedesktop.org/?p=dbus-dbus-glib;a=summary git repo].  It can be accessed via git at:
+The D-Bus GLib bindings have been removed from the core. You can find latest glib bindings in Freedesktop's [http://gitweb.freedesktop.org/?p=dbus-dbus-glib;a=summary git repo].  It can be accessed via git at:
 
 For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-glib
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-glib
 
+The latest release is [http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.71.tar.gz dbus-glib-0.71.tar.gz]. (2006-07- 24)
+   * Correctly installs a few missing headers
+   * Build was cleaned up a bit
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.70.tar.gz dbus-glib-0.70.tar.gz]. (2006- 07-17)
+   * First release after bindings split
+   * dbus-binding-tool heeds org.freedesktop.DBus.GLib.ClientCSymbol C symbol name annotations when generating glib client bindings
+   * DBusGProxy can now be inherited from
+   * Support added for generating bindings to arrays that are represented as G!PtrArrays rather than GArrays (ie size- variable things, such as strings, objects, structs, etc).
+   * Modification of the existing specialised types to have N type parameters (rather than the current 1 or 2 for arrays and dictionaries respectively). You can then use this to get a glib type to represent any arbitrary D-Bus struct type using dbus_g_type_get_struct. The only implementation of these types is with G!ValueArrays as before, but it's now possible to store these in arrays, emit them in signals, etc.
+   * New method dbus_g_connection_open provides a way to open connections to an arbitrary address
+   * Various bugs and memory leaks fixed
+
 == Python ==
 
-The current packaged Python bindings are distributed with D-Bus.  They are in the process of being removed from the core.  You can find latest Python bindings in Freedesktop's [http://gitweb.freedesktop.org/?p=dbus-dbus-python;a=summary git repo].  It can be accessed via git at:
+The D-Bus Python bindings have been removed from the core. You can find latest Python bindings in Freedesktop's [http://gitweb.freedesktop.org/?p=dbus-dbus-python;a=summary git repo].  It can be accessed via git at:
 
 For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-python
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-python
 
-== Qt4 ==
 
-The current packaged Qt4 bindings are distributed with D-Bus.  Qt4.2 will distribute the bindings as part of the Qt library.  The latest bindings can be obtained in Qt's nightly snapshots.
+The latest release is [http://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.71.tar.gz dbus-python-0.71.tar.gz]. (2006-07-24)
+   * Binary modules are now installed in the correct directory
+   * Distutils exports the dbus and dbus-glib cflags
 
-== .NET ==
+The previous release is [http://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.70.tar.gz dbus-python-0.70.tar.gz]. (2006-07-17)
+   * First release of bindings split
+   * Move to a distutils build enviornment
+   * It is possible to now specify sender_keyword="foo", path_keyword="bar" when adding a signal listener
 
-The current packaged .NET bindings are distributed with D-Bus.  They are schedualed to be removed from the core but has yet to find a maintainer.  The have been split and placed in a [http://gitweb.freedesktop.org/?p=dbus-dbus-mono;a=summary git repo] for anyone who would like to pick up maintainership. It can be accessed via git at:
-
-For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-mono
-
-For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-mono
 
 == Java ==
 
-There are two versions of the Java bindings. The Java 2 (1.4) bindings work with any free Java VM and Compiler and support most of the common D-Bus features. The Java 5 (1.5) bindings support all of the DBus features, but only work with 1.5-compatible VMs (Currently only Sun).
+There are two versions of the Java bindings. The Java 5 (1.5) bindings support all of the DBus features, but only work with 1.5-compatible VMs (Currently only Sun). There are older 1.4-compatible bindings which are feature incomplete and have not had much optimization work. See below if you want to try these.
 
-The 1.5 bindings are now hosted in freedesktop.org's git repository and can be accessed:
+The 1.5 bindings are now hosted in freedesktop.org's [http://gitweb.freedesktop.org/?p=dbus-dbus-java;a=summary git repository] and can be accessed:
 
 For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-java
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-java
 
-Releases of the Java Bindings can be downloaded here:
+The latest release is [http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.9.tar.gz libdbus-java-1.9.tar.gz]. (2006-08-25)
 
- * [http://www.matthew.ath.cx/projects/libdbus-java-1.8.tar.gz Java 1.5 Source] [http://www.matthew.ath.cx/projects/libdbus-java/changelog Changelog] (Latest: 1.8) 
- * [http://www.matthew.ath.cx/projects/libdbus-java-0.4.tar.gz Java 1.4 Source] (Latest: 0.4)
+ * Map and List handling optimisations
+ * Struct optimisations
+ * Canonicalise D-Bus spelling in documentation
+ * Update documentation
+ * Implement cross-bindings test suite
+ * add getPeerRemoteObject method
+ * add addSigHandler methods which filter on sender and path
+ * Signal handling optimisations
+ * deprecating service in favour of bus name. Deprecated registerService in favour of requestBusName
 
-Documentation for the 1.5 Java bindings is available as [http://www.matthew.ath.cx/projects/dbus-doc/dbus-java/ HTML], [http://www.matthew.ath.cx/projects/dbus-doc/dbus-java.pdf PDF] and [http://www.matthew.ath.cx/projects/dbus-doc/dbus-java.ps PostScript]. [http://www.matthew.ath.cx/projects/dbus-doc/api/ Javadoc APIs] are also available. 
+The previous release is [http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.8.tar.gz libdbus-java-1.8.tar.gz].
 
-Documentation for the 1.4 bindings is available as [http://www.matthew.ath.cx/projects/dbus-doc-2/dbus-java/ HTML], [http://www.matthew.ath.cx/projects/dbus-doc-2/dbus-java.pdf PDF] and [http://www.matthew.ath.cx/projects/dbus-doc-2/dbus-java.ps PostScript]. [http://www.matthew.ath.cx/projects/dbus-doc-2/api/ Javadoc APIs] are also available. 
+ * stop dvips printing on wierd systems
+ * Doc patches from Dick Hollenbeck <dick@softplc.com>
+ * reduce TIMEOUT to 1ms and check for outbound messages in the JNI; reduces RTT from 100ms to ~1ms
+ * Remove two java collections which were doing a lot of allocation and deallocation and replace with data structures based on arrays.
+ * add removeSigHandler method
+ * add profiling application
+ * handle incoming & outgoing native array types natively (biiiig savings here)
+
+Documentation and API reference for the 1.5 Java bindings is available [http://dbus.freedesktop.org/doc/dbus-java/ here].
+
+The older 1.4-compatible bindings are still available [http://www.matthew.ath.cx/projects/java here].
 
 The Maintainer is Matthew Johnson <dbus@matthew.ath.cx>
+
+== Qt4 ==
+
+The current packaged Qt4 bindings are distributed with D-Bus.  Qt4.2 will distribute the bindings as part of the Qt library.  The latest bindings can be obtained in Qt's nightly snapshots.
 
 == Perl ==
 
@@ -72,3 +105,11 @@ and [http://www.sbox.tugraz.at/home/v/voyager/dbus-1-qt3-0.2.tar.bz2 Sources ca.
 API documentation can be found at the [http://www.englishbreakfastnetwork.org/apidocs/apidox-playground/work-apidocs/dbus-qt4-qt3backport/html/index.html English Breakfast Network Website]
 
 The maintainer is Kevin Krammer <kevin.krammer@gmx.at>
+
+== .NET ==
+
+The current packaged .NET bindings are distributed with D-Bus.  They are schedualed to be removed from the core but has yet to find a maintainer.  The have been split and placed in a [http://gitweb.freedesktop.org/?p=dbus-dbus-mono;a=summary git repo] for anyone who would like to pick up maintainership. It can be accessed via git at:
+
+For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-mono
+
+For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-mono
