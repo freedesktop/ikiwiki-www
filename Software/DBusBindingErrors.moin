@@ -1,10 +1,10 @@
 This page is for bindings authors to discuss what generic errors should be sent by the binding:
 
 ||'''Name'''||'''Description'''||'''Comments'''||
-||UnknownMethod||The specified method is not implemented on this object||In core||
 ||ServiceUnknown||The recipient bus name is not taken||In Core||
-||UnknownObject||The sender has called a method on an object not exported on this connection||Used by Java||
-||UnknownInterface||The sender has specified an interface this object does not implement||Requested by Thiago||
+||UnknownObject||The sender has called a method on an object not exported on this connection (the service name is valid)||Used by Java||
+||UnknownInterface||The sender has specified an interface this object does not implement (but the object is valid)||Requested by Thiago||
+||UnknownMethod||The specified method is not implemented on this object (but the object and the interface names are valid)||In core||
 ||InvalidParameters||Method was called with an invalid number or type of parameters||Suggested by Matt||
 
 Please add other errors you think should, or could possibly, be useful
@@ -13,9 +13,15 @@ Other comments:
 
  * What about errors in executing the method within the binding? There could be problems with marshalling and so on? At the moment I send an internal error with a specific message, should there be a generic error type? - Matt
 
+ * About InvalidParameters: some bindings could not implement it and use only UnknownMethod. Methods in those bindings are recognised by both the method name and signature. The bindings that support overloading through parameters are the case (C++ and Java especially).
+
+ * Objects that have children must never reply with UnknownObject.
+
 == The format of error messages ==
 
 The spec suggests that error messages can contain different arguments and aren't restricted to a single string. Do any core errors or binding errors make use of this? Would this be useful when mapping exceptions thrown by an object binding, say for the stack trace etc.?
+
+The spec should specifically say whether the string is mandatory as the first parameter or not. It should also make it clear if more parameters are permitted or not.
 
 == Well-known core errors ==
 
