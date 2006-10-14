@@ -69,8 +69,24 @@ probably the best place to start (even though it is very incomplete, the basics 
 = Download =
 
 == Core ==
+The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.94.tar.gz D-Bus 1.0 RC 2 (dbus-0.94.tar.gz)]. (2006-10-14)
 
-The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.93.tar.gz D-Bus 1.0 RC 1 (dbus-0.93.tar.gz)]. (2006-09-14)
+	* dbus-uuidgen binary added for future remote machine identification packagers should call dbus-uuidgen --ensure in their post
+	* GetMachineId peer method added to the bus API
+	* dbus_connection_set_route_peer_messages API added to let the bus send peer messages directly to an app
+	* Autolaunch abilities added to dbus-launch with the --autolaunch flag
+		* This feature allows libdbus to start a session bus if none can be found
+  		* This is an internal feature and should not be used by scripts DBUS_SESSION_BUS_ADDRESS is still the correct way to specify a session bus
+	* dbus-launch now prints out a simple key value pairs instead of shell scripts if one of the shell flags aren't used
+	* support DBUS_BLOCK_ON_ABORT env variable to cause blocking waiting for gdb
+	* weak ref are now held for shared connections so the right things happen this fixes some pretty major bugs with the way connections were handled
+	* Some refactoring for Windows (doesn't effect Unix)
+	* Solaris build fixes
+	* MacOSX build fixes
+	* Cross compile build fixes.  We now assume getpwnam_r is posix and va_lists can be copied by value since we can't check this in a cross compile.  If this is not true for a particular target is up to the developer to patch.
+	* Bug fixing all around
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.93.tar.gz D-Bus 1.0 RC 1 (dbus-0.93.tar.gz)]. (2006-09-14)
 
 	* dbus_threads_init_default added for initalizing threads without the need for bindings
 	* Filters are now properly removed
@@ -80,18 +96,6 @@ The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.93.tar.g
 	* LOCAL_CREDS socket credentials are now supported for systems which support it such as NetBSD
 	* Generalize kqueue support so it works with NetBSD as well as FreeBSD
 	* Numerous bug fixes and memory leaks patched
-
-The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.92.tar.gz dbus-0.92.tar.gz]. (2006-08-18)
-
-	* Proper thread locking added to pending calls
-	* Threading semantics changed from init early to init before the second thread is started
-	* Correctly error out when an application tries to acquire or release the org.freedesktop.DBus name instead of sending false result codes
-	* kqueue directory watching code can now be used to monitor config file changes on FreeBSD
-	* --with-dbus-daemondir configure switch added so the daemon can be installed separate from the user binaries
-	* Makefiles fixed for cygwin
-	* Various fixes for the ongoing Windows port
-	* Fixed docs and comments to use the D-Bus spelling instead of D-BUS
-	* Many memleaks and bugs fixed
 
 Previous releases can be found in the [wiki:Software/DbusReleaseArchive release archive].
 
