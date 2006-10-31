@@ -2,8 +2,130 @@
 ##META:TOPICPARENT{name="Home"}%
 == GTK-Qt Theme Engine ==
 
-The GTK-Qt Theme Engine is a plugin for GTK that allows GTK applications to use Qt widget styles.
+The GTK-Qt Theme Engine is a project allowing GTK to use Qt widget styles.
 
-Aimed primarily at KDE users, this plugin provides a way to unify the look and feel of the Linux desktop.
+It behaves like a normal GTK theme engine, but calls functions from Qt instead of doing the drawing itself.
 
-'''The website for the GTK-Qt Theme Engine has moved to http://gtk-qt.ecs.soton.ac.uk/'''
+
+=== CVS ===
+
+The [[Main.GettingInvolved][CVS]] module for this engine is "gtk-qt"
+
+To get the latest code from CVS, do the following:
+{{{
+cvs -d :pserver:anoncvs@freedesktop.org:/cvs/gtk-qt login
+CVS password: <hit return>
+cvs -d :pserver:anoncvs@freedesktop.org:/cvs/gtk-qt co gtk-qt-engine
+}}}
+
+You can also browse the CVS repository online with [http://pdx.freedesktop.org/cgi-bin/viewcvs.cgi/gtk-qt/ Web  CVS]
+
+=== Installation instructions ===
+
+Installing the theme is simple.  There is no need to use the --prefix option when running configure, as everything should be automatically detected.
+
+You must issue these commands to compile the theme engine:
+{{{
+./configure
+make
+su
+make install
+}}}
+
+If you're using the CVS version, remember to run "make -f Makefile.cvs" first.
+
+Users of *Mandrake* or *Debian* may need to run update-menus after everything is installed.
+
+To tell GTK to use the new theme engine, run "GTK styles and fonts" from the KDE control center.
+
+=== Binary packages ===
+
+*Debian* unstable/sid users can put the following line in their /etc/apt/sources.list file
+{{{
+deb http://www.kalyxo.org/debian/ unstable main
+}}}
+
+The engine is [http://autopackage.org/ Autopackage] ready, but no files will be made available until [http://autopackage.org/ Autopackage] 1.0 is released.
+
+=== Using the theme from inside GNOME ===
+
+Due to an incompatibility between Qt and the GNOME window manager, some parts of GNOME will not be themed by Qt.
+
+The theme will run fine under GNOME, but the logout box and window border menus will appear blank.
+
+It appears that the only way to overcome this bug is by patching Qt itself.
+
+=== Contact ===
+
+Please send bug reports, backtraces, and patches to [[mailto:me@davidsansome.com][David Sansome]]
+
+== Downloads ==
+
+The latest version is 0.5
+
+*Changes in 0.5:*
+	* KDE icon support
+
+	* Fix menu backgrounds in Firefox
+	* Fix textbox backgrounds in Firefox
+	* Theme menubars and toolbars (useful for themes like Keramik)
+	* Theme spinboxes
+	* Resize radio buttons and checkboxes correctly
+	* Fixes for scrollbars - they should now always be the correct size
+
+	* Remove dependency on KDE - this improves app startup speeds
+
+	* Fix problems with magicdev on Mandrake
+	* Improve Java compatibility
+	* Add Solaris support
+
+*Changes in 0.41:*
+	* Fixed a bug where the KControl module would crash upon starting
+	* Fixed a bug where every GTK application would crash on some distros
+	* Added compatibility with BlueCurve
+	* Fixed a compilation bug from CVS
+	* Fixed a compilation bug with some versions of autotools
+
+*Changes in 0.4:*
+	* Fixed the Gnome-crashing-bug.  The theme should now work under Gnome, but some dialogs won't be themed
+	* A new buildsystem - no more editing Makefiles, all paths should be detected automatically
+	* A new KDE Control Centre module to help configure GTK
+	* Alternate background colours are used in lists (according to your KDE settings)
+	* Lots of menu fixes
+	* Fixed appearance of tabs
+	* Fixed appearance of frames
+	* Fixed appearance of toolbar buttons
+	* Fixed appearance of headers in lists
+	* Fixed size of buttons
+	* Disabled widgets now drawn correctly
+	* Themed tooltips
+
+*Changes in 0.3:*
+	* Huge speed improvements (thanks to Mike Owens)
+	* Fixed scrollbar sizes
+	* Fixed three-buttoned scrollbars
+	* Fixed bug where scrollbars would show an incorrect value (thanks to Chad Kitching)
+	* Added compatibility for big-endian machines (thanks to Jonas Borgström)
+	* Reduced button sizes
+	* Removed cruft around button edges (thanks to Chad Kitching)
+	* Fixed button behaviour - contents now move when clicked
+	* Partially themed menus and menu-bars
+	* Themed scrollbars
+	* Themed sliders
+
+*Changes in 0.2:*
+	* Hopefully fixed the segfault bug
+	* Fixed crashing on Keramik
+	* Fixed memory leak
+	* Themed menu borders
+	* Themed drop-down boxes
+	* Themed splitters
+	* Themed frames
+	* Improved tab appearance
+	* Fixed text background colour
+##META:FILEATTACHMENT{name`"gtk-qt-engine-0.1.tar.bz2" attr`"" comment`"" date`"1076939821" path`"gtk-qt-engine-0.1.tar.bz2" size`"134711" user`"DavidSansome" version`"1.1"}%
+##META:FILEATTACHMENT{name`"gtk-qt-engine-0.2.tar.bz2" attr`"" comment`"" date`"1076939857" path`"gtk-qt-engine-0.2.tar.bz2" size`"166972" user`"DavidSansome" version`"1.1"}%
+##META:FILEATTACHMENT{name`"gtk-qt-engine-0.3.tar.bz2" attr`"" comment`"" date`"1076939882" path`"gtk-qt-engine-0.3.tar.bz2" size`"170845" user`"DavidSansome" version`"1.1"}%
+##META:FILEATTACHMENT{name`"gtk-qt-engine-0.4.tar.bz2" attr`"" comment`"" date`"1087334434" path`"gtk-qt-engine-0.4.tar.bz2" size`"449970" user`"DavidSansome" version`"1.2"}%
+##META:FILEATTACHMENT{name`"gtk-qt-engine-0.41.tar.bz2" attr`"" comment`"" date`"1087400576" path`"gtk-qt-engine-0.41.tar.bz2" size`"453941" user`"DavidSansome" version`"1.1"}%
+##META:FILEATTACHMENT{name`"gtk-qt-engine-0.5.tar.bz2" attr`"" comment`"" date`"1091214172" path`"gtk-qt-engine-0.5.tar.bz2" size`"476677" user`"DavidSansome" version`"1.1"}%
