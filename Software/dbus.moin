@@ -71,7 +71,27 @@ probably the best place to start (even though it is very incomplete, the basics 
 = Download =
 
 == Core ==
-The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.94.tar.gz D-Bus 1.0 RC 2 (dbus-0.94.tar.gz)]. (2006-10-14)
+The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.95.tar.gz D-Bus 1.0 RC 3 (dbus-0.95.tar.gz)]. (2006-11-03)
+
+	* DBUS_API_SUBJECT_TO_CHANGE no longer needs to be defined when building apps
+	* ./configure checks now work when cross compiling
+	* dbus-uuidgen --ensure is now run in the init script so there is no need to run it in a post script
+	* dbus-uuidgen now writes out to /var/lib/dbus to work with systems that do not have a writable /etc. Packages should install and own the /var/lib/dbus directory
+	* recursive locks are now used when dbus_threads_init_default is called
+	* standard_session_servicedirs tag added to the session.conf under a normal build this specifies these service directories:
+		/usr/local/share/dbus-1/services[[BR]]
+		/usr/share/dbus-1/services[[BR]]
+		$HOME/.local/share/dbus-1/services
+	* fixed crash when a service directory is specified more than once
+	* fixed a crash in *BSD when watching config directories for changes
+	* fixed Irix build by using dirp->&#95;&#95;dd_fd to get the file descriptor
+	* cleaned up the LOCAL_CREDS vs CMGCRED credential code so *BSD's don't crash here anymore
+	* dbus_message_iter_get_array_len deprecated
+	* cleanup-man-pages.sh added so packagers can clean up Doxygen man page output from 7 to 2 megs
+	* large documentation improvements
+	* numerous bug fixes
+
+The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.94.tar.gz D-Bus 1.0 RC 2 (dbus-0.94.tar.gz)]. (2006-10-14)
 
 	* dbus-uuidgen binary added for future remote machine identification 
 		* packagers should call dbus-uuidgen --ensure in their post
@@ -88,17 +108,6 @@ The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.94.tar.g
 	* MacOSX build fixes
 	* Cross compile build fixes.  We now assume getpwnam_r is posix and va_lists can be copied by value since we can't check this in a cross compile.  If this is not true for a particular target is up to the developer to patch.
 	* Bug fixing all around
-
-The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-0.93.tar.gz D-Bus 1.0 RC 1 (dbus-0.93.tar.gz)]. (2006-09-14)
-
-	* dbus_threads_init_default added for initalizing threads without the need for bindings
-	* Filters are now properly removed
-	* dbus_connection_open now holds a hard ref to shared connections
-	* We now print out a warning and do nothing when someone tries to close a shared connection
-	* The --introspect switch has been added to the bus for printing out introspection data without actually running the bus
-	* LOCAL_CREDS socket credentials are now supported for systems which support it such as NetBSD
-	* Generalize kqueue support so it works with NetBSD as well as FreeBSD
-	* Numerous bug fixes and memory leaks patched
 
 Previous releases can be found in the [wiki:Software/DbusReleaseArchive release archive].
 
