@@ -2,15 +2,20 @@
 
 = What is D-Bus? =
 
-D-Bus is a message bus system, a simple way for applications to talk to one another.
+D-Bus is a message bus system, a simple way for applications to talk to one another. In addition to interprocess communication,
+D-Bus helps coordinate process lifecycle; it makes it simple and reliable to code a "single instance" application or daemon, and to launch applications and daemons on demand when their services are needed.
 
-D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, but TCP/IP option is available and [wiki:Software/DBusRemote remote support] planned.
+D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, or through unencrypted TCP/IP suitable for use behind a firewall with shared NFS home directories. (Help wanted with [wiki:Software/DBusRemote better remote transports] - the transport mechanism is well-abstracted and extensible.)
 
-The D-Bus API isn't finished yet, and the design is by no means set in stone. One of our main goals is for lots of projects to use it, so if you wouldn't use it, by all means mail us and say why - design, licensing, indentation style, we would rather know than not know.
+The D-Bus [http://dbus.freedesktop.org/doc/dbus/api/html/index.html low-level API] and [http://dbus.freedesktop.org/doc/dbus-specification.html protocol] have been heavily tested in the real world over several years, and are now "set in stone." Future changes will either be compatible or versioned appropriately.
 
-D-Bus' only *required* dependency is an XML parser (either libxml or expat). D-Bus includes many language bindings to the D-Bus system, if you want to build those. The [wiki:Software/DbusProjects list of projects using D-Bus] is growing and they provide a wealth of examples of using the various APIs to learn from.
+The low-level libdbus library's only *required* dependency is an XML parser (either libxml or expat). Higher-level bindings specific to particular frameworks (Qt, GLib, Java, C#, Python, etc.) add more dependencies, but can make more assumptions and are thus much simpler to use. The bindings evolve separately from the low-level libdbus, so some are more mature and ABI-stable than others; check the docs for the binding you plan to use.
 
-Trying out D-Bus in sample applications is encouraged - we want to get it widely used and tested. It should be working pretty well these days, and when it isn't bug reports are very welcome.
+The [wiki:Software/DbusProjects list of projects using D-Bus] is growing and they provide a wealth of examples of using the various APIs to learn from.
+
+D-Bus is very portable to any Linux or UNIX flavor, and a port to Windows is in progress.
+
+If you have any trouble with D-Bus or suggestions for improvement, bug reports and comments are very welcome.
 
 Get on D-Bus today!
 
