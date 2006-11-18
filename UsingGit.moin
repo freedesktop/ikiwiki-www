@@ -73,11 +73,22 @@ or get a diff of the local tree against the repository with
 The {{{-a}}} flag means all local updates.  The git system actually has this concept of an "index", managed using git-update-index, which lets you selectively commit changes.  However, because this adds to confusion, I will leave learning about the index up to you to do later.
 
 == Getting the latest upstream code ==
+There are two ways to update your local repository. Which one to use depends on whether you have committed changes in the meantime.
+
+=== No changes: pull ===
 The command to update your local repository is:
 
 {{{git pull}}}
 
 It will pull down the latest repository information from the {{{origin}}} remote file (which points at where you initially cloned the repository from), then merge.  If the new changes don't conflict with anything locally, the merge will "fast-forward" your branch reference to the new head.  If new changes do conflict, it will try to do an automatic merge using a couple of different schemes, and then automatically commits the merge if it's satisfied.  If you notice that your pull resulted in a merge (in the output of pull), you might want to use {{{gitk}}} to see if the merge did what you expected it to.  If it isn't satisfied, then you have to resolve the conflict manually.
+
+=== You've made changes: fetch and rebase ===
+If you have committed local changes, then {{{git-pull}}} will create a spurious "Merge" commit, which will pollute the change list when you later push upstream. To avoid this, do these two commands:
+{{{
+git fetch
+git rebase origin
+}}}
+Instead of merging, this attempts to insert the changes you pull from the origin repository before your local changes, avoiding the merge message.
 
 == Dealing with conflicts ==
 If you get a serious conflict that can't be merged automatically, git will leave familiar conflict markers in the files, and {{{ git status }}} should say that you've got unmerged files.  Go edit them and fix your conflicts, and test.  After you do so, {{{git status}}} will still be noisy about unmerged files (since you haven't updated the index to say you've merged them), but you can still do
