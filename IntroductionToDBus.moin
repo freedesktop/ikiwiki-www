@@ -113,12 +113,12 @@ Whether there is "overloading" of members within interfaces, i.e. whether multip
 
 Let's just recap how your program gets all the way from not even being connected to a bus, to finding a method it wants to call or a signal it wants to listen for.  Apart from the interface, which as we've seen can usually be omitted, each of these steps is a matter of identifying something that will be needed in the next step:
 
-|| '''A...''' || '''is identified by a...''' || '''which looks like...''' ||
-|| Bus || address || {{{unix:path=/var/run/dbus/system_bus_socket}}} ||
-|| Connection || bus name || {{{:34-907}}} (''unique'') or {{{com.mycompany.TextEditor}}} (''well-known'') ||
-|| Object || path || {{{/com/mycompany/TextFileManager}}} ||
-|| ''Interface'' || ''interface name'' || {{{org.freedesktop.Hal.Manager}}} ||
-|| Member || member name || {{{ListNames}}} ||
+|| '''A...''' || '''is identified by a(n)...''' || '''which looks like...''' || '''and is chosen by...''' ||
+|| Bus || address || {{{unix:path=/var/run/dbus/system_bus_socket}}} || system configuration ||
+|| Connection || bus name || {{{:34-907}}} (''unique'') or {{{com.mycompany.TextEditor}}} (''well-known'') || D-Bus (''unique'') or the owning program (''well-known'') ||
+|| Object || path || {{{/com/mycompany/TextFileManager}}} || the owning program ||
+|| ''Interface'' || ''interface name'' || {{{org.freedesktop.Hal.Manager}}} || ''the owning program'' ||
+|| Member || member name || {{{ListNames}}} || the owning program ||
 
 Most of these identifiers are also structured as paths themselves: parts of addresses may be; well-known bus names are; object paths are; and interface names are, too.  This gets confusing sometimes, especially since related names are often chosen to look very similar--a connection {{{org.freedesktop.Hal}}} may provide an object {{{/org/freedesktop/Hal/Manager}}} that implements an interface {{{org.freedesktop.Hal.Manager}}}.  The use of slashes in some identifiers and dots in others also takes some getting used to.
 
