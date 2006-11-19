@@ -1,10 +1,19 @@
+= This document =
+
+The following text is ''not'' a tutorial or a reference.  It will not show you how to use D-Bus (yet).  It won't tell you how to install D-Bus or how to program for it.
+
+What you will find here is an explanation what D-Bus really ''is,'' what the concepts behind it are and how they fit together, and what jargon you'll need to know to understand it all.  There will be no unnecessary technical detail, and no assumptions about what language you like to program in.  The idea is that you can read this before you move on to tutorials or how-to guides for whatever it is you want to use D-Bus for.
+
+Reading all this first can be useful even if you have a good tutorial to work with.  There's a long list of words that have special meanings in the D-Bus world, and not all of them are completely standardized.  In this document we try to explain them from the ground up so you won't run into unexplained terms that will only become clear later.  We'll also try to give an overview of how different people's views of D-Bus overlap and differ.  A perfectly good explanation written from the perspective of one particular programming language can sometimes mislead a new user, or even an experienced user, when using another language.
+
+
 = Introduction to D-Bus =
 
-D-Bus is an inter-process communication mechanism, i.e. for local communication between processes on the same host.  (Inter-host connects may be added in the future, but that is not what D-Bus is meant for).  Unlike conventional messaging middleware, D-Bus is lightweight and non-transactional.  It is stateful and connection-based, however, making it "smarter" than low-level message-passing protocols such as UDP.  On the other hand, it does carry ''messages'' as discrete items--not continuous streams of data as is the case with TCP.  Both one-to-one messaging and publish/subscribe communication are supported.
+D-Bus is an inter-process communication mechanism, i.e. a medium for local communication between processes running on the same host.  (Inter-host connects may be added in the future, but that is not what D-Bus is meant for).  Unlike conventional messaging middleware, D-Bus is lightweight and non-transactional.  It is stateful and connection-based, however, making it "smarter" than low-level message-passing protocols such as UDP.  On the other hand, it does carry ''messages'' as discrete items--not continuous streams of data as is the case with TCP.  Both one-to-one messaging and publish/subscribe communication are supported.
 
 D-Bus has a structured view of the data it carries, and deals with data in binary form: integral numbers of various widths, floating-point numbers, strings, compound types, and so on.  Because data is not just "raw bytes" to D-Bus, messages can be validated and ill-formed messages rejected.
 
-Application Programming Interfaces for D-Bus, or ''bindings,'' are available in several languages.  There is a [http://dbus.freedesktop.org/doc/dbus/libdbus-tutorial.html low-level C binding], but that is probably too detailed and cumbersome for anything but writing other bindings.  A more practical C binding is based on GLib.  There are also [http://dbus.freedesktop.org/doc/dbus-java/ Java], [http://search.cpan.org/~danberr/Net-DBus-0.33.3/lib/Net/DBus.pm Perl] and Python bindings (about we also have [wiki:DbusNotes notes and examples]), and so on.  Each presents its own API as suits the language, hiding the details of working with D-Bus from the programmer to different extents.  We'll go into the essential concepts first.
+Application Programming Interfaces for D-Bus, or ''bindings,'' are available in several languages--typically one per language, but not necessarily.  There is a [http://dbus.freedesktop.org/doc/dbus/libdbus-tutorial.html low-level C binding], but that is probably too detailed and cumbersome for anything but writing other bindings.  A more practical C binding is based on GLib.  There are also [http://dbus.freedesktop.org/doc/dbus-java/ Java], [http://search.cpan.org/~danberr/Net-DBus-0.33.3/lib/Net/DBus.pm Perl] and Python bindings (about we also have [wiki:DbusNotes notes and examples]), and so on.  Each presents its own API as suits the language, hiding the details of working with D-Bus from the programmer to different extents.  We'll go into the essential concepts first.
 
 == Buses ==
 
