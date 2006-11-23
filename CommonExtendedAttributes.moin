@@ -11,43 +11,61 @@ Attribute strings should be in UTF-8 encoding.
 
 == General attributes in current use ==
 
-user.mime_type: Sets the MIME type of a file explicitly. This attribute is documented by the "Shared MIME-info Database Specification"(http://standards.freedesktop.org/shared-mime-info-spec). It says:
+ * user.mime_type: Sets the MIME type of a file explicitly. This attribute is documented by the "Shared MIME-info Database Specification"(http://standards.freedesktop.org/shared-mime-info-spec). It says:
 
 "An implementation MAY also get a file's MIME type from the user.mime_type extended attribute. The type given here should normally be used in preference to any guessed type, since the user is able to set it explicitly. Applications MAY choose to set the type when saving files. Since many applications and filesystems do not support extended attributes, implementations MUST NOT rely on this method being available."
 
-user.charset: The character encoding of a file. This attribute can be useful if the encoding is different than the platform default. It is used by the Apache httpd module mod_mime_xattr (http://0pointer.de/lennart/projects/mod_mime_xattr).
+ * user.charset: The character encoding of a file. This attribute can be useful if the encoding is different than the platform default. It is used by the Apache httpd module mod_mime_xattr (http://0pointer.de/lennart/projects/mod_mime_xattr).
 
-user.creator: The name of the application that created the file. The ROX Contact Manager "Contact" sets this value to "Contact" (http://roxos.sunsite.dk/dev-contrib/guido/Contacts/)
+ * user.creator: The name of the application that created the file. The ROX Contact Manager "Contact" sets this value to "Contact" (http://roxos.sunsite.dk/dev-contrib/guido/Contacts/)
 
 
 == Application-specific attributes in current use ==
 
-user.mime_encoding: This attribute defines the MIME encoding to use when serving a file with Apache httpd. It is used by mod_mime_xattr. (Is this attribute useful in general?)
+ * user.mime_encoding: This attribute defines the MIME encoding to use when serving a file with Apache httpd. It is used by mod_mime_xattr. (Is this attribute useful in general?)
 
-user.apache_handler: This attribute is used by mod_mime_xattr to define the Apache handler for a file. 
+ * user.apache_handler: This attribute is used by mod_mime_xattr to define the Apache handler for a file. 
 
-user.Beagle.AttrTime: Used by Beagle
-
-user.Beagle.Fingerprint: Used by Beagle
-
-user.Beagle.MTime: Used by Beagle
-
-user.Beagle.Uid: Used by Beagle
-
+ * user.Beagle.AttrTime: Used by Beagle
+ * user.Beagle.Fingerprint: Used by Beagle
+ * user.Beagle.MTime: Used by Beagle
+ * user.Beagle.Uid: Used by Beagle
 
 
 == Proposed attributes ==
 
 It is proposed that applications sets these attributes when saving files
 
-user.xdg.comment: A comment specified by the ''user''. This comment could be displayed by file managers
+ * user.xdg.comment: A comment specified by the ''user''. This comment could be displayed by file managers
 
-user.xdg.creator: See user.creator, adopt into the xdg namespace.
+ * user.xdg.origin.url: Set on a file downloaded from a url. Its value should equal the url it was downloaded from.
 
-user.xdg.origin.url: Set on a file downloaded from a url. Its value should equal the url it was downloaded from.
+ * user.xdg.origin.email.subject: Set on an email attachment when saved to disk. It should get its value from the originating message's "Subject" header
 
-user.xdg.origin.email.subject: Set on an email attachment when saved to disk. It should get its value from the originating message's "Subject" header
+ * user.xdg.origin.email.from: Set on an email attachment when saved to disk. It should get its value from the originating messsage's "From" header. For example '"John Doe" <jdoe@example.com>', or  'jdoe@example.com'
 
-user.xdg.origin.email.from: Set on an email attachment when saved to disk. It should get its value from the originating messsage's "From" header. For example '"John Doe" <jdoe@example.com>', or  'jdoe@example.com'
+ * user.xdg.origin.email.message-id: Set on an email attachment when saved to disk. It should get its value from the originating message's "Message-Id" header. 
 
-user.xdg.origin.email.message-id: Set on an email attachment when saved to disk. It should get its value from the originating message's "Message-Id" header. 
+ * user.xdg.language: Language of the intellectual content of the resource. The value should follow the syntax described in RFC 3066 in conjunction with ISO 639 language codes. When a file is downloaded using HTTP, the Content-Language HTTP header can if present be copied into this attribute. See also the Language element in Dublin core.
+
+ * user.xdg.creator: See user.creator, and the Creator element in Dublin core.
+
+== Relation to Dublin Core == 
+
+Dublin core is a standard for cross-domain information resource description. The Simple Dublin Core Metadata Element Set defines 15 elements. Applications that have knowledge of Dublin core metadata can choose to set this metadata as extended attributes on a file when it saves it.
+
+ * user.dublincore.title
+ * user.dublincore.creator
+ * user.dublincore.subject
+ * user.dublincore.description
+ * user.dublincore.publisher
+ * user.dublincore.contributor
+ * user.dublincore.date
+ * user.dublincore.type
+ * user.dublincore.format
+ * user.dublincore.tdentifier
+ * user.dublincore.source
+ * user.dublincore.language
+ * user.dublincore.relation
+ * user.dublincore.coverage
+ * user.dublincore.rights
