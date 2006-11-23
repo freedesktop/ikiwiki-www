@@ -2,14 +2,14 @@
 
 = Guidelines for extended attributes =
 
-Extended attributes can be set in different namespaces: "security", "system", "trusted", and "user". This document only describes and proposes attributes in the "user" namespace
+Extended attributes (xattrs) can be set in different namespaces. Linux uses "security", "system", "trusted", and "user". This document only describes and proposes attributes in the "user" namespace
 
 To avoid future conflicts between attributes, it is recommended that application-specific attributes are namespaced using reverse-DNS naming style. This recommendation also applies on Mac OS X, where for example the resource fork is stored as an extended attribute with the key "com.apple.ResourceFork". 
 Attributes specified by freedesktop.org are prefixed with "xdg". 
 
 Attribute strings should be in UTF-8 encoding.
 
-== General attributes in current use ==
+= General attributes in current use = 
 
  * user.mime_type: Sets the MIME type of a file explicitly. This attribute is documented by the "Shared MIME-info Database Specification"(http://standards.freedesktop.org/shared-mime-info-spec). It says:
 
@@ -19,8 +19,43 @@ Attribute strings should be in UTF-8 encoding.
 
  * user.creator: The name of the application that created the file. The ROX Contact Manager "Contact" sets this value to "Contact" (http://roxos.sunsite.dk/dev-contrib/guido/Contacts/)
 
+= Proposed attributes =
 
-== Application-specific attributes in current use ==
+Extended attributes are especially useful when they add information that is not present in the in the actual file. Depending on the file origin, an application can add metadata that is not present and/or can not be specified by the file or its format. For example file downloaded from a web server can be tagged with the url, which can be convenient if its source has to be determined in the future. Likewise, an email attachment can when saved be tagged with the message-id of the email. This will make it possible to trace the original message. 
+
+Another use of extended attributes is as flags to backup programs, indexing programs and similar. Attributes can be defined to control their behaviour,. For example one attribute for "don't index", another for "don't backup".
+
+It is proposed that applications sets these attributes when saving files
+
+ * user.xdg.comment: A comment specified by the ''user''. This comment could be displayed by file managers
+ * user.xdg.origin.url: Set on a file downloaded from a url. Its value should equal the url it was downloaded from.
+ * user.xdg.origin.email.subject: Set on an email attachment when saved to disk. It should get its value from the originating message's "Subject" header
+ * user.xdg.origin.email.from: Set on an email attachment when saved to disk. It should get its value from the originating messsage's "From" header. For example '"John Doe" <jdoe@example.com>', or  'jdoe@example.com'
+ * user.xdg.origin.email.message-id: Set on an email attachment when saved to disk. It should get its value from the originating message's "Message-Id" header. 
+ * user.xdg.language: Language of the intellectual content of the resource. The value should follow the syntax described in RFC 3066 in conjunction with ISO 639 language codes. When a file is downloaded using HTTP, the value of the Content-Language HTTP header can if present be copied into this attribute. See also the Language element in Dublin core.
+ * user.xdg.creator: See user.creator, and the Creator element in Dublin core.
+
+= Relation to Dublin Core =
+
+Dublin Core is a standard for cross-domain information resource description. The Simple Dublin Core Metadata Element Set defines 15 elements. Applications that have knowledge of Dublin Core metadata may choose to set this metadata as extended attributes on a file when it saves it. Some of these elements have counterparts in the xdg name space, but then with more strict or detailed syntax or meaning. Attributes in the Dublin core namespace are currently not further specified.
+
+ * user.dublincore.title 
+ * user.dublincore.creator  See also user.xdg.creator
+ * user.dublincore.subject
+ * user.dublincore.description
+ * user.dublincore.publisher
+ * user.dublincore.contributor
+ * user.dublincore.date
+ * user.dublincore.type
+ * user.dublincore.format
+ * user.dublincore.identifier
+ * user.dublincore.source
+ * user.dublincore.language  See also user.xdg.language
+ * user.dublincore.relation
+ * user.dublincore.coverage
+ * user.dublincore.rights
+
+= Application-specific attributes in current use =
 
  * user.mime_encoding: This attribute defines the MIME encoding to use when serving a file with Apache httpd. It is used by mod_mime_xattr. (Is this attribute useful in general?)
 
@@ -32,40 +67,3 @@ Attribute strings should be in UTF-8 encoding.
  * user.Beagle.Uid: Used by Beagle
 
 
-== Proposed attributes ==
-
-It is proposed that applications sets these attributes when saving files
-
- * user.xdg.comment: A comment specified by the ''user''. This comment could be displayed by file managers
-
- * user.xdg.origin.url: Set on a file downloaded from a url. Its value should equal the url it was downloaded from.
-
- * user.xdg.origin.email.subject: Set on an email attachment when saved to disk. It should get its value from the originating message's "Subject" header
-
- * user.xdg.origin.email.from: Set on an email attachment when saved to disk. It should get its value from the originating messsage's "From" header. For example '"John Doe" <jdoe@example.com>', or  'jdoe@example.com'
-
- * user.xdg.origin.email.message-id: Set on an email attachment when saved to disk. It should get its value from the originating message's "Message-Id" header. 
-
- * user.xdg.language: Language of the intellectual content of the resource. The value should follow the syntax described in RFC 3066 in conjunction with ISO 639 language codes. When a file is downloaded using HTTP, the Content-Language HTTP header can if present be copied into this attribute. See also the Language element in Dublin core.
-
- * user.xdg.creator: See user.creator, and the Creator element in Dublin core.
-
-== Relation to Dublin Core == 
-
-Dublin core is a standard for cross-domain information resource description. The Simple Dublin Core Metadata Element Set defines 15 elements. Applications that have knowledge of Dublin core metadata can choose to set this metadata as extended attributes on a file when it saves it.
-
- * user.dublincore.title
- * user.dublincore.creator
- * user.dublincore.subject
- * user.dublincore.description
- * user.dublincore.publisher
- * user.dublincore.contributor
- * user.dublincore.date
- * user.dublincore.type
- * user.dublincore.format
- * user.dublincore.tdentifier
- * user.dublincore.source
- * user.dublincore.language
- * user.dublincore.relation
- * user.dublincore.coverage
- * user.dublincore.rights
