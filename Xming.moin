@@ -1,188 +1,135 @@
 ##META:TOPICINFO{author`"AlexanderGottwald" date`"1100531100" format`"1.0" version`"1.5"}%
-
-'''Contents''' [[TableOfContents]]
+##META:TOPICPARENT{name="CygwinX"}%
+##TOC%
 
 = Xming =
 
-Xming is the port of the X Window System to Microsoft Windows. Unlike [wiki:CygwinX Cygwin/X] it
+Xming is the port of the X Window System to Microsoft Windows. Unlike [[CygwinX][Cygwin/X]] it
 does not depend on the [http://www.cygwin.com Cygwin] environment.
-
-Alexander Gottwald, the previous Xming maintainer, has retired from Cygwin/X and Xming development. The latest Xming development by Colin Harrison is hosted on [http://sourceforge.net/projects/xming SourceForge]
-
-Please note, that some of the information below may not be current. Check the [http://sourceforge.net/projects/xming SourceForge] page for the latest information.
 
 == Release Notes ==
 
-The release notes for older releases are available on the [:/ReleaseNotes: ReleaseNotes] page.
+<div style="border-style: solid; border-width: 1px; border-color: black; padding-left: 0.5cm ">
+=== Xming 6.8.1.99 (2004-11-15) ===
 
-=== Font packages ===
+Some features have been added
 
-There are additional font packages available. Up to 2005-01-06 the 75dpi fonts were included in the main setup but are 
-now moved to the external package to save network bandwidth with the much frequent server updates. Download the packages
-you want and install them to the folder where Xming is already installed.
-         
-        * [http://www.freedesktop.org/~ago/Xming/Xming-75dpi-setup.exe 75dpi fonts] (10MB)
+---++++!! New features
 
-        * [http://www.freedesktop.org/~ago/Xming/Xming-100dpi-setup.exe 100dpi fonts] (12MB)
+	 * Clipboard support
 
-        * [http://www.freedesktop.org/~ago/Xming/Xming-cyrillic-setup.exe cyrillic fonts] (663kB)
+	 * GLX extension enabled (with acceleration trough Windows OpenGL libraries.
 
-== Usage ==
+---++++!! Download
 
-The usage information for [wiki:CygwinX Cygwin/X] available in the [http://x.cygwin.com/docs/ug/cygwin-x-ug.html Cygwin/X Users Guide] and the [wiki:CygwinX/HowTo Cygwin/X Usage HowTo] applies to Xming as well
+	 * [http://www.freedesktop.org/~ago/Xming/Xming-20041115-setup.exe Installer] (20MB) 
 
-=== Xlaunch ===
+	 * [http://www.freedesktop.org/~ago/Xming/Xming-20041115.exe.bz2 Xming-20041115.exe.bz2] (1.2MB)
 
-The latest build of xlaunch can be found on [http://sourceforge.net/projects/xming SourceForge]
+	 * [http://www.freedesktop.org/~ago/Xming/xming-20041115.diff xming-20041115.diff] (127kB)
 
-http://www.freedesktop.org/~ago/Xming/xlaunch.gif
+</div>
 
-Xlaunch is a wizard to make starting Xming sessions easy. It is included in the distribution starting with 20050411. A snapshot  is available [http://www.freedesktop.org/~ago/Xming/xlaunch.zip here]. Extract the archive into the Xming directory. Two additional files will be created: xlaunch.exe and plink.exe. xlaunch.exe is the wizard itself and plink is a ssh client based on putty. Source is available from [http://cvs.freedesktop.org/xorg/xc/programs/Xserver/hw/xwin/xlaunch CVS].
+<div style="border-style: solid; border-width: 1px; border-color: black; padding-left: 0.5cm ">
+=== Xming 6.8.1.99 (2004-11-11) ===
 
-'''First start'''
+This is just a test release. I've been able to compile Xming and built an installer. But after all there is still much
+to do. Some entries form the tray menu will appear but have no effect. The networking code is not as stable as it is required
+for productive use. 
 
-Start xlaunch and follow the wizard. You can select the windowing mode, the way clients are started and you can save the configuration for later reuse.
+---++++!! Missing features
 
-'''Reuse configurations'''
+	 * Multiwindow mode
 
-You can use xlaunch to start Xming with a saved configuration 
-{{{
-xlaunch -run <configfile> 
-}}} 
+	 * mwExtWM mode
 
-To use a configuration as preset for new configurations start xlaunch like this
-{{{
-xlaunch -load <configfile>
-}}}
+	 * Clipboard support
 
-=== XDMCP example ===
+	 * Unix domain sockets
 
-As "quick startup" instruction to login into the kdm of your GNU/Linux PC do as follows:
-(for KDE 3.4, Debian unstable (sid), Windows 2000)
+	 * Many extension are disabled (GLX, BigFont, SHM ...)
 
-{{{
-In the GNU/Linux PC edit the following files:
-1.  Edit the file /etc/kde3/kdm/Xaccess (in SuSE /usr/share/config/kdm/Xaccess)
-Make sure you have a line like this that is uncommented.
-     *     # any host can get a login window.
-(Or alternately, instead of the star, you could specifically enumerate what
-hosts can get a login window)
+---++++!! Download
 
-2.  Edit the file /etc/kde3/kdm/kdmrc (in SuSE /usr/share/config/kdm/kdmrc)
-Find the lines that say:
-[Xdmcp]
-Enable=false
-Then change the Enable=false into Enable=true
+	 * [http://www.freedesktop.org/~ago/Xming/xming-20041111.diff xming-20041111.diff] (100kB)
 
-Make sure nobody else is using the gui, and do an:
-/etc/init.d/kdm restart
-to make the changes take effect.
-
-Now in the Windows pc, under the directory where Xming is installed, create a .BAT like this
-(let's call it "RUNX.BAT")
-@echo off
-SET DISPLAY=127.0.0.1:0.0
-SET REMOTE_HOST=192.168.1.3
-SET LOCAL_HOST=192.168.1.25
-start Xming -query %REMOTE_HOST% -nodecoration -lesspointer -from %LOCAL_HOST% -notrayicon -clipboard
-
-where REMOTE_HOST is the IP of the GNU/Linux PC to what you want to connect, 
-while LOCAL_HOST is the Windows PC where Xming X server is run.
-}}}
-
-Save that "RUNX.BAT" and now, running it, in few seconds you should see the KDE login window :)
-
-== Troubleshooting ==
-
-Because Xming and [wiki:CygwinX Cygwin/X] are very common many solutions from the [wiki:CygwinXTroubleShooting Cygwin/X Troubleshooting] page apply to Xming too.
-
-=== Fonts ===
-
-You want to add new fonts? Fine. Copy them into the fonts/TTF directory and run [http://www.freedesktop.org/~ago/Xming/mkfontscale.exe mkfontscale] to create the font listing fonts.dir.
-
-{{{
-cd c:\Program Files\Xming\fonts
-mkfontscale TTF
-mkfontscale -b -s -l TTF
-}}}
-
-From 2004-11-24 mkfontscale will be included in the installer. For older versions download it from [http://www.freedesktop.org/~ago/Xming/mkfontscale.exe here] and place it in the fonts directory.
-
-You want to add another directory? Fine do the same as above. But you'll have to tell Xming to use the path. Start it
-like this:
-
-{{{
-Xming -fp "C:/Program Files/Xming/fonts/misc/,C:/Program Files/Xming/fonts/TTF/,
-  C:/Program Files/Xming/fonts/Type1/,C:/Program Files/Xming/fonts/CID/,
-  C:/Program Files/Xming/fonts/75dpi/,C:/Program Files/Xming/fonts/100dpi/,
-  C:/Program Files/Xming/fonts/windows" -multiwindow -clipboard
-}}}
-
-or add the path during runtime
-
-{{{
-xset fp+ "C:/Program Files/Xming/fonts/windows"
-}}}
-
-
-=== OpenGL ===
-
-If OpenGL does not work with a program then you can switch on several diagnostic output. Start Xming with special environment variables set.
-
-||'''Variable'''||'''Description'''||
-||GLWIN_ENABLE_DEBUG=1||Enable debugging output at all||
-||GLWIN_DUMP_PFD=1||Output information on the requested visual and pixelformat||
-||GLWIN_DUMP_HWND=1||Output the window handles used in some operations||
-||GLWIN_DUMP_DC=1||Output the device context handle used in some operations||
-
-in Windows command shell
-{{{
-set GLWIN_ENABLE_DEBUG=1
-set GLWIN_DUMP_PFD=1
-Xming
-}}}
-
-in bash
-{{{
-GLWIN_ENABLE_DEBUG=1 GLWIN_DUMP_PFD=1 Xming
-}}}
+</div>
 
 == Why ==
 
-There have been controversial discussions about the MinGW port of X11. Actually it has the same goals as the [wiki:CygwinX Cygwin/X] project: Provide an opensource xserver for windows. What are the main differences
+There have been controverse discussions about the MinGW port of X11. Actually it has the same goals as the [[CygwinX][Cygwin/X]] project: Provide an opensource xserver for windows. What are the main differences
 
-	 * Xming does not depend on any external package while Cygwin/X is closely bound into the package structure of Cygwin.
+	 * Xming does not depend on any external package while Cygwin/X is closely bound into the package structure
+of Cygwin.
 
-	 * Xming installs everything in one directory. It does not install files everywhere in the filesystem. This makes it easier to install and to remove. On the other hand other programs can not take advantage of the shared installation.
+	 * Xming installs everything in one directory. It does not install files everwhere in the filesystem. This makes
+it easier to install and to remove. On the other hand other programs can not take advantage of the shared installation.
 
-	 * Xming does not depend on cygwin1.dll. This was a major problem for standalone installations of Cygwin/X. You can not have different versions of cygwin1.dll working together. Installing our version would break Cygwin itself and other programs which depend on cygwin1.dll. So we decided to offer no standalone version of Cygwin/X. Chris Faylor stated that this could be changed, but I'm not sure if it is worth the time.
+	 * Xming does not depend on cygwin1.dll. This was a major problem for standalone installations of Cygwin/X. You can
+not have different versions of cygwin1.dll working together. Installing our version would break Cygwin itself and other
+programs which depend on cygwin1.dll. So we decided to offer no standalone version of Cygwin/X. Chris Faylor statet that
+this could be changed, but I'm not sure if it is worth the time.
 
-	 * Xming is only the server. I have no plans to port all the client libraries and clients. If you want a full X11 installation on windows there is Cygwin/X. Or you can use Xming together with Microsoft Services for Unix (SFU). Both provide a UNIX environment on Windows. 
+	 * Xming is only the server. I have no plans to port all the client libraries and clients. If you want a full X11
+installation on windows there is Cygwin/X. Or you can use Xming together with Microsoft Services for Unix (SFU). Both
+provide a UNIX environment on Windows. 
 
-My view on the topic is: Use Xming if you want just the xserver for remote usage or with SFU and [http://www.colinux.org CoLinux]. If you want to use Cygwin anyway stay with Cygwin/X.
 
-== Development ==
+== Developement ==
 
 === Source ===
 
-The whole source tree can be obtained from the freedesktop.org xorg CVS repository
+The whole source tree can be obained from the freedesktop.org xorg CVS repository
 
+
+<div style="border-style: solid; border-width: 1px; border-color: black; padding-left: 0.5cm; background-color: #ffffe0">
 {{{
 $ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
 CVS password: <hit return>
 $ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co -P xc
 }}}
+</div>
+
+The patches for Xming are available [http://www.freedesktop.org/~ago/Xming here]. 
+
+<div style="border-style: solid; border-width: 1px; border-color: black; padding-left: 0.5cm; background-color: #ffffe0">
+{{{
+$ cd xc
+$ patch -p0 < xming.diff
+}}}
+</div>
 
 === Building ===
 
-Check the [:/Building: Building HowTo] for instructions
+==== Cross Compiling ====
 
-== IRC ==
+The required tools for cross compiling are
 
-For IRC discussions there is the channel [irc://chat.freenode.net/xming #xming] on irc.freenode.net:6667.
+	Debian: mingw32 and mingw32-binutils
 
-== Support ==
+	cygwin: gcc-mingw, mingw-runtime. Create the wrapper /usr/i686-pc-mingw32/bin/gcc and /usr/i686-pc-mingw32/bin/cc
 
-Until a mailinglist is setup for Xming I've hijacked [mailto:win32-x11@sources.redhat.com win32-x11@sources.redhat.com]. If you have questions or want to report bugs send a mail to this list.
+<div style="border-style: solid; border-width: 1px; border-color: black; padding-left: 0.5cm; background-color: #ffffe0">
+{{{
+#!/bin/bash
+/usr/bin/gcc -mno-cygwin "$@"
+}}}
+</div>	
+	  
+Get the source from CVS and apply patches
 
--- AlexanderGottwald 2006 Feb 13
+Start compiling: 
+
+<div style="border-style: solid; border-width: 1px; border-color: black; padding-left: 0.5cm; background-color: #ffffe0">
+{{{
+make World CROSSCOMPILEDIR=/usr/i686-pc-mingw32/bin 
+}}}
+</div>	
+
+The path for debian may be different.
+	 
+
+
+
+
+-- Main.AlexanderGottwald - 11 Nov 2004
