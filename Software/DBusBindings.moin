@@ -70,37 +70,53 @@ The previous release is [http://dbus.freedesktop.org/releases/dbus-python/dbus-p
 
 == Java ==
 
-There are two versions of the Java bindings. The Java 5 (1.5) bindings support all of the DBus features, but only work with 1.5-compatible VMs (Currently only Sun). There are older 1.4-compatible bindings which are feature incomplete and have not had much optimization work. See below if you want to try these.
+There are now three versions of Java D-Bus. Since version 2.0 it has been a complete native implementation of the protocol and not a wrapper around the reference implementation. 1.x versions are feature-complete bindings around the reference implementation, but only work with 1.5-compatible VMs (Currently only Sun). There are older 1.4-compatible bindings which are feature incomplete and have not had much optimization work. See below if you want to try these.
 
-The 1.5 bindings are now hosted in freedesktop.org's [http://gitweb.freedesktop.org/?p=dbus/dbus-java.git git repository] and can be accessed:
+Java D-Bus is hosted in freedesktop.org's [http://gitweb.freedesktop.org/?p=dbus/dbus-java.git git repository] and can be accessed:
 
 For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-java
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-java
 
-'''The latest release is [http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.13.tar.gz libdbus-java-1.13.tar.gz]. (2006-12-25)'''
+'''The latest release is [http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.0.tar.gz dbus-java-2.0.tar.gz]. (2007-01-03)'''
 
-        * add AccessDenied signal
-        * fix deadlock issue when sending objectpaths in signals, spotted by Mathis
-        * add Path type which can be used for non-auto OBJECT_PATH handling, spotted by Mathis
-        * fix some freebsd build issues:
-                * remove explicit recursive make calls
-                * parameterize /usr/lib as DBUSLIBDIR
-          Spotted by Roberto Francisco Arroyo Moreno <robfram -at- ugr -dot- es>
-        * rejig build system to replace variables in wrapper in make stage and
-          use DESTDIR properly, hence removing the RUNPREFIX stuff.
-        * add checks and documentation for DBusInterfaces not being in a package.
-          Spotted by Henrik Petander <henrik -dot- petander -at- iki -dot- fi>
+   * Remove libdbus-1 dependency and talk the wire protocol directly
+   * Add dependency on http://www.matthew.ath.cx/projects/java/ unix, debug and hexdump libraries
+   * API changes:
+      * Exceptions (including DBusException and DBusExecutionException) moved to the org.freedesktop.dbus.exceptions package.
+      * Convert/deserialize and dbus<->java type conversion code moved from org.freedesktop.dbus.DBusConnection to org.freedesktop.dbus.Marshalling.
+      * Types moved to the org.freedesktop.dbus.types package.
+      * All message metadata methods have been moved to the superclass and getObjectPath() has been renamed to getPath().
+      * Deprecated method registerService has been removed.
+      * getUniqueName() and getNames() methods added to get the bus names associated with this connection.
+      * Access to the low-level API added.
+   * Change all documentation to refer to 'implementation' not 'binding'
+   * Add peer 2 peer support with DirectConnection class
+   * add peer to peer test
+   * split some code from DBusConnection into common super-class AbstractConnection
+   * Support float ('f') type with tests
+   * Degrade floats to doubles when DBUS_JAVA_FLOATS is not set
+   * add DBus.Peer interface to standard introspection data
+   * Document peer to peer and low level.
+   * Fix TCP and SHA-1 auth
+   * fix wrapper scripts with new depends
+   * add a DBusDaemon
+   * Make daemon multithreaded; performance improvements
+   * Add sending thread to library, move to blocking IO
+   * Ensure key directory exists when serving cookie auth
+   * Add TCP support to daemon
+   * Remove dependency on dbus-daemon for tests
+   * add --version support for other programs
+   * Add windows wrapper scripts
+   * Test working on Windows
+   * Add makefile target to build zip file for windows
+   * Add windows compile script
+   * DBusDaemon can generate random TCP ports to listen on
 
-'''The previous release is [http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.12.tar.gz libdbus-java-1.12.tar.gz].'''
 
-        * fix internal-cross-test bugs and increase error verbosity
-        * add org.freedesktop.DBus.Error.NoReply, change to that from my own
-        * add -pedantic -std=c99 flags to GCC
-        * remove supplied Hal classes as they are out of date
-        * change to using tex4ht rather than latex2html
+The last release binding the reference implementation is [http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.13.tar.gz libdbus-java-1.13.tar.gz].
 
-Documentation and API reference for the 1.5 Java bindings is available [http://dbus.freedesktop.org/doc/dbus-java/ here].
+Documentation and API reference for the Java implementation of D-Bus is [http://dbus.freedesktop.org/doc/dbus-java/ here].
 
 The older 1.4-compatible bindings are still available [http://www.matthew.ath.cx/projects/java here].
 
