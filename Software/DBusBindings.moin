@@ -57,16 +57,27 @@ For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-python
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-python
 
+The current release is [http://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.80.1.tar.gz dbus-python-0.80.1.tar.gz]. (2006-01-24)
+   * The "Everything changes" release (0.80.0), quickly followed by the "oops" release which made it work
+   * dbus_bindings and dbus_glib_bindings rewritten in C rather than Pyrex, and renamed to make it clear that they're not intended to be public API
+   * Low-level public API moved to dbus.lowlevel to give new users a hint that it's probably not what they want
+   * Remove Variant class, add variant_level property on all D-Bus types
+   * Make signal matching work as expected after name ownership changes
+   * Use unambiguous D-Bus data types when converting from D-Bus to Python, and follow well-defined rules when converting from Python to D-Bus
+   * Add utf8_strings and byte_arrays options in various places, so a user can tweak the calling conventions to be more efficient
+   * Raise error if no main loop is configured and the user does something that only works with a main loop
+   * Make async method calls actually async when made while still introspecting
+   * Redo main loop machinery to allow for pure-Python main loops later
+   * Allow construction of a dbus.service.Object if you have no BusName
+   * Remove dependency on libxml2 by porting introspection XML parser to use expat
+   * Port build system from distutils to autofoo
+   * Install a header file for third-party main loop integration
+   * Python 2.5-compatible, on 32 and 64 bit
+   * More documentation, tests, examples, interoperability tests
 
-The latest release is [http://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.71.tar.gz dbus-python-0.71.tar.gz]. (2006-07-24)
+The previous release (ignoring 0.80.0) was [http://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.71.tar.gz dbus-python-0.71.tar.gz]. (2006-07-24)
    * Binary modules are now installed in the correct directory
    * Distutils exports the dbus and dbus-glib cflags
-
-The previous release is [http://dbus.freedesktop.org/releases/dbus-python/dbus-python-0.70.tar.gz dbus-python-0.70.tar.gz]. (2006-07-17)
-   * First release of bindings split
-   * Move to a distutils build enviornment
-   * It is possible to now specify sender_keyword="foo", path_keyword="bar" when adding a signal listener
-
 
 == Java ==
 
