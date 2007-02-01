@@ -15,6 +15,11 @@ John is the author of ''conduit'', a synchronization application. He wishes to a
 
 Paul is the author of ''cheese-backup''. A desktop backup application. He wants nautilus or konqueror to display a backup emblem on files that he configured to backup up. There currently is no way to tell these applications what icon to use, and how to associate it with a file or folder.
 
+=== Relationship with Tags ===
+This specification does not describe the mechanism for associating emblems with items. That is the role and function of the file manager or indexer. This specification merely defines a standard way for 3rd party application authors to ensure that common emblems are available across different indexers and file managers. 
+
+A clear distinction has been made between tags and emblems. This specification does not require all tags have an associated image, nor does it require that all items with a specified tag are displayed using an emblem.
+
 == Emblem file format ==
 === Basic format ===
 These ''''emblem'''' files should have the extension .emblem. Their syntax is identical to that described in the [http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html desktop entry spec].
@@ -47,6 +52,8 @@ It does not make sense for some emblems to be able to be applied by the user. Fo
 === The ReadOnly key ===
 If ''true'' then the user can modify the emblems DisplayName. If the ''.emblem'' file is on a read only file system and the ReadOnly key is set, then the application should instead create a duplicate of the ''Emblem'' file and store that into a user writable XDG location.
 
+The absence of this key indicates that the ''.emblem'' is read only.
+
 == Install location ==
 ''Emblem'' files (and associated images, if applicable) my be installed to either of the following
  * {{{$XDG_USER_DATA_DIR/emblems}}}
@@ -58,38 +65,46 @@ In the case of duplicate ''.emblem'' files existing in both directories the copy
 An ''Emblem'' installed by a third party application, which also ships an icon to use for the emblem
 {{{
 [Emblem]
-Keyword="backup"
-IconName="backup.png"
+Keyword=backup
+IconName=backup.png
 Visible=true
-DisplayName="Backup"
-DisplayName[fr]="le Backup"
+DisplayName=Backup
+DisplayName[fr]=le Backup
+}}}
+
+An ''Emblem'' created by the user
+{{{
+[Emblem]
+Keyword=sandra
+IconName=/foo/bar/pic of sandra.png
+Visible=true
+ReadOnly=False
+DisplayName=Sandra
 }}}
 
 Some ''Emblems'' installed by a nautilus extension used to display emblems on files in cvs/svn/bzr repositories. Applying the emblem is managed by another program and subsequently is not visible to the user
 {{{
 [Emblem]
-Keyword="cvs-modified"
-IconName="vcs-modified"
+Keyword=cvs-modified
+IconName=vcs-modified
 Visible=false
-DisplayName="Modified"
-DisplayName[fr]="le Modified"
+DisplayName=Modified
+DisplayName[fr]=le Modified
 }}}
-[[BR]]
 {{{
 [Emblem]
-Keyword="svn-modified"
-IconName="vcs-modified"
+Keyword=svn-modified
+IconName=vcs-modified
 Visible=false
-DisplayName="Modified"
-DisplayName[fr]="le Modified"
+DisplayName=Modified
+DisplayName[fr]=le Modified
 }}}
-[[BR]]
 An ''Emblem'' using an existing stock emblem icon.
 {{{
 [Emblem]
-Keyword="important"
-IconName="emblem-important"
+Keyword=important
+IconName=emblem-important
 Visible=true
-DisplayName="Important"
-DisplayName[fr]="le Important"
+DisplayName=Important
+DisplayName[fr]=le Important
 }}}
