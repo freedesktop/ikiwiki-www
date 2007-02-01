@@ -1,0 +1,95 @@
+=== Terminology ===
+ * '''tag''' - A word or sentence that may be attached to a file.
+ * '''keyword''' - Same as a '''tag''' when applied by the user. '''keywords''' may also be automatically extracted from document properties.
+ * '''emblem''' - A '''tag''' that also has an associated image representing it.
+
+== Introduction ==
+This specification is designed to provide a desktop neutral way to install emblems. 
+
+The proliferation of desktop indexers means that they all have a method for storing emblems. There is no common way for application authors to install emblems that may then be made available through said indexers. Furthermore there  is no way to ensure that an application developers installed emblems can persist   through the user alternating between different indexers.
+
+This specification defines ''.emblem'' files, which are very similar to ''.desktop'' files so implementing support for them should be minimal work.
+
+=== Use Case ===
+John is the author of ''conduit'', a synchronization application. He wishes to allow users to tag or emblem files they wish to have synchronized. However to install emblems so that they are available in nautilus, and in tracker requires two different approaches. 
+
+Paul is the author of ''cheese-backup''. A desktop backup application. He wants nautilus or konqueror to display a backup emblem on files that he configured to backup up. There currently is no way to tell these applications what icon to use, and how to associate it with a file or folder.
+
+== Emblem file format ==
+=== Basic format ===
+These ''''emblem'''' files should have the extension .emblem. Their syntax is identical to that described in the [http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html desktop entry spec].
+
+=== Group headers ===
+There must only be a single group header with name '''Emblem''' present in the file. It is in the format:
+{{{
+ [Emblem]
+}}}
+Group names may contain all ASCII characters except for [ and ] and control characters. Under the group is a listing of key=value lines.
+
+=== Recognized keys ===
+|| ''Key'' || ''Description'' || ''Type'' || '' Compulsory'' ||
+|| {{{Keyword}}} || The internal name of the emblem. Never shown to the user || string || yes ||
+|| {{{IconName}}} || The image to be used for the emblem. Either a [http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html icon name] or the name of an image file to be used. See [[#The IconName key]] ||string || yes ||
+|| {{{Visible}}} || A key to indicate if the emblem should be shown to the user. See [[#The Visible key]] || boolean ||yes||
+|| {{{DisplayName}}} || The localized name of the emblem to be used when displaying to the user || localestring || yes ||
+|| {{{ReadOnly}}} || If the user can edit or delete this emblem. See [[#The ReadOnly key]] || boolean || no ||
+
+=== The IconName key ===
+Can be either a stock icon name, or a image name. The icon is resolved in the following manner
+ * Check if ''IconName'' is in the current icon theme.
+ * If ''IconName'' is a full path (starts with /) the try and load that.
+ * Check if ''IconName'' is in the same directory as the ''.emblem'' file.
+ * Use the default missing icon
+
+=== The Visible key ===
+It does not make sense for some emblems to be able to be applied by the user. For example version-control icons indicating if a file in a vcs has been modified should be applied without user intervention. In this situation the ''Visible'' key should be set to ''false'', and the emblem applied automatically by other user independent means.
+
+=== The ReadOnly key ===
+If ''true'' then the user can modify the emblems DisplayName. If the ''.emblem'' file is on a read only file system and the ReadOnly key is set, then the application should instead create a duplicate of the ''Emblem'' file and store that into a user writable XDG location.
+
+== Install location ==
+''Emblem'' files (and associated images, if applicable) my be installed to either of the following
+ * {{{$XDG_USER_DATA_DIR/emblems}}}
+ * {{{$XDG_SYSTEM_DATA_DIR/emblems}}}
+
+In the case of duplicate ''.emblem'' files existing in both directories the copy in $XDG_USER_DATA_DIR/emblems should take precedence.
+
+== Examples ==
+An ''Emblem'' installed by a third party application, which also ships an icon to use for the emblem
+{{{
+[Emblem]
+Keyword="backup"
+IconName="backup.png"
+Visible=true
+DisplayName="Backup"
+DisplayName[fr]="le Backup"
+}}}
+
+Some ''Emblems'' installed by a nautilus extension used to display emblems on files in cvs/svn/bzr repositories. Applying the emblem is managed by another program and subsequently is not visible to the user
+{{{
+[Emblem]
+Keyword="cvs-modified"
+IconName="vcs-modified"
+Visible=false
+DisplayName="Modified"
+DisplayName[fr]="le Modified"
+}}}
+[[BR]]
+{{{
+[Emblem]
+Keyword="svn-modified"
+IconName="vcs-modified"
+Visible=false
+DisplayName="Modified"
+DisplayName[fr]="le Modified"
+}}}
+[[BR]]
+An ''Emblem'' using an existing stock emblem icon.
+{{{
+[Emblem]
+Keyword="important"
+IconName="emblem-important"
+Visible=true
+DisplayName="Important"
+DisplayName[fr]="le Important"
+}}}
