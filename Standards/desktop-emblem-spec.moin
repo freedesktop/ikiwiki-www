@@ -33,12 +33,13 @@ Group names may contain all ASCII characters except for [ and ] and control char
 
 === Recognized keys ===
 || ''Key'' || ''Description'' || ''Type'' || '' Compulsory'' ||
-|| {{{Keyword}}} || The internal name of the emblem. Never shown to the user || string || yes ||
-|| {{{IconName}}} || The image to be used for the emblem. Either a [http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html icon name] or the name of an image file to be used. See [[#The IconName key]] ||string || yes ||
-|| {{{Visible}}} || A key to indicate if the emblem should be shown to the user. See [[#The Visible key]] || boolean ||yes||
+|| {{{Keyword}}} || The internal name of the emblem. Never shown to the user. Should be unique. || string || yes ||
+|| {{{IconName}}} || The image to be used for the emblem. Either a [http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html icon name] or the name of an image file to be used. See [#IconNameKey the IconName key] ||string || yes ||
+|| {{{Visible}}} || A key to indicate if the emblem should be shown to the user. See [#VisibleKey the Visible key]. || boolean ||yes||
 || {{{DisplayName}}} || The localized name of the emblem to be used when displaying to the user || localestring || yes ||
-|| {{{ReadOnly}}} || If the user can edit or delete this emblem. See [[#The ReadOnly key]] || boolean || no ||
+|| {{{ReadOnly}}} || If the user can edit or delete this emblem. See [#ReadOnlyKey the ReadOnly key] || boolean || no ||
 
+[[Anchor(IconNameKey)]]
 === The IconName key ===
 Can be either a stock icon name, or a image name. The icon is resolved in the following manner
  * Check if ''IconName'' is in the current icon theme.
@@ -46,9 +47,11 @@ Can be either a stock icon name, or a image name. The icon is resolved in the fo
  * Check if ''IconName'' is in the same directory as the ''.emblem'' file.
  * Use the default missing icon
 
+[[Anchor(VisibleKey)]]
 === The Visible key ===
 It does not make sense for some emblems to be able to be applied by the user. For example version-control icons indicating if a file in a vcs has been modified should be applied without user intervention. In this situation the ''Visible'' key should be set to ''false'', and the emblem applied automatically by other user independent means.
 
+[[Anchor(ReadOnlyKey)]]
 === The ReadOnly key ===
 If ''true'' then the user can modify the emblems DisplayName. If the ''.emblem'' file is on a read only file system and the ReadOnly key is set, then the application should instead create a duplicate of the ''Emblem'' file and store that into a user writable XDG location.
 
@@ -60,6 +63,8 @@ The absence of this key indicates that the ''.emblem'' is read only.
  * {{{$XDG_SYSTEM_DATA_DIR/emblems}}}
 
 In the case of duplicate ''.emblem'' files existing in both directories the copy in $XDG_USER_DATA_DIR/emblems should take precedence.
+
+The name of the ''.emblem'' file should be {{{keyword.emblem}}} where keyword is identical to that value contained within the file.
 
 == Examples ==
 An ''Emblem'' installed by a third party application, which also ships an icon to use for the emblem
