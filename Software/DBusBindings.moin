@@ -2,13 +2,41 @@ This page lists the language bindings for D-Bus, their status and, if appropriat
 
 == GLib ==
 
-The D-Bus GLib bindings have been removed from the core. You can find latest glib bindings in Freedesktop's [http://gitweb.freedesktop.org/?p=dbus/dbus-glib.git git repo].  It can be accessed via git at:
+ You can find latest glib bindings in Freedesktop's [http://gitweb.freedesktop.org/?p=dbus/dbus-glib.git git repo].  It can be accessed via git at:
 
 For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-glib
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-glib
 
-'''The latest release is [http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.72.tar.gz dbus-glib-0.72.tar.gz]. (2006-10-25)'''
+'''The latest release is [http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.73.tar.gz dbus-glib-0.73.tar.gz]. (2007-02-13)'''
+
+ * Allow passing of NULL to strv out arguments.
+ (Patch due to Luiz Augusto von Dentz <luiz.dentz@gmail.com>.
+ Fixes bug #8795.)
+ * Make uscore_to_wincaps return NULL when passed NULL. (Fixes bug #8318.)
+ * Only respond to NameOwnerChanged if its one of our names.
+ (Patch by Kimmo HÃ¤mÃ¤lÃ¤inen <kimmo.hamalainen@nokia.com>. Fixes bug #8235.)
+ * Fix dbus-binding-tool to generate headers usable from C++.
+ (Thanks to Christian Persch <chpe@gnome.org>. Fixes bug #6358.)
+ * Only require --prefix for server side binding generation.
+ (Fixes reopened bug #4185.)
+ * Clarify documentation for dbus_g_method_get_sender.
+ (Fixes #8832.)
+ * Add new API for specifying the timeout in DBusGProxy calls.
+ (Patch due to S. Nalliami <snallammai@novell.com>. Fixes  bug #9832.)
+ * Don't check for libxml2 when expat not found. (Fixes bugs #9894 and #9000.)
+ * Add configure flags --with-introspect-xml. (Fixes bug #9105)
+ * Use dbus_threads_init_default() rather than using own threading primitives.
+ (Fixes bug #9259.)
+ * Reduce dependency to dbus version 0.93, error out if correct version
+ not found. (Patch due to Luiz Augusto von Dentz <luiz.dentz@gmail.com>.
+ Fixes bug #8793.)
+ * Allow dbus and dbus-glib to live in different prefixes. (Fixes bug #9384.)
+ * Add pkg-config support for uninstalled use.
+ (Fix due to Damien Carbery <damien.carbery@sun.com>.  Fixes bug #9769.)
+
+
+'''The previous release is [http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.72.tar.gz dbus-glib-0.72.tar.gz]. (2006-10-25)'''
 
 I should highlight that now dbus-binding-tool requires the --prefix flag, as it was generating nonsense without it. This might trip some users up.
 
@@ -45,9 +73,6 @@ I should highlight that now dbus-binding-tool requires the --prefix flag, as it 
  * Commit patch to switch to gtk-doc with gtype-specialized doc and
  * Updates from Marc-Andre Lureau <marcandre.lureau@gmail.com>, with minor cleanup. (Closes #7726.)
 
-'''The previous release is [http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.71.tar.gz dbus-glib-0.71.tar.gz]. (2006-07- 24)'''
-   * Correctly installs a few missing headers
-   * Build was cleaned up a bit
 
 == Python ==
 
