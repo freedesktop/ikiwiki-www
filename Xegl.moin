@@ -10,12 +10,10 @@ Currently only Radeon R200 hardware under Linux is functioning.
 
  * [http://dri.freedesktop.org/wiki/DRM DRM - Direct Rendering Manager]
 
- DRM provides an interface to the 3D portion of the graphics chip. Currently Xegl only works on the r200 DRM driver. The r200 DRM driver in the kernel does not contain the needed changes, you will need to compile the driver from CVS.
+ DRM provides an interface to the 3D portion of the graphics chip. Currently Xegl only works on the r200 DRM driver. The r200 DRM driver in the kernel does not contain the needed changes, you will need to compile the driver from GIT.
 
  {{{
-$ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri login
-CVS password: <hit return>
-$ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
+git clone git://anongit.freedesktop.org/git/mesa/drm
 }}}
 
  Xegl is designed to run without needing root privilege. The DRM code currently in CVS still requires that run as root to use DRM. You can either choose to run everything as root or apply this patch which opens up DRM for non-root use: [http://dri.freedesktop.org/~jonsmirl/drm_no_root.patch drm_no_root.patch]
@@ -29,15 +27,13 @@ $ cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
  Mesa and DRI are in the same source code tree. Login as an anonymous user:
 
  {{{
-$ cvs -d:pserver:anonymous@cvs.freedesktop.org:/cvs/mesa login
-CVS password: <hit return>
-$ cvs -d:pserver:anonymous@cvs.freedesktop.org:/cvs/mesa co Mesa
+git clone git://anongit.freedesktop.org/git/mesa/mesa
 }}}
 
  Next build libGL.so, r200_dri.so, libEGL.so, libEGLdri.so and some other libraries. 
  
  {{{
-$ cd Mesa
+$ cd mesa
 $ make linux-dri USING_EGL=1
 }}}
 
