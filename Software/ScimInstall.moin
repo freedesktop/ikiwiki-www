@@ -93,5 +93,39 @@ For example, in a terminal running the {{{bash}}} shell, type
 Now if SCIM is running, you can run, say, {{{gedit}}} from this terminal session, and use SCIM within
 that application to type Simplified Chinese.
 
+To use the input method in GTK apps (and in Gnome generally)
+{{{
+	export GTK_IM_MODULE=scim
+}}}
+To use the input method in QT apps (KDE)
+{{{
+	export QT_IM_SWITCHER=imsw-multi
+	export QT_IM_MODULE=scim
+}}}
+
+
 Of course, one can simplify this process by writing scripts that set the environment and
-run the desired application at once.
+run the desired application at once.  For example, put the following in a file
+named "chinese", and make the file executable, and put it in your PATH.
+{{{
+#!/bin/bash
+# Launches argument program in an environment appropriate to use
+# with SCIM Chinese input method.  Launches scim as daemon if it
+# doesn't find it running.
+export XMODIFIERS=@im=SCIM
+export GTK_IM_MODULE=scim
+export QT_IM_SWITCHER=imsw-multi
+export QT_IM_MODULE=scim
+export LC_CTYPE=zh_CN.UTF-8
+
+scim_running=`ps cax | grep -c ' scim'`
+
+if [ $scim_running == 0 ]; then
+        scim -d
+fi
+
+exec $@
+}}}
+Then the command
+chinese gedit
+will bring up gedit with everything set up properly
