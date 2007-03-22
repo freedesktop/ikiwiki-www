@@ -13,19 +13,19 @@ defined in the ICCCM: `PRIMARY`, `SECONDARY`, and `CLIPBOARD`.
 
 The ICCCM defines these as follows:
 
-''"The selection named by the atom `PRIMARY` is used for all commands  that take only a single argument and is the principal
-means of communication between clients that use the selection mechanism.
+<i>"The selection named by the atom `PRIMARY` is used for all commands  that take only a single argument and is the principal
+means of communication between clients that use the selection mechanism.</i>
 
-The selection named by the atom `SECONDARY` is used:
-	* As the second argument to commands taking two arguments (for
-	  example, "exchange primary and secondary selections")
-	* As a means of obtaining data when there is a primary selection and
-	  the user does not want to disturb it
+<i>The selection named by the atom `SECONDARY` is used:</i>
+	* <i>As the second argument to commands taking two arguments (for
+	  example, "exchange primary and secondary selections")</i>
+	* <i>As a means of obtaining data when there is a primary selection and
+	  the user does not want to disturb it</i>
 
-The selection named by the atom `CLIPBOARD` is  used  to  hold
+<i>The selection named by the atom `CLIPBOARD` is  used  to  hold
 data  that  is  being  transferred between clients, that is,
 data that usually is being cut and then pasted or copied and
-then  pasted."''
+then  pasted."</i>
 
 In addition, the ICCCM has a thing called "cut buffers" which most
 clients no longer support.
@@ -77,9 +77,9 @@ correct behavior:
 	* possibly contradicting the ICCCM, clients don't need to support
 	  `SECONDARY`, though if anyone can figure out what it's good
 	  for they should feel free to use it for that
-	* cut buffers are evil; they only support ASCII, they don't
-	  work with many clients, and they require data to be
-	  copied to the X server. Therefore clients should avoid
+	* cut buffers are evil; they only support ASCII, they don't 
+	  work with many clients, and they require data to be 
+	  copied to the X server. Therefore clients should avoid 
 	  using cut buffers and use only selections.
 
 Apps that follow these guidelines give users a simple mental model to
@@ -101,7 +101,7 @@ constantly "harvests" clipboard selections.
 
 References:
 	* the ICCCM, obviously
-	* http://freedesktop.org/~keithp/talks/selection.ps
+	* http://www.xfree86.org/~keithp/talks/selection.ps
 	* http://www.jwz.org/doc/x-cut-and-paste.html
 
 -- Main.BillSpitzak - 11 Dec 2003 (copied with cleanup changes *only* from clipboards.txt)
@@ -111,23 +111,5 @@ References:
 
 Another interpretation becoming popular is to say the `PRIMARY` selection is really DragAndDrop, with the advantage that you can rearrange windows and open/close them between the "drag" and the "drop". In fact this makes a lot of sense, and is even coded already in how XDnD interacts with older programs (drop will do a middle-mouse-click in older programs)
 
--- Main.BillSpitzak - 11 Dec 2003
+-- Main.BillSpitzak - 11 Dec 2003 
 
-------
-
-The problem of clipboard "volatility" is a little worse than is described above.  The reasoning behind the asynchronous transfer protocol used by X cut-and-paste is that the source and destination apps will want to negotiate the "best" format that both sides can handle.  The 1980s Macintosh model (IIRC) was that there was a single preferred format for each clipboard datatype that all applications that handled that datatype were expected to support.  This enabled putting just one representation on the non-volatile clipboard.  This is arguably the right thing for X to do also.  It seems likely that UTF-8 is the preferred text format, PNG the preferred format for bitmap graphics, TTF for fonts.  Other cases are harder to decide.  Someone needs to standardize them :-).
-
--- Main.BartMassey - 10 Feb 2005
-
-------
-------
-
-X application copy/paste proposal for atom SECONDARY
-
-Extend default X copy paste functionality to include paste over highlight without breaking current mouse-highlight (copy) mouse middle-click (paste) methods.
-
-Practical use for the atom SECONDARY. If mouse-highlight (HL) data is different from contents of atom PRIMARY, duplicate atom PRIMARY into atom SECONDARY and put content of (HL) in atom PRIMARY. Then on (HL) middle-click if (HL) is same as atom PRIMARY contents paste data from atom SECNDARY.
-
-This keeps the existing behavior, impliments additional features and is not difficult to impliment. Since atom SECONDARY is mostly unused this would be a good use for it - IMO. 
-
--- FriscoRose - 10 Nov 2005
