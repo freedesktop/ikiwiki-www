@@ -8,7 +8,6 @@ Things which are within the scope of this document:
 
 Things which are not within the scope of this document:
  * Using the index for selective committing
- * Maintaining public personal repositories
 
 First note about git: there are many commands.  Each command exists as an argument to the git command ("git clone") and also as a hyphenated version to aid in tab-completion ("git-clone").
 
@@ -72,6 +71,13 @@ git doesn't have a revert command like svn. Instead, just run {{{git checkout --
 If you're satisfied with your diff, you could commit it with:
 {{{git commit -a}}}
 
+The commit message should have a one-line summary ('Add support for FooBazzle 700'), and then a longer explanatory paragraph, separated by a blank line, e.g.:
+{{{Add support for FooBazzle 700
+
+Add support for the FooBazzle 700, which is an interesting device in that
+it does not actually exist.  This is our first driver for an entirely
+ficticious device, and as such, it performs no rendering.}}}
+
 After you enter your log message, it will quickly terminate.  You've now committed your diff to your local repository.  You could run:
 
 {{{gitk}}}
@@ -85,6 +91,15 @@ Now that you've resolved the conflicts (if any) with others upstream, you're rea
 {{{git push origin}}}
 
 This tells git to push every branch in a "Push:" line in the "origin" remote upstream (more on the Push: lines later).  Unlike git pull, git push does require you to specify the remote and doesn't have a default.
+
+== Emailing your code upstream ==
+
+If you do not have direct commit access or wish to get patch review, type:
+{{{git format-patch origin}}} (assuming you're on master)
+
+This will generate a few sequentially-numbered text files, one per patch (e.g. 0001-Add-support-for-FooBazzle-700.txt, 0002-Fix-memory-leak.txt), in mbox format.  These can be sent individually.  If part of a series, use the -n argument to git format-patch, so their subjects will be '[PATCH 1/7] Add support for FooBazzle 700', and so on, and so forth.
+
+Traditionally, a '[PATCH 0/7] FooBazzle-related enhancements' mail would be sent to the list first, giving a relatively long explanation of the patchset, as well as a very brief rundown of the individual patches.  You should then edit your patches before you send them, to include an In-Reply-To and References header listing the Message-Id of the 0th message, so it doesn't break threading.
 
 == Working on branches ==
 Now you've learned how to check out HEAD code, diff, update, commit, and push code back upstream.  The next thing to talk about is branching.
