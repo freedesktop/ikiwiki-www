@@ -1,5 +1,11 @@
 ## This page needs merging with xorg:GitPage and xorg:GitUIBugs.  Need to break it up into user and developer pages, too.
 
+== Users ==
+
+Information for users who want to check out repositories and use them to build code and isolate bugs can find more information on [:Infrastructure/git/Users:the users page].
+
+== Developers ==
+
 Several projects have been moved to the git revision control system.  While there exist tutorials out there for using git, one of git's features is that it allows people to use many different workflows, so many of those tutorials won't apply to git as it's used in X.Org projects.  We might call what we usually do "shared central repository" mode.
 
 Things which are within the scope of this document:
@@ -16,31 +22,9 @@ First note about git: there are many commands.  Each command exists as an argume
 
 The next thing to understand is that when you check out code from a remote git repository, you end up with a full-fledged git repository yourself.  When you diff, commit, etc. code, you are doing it against your local repository.  Clone, pull, and push are used to move changes between repositories.  Your local repository is stored in the .git directory at the top of the tree.
 
-== Checking out repositories ==
+== Checking out ==
 
-To initially check out a repository, you use git clone. You can see what repositories are available by [http://gitweb.freedesktop.org/ browsing].  The format for the URL to clone for X.Org components is: 
-
-{{{
-git://anongit.freedesktop.org/git/xorg/{app,driver,lib,proto}/<module>
-}}} 
-
-and for the X server:
-
-{{{
-git://anongit.freedesktop.org/git/xorg/xserver
-}}}
-
-The full list of modules is available on [http://gitweb.freedesktop.org gitweb].
-
-You can also append a directory path to be created that mirrors that of the repository:
-
-{{{ git clone git://anongit.freedesktop.org/git/xorg/driver/xf86-video-intel xorg/driver/xf86-video-intel }}}
-
-The git:// protocol is fast, but is read-only.  Pushing requires ssh, so if you're a developer, you would use:
-
-{{{ git clone ssh://git.freedesktop.org/git/xorg/lib/libX11 }}}
-
-If you become a developer at a later time, you can edit {{{.git/remotes/origin}}} and replace the contents of the {{{URL: }}} line.
+If you have an anonymously-checked out repository which you now wish to use to push, you can edit {{{.git/remotes/origin}}} and replace the contents of the {{{URL: }}} line (change git:// to ssh://, and anongit.fd.o to git.fd.o).
 
 If your username at freedesktop.org is different from local, the refspec becomes {{{ ssh://myusername@git.freedesktop.org/git/xorg/lib/libX11 }}}, or you can just add the following to ~/.ssh/config to tell ssh your default username for all of freedesktop.org:
 
@@ -48,15 +32,9 @@ If your username at freedesktop.org is different from local, the refspec becomes
 Host *.freedesktop.org
         User myusername
 }}}
-If you cannot use the git protocol to fetch the repository, it is also available via http, although that is significantly less efficient. Change the above commands to look like:
-
-{{{ git clone http://anongit.freedesktop.org/git/xorg/lib/libX11.git }}}
-
-Note the trailing '.git' and the substitution of http: for git:. The result will be placed in libX11 (without a trailing .git).
-
-For information about which Xorg modules have been moved to GIT. See [http://wiki.x.org/wiki/GitPage GitPage] for more information.
 
 == Viewing diffs ==
+
 Now, you have a copy of the master branch of the tree.  Go ahead and build it and whatever else.  If you make some changes, you can see what files you would commit with
 {{{ git status -a }}}
 or get a diff of the local tree against the repository with
@@ -65,6 +43,7 @@ or get a diff of the local tree against the repository with
 The {{{-a}}} flag means all local updates.  The git system actually has this concept of an "index", managed using git-update-index, which lets you selectively commit changes.  However, because this adds to confusion, I will leave learning about the index up to you to do later.
 
 == Getting the latest upstream code ==
+
 There are two ways to update your local repository. Which one to use depends on whether you have committed changes in the meantime.
 
 === No changes: pull ===
@@ -151,51 +130,6 @@ This means "merge the new-branch-origin code into the current working directory"
 And, to push, you do it just like when you were working on master.
 
 {{{git push origin}}}
-
-I think that should be it for this guide.  Please feel free to edit for grammar, and send questions to me (anholt on #freedesktop) --EricAnholt
-
-== Using Git ==
-
-''The following was from [http://xcb.freedesktop.org/ XCB]'s wiki. Feel free to integrate.''
-
-Git is a powerful SCM started by Linus Torvalds as a tool to handle the Linux Kernel development. You can download it from [http://www.kernel.org/pub/software/scm/git/ http://www.kernel.org/pub/software/scm/git/]. To learn how to use git, you can read the [http://www.kernel.org/pub/software/scm/git/docs/core-tutorial.html short tutorial], the [http://www.kernel.org/pub/software/scm/git/docs/ full documentation] (included with git as man pages) or Jeff's Garzik [http://linux.yyz.us/git-howto.html Kernel-hacker howto] (which was written for kernel developers but it's useful for any project).
-
-This is a quick guide for users (not developers, developers are recommended to read the previous documentation). First of all, you need to [http://www.kernel.org/pub/software/scm/git/ install GIT] (it's already available in many distros, including Debian and Gentoo).  Make sure you have at least version 1.2 of GIT; older versions have problems.
-
-  * How to get a copy of xcb/libX11:
-   * `git clone git://anongit.freedesktop.org/git/xcb` (this will create an 'xcb' directory in the working directory)
-   * `git clone git://anongit.freedesktop.org/git/xorg/lib/libX11` (same for libX11)
-   * git will create a `.git` directory inside the source directory where it stores all the info
-
-  * How to check for updates:
-   * Go to the directory where you have your xcb/libX11 sources and type: `git pull`. This will download and apply updates to your local repository.
-
-  * How to create a branch from given tag or commit id:
-   * `git checkout -b newbranchname tagname-or-commit-id` (you can see all the available tags doing `ls .git/refs/tags`; commit ids are SHA1 values)
-
-  * How to switch to an existing branch:
-   * `git checkout branchname` (you can see the available branches with `git branch`, which will also tell you which branch you are currently on)
-
-  * How to switch back to 'head':
-   * `git checkout master`
-
-  * Bisection search:
-   * This a brute-force but very useful method to find out what change causes a given bug, specially if you are not a developer and you know (neither you want to know) nothing about what is going on in the code. You tell git what was the last version that worked, the first version where you noticed the bug (of course you need to have a reproducible bug in order to do this ), and git will set your repository to a state somewhere in the middle of those two 'points'. After testing it, you tell git if the bug is there or not, and git will set your repository to another state which is closer to the bug. After compiling and testing a few revisions, git will be able to tell you what commit causes the bug. For example, let's say I found a reproducible bug in libX11 between the XORG-6_8_1 tag and XORG-6_8_99_9 (cd libX11; ls .git/refs/tags).
-   * Tell git to start bisection search: `git bisect start`
-   * Tell git about the bad version: `git bisect bad XORG-6_8_99_9`
-   * Tell git about the good version: `git bisect good XORG-6_8_1`
-   * Compile and test. Is the bug there? Type `git bisect bad` Everything works well? Type `git bisect good`. Git will tell you how many revisions you need to test.
-   * If you can't test a given 'state' (ej: git bisection put all your sources in a state somewhere in the middle of a merge and it doesn't compile) type `git bisect good/bad` and git will give you another 'state' to test.
-   * More details and tricks at [http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt]
-  * To summarize and extend a bit, here's Josh's quick translations of CVS commands:
-   * `cvs checkout` &#8594; `git-clone git+ssh://git.freedesktop.org/git/xcb`
-   * `cvs add file` &#8594; `git-add file`
-   * `cvs status` &#8594; `git-status -a`
-   * `cvs diff` &#8594; `git-status -a -v`
-   * `cvs commit` &#8594; `git-commit -a ; git-push origin`
-   * `cvs update` &#8594; `git-pull`
-
-  * If you feel curious about git, don't forget Jeff's Garzik [http://linux.yyz.us/git-howto.html howto], the [http://www.kernel.org/pub/software/scm/git/docs/core-tutorial.html short tutorial] and the [http://www.kernel.org/pub/software/scm/git/docs/ full documentation] (included as man pages)
 
 == Creating your own repository ==
 
