@@ -1,0 +1,50 @@
+== Scratchbox 2 ==
+
+author:  Lauri Leukkunen
+
+=== Introduction ===
+
+Scratchbox 2 is a total rewrite of the cross-compilation toolkit. It doesn't use a chroot, it uses the host system's binaries, it doesn't care where you compile your software, yet it aims to provide equivalent functionality to scratchbox 1.x. SB2 uses a flexible path mapping engine to selectively adjust all filesystem access to enable this.
+
+SB2 is totally distribution neutral. I develop it on Gentoo, but there's nothing in it that would inherently tie it to a particular distribution.
+News
+
+    * 2007-04-10 Moving to freedesktop.org! Also fixed amd64 ubuntu/edgy's segfaulting touch
+    * 2007-03-12 Maemo-mapper builds and produces a .deb on amd64 debian/etch.
+    * 2007-02-12 Success with debian package building using CodeSourcery arm-2006q3 toolchain with a Maemo-3.0 armel rootstrap.
+    * 2007-01-15 Fixed lots of problems with the mapping cache and several dozen memory leaks as well.
+    * 2007-01-10 Mapping scripts rewrite. Now they work more like iptables chains. Completely unexpectedly also fakeroot-1.5.10 seems to just work.
+    * 2007-01-08 Added support for openat() family of functions, should fix quite a few problems with newer coreutils etc.
+
+=== License ===
+
+Scratchbox 2 is distributed under LGPL version 2.1, portions are under GPL version 2. Some minor stuff is under MIT style license.
+Installation
+
+SB2 doesn't need root access, and it is highly recommended not to use it as root. Actually, if you use it as root, you're insane.
+
+Read the README file for installation instructions. It contains brief example of setting up SB2 for use with Maemo.
+
+You can browse the source code using gitweb.
+Toolchains
+
+For 32-bit x86 systems you should probably use CodeSourcery's toolchain. Or something like that. For AMD64 machines I provide this rather untested but hopefully useful toolchain built from latest released versions of binutils, gcc and glibc: arm-lltc
+
+It's been built on Debian/Etch, it may or may not work on other linux distros.
+TODO
+
+Major things missing are:
+
+    * SBRSH support for cpu transparency
+    * all the nice configuration tools from sb1
+    * lot's of testing
+
+=== CPU Transparency Options ===
+
+Currently SB2 only supports using Qemu. Debian/Etch's version of qemu works fine, so use it if at all possible.
+
+Below is a static linked sample qemu-arm, put it into $HOME/scratchbox/bin and edit sb2.config accordingly. Only use this as a last resort:
+
+    * qemu-arm 0.8.1-sb2 binary
+
+If you are interested in developing SB2, contact lle at rahina dot org
