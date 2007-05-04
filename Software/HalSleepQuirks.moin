@@ -1,1 +1,85 @@
-Initial page.
+= Dealing with suspend and resume video quirks =
+
+== Current status ==
+
+Lots of laptops and desktops resume correctly from suspend and hibernate in F7. Some may have broken from FC6 to F7 due to the transition from a vendor based pm-utils greylist to a cross-distro hal-info DMI matched whitelist system.
+
+== Use Cases ==
+
+Ania wants to use suspend, but when she tries to resume she is presented with a blank screen. The caps lock LED works when toggled, and ctrl-alt-del correctly reboots the machine, just no video output is shown.
+
+== Problem ==
+
+Some video cards need to be given a "kick" to get them to a sane state during resume. These cards are said to require a "quirk" i.e. something needs to be done differently to the default to get them working. You may have already manually used xset, s3mode, vbetool and radiontool, but all these can be matched and specified in hal-info automatically.
+
+== Solution ==
+
+New rules are being created every day, and updating the hal-info package might just get things working for you without doing anything else. This FAQ will explain how to use HAL to create the rule using dmi data, and then send the rule to the HAL list so that other Linux users with the same laptop model will have their sleep "just work".
+
+== Steps ==
+
+=== Check to see if your laptop is already listed ===
+
+Got to the [http://gitweb.freedesktop.org/?p=hal-info.git;a=tree;f=fdi/information/10freedesktop latest sources] and click on the 20-video-quirk-XXXXX.fdi files - where XXXXX is your vendor (or 'misc' if you have something random).
+
+If you click on any of the fdi files you'll find matches like this:
+
+{{{
+    <match key="system.hardware.vendor" prefix="Apple">
+       <match key="system.hardware.product" string="MacBook1,1">
+         <merge key="power_management.quirk.vbestate_restore" type="bool">true</merge>
+       </match>
+       <match key="system.hardware.product" string="MacBookPro2,2">
+         <merge key="power_management.quirk.s3_bios" type="bool">true</merge>
+         <merge key="power_management.quirk.s3_mode" type="bool">true</merge>
+       </match>
+     </match>
+}}}
+
+So you can see the different quirks in operation.
+
+=== Finding the correct quirk ===
+
+Very often vendors with similar models have the same quirk, so for instance an IBM T61 may have the same quirks as an IBM T62, and the easiest thing to do is to just copy the t61 entry in {{{/usr/share/hal/fdi/information/10freedesktop/20-video-quirk-pm-ibm.fdi}}}.
+
+If you do not know what quirk you need to use, please open a terminal as root, and then experiment just trying pm-suspend with different options:
+
+{{{
+pm-suspend --help
+  --quirk-dpms-on
+  --quirk-dpms-suspend
+  --quirk-radeon-off
+  --quirk-s3-bios
+  --quirk-s3-mode
+  --quirk-vbe-post
+  --quirk-vbemode-restore
+  --quirk-vbestate-restore
+  --quirk-vga-mode3
+}}}
+
+These quirks correspond to the hal quirk properties in the following way:
+
+{{{
+power_management.quirk.s3_bios ->  --quirk-s3-bios
+power_management.quirk.s3_mode ->  --quirk-s3-mode
+power_management.quirk.dpms_suspend ->  --quirk-dpms-suspend
+power_management.quirk.dpms_on ->  --quirk-dpms-on
+power_management.quirk.vbestate_restore ->  --quirk-vbestate-restore
+power_management.quirk.vbemode_restore ->  --quirk-vbemode-restore
+power_management.quirk.vga_mode_3 ->  --quirk-vga-mode3
+power_management.quirk.vbe_post ->  --quirk-vbe-post
+power_management.quirk.radeon_off ->  --quirk-radeon-off
+}}}
+
+=== Getting it to work ===
+
+If you then open edit the file {{{/usr/share/hal/fdi/information/10freedesktop/20-video-quirk-<vendor>.fdi}}} and add in your dmi data, and then restart HAL, then you should get an output from {{{lshal | grep quirk}}}.
+Hopefully then clicking on GNOME Power Manager "Suspend" buttons (or just pressing the keyboard shortcuts) should initiate a successful suspend.
+
+=== Sending the data back to us ===
+
+Now the important bit: If that works, please send your matching data to the hal@lists.freedesktop.org mailing list and we can add it to future updates to hal-info. This will make other laptops "just work" in the future.
+
+== Prerequisites ==
+
+HAL >= 0.5.9, pm-utils >= 0.99 and the newest version of hal-info you can use. All of these can be found in F7.
