@@ -1,94 +1,103 @@
-##META:TOPICINFO{author`"OlivierAndrieu" date`"1095286500" format`"1.0" version`"1.19"}%
-##META:TOPICPARENT{name="Home"}%
-<noautolink>
+= D-Bus 1.0.0 "Blue Bird" Released!!! Nov 9th, 2006 =
 
-== D-BUS ==
+||<tablestyle="float:right; font-size: 0.9em; width:40%; margin: 0 0 1em 1em;" style="padding:0.5em;">'''Contents'''[[BR]][[TableOfContents]]||
 
-D-BUS is a message bus system, a simple way for applications to talk to one another. 
+= What is D-Bus? =
 
-D-BUS supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). 
+D-Bus is a message bus system, a simple way for applications to talk to one another. In addition to interprocess communication,
+D-Bus helps coordinate process lifecycle; it makes it simple and reliable to code a "single instance" application or daemon, and to launch applications and daemons on demand when their services are needed.
 
-The D-BUS API isn't finished yet, and the design is by no means set in stone. One of our main goals is for lots of projects to use it, so if you wouldn't use it, by all means mail us and say why - design, licensing, indentation style, we would rather know than not know. 
+D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, or through unencrypted TCP/IP suitable for use behind a firewall with shared NFS home directories. (Help wanted with [wiki:Software/DBusRemote better remote transports] - the transport mechanism is well-abstracted and extensible.)
 
-D-BUS' only *required* dependency is an XML parser (either libxml or expat). D-BUS includes GLib, Qt, Python and .NET APIs to the D-BUS system, if you want to build those. The [[DbusProjects][list of projects using D-BUS]] is growing and they provide a wealth of examples of using the various APIs to learn from.
+The D-Bus [http://dbus.freedesktop.org/doc/dbus/api/html/index.html low-level API] and [http://dbus.freedesktop.org/doc/dbus-specification.html protocol] have been heavily tested in the real world over several years, and are now "set in stone." Future changes will either be compatible or versioned appropriately.
 
-Trying out D-BUS in sample applications is encouraged - we want to get it widely used and tested. It should be working pretty well these days, and when it isn't bug reports are very welcome. 
+The low-level libdbus library has no required dependencies; the bus daemon's only *required* dependency is an XML parser (either libxml or expat). Higher-level bindings specific to particular frameworks (Qt, GLib, Java, C#, Python, etc.) add more dependencies, but can make more assumptions and are thus much simpler to use. The bindings evolve separately from the low-level libdbus, so some are more mature and ABI-stable than others; check the docs for the binding you plan to use.
 
-Get on D-BUS today!
+The [wiki:Software/DbusProjects list of projects using D-Bus] is growing and they provide a wealth of examples of using the various APIs to learn from.
 
+D-Bus is very portable to any Linux or UNIX flavor, and a port to Windows is in progress.
 
-=== Mailinglist ===
+If you have any trouble with D-Bus or suggestions for improvement, bug reports and comments are very welcome.
 
-All D-BUS discussion is currently on [http://freedesktop.org/mailman/listinfo/dbus/ dbus@freedesktop.org] (formerly !message-bus-list@freedesktop.org).
-
-
-=== CVS ===
-
-The [[Main.GettingInvolved][CVS]] module for this spec is "dbus". You can browse it with [http://freedesktop.org/cgi-bin/viewcvs.cgi/dbus/dbus/ ViewCVS].
-
-CVS commits can be monitored on the [http://freedesktop.org/mailman/listinfo/dbus-commit/ dbus-commit] mailing list.
+Get on D-Bus today!
 
 
-=== Bugs & Patches ===
+= Mailinglist =
 
-Please report bugs (and submit patches) through the freedesktop.org [http://freedesktop.org/bugzilla/index.cgi Bugzilla].
+All D-Bus discussion is currently on [http://lists.freedesktop.org/mailman/listinfo/dbus/ dbus@lists.freedesktop.org] (formerly message-bus-list''''''@freedesktop.org).
 
-=== Docs ===
 
-Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're new to D-BUS, the tutorial is 
+= Grab the Source =
+
+== CVS ==
+
+The [wiki:GettingInvolved CVS] module for this spec is "dbus". You can browse it with [http://cvs.freedesktop.org/dbus/dbus/ ViewCVS].
+
+CVS commits can be monitored on the [http://lists.freedesktop.org/mailman/listinfo/dbus-commit/ dbus-commit] mailing list.
+
+== GIT ==
+
+Git is now being used for some of the language bindings in D-Bus.  There is a [http://freedesktop.org/wiki/UsingGit nice tutorial for using git with freedesktop.org projects].  There is also [http://www-128.ibm.com/developerworks/linux/library/l-git/ another tutorial at IBM Developerworks site].
+
+= Reporting Bugs & Sending Patches =
+
+Please report bugs (and submit patches) through the freedesktop.org [https://bugs.freedesktop.org/ Bugzilla].
+
+= Language Bindings =
+
+Bindings have been split from the core.  Please visit the [wiki:Software/DBusBindings Bindings Page] to find out where you can get the latest bindings from.
+
+= Documentation =
+
+Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're new to D-Bus, the tutorial is
 probably the best place to start (even though it is very incomplete, the basics are covered).
 
-	* [[%ATTACHURL%/doc/dbus-tutorial.html][D-BUS tutorial]]
-	* [[%ATTACHURL%/doc/dbus-specification.html][D-BUS specification]]
-	* [[%ATTACHURL%/doc/api/html/index.html][Doxygen manual]]
-	* [[%ATTACHURL%/doc/api/html/todo.html][@todo items from manual]] and high-level [[%ATTACHURL%/doc/TODO][TODO]]
-	* [[%ATTACHURL%/doc/api/html/files.html][Browse source]]
-	* [[%ATTACHURL%/doc/dbus-daemon-1.1.html][dbus-daemon-1(1)]] (includes configuration file docs)  
-	* [[%ATTACHURL%/doc/dbus-send.1.html][dbus-send(1)]] [[%ATTACHURL%/doc/dbus-monitor.1.html][dbus-monitor(1)]] [[%ATTACHURL%/doc/dbus-launch.1.html][dbus-launch(1)]]
-	* [[%ATTACHURL%/doc/HACKING][HACKING]] [[%ATTACHURL%/doc/AUTHORS][AUTHORS]]
-	* [[%ATTACHURL%/doc/NEWS][NEWS]] [[%ATTACHURL%/doc/ChangeLog][ChangeLog]] [[%ATTACHURL%/doc/README][README]]
-	* [[%ATTACHURL%/doc/dbus-test-plan.html][Test plan]]
-	* [[%ATTACHURL%/dbus-docs.tar.gz][Tarball]] with all the above docs.
+        * [http://dbus.freedesktop.org/doc/dbus-tutorial.html D-Bus tutorial]
+        * [wiki:IntroductionToDBus An introduction to the basics] by Jeroen Vermeulen
+        * [http://doc.trolltech.com/4.2/intro-to-dbus.html Introduction to D-Bus] from the Qt documentation
+	* [http://dbus.freedesktop.org/doc/dbus/api/html/index.html API reference manual]
+        * [http://dbus.freedesktop.org/doc/dbus-specification.html D-Bus specification]
+        * [http://dbus.freedesktop.org/doc/dbus-faq.html FAQ]
+        * Overview picture [http://dbus.freedesktop.org/doc/diagram.png png] [http://dbus.freedesktop.org/doc/diagram.svg svg]
+	* [http://dbus.freedesktop.org/doc/dbus/api/html/todo.html @todo items from manual] and high-level [http://dbus.freedesktop.org/doc/TODO TODO]
+	* [http://dbus.freedesktop.org/doc/dbus/api/html/files.html Browse source]
+	* [http://dbus.freedesktop.org/doc/dbus-daemon.1.html dbus-daemon(1)] (includes configuration file docs)
+	* [http://dbus.freedesktop.org/doc/dbus-send.1.html dbus-send(1)] [http://dbus.freedesktop.org/doc/dbus-monitor.1.html dbus-monitor(1)] [http://dbus.freedesktop.org/doc/dbus-launch.1.html dbus-launch(1)] [http://dbus.freedesktop.org/doc/dbus-uuidgen.1.html dbus-uuidgen(1)]
 
-== Download ==
+	* [http://dbus.freedesktop.org/doc/HACKING HACKING] [http://dbus.freedesktop.org/doc/AUTHORS AUTHORS]
+	* [http://dbus.freedesktop.org/doc/NEWS NEWS] [http://dbus.freedesktop.org/doc/ChangeLog ChangeLog] [http://dbus.freedesktop.org/doc/README README]
+	* [http://dbus.freedesktop.org/doc/dbus-test-plan.html Test plan]
+	* [http://dbus.freedesktop.org/doc/busconfig.dtd Config file DTD]
+	* [http://www.freedesktop.org/software/dbus/dbus-docs.tar.gz Tarball] with most of the above docs.
+        * [http://www-128.ibm.com/developerworks/linux/library/l-dbus.html?ca=dgr-lnxw95D-BUS "Connect desktop apps using D-BUS" (IBM developerWorks)] by Ross Burton (July 2004)
+        * [http://www.redhat.com/magazine/003jan05/features/dbus/ "Get on D-BUS" (Red Hat Magazine)] by John Palmieri (January 2005)
+        * [http://www.linuxjournal.com/article/7744 "Get on the D-BUS" (Linux Journal)] by Robert Love (January 2005)
+        * [http://raphael.slinckx.net/dbustutorial.php "The DBus missing tutorial - DBus Activation"] by RaphaÃ«l Slinckx (2005)
+        * [http://dbus.freedesktop.org/doc/dbus/libdbus-tutorial.html D-Bus Low-Level API Tutorial] by Matthew Johnson (Nov 2005)
+        * [http://developernew.kde.org/Development/Tutorials/D-Bus/Introduction Introduction To D-BUS] by Aaron Seigo & KDE community (2007)
 
-The latest release is [[%ATTACHURL%/releases/dbus-0.22.tar.gz][dbus-0.22.tar.gz]]. (2004-08-12)
+= Download =
 
-	* add --reply-timeout to dbus-send
-	* fix a memleak
-	* fix Solaris/Forte build
-	* switch to AFL 2.1 rather than 2.0 to address patent termination clause concerns
-	* add SELinux support
-	* mostly repair libxml backend for config parser, still doesn't pass out of memory tests
-	* fix distcheck to include language bindings
-	* add GetConnectionUnixUser method on bus driver
-	* also for UnixProcessID
-	* lots of Python, Mono, other binding fixes
-	* change GLib bindings to not include dbus/dbus.h (fully encapsulate libdbus)
-	* pass paths as strings, not arrays of string
-	* add message signature header field
-	* cleanups to marshaling code
-	* clean up authentication code
-	* reload conf files on SIGHUP
-	* rename SERVICE/SENDER_SERVICE to DESTINATION/SENDER
-	* fix circular conf file inclusion
-	* allow empty arrays
-	* tons of other small bugfixes
+== Core ==
 
-The previous release is [[%ATTACHURL%/releases/dbus-0.21.tar.gz][dbus-0.21.tar.gz]]. (2004-03-19)
-	* implement "auto activation" flag on messages, so the destination service can 
-	  be launched automatically
-	* fix a bug in custom type marshaling
-	* optimize case where multiple apps activate the same service 
-	  (avoid "thundering herd")
-	* add dynamic service file discovery/reloading
-	* fix a busy loop when blocking for a reply
-	* fix a 64-bit crash involving varargs
-	* fix a bus crash when processing an AcquireService
-	* allow appending TYPE''BYTE via append''args_valist
-	* fix dicts-inside-dicts
-	* enhancements to Python and Qt bindings
+The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.2.tar.gz D-Bus 1.0.2]. (2006-12-12)
 
-Previous releases can be found in the [[DbusReleaseArchive][release archive]].
+	* Fix security bug CVE-2006-6107 match rules can be removed by apps that did not create them
+	* pthread fix
 
-</noautolink>
+The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.1.tar.gz D-Bus 1.0.1]. (2006-11-17)
+
+	* Fix bug where calling dbus_threads_init_default would assert
+	* Fix UUID output to match the spec
+	* Clear up documentation on UUIDs
+
+Previous releases can be found in the [wiki:Software/DbusReleaseArchive release archive].
+
+== Bindings ==
+
+Bindings can be downloaded from the [wiki:Software/DBusBindings Bindings Page].
+
+= Windows port =
+
+Until the merge with the official D-Bus code, the Windows port is hosted on Sourceforge: [http://sourceforge.net/projects/windbus winDBus].
+
