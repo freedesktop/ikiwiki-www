@@ -1,0 +1,29 @@
+##META:TOPICINFO{author`"EricAnholt" date`"1073439632" format`"1.0" version`"1.3"}%
+##META:TOPICPARENT{name="xserver"}%
+---++X server to do list
+
+=== X server ===
+
+	* nVidia acceleration.  The obfuscated fbdev or XFree86 driver code could be stolen and adapted for kdrive.
+
+	* General mode-setting framework with backends for vesa, fbdev, and native mode setting where available.
+
+	* DRI integration.  This will allow drivers to use the DRM for implementing acceleration, possibly reducing userland CPU usage greatly (EricAnholt is working on this).
+
+	* Mach64 Render acceleration.  This chip is pretty simple, and would make a good demonstration of how to accelerate Render to cover the cases needed by the existing xcompmgr demo.
+
+	* Mach64 Yuv scaler usage.  Switching from video overlays to Yuv scaling would fix issues with overlaying translucent images on top of the video.  Performance would suffer though; some testing is likely needed.
+
+=== X Compositing Manager ===
+
+Note that the current xcompmgr application is a giant hack; a good project would be to write a "real" application that did the same job but was nicely split up and cleanly coded.  However, the current one still has "issues" that will probably carry over into a rewrite.
+
+	* Paint shadows better.  Current code recomputes the gaussian curve and the entire convolution with the sharp shadow each time a window is mapped or resized.  Splitting the shadow into pieces (four corners, four edges and the middle) would help an awful lot in resize performance.
+
+	* Check window stacking tracking.  I've seen xcompmgr get confused about window stacking; some validation code could be added and then suitable bug fixes could be figured out.
+
+	* Figure out some primitive hints so wms and apps can tell xcompmgr about translucency values and suchlike.
+
+
+-- Main.KeithPackard - 18 Nov 2003
+<center><img src="/cairo/glider.png"></center>
