@@ -10,7 +10,7 @@ Here are some [http://freedesktop.org/~keithp/screenshots screenshots from Keith
 
 The first translucent X window experiments were performed while writing [http://keithp.com/~keithp/talks/KeithPackardAls2000/index.html a paper for the 2000 Annual Linux Showcase].  The prototype developed there used image compositing as the fundmental primitive for constructing the screen representation of the window hierarchy contents.  Child window contents would be composited to their parent windows which would be incrementally composed to their parents until the final screen image was formed.
 
-The problem with this simplistic model was twofold -- first, a naïve implementation consumed enormous resources as each window required two complete offscreen buffers (one for the window contents themselves, and one for the window contents composited with the children) and took huge amounts of time to build the final screen image as it recursively composited windows together.
+The problem with this simplistic model was twofold -- first, a naÃ¯ve implementation consumed enormous resources as each window required two complete offscreen buffers (one for the window contents themselves, and one for the window contents composited with the children) and took huge amounts of time to build the final screen image as it recursively composited windows together.
 
 An architecture for exposing the same semantics with less overhead seemed almost possible, and pieces of it were implemented (miext/layer).  However, no complete system was fielded.
 
@@ -34,7 +34,7 @@ With the basic architecture in hand, the details of how to do work needed ironin
 
 ==== The X Damage Extension ====
 
-[http://freedesktop.org/Software/XDamage The X Damage extension] tracks regions of drawables that have been modified by either application rendering or window manipulation.  This allows an external application to know which portions of the window contain new data, the compositing manager uses it to figure out what parts of the screen need repainting.
+[wiki:Self/Software/XDamage The X Damage extension] tracks regions of drawables that have been modified by either application rendering or window manipulation.  This allows an external application to know which portions of the window contain new data, the compositing manager uses it to figure out what parts of the screen need repainting.
 
 Other applications can also use this to perform screen scraping (like VNC) or other screen effects like a iconic view of the entire desktop with real application contents.
 
@@ -43,7 +43,7 @@ The Damage extension required a new datatype, the 'Region' to be stored inside t
 
 ==== The XFixes Extension ====
 
-As the region datatype was already well supported within the server, and as it seemed generally useful for existing parts of the window system, the Region datatype and appropriate requests were added to the existing [[FixesExt][X Fixes Extension]] rather than just being a part of the Damage extension.
+As the region datatype was already well supported within the server, and as it seemed generally useful for existing parts of the window system, the Region datatype and appropriate requests were added to the existing [wiki:Self/Software/FixesExt X Fixes Extension] rather than just being a part of the Damage extension.
 
 XFixes is designed to hold small machine-independent changes to the window system that any X server can easily support; regions are clearly well within the scope of this mandate.
 
@@ -51,7 +51,7 @@ XFixes is designed to hold small machine-independent changes to the window syste
 
 Finally, with the ability to track drawable modification, our new compositing manager needs a way to move pieces of the window hierarchy into off-screen images so they can be blended together in forming the final screen presentation.  This requires a pretty simple to describe, but somewhat more difficult to implement extension that 'splits' the window tree and redirects the rendering for a branch into an off-screen buffer.  Nested windows within the branch will all be drawn within that single buffer, allowing the compositing manager to fetch bits from only one place.
 
-The [[CompositeExt][Compositing Extension]] has only five requests, none of which generate a reply and no new errors or events.  There are two basic operations; a request to 'redirect' a window and a request to 'unredirect' a window.  Multiple applications may request that a window be redirected; the redirection happens as long as any requests are still valid. 
+The [wiki:Self/Software/CompositeExt Compositing Extension] has only five requests, none of which generate a reply and no new errors or events.  There are two basic operations; a request to 'redirect' a window and a request to 'unredirect' a window.  Multiple applications may request that a window be redirected; the redirection happens as long as any requests are still valid. 
 
 For applications that simply need access to the pixels and don't want to change their basic presentation on the screen, there is an 'automatic update' mode which has the server automatically paint any changes into the parent window at reasonable intervals.  This lets thumbnail or screen magnifier applications see the window contents without also needing to run the compositing process.
 
