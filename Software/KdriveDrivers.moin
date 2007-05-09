@@ -1,0 +1,10 @@
+##META:TOPICINFO{author`"FireFly" date`"1071160704" format`"1.0" version`"1.4"}%
+##META:TOPICPARENT{name="HackersGuide"}%
+	* pScreenPriv->fb[] is an array of 1 or 2 !KdFrameBuffers.  fb[0] is primary, while fb[1] is only set up if you have an overlay.  fb[0]->depth is the color depth (1, 4, 8, 15, 16, 24) for that framebuffer, while fb[0]->bitsPerPixel is how many bits are taken up for storage (?, 8, 16, 24, 32).
+	* The depth and bitsPerPixel won't change between the card's initAccel and finiAccel -- it was decided depth changes were too costly to do.
+	* If your hardware doesn't support acceleration for the 24 bitsPerPixel case, one way to get around this is to put the accelerator in 8-bit mode and multiply X coordinates by 3.  However, if you do this you need to make sure for Solid fill that the pixel's values are the same for each of the bytes, and return FALSE from !PrepareSolid if not (unless your hardware has ability to rotate the pixel data, as in the mach64 driver).  Also make sure the planemask won't have problems with rotation, and return FALSE if so.
+	* Many things are not available at initScreen and scrInit time.  It's okay, because almost all setup/teardown for your device should be done in initAccel/finiAccel.  These two are called on entering and exiting the server's VT.  Things that can be done include but are not limited to initializing extensions and allocating window/pixmap/screen/etc. privates.
+	* If your driver uses hw/kdrive/vesa or hw/kdrive/fbdev for card initialization and mode setting, your driver's card and screen private records must begin with the fbdev or vesa card and screen private structs, because vesa and fbdev will use the kdrive card->driver and screen->driver pointers to get at their private data.
+	* should kaaDrawFini() be called in the accelDrawFini() function?
+
+-- Main.EricAnholt - 20 Nov 2003
