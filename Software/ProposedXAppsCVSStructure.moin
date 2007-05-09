@@ -1,0 +1,77 @@
+##META:TOPICINFO{author`"MarkHymers" date`"1088170895" format`"1.0" version`"1.1"}%
+##META:TOPICPARENT{name="xapps"}%
+== Proposed Xapps CVS Structure ==
+
+*NOTE* that this is all beneath `/cvs/xapps`, hence all references to xorg
+are to a vendor import of the relevant code at `/cvs/xapps/xorg` (see below)
+
+`xorg/xc/programs/*`
+
+`otherprogramdirs already there`
+
+We import vendor source on the `XORG` branch into `xorg/xc/programs/*` using
+the original directory structure
+
+We create a `-base` module for the root directory containing `configure.ac` and
+`Makefile.am` scripts for each package.
+
+We create a ''meta-module'' for each package containing the right directories.
+
+== Example: ==
+xkbprogs - contains setxkbmap, xkbcomp, xkbevd, xkbprint & xkbutils,
+
+---+++Create a xapps/xkbprogs-base module:
+''xkbprogs-base''
+{{{
+ CONTENTS
+ ChangeLog
+ Makefile.am
+ TODO
+ autogen.sh
+ configure.ac
+}}}
+
+=== Edit CVSROOT/module ===
+{{{
+# xkbprogs module information
+setxkbmap xorg/xc/programs/setxkbmap
+xkbcomp	xorg/xc/programs/xkbcomp
+xkbevd	 xorg/xc/programs/xkbevd
+xkbprint  xorg/xc/programs/xkbprint
+xkbutils  xorg/xc/programs/xkbutils
+xkbprogs xapps/xkbprogs-base &setxkbmap &xkbcomp &xkbevd &xkbprint &xkbutils
+}}}
+
+We can now `cvs co xkbprogs` and get
+{{{
+ CONTENTS
+ ChangeLog
+ Makefile.am
+ TODO
+ autogen.sh
+ configure.ac
+  setxkbmap/
+	FILES
+  xkbcomp/
+	FILES
+  xkbevd/
+	FILES
+  xkbprint/
+	FILES
+  xkbutils/
+	FILES
+}}}
+
+== Advantages of this method ==
+* Allows us to group the packages whilst still being able to easily diff against upstream CVS.
+
+* Allows us to leave the Imakefile structure completely intact (i.e. only add autotools support, not remove anything for now)
+
+* We just add one reference to the jhbuild moduleinfo file for each of the projects.
+
+---++Disadvantages of this method
+* Slightly complicated structure.
+
+* Merging upstream eventually may require addition of module information to upstream CVS
+
+-- Main.MarkHymers - 25 Jun 2004
