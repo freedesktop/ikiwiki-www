@@ -1,61 +1,62 @@
 ##META:TOPICINFO{author`"MatthewAllum" date`"1095425195" format`"1.0" version`"1.2"}%
 ##META:TOPICPARENT{name="Home"}%
 = X Testing Software =
-																										  
+
 This page provides infomation on various tools to aid the testing (
 and to a degree, debugging ) of X Servers and Clients.
-																										  
+
 Please add anything I've missed that you find useful.
-																										  
-																										  
+
+
 == General Testing/Debugging Tools ( Not X specific ) ==
 
 === gdb ===
-																										  
+
 GNU interactive debugger.
-																										  
+
 http://www.gnu.org/software/gdb/gdb.html
-																										  
+
 === gcov, gprof ===
-																										  
+
 Code coverage and profiling. Part of the GCC compiler collection.
-																										  
+
 http://gcc.gnu.org/
-																										  
+
 === valgrind ===
-																										  
+
 Valgrind is a GPL'd system for debugging and profiling x86-Linux ( and
 now powerpc ? ) programs. Very useful for trapping memory leaks.
-																										  
+
 http://valgrind.kde.org/
-																										  
-																										  
-																										  
+
+
+
 == X Server Testing ==
 
-																										  
-=== rendertest ===
-																										  
+
+=== rendercheck ===
+
 EricAnholt 's program for testing server render acceleration
-correctness. In initial development, available from fd.o cvs
-																										  
-http://freedesktop.org/cgi-bin/viewcvs.cgi/xapps/rendercheck/
-																										  
-																										  
+correctness. In initial development, available from fd.o git
+"xapps/rendercheck/"
+
+
 === Xtest suite ===
-																										  
+
 Old MIT based Test Suite for testing conformance of ported servers.
-																										  
+
 builds for me via xmkmf, . ./build.sh. Have no idea how to run it.
-																										  
+
 ftp://ftp.xfree86.org/pub/XFree86/xtest/
-																										  
+
 ( also see http://www.opengroup.org/testing/testsuites/vsw5.htm )
 
-=== Xperf ===
-																										  
+A slightly updated version of the old test suite with build instruction can be found here: http://wiki.x.org/wiki/XorgTesting
+
+=== x11perf ===
+
 Tests performance of most ( non render ext ) X operations.
-																										  
+
 Available packaged in most distributions.
 
 === Misc ===
@@ -66,109 +67,109 @@ http://handhelds.org/~mallum/fullscreen/
 
 == X Client Testing ==
 
-																										  
+
 === Client X servers ( or X clients that are servers ) ===
-																										  
+
 ==== XSDL, Xnest ====
-																										  
+
 	Both of these provide servers that run on an existing X server. Useful
 	for window manager development or 'emulation' of a different sized
 	display. Both are available in fd.o cvs. Xnest is mature and stable
 	but lacks support for 'modern' X extensions ( such as render and
 	composite ), whilst Xsdl supports these extensions but is a fairly
 	immature application.
-																										  
-	http://freedesktop.org/cgi-bin/viewcvs.cgi/xserver/
-																										  
+
+	http://cvs.freedesktop.org/xserver/
+
 	Xnest is also available packaged in most distributions.
-  
+
 ==== Xephyr ====
 
 	Xephyr is a kdrive based X Server which targets a window on a host X Server as its framebuffer.
 
-	See http://www.freedesktop.org/Software/Xephyr
-																									
-																										  
+	See [:Software/Xephyr:]
+
+
 === Server side resource leaks ===
-																										  
+
 ==== xrestop ====
-																										  
-Provides realtime 'top' like statistics of each clients resource
-usage in the server.
-																										  
-http://www.freedesktop.org/Software/xrestop
-																										  
-																										  
+
+	Provides realtime 'top' like statistics of each clients resource
+	usage in the server.
+
+	[:Software/xrestop:]
+
+
 === EWMH/ICCCM compliance ===
-	
+
 ==== Window manager tools. ====
-																									  
+
 	matchbox & metacity window manager source both contain various
 	tools to generate 'dummy' windows with particular properties.
-																										  
+
 	  http://matchbox.handhelds.org ( grab matchbox-tests )
 
 	  http://ftp.gnome.org/pub/gnome/sources/metacity/
-																										  
+
 ==== xprop ====
-																										  
-	  Command line tool to inspect window propertys. Available packaged
+
+	  Command line tool to inspect window properties. Available packaged
 	  for most distributions.
-																										  
-																										  
+
+
 ==== wininfo ====
-																										  
+
 	  New nice window inspection tool with GTK GUI and EWMH hint 'aware'.
-																										  
-	  http://www.freedesktop.org/Software/wininfo
- 
+
+	  [:Software/wininfo:]
+
 
 === Protocol usage / events ===
-																										  
+
 ==== xev ====
-																										  
+
 	 xev displays the contents on events recieved by its window.
-																										  
+
 	 Available packaged for most distributions.
-																										  
+
 ==== xmon ====
-																										  
+
 	 xmon is an 'interactive X protocol monitor'. It acts as a proxy
 	 between a server and clients and provides configurable infomation
 	 on the traffic passing through it.
-																										  
+
 	 Available packaged for most distributions.
 	 ( apt-get install xmon on Debian )
-																										  
+
 ====  Also see ====
-																										  
+
 	 Keith Packards 'X Window System Network Performance' paper;
 	 http://freedesktop.org/~keithp/talks/usenix2003/html/net.html
-																										  
+
 	 Kenton Lees 'Debugging X Input Events';
 	 http://www.rahul.net/kenton/events.html
-																										  
-																										  
+
+
 === Automating Usage ===
-																										  
+
 ==== Xnee  ====
-																										  
+
 	 Xnee is a suite of programs that can record and replay X events.
 	 This allows user interaction to be record and played back.
-					
-	 http://www.gnu.org/software/xnee/	 
-																					  
+
+	 http://www.gnu.org/software/xnee/
+
 === Misc ===
-																										  
+
 ==== matchbox-nest  ====
-																										  
+
 	  'matchbox nest' is a graphical wrapper around xnest. Its intended
 	  for embedded developers that want to simulate a target device (
 	  with display, buttons ) on a desktop machine.
 
-	  http://matchbox.handhelds.org/sources/matchbox-nest/ 
+	  http://matchbox.handhelds.org/sources/matchbox-nest/
 
 
 
 
--- Main.MatthewAllum - 09 Jun 2004
+-- MatthewAllum - 09 Jun 2004
