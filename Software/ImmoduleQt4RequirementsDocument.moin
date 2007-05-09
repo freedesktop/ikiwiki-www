@@ -2,25 +2,25 @@
 ##META:TOPICPARENT{name="immodule-qt"}%
 = A Requirements document for an Input Method Subsystem in Qt4 =
 
-##TOC%
+[[TableOfContents(3)]]
 
----++Intro
+== Intro ==
 This document outlines a set of functional requirements for an IM system that we would like to see supported in Qt4. Where relevant, this document also points out current design and implementation issues, and suggests some solutions.
 
----++User Requirements
+== User Requirements ==
 
-	* Input method modules should be configurable and switchable at runtime.
-	* A user should be able to quickly find an input method for a particular language
-	* A simple configuration should not require any 'magic' environment variables. Things should 'just work', and yet still be configurable if needed.
-	* User should be able to perform configuration through a simple GUI
-		* Automated configuration through script/config file should also be possible
-	* pre-edit buffer indication should be clear and salient
-		* the pre-edit string should have some different rendering attributes (such as underline) from its surrounding text
-		* a candidate window should be displayed next to the current segment of the pre-edit being converted, not just simply at the beginning of the pre-edit buffer
-	* IM-specific keyboard shortcuts should be accessible, and should not be overriden by the application shortcuts (current GTK2 problem)
+ * Input method modules should be configurable and switchable at runtime.
+ * A user should be able to quickly find an input method for a particular language
+ * A simple configuration should not require any 'magic' environment variables. Things should 'just work', and yet still be configurable if needed.
+ * User should be able to perform configuration through a simple GUI
+  * Automated configuration through script/config file should also be possible
+ * pre-edit buffer indication should be clear and salient
+  * the pre-edit string should have some different rendering attributes (such as underline) from its surrounding text
+  * a candidate window should be displayed next to the current segment of the pre-edit being converted, not just simply at the beginning of the pre-edit buffer
+ * IM-specific keyboard shortcuts should be accessible, and should not be overriden by the application shortcuts (current GTK2 problem)
 
 
----++System Integrator Requirements
+== System Integrator Requirements ==
 
 There should be a mechanism to limit the IM systems available. For example, a distributor may wish to limit support to the IIIMF framework. 
 
@@ -32,51 +32,51 @@ In the GTK2 case, this amounts to setting the GTK''DEFAULT''IMMODULE variable as
 
 Until the situation stabilizes, Qt will need an equivalent mechanism to allow distributors to provide a consistent set of choices across various applications.
 
----++API Requirements / Issues
+== API Requirements / Issues ==
 
----+++Changes to QIMEvent
+=== Changes to QIMEvent ===
 
 During the experience of actually writing input system modules, we have discovered that the current structure of IMStart, IMCompose, and IMEnd does not map well to many IM's and thus is an easy source for bugs.
 
 More details later..
 
----+++Error handling
+=== Error handling ===
 
 Semantics and API for error handling need to be carefully defined.
 
----+++Candidate window positioning
+=== Candidate window positioning ===
 
 The setMicroFocusHint() type method needs to be well defined and possible extended. Some widgets may like to exert more control over how the candidate window (or any other input method-controlled window) is displayed.
 
----+++Multiple input contexts and widget to input context mapping
+=== Multiple input contexts and widget to input context mapping ===
 
 In many cases, it is useful to have several input context instances within the same application associated to different widgets. Some simple examples:
 
-	1 chat applications: In an instant messenger, a user would likely talk to different users in different languages. Switching the IM language back and forth manually every time the user talks to a different person is cumbersome and error-prone. The application should be able to remember which input context for which conversation.
+ 1 chat applications: In an instant messenger, a user would likely talk to different users in different languages. Switching the IM language back and forth manually every time the user talks to a different person is cumbersome and error-prone. The application should be able to remember which input context for which conversation.
 
 In general, if an application has multiple ``language contexts'', then it is often if not always desireable to have an separate input context associated with each language context. 
 
----+++event handling and key compression
+=== event handling and key compression ===
 
 The interaction between the event handling mechanism and the input method need to be clearly defined. It appears that the simplest method for doing this is to give the input method the option to filter a key event before anything else sees it. The interaction between the input method and Qt's key compression features also needs to be defined.
 
----+++language identification of input methods
+=== language identification of input methods ===
 
 An application should be able to query the language of each input method. semantics need to be defined for those input methods that can handle multiple languages.
 
----+++language tagging for inputted text
+=== language tagging for inputted text ===
 
 With han unification in unicode, it is often required to know the language of a string of characters to be able to choose the right font. The language can be determined from the method, as usually an input method is designed to input for one specific language. It would be useful if QIMEvent could be modified so that along with the text, the language of the text be carried along as well, so the client widget can act accordingly. Another approach is to add a language() query function to the QInputContext so that the "current" language can be identified, and the text recieving widget can handle the information accordingly.
 
----+++Surrounding text
+=== Surrounding text ===
 
 It can be extremely useful for some input methods to obtain text that is immediately before or after the current input positions. For example, in Japanese, this feature can be used to recognize particles and auxilary verbs that are right before or after the cursor position, allowing the system to narrow down conjugation choices by applying the appropriate grammatical rules.
 
----+++Pluggable Popup Context Menu
+=== Pluggable Popup Context Menu ===
 
 This allows input methods to provide integrated direct UI controls in QT's text widgets.
 
----+++Default Input Method Specification
+=== Default Input Method Specification ===
 
 qtrc, environment variable, etc.
 
@@ -88,10 +88,10 @@ the equivalent in qtrc), but there is no way to control default
 IM on QMultiInputContext because it is an ordinary plugin. The
 user interface is not useful.
 
-application			 <- QT''IM''MODULE="multi"
-	 |
+application    <- QT''IM''MODULE="multi"
+  |
 QMultiInputContext
-	 |
+  |
 QFooInputContext
 
 
@@ -99,10 +99,10 @@ To resolve such problem, we can introduce additional
 configuration variable for QMultiInputContext. The Qt itself is
 not aware of QT''IM''MODULE''FOR''SWITCHER variable.
 
-application			 <- QT''IM''MODULE="multi"
-	 |
-QMultiInputContext	<- QT''IM''MODULE''FOR''SWITCHER="bar"
-	 |
+application    <- QT''IM''MODULE="multi"
+  |
+QMultiInputContext <- QT''IM''MODULE''FOR''SWITCHER="bar"
+  |
 QBarInputContext
 
 
@@ -113,8 +113,8 @@ IM because they always configure so in GTK+ environment. They
 will be confused if the configuration QT''IM''MODULE="bar" makes
 IM-switching menu vanish.
 
-application			 <- QT''IM''MODULE="bar"
-	 |
+application    <- QT''IM''MODULE="bar"
+  |
 QBarInputContext
 
 
@@ -123,10 +123,10 @@ convention. The name QT''IM''SWITCHER is just a trick for users to
 form appropriate mental model. Qt itself is not treat
 IM-switchers specially. It is still ordinary IM plugin.
 
-application			 <- QT''IM''SWITCHER="multi" (default)
-	 |
-QMultiInputContext	<- QT''IM''MODULE="bar"
-	 |
+application    <- QT''IM''SWITCHER="multi" (default)
+  |
+QMultiInputContext <- QT''IM''MODULE="bar"
+  |
 QBarInputContext
 
 
@@ -135,8 +135,8 @@ equivalent of QMultiInputContext is hardcoded as default and not
 replaceable. But IM-switcher should be replaceable as I said
 recently, so I propose the new convention.
 
-application			<- gtk''im''multicontext_new()
-	 |
+application   <- gtk''im''multicontext_new()
+  |
 GtkIMMulticontext	<- GTK''IM''MODULE="bar"
 	 |
 GtkIMBarContext
