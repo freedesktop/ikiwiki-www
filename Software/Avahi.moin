@@ -1,34 +1,4 @@
 ##META:TOPICINFO{author`"TrentLloyd" date`"1083202980" format`"1.0" version`"1.1"}%
 ##META:TOPICPARENT{name="Home"}%
-Avahi is a multicast DNS library being written by <A HREF="mailto:lathiat@freedesktop.org">Trent "Lathiat" Lloyd </A>
 
-There has been a growing interest in mdns support on linux, a number of people have mentioned it in their blogs, some people have been working on implementations (tmdns - a local dns server to let you lookup .local names, KingAnt is working on an iChat/Rendezvous plugin for gaim, and a bunch of others).
-
-At Linux.conf.au 2004 I was talking about some multicast related stuff, wrote a hack to allow you to discover distcc-capable hosts on your network via multicast, and mentioned I would be working on a full implementation.
-
-Well finally I have begun putting my words into code :) I have started the Avahi project, it is hosted on freedesktop.org (see http://freedesktop.org/Software/Avahi) and you can check it out from anonymous cvs, however there isn't much to see yet.
-
-I am hoping to have a working client library within a couple months, but I thought I'd take the time to outline my plans to hopefully get some comments.
-
-<h3>Ideas</h3>
-<ul>
-<li>First of all, I will be using a per-user or system daemon, the magic of multicast is you can bind to it more than once so you can have multiple daemons running, so you don't need root to be talking on it. And there are protocols in place so all daemons can defend the machinename.local name without stepping on each others</li>
-<li>As many of you know, I'm a big IPv6 person :), so Avahi will support IPv6, current implementations don't do this, see below for problems.</li>
-<li>Current implementations are fairly ugly, the only one which could be considered decent is <A HREF="http://www.porchdogsoft.com">Howl</A>, however it uses a non-free mDNSResponder from apple, which conflicts with a number of people and projects foundations, rules, choices, etc, that said apparently they are working on a replacement.</li>
-</ul>
-
-<h3>Problems</h3>
-<ul>
-<li>Because mdns is link-local, each ethernet interface and each protocol (IPv4, IPv6) have to be treated separately, that is you can have a lathiat.local on eth0/IPv4 and a lathiat.local on eth1 on IPv4 and IPv6 and they can all be different machines. So if the user looks up lathiat.local, which address do we return? - There is a protocol for this, however makes it hard to lookup lathiat.local on other interfaces.</li>
-</ul>
-
-<h3>What it solves</h3>
-<ul>
-<li>mDNS brings about a solution to a big problem in IPv6, that is its auto-configuration can only configure an address, netmask and router. It does not specify DNS Servers, Proxy Servers, etc.</li>
-<li>Makes peer-to-peer local network (phone calling, file sharing, etc) easy - I want to implement a mDNS file sharing program so people on a local network can easily share things which each other - a problem I often face at school on our network, often having the scrounge up a floppy disk.</li>
-</ul>
-
-<h3>Getting it</h3>
-You can find Avahi in anoncvs - there isn't much to see yet, so keep your eye on this page and I will keep you updated when there is enough code to make it worth looking at.
-
--- Main.TrentLloyd - 29 Apr 2004
+Avahi has a new homepage. Please visit http://avahi.org!
