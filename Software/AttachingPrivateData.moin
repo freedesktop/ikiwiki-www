@@ -13,11 +13,11 @@ int MyPixmapIndex = -1;
 MyPixmapIndex = AllocatePixmapPrivateIndex ();
 }}}
 
-(The same is done for other data types, such as gcs and windows. Just use AllocateGCPrivateIndex and AllocateWindowPrivateIndex respectively)
+(The same is done for other data types, such as gcs and windows. Just use {{{AllocateGCPrivateIndex}}} and {{{AllocateWindowPrivateIndex}}} respectively)
 
 The index allocation functions return -1 on failure, so it's always a good idea to check the return value.
 
-Since you only want to allocate the index once, you can declare a generation variable and compare it to the serverGeneration variable:
+Since you only want to allocate the index once, you can declare a generation variable and compare it to the {{{serverGeneration}}} variable:
 
 {{{
 unsigned long MyGeneration = 0;
@@ -60,7 +60,7 @@ This can be done as a macro:
 #define GET''MY''PIXMAP_PRIVATE(pixmap) ((MyPixmapPtr)(pixmap)->devPrivates[MyPixmapIndex].ptr;
 }}}
 
-(It's also possible to assign your own data using this method. Just use 0 as the size when calling AllocatePixmapPrivate and allocate the data yourself or just re-use already allocated data.)
+(It's also possible to assign your own data using this method. Just use 0 as the size when calling {{{AllocatePixmapPrivate}}} and allocate the data yourself or just re-use already allocated data.)
 
 === 4. Screen data ===
 Screen private data is a bit different; it isn't automatically allocated for you. Thus you have to do:
@@ -74,4 +74,4 @@ pScreen->devPrivates[MyScreenIndex].ptr = (pointer) myScreenPtr;
 }}}
 
 (It's not required that you allocate the data, any pointer will do fine.)
--- Main.AndersCarlsson - 23 Sep 2003
+-- AndersCarlsson - 23 Sep 2003
