@@ -2,7 +2,9 @@
 
 === News ===
 
-Posted updated rev of the video acceleration API specification (0.10 -> 0.15)
+02May2007 - Updated rev of the video acceleration API specification (0.15 -> 0.16)
+
+20Apr2007 - Updated rev of the video acceleration API specification (0.10 -> 0.15)
 
 
 === About ===
@@ -22,17 +24,20 @@ Email: jonathan.bian@intel.com
 /*
  * Video Decode Acceleration API Specification
  *
- * Rev. 0.15
+ * Rev. 0.16
  * <jonathan.bian@intel.com>
  *
  * Revision History:
- * rev 0.1 (12/10/06 Jonathan Bian) - Initial draft
+ * rev 0.10 (12/10/06 Jonathan Bian) - Initial draft
  * rev 0.11 (12/15/06 Jonathan Bian) - Fixed some errors
  * rev 0.12 (02/05/07 Jonathan Bian) - Added VC-1 data structures
  * rev 0.13 (02/28/07 Jonathan Bian) - Added GetDisplay()
  * rev 0.14 (04/13/07 Jonathan Bian) - Fixed MPEG-2 PictureParameter struct, cleaned up a few funcs.
  * rev 0.15 (04/20/07 Jonathan Bian) - Overhauled buffer management  
+ * rev 0.16 (05/02/07 Jonathan Bian) - Added error codes and fixed some issues with configuration 
  *
+ * Acknowledgements:
+ * Thanks to Waldo Bastian for many valuable feedbacks.
  */
 
 #ifndef _VA_H_
@@ -63,13 +68,16 @@ Initialization & Configuration Management
 
 typedef void* VADisplay;	/* window system dependent */
 
-typedef enum
-{
-    VAStatusOK			= 0,
-    VAStatusError		= 1,
-    /* more error codes need to be defined */
-} VAStatus;
-
+typedef int VAStatus;	/* Return status type from functions */
+/* Values for the return status */
+#define VA_STATUS_SUCCESS			0x00000000
+#define VA_STATUS_ERROR_OUT_OF_MEMORY		0x00000001
+#define VA_STATUS_ERROR_INVALID_CONFIG		0x00000002
+#define VA_STATUS_ERROR_INVALID_CONTEXT		0x00000003
+#define VA_STATUS_ERROR_INVALID_SURFACE		0x00000004
+#define VA_STATUS_ERROR_INVALID_BUFFER		0x00000005
+#define VA_STATUS_ERROR_ATTR_NOT_SUPPORTED	0x00000006
+#define VA_STATUS_ERROR_UNKNOWN			0xFFFFFFFF
 
 /*
  * Initialization:
@@ -97,6 +105,7 @@ VAStatus vaTerminate (
     VADisplay dpy
 );
 
+/* Currently defined profiles */
 typedef enum
 {
     VAProfileMPEG2Simple		= 0,
@@ -112,46 +121,96 @@ typedef enum
     VAProfileVC1Advanced		= 10,
 } VAProfile;
 
+/* Currently defined entrypoints */
 typedef enum
 {
-    VAEntrypointNone		= 0, /* no entrypoint for this profile */
-    VAEntrypointVLD			= 1,
-    VAEntrypointIZZ			= 2,
+    VAEntrypointVLD		= 1,
+    VAEntrypointIZZ		= 2,
     VAEntrypointIDCT		= 3,
     VAEntrypointMoComp		= 4,
     VAEntrypointDeblocking	= 5,
 } VAEntrypoint;
 
-/* Configuration attribute types */
+/* Currently defined configuration attribute types */
 typedef enum
 {
-    VAConfigAttribRTFormat			= 0,
+    VAConfigAttribRTFormat		= 0,
     VAConfigAttribSpatialResidual	= 1,
     VAConfigAttribSpatialClipping	= 2,
     VAConfigAttribIntraResidual		= 3,
     VAConfigAttribEncryption		= 4,
 } VAConfigAttribType;
 
-/* attribute value for VAConfigAttribRTFormat */
-#define VA_RT_FORMAT_YUV420	0x00000001
-#define VA_RT_FORMAT_YUV422	0x00000002
-#define VA_RT_FORMAT_YUV444	0x00000004
-
-/* Configuration attributes */
+/*
+ * Configuration attributes
+ * If there is more than one value for an attribute, a default
+ * value will be assigned to the attribute if the client does not
+ * specify the attribute when creating a configuration
+ */
 typedef struct _VAConfigAttrib {
     VAConfigAttribType type;
     unsigned int value; /* OR'd flags (bits) for this attribute */
 } VAConfigAttrib;
 
-/* Query entrypoints for a given profile */
+/* attribute value for VAConfigAttribRTFormat */
+#define VA_RT_FORMAT_YUV420	0x00000001	
+#define VA_RT_FORMAT_YUV422	0x00000002
+#define VA_RT_FORMAT_YUV444	0x00000004
+
+/*
+ * if an attribute is not applicable for a given
+ * profile/entrypoint pair, then set the value to the following 
+ */
+#define VA_ATTRIB_NOT_SUPPORTED 0x80000000
+
+/* Get maximum number of profiles supported by the implementation */
+int vaMaxNumProfiles (
+    VADisplay dpy
+);
+
+/* Get maximum number of entrypoints supported by the implementation */
+int vaMaxNumEntrypoints (
+    VADisplay dpy
+);
+
+/* Get maximum number of attributs supported by the implementation */
+int vaMaxNumConfigAttributes (
+    VADisplay dpy
+);
+
+/* 
+ * Query supported profiles 
+ * The caller must provide a "profile_list" array that can hold at
+ * least vaMaxNumProfile() entries. The actual number of profiles
+ * returned in "profile_list" is returned in "num_profile".
+ */
+VAStatus vaQueryConfigProfiles (
+    VADisplay dpy,
+    VAProfile *profile_list,	/* out */
+    int *num_profiles		/* out */
+);
+
+/* 
+ * Query supported entrypoints for a given profile 
+ * The caller must provide an "entrypoint_list" array that can hold at
+ * least vaMaxNumEntrypoints() entries. The actual number of entrypoints 
+ * returned in "entrypoint_list" is returned in "num_entrypoints".
+ */
 VAStatus vaQueryConfigEntrypoints (
     VADisplay dpy,
     VAProfile profile,
-    VAEntrypoint *entrypoints,	/* out */
-    int *num_entrypoints	/* out */
+    VAEntrypoint *entrypoint_list,	/* out */
+    int *num_entrypoints		/* out */
 );
 
-/* Query attributes for a given profile/entrypoint pair */
+/* 
+ * Query attributes for a given profile/entrypoint pair 
+ * The caller must provide an “attrib_list” with all attributes to be 
+ * queried.  Upon return, the attributes in “attrib_list” have been 
+ * updated with their value.  Unknown attributes or attributes that are 
+ * not supported for the given profile/entrypoint pair will have their 
+ * value set to VA_ATTRIB_NOT_SUPPORTED
+ */
 VAStatus vaQueryConfigAttributes (
     VADisplay dpy,
     VAProfile profile,
@@ -176,17 +235,13 @@ VAStatus vaCreateConfig (
     VAConfigID *config_id /* out */
 );
 
-
-/* 
- * Get max number of attributes supported by the server 
- */
-VAStatus vaGetMaxNumConfigAttributes (
-    VADisplay dpy,
-    int *num_attribs		/* out */
-);
-
 /* 
  * Get all attributes for a given configuration 
+ * The profile of the configuration is returned in “profile”
+ * The entrypoint of the configuration is returned in “entrypoint”
+ * The caller must provide an “attrib_list” array that can hold at least 
+ * vaMaxNumConfigAttributes() entries. The actual number of attributes 
+ * returned in “attrib_list” is returned in “num_attribs”
  */
 VAStatus vaGetConfigAttributes (
     VADisplay dpy,
@@ -194,7 +249,7 @@ VAStatus vaGetConfigAttributes (
     VAProfile *profile, 	/* out */
     VAEntrypoint *entrypoint, 	/* out */
     VAConfigAttrib *attrib_list,/* out */
-    int *num_attribs		/* out */
+    int *num_attribs 		/* out */
 );
 
 
@@ -324,8 +379,8 @@ typedef enum
 /* Picture Parameter Buffer */
 typedef struct _VAPictureParameterBufferMPEG2
 {
-    int horizontal_size;
-    int vertical_size;
+    unsigned short horizontal_size;
+    unsigned short vertical_size;
     VASurfaceID forward_reference_picture;
     VASurfaceID backward_reference_picture;
     /* meanings of the following fields are the same as in the standard */
@@ -367,7 +422,6 @@ typedef struct _VASliceParameterBufferMPEG2
     int slice_data_size;/* number of bytes in the slice data buffer for this slice */
     int slice_data_offset;/* the offset to the first byte of slice data */
     int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
-    int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
     int slice_vertical_position;
     int quantiser_scale_code;
     int intra_slice_flag;
@@ -387,6 +441,8 @@ typedef struct _VAPictureParameterBufferVC1
        picture as a reference picture */
     VASurfaceID inloop_decoded_picture;
 
+    unsigned short coded_width;		/* ENTRY_POINT_LAYER::CODED_WIDTH */
+    unsigned short coded_height;	/* ENTRY_POINT_LAYER::CODED_HEIGHT */
     unsigned char closed_entry;		/* ENTRY_POINT_LAYER::CLOSED_ENTRY */
     unsigned char broken_link;		/* ENTRY_POINT_LAYER::BROKEN_LINK */
     unsigned char conditional_overlap_flag; /* ENTRY_POINT_LAYER::CONDOVER */
@@ -679,12 +735,25 @@ Mostly to demonstrate program flow with no error handling ...
 	int major_ver, minor_ver;
 	vaInitialize(dpy, &major_ver, &minor_ver);
 
-	VAEntrypoint entrypoints[5];
-	int num_entrypoints;
-	vaQueryConfigEntrypoints(dpy, VAProfileMPEG2Main, entrypoints, 
-	                         &num_entrypoints);
+	int max_num_profiles, max_num_entrypoints, max_num_attribs;
+	max_num_profiles = vaMaxNumProfiles(dpy);
+	max_num_entrypoints = vaMaxNumProfiles(dpy);
+	max_num_attribs = vaMaxNumProfiles(dpy);
 
-	/* traverse entrypoints arrary to see whether VLD is there */
+	/* find out whether MPEG2 MP is supported */
+	VAProfile *profiles = malloc(sizeof(VAProfile)*max_num_profiles);
+	int num_profiles;
+	vaQueryConfigProfiles(dpy, profiles, &profiles);
+	/*
+	 * traverse "profiles" to locate the one that matches VAProfileMPEG2Main
+         */ 
+
+	/* now get the available entrypoints for MPEG2 MP */
+	VAEntrypoint *entrypoints = malloc(sizeof(VAEntrypoint)*max_num_entrypoints);
+	int num_entrypoints;
+	vaQueryConfigEntrypoints(dpy, VAProfileMPEG2Main, entrypoints, &num_entrypoints);
+
+	/* traverse "entrypoints" to see whether VLD is there */
 
 	/* Assuming finding VLD, find out the format for the render target */
 	VAConfigAttrib attrib;
