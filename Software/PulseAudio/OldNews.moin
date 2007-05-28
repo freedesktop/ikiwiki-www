@@ -2,6 +2,65 @@
 
 = Old !PulseAudio News =
 
+=== July 2006 ===
+ * '''2006-07-24:''' [http://0pointer.de/lennart/projects/pavucontrol/ PulseAudio Volume Control 0.9.3] released.
+
+ * '''2006-07-24:''' [http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-0.9.4.tar.gz PulseAudio Version 0.9.4] released. Changes include:
+   * Fix broken time event handling in the GLIB event loop adapter (0.9.3 shipped with a broken adapter for GLIB which caused tools like [http://0pointer.de/lennart/projects/padevchooser/ padevchooser] to hang on startup. This fix solves the problem only half-way. To fix it wholly please   make sure to update [http://avahi.org/ Avahi] to 0.6.12)
+   * Some valgrind/massif results: halve memory consumption, make !PulseAudio even more lightweight
+   * Fix pkg-config files for AMD64
+
+ * '''2006-07-21:''' [http://0pointer.de/lennart/projects/libao-pulse/ libao-pulse 0.9.3], [http://0pointer.de/lennart/projects/xmms-pulse/ xmms-pulse 0.9.3], [http://0pointer.de/lennart/projects/gst-pulse/ gst-pulse 0.9.3] released.
+
+ * '''2006-07-21:''' [http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-0.9.3.tar.gz PulseAudio 0.9.3] released. Changes include:
+   * add support for running the !PulseAudio daemon as system-wide instance (See SystemWideInstance for more information)
+   * add authentication by IP address range ACL ({{{auth-ip-acl=}}})
+   * update FreeBSD compatibility
+   * add support to set resource limits on platforms that support them and set some of them
+   * remove {{{loopback=}}} argument for {{{module-*-protocol-tcp}}} since it is a superset of {{{listen=}}} and has an unexpected default
+   * remove GLIB 1.2 event loop adapter
+   * rework GLIB 2.0 event loop adapter to act as a single GSource, make it compatible with recursive main loops
+   * add an API to check whether a source/sink is hardware or virtual
+   * remove warning about SIGPIPE in client apps
+   * improve latency calculation of NULL sink which allows it to be used for video playback
+   * port Zeroconf code from the HOWL API to the native [http://avahi.org Avahi] API
+
+ * '''2006-07-08:''' [http://0pointer.de/lennart/projects/pavucontrol/ PulseAudio Volume Control 0.9.2], [http://0pointer.de/lennart/projects/pavumeter/ PulseAudio Volume Meter 0.9.2], [http://0pointer.de/lennart/projects/paman/ PulseAudio Manager 0.9.2], [http://0pointer.de/lennart/projects/padevchooser/ PulseAudio Device Chooser 0.9.2],  [http://0pointer.de/lennart/projects/libao-pulse/ libao-pulse 0.9.2], [http://0pointer.de/lennart/projects/xmms-pulse/ xmms-pulse 0.9.2], [http://0pointer.de/lennart/projects/gst-pulse/ gst-pulse 0.9.2] released.
+
+ * '''2006-07-08:''' [http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-0.9.2.tar.gz PulseAudio 0.9.2] released. Changes include:
+   * Rename project to !PulseAudio (see [http://0pointer.de/blog/projects/pulse.html this blog article] for an explanation)
+   * increase maximum number of concurrent connections
+   * fix latency interpolation
+   * add support for reverse endian sound cards
+   * add support for recording in padsp
+   * reenable CPU load limiter
+   * other bugfixes
+
+
+=== June 2006 ===
+
+ * '''2006-06-02:''' [http://0pointer.de/lennart/projects/polypaudio/polypaudio-0.9.1.tar.gz Version 0.9.1] released. Changes include:
+   * load modules even when libtool {{{.la}}} files are missing
+   * generate better ALSA device names from {{{module-detect}}}
+   * if an ALSA device doesn't support the requested number of channels or the frequency, accept what ALSA suggests instead
+   * AMD64 portability
+   * drop {{{.sh}}} suffix of {{{esdcompat.sh}}}
+   * build system fixes
+   No API or ABI changes were made
+
+=== May 2006 ===
+
+ * '''2006-05-26:''' [http://0pointer.de/lennart/projects/polypaudio/polypaudio-0.9.0.tar.gz Version 0.9.0] released. Changes include:
+   * new module {{{module-volume-restore}}}
+   * new OSS API emulation tool {{{padsp}}}
+   * require valid UTF-8 strings everywhere
+   * properly support ALSA channel maps for surround sound
+   * increase maximum number of channels per stream to 32
+   * add new threaded main loop API for synchronous programs
+   * introduce real shared object versioning
+   * a few API additions
+   * many, many bugfixes
+
 === April 2006 ===
 
  * '''2006-04-28:''' [http://0pointer.de/lennart/projects/polypaudio/polypaudio-0.8.1.tar.gz Version 0.8.1] released. Changes include:
