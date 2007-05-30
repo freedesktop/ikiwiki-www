@@ -1,7 +1,9 @@
 = GeoClue - geographic information service =
 NOTE: This page is currently transitioning from http://live.gnome.org/GeoClue to here.
+
 ----
-GeoClueis a project that provide all kinds of geography information to an application.   This is through a very abstract DBus interface in which a variety of backends can be used to provide this implementation.   Although we implement a few reference backends, creating your own is encouraged.There are many separate APIs that are planned including
+GeoClue is a project that provides all kinds of geographic information to applications. It is a very abstract DBus interface in which a variety of backends can provide implementations of different services.   Although we implement a few reference backends, creating your own is encouraged.There are many separate APIs that are planned including
+
 
  * Position
  * Map
@@ -10,9 +12,10 @@ GeoClueis a project that provide all kinds of geography information to an applic
  * Track Logs
 There is a lot of ideas you can implement with this service.  For example we could automatically set a weather forecast program to show the weather of your current location.
 
-'''Code''' - the project got nicely underway during the Boston2006 summit. GeoClue is a [http://www.freedesktop.org/wiki/Software/dbus D-Bus] service. Check out the code:
+'''Code''' - the project got nicely underway during the Boston2006 summit. The code is available in freedesktop.org git. You can [http://gitweb.freedesktop.org/?p=geoclue.git;a=summary browse through gitweb] or clone the repository:
 
- . svn co http://svn.foinse-project.org/geoclue/trunk geoclue
+ . {{{
+git clone git://anongit.freedesktop.org/git/geoclue}}}
 It might or might not compile or run (or do anything useful even) - as it's still in the early stages.
 
 == Work that needs to be done ==
@@ -21,7 +24,7 @@ It might or might not compile or run (or do anything useful even) - as it's stil
 Make a small applet that can pop up an info box when a location is first reported.   "You are in Olathe, KS". When left clicked on brings up a 320x240 image (can just be a static image for now I will add map to it.) with an entry below it that you can type in an address along with a search button. When you left click the applet it would bring up a menu with a properties box.   This box would allow you to set preference for what service to use.   basically a drop down for "Manual entry", "www.hostip.info", "Gps device"  There can be five of these for position, mapping, geocoding, tracking, routing.
 
 ==== Mockup ====
-Something like this could pop up from the notification system once GeoClue finds we are in a significantly new place. How and when this happens needs to be determined somehow. Perhaps like, when moving to a new city or switching networks etc. We shouldnt pop these up repeatedly while moving around with GPS location though, that'd be annoying.
+Something like this could pop up from the notification system once !GeoClue finds we are in a significantly new place. How and when this happens needs to be determined somehow. Perhaps like, when moving to a new city or switching networks etc. We shouldnt pop these up repeatedly while moving around with GPS location though, that'd be annoying.
 
 {{{
 .-------------------------------------.
@@ -78,7 +81,7 @@ Needs
  1. track turtle
  1. routing ?
  1. position GPSD
-'''Communication (IRC)''' -  we have an ad-hoc irc channel on GimpNet, irc.gimp.org, channel #geoclue. [http://www.ircatwork.com This] can be useful if you are behind a restrictive firewall.
+'''Communication (IRC)''' -  we have an ad-hoc irc channel on !GimpNet, irc.gimp.org, channel #geoclue. [http://www.ircatwork.com This] can be useful if you are behind a restrictive firewall.
 
 == Architecture ==
 The service has two parts: A master service that abstracts multiple backends from the application, and a variety of "backends" that deal with different methods for location information.
@@ -89,7 +92,7 @@ There are two methods to accessing this service.   You can use the raw dbus api 
 ==== Backends ====
 The idea is to have several different backends. A GPS is naturally the most accurate source, but it does not work well indoors, and a device might not always be available. Yet, even without a GPS, a bit less accurate position is easily available using other methods, and this information will in most cases be just as useful. Also sometimes you might not want to expose your exact coordinates ("send nukes here"-problem) - thus the API will have ways to serve different types of location data.
 
-Also since there are several web services to provide you with street address -> coordinate (and backwards) coding, this will be one useful service GeoClue will make accessible through itself. A street address or a "plaze" name (see below for plazes) might be more useful to show to your IM buddies for example, since it is more human readable than a lat,lon coordinate pair. Yet for mapping uses etc, it should be good that both are always made available, plus some way to determine the accuracy of the data. Sure, "Boston" is located in [http://maps.google.com/maps?f=q&hl=en&q=N+42°+21'+29'' W+71°+3'+37"&ie=UTF8&z=16&ll=42.358211,-71.060278&spn=0.006961,0.021415&om=1&iwloc=A N 42° 21' 29" W 71° 3' 37"] but the area is a lot larger than the actual coordinate reference point, which points to a street corner between Tremont and Beacon Street.
+Also since there are several web services to provide you with street address -> coordinate (and backwards) coding, this will be one useful service !GeoClue will make accessible through itself. A street address or a "plaze" name (see below for plazes) might be more useful to show to your IM buddies for example, since it is more human readable than a lat,lon coordinate pair. Yet for mapping uses etc, it should be good that both are always made available, plus some way to determine the accuracy of the data. Sure, "Boston" is located in [http://maps.google.com/maps?f=q&hl=en&q=N+42°+21'+29'' W+71°+3'+37"&ie=UTF8&z=16&ll=42.358211,-71.060278&spn=0.006961,0.021415&om=1&iwloc=A N 42° 21' 29" W 71° 3' 37"] but the area is a lot larger than the actual coordinate reference point, which points to a street corner between Tremont and Beacon Street.
 
  * [http://gpsd.berlios.de/ gpsd] - to talk to real gps devices.
  * [http://www.plazes.com plazes.com] - a website that tracks your location based on the network topology, wifi hotspots etc. It has a XMLRPC API. Requires login, lets users tag "places" with names also. "MIT Media Lab" instead of "20 Ames St, Cambridge, MA 02142".
@@ -104,7 +107,7 @@ Also since there are several web services to provide you with street address -> 
  * Applications like [http://squeedlyspooch.com/blog/archives/2006_08_08.html#002069 Turtle] could store track log of movement, and could then mesh it with timestamps of documents, photographs etc, to define where they were created and possibly make a map-based timeline/track of events, thus...
  * ...Using position as metadata for content ("where is the document I wrote at Tigert's place?")
  * Using position for desktop settings (timezone, printers, SMTP servers, whatever)
- * Finding WiFi networks based on position ("I'm in Aleksanterinkatu in Helsinki, where are the nearest free WiFis?")
+ * Finding !WiFi networks based on position ("I'm in Aleksanterinkatu in Helsinki, where are the nearest free !WiFis?")
  * interacting with/supporting the minimo's geolocation standard: http://weblogs.mozillazine.org/dougt/archives/016719.html
  * It would be nice to for example add and use [http://del.icio.us/ del.icio.us] bookmarks with geo-tags, or [http://placeopedia.com placeopedia.com] etc, to pull a feed for "stuff near me"
  * Many sites publish google earth KML files like RSS. [http://maps.google.com/maps?q=http://earthquake.usgs.gov/eqcenter/recenteqsww/catalogs/eqs7day-depth.kmz This is for example current earthquakes, overlaid on Google Maps]. A lot of other stuff can also be found.
@@ -113,15 +116,15 @@ Also since there are several web services to provide you with street address -> 
 == People ==
 Add yourself here if you are interested, so its easier to keep track of us.. :)
 
- * TuomasKuosmanen
- * HenriBergius
- * KeithPreston
- * SeanKelley
- * KentBolton
- * RussNelson
- * DanieleDiMauro
- * AndrewTurner1
- * EeroHeurlin
+ * !TuomasKuosmanen
+ * !HenriBergius
+ * !KeithPreston
+ * !SeanKelley
+ * !KentBolton
+ * !RussNelson
+ * !DanieleDiMauro
+ * !AndrewTurner1
+ * !EeroHeurlin
  * [http://koti.welho.com/jkukkone Jussi Kukkonen]
 ----
 
@@ -154,14 +157,14 @@ Track - Ability to leave a cookie crumb trail.
  * http://codex.wordpress.org/Plugins/Geo -(Geo-related plugins for wordpress). We need to find a way to export our geotags with GeoRSS (http://www.georss.org/)
  * http://dev.wp-plugins.org/wiki/GeoPlugin - I think GeoPress is a better choice for us.
  * YAY! http://www.georss.org/trac/trac.cgi/wiki/GeoPress - "a WordPress plugin that allows users to quickly and easily embed location information in blog posts. You can then embed a dynamic map, Microformat adr and geo output, and adds GeoRSS to the RSS output."
-Current progress: AndrewTurner, one of the GeoPress developers is also part of this now, and he said he'd talk to the GeoRSS folks to get feedback on how to do the extension of the XMLRPC API so that we can get somethign everyone can support.
+Current progress: !AndrewTurner, one of the !GeoPress developers is also part of this now, and he said he'd talk to the GeoRSS folks to get feedback on how to do the extension of the XMLRPC API so that we can get somethign everyone can support.
 
 === F-Spot ===
  * Embed a map into the application to display the locations of photos
  * Add geotags and export them correctly (ie, Flickr)
  * Talk with Toshok to get Turtle as part of this effort
 === Stars (and Maemo Stars) ===
- * [http://nacho.princeton.edu/~walterfb/stars/ Stars] and [http://www.itopen.it/2006/11/30/finalmente-anche-maemo-puo-guardare-le-stelle/ Maemo Stars] are GTK applications displaying a map of the night sky. Both of them would benefit from automatically displaying stars of user's current position as default based on the GeoClue information.
+ * [http://nacho.princeton.edu/~walterfb/stars/ Stars] and [http://www.itopen.it/2006/11/30/finalmente-anche-maemo-puo-guardare-le-stelle/ Maemo Stars] are GTK applications displaying a map of the night sky. Both of them would benefit from automatically displaying stars of user's current position as default based on the !GeoClue information.
 == Architecture ==
 Client(F-Spot)
 
