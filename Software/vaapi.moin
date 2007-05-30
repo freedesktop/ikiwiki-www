@@ -2,6 +2,8 @@
 
 === News ===
 
+14May2007 - Updated rev of video acceleration API specification (0.17 -> 0.18)
+
 02May2007 - Updated rev of the video acceleration API specification (0.15 -> 0.16)
 
 20Apr2007 - Updated rev of the video acceleration API specification (0.10 -> 0.15)
@@ -27,20 +29,23 @@ Email: jonathan.bian@intel.com
 /*
  * Video Decode Acceleration API Specification
  *
- * Rev. 0.16
+ * Rev. 0.18
  * <jonathan.bian@intel.com>
  *
  * Revision History:
  * rev 0.10 (12/10/06 Jonathan Bian) - Initial draft
  * rev 0.11 (12/15/06 Jonathan Bian) - Fixed some errors
- * rev 0.12 (02/05/07 Jonathan Bian) - Added VC-1 data structures
+ * rev 0.12 (02/05/07 Jonathan Bian) - Added VC-1 data structures for slice level decode
  * rev 0.13 (02/28/07 Jonathan Bian) - Added GetDisplay()
  * rev 0.14 (04/13/07 Jonathan Bian) - Fixed MPEG-2 PictureParameter struct, cleaned up a few funcs.
  * rev 0.15 (04/20/07 Jonathan Bian) - Overhauled buffer management  
  * rev 0.16 (05/02/07 Jonathan Bian) - Added error codes and fixed some issues with configuration 
+ * rev 0.17 (05/07/07 Jonathan Bian) - Added H.264/AVC data structures for slice level decode.
+ * rev 0.18 (05/14/07 Jonathan Bian) - Added data structures for MPEG-4 slice level decode 
+ *                                     and MPEG-2 motion compensation.
  *
  * Acknowledgements:
- * Thanks to Waldo Bastian for many valuable feedbacks.
+ *  Thanks to Waldo Bastian for many valuable feedbacks.
  */
 
 #ifndef _VA_H_
@@ -368,18 +373,20 @@ typedef enum
     VAPictureParameterBufferType	= 0,
     VAPictureBitPlaneBufferType		= 1,
     VAIQMatrixBufferType		= 2,
-    VASliceParameterBufferType		= 3,
-    VASliceDataBufferType		= 4,
-    VAMacroblockParameterBufferType	= 5,
-    VAResidualDataBufferType		= 6,
-    VADeblockingParameterBufferType	= 7,
+    VABitPlaneBufferType		= 3,
+    VASliceGroupMapBufferType		= 4,
+    VASliceParameterBufferType		= 5,
+    VASliceDataBufferType		= 6,
+    VAMacroblockParameterBufferType	= 7,
+    VAResidualDataBufferType		= 8,
+    VADeblockingParameterBufferType	= 9,
 } VABufferType;
 
 /****************************
  * MPEG-2 data structures
  ****************************/
  
-/* Picture Parameter Buffer */
+/* MPEG-2 Picture Parameter Buffer */
 typedef struct _VAPictureParameterBufferMPEG2
 {
     unsigned short horizontal_size;
@@ -399,14 +406,14 @@ typedef struct _VAPictureParameterBufferMPEG2
             unsigned char q_scale_type			: 1;
             unsigned char intra_vlc_format		: 1;
             unsigned char alternate_scan		: 1;
-            unsigned char repeat_first_field	: 1;
+            unsigned char repeat_first_field		: 1;
             unsigned char progressive_frame		: 1;
         };
         unsigned int picture_coding_extension;
     };
 } VAPictureParameterBufferMPEG2;
 
-/* Inverse Quantization Matrix Buffer */
+/* MPEG-2 Inverse Quantization Matrix Buffer */
 typedef struct _VAIQMatrixBufferMPEG2
 {
     int load_intra_quantiser_matrix;
@@ -419,22 +426,157 @@ typedef struct _VAIQMatrixBufferMPEG2
     unsigned char chroma_non_intra_quantiser_matrix[64];
 } VAIQMatrixBufferMPEG2;
 
-/* Slice Parameter Buffer */
+/* 
+ * There will be cases where the bitstream buffer will not have enough room to hold
+ * the data for the entire slice, and the following flags will be used in the slice
+ * parameter to signal to the server for the possible cases.
+ * If a slice parameter buffer and slice data buffer pair is sent to the server with 
+ * the slice data partially in the slice data buffer (BEGIN and MIDDLE cases below), 
+ * then a slice parameter and data buffer needs to be sent again to complete this slice. 
+ */
+#define VA_SLICE_DATA_FLAG_ALL		0x00	/* whole slice is in the buffer */
+#define VA_SLICE_DATA_FLAG_BEGIN	0x01	/* The beginning of the slice is in the buffer but the end if not */
+#define VA_SLICE_DATA_FLAG_MIDDLE	0x02	/* Neither beginning nor end of the slice is in the buffer */
+#define VA_SLICE_DATA_FLAG_END		0x04	/* end of the slice is in the buffer */
+
+/* MPEG-2 Slice Parameter Buffer */
 typedef struct _VASliceParameterBufferMPEG2
 {
-    int slice_data_size;/* number of bytes in the slice data buffer for this slice */
-    int slice_data_offset;/* the offset to the first byte of slice data */
-    int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
-    int slice_vertical_position;
+    unsigned int slice_data_size;/* number of bytes in the slice data buffer for this slice */
+    unsigned int slice_data_offset;/* the offset to the first byte of slice data */
+    unsigned int slice_data_flag; /* see VA_SLICE_DATA_FLAG_XXX defintions */
+    unsigned int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
+    unsigned int slice_vertical_position;
     int quantiser_scale_code;
     int intra_slice_flag;
 } VASliceParameterBufferMPEG2;
+
+/* MPEG-2 Macroblock Parameter Buffer */
+typedef struct _VAMacroblockParameterBufferMPEG2
+{
+    unsigned short macroblock_address;
+    /* 
+     * macroblock_address (in raster scan order)
+     * top-left: 0
+     * bottom-right: picture-height-in-mb*picture-width-in-mb - 1
+     */
+    unsigned char macroblock_type;  /* see definition below */
+    union {
+        struct {
+            unsigned char frame_motion_type		: 2; 
+            unsigned char field_motion_type		: 2; 
+            unsigned char dct_type			: 1; 
+        };
+        unsigned char macroblock_modes;
+    };
+    unsigned char motion_vertical_field_select; 
+    /* 
+     * motion_vertical_field_select:
+     * see section 6.3.17.2 in the spec
+     * only the lower 4 bits are used
+     * bit 0: first vector forward
+     * bit 1: first vector backward
+     * bit 2: second vector forward
+     * bit 3: second vector backward
+     */
+    short PMV[2][2][2]; /* see Table 7-7 in the spec */
+    unsigned short coded_block_pattern;
+    /* 
+     * The bitplanes for coded_block_pattern are described 
+     * in Figure 6.10-12 in the spec
+     */
+} VAMacroblockParameterBufferMPEG2;
+
+/* 
+ * OR'd flags for macroblock_type (section 6.3.17.1 in the spec)
+ */
+#define VA_MB_TYPE_MOTION_FORWARD	0x02
+#define VA_MB_TYPE_MOTION_BACKWARD	0x04
+#define VA_MB_TYPE_MOTION_PATTERN	0x08
+#define VA_MB_TYPE_MOTION_INTRA		0x10
+
+/* 
+ * MPEG-2 Residual Data Buffer 
+ * For each macroblock, there wil be 64 shorts (16-bit) in the 
+ * residual data buffer
+ */
+
+/****************************
+ * MPEG-4 Part 2 data structures
+ ****************************/
+ 
+/* MPEG-4 Picture Parameter Buffer */
+typedef struct _VAPictureParameterBufferMPEG4
+{
+    unsigned short vop_width;
+    unsigned short vop_height;
+    VASurfaceID forward_reference_picture;
+    VASurfaceID backward_reference_picture;
+    union {
+        struct {
+            unsigned char short_video_header		: 1; 
+            unsigned char chroma_format			: 2; 
+            unsigned char interlaced			: 1; 
+            unsigned char obmc_disable			: 1; 
+            unsigned char sprite_enable			: 2; 
+            unsigned char sprite_warping_accuracy	: 2; 
+            unsigned char quant_type			: 1; 
+            unsigned char quarter_sample		: 1; 
+            unsigned char data_partitioned		: 1; 
+            unsigned char reversible_vlc		: 1; 
+        };
+        unsigned short vol_fields;
+    };
+    unsigned char no_of_sprite_warping_points;
+    short sprite_trajectory_du[3];
+    short sprite_trajectory_dv[3];
+    unsigned char quant_precision;
+    union {
+        struct {
+            unsigned char vop_coding_type		: 2; 
+            unsigned char backward_reference_vop_coding_type	: 2; 
+            unsigned char vop_rounding_type		: 1; 
+            unsigned char intra_dc_vlc_thr		: 3; 
+            unsigned char top_field_first		: 1; 
+            unsigned char alternate_vertical_scan_flag	: 1; 
+        };
+        unsigned short vop_fields;
+    };
+    unsigned char vop_fcode_forward;
+    unsigned char vop_fcode_backward;
+    /* short header related */
+    unsigned char num_gobs_in_vop;
+    unsigned char num_macroblocks_in_gob;
+    /* for direct mode prediction */
+    short TRB;
+    short TRD;
+} VAPictureParameterBufferMPEG4;
+
+/* MPEG-4 Inverse Quantization Matrix Buffer */
+typedef struct _VAIQMatrixBufferMPEG4
+{
+    int load_intra_quant_mat;
+    int load_non_intra_quant_mat;
+    unsigned char intra_quant_mat[64];
+    unsigned char non_intra_quant_mat[64];
+} VAIQMatrixBufferMPEG4;
+
+/* MPEG-4 Slice Parameter Buffer */
+typedef struct _VASliceParameterBufferMPEG4
+{
+    unsigned int slice_data_size;/* number of bytes in the slice data buffer for this slice */
+    unsigned int slice_data_offset;/* the offset to the first byte of slice data */
+    unsigned int slice_data_flag; /* see VA_SLICE_DATA_FLAG_XXX defintions */
+    unsigned int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
+    unsigned int macroblock_number;
+    int quant_scale;
+} VASliceParameterBufferMPEG4;
 
 /*
  VC-1 data structures
 */
  
-/* Picture Parameter Buffer */
+/* VC-1 Picture Parameter Buffer */
 typedef struct _VAPictureParameterBufferVC1
 {
     VASurfaceID forward_reference_picture;
@@ -529,7 +671,7 @@ typedef struct _VAPictureParameterBufferVC1
     };
 } VAPictureParameterBufferVC1;
 
-/* Bitplane Buffer 
+/* VC-1 Bitplane Buffer 
 There will be at most three bitplanes coded in any picture header. To send 
 the bitplane data more efficiently, each byte is divided in two nibbles, with
 each nibble carrying three bitplanes for one macroblock.  The following table
@@ -547,25 +689,117 @@ buffer is for Macroblock #1 and the upper nibble of the first byte is for
 Macroblock #2 in the first row.
 */
 
-/* Slice Parameter Buffer */
+/* VC-1 Slice Parameter Buffer */
 typedef struct _VASliceParameterBufferVC1
 {
-    int slice_data_size;/* number of bytes in the slice data buffer for this slice */
-    int slice_data_offset;/* the offset to the first byte of slice data */
-    int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
-    int slice_vertical_position;
+    unsigned int slice_data_size;/* number of bytes in the slice data buffer for this slice */
+    unsigned int slice_data_offset;/* the offset to the first byte of slice data */
+    unsigned int slice_data_flag; /* see VA_SLICE_DATA_FLAG_XXX defintions */
+    unsigned int macroblock_offset;/* the offset to the first bit of MB from the first byte of slice data */
+    unsigned int slice_vertical_position;
 } VASliceParameterBufferVC1;
 
-/* Slice Data Buffer */
+/* VC-1 Slice Data Buffer */
 /* 
 This is simplely a buffer containing raw bit-stream bytes 
 */
 
-/* Macroblock Parameter Buffer */
+/****************************
+ * H.264/AVC data structures
+ ****************************/
 
-/* Residual Data Buffer */
+typedef struct _VAPictureH264
+{
+    VASurfaceID picture_id;
+    unsigned int flags;
+    unsigned int TopFieldOrderCnt;
+    unsigned int BottomFieldOrderCnt;
+} VAPictureH264;
+/* flags in VAPictureH264 could be OR of the following */
+#define VA_PICTURE_H264_INVALID			0x00000001
+#define VA_PICTURE_H264_TOP_FIELD		0x00000002
+#define VA_PICTURE_H264_BOTTOM_FIELD		0x00000004
+#define VA_PICTURE_H264_SHORT_TERM_REFERENCE	0x00000008
+#define VA_PICTURE_H264_LONG_TERM_REFERENCE	0x00000010
+#define VA_PICTURE_H264_USED_AS_REFERENCE	0x00000020
 
-/* Deblocking Parameter Buffer */
+/* H.264 Picture Parameter Buffer */
+typedef struct _VAPictureParameterBufferH264
+{
+    VAPictureH264 CurrPic;
+    VAPictureH264 ReferenceFrames[16];	/* in DPB */
+    unsigned short picture_width_in_mbs_minus1;
+    unsigned short picture_height_in_mbs_minus1;
+    unsigned char bit_depth_luma_minus8;
+    unsigned char bit_depth_chroma_minus8;
+    unsigned char num_ref_frames;
+    union {
+        struct {
+            unsigned char chroma_format_idc			: 2; 
+            unsigned char residual_colour_transform_flag	: 1; 
+            unsigned char frame_mbs_only_flag			: 1; 
+            unsigned char mb_adaptive_frame_field_flag		: 1; 
+            unsigned char direct_8x8_inference_flag		: 1; 
+        };
+        unsigned char seq_fields;
+    };
+    unsigned char num_slice_groups_minus1;
+    unsigned char slice_group_map_type;
+    unsigned char pic_init_qp_minus26;
+    unsigned char chroma_qp_index_offset;
+    unsigned char second_chroma_qp_index_offset;
+    union {
+        struct {
+            unsigned char entropy_coding_mode_flag	: 1; 
+            unsigned char weighted_pred_flag		: 1; 
+            unsigned char weighted_bipred_idc		: 1; 
+            unsigned char transform_8x8_mode_flag	: 1; 
+            unsigned char field_pic_flag		: 1;
+        };
+        unsigned char pic_fields;
+    };
+    unsigned short frame_num;
+} VAPictureParameterBufferH264;
+
+/* H.264 Inverse Quantization Matrix Buffer */
+typedef struct _VAIQMatrixBufferH264
+{
+    unsigned char ScalingList4x4[6][16];
+    unsigned char ScalingList8x8[2][64];
+} VAIQMatrixBufferH264;
+
+/* 
+ * H.264 Slice Group Map Buffer 
+ * When VAPictureParameterBufferH264::num_slice_group_minus1 is not equal to 0,
+ * A slice group map buffer should be sent for each picture if required. The buffer
+ * is sent only when there is a change in the mapping values.
+ * The slice group map buffer map "map units" to slice groups as specified in 
+ * section 8.2.2 of the H.264 spec. The buffer will contain one byte for each macroblock 
+ * in raster scan order
+ */ 
+
+/* H.264 Slice Parameter Buffer */
+typedef struct _VASliceParameterBufferH264
+{
+    unsigned int slice_data_size;/* number of bytes in the slice data buffer for this slice */
+    unsigned int slice_data_offset;/* the offset to first byte of slice data */
+    unsigned int slice_data_flag; /* see VA_SLICE_DATA_FLAG_XXX defintions */
+    unsigned short slice_data_bit_offset; /* bit offset in the first byte of valid data */
+    unsigned short first_mb_in_slice;
+    unsigned char slice_type;
+    unsigned char direct_spatial_mv_pred_flag;
+    unsigned char num_ref_idx_10_active_minus1;
+    unsigned char num_ref_idx_11_active_minus1;
+    unsigned char cabac_init_idc;
+    char slice_qp_delta;
+    unsigned char disable_deblocking_filter_idc;
+    char slice_alpha_c0_offset_div2;
+    char slice_beta_offset_div2;
+    VAPictureH264 RefPicList0[32];	/* See 8.2.4.2 */
+    VAPictureH264 RefPicList1[32];	/* See 8.2.4.2 */
+    unsigned char luma_log2_weight_denom;
+    unsigned char chroma_log2_weight_denom;
+} VASliceParameterBufferH264;
 
 /* Buffer functions */
 
@@ -593,7 +827,20 @@ VAStatus vaBufferData (
     VADisplay dpy,
     VABufferID buf_id,	/* in */
     unsigned int size,	/* in */
+    unsigned int num_elements, /* in */
     void *data		/* in */
+);
+
+/*
+ * Convey to the server how many valid elements are in the buffer. 
+ * e.g. if multiple slice parameters are being held in a single buffer,
+ * this will communicate to the server the number of slice parameters
+ * that are valid in the buffer.
+ */
+VAStatus vaBufferSetNumElements (
+    VADisplay dpy,
+    VABufferID buf_id,	/* in */
+    unsigned int num_elements /* in */
 );
 
 /*
@@ -852,5 +1099,6 @@ Mostly to demonstrate program flow with no error handling ...
 	/* all slices have been sent, mark the end for this frame */
 	vaEndPicture(dpy, context);
 #endif
+
 
 }}}
