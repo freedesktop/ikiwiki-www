@@ -1,0 +1,216 @@
+= GeoClue - geographic information service =
+NOTE: This page is currently transitioning from http://live.gnome.org/GeoClue to here.
+----
+GeoClueis a project that provide all kinds of geography information to an application.   This is through a very abstract DBus interface in which a variety of backends can be used to provide this implementation.   Although we implement a few reference backends, creating your own is encouraged.There are many separate APIs that are planned including
+
+ * Position
+ * Map
+ * Routing
+ * Geocode
+ * Track Logs
+There is a lot of ideas you can implement with this service.  For example we could automatically set a weather forecast program to show the weather of your current location.
+
+'''Code''' - the project got nicely underway during the Boston2006 summit. GeoClue is a [http://www.freedesktop.org/wiki/Software/dbus D-Bus] service. Check out the code:
+
+ . svn co http://svn.foinse-project.org/geoclue/trunk geoclue
+It might or might not compile or run (or do anything useful even) - as it's still in the early stages.
+
+== Work that needs to be done ==
+=== gnome applet ===
+ . http://www.gnome.org/projects/ORBit2/appletstutorial.html
+Make a small applet that can pop up an info box when a location is first reported.   "You are in Olathe, KS". When left clicked on brings up a 320x240 image (can just be a static image for now I will add map to it.) with an entry below it that you can type in an address along with a search button. When you left click the applet it would bring up a menu with a properties box.   This box would allow you to set preference for what service to use.   basically a drop down for "Manual entry", "www.hostip.info", "Gps device"  There can be five of these for position, mapping, geocoding, tracking, routing.
+
+==== Mockup ====
+Something like this could pop up from the notification system once GeoClue finds we are in a significantly new place. How and when this happens needs to be determined somehow. Perhaps like, when moving to a new city or switching networks etc. We shouldnt pop these up repeatedly while moving around with GPS location though, that'd be annoying.
+
+{{{
+.-------------------------------------.
+|                                  [x]|
+|  *New Location*                     |
+|                                     |
+|  Helsinki, FINLAND                  |
+|                                     |
+|  Is this wrong?  [ Correct it! ]    | <- gives a correction dialog
+|                                     |
+|  [ ] Stop tracking my location      |
+|      automatically.                 |
+|                                     |
+`-------------------------------------'
+Correction dialog:
+.-( Set Location )-------------------------------(x)-.
+|                                                    |
+| Address: [ 20 Ames St, Cambridge, MA ] [ Look up ] |
+|                                                    |
+|.--------------------------------------------------.|
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||               m a p   w i d g e t                ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+||                                                  ||
+|`--------------------------------------------------'|
+|                                                    |
+|                                   [ Set Location ] |
+|                                                    |
+`----------------------------------------------------'}}}
+=== Backend ===
+Already Implemented
+
+ 1. maps yahoo
+ 1. position manual
+ 1. position hostip.info
+ 1. geocode yahoo
+Needs
+
+ 1. maps static image (big world image or svg of world)
+ 1. position plazes.com
+ 1. track turtle
+ 1. routing ?
+ 1. position GPSD
+'''Communication (IRC)''' -  we have an ad-hoc irc channel on GimpNet, irc.gimp.org, channel #geoclue. [http://www.ircatwork.com This] can be useful if you are behind a restrictive firewall.
+
+== Architecture ==
+The service has two parts: A master service that abstracts multiple backends from the application, and a variety of "backends" that deal with different methods for location information.
+
+==== GeoClue for Application Writers - talking to it over dbus ====
+There are two methods to accessing this service.   You can use the raw dbus api through any prospective bindings or you can use the utility C wrapper provided with the package
+
+==== Backends ====
+The idea is to have several different backends. A GPS is naturally the most accurate source, but it does not work well indoors, and a device might not always be available. Yet, even without a GPS, a bit less accurate position is easily available using other methods, and this information will in most cases be just as useful. Also sometimes you might not want to expose your exact coordinates ("send nukes here"-problem) - thus the API will have ways to serve different types of location data.
+
+Also since there are several web services to provide you with street address -> coordinate (and backwards) coding, this will be one useful service GeoClue will make accessible through itself. A street address or a "plaze" name (see below for plazes) might be more useful to show to your IM buddies for example, since it is more human readable than a lat,lon coordinate pair. Yet for mapping uses etc, it should be good that both are always made available, plus some way to determine the accuracy of the data. Sure, "Boston" is located in [http://maps.google.com/maps?f=q&hl=en&q=N+42°+21'+29'' W+71°+3'+37"&ie=UTF8&z=16&ll=42.358211,-71.060278&spn=0.006961,0.021415&om=1&iwloc=A N 42° 21' 29" W 71° 3' 37"] but the area is a lot larger than the actual coordinate reference point, which points to a street corner between Tremont and Beacon Street.
+
+ * [http://gpsd.berlios.de/ gpsd] - to talk to real gps devices.
+ * [http://www.plazes.com plazes.com] - a website that tracks your location based on the network topology, wifi hotspots etc. It has a XMLRPC API. Requires login, lets users tag "places" with names also. "MIT Media Lab" instead of "20 Ames St, Cambridge, MA 02142".
+ * [http://hostip.info/ hostip.info] - a similar thing to plazes, but requires no login, and returns a city based on your IP. In many cases accurate enough for most non-mapping uses like timezone etc.
+ * Manual - user sets position by hand, using a panel applet or something similar. A fallback when there is no other method, or if the  other methods fail to provide correct information. Online Geocoding services can be used to convert street and city names etc to location.
+ * A flight tracker to find your position if you set your location to "Lufthansa 421" for example ;-) (only half-joking, for example [http://www.aeroseek.com/webtrax/fboweb.html Aeroseek] gives you also a google earth (KML) file for the flight's location and route..)
+== Application ideas ==
+ * Applications like [http://www.gnome.org/projects/evolution/ Evolution] could set their timezone automatically
+ * Contacts and Instant Messaging could extend the idea of [http://www.galago-project.org/ presence] to also include the concept of geographic location. "Bob is in Singapore, and it's 4am there, so you should not call him right now". see loopt, for example: https://loopt.com/loopt/tour.web2.1
+ * Blogging software could query the location and add "geotags" to the post metadata.
+ * Groupware and collaboration tools could track project participants to see which technician is closest to a client with a support ticket
+ * Applications like [http://squeedlyspooch.com/blog/archives/2006_08_08.html#002069 Turtle] could store track log of movement, and could then mesh it with timestamps of documents, photographs etc, to define where they were created and possibly make a map-based timeline/track of events, thus...
+ * ...Using position as metadata for content ("where is the document I wrote at Tigert's place?")
+ * Using position for desktop settings (timezone, printers, SMTP servers, whatever)
+ * Finding WiFi networks based on position ("I'm in Aleksanterinkatu in Helsinki, where are the nearest free WiFis?")
+ * interacting with/supporting the minimo's geolocation standard: http://weblogs.mozillazine.org/dougt/archives/016719.html
+ * It would be nice to for example add and use [http://del.icio.us/ del.icio.us] bookmarks with geo-tags, or [http://placeopedia.com placeopedia.com] etc, to pull a feed for "stuff near me"
+ * Many sites publish google earth KML files like RSS. [http://maps.google.com/maps?q=http://earthquake.usgs.gov/eqcenter/recenteqsww/catalogs/eqs7day-depth.kmz This is for example current earthquakes, overlaid on Google Maps]. A lot of other stuff can also be found.
+ * Amateur Radio - both [http://www.aprs.net/ APRS Automatic Position Reporting System] and for automatically filling in the grid square location for contact logging.
+ * etc etc..
+== People ==
+Add yourself here if you are interested, so its easier to keep track of us.. :)
+
+ * TuomasKuosmanen
+ * HenriBergius
+ * KeithPreston
+ * SeanKelley
+ * KentBolton
+ * RussNelson
+ * DanieleDiMauro
+ * AndrewTurner1
+ * EeroHeurlin
+ * [http://koti.welho.com/jkukkone Jussi Kukkonen]
+----
+
+== GeoClue Hack session 1 at Boston2006 ==
+1. Mapping     1. Position     1. Geocoding     1. Routing     1. Track
+
+Mapping - Gtk+/DBus interface to retrieve map data from yahoo.com using a plugin.  Other sources of mapping could be used.  On a mapping backend you may not always have a map backend.  So it might be a good idea to cache that map data.
+
+Position - Provides position, velocity, and time data.  One backend currently supported is gpsd, connected to a GPS sensor.
+
+Geocoding - Find nearest points of interest based on current location.  Will have a yahoo.com backend.
+
+Routing - Ability to submit desitinations to a backend like yahoo.com in order to generate a route.
+
+Track - Ability to leave a cookie crumb trail.
+
+== Ideas ==
+=== Gossip / Jabber ===
+ * http://www.xmpp.org/extensions/xep-0080.html - implement the location stuff correctly
+ * Share position with your buddies. Perhaps different accuracy for some buddy groups ("Friends see my street address, others just the city I am in")
+ * Share position information between clients
+ * Share interesting places between IM buddies ("[http://www.tigert.com/archives/2006/06/25/message-to-chris-blizzard/ Awesome icecream here!]", "I'll be going [to the library] to read, lets meet there at 6" )
+ * Display contacts on a map
+=== Gnome Blog ===
+ * Look-up standard XMLRPC and see if postion information is a part of the spec.
+ * Otherwise add position to XML as a tags
+ * Blog sites could pick up those tags and have creative ways of presenting location.
+ * [http://en.wikipedia.org/wiki/Geotagging Wikipedia has some info about how to tag blog entries] - apparently you need three tags: one "geotagged" to generally make others aware your post is geotagged, and then the coords in two tags: geo:latitude and geo:longitude eg: geo:lat=51.4989 geo:lon=-0.1786
+==== Wordpress ====
+ * http://codex.wordpress.org/Plugins/Geo -(Geo-related plugins for wordpress). We need to find a way to export our geotags with GeoRSS (http://www.georss.org/)
+ * http://dev.wp-plugins.org/wiki/GeoPlugin - I think GeoPress is a better choice for us.
+ * YAY! http://www.georss.org/trac/trac.cgi/wiki/GeoPress - "a WordPress plugin that allows users to quickly and easily embed location information in blog posts. You can then embed a dynamic map, Microformat adr and geo output, and adds GeoRSS to the RSS output."
+Current progress: AndrewTurner, one of the GeoPress developers is also part of this now, and he said he'd talk to the GeoRSS folks to get feedback on how to do the extension of the XMLRPC API so that we can get somethign everyone can support.
+
+=== F-Spot ===
+ * Embed a map into the application to display the locations of photos
+ * Add geotags and export them correctly (ie, Flickr)
+ * Talk with Toshok to get Turtle as part of this effort
+=== Stars (and Maemo Stars) ===
+ * [http://nacho.princeton.edu/~walterfb/stars/ Stars] and [http://www.itopen.it/2006/11/30/finalmente-anche-maemo-puo-guardare-le-stelle/ Maemo Stars] are GTK applications displaying a map of the night sky. Both of them would benefit from automatically displaying stars of user's current position as default based on the GeoClue information.
+== Architecture ==
+Client(F-Spot)
+
+ . Master
+Backend    Backend (GPS 18)    (Yahoo!)
+
+== Tasks ==
+Keith  - Conglomerate (code) Sean   - plazes.com backend
+
+ . - lookup other choices
+Tuomas - looking up XMLRPC
+
+ . - looking up jabber - gossip client
+Sean   - gnome blogger
+
+ . - planet.gnome.org
+== Links ==
+ * [http://www.geonames.org www.geonames.org] - free database project that maps geographical names to coordinates. (Gnome Mine, Idaho, USA is N 45° 44' 26'' W 115° 31' 12'' etc..) - the database is free, under Creative Commons Attribution 2.5 License)
+ * [http://developer.yahoo.com/maps/rest/V1/geocode.html Yahoo Geocoding API] (US addresses only)
+ * [http://www.google.com/apis/maps/documentation/#Geocoding_Examples Google Maps has a geocoding api] as well
+ * [http://www.plazes.com www.plazes.com] is the location service that links networks with location. There's a [http://kybkreis.org/wiki/index.php/PyPlazes Python implementation of the API here].
+ * [http://geobloggers.com/ www.geobloggers.com] - google found this too..
+ * [http://www.w3.org/2003/01/geo/ Some w3c stuff about geolocation]
+ * [http://www.wigle.net/ www.wigle.net] - WIFI hotspot directory
+ * [http://del.icio.us/search/?fr=del_icio_us&p=kmz&type=all del.icio.us KMZ tag search]
+ * [http://www.kmz-archive.com/ KMZ Archive]
+ * [http://www.xmpp.org/extensions/xep-0080.html Jabber XMPP extension for geolocation]
+ * [wiki:WikiPedia:Del.icio.us Del.icio.us geotagging]
+ * [http://www.hostip.info ip to location ]
+ * http://www.wikimapia.org
+ * [http://gsmloc.org GSMLoc] - mapping GSM cell tower locations
+ * [http://placelab.org PlaceLab] - Intel site for research, databases, applications for mapping by cell tower, wifi, IP, etc.
+=== Related links ===
+ * [http://wikitravel.org/en/Wikitravel:Common_map_symbols Wikitravel: SVG common map symbols (CC license)]
+To be cleaned up:
+
+ * More info on GeoRSS: http://www.opengeospatial.org/search/node/georss
+ * Map server spec's: http://www.opengeospatial.org/standards/wms and http://www.opengeospatial.org/standards/wfs - and the following servers use the above standards for serving maps:
+  * MapServer: http://mapserver.gis.umn.edu
+  * GeoServer: http://docs.codehaus.org/display/GEOS/Home
+  * Also, the National Land Survey of Finland has a WMS API available: http://xml.nls.fi
+  * A lot of other WMS servers around the world: http://www.skylab-mobilesystems.com/en/wms_serverlist.html
+ * Here are some websites that use the above map services:
+  * http://openlayers.org/
+  * http://ka-map.maptools.org/
+  * http://docs.codehaus.org/display/MAP/Home
+ * http://wiki.osgeo.org/index.php/Mobile_Solutions
+ * GeoLocateFox Firefox extension: https://addons.mozilla.org/firefox/1991/
+ * http://gsmloc.org/ - cellphone cell-id location db
+ * http://www.maxmind.com/app/locate_ip - like hostip.info
+ * http://www.webkuehn.de/hobbys/wikipedia/geokoordinaten/index_en.htm - wikipedia coord feeds to google earth
+ * https://garage.maemo.org/projects/maemoplazer/ Plazes integration on [http://www.maemo.org/ Maemo]
