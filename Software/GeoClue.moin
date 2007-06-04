@@ -1,5 +1,4 @@
 = GeoClue - geographic information service =
-
 ##This first section is pretty important. It should tell the reader what geoclue is and why it's important, all in fluent language in just a few sentences... The last para still needs work.
 !GeoClue is a DBUS api and library that provides all kinds of geographic information to applications. The information may come from various sources (backends), but !GeoClue offers it in a simple, abstracted form.  The following APIs (and backend types) are supported or planned:
 
@@ -23,6 +22,22 @@ git clone git://anongit.freedesktop.org/git/geoclue}}}
 == Contacting the developers ==
 There is a mailing list '' geoclue@lists.freedesktop.org '' with an [http://lists.freedesktop.org/mailman/listinfo/geoclue info page] for browsing the archives and subscribing. You are also welcome to join the ad-hoc irc channel ''#geoclue''  on !GimpNet (irc.gimp.org). If you are behind a restrictive firewall, try [http://ircatwork.com IRC@Work].
 
+== Architecture ==
+##This section needs more content, and probably a rewrite.The service has two parts: A master service that abstracts multiple backends from the application, and a variety of "backends" that deal with different methods for location information.
+
+==== GeoClue for Application Writers - DBUS service or C library ====
+There are two methods to accessing this service. You can use the raw dbus api through any prospective bindings or you can use the utility C wrapper provided with the package
+
+==== Backends ====
+The idea is to have several different backends. A GPS is naturally the most accurate source, but it does not work well indoors, and a device might not always be available. Yet, even without a GPS, a bit less accurate position is easily available using other methods, and this information will in most cases be just as useful. Also sometimes you might not want to expose your exact coordinates ("send nukes here"-problem) - thus the API will have ways to serve different types of location data.
+
+Also since there are several web services to provide you with street address -> coordinate (and backwards) coding, this will be one useful service !GeoClue will make accessible through itself. A street address or a "plaze" name (see below for plazes) might be more useful to show to your IM buddies for example, since it is more human readable than a lat,lon coordinate pair. Yet for mapping uses etc, it should be good that both are always made available, plus some way to determine the accuracy of the data. Sure, "Boston" is located in [http://maps.google.com/maps?f=q&hl=en&q=N+42°+21'+29'' W+71°+3'+37"&ie=UTF8&z=16&ll=42.358211,-71.060278&spn=0.006961,0.021415&om=1&iwloc=A N 42° 21' 29" W 71° 3' 37"] but the area is a lot larger than the actual coordinate reference point, which points to a street corner between Tremont and Beacon Street.
+
+ * [http://gpsd.berlios.de/ gpsd] - to talk to real gps devices.
+ * [http://www.plazes.com plazes.com] - a website that tracks your location based on the network topology, wifi hotspots etc. It has a XMLRPC API. Requires login, lets users tag "places" with names also. "MIT Media Lab" instead of "20 Ames St, Cambridge, MA 02142".
+ * [http://hostip.info/ hostip.info] - a similar thing to plazes, but requires no login, and returns a city based on your IP. In many cases accurate enough for most non-mapping uses like timezone etc.
+ * Manual - user sets position by hand, using a panel applet or something similar. A fallback when there is no other method, or if the other methods fail to provide correct information. Online Geocoding services can be used to convert street and city names etc to location.
+ * A flight tracker to find your position if you set your location to "Lufthansa 421" for example ;-) (only half-joking, for example [http://www.aeroseek.com/webtrax/fboweb.html Aeroseek] gives you also a google earth (KML) file for the flight's location and route..)
 == Work that needs to be done ==
 === gnome applet ===
  . http://www.gnome.org/projects/ORBit2/appletstutorial.html
@@ -86,22 +101,6 @@ Needs
  1. track turtle
  1. routing ?
  1. position GPSD
-== Architecture ==
-The service has two parts: A master service that abstracts multiple backends from the application, and a variety of "backends" that deal with different methods for location information.
-
-==== GeoClue for Application Writers - talking to it over dbus ====
-There are two methods to accessing this service.   You can use the raw dbus api through any prospective bindings or you can use the utility C wrapper provided with the package
-
-==== Backends ====
-The idea is to have several different backends. A GPS is naturally the most accurate source, but it does not work well indoors, and a device might not always be available. Yet, even without a GPS, a bit less accurate position is easily available using other methods, and this information will in most cases be just as useful. Also sometimes you might not want to expose your exact coordinates ("send nukes here"-problem) - thus the API will have ways to serve different types of location data.
-
-Also since there are several web services to provide you with street address -> coordinate (and backwards) coding, this will be one useful service !GeoClue will make accessible through itself. A street address or a "plaze" name (see below for plazes) might be more useful to show to your IM buddies for example, since it is more human readable than a lat,lon coordinate pair. Yet for mapping uses etc, it should be good that both are always made available, plus some way to determine the accuracy of the data. Sure, "Boston" is located in [http://maps.google.com/maps?f=q&hl=en&q=N+42°+21'+29'' W+71°+3'+37"&ie=UTF8&z=16&ll=42.358211,-71.060278&spn=0.006961,0.021415&om=1&iwloc=A N 42° 21' 29" W 71° 3' 37"] but the area is a lot larger than the actual coordinate reference point, which points to a street corner between Tremont and Beacon Street.
-
- * [http://gpsd.berlios.de/ gpsd] - to talk to real gps devices.
- * [http://www.plazes.com plazes.com] - a website that tracks your location based on the network topology, wifi hotspots etc. It has a XMLRPC API. Requires login, lets users tag "places" with names also. "MIT Media Lab" instead of "20 Ames St, Cambridge, MA 02142".
- * [http://hostip.info/ hostip.info] - a similar thing to plazes, but requires no login, and returns a city based on your IP. In many cases accurate enough for most non-mapping uses like timezone etc.
- * Manual - user sets position by hand, using a panel applet or something similar. A fallback when there is no other method, or if the  other methods fail to provide correct information. Online Geocoding services can be used to convert street and city names etc to location.
- * A flight tracker to find your position if you set your location to "Lufthansa 421" for example ;-) (only half-joking, for example [http://www.aeroseek.com/webtrax/fboweb.html Aeroseek] gives you also a google earth (KML) file for the flight's location and route..)
 == Application ideas ==
  * Applications like [http://www.gnome.org/projects/evolution/ Evolution] could set their timezone automatically
  * Contacts and Instant Messaging could extend the idea of [http://www.galago-project.org/ presence] to also include the concept of geographic location. "Bob is in Singapore, and it's 4am there, so you should not call him right now". see loopt, for example: https://loopt.com/loopt/tour.web2.1
@@ -189,7 +188,7 @@ Sean   - gnome blogger
  * [http://gsmloc.org GSMLoc] -- GSM cell location database
 === Related information ===
  * IETF:
-  *  [http://www.ietf.org/rfc/rfc4119.txt A Presence-based GEOPRIV Location Object Format] (RFC 4119) and [http://tools.ietf.org/html/draft-ietf-geopriv-pdif-lo-profile GEOPRIV PIDF-LO Usage Clarification, Considerations and Recommendations] (draft)
+  * [http://www.ietf.org/rfc/rfc4119.txt A Presence-based GEOPRIV Location Object Format] (RFC 4119) and [http://tools.ietf.org/html/draft-ietf-geopriv-pdif-lo-profile GEOPRIV PIDF-LO Usage Clarification, Considerations and Recommendations] (draft)
   * [http://tools.ietf.org/html/draft-ietf-geopriv-policy Geolocation Policy: A Document Format for Expressing Privacy Preferences for Location Information] (draft)
  * [http://www.w3.org/2003/01/geo/ W3C Semantic Web IG] -- Basic Geo Vocabulary for semantic web
  * [http://www.xmpp.org/extensions/xep-0080.html Jabber XMPP extension for geolocation]
