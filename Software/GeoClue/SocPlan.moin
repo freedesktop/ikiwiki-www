@@ -1,6 +1,68 @@
-= Project plan: =
-= GeoClue for maemo =
-(A Google Summer of Code project)
+(work-in-progress)
+
+= Summary =
+
+This is the project plan for the Google Summer of Code project "!GeoClue for maemo". 
+
+The plan is divided into subprojects, which may be part of generic !GeoClue or maemo specific (this will be noted in the text). Some subprojects have been discussed on the geoclue mailing list during June 2007.
 
 
-under construction...
+[[TableOfContents(1)]]
+
+= Civic location support =
+This is what I've been calling the kind of location information that includes data like street address, country name or post code. I rate civic location support a high priority issue for Geoclue for two
+reasons:
+ 1. Lots of applications will want to use this data instead of lat/lon
+ 2. Human readable location information makes demoing !GeoClue easy
+After a discussion on the mailing list, I have buried my original idea of a new interface: civic location API will be included in the position-interface (this means solving the backend selection -problem is even more important).
+The API should include methods to query specific data items (such as the post code) and methods to query human readable string representation(s) of the location (such as "Evergreen Terrace, Springfield, USA") and possibly convenience methods to query several common data items at once (e.g. street, city, country).
+
+== Possible API elements ==
+IETF rfc 4119 lists these civic location elements, most geoclue supported elements can be picked from here:
+||<tablestyle="border:solid 1px black;width:75%;">'''Label'''||<40%>'''Description'''||<40%>'''Example'''||
+|| country              || The country (ISO 3166 code)         || US                  ||
+|| A1                   || national subdivisions (state, region, province             || New York            ||
+|| A2                   || county, parish,      || King's County       ||
+|| A3                   || city, township,      || New York            ||
+|| A4                   || city division, borough       || Manhattan           ||
+|| A5                   || neighborhood, block  || Morningside Heights ||
+|| A6                   || street               || Broadway            ||
+|| PRD                  || Leading street direction       || N, W                ||
+|| POD                  || Trailing street suffix      || SW                  ||
+|| STS                  || Street suffix        || Avenue, Platz, Street     ||
+|| HNO                  || House number, numeric part only.       || 123                 ||
+|| HNS                  || House number suffix  || A, 1/2              ||
+|| LMK                  || Landmark or vanity address  || Low Library         ||
+|| LOC                  || Additional location information || Room 543            ||
+|| FLR                  || Floor                || 5                   ||
+|| NAM                  || Name (residence, business or office occupant)    || Joe's Barbershop    ||
+|| PC                   || Postal code          || 10027-0401          ||
+
+== TODO ==
+ * define API
+ * implement
+
+= Backend selection =
+
+Selecting the backend to use is not just a matter of choosing the default one, if using !GeoClue is supposed to be easy for both the application developer and the user. Let's take a look at an example: 
+
+User has the following position backends installed
+ 1. GPS
+ 2. Hostip
+
+Scenarios:
+ 1. Application wants to know the city/country (assume civic location is now included in the position-interface).
+ 2. An application wants coordinates. User does not have a GPS device with her (or she is indoors so there's no fix).
+
+In both scenarios the default GPS backend is unusable. Problem in scenario 1 is something that could be avoided with having separate interfaces for civic/coordinate location, but that is just a special case. Scenario 2, and many other situations like it, would require the application to call get_all_position_providers() and try another backend if the current_position()-method of the first backend failed... This is not friendly at all.
+
+Getting information from several backends should be as seamless as possible. I don't see why the selection of backends couldn't be totally abstracted in the bindings / wrapper library (assume there is a list of preferred backends in gconf instead of the current default backend):
+{{{If a method (e.g. current_position()) fails, and
+    if the current backend was initialized with the generic init-method and
+        if there are backends still left on the list of backends
+            Initialize the next backend in the list and
+            call the current_position method() on the new backend}}}
+
+TODO:
+ * get comments on mailing list
+ * if approved, implement the idea in the wrapper library
