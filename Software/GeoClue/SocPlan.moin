@@ -17,7 +17,7 @@ reasons:
 After a discussion on the mailing list, I have buried my original idea of a new interface: civic location API will be included in the position-interface (this means solving the backend selection -problem is even more important).
 The API should include methods to query specific data items (such as the post code) and methods to query human readable string representation(s) of the location (such as "Evergreen Terrace, Springfield, USA") and possibly convenience methods to query several common data items at once (e.g. street, city, country).
 
-== Possible API elements ==
+=== Possible API elements ===
 IETF rfc 4119 lists these civic location elements, most geoclue supported elements can be picked from here:
 ||<tablestyle="border:solid 1px black;width:75%;">'''Label'''||<40%>'''Description'''||<40%>'''Example'''||
 || country              || The country (ISO 3166 code)         || US                  ||
@@ -38,7 +38,7 @@ IETF rfc 4119 lists these civic location elements, most geoclue supported elemen
 || NAM                  || Name (residence, business or office occupant)    || Joe's Barbershop    ||
 || PC                   || Postal code          || 10027-0401          ||
 
-== TODO ==
+=== TODO ===
  * define API
  * implement
 
@@ -63,6 +63,46 @@ Getting information from several backends should be as seamless as possible. I d
             Initialize the next backend in the list and
             call the current_position method() on the new backend}}}
 
-TODO:
+=== TODO ===
+
  * get comments on mailing list
  * if approved, implement the idea in the wrapper library
+
+= Precision information for position-interface =
+
+Positioning backends should report some kind of precision estimate if asked. Otherwise applications will have no idea if the accuracy is 10m (GPS) or 10km (hostip). This would also be useful if additional privacy measures (which might lower positioning accuracy, see notes on privacy) are implemented.
+
+For reference, here is the Google geocode API accuracy chart: http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy
+
+=== TODO ===
+
+* Add a dbus method to position interface (and all positioning backends).
+
+= Privacy handling =
+Motivation: Location privacy is something that people take seriously, for good reasons. There should be a way for the user to set her preferences and this should definitely be handled by the platform (geoclue), not by individual applications. 
+
+This will be fairly tricky to get right. The UI has to be simple, but the issue itself is pretty complex. Something to remember while designing: geoclue cannot really prevent an application from accessing e.g. gpsd directly, so the privacy settings should be seen as a way for the user to tell well-behaving applications her preferences on this issue. With this in mind, I believe a lot of the complexity can be hidden: the applications should tell geoclue what default permissions they expect.
+
+IETF GEOPRIV working group has some geolocation privacy documents (see the links section), and this is my current idea based on those: 
+ * Two configuration items
+   * list of privacy groups with simple access rules (it seems GEOPRIV considers these "meta policies"):
+     {{{
+world:      rules...
+colleagues: rules...
+family:     rules...
+me:         rules...
+}}}
+   * list of entities and the group they belong to (not sure if this needs to be viewable for the user at all):
+     {{{
+maemomapper:                  me
+browser/default:              world
+browser/www.jaiku.com:        family
+instantmessenger/default:     world
+instantmessenger/bob@example: colleagues
+}}}
+ * Applications add themselves to the list of entities (with a sane default group). The list of groups is created by geoclue.
+ * The rules for the groups can internally include the condition/action/transformation-triplets from the IETF specs. This would leave the door open for location-conditions and other fancy rules. However, I believe a single slider is enough for the UI at least on maemo platform: This slider would indicate both the coordinate precision that will be presented to the applications in the group and the access they will have to different civic location types. Example values of both of those variables: 
+   {{{
+         [100km]             [10km]       [1km]       [Exact position]
+[Country]       [Region]     [City]              [Full civic location]
+}}}
