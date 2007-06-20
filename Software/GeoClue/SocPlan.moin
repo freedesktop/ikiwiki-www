@@ -1,15 +1,16 @@
-(work-in-progress)
-
 = Summary =
 
 This is the project plan for the Google Summer of Code project "!GeoClue for maemo". 
 
-The plan is divided into subprojects, which may be part of generic !GeoClue or maemo specific (this will be noted in the text). Some subprojects have been discussed on the geoclue mailing list during June 2007.
+The plan is divided into subprojects, which are presented in two groups: those which concern !GeoClue generally and the maemo specific ones. After that division the subprojects are in a rough order of importance. Some subprojects have been discussed on the geoclue mailing list during June 2007. There will be a rough schedule very soon now.
 
+The plan will be updated as ideas get more structured, implemented or discarded. The people involved in this project are  [http://koti.welho.com/jkukkone Jussi Kukkonen] (author, GSoC coder), Henri Bergius (mentor) and everyone on the geoclue mailing list (thanks for the comments).
 
-[[TableOfContents(1)]]
+[[TableOfContents(2)]]
 
-= Civic location support =
+= Modifications to GeoClue proper =
+
+== Civic location support ==
 This is what I've been calling the kind of location information that includes data like street address, country name or post code. I rate civic location support a high priority issue for Geoclue for two
 reasons:
  1. Lots of applications will want to use this data instead of lat/lon
@@ -48,7 +49,7 @@ IETF rfc 4119 lists these civic location elements, most geoclue supported elemen
  2. [http://tools.ietf.org/html/draft-ietf-geopriv-pdif-lo-profile GEOPRIV PIDF-LO Usage Clarification, Considerations and Recommendations]
  3. [http://tools.ietf.org/html/draft-ietf-geopriv-revised-civic-lo Revised Civic Location Format for PIDF-LO]
 
-= Backend selection =
+== Backend selection ==
 
 Selecting the backend to use is not just a matter of choosing the default one, if using !GeoClue is supposed to be easy for both the application developer and the user. Let's take a look at an example: 
 
@@ -74,7 +75,7 @@ Getting information from several backends should be as seamless as possible. I d
  * get comments on mailing list
  * if approved, implement the idea in the wrapper library
 
-= Precision information for position-interface =
+== Precision information for position-interface ==
 
 Positioning backends should report some kind of precision estimate if asked. Otherwise applications will have no idea if the accuracy is 10m (GPS) or 10km (hostip). This would also be useful if additional privacy measures (which might lower positioning accuracy, see notes on privacy) are implemented.
 
@@ -84,7 +85,7 @@ For reference, here is the Google geocode API accuracy chart: http://www.google.
 
 * Add a dbus method to position interface (and all positioning backends).
 
-= Privacy handling =
+== Privacy handling ==
 Motivation: Location privacy is something that people take seriously, for good reasons. There should be a way for the user to set her preferences and this should definitely be handled by the platform (geoclue), not by individual applications. 
 
 This will be fairly tricky to get right. The UI has to be simple, but the issue itself is pretty complex. Something to remember while designing: geoclue cannot really prevent an application from accessing e.g. gpsd directly, so the privacy settings should be seen as a way for the user to tell well-behaving applications her preferences on this issue. With this in mind, I believe a lot of the complexity can be hidden: the applications should tell geoclue what default permissions they expect.
@@ -118,7 +119,7 @@ instantmessenger/bob@example: colleagues
  1. [http://www.ietf.org/rfc/rfc4745.txt Geolocation Policy: A Document Format for Expressing Privacy Preferences]
  2. [http://tools.ietf.org/html/draft-ietf-geopriv-policy Geolocation Policy: A Document Format for Expressing Privacy Preferences for Location Information]
 
-= Wiki / documentation update =
+== Wiki / documentation update ==
 The wiki needs some loving: It's currently a fairly good collection of miscallaneous information, but it lacks focus. In my opinion it also also lacks a "Why should I care" -section for the application developers (something I've been promising to write). 
 
 === TODO ===
@@ -128,26 +129,28 @@ Divide page into two or more pages. Some possibilities:
  * Detailed Information -- Whatever passes as general architectural docs
  * Development page -- links, ideas, etc.
 
-= Maemo packaging =
+= New things just for Maemo =
+
+== Maemo packaging ==
 
 This is a must-have. The packages should be available from a common repository as early as possible (as soon as there's some kind of release of geoclue), otherwise application developers will not be interested in using geoclue. Creating Debian/Ubuntu packages might not be a large job on the side.
 
-= Maemo UI: Position Change Information =
+== Maemo UI: Position Change Information ==
 
 Use a notification (e.g. "New location: Helsinki") to inform user of new being in a new location. There should be an option to manually correct a wrong position (see "Maemo UI: manual position").
 
 The user may want to see the current location at other times too -- this would require a status bar applet.
 
-= Maemo UI: Desktop applet =
+== Maemo UI: Desktop applet ==
 
 A small applet showing the current location as text. This would be a nice demo, but requires civic location support to really be useful.
 
-= Maemo UI: Manual position widget =
+== Maemo UI: Manual position widget ==
 
 A user may want to specify a position manually. Implementing a map widget is probably overkill, but this might work:
  * A dialog with text input field for manual civic location input 
  * a link/button to a webmap site that lets the user select a location and returns the coordinates and/or civic location (Google mapplet perhaps?)
 
-= Maemo UI: Settings applet =
+== Maemo UI: Settings applet ==
 
 The privacy settings (if implemented) and possibly the preferred backend order will require a Control Panel applet. The implementation is highly dependent on what geoclue features get implemented...
