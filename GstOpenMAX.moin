@@ -7,6 +7,7 @@ OpenMAX IL is an industry standard that provides an abstraction layer for comput
 You'll need an OpenMAX IL implementation. Luckily STMicroelectronics has provided an useful sample implementation in the Bellagio project which is Open Source.
 
 === omxil ===
+
 So, first install Bellagio's omxil from [http://omxil.sourceforge.net/ here], or [http://dl.sourceforge.net/sourceforge/omxil/libomxil-B-0.3.2.tar.gz direct link]
 
 Install as usual:
@@ -34,6 +35,14 @@ cvs -d:pserver:anoncvs@anoncvs.freedesktop.org:/cvs/gstreamer co gst-openmax
 ./configure --prefix="$HOME/omx" --with-pkg-config-path=$HOME/omx/lib/pkgconfig
 make
 make install
+}}}
+
+== How to try it ==
+
+{{{
+export GST_PLUGIN_PATH=$HOME/omx/lib/gstreamer-0.10
+gst-launch-0.10 filesrc location="test.mp3" ! omx_mp3dec ! alsasink
+gst-launch-0.10 filesrc location="test.ogg" ! omx_vorbisdec ! alsasink
 }}}
 
 == How to contribute ==
