@@ -6,15 +6,32 @@ OpenMAX IL is an industry standard that provides an abstraction layer for comput
 
 You'll need an OpenMAX IL implementation. Luckily STMicroelectronics has provided an useful sample implementation in the Bellagio project which is Open Source.
 
-So, first install Bellagio's omxil from [http://omxil.sourceforge.net/ here].
+=== omxil ===
+So, first install Bellagio's omxil from [http://omxil.sourceforge.net/ here], or [http://dl.sourceforge.net/sourceforge/omxil/libomxil-B-0.3.2.tar.gz direct link]
 
-Then install gst-openmax the usual way:
+Install as usual:
+
+{{{
+ ./configure --prefix="$HOME/omx" --disable-ffmpegcomponents
+ make
+ make install
+}}}
+
+NOTE: The ffmpeg components don't compile on Ubuntu.
+
+Register the components:
+
+{{{
+$HOME/omx/bin/omxregister
+}}}
+
+=== GstOpenMAX ===
 
 {{{
 cvs -d:pserver:anoncvs@anoncvs.freedesktop.org:/cvs/gstreamer co gst-openmax
 
-autoregen --install
-./configure
+./autogen.sh --noconfigure
+./configure --prefix="$HOME/omx" --with-pkg-config-path=$HOME/omx/lib/pkgconfig
 make
 make install
 }}}
