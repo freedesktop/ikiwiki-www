@@ -74,20 +74,13 @@ The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.1.ta
 Previous releases can be found in the [:Software/DbusReleaseArchive:release archive].
 
 == Core Devel ==
-The latest development release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.1.1.tar.gz D-Bus 1.1.1]. (2007-06-18)
+The latest development release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.1.1.tar.gz D-Bus 1.1.2]. (2007-07-27)
 
-  * This is a development release, unless you need specific functionality please use the stable releases as API's may change (though we will try hard not to)
-  * The bus daemon now generates a globally-unique ID for itself, which is available using the convenience function dbus_bus_get_id(). Use this as a unique ID for a user's session, for example.
-  * dbus_server_get_id(), dbus_connection_get_server_id() now available to access the unique ID of a particular address
-  * dbus_watch_get_fd() deprecated since it had unclear cross-platform semantics. dbus_watch_get_unix_fd() and dbus_watch_get_socket() replace it.
-  * support ANONYMOUS mechanism for authentication, which allows a client to authenticate as nobody in particular
-  * add API dbus_connection_set_allow_anonymous() which will allow the message stream to begin if the client auths as anonymous (otherwise, the client will be dropped unless they auth as a user).
-  * the ANONYMOUS support means you can now use D-Bus (without a bus daemon) as a protocol for a network service provided to anonymous Internet or LAN clients
-  * many internal changes to better support the Windows port, though the port is still not complete in this release
-  * some improved documentation and return_if_fail checks
-  * some small bug fixes
-
-
+ * This release is intended to be a feature complete beta for stable release 1.2.0, please test it. 1.2.0 will follow pretty soon if no major problems are found.  We'll do more betas if significant changes are made.
+ * This is a development release, so API's may still change if problems are found (though we will try hard not to).
+ * The system bus now supports starting services on demand. This uses a setuid helper program because system bus daemon runs as a nobody user, while services it launches may need to run as a different user. '''''Extra eyes auditing the setuid helper are encouraged and would be timely right now, before 1.2.0. '''''A design doc is available in doc/system-activation.txt
+ * The TCP address format has been enhanced, such that TCP may be actually usable.  The dbus-daemon man page describes the new elements in the address format.  1.1.1 had added an all_interfaces flag to the format, which has been removed in favor of a cleaner approach.
+ * Some thread-related bugs have been fixed, these are important fixes if you are using multiple threads with libdbus, and not important otherwise.
 == Bindings ==
 Bindings can be downloaded from the [:Software/DBusBindings:Bindings Page].
 
