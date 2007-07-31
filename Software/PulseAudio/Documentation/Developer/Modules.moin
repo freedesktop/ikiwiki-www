@@ -10,6 +10,16 @@ This is a wiki, so please improve this yourself whenever you spot inaccuracies, 
 
 A module is a shared object file that implements certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
 
+== Compiling to a shared object file ==
+
+This section is here in the case you're like me and don't know anything about the specifics of shared object compilation. This works on my machine:
+
+{{{
+gcc -g -shared -o module-<yourmodule>.so module-<yourmodule>.c
+}}}
+
+Copy the resulting .so file to the modules directory and you're done, you can now load your module by running pacmd and saying "load-module module-<yourmodule>".
+
 == Required functions ==
 
 There are two functions that every module must implement, the daemon refuses to load the module if these aren't present.
@@ -24,7 +34,7 @@ int pa__done(pa_core* c, pa_module* m);
 
 The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. On failure `pa__done` won't be called. The return value of `pa__done` is currently ignored.
 
-The `pa_core` and `pa_module` types are defined in pulsecore/core.h and pulsecore/module.h and will be explained later.
+The `pa_core` and `pa_module` types are defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h pulsecore/core.h] and [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
 
 So the minimal module that the daemon agrees to load is:
 
