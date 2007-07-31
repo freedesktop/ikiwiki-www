@@ -1,0 +1,44 @@
+= Writing new !PulseAudio modules =
+
+== Introduction ==
+
+I want to rewrite the JACK modules from scratch, and in order to do that I need to know how modules work and how to use the !PulseAudio APIs. Instead of reading the sources I'd like to have a friendly guide that tells me what to do. Because there isn't such a guide, I'll write it myself as I learn stuff by other means. Hopefully this will be useful for future module writers too.
+
+This is a wiki, so please improve this yourself whenever you spot inaccuracies, confusion, bad English or straight lies.
+
+== What is a module? ==
+
+A module is a shared object file that implements certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
+
+== Required functions ==
+
+There are two functions that every module must implement, the daemon refuses to load the module if these aren't present.
+
+{{{
+int pa__init(pa_core* c, pa_module* m);
+
+int pa__done(pa_core* c, pa_module* m);
+}}}
+
+`pa__init` and `pa__done` are called when the daemon loads and unloads the module, respectively. Unsurprisingly any initialization work is supposed to be done in the `pa__init` function and the cleanup work in the `pa__done` function.
+
+The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. On failure `pa__done` won't be called. The return value of `pa__done` is currently ignored.
+
+The `pa_core` and `pa_module` types are defined in pulsecore/core.h and pulsecore/module.h and will be explained later.
+
+So the minimal module that the daemon agrees to load is:
+
+{{{
+#include <pulsecore/core.h>
+#include <pulsecore/module.h>
+
+int pa__init(pa_core* c, pa_module* m)
+{
+  return 0;
+}
+
+int pa__done(pa_core* c, pa_module* m)
+{
+  return 0;
+}
+}}}
