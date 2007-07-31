@@ -8,7 +8,7 @@ This is a wiki, so please improve this yourself whenever you spot inaccuracies, 
 
 == What is a module? ==
 
-A module is a shared object file that implements certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
+A module is a shared object file that contains implementations of certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
 
 == Compiling to a shared object file ==
 
@@ -32,7 +32,7 @@ int pa__done(pa_core* c, pa_module* m);
 
 `pa__init` and `pa__done` are called when the daemon loads and unloads the module, respectively. Unsurprisingly any initialization work is supposed to be done in the `pa__init` function and the cleanup work in the `pa__done` function.
 
-The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. On failure `pa__done` won't be called. The return value of `pa__done` is currently ignored.
+The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. If `pa__init` fails, `pa__done` won't be called. The return value of `pa__done` is currently ignored.
 
 The `pa_core` and `pa_module` types are defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h pulsecore/core.h] and [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
 
@@ -51,4 +51,66 @@ int pa__done(pa_core* c, pa_module* m)
 {
   return 0;
 }
+}}}
+
+== Optional functions ==
+
+There are a few other functions that are loaded from the .so file if they are implemented.
+
+{{{
+const char* pa__get_author();
+
+const char* pa__get_description();
+
+const char* pa__get_usage();
+
+const char* pa__get_version();
+}}}
+
+These strings give additional information about the module. [Where is this additional information shown?]
+
+You can do these functions more compactly with macros that are defined in module.h. This example is from module-null-sink.c:
+
+{{{
+PA_MODULE_AUTHOR("Lennart Poettering")
+PA_MODULE_DESCRIPTION("Clocked NULL sink")
+PA_MODULE_VERSION(PACKAGE_VERSION)
+PA_MODULE_USAGE(
+        "format=<sample format> "
+        "channels=<number of channels> "
+        "rate=<sample rate> "
+        "sink_name=<name of sink>"
+        "channel_map=<channel map>"
+        "description=<description for the sink>")
+}}}
+
+== Static linking of modules ==
+
+It is sometimes desirable to link modules statically in the daemon binary instead of using dynamic loading. If every module defines its own `pa__init`, that's a serious problem, because you could use static linking only for one module. !PulseAudio uses libtool, which provides magic that allows the same code to be used either dynamically or statically linked without these problems. That requires a small bit of work from you, the module writer.
+
+You have to create a header file that you include from the source file. Let's use the module-null-sink as an example again. These are the contents of module-null-sink-symdef.h, copy it to yourself and modify the "null-sink" parts to match your own module's name:
+
+{{{
+#ifndef foomodulenullsinksymdeffoo
+#define foomodulenullsinksymdeffoo
+
+#include <pulsecore/core.h>
+#include <pulsecore/module.h>
+
+#define pa__init module_null_sink_LTX_pa__init
+#define pa__done module_null_sink_LTX_pa__done
+#define pa__get_author module_null_sink_LTX_pa__get_author
+#define pa__get_description module_null_sink_LTX_pa__get_description
+#define pa__get_usage module_null_sink_LTX_pa__get_usage
+#define pa__get_version module_null_sink_LTX_pa__get_version
+
+int pa__init(struct pa_core *c, struct pa_module*m);
+void pa__done(struct pa_core *c, struct pa_module*m);
+
+const char* pa__get_author(void);
+const char* pa__get_description(void);
+const char* pa__get_usage(void);
+const char* pa__get_version(void);
+
+#endif
 }}}
