@@ -1,0 +1,32 @@
+= Interface of `pa_module` =
+
+Let's start by having the `pa_module` definition.
+
+{{{
+struct pa_module {
+    pa_core *core;
+    char *name, *argument;
+    uint32_t index;
+
+    lt_dlhandle dl;
+
+    int (*init)(pa_core *c, pa_module*m);
+    void (*done)(pa_core *c, pa_module*m);
+
+    void *userdata;
+
+    int n_used;
+    int auto_unload;
+    time_t last_used_time;
+
+    int unload_requested;
+};
+}}}
+
+When you write a module, it can be thought as a subclass of `pa_module`, if you're familiar with the object oriented programming concepts. `pa_module` with its associated functions define some basic functionality that all the different modules include and refine. Let's see if there's any useful stuff in that basic functionality.
+
+First we see that a module knows which `pa_core` it is connected to. That's sensible.
+
+A module saves its name and arguments that come from the "load-module" command. So now you know how to acquire the arguments, but wait, there are helper functions that parse the string for you, see [wiki:ModargsAPI].
+
+Every module is assigned an index in the daemon that is used as an unique identifier. Every module knows its index. But note that if you're ever going to need the index for any purpose, it is set only after `pa__init` returns, so it isn't available during initialization and there is a short period of time when its value is undefined.
