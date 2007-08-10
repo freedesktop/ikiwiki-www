@@ -25,16 +25,16 @@ Copy the resulting .so file to the modules directory and you're done, you can no
 There are two functions that every module must implement, the daemon refuses to load the module if these aren't present.
 
 {{{
-int pa__init(pa_core* c, pa_module* m);
+int pa__init(pa_module* m);
 
-void pa__done(pa_core* c, pa_module* m);
+void pa__done(pa_module* m);
 }}}
 
 `pa__init` and `pa__done` are called when the daemon loads and unloads the module, respectively. Unsurprisingly any initialization work is supposed to be done in the `pa__init` function and the cleanup work in the `pa__done` function.
 
 The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. If `pa__init` fails, `pa__done` won't be called.
 
-The `pa_core` and `pa_module` types are defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h pulsecore/core.h] and [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
+The `pa_module` type is defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
 
 So the minimal module that the daemon agrees to load is:
 
@@ -42,12 +42,12 @@ So the minimal module that the daemon agrees to load is:
 #include <pulsecore/core.h>
 #include <pulsecore/module.h>
 
-int pa__init(pa_core* c, pa_module* m)
+int pa__init(pa_module* m)
 {
   return 0;
 }
 
-void pa__done(pa_core* c, pa_module* m)
+void pa__done(pa_module* m)
 {
 }
 }}}
@@ -103,8 +103,8 @@ You have to create a header file that you include from the source file. Let's us
 #define pa__get_usage module_null_sink_LTX_pa__get_usage
 #define pa__get_version module_null_sink_LTX_pa__get_version
 
-int pa__init(struct pa_core *c, struct pa_module*m);
-void pa__done(struct pa_core *c, struct pa_module*m);
+int pa__init(struct pa_module*m);
+void pa__done(struct pa_module*m);
 
 const char* pa__get_author(void);
 const char* pa__get_description(void);
