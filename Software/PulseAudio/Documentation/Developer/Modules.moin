@@ -120,7 +120,7 @@ const char* pa__get_version(void);
 
 With the interfaces so far introduced, writing modules isn't a terribly useful activity. Now you can basically make a "Hello world" module, optionally with the advanced feature that it prints "Goodbye world" when the module gets unloaded. Next we'll see how a module can carry its internal state data from `pa__init` to `pa__done`. Still not too awesome an ability, but with that you could do for example a module that measures the time how long it takes from loading to unloading, that's almost useful!
 
-`pa_module` has the field `userdata`. It is a `void` pointer, of which purpose is to store a pointer to the internal state data of the module. So you allocate some data structure that you want to use for your data in `pa__init`, then set the `pa_module`'s (that you get as a parameter) `userdata` field to point to the allocated structure. In `pa__done` you'll have as a parameter the same `pa_module`, and there you'll find your internal data.
+`pa_module` has the field `userdata`. It is a `void` pointer, of which purpose is to store a pointer to the internal state data of your module. So you allocate some data structure that you want to use for your data in `pa__init`, then set the `pa_module`'s (that you get as a parameter) `userdata` field to point to the allocated structure. In `pa__done` you'll have as a parameter the same `pa_module`, and there you'll find your internal data.
 
 == Continuing to the !PulseAudio internals ==
 
@@ -129,3 +129,5 @@ Now that you know the very basics of writing a !PulseAudio module, we can start 
 You're basically writing a subclass of `pa_module`, so it would probably be a good starting point to have a look on what the superclass contains. [wiki:ModuleAPI]
 
 For getting the module parameters that the user has given, read [wiki:ModargsAPI].
+
+The only way to expand your abilities inside !PulseAudio is to follow the `core` pointer in the `pa_module` structure. Let's go there. [wiki:CoreAPI]
