@@ -22,15 +22,19 @@ Copy the resulting .so file to the modules directory and you're done, you can no
 
 == Required functions ==
 
-There are two functions that every module must implement, the daemon refuses to load the module if these aren't present.
+There is one function that every module must implement, the daemon refuses to load the module if it isn't present.
 
 {{{
 int pa__init(pa_module* m);
-
-void pa__done(pa_module* m);
 }}}
 
-`pa__init` and `pa__done` are called when the daemon loads and unloads the module, respectively. Unsurprisingly any initialization work is supposed to be done in the `pa__init` function and the cleanup work in the `pa__done` function.
+`pa_init` is called when the daemon loads the module. Any initialization work is supposed to be done in the `pa_init` function.
+
+Some modules may be such that their purpose becomes fulfilled already during the initialization. However, most modules need to do some cleanup work when they are unloaded, so some kind of "destructor" is almost mandatory too. It is called `pa__done`.
+
+{{{
+void pa__done(pa_module* m);
+}}}
 
 The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. If `pa__init` fails, `pa__done` won't be called.
 
@@ -39,16 +43,11 @@ The `pa_module` type is defined in [http://www.pulseaudio.org/browser/branches/l
 So the minimal module that the daemon agrees to load is:
 
 {{{
-#include <pulsecore/core.h>
 #include <pulsecore/module.h>
 
 int pa__init(pa_module* m)
 {
   return 0;
-}
-
-void pa__done(pa_module* m)
-{
 }
 }}}
 
@@ -97,7 +96,6 @@ You have to create a header file that you include from the source file. Let's us
 #ifndef foomodulenullsinksymdeffoo
 #define foomodulenullsinksymdeffoo
 
-#include <pulsecore/core.h>
 #include <pulsecore/module.h>
 
 #define pa__init module_null_sink_LTX_pa__init
@@ -129,3 +127,5 @@ With the interfaces so far introduced, writing modules isn't a terribly useful a
 Now that you know the very basics of writing a !PulseAudio module, we can start to go through the various APIs inside !PulseAudio and see what they offer us.
 
 You're basically writing a subclass of `pa_module`, so it would probably be a good starting point to have a look on what the superclass contains. [wiki:ModuleAPI]
+
+For getting the module parameters that the user has given, read [wiki:ModargsAPI].
