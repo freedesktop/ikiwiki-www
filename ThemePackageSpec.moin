@@ -8,6 +8,21 @@ It should bring artists and users together, allow artists to create a collection
 Themes should be installed inside subdirectories of $XDG_DATA_DIRS, using $XDG_DATA_HOME as a location for themes installed by individual users.
 
 == Theme Package Structure ==
+A theme-package is an archive containing several different kinds of themes and a themepackage file describing the contents. An example archive-layout can look like this:
+{{{
+    /
+    /ThemePackage.desktop
+    /gtk-2.0/
+    /gtk-2.0/gtkrc
+    /metacity/
+    /metacity/...         # Metacity theme files
+    /xfwm4/
+    /xfwm4/...            # Xfwm4 theme files (Similar to the metacity theme)
+    /icons/
+    /icons/...
+    /cursors/
+    /cursors/...
+}}}
 
 === Gtk-2.0 Themes ===
 Gtk themes define the look-n-feel of applications using Gtk for their User Interface components. (widgets)
@@ -36,6 +51,21 @@ Cursor-themes provide a set of mouse-cursors
 Cursor themes should be installed in $XDG_DATA_DIRS/cursors
 
 === Wallpapers ===
+Wallpapers can be included inside the ThemePackage, and because of this they are regarded as a separate-component.
+
+Each wallpaper should have a filename formatted like this: '{name}-{width}x{height}.{ext}'
+
+You can provide several wallpapers of different sizes, but it is also possible to provide alternative looking wallpapers.
+{{{
+Example package content:
+   /wallpapers/Example Wallpaper-1024x768.jpg             # 4:3
+   /wallpapers/Example Wallpaper-1600x1200.png
+   /wallpapers/Example Wallpaper-1280x800.jpg             # Widescreen
+   /wallpapers/Alternative Example Wallpaper-1024x768.jpg # ... an alternative wallpaper
+}}}
+
+Wallpapers should be installed in $XDG_DATA_DIRS/wallpapers, as such it will be possible to remove them together with the rest of the theme.
+
 
 === Theme Package Description ===
 
