@@ -8,20 +8,17 @@ It should bring artists and users together, allow artists to create a collection
 Themes should be installed inside subdirectories of $XDG_DATA_DIRS, using $XDG_DATA_HOME as a location for themes installed by individual users.
 
 == Theme Package Structure ==
-A theme-package is an archive containing several different kinds of themes and a themepackage file describing the contents. An example archive-layout can look like this:
+A theme-package is an archive containing several different kinds of themes and a themepackage file describing all the contents.
+
+Individual themes are located in different folders, see below:
 {{{
     /
     /ThemePackage.desktop
     /gtk-2.0/
-    /gtk-2.0/gtkrc
     /metacity/
-    /metacity/...         # Metacity theme files
     /xfwm4/
-    /xfwm4/...            # Xfwm4 theme files (Similar to the metacity theme)
     /icons/
-    /icons/...
     /cursors/
-    /cursors/...
 }}}
 
 === Theme Package Description ===
@@ -29,12 +26,37 @@ The ThemePackage.desktop file should be formatted as followed:
 {{{
     [Desktop Entry]
     Name=Example theme
+}}}
+The Name of the theme, this field must be present.
+{{{
     Version=1.0
+}}}
+The Desktop-file syntax version, this field must be present.
+{{{
     Type=X-ThemePackage
-    Author=John Doe
+}}}
+The mime-type, this field must be present.
+{{{
+    Maintainer=John Doe <john DOT doe AT freedesktop DOT org>
+}}}
+The Themepackage maintainer, this field must be present.
+{{{
     Theme-Version=1.0
+}}}
+The Themepackage version-number (increases with every update), this field must be present.
+{{{
     Contains=gtk-2.0,xfwm4,metacity,icons,wallpapers,cursors
+}}}
+A list of themes contained within the ThemePackage, these strings MUST represent the folder-names inside the archive. However, since not every theme-category might be available, some of the items from this list could be missing. (eg, if it does not contain an icon-theme, just leave out the 'icons' entry from this list)
 
+It is possible to include any theme-category to a theme-package, given it adheres to the following rules:
+ * the category should be unique (eg, it can't be called gtk-2.0 and conflict to existing gtk themes)
+ * the theme should be installed in $XDG_DATA_DIRS/themes
+  This means that the theme data-files can be found in $XDG_DATA_DIRS/themes/THEME_NAME/COMPONENT_NAME/ where THEME_NAME equals the Name field from the ThemePackage.desktop file, and the COMPONENT_NAME equals the name of a theme-category.
+
+Applications which install themes may choose which components to install but it should also provide an option to install all available components.
+
+{{{
     [gtk-2.0]
     Author=Jane Doe
     Description=This Example theme looks olive-green
@@ -47,15 +69,10 @@ The ThemePackage.desktop file should be formatted as followed:
 
     ...
 }}}
+You MAY add an individual section for certain themes, this can be used to add additional information regarding the individual theme-author and license related to the specific themes.
 
-When a component is installed, it should be installed in a folder called like the theme name.
-
-The next example shows where the Gtk-2.0 component should be installed.
-{{{
-    $XDG_DATA_DIRS/themes/Example theme/gtk-2.0/gtkrc
-}}}
-
-Applications which install themes may choose which components to install but it should also provide an option to install all available components.
+== Regular Themes ==
+The following themes are 'regular' themes, much like the themes you can add to a theme-package yourself. These are mentioned here as an example, with links to additional information on how to create these themes.
 
 === Gtk-2.0 Themes ===
 Gtk themes define the look-n-feel of applications using Gtk for their User Interface components. (widgets)
@@ -77,6 +94,9 @@ Xfwm4 is a window-manager which can be themed in order to change the window-deco
 Xfwm4 themes should be installed in $XDG_DATA_DIRS/themes
 
 A tutorial for creating xfwm4-themes can be found [http://www.xfce.org/xfwm4-theme-howto/ here].
+
+== Irregular Themes ==
+Due to their special nature, the following themes should be installed outside the normal themes directory.
 
 === Icon Themes ===
 Icon themes are themes containing the icons used by different applications across the desktop. Icons to indicate MIME-types, but also for actions like opening files, new documents, 
