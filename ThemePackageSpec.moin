@@ -22,28 +22,45 @@ Individual themes are located in different folders, see below:
 }}}
 
 === Theme Package Description ===
-The ThemePackage.desktop file should be formatted as followed:
+The Theme``Package.desktop file should be formatted as followed:
+
+==== Theme Name ====
 {{{
     [Desktop Entry]
     Name=Example theme
 }}}
-The Name of the theme, this field must be present.
+The Name of the theme, it is required for identification-purposes.
+==== Desktop-file version ====
 {{{
     Version=1.0
 }}}
 The Desktop-file syntax version, this field must be present.
+
+==== Mime-type ====
 {{{
     Type=X-ThemePackage
 }}}
-The mime-type, this field must be present.
+The mime-type, this field must be present and have the value ''X-Theme``Package''.
+
+==== Maintainer ====
 {{{
     Maintainer=John Doe <john DOT doe AT freedesktop DOT org>
 }}}
-The Themepackage maintainer, this field must be present.
+The Theme``Package maintainer, this field should be present and formatted as followed
+
+''Name < email >''
+
+If for some reason this field is not available, Theme-manager implementations may choose to warn a user about this fact.
+
+==== Theme version ====
 {{{
     Theme-Version=1.0
 }}}
-The Themepackage version-number (increases with every update), this field must be present.
+The Theme``Package version-number (increases with every update), this field should be present and formatted as followed
+
+''a{.b{.c{.d{.e}}}}'' Where a, b, c, d and e are numbers between 0 and (2^32)-1.
+
+==== Theme components ====
 {{{
     Contains=gtk-2.0,xfwm4,metacity,icons,wallpapers,cursors
 }}}
@@ -52,24 +69,57 @@ A list of themes contained within the ThemePackage, these strings MUST represent
 It is possible to include any theme-category to a theme-package, given it adheres to the following rules:
  * the category should be unique (eg, it can't be called gtk-2.0 and conflict to existing gtk themes)
  * the theme should be installed in $XDG_DATA_DIRS/themes
-  This means that the theme data-files can be found in $XDG_DATA_DIRS/themes/THEME_NAME/COMPONENT_NAME/ where THEME_NAME equals the Name field from the ThemePackage.desktop file, and the COMPONENT_NAME equals the name of a theme-category.
+  This means that the theme data-files can be found in $XDG_DATA_DIRS/themes/THEME_NAME/COMPONENT_NAME/ where THEME_NAME equals the Name field from the Theme``Package.desktop file, and the COMPONENT_NAME equals the name of a theme-category.
 
 Applications which install themes may choose which components to install but it should also provide an option to install all available components.
 
+==== Component-related information ====
+You may add an individual section for certain package-components, this can be used to add additional information regarding the individual theme-author and license related to the specific themes.
+
+===== Author / Artist name =====
 {{{
+    [gtk-2.0]
+    Author=Jane Doe <jane AT freedesktop DOT org>
+}}}
+The original author of the component
+
+===== Theme Component Description =====
+{{{
+    Description=This Example theme gives the User Interface an olive-greenish look.
+}}}
+This field provides a description about the specific component, it is preferred to have 
+
+===== Theme Component License Information =====
+{{{
+    License=GPL;Creative-Commons
+}}}
+The License under which the component is distributed, if this field is missing or empty a theme-manager may choose to notify the user about such fact.
+
+=== ThemePackage.desktop Example ===
+{{{
+    [Desktop Entry]
+    Name=Example theme
+    Version=1.0
+    Type=X-ThemePackage
+    Maintainer=John Doe <john AT freedesktop DOT org>
+    Theme-Version=1.0
+    Contains=gtk-2.0,xfwm4,metacity,icons
+
     [gtk-2.0]
     Author=Jane Doe
     Description=This Example theme looks olive-green
+    Description=This Example theme gives the User Interface an olive-greenish look.
     License=GPL;Creative-Commons
 
     [xfwm4]
     Author=John Doe Jr.
     Description=This Example theme provides window-decoration with round borders.
-    License=GPL;Creative-Commons
-
-    ...
+    License=Creative-Commons
+    
+    [icons]
+    Author=John Doe
+    License=Public Domain
 }}}
-You MAY add an individual section for certain themes, this can be used to add additional information regarding the individual theme-author and license related to the specific themes.
 
 == Regular Themes ==
 The following themes are 'regular' themes, much like the themes you can add to a theme-package yourself. These are mentioned here as an example, with links to additional information on how to create these themes.
