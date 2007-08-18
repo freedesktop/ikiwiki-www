@@ -1,11 +1,11 @@
 = Theme Package Specification (Draft) =
 ----
 == Introduction ==
-This specification is designed to provide a desktop neutral way to package and install themes.
+This specification is designed to provide a desktop neutral way to package multiple themes inside a single 'metatheme', it does not explain where themes should go.
 
 It should bring artists and users together, allow artists to create a collection of themes building a certain look and users can install that same collection at the touch of a button to get the look the artist designed.
 
-Themes should be installed inside subdirectories of $XDG_DATA_DIRS, using $XDG_DATA_HOME as a location for themes installed by individual users.
+Themes should be installed as specified by the DesktopThemeSpec.
 
 == Theme Package Structure ==
 A theme-package is an archive containing several different kinds of themes and a themepackage file describing all the contents.
@@ -120,55 +120,3 @@ The License under which the component is distributed, if this field is missing o
     Author=John Doe
     License=Public Domain
 }}}
-
-== Regular Themes ==
-The following themes are 'regular' themes, much like the themes you can add to a theme-package yourself. These are mentioned here as an example, with links to additional information on how to create these themes.
-
-=== Gtk-2.0 Themes ===
-Gtk themes define the look-n-feel of applications using Gtk for their User Interface components. (widgets)
-
-Gtk themes should be installed in $XDG_DATA_DIRS/themes
-
-A tutorial for creating gtk-themes can be found at [http://live.gnome.org/GnomeArt/Tutorials/GtkThemes Gnome-Art].
-
-=== Metacity Themes ===
-Metacity is a window-manager which can be themed in order to change the window-decoration.
-
-Metacity themes should be installed in $XDG_DATA_DIRS/themes
-
-A tutorial for creating metacity-themes can be found [http://developer.gnome.org/doc/tutorials/metacity/metacity-themes.html here]
-
-=== Xfwm4 Themes ===
-Xfwm4 is a window-manager which can be themed in order to change the window-decoration.
-
-Xfwm4 themes should be installed in $XDG_DATA_DIRS/themes
-
-A tutorial for creating xfwm4-themes can be found [http://www.xfce.org/xfwm4-theme-howto/ here].
-
-== Irregular Themes ==
-Due to their special nature, the following themes should be installed outside the normal themes directory.
-
-=== Icon Themes ===
-Icon themes are themes containing the icons used by different applications across the desktop. Icons to indicate MIME-types, but also for actions like opening files, new documents, 
-See the [http://www.freedesktop.org/wiki/Specifications/icon-naming-spec Icon Naming Spec] for information about how to create Icon themes.
-
-Icon themes should be installed in $XDG_DATA_DIRS/icons
-
-=== Cursor Themes ===
-Cursor-themes provide a set of mouse-cursors
-
-Cursor themes should be installed in $XDG_DATA_DIRS/cursors
-
-=== Wallpapers ===
-Wallpapers can be included inside the Theme``Package, and because of this they are regarded as a separate-component.
-
-You can provide several wallpapers of different sizes, but it is also possible to provide alternative looking wallpapers.
-{{{
-Example package content:
-   /wallpapers/Example Wallpaper-1024x768.jpg             # 4:3
-   /wallpapers/Example Wallpaper-1600x1200.png
-   /wallpapers/Example Wallpaper-1280x800.jpg             # Widescreen
-   /wallpapers/Alternative Example Wallpaper-1024x768.jpg # ... an alternative wallpaper
-}}}
-
-Wallpapers should be installed in $XDG_DATA_DIRS/wallpapers, as such it will be possible to remove them together with the rest of the theme.
