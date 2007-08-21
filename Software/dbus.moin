@@ -1,5 +1,5 @@
 = D-Bus 1.0.0 "Blue Bird" Released!!! Nov 9th, 2006 =
-||<tablewidth="40%" tablestyle="margin: 0pt 0pt 1em 1em; float: right; font-size: 0.9em;"style="padding: 0.5em;">'''Contents'''[[BR]][[TableOfContents]] ||
+||<tablewidth="40%" tablestyle="FONT-SIZE: 0.9em; FLOAT: right; MARGIN: 0pt 0pt 1em 1em"style="PADDING-RIGHT: 0.5em; PADDING-LEFT: 0.5em; PADDING-BOTTOM: 0.5em; PADDING-TOP: 0.5em">'''Contents'''[[BR]][[TableOfContents]] ||
 = What is D-Bus? =
 D-Bus is a message bus system, a simple way for applications to talk to one another. In addition to interprocess communication, D-Bus helps coordinate process lifecycle; it makes it simple and reliable to code a "single instance" application or daemon, and to launch applications and daemons on demand when their services are needed.
 
@@ -24,6 +24,10 @@ All D-Bus discussion is currently on [http://lists.freedesktop.org/mailman/listi
 
 = Reporting Bugs & Sending Patches =
 Please report bugs (and submit patches) through the freedesktop.org [https://bugs.freedesktop.org/ Bugzilla].
+
+Ideally, include test suite coverage with your patch; or if you report a bug, it's good to add a test that fails even if you don't have a patch otherwise. You can see test coverage stats in the GNOME build bot results, at http://build.gnome.org:8080/coverage/dbus/lcov/ (note, coverage is understated since it counts the test code itself in the coverage, and the test suite does not test itself, in particular all the "test failed" codepaths are not covered).
+
+Patches to improve test coverage are very welcome, though D-Bus is already among the best-covered codebases around.
 
 = Documentation =
 Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're new to D-Bus, the tutorial is probably the best place to start (even though it is very incomplete, the basics are covered).
@@ -80,12 +84,11 @@ libdbus version numbers are X.Y.Z where an odd number for Y indicates an unstabl
 
 The latest development release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.1.2.tar.gz D-Bus 1.1.2]. (2007-07-27)
 
- * This release is intended to be a feature complete beta for stable release 1.2.0, please test it. 1.2.0 will follow pretty soon if no major problems are found.  We'll do more betas if significant changes are made.
+ * This release is intended to be a feature complete beta for stable release 1.2.0, please test it. 1.2.0 will follow pretty soon if no major problems are found. We'll do more betas if significant changes are made.
  * This is a development release, so API's may still change if problems are found (though we will try hard not to).
  * The system bus now supports starting services on demand. This uses a setuid helper program because system bus daemon runs as a nobody user, while services it launches may need to run as a different user. '''''Extra eyes auditing the setuid helper are encouraged and would be timely right now, before 1.2.0. '''''A design doc is available in doc/system-activation.txt
- * The TCP address format has been enhanced, such that TCP may be actually usable.  The dbus-daemon man page describes the new elements in the address format.  1.1.1 had added an all_interfaces flag to the format, which has been removed in favor of a cleaner approach.
+ * The TCP address format has been enhanced, such that TCP may be actually usable. The dbus-daemon man page describes the new elements in the address format. 1.1.1 had added an all_interfaces flag to the format, which has been removed in favor of a cleaner approach.
  * Some thread-related bugs have been fixed, these are important fixes if you are using multiple threads with libdbus, and not important otherwise.
-
 == Bindings and Independent Implementations ==
 Bindings and independent implementations are linked to from the [:Software/DBusBindings:Bindings Page].
 
@@ -101,4 +104,4 @@ The [:GettingInvolved:CVS] module for the spec and reference implementation is "
 CVS commits can be monitored on the [http://lists.freedesktop.org/mailman/listinfo/dbus-commit/ dbus-commit] mailing list.
 
 == GIT ==
-Git is now being used for some of the language bindings.  There is a [http://freedesktop.org/wiki/UsingGit nice tutorial for using git with freedesktop.org projects].  There is also [http://www-128.ibm.com/developerworks/linux/library/l-git/ another tutorial at IBM Developerworks site].
+Git is now being used for some of the language bindings. There is a [http://freedesktop.org/wiki/UsingGit nice tutorial for using git with freedesktop.org projects]. There is also [http://www-128.ibm.com/developerworks/linux/library/l-git/ another tutorial at IBM Developerworks site].
