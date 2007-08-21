@@ -2,6 +2,28 @@
 
 From [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h pulsecore/core.h]: "The core structure of !PulseAudio. Every !PulseAudio daemon contains exactly one of these. It is used for storing kind of global variables for the daemon."
 
-`pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. The variables are managed by the daemon, so you shouldn't modify them yourself.
+`pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. You're not supposed to modify the fields.
 
-''To be continued...''
+The most important field is `mainloop`. That can be used for communicating with the mainloop. Doxygen documentation for the mainloop API is [http://0pointer.de/lennart/projects/pulseaudio/doxygen/mainloop-api_8h.html available].
+
+== `struct pa_core` ==
+
+`parent` -- `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. At some point in the future I may write a page about the [wiki:ObjectSystem] used inside !PulseAudio. I think [wiki:MsgobjectAPI] would be useful too.
+
+`cookie` -- A random value which may be used to identify this instance of PulseAudio. Not cryptographically secure in any way.
+
+`mainloop` -- Pointer to the mainloop API.
+
+`clients` -- Currently connected clients. If you're not familiar with the `pa_idxset` type, see the [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/idxset.h header].
+
+`sinks`, `sources` -- Currently existing sinks and sources.
+
+`sink_inputs`, `source_outputs` -- Currently existing sink inputs and source outputs.
+
+`modules` -- Loaded modules.
+
+`scache` -- The sample cache. The contained items are of type `pa_scache_entry`.
+
+`autoload_idxset` -- The contained items are of type `pa_autoload_entry`, and specify what modules should be loaded on demand.
+
+`namereg` -- 
