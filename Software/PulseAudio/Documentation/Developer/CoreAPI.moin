@@ -10,7 +10,7 @@ The most important field is `mainloop`. That can be used for communicating with 
 
 `parent` -- `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. At some point in the future I may write a page about the [wiki:ObjectSystem] used inside !PulseAudio. I think [wiki:MsgobjectAPI] would be useful too.
 
-`cookie` -- A random value which may be used to identify this instance of PulseAudio. Not cryptographically secure in any way.
+`cookie` -- A random value which may be used to identify this instance of !PulseAudio. Not cryptographically secure in any way.
 
 `mainloop` -- Pointer to the mainloop API.
 
@@ -26,4 +26,16 @@ The most important field is `mainloop`. That can be used for communicating with 
 
 `autoload_idxset` -- The contained items are of type `pa_autoload_entry`, and specify what modules should be loaded on demand.
 
-`namereg` -- 
+`namereg` -- Something that stores instances of `pa_namereg_entry`???
+
+`autoload_hashmap` -- Same as autoload_idxset, but indexable with sink/source name?
+
+`properties` -- The data store that the property system manages, see [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/props.h pulsecore/props.h].
+
+`default_source_name`, `default_sink_name` -- Pretty self-explanatory, but do not access these directly, but through `pa_namereg_set_default`, `pa_namereg_get_default_sink_name` and `pa_namereg_get_default_source_name` that are defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/namereg.h pulsecore/namereg.h]. Maybe there should be a page about the [wiki:NameregAPI] to clarify what this namereg business is all about...
+
+`default_sample_spec` -- When in need of a default stream format, you'll find it here.
+
+`default_n_fragments` and `default_fragment_size_msec` -- The default buffering settings that should be used by sinks and sources when opening a hardware device.
+
+
