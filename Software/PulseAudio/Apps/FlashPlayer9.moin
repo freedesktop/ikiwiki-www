@@ -1,0 +1,52 @@
+[[TracNav(TOC)]]
+
+= Flash Player 9: Experimental PulseAudio support =
+
+''This page describes how to solve the Flash Player 9 problem by building and installing an experimental plugin, libflashsupport.so, which adds support for ESD and PulseAudio.''
+
+This guide is aimed at non-technical users of '''Ubuntu 7.10 Gutsy Gibbon''' or other '''Debian'''-based distributions.
+
+== Installation ==
+Make sure you have the following packages installed, additional to PulseAudio
+ * build-essential
+ * libesd0-dev
+ * libpulse-dev
+ * libssl-dev
+
+Start a terminal and run this command:
+{{{
+sudo aptitude install build-essential libesd0-dev libpulse-dev libssl-dev
+}}}
+(You can start the terminal by pressing Alt+F2 and tryping {{{gnome-terminal}}} or {{{x-terminal-emulator}}})
+
+
+=== Download source and makefile ===
+To compile the plugin, you need {{{flashsupport.c}}} and {{{Makefile}}}.
+
+The newest versions can be downloaded here: [https://svn.revolutionlinux.com/MILLE/XTERM/trunk/libflashsupport/src/]
+
+Make a new subdirectory in your home folder and move the files there, e.g. in {{{~/flashsupport/}}}
+
+=== Compiling and installing ===
+In a terminal, go into the directory you moved the downloaded files into, e.g.:
+{{{
+cd ~/flashsupport
+}}}
+
+Now compile the plugin:
+{{{
+sudo make && sudo make install
+}}}
+
+Hopefully it should all go well. Restart Firefox and check if it works.
+
+If something goes wrong (like Firefox crashes), this is how to uninstall it again:
+
+=== Uninstalling ===
+Close all instances of Firefox (or anything that uses Flash).
+
+Open a terminal and run this command:
+{{{
+sudo rm /usr/lib/libflashsupport.so
+}}}
+The plugin is now removed.
