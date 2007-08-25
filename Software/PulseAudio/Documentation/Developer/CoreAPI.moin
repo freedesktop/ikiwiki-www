@@ -2,9 +2,9 @@
 
 From [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h pulsecore/core.h]: "The core structure of !PulseAudio. Every !PulseAudio daemon contains exactly one of these. It is used for storing kind of global variables for the daemon."
 
-`pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. You're not supposed to modify the fields.
+`pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. You're not supposed to modify the fields, at least not directly.
 
-The most important field is `mainloop`. That can be used for communicating with the mainloop. Doxygen documentation for the mainloop API is [http://0pointer.de/lennart/projects/pulseaudio/doxygen/mainloop-api_8h.html available].
+The most important field is perhaps `mainloop`. That can be used for communicating with the daemon mainloop, see [wiki:DaemonMainloop].
 
 == `struct pa_core` ==
 
@@ -26,16 +26,50 @@ The most important field is `mainloop`. That can be used for communicating with 
 
 `autoload_idxset` -- The contained items are of type `pa_autoload_entry`, and specify what modules should be loaded on demand.
 
-`namereg` -- Something that stores instances of `pa_namereg_entry`???
+`namereg` -- All sink, source and sample names are stored in this hashmap. The hashmap ensures the uniqueness of the names. This is accessed through the [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/namereg.h namereg interface].
 
-`autoload_hashmap` -- Same as autoload_idxset, but indexable with sink/source name?
+`autoload_hashmap` -- Same as autoload_idxset, but indexable with the module name, also ensures module name uniqueness.
 
-`properties` -- The data store that the property system manages, see [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/props.h pulsecore/props.h].
+`properties` -- Modules can share variables through the property system, and this is the data store for those variables. See the [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/props.h property system interface].
 
-`default_source_name`, `default_sink_name` -- Pretty self-explanatory, but do not access these directly, but through `pa_namereg_set_default`, `pa_namereg_get_default_sink_name` and `pa_namereg_get_default_source_name` that are defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/namereg.h pulsecore/namereg.h]. Maybe there should be a page about the [wiki:NameregAPI] to clarify what this namereg business is all about...
+`default_source_name`, `default_sink_name` -- Pretty self-explanatory, but do not access these directly, but through `pa_namereg_set_default`, `pa_namereg_get_default_sink_name` and `pa_namereg_get_default_source_name` that are defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/namereg.h pulsecore/namereg.h].
 
-`default_sample_spec` -- When in need of a default stream format, you'll find it here.
+`default_sample_spec` -- When in need of a default format for an audio stream, you'll find it here.
 
 `default_n_fragments` and `default_fragment_size_msec` -- The default buffering settings that should be used by sinks and sources when opening a hardware device.
 
+`module_auto_unload_event` -- The module system uses this to poll for modules that should be unloaded. Not for you.
 
+`module_defer_unload_event` -- The module system uses this to make mainloop unload modules. Not for you.
+
+`subscription_defer_event` -- The [wiki:SubscriptionSystem subscription system] uses this to make mainloop inform the subscribers about an event. Not for you.
+
+`subscriptions` -- Head of the list of existing subscriptions. Not for you.
+
+`subscription_event_queue` -- Head of the list of unprocessed events. Not for you.
+
+`subsrciption_event_last` -- Last item of the list of unprocessed events. Not for you.
+
+`mempool` -- The memory pool. You may need this as an argument to some functions.
+
+`exit_idle_time` -- The time in seconds between the moment the last client has left and the moment pulseaudio exits, if automatic exiting is used.
+
+`module_idle_time` -- The time in seconds between the moment the last client has stopped using a module and the moment the module gets unloaded, if the module is set to be automatically unloaded.
+
+`scache_idle_time` -- The time in seconds between the moment a sample has been fired last time and the moment the that the sample gets unloaded, if the sample is loaded as "lazy".
+
+`quit_event` -- If the daemon is told to exit after a period of idleness, it uses this to track the idle time. Not for you.
+
+`scache_auto_unload_event` -- The sample cache uses this to track the time that the lazy samples have been unused. Not for you.
+
+`disallow_module_loading` -- Controls whether modules can be loaded (and unloaded) or not.
+
+`running_as_daemon` -- If pulseaudio is daemonized, this is one, otherwise zero.
+
+`resample_method` -- The resample method that the user has chosen.
+
+`is_system_instance` -- This indicates whether pulseaudio is running as a per-user or a system-wide daemon.
+
+`high_priority` -- One, if pulseaudio has made itself a high-priority process (by acquiring the SCHED_FIFO scheduling class), zero otherwise.
+
+`hooks` -- 
