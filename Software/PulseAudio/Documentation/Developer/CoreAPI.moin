@@ -4,11 +4,13 @@ From [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h pu
 
 `pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. You're not supposed to modify the fields, at least not directly.
 
+Actually, in addition to being a variable collection, there is two interesting enumerations too.
+
 The most important field is perhaps `mainloop`. That can be used for communicating with the daemon mainloop, see [wiki:DaemonMainloop].
 
 == `struct pa_core` ==
 
-`parent` -- `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. At some point in the future I may write a page about the [wiki:ObjectSystem] used inside !PulseAudio. I think [wiki:MsgobjectAPI] would be useful too.
+`parent` -- `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. It means also that `pa_core` can receive messages, see "The unnamed enumeration" later on this page. At some point in the future I may write a page about the [wiki:ObjectSystem] used inside !PulseAudio. I think [wiki:MsgobjectAPI] would be useful too.
 
 `cookie` -- A random value which may be used to identify this instance of !PulseAudio. Not cryptographically secure in any way.
 
@@ -42,7 +44,7 @@ The most important field is perhaps `mainloop`. That can be used for communicati
 
 `module_defer_unload_event` -- The module system uses this to make mainloop unload modules. Not for you.
 
-`subscription_defer_event` -- The [wiki:SubscriptionSystem subscription system] uses this to make mainloop inform the subscribers about an event. Not for you.
+`subscription_defer_event` -- The subscription system uses this to make mainloop inform the subscribers about an event. Not for you. (What subscription system? See [wiki:CatchingEvents].)
 
 `subscriptions` -- Head of the list of existing subscriptions. Not for you.
 
@@ -72,4 +74,35 @@ The most important field is perhaps `mainloop`. That can be used for communicati
 
 `high_priority` -- One, if pulseaudio has made itself a high-priority process (by acquiring the SCHED_FIFO scheduling class), zero otherwise.
 
-`hooks` -- 
+`hooks` -- The hooks that can be used to catch events in core, see [wiki:CatchingEvents].
+
+== `enum pa_core_hook` ==
+
+The enumeration contains all the events that can be catched synchronously, see [wiki:CatchingEvents].
+
+== The unnamed enumeration ==
+
+There's this enumeration, that has only two elements: `PA_CORE_MESSAGE_UNLOAD_MODULE` and `PA_CORE_MESSAGE_MAX`. It contains all the messages that can be sent (asynchronously) to the core, and currently there is only one such message.
+
+`PA_CORE_MESSAGE_UNLOAD_MODULE` causes a module (give the pointer as userdata to pa_asyncmsgq_post) to get unloaded. The difference between using this message and calling `pa_module_unload_request()` is that the latter is not a real-time safe way of doing the thing (real-time safety means having a deterministic execution time).
+
+For information on how to use the asynchronous message passing system, see [wiki:MessagingSystem], or while waiting for that to materialize, try [wiki:ThreadingModel].
+
+== Functions and macros ==
+
+As mentioned earlier, the functions `pa_core` has associated with it, are not interesting for module writers. I'll list them here anyway for completeness's sake.
+
+`pa_core_new` -- Creates a new core that will use the given mainloop. The `shared` parameter `shared` is a boolean indicating whether the created mempool should be shared or not.
+
+`pa_core_check_quit` -- Updates the quit_event field, called by the client system when clients come and leave.
+
+`PA_DECLARE_CLASS(pa_core)` in the header causes the following functions to become available (they are explained in the [wiki:ObjectSystem] page):
+
+`pa_core_isinstance`[[BR]]
+`pa_core_cast`[[BR]]
+`pa_core_ref`[[BR]]
+`pa_core_unref`[[BR]]
+`pa_core_refcnt`[[BR]]
+`pa_core_assert_ref`
+
+And then there is the `PA_CORE` macro, that is just an alias for `pa_core_cast`.
