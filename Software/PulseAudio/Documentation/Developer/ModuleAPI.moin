@@ -6,56 +6,77 @@ I'll walk you through the interface, see [http://www.pulseaudio.org/browser/bran
 
 == `struct pa_module` ==
 
-`core` -- Here you have a pointer to the core that the module is connected to.
+ `core`::
+   Here you have a pointer to the core that the module is connected to.
 
-`name` -- The name that was used when loading the module, i.e. the first argument to the "load-module" command.
+ `name`::
+   The name that was used when loading the module, i.e. the first argument to the "load-module" command.
 
-`argument` -- The whole argument string that was given with the "load-module" command. You could parse this yourself, but it's better to use the available helper functions. See [wiki:ModargsAPI].
+ `argument`::
+   The whole argument string that was given with the "load-module" command. You could parse this yourself, but it's better to use the available helper functions. See [wiki:ModargsAPI].
 
-`index` -- Every loaded module is assigned an index in the core that is used as an unique identifier. If you're ever going to need the index for any purpose, note that it is set only after `pa__init` returns, so its value is undefined during the initialization.
+ `index`::
+   Every loaded module is assigned an index in the core that is used as an unique identifier. If you're ever going to need the index for any purpose, note that it is set only after `pa__init` returns, so its value is undefined during the initialization.
 
-`dl` -- Handle through which the module's symbols are loaded. You can probably ignore this.
+ `dl`::
+   Handle through which the module's symbols are loaded. You can probably ignore this.
 
-`init` -- Pointer to the `pa__init` function.
+ `init`::
+   Pointer to the `pa__init` function.
 
-`done` -- Pointer to the `pa__done` function.
+ `done`:: 
+   Pointer to the `pa__done` function.
 
-`userdata` -- This is initially NULL. This field belongs completely to you, you store a pointer to your custom data in this variable and you take care of freeing it too.
+ `userdata`::
+   This is initially NULL. This field belongs completely to you, you store a pointer to your custom data in this variable and you take care of freeing it too.
 
 The next three fields are part of the [wiki:ModuleAPI#Automaticunloading automatic unloading] functionality, and you need to care about only one of them (`n_used`), and you can ignore that too, if you don't want to support the functionality.
 
-`n_used` -- Number of current "users". If you allow automatic unloading, value 0 is a precondition for automatic unloading to happen. Initialized to -1. Don't change this directly, use `pa_module_set_used` instead.
+ `n_used`::
+   Number of current "users". If you allow automatic unloading, value 0 is a precondition for automatic unloading to happen. Initialized to -1. Don't change this directly, use `pa_module_set_used` instead.
 
-`auto_unload` -- This is managed by the autoload system, don't modify. 0 means that automatic unloading is off and 1 means on.
+ `auto_unload`::
+   This is managed by the autoload system, don't modify. 0 means that automatic unloading is off and 1 means on.
 
-`last_used_time` -- This gets updated whenever you change `n_used` to 0 with `pa_module_set_used`. Not initialized until the first zeroing of `n_used`!
+ `last_used_time`::
+   This gets updated whenever you change `n_used` to 0 with `pa_module_set_used`. Not initialized until the first zeroing of `n_used`!
 
-`unload_requested` -- This is set to 1 when someone (might be you) wants to unload the module. Initialized to 0. Don't change this directly, use `pa_module_unload_request` instead.
+ `unload_requested`::
+   This is set to 1 when someone (might be you) wants to unload the module. Initialized to 0. Don't change this directly, use `pa_module_unload_request` instead.
 
 == Functions and macros ==
 
 Loading and unloading functions are primarily for the daemon, except `pa_module_unload_request`, but if you want to do some module management, feel free.
 
-`pa_module_load` -- Loads a module and returns a pointer to it. If module loading is disallowed in the core or loading otherwise fails, NULL is returned.
+ `pa_module_load`::
+   Loads a module and returns a pointer to it. If module loading is disallowed in the core or loading otherwise fails, NULL is returned.
 
-`pa_module_unload` -- Unloads one module instance.
+ `pa_module_unload`::
+   Unloads one module instance.
 
-`pa_module_unload_by_index` -- Same as `pa_module_unload`, but uses an index for identification instead of a `pa_module` pointer.
+ `pa_module_unload_by_index`::
+   Same as `pa_module_unload`, but uses an index for identification instead of a `pa_module` pointer.
 
-`pa_module_unload_all` -- Unloads all modules.
+ `pa_module_unload_all`::
+   Unloads all modules.
 
-`pa_module_unload_unused` -- Unloads those modules that allow automatic unloading and have been unused at least for the time specified in `pa_core`'s `module_idle_time`.
+ `pa_module_unload_unused`::
+   Unloads those modules that allow automatic unloading and have been unused at least for the time specified in `pa_core`'s `module_idle_time`.
 
-`pa_module_unload_request` -- Ask the core to unload a module instance. The actual unloading doesn't happen immediately. This function causes a `malloc()` call, so if you require strict real-time safety, instead of calling this, send a `PA_CORE_MESSAGE_UNLOAD_MODULE` message to the core, see [wiki:CoreAPI].
+ `pa_module_unload_request`::
+   Ask the core to unload a module instance. The actual unloading doesn't happen immediately. This function causes a `malloc()` call, so if you require strict real-time safety, instead of calling this, send a `PA_CORE_MESSAGE_UNLOAD_MODULE` message to the core, see [wiki:CoreAPI].
 
-`pa_module_set_used` -- Updates the number of module users.
+ `pa_module_set_used`::
+   Updates the number of module users.
 
-`PA_MODULE_AUTHOR`[[BR]]
-`PA_MODULE_DESCRIPTION`[[BR]]
-`PA_MODULE_USAGE`[[BR]]
-`PA_MODULE_VERSION` -- See WritingModules#Optionalfunctions.
+ `PA_MODULE_AUTHOR`::
+ `PA_MODULE_DESCRIPTION`::
+ `PA_MODULE_USAGE`::
+ `PA_MODULE_VERSION`::
+   See WritingModules#Optionalfunctions.
 
-`pa_module_get_info` -- Returns a structure that holds the information you provide with the functions described in WritingModules#Optionalfunctions. For details, see [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/modinfo.h pulsecore/modinfo.h].
+ `pa_module_get_info`::
+   Returns a structure that holds the information you provide with the functions described in WritingModules#Optionalfunctions. For details, see [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/modinfo.h pulsecore/modinfo.h].
 
 == Automatic unloading ==
 
