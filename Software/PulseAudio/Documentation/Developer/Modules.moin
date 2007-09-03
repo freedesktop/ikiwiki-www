@@ -94,7 +94,6 @@ It is sometimes desirable to link modules statically in the daemon binary instea
 
 You have to create a header file that you include from the source file. Let's use the module-null-sink as an example again. These are the contents of module-null-sink-symdef.h, copy it to yourself and modify the "null-sink" parts to match your own module's name:
 
-UPDATE: this file can be generated automatically by autotools. Check the source:trunk/src/Makefile.am for SYMDEF.
 {{{
 #ifndef foomodulenullsinksymdeffoo
 #define foomodulenullsinksymdeffoo
@@ -118,6 +117,8 @@ const char* pa__get_version(void);
 
 #endif
 }}}
+
+Of course, this is so mechanical stuff that the file can be very well be given to the computer to generate. The !PulseAudio developers use a M4 script to generate the symdef files at build time. Read [source:branches/lennart/src/Makefile.am Makefile.am] (search for "SYMDEF") and [source:branches/lennart/src/modules/module-defs.h.m4 modules/module-defs.h.m4] to see how it is done.
 
 == State data ==
 
