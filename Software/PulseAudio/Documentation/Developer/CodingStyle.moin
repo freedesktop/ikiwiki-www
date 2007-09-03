@@ -1,0 +1,94 @@
+= Coding Style =
+
+Please follow the following rough rules when submitting code for inclusion in PA or commiting code into SVN:
+
+ 1. No tabs please! Please indent exclusively with spaces.
+ 1. Indentation is 4 characters. (We might increase this to 8 characters eventually. But this is not going to happen any time soon, because it would break almost every patch.
+ 1. Please keep the opening bracket of a block on the same line as the expression opening it. i.e. This is correct:
+{{{
+void good_function(void) {
+
+    if (a) {
+        printf("Hello World!\n");
+        a = 0;
+    }
+}
+}}}
+ And this is wrong:
+{{{
+void bad_function(void) 
+{
+    if (a) 
+    {
+        printf("Hello World!\n");
+        a = 0;
+    }
+}
+}}}
+ 1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are when wrong most likely porgramming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return cleanly.
+ 1. Errors are returned from functions as negative values. Success is returned as 0 or positive value.
+ 1. Please check for error codes on every system call, and every external library call. If you you are sure that calls like that cannot return an error, make that clear by wrapping it in `pa_assert_se()`. i.e.:
+{{{
+pa_assert_se(close(fd) == 0);
+}}}
+ Please note that `pa_assert_se()` is identical to `pa_assert()`, except that it is not optimized away if NDEBUG is defined. (`se` stands for ''side effect'')
+ 1. Exported function names should be prefixed with `pa_`. Static definitions should not be prefixed. Exported structs should be typedef'ed so they can be used without typing "struct" each time. Structs that are used only inside a single source file should not be typedef'ed that way.
+ 1. Data types that are usually passed as call-by-value arguments should be suffixed with `_t` with a typedef. I.e. all enums should be suffixed that way:
+{{{
+typedef enum pa_resample_method {
+  /* ... */
+} pa_resample_method_t;
+}}}
+ 1. No C++ comments please! i.e. this is good:
+{{{
+/* This is a good comment */
+}}}
+ and this is bad:
+{{{
+// This is a bad comment
+}}}
+ Yes, the newest C iterations allow those comments. But they are ugly.
+ 1. Comments are good. Excessive comments are bad. i.e. comment complicated code, don't comment trivial code. For hackers it's usually easier to understand well written code  than prosa.
+ 1. Don't put the return type of a function on a seperate line. This is good:
+{{{
+int good_function(void) {
+}
+}}}
+ and this is bad:
+{{{
+int
+bad_function(void) {
+}
+}}}
+ 1. On function calls and definitions, don't put an extra space between function name and the opening parenthesis of the argument list. This good:
+{{{
+double sin(double x);
+}}}
+ This bad:
+{{{
+double sin (double x);
+}}}
+ 1. Please submit code only under LGPL2+, BSD or GPL2+. Please don't make GPL code a hard dependency. Since PA is pluggable this would make it it imposible to load less-free-than-GPL code into the PA daemon.
+ 1. Code is about aesthetics. So please, format you code cleanly.
+ 1. Please do ''not'' wrap your lines at 80 characters. Given that most screens are now considerably wider than they used to be please make use of it. Wrap them at 128 characters.
+
+= Indentation in Emacs =
+
+If you use Emacs, consider using this Elisp function for proper indentation:
+
+{{{
+(defun my-c-mode()
+  "Lennart Poettering's C indentation"
+  (message "Setting Lennart Poettering's C indentation...")
+  (c-set-offset 'substatement-open 0)
+  (c-set-offset 'statement-case-open 0)
+  (c-set-offset 'case-label '+)
+  (c-set-offset 'arglist-intro '++)
+  (c-set-offset 'arglist-close 0)
+  (define-key c-mode-base-map "\C-m" 'c-context-line-break)
+  (setq tab-width 8)
+  (setq c-basic-offset 4)
+  (c-toggle-hungry-state 1)
+  (setq indent-tabs-mode nil))
+}}}
+
