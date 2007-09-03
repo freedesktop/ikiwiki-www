@@ -27,7 +27,23 @@ void bad_function(void)
     }
 }
 }}}
- 1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code.
+ 1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code. Please add a seperate `pa_assert()` for each argument. Do not use a single check for all parameters using `&&`. This would make debugging more difficult. Good code:
+{{{
+void good_code(int a, int b) {
+    pa_assert(a > 47);
+    pa_assert(b != 0);
+
+    /* ... */
+}
+}}}
+ Bad code:
+{{{
+void bad_code(int a, int b) {
+    pa_assert(a > 47 && b != 0);
+
+}
+}}}
+
  1. Errors are returned from functions as negative values. Success is returned as 0 or positive value.
  1. Please check for error codes on every system call, and every external library call. If you you are sure that calls like that cannot return an error, make that clear by wrapping it in `pa_assert_se()`. i.e.:
 {{{
