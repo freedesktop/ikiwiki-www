@@ -6,6 +6,8 @@
 
 I want to rewrite the JACK modules from scratch, and in order to do that I need to know how modules work and how to use the !PulseAudio APIs. Instead of reading the sources I'd like to have a friendly guide that tells me what to do. Because there isn't such a guide, I'll write it myself as I learn stuff by other means. Hopefully this will be useful for future module writers too.
 
+This documentation is for the "lennart" branch in the svn, which will eventually become the 0.9.7 release. After 0.9.7 I think I will keep updating these pages as svn changes (the APIs needed to write modules are mostly considered internal and thus unstable), but keeping the information for 0.9.7 users there too.
+
 This is a wiki, so please improve this yourself whenever you spot inaccuracies, confusion, bad English or straight lies.
 
 == What is a module? ==
@@ -40,7 +42,7 @@ void pa__done(pa_module* m);
 
 The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. If `pa__init` fails, `pa__done` won't be called.
 
-The `pa_module` type is defined in [http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
+The `pa_module` type is defined in [source:branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
 
 So the minimal module that the daemon agrees to load is:
 
