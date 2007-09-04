@@ -67,7 +67,7 @@ Loading and unloading functions are primarily for the daemon, except `pa_module_
    Unloads those modules that allow automatic unloading and have been unused at least for the time specified in `pa_core`'s `module_idle_time`.
 
  `pa_module_unload_request`::
-   Ask the core to unload a module instance. The actual unloading doesn't happen immediately. This function causes a `malloc()` call, so if you require strict real-time safety, instead of calling this, send a `PA_CORE_MESSAGE_UNLOAD_MODULE` message to the core, see [wiki:CoreAPI].
+   Ask the core to unload a module instance. The actual unloading doesn't happen immediately. If you'd like to call this outside the mainloop thread, don't do that, but instead send a `PA_CORE_MESSAGE_UNLOAD_MODULE` message to the core, see [wiki:CoreAPI#Theunnamedenumeration CoreAPI].
 
  `pa_module_set_used`::
    Updates the number of module users.
