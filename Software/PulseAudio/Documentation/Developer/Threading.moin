@@ -77,7 +77,7 @@ A few rules for reference counting:
  * Increasing the refcounter should be done by a _ref() function, decreasing with _unref()
  * Refcount only the pointers that point from the longer-living object to the shorter-living object - NOT the other way round!
  * Provide an _unlink() method on the short-living object that deregisters the object from the longer-living object and also unlinks every attached shorter-living object. This should not be confused with _unref()
- * Only use refcounting as defined in refcnt.h or by pa_object, because this one is guaranteed to be atomic.
+ * Only use refcounting as defined in [source:/branches/lennart/src/pulsecore/refcnt.h refcnt.h] or by pa_object, because this one is guaranteed to be atomic.
 
 Yes, not all code currently in PA abides to these rules, but this is being worked on. e.g. a couple of functions that should be called _unlink() are called _disconnect() right now.
 
@@ -90,6 +90,8 @@ Besides that, the pa_thread_xxx thread creation/termination APIs, pa_semaphore_x
 So, to avoid race conditions in your code, make sure to use the existing APIs and you should be able to forget about memory barriers. It is always preferable to implement algorithms lock-free. However, very often this is very difficult to get right, if possible at all. In those cases, a good solution is usually to leave the actual work on a complex data structure to the rt thread and to request it via a message on a pa_asyncmsgq (Of course only if the actual processing of this stuff is not tooo difficult, i.e. has a low complexity). Also, keeping everything lock-free is not worth it in many cases. So please, if you feel that some algorithm is best implemented with taking a lock, than just do it and don't feel bad about it. We have the pa_mutex_xxx APIs for these cases!
 
 pa_semaphore_post() does not require taking a lock. Hence in many cases, it is better to use pa_semaphores over pa_cond. 
+
+Don't bother with implementing you own lock-free reference counting based directly on pa_atomic_xxx(). Instead, use the refcnt.h API mentioned above, or use pa_object.
 
 Nota bene: all our memory barriers are ''full'' memory barriers. The most important architectures are x86/x86-64 where only this type of barriers exists. Since only very few people fully understand the differences between all the barriers, and we have no access to more exotic architectures the full memory barriers are good enough for our uses. We optimize for x86/x86-64, for all other architectures it is good enough if PA works at all.
 
