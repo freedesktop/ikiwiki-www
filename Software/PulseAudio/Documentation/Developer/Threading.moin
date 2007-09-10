@@ -80,3 +80,16 @@ A few rules for reference counting:
  * Only use refcounting as defined in refcnt.h or by pa_object, because this one is guaranteed to be atomic.
 
 Yes, not all code currently in PA abides to these rules, but this is being worked on. e.g. a couple of functions that should be called _unlink() are called _disconnect() right now.
+
+== Atomicity and Memory Barriers ==
+
+Since PA now uses a (mostly) lock-free core, we provide a set of atomic integer and pointer routines in form of pa_atomic_xxx() (defined in [source:/branches/lennart/src/pulsecore/atomic.h atomic.h]). They include full implicit memory barriers, which allows you to forget about memory access ordering issues on SMP -- as long as you do use pa_atomic_xxx().
+
+Besides that, the pa_thread_xxx thread creation/termination APIs, pa_semaphore_xxx and pa_mutex_xxx provide implicit full memory barriers. Everything that is built on top of these building blocks, such as pa_asyncmsgq thus also includes implicit memory barriers.
+
+So, to avoid race conditions in your code, make sure to use the existing APIs and you should be able to forget about memory barriers. It is always preferable to implement algorithms lock-free. However, very often this is very difficult to get right, if possible at all. In those cases, a good solution is usually to leave the actual work on a complex data structure to the rt thread and to request it via a message on a pa_asyncmsgq. Also, keeping everything lock-free is not worth it in many cases. So please, if you feel that some algorithm is best implemented with taking a lock, than just do it and don't feel bad about it. We have the pa_mutex_xxx APIs for these cases!
+
+pa_semaphore_post() does not require taking a lock. Hence in many cases, it is better to use pa_semaphores over pa_cond. 
+
+Nota bene: all our memory barriers are ''full'' memory barriers. The most important architectures are x86/x86-64 where only this type of barriers exists. Since only very few people fully understand the differences between all the barriers, and we have no access to more exotic architectures the full memory barriers are good enough for our uses. We optimize for x86/x86-64, for all other architectures it is good enough if PA works at all.
+
