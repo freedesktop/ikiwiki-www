@@ -1,5 +1,7 @@
 ##language:en
 === News ===
+17Sep2007 - Updated rev of the video acceleration API specification (0.22 -> 0.23)
+
 04Sep2007 - Updated rev of the video acceleration API specification (0.20 -> 0.22)
 
 09Aug2007 - Updated rev of the video acceleration API specification (0.18 -> 0.20)
@@ -59,7 +61,7 @@ Email: jonathan.bian@intel.com
 /*
  * Video Decode Acceleration API Specification
  *
- * Rev. 0.22
+ * Rev. 0.23
  * <jonathan.bian@intel.com>
  *
  * Revision History:
@@ -77,9 +79,10 @@ Email: jonathan.bian@intel.com
  * rev 0.20 (08/08/2007 Jonathan Bian) - Added missing fields to VC-1 PictureParameter structure. 
  * rev 0.21 (08/20/2007 Jonathan Bian) - Added image and subpicture support. 
  * rev 0.22 (08/27/2007 Jonathan Bian) - Added support for chroma-keying and global alpha. 
+ * rev 0.23 (09/11/2007 Jonathan Bian) - Fixed some issues with images and subpictures, added CopySurfaceToGLXPbuffer
  *
  * Acknowledgements:
- *  Some concepts borrowed from XvMC and XvImage.
+ *  Some concepts borrowed from XvMC and XvImage by Mark Vojkovich.
  *  Thanks to Waldo Bastian for many valuable feedbacks.
  */
 
@@ -266,7 +269,10 @@ VAStatus vaQueryConfigAttributes (
     int num_attribs
 );
 
-typedef int VAConfigID;
+/* Generic ID type, can be re-typed for specific implementation */
+typedef unsigned int VAGenericID;
+
+typedef VAGenericID VAConfigID;
 
 /* 
  * Create a configuration for the decode pipeline 
@@ -306,11 +312,9 @@ VAStatus vaGetConfigAttributes (
  * Context represents a "virtual" video decode pipeline
  */
 
-/* generic context ID type, can be re-typed for specific implementation */
-typedef int VAContextID;
+typedef VAGenericID VAContextID;
 
-/* generic surface ID type, can be re-typed for specific implementation */
-typedef int VASurfaceID;
+typedef VAGenericID VASurfaceID;
 
 typedef struct _VAContext
 {
@@ -405,7 +409,7 @@ VAStatus vaDestroyContext (
  *
  */
 
-typedef int VABufferID;
+typedef VAGenericID VABufferID;
 
 typedef enum
 {
@@ -418,6 +422,7 @@ typedef enum
     VAMacroblockParameterBufferType	= 6,
     VAResidualDataBufferType		= 7,
     VADeblockingParameterBufferType	= 8,
+    VAImageBufferType			= 9,
 } VABufferType;
 
 /****************************
@@ -812,9 +817,9 @@ typedef struct _VAPictureParameterBufferH264
     };
     unsigned char num_slice_groups_minus1;
     unsigned char slice_group_map_type;
-    unsigned char pic_init_qp_minus26;
-    unsigned char chroma_qp_index_offset;
-    unsigned char second_chroma_qp_index_offset;
+    char pic_init_qp_minus26;
+    char chroma_qp_index_offset;
+    char second_chroma_qp_index_offset;
     union {
         struct {
             unsigned char entropy_coding_mode_flag	: 1; 
@@ -1055,15 +1060,23 @@ typedef struct _VAImageFormat
     unsigned int	alpha_mask;
 } VAImageFormat;
 
-typedef int VAImageID;
+typedef VAGenericID VAImageID;
 
 typedef struct _VAImage
 {
     VAImageID		image_id; /* uniquely identify this image */
-    VASurfaceID		surface_id; /* which surface will this image be associated with */
     VAImageFormat	format;
-    unsigned char	*data;	/* image data pointer */
-    /* The following fields are set by the library */
+    VABufferID		buf;	/* image data buffer */
+    /*
+     * Image data will be stored in a buffer of type VAImageBufferType to facilitate
+     * data store on the server side for optimal performance.
+     * It is expected that the client will first call vaCreateImage which returns a VAImage
+     * structure with the following fields filled by the library. It will then 
+     * create the "buf" with vaBufferCreate. For PutImage, then client will call 
+     * vaBufferData() with the image data before calling PutImage, and for GetImage 
+     * the client will call vaBufferData() with a NULL data pointer, and then call GetImage.
+     * After that the client can use the Map/Unmap buffer functions to access the image data.
+     */
     unsigned short	width; 
     unsigned short	height;
     unsigned int	data_size;
@@ -1075,7 +1088,7 @@ typedef struct _VAImage
     unsigned int	*pitches;
     /* 
      * An array of size num_planes indicating the byte offset from
-     * "data" t the start of each plane.
+     * the beginning of the image data to the start of each plane.
      */
     unsigned int	*offsets;
 } VAImage;
@@ -1098,23 +1111,19 @@ VAStatus vaQueryImageFormats (
 );
 
 /* 
- * Images will be bound to a surface when the image is created. 
- * The association is removed when the image is destroyed.
+ * Create a VAImage structure
  * The width and height fields returned in the VAImage structure may get 
  * enlarged for some YUV formats. The size of the data buffer that needs
  * to be allocated will be given in the "data_size" field in VAImage.
- * Image data is not allocated by this function.  The client may pass a
- * pointer to pre-allocated memory as "data" or may allocate the memory
- * and fill in the VAImage structure's data field after looking at 
- * "data_size" returned from the library.
+ * Image data is not allocated by this function.  The client should 
+ * allocate the memory required for the data and fill in the data field after 
+ * looking at "data_size" returned from this call.
  */
 VAStatus vaCreateImage (
     VADisplay dpy,
-    VASurface *surface,
     VAImageFormat *format,
     int width,
     int height,
-    char *data,
     VAImage *image	/* out */
 );
 
@@ -1163,7 +1172,7 @@ VAStatus vaPutImage (
  * DVD sub-titles or closed captioning text etc.  
  */
 
-typedef int VASubpictureID;
+typedef VAGenericID VASubpictureID;
 
 typedef struct _VASubpicture
 {
@@ -1234,6 +1243,16 @@ VAStatus vaDestroySubpicture (
     VASubpicture *subpicture
 );
 
+/* 
+ * Bind an image to the subpicture. This image will now be associated with 
+ * the subpicture instead of the one at creation.
+ */
+VAStatus vaSetSubpictureImage (
+    VADisplay dpy,
+    VASubpicture *subpicture,
+    VAImage *image
+);
+
 VAStatus vaSetSubpicturePalette (
     VADisplay dpy,
     VASubpicture *subpicture,
@@ -1278,7 +1297,6 @@ VAStatus vaAssociateSubpicture (
     VADisplay dpy,
     VASurface *target_surface,
     VASubpicture *subpicture,
-    unsigned int 
     short src_x, /* upper left offset in subpicture */
     short src_y,
     short dest_x, /* upper left offset in surface */
@@ -1308,7 +1326,11 @@ typedef struct _VARectangle
  * color space conversion and scaling to the destination
  * rectangle
  */
- 
+/* de-interlace flags for vaPutSurface and vaCopySurfaceToGLXPbuffer */
+#define VA_TOP_FIELD		0x00000001
+#define VA_BOTTOM_FIELD		0x00000002
+#define VA_FRAME_PICTURE	0x00000004 /* weave */
+
 VAStatus vaPutSurface (
     VADisplay dpy,
     VASurface *surface,	
@@ -1323,9 +1345,51 @@ VAStatus vaPutSurface (
     unsigned short desth,
     VARectangle *cliprects; /* client supplied clip list */
     unsigned int number_cliprects; /* number of clip rects in the clip list */
-    int flags /* de-interlacing flags */
+    unsigned int flags /* de-interlacing flags */
 );
 
+/*
+  This function copies a rectangle of dimension "width" by "height" 
+  from the VASurface indicated by "surface" to the GLXPbuffer
+  identified by its XID "pbuffer_id".  The locations of source and
+  destination rectangles are specified differently for the VASurface
+  source and the GLXPbuffer destination as follows.  On the VASurface,
+  the rectangle location is specified in the usual X-Window fashion
+  with srcx and srcy indicating the location of the upper left hand
+  corner of the rectangle relative to the VASurface origin (the upper
+  left hand corner of the XvMCSurface with positive Y axis going in the
+  down direction). On the GLXPbuffer the rectangle location is
+  specified in the usual OpenGL fashion with the dstx and dsty
+  indicating the location of the lower left hand corner of the
+  rectangle relative to the GLXPbuffer origin (the lower left hand
+  corner of the GLXPbuffer with the positive Y axis going in the
+  up direction).
+
+  The "draw_buffer" takes the same OpenGL enums that glDrawBuffer()
+  takes (ie. GL_FRONT_LEFT, GL_FRONT_RIGHT, GL_BACK_LEFT, GL_BACK_RIGHT,
+  GL_FRONT, GL_BACK, GL_LEFT, GL_RIGHT or GL_FRONT_AND_BACK).  This
+  indicates which buffer of the GLXPbuffer is to be used for the
+  destination of the copy.  Buffers specified in the "draw_buffer"
+  that do not exist in the GLXPbuffer are ignored.
+
+  "flags" may be VA_TOP_FIELD, VA_BOTTOM_FIELD or VA_FRAME_PICTURE.
+  If flags is not VA_FRAME_PICTURE, the srcy and height are in field
+  coordinates, not frame.  That is, the total copyable height is half
+  the height of the VASurface.
+*/
+VAStatus vaCopySurfaceToGLXPbuffer (
+    VADisplay dpy,
+    VASurface *surface,	
+    XID pbuffer_id,
+    short srcx,
+    short srcy,
+    unsigned short width,
+    unsigned short height,
+    short destx,
+    short desty,
+    unsigned int draw_buffer,
+    unsigned int flags /* de-interlacing flags */
+);
 
 #endif /* _VA_H_ */
 
@@ -1466,8 +1530,11 @@ Mostly to demonstrate program flow with no error handling ...
         VAImage sub_image;
 	VASubpicture subpicture;
         unsigned char sub_data[128][16];
-        /* fill sub_data with subtitle in AI44 */
-	vaCreateImage(dpy, surfaces, sub_formats, 128, 16, sub_data, &sub_image);
+        /* create an image for the subtitle */
+	vaCreateImage(dpy, surfaces, sub_formats, 128, 16, &sub_image);
+	vaCreateBuffer(dpy, VAImageBufferType, &sub_image->buf);
+        /* fill the image data */
+	vaBufferData(dpy, sub_image->buf, sub_image->data_size, sub_data);
 	vaCreateSubpicture(dpy, &sub_image, &subpicture);
 	unsigned char palette[3][16];
 	/* fill the palette data */
