@@ -148,4 +148,13 @@ esound
    * There is no easy installers as for July 2007, neither for WinESD nor PulseAudio for Win32/Windows. It's a "Let's play with configuration by hands" installation.
    * You need to unactivate your sound card if you already have one on the computer running WinESD. This will need a reboot. This is undocumented on the [http://www.clingman.org/winesd/ WinESD site].
    * Switching from one driver to another will need to play with Activate/Unactivate drivers, which will cause reboot.
+ 1. '''How can use my Windows box to play the sound from my Linux box?'''[[BR]]
+   * Download the windows binary of pulseaudio from the download page.
+   * In the pulseaudio directory, create a file '''default.pa''' whith a content similar to this one (you may have to adjust the auth-ip-acl to reflect your network's settings):
+{{{
+load-module module-waveout
+
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
+}}}
+   * In pulseaudio applet: PA applet -> Default Server -> Other -> Enter the hostname or ip of your windows box.
 
