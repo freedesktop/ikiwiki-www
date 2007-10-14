@@ -18,7 +18,11 @@ adduser pulse audio
 adduser lennart pulse-access
 }}}
 
-The runtime directory {{{/var/run/pulse}}} is created automatically on daemon startup.
+The runtime directory {{{/var/run/pulse}}} is created automatically on daemon startup. This directory contains the .esd_auth file, which is the authentication cookie for esound. If you want to use esound without disabling authentication, create a symlink from this file in your home directory:
+
+{{{
+ln -sf /var/run/pulse/.esd_auth ~/.esd_auth
+}}}
 
 ''Please note that creating these groups/users is not necessary when running the !PulseAudio in the traditional per-user setup''
 
