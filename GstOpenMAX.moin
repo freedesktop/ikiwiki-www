@@ -104,7 +104,7 @@ $HOME/omx/bin/omxregister
 cvs -d:pserver:anoncvs@anoncvs.freedesktop.org:/cvs/gstreamer co gst-openmax
 
 ./autogen.sh --noconfigure
-./configure --prefix="$HOME/omx" --with-pkg-config-path=$HOME/omx/lib/pkgconfig
+./configure --prefix="$HOME/omx"
 make
 make install
 }}}
@@ -113,6 +113,7 @@ make install
 
 {{{
 export GST_PLUGIN_PATH=$HOME/omx/lib/gstreamer-0.10
+export LD_LIBRARY_PATH=$HOME/omx/lib
 gst-launch-0.10 filesrc location="test.mp3" ! omx_mp3dec use-timestamps=false ! audioconvert ! alsasink
 gst-launch-0.10 filesrc location="test.ogg" ! omx_vorbisdec use-timestamps=false ! audioconvert ! alsasink
 }}}
