@@ -17,42 +17,42 @@ regards to applications interacting and communicating
 with the composite manager. Currently code can interact 
 with a composite manager in one of several fashions:
 
-1. Composite managers can expose a plugin interface 
-enabling libraries functioning as plugins to 
-  implement new functionality for a composite manager. 
-  This is effective for many of the traditional window 
-  manager functionalities, but has several weaknesses. 
-  Slow code in the composite manager will make an 
-  entire system feel sluggish, and furthermore under 
-  existing and easily forseeable plugin architectures 
-  plugins such as the Thumbnail plugin of Beryl and 
-  Compiz waste an excessive amount of CPU even while 
-  not doing anything interesting. Furthermore 
-  applications requiring an excessive amount of user 
-  interaction are cumbersome and difficult to write, 
-  and attempts to do so often expose the problem of 
-  slow code in a composite manager making the entire 
-  system feel sluggish. Lastly applications requiring a 
-  great deal of interaction with other components of 
-  the desktop are not well suited to existing as a 
-  plugin for a compositor, while they still might find 
-  it useful to leverage some of the power of a 
-  compositor. 
+ 1. Composite managers can expose a plugin interface 
+ enabling libraries functioning as plugins to 
+ implement new functionality for a composite manager. 
+ This is effective for many of the traditional window 
+ manager functionalities, but has several weaknesses. 
+ Slow code in the composite manager will make an 
+ entire system feel sluggish, and furthermore under 
+ existing and easily forseeable plugin architectures 
+ plugins such as the Thumbnail plugin of Beryl and 
+ Compiz waste an excessive amount of CPU even while 
+ not doing anything interesting. Furthermore 
+ applications requiring an excessive amount of user 
+ interaction are cumbersome and difficult to write, 
+ and attempts to do so often expose the problem of 
+ slow code in a composite manager making the entire 
+ system feel sluggish. Lastly applications requiring a 
+ great deal of interaction with other components of 
+ the desktop are not well suited to existing as a 
+ plugin for a compositor, while they still might find 
+ it useful to leverage some of the power of a 
+ compositor. 
 
-2. Composite managers can communicate with client 
-  applications through X window properties. This is a 
-  suitable way to store simple information and flags, 
-  but the use quickly breaks down when attempting to 
-  traffic large (things such as Pixmaps or a vertex 
-  array) amounts of information in a latency sensitive manner.
+ 2. Composite managers can communicate with client 
+ applications through X window properties. This is a 
+ suitable way to store simple information and flags, 
+ but the use quickly breaks down when attempting to 
+ traffic large (things such as Pixmaps or a vertex 
+ array) amounts of information in a latency sensitive manner.
 
-3. Composite managers can communicate with client 
-  applications through an interprocess communications 
-  protocol such as DBUS. This is a suitable way for 
-  triggering actions, and a sort of 'scripting' but 
-  suffers from similar issues to that of X properties 
-  in leveraging the compositor for producing rich 
-  client applications.
+ 3. Composite managers can communicate with client 
+ applications through an interprocess communications 
+ protocol such as DBUS. This is a suitable way for 
+ triggering actions, and a sort of 'scripting' but 
+ suffers from similar issues to that of X properties 
+ in leveraging the compositor for producing rich 
+ client applications.
 
 As a solution this document proposes the creation of a 
 low level protocol used to leverage the composite 
@@ -69,38 +69,38 @@ Structure of implementation and low level protocol description
 The protocol will be built upon Requests structured as 
 following: 
 
-1. An enumeration of named opcodes for each request.
+ 1. An enumeration of named opcodes for each request.
 
-2. For each opcode a structure representing any 
-  parameters or attributes which the client application 
-  must communicate to the compositor to complete the 
-  specific request
+ 2. For each opcode a structure representing any 
+ parameters or attributes which the client application 
+ must communicate to the compositor to complete the 
+ specific request
 
-3. A structure representing an entire request 
-  containing the opcode, and a union of attribute 
-  structures for all opcodes. Furthermore the request 
-  structure will contain a pointer to the next and 
-  previous request.
+ 3. A structure representing an entire request 
+ containing the opcode, and a union of attribute 
+ structures for all opcodes. Furthermore the request 
+ structure will contain a pointer to the next and 
+ previous request.
 
 Composite managers will expose a struct in shared 
 memory (henceforth referred to as the transport) (TODO: 
 Best method to establish initial communication?) containing:
 
-1. A doubly linked list of requests, client 
-  applications will add requests to the end of this 
-  list and the composite manager will clear requests 
-  from the list upon executing them.
+ 1. A doubly linked list of requests, client 
+ applications will add requests to the end of this 
+ list and the composite manager will clear requests 
+ from the list upon executing them.
 
-2. A struct representing the last executed request and 
-  opcodes for any return information which this request 
-  may have generated. The return information will be a 
-  pointer to a struct made accessible of a type defined 
-  by the particular request.
+ 2. A struct representing the last executed request and 
+ opcodes for any return information which this request 
+ may have generated. The return information will be a 
+ pointer to a struct made accessible of a type defined 
+ by the particular request.
 
-3. A lock on the structure to prevent issues with 
-  multiple clients accessing the structure. Ideally 
-  clients will interact with the protocol through a 
-  higher level library.
+ 3. A lock on the structure to prevent issues with 
+ multiple clients accessing the structure. Ideally 
+ clients will interact with the protocol through a 
+ higher level library.
 
 Composite managers will be required to ensure that at 
 each paint all requests are cleared EXCEPT in the case 
