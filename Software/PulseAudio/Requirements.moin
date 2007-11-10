@@ -4,3 +4,5 @@ PulseAudio contains a lot of non-trivial code that has the side effect of trigge
  1. Some recent libc versions have a locking problem in the dynamic module loader, which will cause PulseAudio to freeze randomly. This has been fixed in Fedora glibc 2.6.90-14. [https://bugzilla.redhat.com/show_bug.cgi?id=284171 rhbz]
  1. Some older libc6 versions have problems linking PulseAudio, see #152
  1. libatomic_ops for AMD64 is causes random bugs. Make sure to use a compiler that supports !__sync to avoid these issues.
+ 1. Some distros don't properly configure /dev/tmpfs to enable POSIX shared memory. This will cause PA to print warnings on startup and will cause PA to disable shared memory data transfer.
+ 1. Some distros don't enable "POSIX" capabilities in the kernel. However, PulseAudio expects them to be available when compiled with support for them. Make sure to enable them in the kernel.
