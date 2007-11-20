@@ -1,5 +1,7 @@
 ##language:en
 === News ===
+20Nov2007 - Updated rev of the video acceleration API specification (0.25 -> 0.27)
+
 23Oct2007 - Updated rev of the video acceleration API specification (0.24 -> 0.25)
 
 20Sep2007 - Updated rev of the video acceleration API specification (0.22 -> 0.24)
@@ -63,7 +65,7 @@ Email: jonathan.bian@intel.com
 /*
  * Video Decode Acceleration API Specification
  *
- * Rev. 0.25
+ * Rev. 0.27
  * <jonathan.bian@intel.com>
  *
  * Revision History:
@@ -84,6 +86,8 @@ Email: jonathan.bian@intel.com
  * rev 0.23 (09/11/2007 Jonathan Bian) - Fixed some issues with images and subpictures.
  * rev 0.24 (09/18/2007 Jonathan Bian) - Added display attributes.
  * rev 0.25 (10/18/2007 Jonathan Bian) - Changed to use IDs only for some types.
+ * rev 0.26 (11/07/2007 Waldo Bastian) - Change vaCreateBuffer semantics
+ * rev 0.27 (11/19/2007 Matt Sottek) - Added DeriveImage
  *
  * Acknowledgements:
  *  Some concepts borrowed from XvMC and XvImage.
@@ -192,6 +196,17 @@ VAStatus vaTerminate (
  */
 const char *vaQueryVendorString (
     VADisplay dpy
+);
+
+typedef int (*VAPrivFunc)();
+
+/*
+ * Return a function pointer given a function name in the library.
+ * This allows private interfaces into the library
+ */ 
+VAPrivFunc vaGetLibFunc (
+    VADisplay dpy,
+    const char *func
 );
 
 /* Currently defined profiles */
@@ -944,9 +959,9 @@ typedef struct _VAIQMatrixBufferH264
 typedef struct _VASliceParameterBufferH264
 {
     unsigned int slice_data_size;/* number of bytes in the slice data buffer for this slice */
-    unsigned int slice_data_offset;/* the offset to first byte of slice data */
+    unsigned int slice_data_offset;/* the offset to the NAL start code for this slice */
     unsigned int slice_data_flag; /* see VA_SLICE_DATA_FLAG_XXX defintions */
-    unsigned short slice_data_bit_offset; /* bit offset in the first byte of valid data */
+    unsigned short slice_data_bit_offset; /* bit offset from NAL start code to the beginning of slice data */
     unsigned short first_mb_in_slice;
     unsigned char slice_type;
     unsigned char direct_spatial_mv_pred_flag;
@@ -978,33 +993,27 @@ typedef struct _VASliceParameterBufferH264
 /* Buffer functions */
 
 /*
- * Creates a buffer for storing a certain type of data, no data store allocated
+ * Creates a buffer for "num_elements" elements of "size" bytes and 
+ * initalize with "data".
+ * if "data" is null, then the contents of the buffer data store
+ * are undefined.
+ * Basically there are two ways to get buffer data to the server side. One is 
+ * to call vaCreateBuffer() with a non-null "data", which results the data being
+ * copied to the data store on the server side.  A different method that 
+ * eliminates this copy is to pass null as "data" when calling vaCreateBuffer(),
+ * and then use vaMapBuffer() to map the data store from the server side to the
+ * client address space for access.
  *  Note: image buffers are created by the library, not the client. Please see 
  *        vaCreateImage on how image buffers are managed.
  */
 VAStatus vaCreateBuffer (
     VADisplay dpy,
+    VAContextID context,
     VABufferType type,	/* in */
-    VABufferID *buf_id	/* out */
-);
-
-/*
- * Create data store for the buffer and initalize with "data".
- * if "data" is null, then the contents of the buffer data store
- * are undefined.
- * Basically there are two ways to get buffer data to the server side. One is 
- * to call vaBufferData() with a non-null "data", which results the data being
- * copied to the data store on the server side.  A different method that 
- * eliminates this copy is to pass null as "data" when calling vaBufferData(),
- * and then use vaMapBuffer() to map the data store from the server side to the
- * client address space for access.
- */
-VAStatus vaBufferData (
-    VADisplay dpy,
-    VABufferID buf_id,	/* in */
     unsigned int size,	/* in */
     unsigned int num_elements, /* in */
-    void *data		/* in */
+    void *data,		/* in */
+    VABufferID *buf_id	/* out */
 );
 
 /*
@@ -1021,7 +1030,7 @@ VAStatus vaBufferSetNumElements (
 
 /*
  * Map data store of the buffer into the client's address space
- * vaBufferData() needs to be called with "data" set to NULL before
+ * vaCreateBuffer() needs to be called with "data" set to NULL before
  * calling vaMapBuffer()
  */
 VAStatus vaMapBuffer (
@@ -1042,6 +1051,7 @@ VAStatus vaUnmapBuffer (
 
 /*
  * After this call, the buffer is deleted and this buffer_id is no longer valid
+ * Only call this if the buffer is not going to be passed to vaRenderBuffer
  */
 VAStatus vaDestroyBuffer (
     VADisplay dpy,
@@ -1067,6 +1077,7 @@ VAStatus vaBeginPicture (
 
 /* 
  * Send decode buffers to the server.
+ * Buffers are automatically destroyed afterwards
  */
 VAStatus vaRenderPicture (
     VADisplay dpy,
@@ -1136,6 +1147,10 @@ VAStatus vaQuerySurfaceStatus (
 #define VA_FOURCC_NV12		0x3231564E
 #define VA_FOURCC_AI44		0x34344149
 #define VA_FOURCC_RGBA		0x41424752
+
+/* byte order */
+#define VA_LSB_FIRST		1
+#define VA_MSB_FIRST		2
 
 typedef struct _VAImageFormat
 {
@@ -1279,6 +1294,43 @@ VAStatus vaPutImage (
 );
 
 /*
+ * Derive an VAImage from an existing surface.
+ * This interface will derive a VAImage and corresponding image buffer from
+ * an existing VA Surface. The image buffer can then be mapped/unmapped for
+ * direct CPU access. This operation is only possible on implementations with
+ * direct rendering capabilities and internal surface formats that can be
+ * represented with a VAImage. When the operation is not possible this interface
+ * will return VA_STATUS_ERROR_OPERATION_FAILED. Clients should then fall back
+ * to using vaCreateImage + vaPutImage to accomplish the same task in an
+ * indirect manner.
+ *
+ * Implementations should only return success when the resulting image buffer
+ * would be useable with vaMap/Unmap.
+ *
+ * When directly accessing a surface special care must be taken to insure
+ * proper synchronization with the graphics hardware. Clients should call
+ * vaQuerySurfaceStatus to insure that a surface is not the target of concurrent
+ * rendering or currently being displayed by an overlay.
+ *
+ * Additionally nothing about the contents of a surface should be assumed
+ * following a vaPutSurface. Implementations are free to modify the surface for
+ * scaling or subpicture blending within a call to vaPutImage.
+ *
+ * Calls to vaPutImage or vaGetImage using the same surface from which the image
+ * has been derived will return VA_STATUS_ERROR_SURFACE_BUSY. vaPutImage or
+ * vaGetImage with other surfaces is supported.
+ *
+ * An image created with vaDeriveImage should be freed with vaDestroyImage. The
+ * image and image buffer structures will be destroyed; however, the underlying
+ * surface will remain unchanged until freed with vaDestroySurfaces.
+ */
+VAStatus vaDeriveImage (
+    VADisplay dpy,
+    VASurfaceID surface,
+    VAImage *image	/* out */
+);
+
+/*
  * Subpictures 
  * Subpicture is a special type of image that can be blended 
  * with a surface during vaPutSurface(). Subpicture can be used to render
@@ -1337,17 +1389,6 @@ VAStatus vaSetSubpictureImage (
     VADisplay dpy,
     VASubpictureID subpicture,
     VAImageID image
-);
-
-VAStatus vaSetSubpicturePalette (
-    VADisplay dpy,
-    VASubpictureID subpicture,
-    /* 
-     * pointer to an array holding the palette data.  The size of the array is 
-     * num_palette_entries * entry_bytes in size.  The order of the components
-     * in the palette is described by the component_order in VAImage struct
-     */
-    unsigned char *palette 
 );
 
 /*
@@ -1515,9 +1556,11 @@ VAStatus vaSetDisplayAttributes (
  * rectangle
  */
 /* flags for vaPutSurface */
+#define VA_FRAME_PICTURE	0x00000000 
 #define VA_TOP_FIELD		0x00000001
 #define VA_BOTTOM_FIELD		0x00000002
-#define VA_FRAME_PICTURE	0x00000004 /* weave */
+/* Note: VA_TOP_FIELD|VA_BOTTOM_FIELD is not allowed */
+
 /* 
  * clears the drawable with background color.
  * for hardware overlay based implementation this flag
@@ -1613,8 +1656,7 @@ Mostly to demonstrate program flow with no error handling ...
 	/* Create a picture parameter buffer for this frame */
 	VABufferID picture_buf;
 	VAPictureParameterBufferMPEG2 *picture_param;
-	vaCreateBuffer(dpy, VAPictureParameterBufferType, &picture_buf);
-	vaBufferData(dpy, picture_buf, sizeof(VAPictureParameterBufferMPEG2), NULL);
+	vaCreateBuffer(dpy, context, VAPictureParameterBufferType, sizeof(VAPictureParameterBufferMPEG2), 1, NULL, &picture_buf);
 	vaMapBuffer(dpy, picture_buf, &picture_param);
 	picture_param->horizontal_size = 720;
 	picture_param->vertical_size = 480;
@@ -1625,8 +1667,7 @@ Mostly to demonstrate program flow with no error handling ...
 	/* Create an IQ matrix buffer for this frame */
 	VABufferID iq_buf;
 	VAIQMatrixBufferMPEG2 *iq_matrix;
-	vaCreateBuffer(dpy, VAIQMatrixBufferType, &iq_buf);
-	vaBufferData(dpy, iq_buf, sizeof(VAIQMatrixBufferMPEG2), NULL);
+	vaCreateBuffer(dpy, context, VAIQMatrixBufferType, sizeof(VAIQMatrixBufferMPEG2), 1, NULL, &iq_buf);
 	vaMapBuffer(dpy, iq_buf, &iq_matrix);
 	/* fill values for IQ_matrix here */
 	vaUnmapBuffer(dpy, iq_buf);
@@ -1647,8 +1688,7 @@ Mostly to demonstrate program flow with no error handling ...
 		/* Create a slice parameter buffer */
 		VABufferID slice_param_buf;
 		VASliceParameterBufferMPEG2 *slice_param;
-		vaCreateBuffer(dpy, VASliceParameterBufferType, &slice_param_buf);
-		vaBufferData(dpy, slice_param_buf, sizeof(VASliceParameterBufferMPEG2), NULL);
+		vaCreateBuffer(dpy, context, VASliceParameterBufferType, sizeof(VASliceParameterBufferMPEG2), 1, NULL, &slice_param_buf);
 		vaMapBuffer(dpy, slice_param_buf, &slice_param);
 		slice_param->slice_data_offset = 0;
 		/* Let's say all slices in this bit-stream has 64-bit header */
@@ -1663,8 +1703,7 @@ Mostly to demonstrate program flow with no error handling ...
 		/* Create a slice data buffer */
 		unsigned char *slice_data;
 		VABufferID slice_data_buf;
-		vaCreateBuffer(dpy, VASliceDataBufferType, slice_data_buf);
-		vaBufferData(dpy, slice_data_buf, x /* decoder figure out how big */, NULL);
+		vaCreateBuffer(dpy, context, VASliceDataBufferType, x /* decoder figure out how big */, 1, NULL, &slice_data_buf);
 		vaMapBuffer(dpy, slice_data_buf, &slice_data);
 		/* decoder fill in slice_data */
 		vaUnmapBuffer(dpy, slice_data_buf);
