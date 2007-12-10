@@ -118,6 +118,32 @@ This combines two or more sinks into one. A new virtual sink is allocated. All d
   resample_method
     Resampling algorithm to use. See libsamplerate's documentation for more information. Use one of sinc-best-quality, sinc-medium-quality, sinc-fastest, zero-order-hold, linear. If the default happens to be to slow on your machine try using zero-order-hold. This will decrease output quality however. (defaults to sinc-fastest)
 
+=== module-remap-sink ===
+
+This allows one to route streams' channels to arbitrary channels in a sink, for example to route stereo streams to rear channels. One common use case is to use one surround sound card as multiple virtual stereo cards.
+
+In order to configure the remapped sink, you'll have to decide two things: what channels the new sink will accept, and where each of them will be relayed to.
+
+  sink_name
+    The name for the new virtual sink.
+  master
+    The name of the sink of which channels you're remapping.
+  channels
+    Channel count of the new sink.
+  channel_map
+    List of the channels that this sink will accept.
+  master_channel_map
+    The channels in the master sink, where the channels listed in channel_map will be relayed to. channel_map and master_channel_map must have equal number of channels listed, because the channels will be mapped  based on their position, i.e. the first channel in channel_map will be relayed to the first channel in master_channel_map and so on.
+
+An example to split a four-channel sound card to two virtual stereo cards (the first virtual card doesn't really do anything else than limit all streams to two channels, so it's not essential to have):
+
+{{{
+load-module module-alsa-sink sink_name=alsa_out device=hw:0 channels=4 channel_map=front-left,front-right,rear-left,rear-right
+
+load-module module-remap-sink sink_name=front_stereo master=alsa_out channels=2 master_channel_map=front-left,front-right channel_map=front-left,front-right
+load-module module-remap-sink sink_name=rear_stereo master=alsa_out channels=2 master_channel_map=rear-left,rear-right channel_map=front-left,front-right
+}}}
+
 === module-tunnel-{sink,source} ===
 
 Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. It's probably a better idea to connect to the remote sink/source directly since some buffer control is lost through this tunneling.
