@@ -1,3 +1,71 @@
 == Scratchbox 2 With Maemo ==
 
-Incomplete
+These instructions work for Maemo SDK 3.1 release.
+
+=== Step by Step Guide for Debian/testing and Debian/unstable Hosts ===
+{{{
+$ sudo apt-get install scratchbox2 qemu
+}}}
+Download CodeSourcery [http://www.codesourcery.com/gnu_toolchains/arm/download.html toolchain]. Select
+"ARM GNU/Linux" for Target Platform, and "IA32 GNU/Linux" for Host Platform. Save the file to your
+$HOME directory.
+{{{
+$ cd $HOME
+$ tar jxf arm-2007q3-51-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+$ cd arm-2007q3/bin
+$ ln -s arm-none-linux-gnueabi-gcc arm-none-linux-gnueabi-cc
+$ for f in *; do ln -s $f $(echo $f | sed 's/arm-none-linux-gnueabi-/arm-linux-/'); done
+$ mkdir $HOME/buildroot
+$ cd $HOME/buildroot
+$ wget http://repository.maemo.org/stable/3.1/armel/maemo-sdk-rootstrap_3.1_armel.tgz
+$ tar zxf maemo-sdk-rootstrap_3.1_armel.tgz
+$ sb2-init -m maemo maemo $HOME/arm-2007q3/bin/arm-linux-gcc
+}}}
+
+=== Partial Step by Step Guide for non-Debian i386 Hosts ===
+
+First you need to get a decently functioning qemu for your system, it must have -drop-ld-preload supported. You will also need gnu make 3.81 or newer to build scratchbox2.
+
+Second important thing is to install a debian/etch system somewhere on your host using debootstrap. It will be used as the
+build tools. We'll assume you've put it into /etch_root. You need to install all those tools into it that you need
+for building your software.
+{{{
+$ wget http://people.freedesktop.org/~lle/sbox2-releases/sbox2-1.99.0.20.tar.bz2
+$ tar jxf sbox2-1.99.0.20.tar.bz2
+$ cd sbox2-1.99.0.20
+$ ./autogen.sh
+$ ./configure --prefix=$HOME/scratchbox2
+$ make
+$ make install
+}}}
+The steps below are almost identical to those given for Debian systems.
+{{{
+$ cd $HOME
+$ tar jxf arm-2007q3-51-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+$ cd arm-2007q3/bin
+$ ln -s arm-none-linux-gnueabi-gcc arm-none-linux-gnueabi-cc
+$ for f in *; do ln -s $f $(echo $f | sed 's/arm-none-linux-gnueabi-/arm-linux-/'); done
+$ mkdir $HOME/buildroot
+$ cd $HOME/buildroot
+$ wget http://repository.maemo.org/stable/3.1/armel/maemo-sdk-rootstrap_3.1_armel.tgz
+$ tar zxf maemo-sdk-rootstrap_3.1_armel.tgz
+$ $HOME/scratchbox2/bin/sb2-init -m maemo maemo -t /etch_root $HOME/arm-2007q3/bin/arm-linux-gcc
+}}}
+
+Add $HOME/scratchbox2/bin to your PATH.
+
+== Functionality Verification ==
+
+After completing either one of the above step-by-step guides, you should verify with a simple hello-world style program that everything is working. Put this into hello.c:
+{{{
+#include <stdio.h>
+int main(int argc, char **argv)
+{
+    printf("Hello, World!\n");
+}
+}}}
+
+Compile it with:
+{{{
+$ sb2 gcc -o hello hello.c
+}}}
