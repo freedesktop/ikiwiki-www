@@ -49,7 +49,7 @@ $ mkdir $HOME/buildroot
 $ cd $HOME/buildroot
 $ wget http://repository.maemo.org/stable/3.1/armel/maemo-sdk-rootstrap_3.1_armel.tgz
 $ tar zxf maemo-sdk-rootstrap_3.1_armel.tgz
-$ $HOME/scratchbox2/bin/sb2-init -m maemo maemo -t /etch_root $HOME/arm-2007q3/bin/arm-linux-gcc
+$ $HOME/scratchbox2/bin/sb2-init -m maemo -t /etch_root maemo $HOME/arm-2007q3/bin/arm-linux-gcc
 }}}
 
 Add $HOME/scratchbox2/bin to your PATH.
@@ -73,6 +73,14 @@ $ sb2 gcc -o hello hello.c
 Run it with:
 {{{
 $ sb2 ./hello
+}}}
+
+For a more thorough test do:
+{{{
+$ sb2 apt-get update
+$ sb2 apt-get source maemopad
+$ cd maemopad-1.5
+$ sb2 dpkg-buildpackage -rfakeroot -d
 }}}
 
 If you have any questions or want to discuss Maemo related topics, go to maemo.org and subscribe to the appropriate mailing lists. For purely Scratchbox2 related matters scratchbox-users@lists.scratchbox.org is the right forum.
