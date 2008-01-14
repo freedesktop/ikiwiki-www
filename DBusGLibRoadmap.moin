@@ -1,0 +1,17 @@
+= dbus-glib Roadmap =
+
+One option that's been discussed a lot is to use gobject-introspection to allow a programer to directly attach an object to the bus.
+
+Work needed:
+ i. Add in/out/ownership to Gobject-introspection genintrospect.
+ * Write layer for mapping dbus messages to invocation on introspectable methods
+  - This would take two sets of xml, the dbus intropspection xml to specify the expected wire format and the gobject-introspection xml of the interface to which to map the dbus method calls
+ * gobject signal to dbus signals (again using the gi and dbus xml to generate the marshallers to map gobject signals to dbus signals)
+ * Gobject Introspection to D-Bus introspection conversion tool.
+ * D-Bus introspection conversion to Gobject Introspection tool.
+ * Dbus gobject proxy generation from gobject-introspection
+  - this would take two sets of xml, the gobject-introspection specifying the c interface to generate and the dbus introspection specifying the wire protocol to map to.
+
+Other discussed possibilities is the extension of Havoc's [http://svn.mugshot.org/dumbhippo/trunk/client/linux/src/hippo-dbus-helper.h hippo-dbus-helper].
+
+RobTaylor: IMHO, both modes of directly marshalling messages and component object bindings should be useable by an applictation, different situations call for different approaches.
