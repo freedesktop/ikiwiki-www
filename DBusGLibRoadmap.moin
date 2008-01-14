@@ -97,6 +97,14 @@ foo_call_run_until_completed (call);
  3. ???
  4. Profit!
 
+Ideally, the GInterfaces would be such that a service and a client in the same process could just call each other's callbacks directly.
+
+This is partly why we don't want to spin in libdbus (e.g. dbus_connection_send_with_reply_and_block) - that fundamentally fails if the D-Bus part of the call is actually going to be optimized away.
+
+Also, the deadlocks that result from blocking without re-entering the main loop have plagued e.g. Sugar Activity writers on the OLPC, which has convinced me that this mode of operation is fundamentally a bad idea.
+
+Instead, we can recurse the main loop like gtk_dialog_run() does, to achieve a friendlier blocking call. We just need to remind authors that their code will be reentrant, e.g. with a ``_run_`` method naming convention.
+
 ----
 
 == Design considerations ==
