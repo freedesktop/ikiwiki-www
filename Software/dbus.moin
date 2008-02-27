@@ -1,4 +1,4 @@
-= D-Bus 1.0.0 "Blue Bird" Released!!! Nov 9th, 2006 =
+= D-Bus 1.1.20 "Conisten Water" Released!!! February 27th, 2008 =
 ||<tablewidth="40%" tablestyle="FONT-SIZE: 0.9em; FLOAT: right; MARGIN: 0pt 0pt 1em 1em"style="PADDING-RIGHT: 0.5em; PADDING-LEFT: 0.5em; PADDING-BOTTOM: 0.5em; PADDING-TOP: 0.5em">'''Contents'''[[BR]][[TableOfContents]] ||
 = What is D-Bus? =
 D-Bus is a message bus system, a simple way for applications to talk to one another. In addition to interprocess communication, D-Bus helps coordinate process lifecycle; it makes it simple and reliable to code a "single instance" application or daemon, and to launch applications and daemons on demand when their services are needed.
@@ -66,27 +66,33 @@ Articles from around the web, including some tutorials:
  * [http://techbase.kde.org/Development/Tutorials/D-Bus/Introduction Introduction To D-BUS] by Aaron Seigo & KDE community (2007)
 = Download =
 == Reference Implementation (dbus-daemon and libdbus) ==
-libdbus version numbers are X.Y.Z where an even number for Y indicates a stable release, each major release series has the same X.Y, and each bugfix release increments Z. ABI will not be broken once it appears in a stable release (with an even-numbered Y).
 
-The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.2.tar.gz D-Bus 1.0.2]. (2006-12-12)
+The latest release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.1.20.tar.gz D-Bus 1.1.20]. (2008-02-27)
 
- * Fix security bug CVE-2006-6107 match rules can be removed by apps that did not create them
- * pthread fix
-The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.1.tar.gz D-Bus 1.0.1]. (2006-11-17)
+ * This is the next generation supported STABLE release of D-Bus. For all intents and purposes this is the 1.2.0 release WITHOUT the planned X11/MIT license change due to a couple of license holders who have yet to respond. For the most part this license change is being pursued to simplify licensing issues and fix a couple of licensing corner cases.  When this happens D-Bus will be released under the 1.2.0 version.
+ * D-Bus 1.0.x effectively goes into security fix mode and will only be updated for major issues.
+ * Fixed CVE-2008-0595 - security policy of the type <allow send_interface= "some.interface.WithMethods"/> work as an implicit allow for messages sent without an interface bypassing the default deny rules and  potentially allowing restricted methods exported on the bus to be executed by unauthorized users. 
+ * Fixes dbus-launch so the session bus goes away so does D-Bus
+ * Builds against latest gcc/glibc changes
+ * Correctly unref connections without guids during shutdown
+ * About the name: Submitted by Greg K Nicholson, Conisten Water is a lake in Cumbria, England where several water speed records have been broken. Between 1956 and 1959 Sir Malcolm's son Donald Campbell set four successive records on  the lake in Bluebird K7, a hydroplane. [http://en.wikipedia.org/wiki/Coniston_Water#Waterspeed_record Wikipedia]
 
- * Fix bug where calling dbus_threads_init_default would assert
- * Fix UUID output to match the spec
- * Clear up documentation on UUIDs
 Previous releases can be found in the [:Software/DbusReleaseArchive:release archive].
 
-== Reference Implementation, Development Version (dbus-daemon and libdbus) ==
-libdbus version numbers are X.Y.Z where an odd number for Y indicates an unstable release which may be buggy and may contain not-yet-final ABI. Use these at your own risk, and you should probably avoid shipping them in a stable operating system release. However, testing is appreciated.
+== Reference Implementation, Legacy Version (dbus-daemon and libdbus) ==
+The legacy 1.0.x branch is still supported but only for security fixes.  Only use this version when upgrading from older stable releases.  For all new development use the new stable releases.
 
-The latest development release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.1.4.tar.gz D-Bus 1.1.4]. (2008-01-17)
+The latest legacy release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.3.tar.gz D-Bus 1.0.3]. (2008-02-27)
 
- * This release is intended to be Release Candidate 2 of major release D-Bus 1.2.0.  If nothing is found to be wrong with this release it will become 1.2.0 within a week.  If we need to make major changes we will release an RC3 and start the process over.
-
- * Fixes inotify support 
+ * Fixed CVE-2008-0595 - security policy of the type <allow send_interface="some.interface.WithMethods"/> work as an implicit allow for messages sent without an interface bypassing the default deny rules and potentially allowing restricted methods exported on the bus to be executed by unauthorized users.
+ * correctly unref connections without guids during shutdown
+ * don't mess with message from message cache outside of the cache lock
+ * avoid trying to protect individual bits in a word with different locks  
+ * fix to allow a server to use port=0 or omit port so the port can be auto-selected by the OS
+ * add session.d for the session bus, so security policy can be extended
+ * capture the dbus-launch stderr output and add it to the DBusError message we return.
+ * add option --close-stderr to close stderr before starting dbus-daemon
+ * session bus now has higher limits by default
 
 == Bindings and Independent Implementations ==
 Bindings and independent implementations are linked to from the [:Software/DBusBindings:Bindings Page].
