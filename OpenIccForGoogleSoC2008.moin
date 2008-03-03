@@ -1,0 +1,150 @@
+= DRAFT =
+
+OpenIccForGoogleSoC2008 Wiki is intended to collect ideas for possible projects participating in Googles Summer of Code programm. They are mentored by members of OpenIcc projects.
+
+= About the Group =
+
+OpenIcc consist of the members of the so named email list. It was started by Scribus members to better support introduction of colour management into applications and discuss general issues. List contributors are application and CMS developers as well as colour management specialists and users, no matter whether commercial, open source and both together.
+
+[[TableOfContents(2)]]
+
+= Project Suggestions =
+
+== ICC support for HDR Images ==
+ Available open source colour management libraries like the popular lcms do not support HDR imaging. The work would be a great benefit for existing applications like Krita, !CinePaint, Pixel, future Gimp/GEGL  and others to support [http://www.color.org ICC] style colour conversions of HDR images.
+=== Expectations ===
+   * study basic colour management concepts, [http://www.openexr.org ILM/OpenEXR's] GPU based [http://www.openexr.com/documentation.html CTL]
+   * decide for a implementation concept
+     * extent littleCMS (lcms), or alternatively
+     * create an ICC profile -> CTL converter and build an simple API for later inclusion in the Oyranos framework
+   * work on existing code and integrate your implementation using most of the already available functionality, extent where needed
+   * basic documentation for users - should be very few
+=== Skills ===
+   * basic communication
+   * basic mathematical skills like matrix operations
+   * portable C (lcms) or C++ and probably OpenGL shader programming
+=== Contact ===
+   * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
+   * OpenIcc / [http://www.openexr.com/mailinglist.html OpenEXR] email lists
+=== Optional ===
+   * combine with the HDR Tonemapping project
+
+== HDR Tonemapping ==
+ Tonemapping is needed to represent HDR images on monitors and print media. HDR images often easily exceed traditional monitor and printer capabilities. Colours need to be compressed into the medias gamut depending on the intensities of the neighbor pixels. A simple logarithmic approach often yields non satisfactory results. Many algorithms where suggested but often lack a natural look or robustness for various content.
+The project would continue the last years work.
+=== Expectations ===
+   * enhance and work on algorithms to create pleasing and highly natural representations of HDR content
+   * work on a concept to include parameters into ICC or CTL colour profiles for later universal reproduction and standardisation
+=== Skills ===
+   * good communication
+   * basic to good mathematical skills, evaluate, combine and possibly modify existing tonemapping algorithms
+   * portable C
+   * OpenGL shader implementation (possibly make suggestion how to integrate into CTL)
+=== Contact ===
+   * Mentor: Cyrille Berger <cberger @ cberger.net>
+
+   You need P7ZIP from http://p7zip.sourceforge.net to decompress some of the files on unix.
+
+== ICC Examin Library ==
+ ICC Examin is a profile and colour visualiser. Many widgets are interesting to other applications. But they are written in FLTK and would be needed in an other toolkit in a modular fashion.
+=== Expectations ===
+   * reorganise, modularise and rewrite parts of the existing project
+   * create an easy to use API and build an example application from it
+   * create at least one wrapper in a scripting language for basic widgets, Python
+   * user documentation inline
+=== Skills ===
+   * good code (re)organisation
+   * portable C, C++, Java/Python/?
+   * OpenGL, threads
+=== Contact ===
+   * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
+=== Optional ===
+   * support profile editing
+   * support plug-ins, to display reports and various graphs
+   * support spectral data
+
+
+== Cross Toolkit Colour Chooser for Linux/BSD ==
+ Linux/BSD operating systems need a standard colour chooser. Imaging applications would benefit from a common advanced colour chooser with extended capabilities and easy data exchange.
+=== Expectations ===
+   * colour selection C API to ask for colours from applications and sharing among them
+   * representation of native colour spaces and standard sRGB/CIE*Lab
+   * support for HDR values, not plain monitor representation
+   * plug-ins for third party colour selectors
+   * unified toolkit independent C API
+   * basic inline documentation
+=== Skills ===
+   * writing highly modular code
+   * portable C
+=== Contact ===
+   * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
+
+
+== Generic toolkit independent Options Gui ==
+   * C API for various basic widgets (window, tab, group, pack layout, list chooser, message box, buttons, drawing area, slider with value input)
+   * allow some basic events and C callbacks
+   * layout representable in XML including a parser
+   * dump layout out to XML/Html for documentation
+   * scriptability, Java/Python/?
+  design and implement a minimalistic widget set, which allows easy 
+  implementation, exchange and processing. (PPD, XForms ...)
+  Goal is a new base for various plug-in GUI API's.
+  (Kai-Uwe, ...)
+
+== Control Panel for Colour Management ==
+ The KDE desktop needs integration of colour management settings in desktop configuration UI's.
+=== Expectations ===
+   * create and integrate a settings panel for the KDE desktop
+   * inline documentation
+   * user documentation
+=== Skills ===
+   * good communication skills
+   * portable C, C++
+=== Contact ===
+   * Mentor: Boudewijn Rempt
+=== Optional ===
+   * combine with parts of the Colour Chooser project to create a basic toolkit independent layer
+   * a web interface with proper authentication would be a great plus [07/03/27]
+
+
+== implement a generic device settings to colorimetry layer ==
+   do a sample implementation in Gutenprint/libopenraw ...
+  (Kai-Uwe, Robert?, Hubert? ...)
+== Makes it sense to design and implement a printer ==
+  calibration/linearisation gui?
+  (Graeme, Hal, Robert)
+
+== Xorg CM project ==
+  implement a colour management layer on top of Xorg to match window content, possibly as a composite manager
+
+== tonemapping integration and plug-ins in Oyranos ==
+
+== basic ICC spec implementation, profile tag parsing and writing ==
+
+== colour data analysis and widgets (ICC Examin modularisation) ==
+
+== extending the colour conversion framework (monitor mapping, ==
+  pixel buffer type conversions and optimisation ...)
+  (Kai-Uwe, ...)
+
+== sample application for colour management ==
+
+= Alternative Ideas =
+Feel free to propose and discuss your ideas.
+
+= Requirements =
+== License ==
+BSD and LGPL extended by allowing for static linking are preferred licenses.
+
+== Skills ==
+Both good project and coding skills are expected, in order to set up our complex open source projects. We know it feels sometimes difficult to talk to unknown people, especially when they are not visible like over the internet. Nethertheless we want to learn how open communication works. This is often a important part in free software development. We should not miss this.
+
+== Developers Environment ==
+You are free to select whatever build environment you like. And now the big when:
+The development environment shall be ready before the project starts. It makes no sense to both sides to wait until the build environment works. Windows needs regularily long time to get open source working. Many open source developers decide to use a unix alike environment to make progress in time. So take this serious. On the other side using a *nix system like BSD/Linux/osX/Solaris can be a great experience. Many big projects run on *nix systems deploying unix concepts.
+On request we simply expect the programmer to switch to BSD, Linux or osX. The installation should be no issue.
+
+= Communication =
+The OpenIcc list and the according mentors are all open for getting in contact. We will create a additional public list dedicated to the GSoC projects communication.
+
+If in doubt, which way is right, write to Kai-Uwe Behrmann <ku.b @ gmx.de>.
