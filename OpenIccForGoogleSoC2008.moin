@@ -1,5 +1,3 @@
-= DRAFT =
-
 OpenIccForGoogleSoC2008 Wiki is intended to collect ideas for possible projects participating in Googles Summer of Code programm. They are mentored by members of OpenIcc projects.
 
 = About the Group =
@@ -43,10 +41,8 @@ The project would continue the last years work.
 === Contact ===
    * Mentor: Cyrille Berger <cberger @ cberger.net>
 
-   You need P7ZIP from http://p7zip.sourceforge.net to decompress some of the files on unix.
-
 == ICC Examin Library ==
- ICC Examin is a profile and colour visualiser. Many widgets are interesting to other applications. But they are written in FLTK and would be needed in an other toolkit in a modular fashion.
+ ICC Examin is a profile analysing tool and colour visualiser. Many widgets are interesting to other applications. But they are written in FLTK and would be needed in an other toolkit in a modular fashion. This project instroduces in the process of effectively presenting various data in easy understandable form.
 === Expectations ===
    * reorganise, modularise and rewrite parts of the existing project
    * create an easy to use API and build an example application from it
@@ -54,7 +50,7 @@ The project would continue the last years work.
    * user documentation inline
 === Skills ===
    * good code (re)organisation
-   * portable C, C++, Java/Python/?
+   * portable C, C++,  Java/Python/?
    * OpenGL, threads
 === Contact ===
    * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
@@ -64,32 +60,29 @@ The project would continue the last years work.
    * support spectral data
 
 
-== Cross Toolkit Colour Chooser for Linux/BSD ==
- Linux/BSD operating systems need a standard colour chooser. Imaging applications would benefit from a common advanced colour chooser with extended capabilities and easy data exchange.
-=== Expectations ===
-   * colour selection C API to ask for colours from applications and sharing among them
-   * representation of native colour spaces and standard sRGB/CIE*Lab
-   * support for HDR values, not plain monitor representation
-   * plug-ins for third party colour selectors
-   * unified toolkit independent C API
-   * basic inline documentation
+== Simple Toolkit Abstraction ==
+ The Oyranos colour management system is in parts only a thin layer between imaging applications and advanced moduls or plug-ins. To deploy these plug-ins flexible and maintain toolkit independency the plug-ins must present their data in a own language. Goal is it to create a simple and highly flexible GUI system, which allows easy creation of dialogs including callback meachanisms. This project lets you explore concepts like XForms, and how to adapt it to traditional event driven programming. The result should be something simple and powerful enough to use for a wide range of applications not limited to Oyranos. Possibly this will result in a stand alone project.
+ === Expectations ===
+   * design and implement a minimalistic widget set, which allows easy implementation, exchange and processing (look at PPD, XForms ...)
+   * C API for various basic widgets (groups, lists, sliders, buttons, text box, drawing area)
+   * allow some basic events and C callbacks
+   * serialise and deserialise with XML
+   * write interpreter for console applications
+   * write a toolkit dependent interpreter
+   * write a backend for Html output for documentation
+   * good documentation
+   * simple examples
 === Skills ===
-   * writing highly modular code
-   * portable C
+   * clear and highly modular API design
+   * design of interactive applications
+   * C, C++
+   * good communication
 === Contact ===
    * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
+=== Optional ===
+   * script bindings to Java/Python/?
+   * build a colour chooser based on the above widgets and callbacks
 
-
-== Generic toolkit independent Options Gui ==
-   * C API for various basic widgets (window, tab, group, pack layout, list chooser, message box, buttons, drawing area, slider with value input)
-   * allow some basic events and C callbacks
-   * layout representable in XML including a parser
-   * dump layout out to XML/Html for documentation
-   * scriptability, Java/Python/?
-  design and implement a minimalistic widget set, which allows easy 
-  implementation, exchange and processing. (PPD, XForms ...)
-  Goal is a new base for various plug-in GUI API's.
-  (Kai-Uwe, ...)
 
 == Control Panel for Colour Management ==
  The KDE desktop needs integration of colour management settings in desktop configuration UI's.
@@ -107,27 +100,95 @@ The project would continue the last years work.
    * a web interface with proper authentication would be a great plus [07/03/27]
 
 
-== implement a generic device settings to colorimetry layer ==
-   do a sample implementation in Gutenprint/libopenraw ...
-  (Kai-Uwe, Robert?, Hubert? ...)
-== Makes it sense to design and implement a printer ==
-  calibration/linearisation gui?
-  (Graeme, Hal, Robert)
+== Device Settings to ICC profile layer ==
+ Devices need to be introduced to a colour management system, in order to control the devices colour behaviour. For instance different drivers may produce different colour on a otherwise identical device. A CMS needs some mechanism to connect colur influental device settings a particular profile reflecting this behaviour. The ICC and the Oyranos maintainer provide several data blobs to integrate the device information into a ICC profile.
+=== Expectations ===
+   * extent the evolving Oyranos colour management system
+   * implement the provided data formats for embedding into ICC profiles
+   * design and discuss an API to access the above ICC profile data and map it to existing device driver API's
+   * apply your API's to different device driver API's, for instance in Gutenprint, libopenraw, Sane to study
+   * document the API usage
+=== Skills ==
+   * portable C
+   * be fit in compiling various libraries and applications
+=== Contact ===
+   * Mentor: Kai-Uwe Behrmann <ku.b@gmx.de> + Robert Krawitz, ...
 
-== Xorg CM project ==
-  implement a colour management layer on top of Xorg to match window content, possibly as a composite manager
 
-== tonemapping integration and plug-ins in Oyranos ==
+== Color Management near X ==
+ The Linux/BSD desktop needs soe form of colour management to give it a consitent colour feel.
+ A concern are multi monitor systems, with obviously different 
+ colorimetry. A laptop with an external monitor is a good example. Both
+ monitor devices can display colours to some degree satisfactory. But a 
+ precondition is clear placing the colour transformation onto the right 
+ monitor plane. A layer near X will best know about such 
+ geometric details. Be prepared, we have no Xorg team member to help with special knowledge.
+=== Expectations ===
+   * implement a colour management layer on top of Xorg to colour match window regions, possibly inside a composite manager
+   * use Oyranos API's to do the colour transformations
+   * discuss the best way to route color informations from the application to reach your implementation
+   * document design concept with pros and cons, API, usage
+   * hint to further optimisation paths inside and outside your implamentation
+   * document inline and externals, create schema graphics
+   * optimise the colour transformation path, possibly in a Oyranos OpenGL module
+=== Skills ===
+   * flexible API usage
+   * Xorg code insights
+   * conceptual strength
+   * able to work for the Xorg part alone, or get help yourself
+   * portable and effective C, OpenGL, Shader, threads
+   * profiling
+=== Contact ===
+   * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
 
-== basic ICC spec implementation, profile tag parsing and writing ==
+== Tonemapping Integration for Oyranos ==
+HDR images needs to be displayed as consitently as any other colour content. There are few expeciences how to do this on a system level. This is a project to design and work on the behaviour of future imaging. With a sensible eye for natural colours and artistic effects you might have fun with this project.
+=== Expectations ===
+   * discuss, port and optimise existing algorithms to the Oyranos colour management system
+   * create and optimise GUI layouts for the plug-in options
+   * serialise and deserialise the options
+   * document option effects and usage of the various tonemapping plug-ins
+   * create a simple sample application using Oyranos deploying the new capabilities
+=== Skills ===
+   * code organisation talent
+   * basic C and C++
+   * adapting code to different API's
+   * basic artistic sensibility
+=== Contact ===
+   Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
+=== Optional ===
+   * create plug-ins to external libraries
 
-== colour data analysis and widgets (ICC Examin modularisation) ==
 
-== extending the colour conversion framework (monitor mapping, ==
-  pixel buffer type conversions and optimisation ...)
-  (Kai-Uwe, ...)
+== ICC spec Basics Implementation ==
+ The Oyranos colour management system provides parsing and writing profile capabilities. The data and structures handled in this project are the important base for many higher level stuff. This projects helps in understanding basic and nested data structures and their serialisation and deserialisation.
+=== Expectations ===
+   * parse and write profile tags inside the Oyranos CMS
+   * document the usage
+   * write a test application to verify robustness and speed of the implementation
+=== Skills ===
+   * code organisation and porting
+   * basic C and C++/STL
+=== Contact ===
+   Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
 
-== sample application for colour management ==
+
+== Extending the Oyranos Colour Conversion Framework ==
+ The colour management system Oyranos provides high level means to render colours in a generic way. The advantage is, application developers can rely on Oyranos services without understanding the often complicated details. This project lets you create and optimise verious underpinnings of sytem level to advanced graphic tools.
+=== Expectations ===
+   * implement efficient pixel conversion between arbitrary buffer types
+   * implement object observation in C
+   * adapt Oyranos to catch out side events (X, dbus, ...)
+   * implement 
+=== Skills ===
+   * code organisation
+   * conceptual fitness
+   * good communication
+   * work under different OSes
+   * C, C++
+=== Contact ===
+   Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de>
+
 
 = Alternative Ideas =
 Feel free to propose and discuss your ideas.
