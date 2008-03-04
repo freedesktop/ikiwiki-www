@@ -1,0 +1,83 @@
+[[TracNav(TroubleshootingTOC)]]
+
+''Note that this is a stub and needs some substantial work to get actually usable''
+
+= Troubleshooting =
+
+== I don't hear any output from sound applications ==
+
+Open a terminal and try playing a sound with {{{paplay}}}:
+
+{{{
+$ paplay /usr/share/sounds/generic.wav
+$ 
+}}}
+
+In case you don't see any error message and hear the sound,
+your applications need to be configured to use PulseAudio.
+See [PerfectSetup#ThirdPartyApplications the relevant section in PerfectSetup].
+
+If you neither get an error message, nor hear the sound, check volume settings.
+For pulseaudio, use {{{pavucontrol}}} utlity. For ALSA use {{{alsamixer -c 0}}}.
+
+{{{
+$ paplay /usr/share/sounds/generic.wav
+Connection failure: Connection refused
+$ 
+}}}
+
+This most likely means that your pulseaudio server doesn't run.
+
+== Sound server does not run ==
+
+Check that it is enabled to be started up in your desktop environment.
+See relevant sections of PerfectSetup for [PerfectSetup#GNOME GNOME]
+and [PerfectSetup#KDE KDE]. Note that your OS distribution may already
+take care of this via dedicated packages.
+
+Look into logs for reason why might pulseaudio startup have failed:
+{{{
+# grep pulseaudio /var/log/messages
+}}}
+
+Try to launch pulseaudio manually with verbose output enabled:
+(the output might be valuable to troubleshoot a potential bug)
+
+{{{
+$ pulseaudio -vvv
+}}}
+
+If your output seems like following, you might not have permissions to access the sound device:
+
+{{{
+D: alsa-util.c: Trying front:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM front:0
+I: alsa-util.c: Couldn't open PCM device front:0: Invalid argument
+D: alsa-util.c: Trying surround40:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround40:0
+I: alsa-util.c: Couldn't open PCM device surround40:0: Invalid argument
+D: alsa-util.c: Trying surround41:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround41:0
+I: alsa-util.c: Couldn't open PCM device surround41:0: Invalid argument
+D: alsa-util.c: Trying surround50:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround50:0
+I: alsa-util.c: Couldn't open PCM device surround50:0: Invalid argument
+D: alsa-util.c: Trying surround51:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround51:0
+I: alsa-util.c: Couldn't open PCM device surround51:0: Invalid argument
+D: alsa-util.c: Trying surround71:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround71:0
+I: alsa-util.c: Couldn't open PCM device surround71:0: Invalid argument
+D: alsa-util.c: Trying hw:0 as last resort...
+ALSA lib pcm_hw.c:1207:(_snd_pcm_hw_open) Invalid value for card
+E: alsa-util.c: Error opening PCM device hw:0: No such device
+E: module.c: Failed to load  module "module-alsa-sink" (argument: "device_id=0 sink_name=alsa_output.pci_8086_284b_sound_card_0_alsa_playback_0"): initialization failed.
+}}}
+
+Check the permission with {{{getfacl /dev/snd/*}}}.
