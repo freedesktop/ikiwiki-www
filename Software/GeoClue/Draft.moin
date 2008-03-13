@@ -29,8 +29,46 @@ Geoclue source code contains:
 
 = Learn more =
 
-TODO: architecture overview, links to documentation.
+The [http://folks.o-hand.com/~jku/geoclue-docs documentation] includes 
+ * D-Bus API Interface reference (not finished)
+ * Client C API reference
+ * Provider C API reference (not finished)
+ * How to use geoclue in an application (not finished)
+ * How to implement a geoclue provider
 
+Below is a higher level description of Geoclue interfaces, providers and master provider.
+
+== Interfaces ==
+
+Geoclue has three interfaces for querying "current situation": ''Position'', ''Address'' and ''Velocity''. They all include a method and a signal to acquire the information in question along with the time and accuracy of the measurement. 
+
+There are also interfaces Geocode (for getting a Position from an Address) and ReverseGeocode (for getting an Address from a Position). 
+
+Possible future interfaces include ''Map'' and ''Route''. 
+
+== Providers ==
+
+All Geoclue providers are D-Bus services, and can be accessed either via "raw" D-Bus or the C API. A provider may implement more than one Geoclue interface if that makes sense internally. Providers do not have to run as daemons, as D-Bus will start them when needed (providers may also shut down when they're no longer used).
+
+There are several reasons for this structure:
+ * No single provider will be useful in all situations (GPS does not work indoors, webservices require an internet connection, GSM cell positioning accuracy is not too good, etc.)
+ * No single set of providers will be best for all people.
+ * Modularity means that anyone can develop and distribute a provider: Adding new providers requires no changes to Geoclue master. In fact a single geoclue provider is fully self-contained: no "geoclue-core" needs to be installed. 
+ * It also means a master provider (see below) can use all installed providers, not just the ones that were installed with the master.
+
+Providers must naturally implement the methods in the interfaces they support. However, not all providers support signals: E.g. web service based providers usually do not. A client accessing providers directly should be aware of this.
+
+== Master provider ==
+ 
+Geoclue includes a master provider, which implements the same interfaces and is used in the same manner as any other provider. The difference is that internally master uses the best Geoclue provider (based on client requirements and provider availability, accuracy and resource requirements). The provider that is actually used may change over time as conditions change, but the client can just ignore this.
+
+Using the Master provider is favourable for several reasons:
+ * Client does not need to know about the accuracy and availability of a specific data source
+ * Client does not need to depend on specific providers
+ * Master caches data so responses will usually be faster
+ * Master understands network connectivity and basically makes all web service based providers "support signals"
+
+The master implementation is currently experimental.
 
 = Get the source =
 The code is licensed under the [http://www.fsf.org/licensing/licenses/lgpl.html GNU LGPL] and is available in a Git repository. You can [http://cgit.freedesktop.org/geoclue browse the source] or clone the repository:
