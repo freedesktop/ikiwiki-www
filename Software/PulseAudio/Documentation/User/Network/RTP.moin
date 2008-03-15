@@ -55,4 +55,13 @@ play -c 2 -f s -r 44100 -s w -t raw -x --file=/tmp/audiofifo
     1. -s w : sample size "word" (16 bit aka 2 bytes)
     1. -t raw : raw pcm audio data
     1. -x : swap endianness (I am using a little-endian based system)
+  1. Edit! with sox v14.0.0 the following commandline worked:
+{{{
+play -t raw -r 44100 -s -2 -c 2 -B /tmp/audiofifo
+}}}
+    1. -r 44100 : rate 44100hz
+    2. -s : signed
+    3. -2 : 2 bytes (16 bit) per sample
+    4. -c 2 : channels 2 (stereo)
+    5. -B : big endian
   1. If you don't like to listen anymore, simply kill play with CTRL-C. rtpdump should automagically terminate. (aka crash because of the broken pipe ; )
