@@ -1,0 +1,58 @@
+[[PageOutline]]
+ = How to listen to the pulseaudio RTP Stream = 
+Various methods on how to listen to the RTP Stream with other clients than native pulseaudio.
+
+Preparations: You must know the following stream parameters:
+  * Multicast address and port
+  * Sample rate / channel count
+  * Sample format (according to [https://tango.0pointer.de/pipermail/pulseaudio-discuss/2007-September/000678.html this post], it is always s16be)
+
+Disclaimer:
+  I am not responsible if this fries any of your machines, deletes all your data, eats your breakfast etc. It worked for me so I decided to post it in the wiki for other people who want to try this and skip the googling. Feel free to edit this page, correct typos, add new cool ideas and so on. That's what a wiki is for, right?
+
+ == How to get the multicast address and port - the quick and dirty way - with tcpdump ==
+  1. Start the stream.
+  1. On the target machine, enter the command
+{{{
+tcpdump -n net 224.0.0.0/8 -c 10
+}}}
+  1. Examine the output, for example
+{{{
+12:18:20.404866 IP 10.54.5.9.33043 > 224.0.0.56.46454: UDP, length 1292
+}}}
+  1. Congratulations, you now know three things:
+    1. The packets are arriving
+    1. The multicast address (in my case 224.0.0.56)
+    1. The multicast port (in my case 46454)
+
+
+ == Play it using mplayer ==
+From the [https://tango.0pointer.de/pipermail/pulseaudio-discuss/2007-September/000704.html pulseaudio-discuss mailing list]:
+{{{
+mplayer -demuxer rawaudio -rawaudio channels=2:rate=44100:samplesize=2:format=0x10001 rtp://[addr]:[port]
+}}}
+For me it did not really work, mplayer always played it back at 48000hz - although I specified it otherwise -  and thus pitch was too high and lots of buffer-underruns (guess why ; )
+
+ == Play it using rtpdump and sox (invoked as "play") ==
+Now for the really cool and low-resource way.
+  1. Download and compile the rtptools from http://www.cs.columbia.edu/irt/software/rtptools/ (direct link http://www.cs.columbia.edu/irt/software/rtptools/download/), if it is not in your distro's packet management.
+  1. Download and compile sox from http://sox.sourceforge.net/ (but THAT should really be in your distro...)
+  1. Make a fifo for the RTP payload data (rtpdump doesn't support `-` aka stdout)
+{{{
+mkfifo /tmp/audiofifo
+}}}
+  1. Fire up rtpdump, dumping payload data to the fifo (note the addr slash port noation, instead of the usual addr colon port notation)
+{{{
+rtpdump -F payload -o /tmp/audiofifo [addr]/[port] &
+}}}
+  1. Start sox (invoked as "play", make a symlink if you need to) with the stream parameters.
+{{{
+play -c 2 -f s -r 44100 -s w -t raw -x --file=/tmp/audiofifo
+}}}
+    1. -c 2 : 2 Channels (stereo)
+    1. -f s : signed (''signed'' 16 bit big-endian, remember?)
+    1. -r 44100 : sample rate (I'm playing MP3 music from CDs)
+    1. -s w : sample size "word" (16 bit aka 2 bytes)
+    1. -t raw : raw pcm audio data
+    1. -x : swap endianness (I am using a little-endian based system)
+  1. If you don't like to listen anymore, simply kill play with CTRL-C. rtpdump should automagically terminate. (aka crash because of the broken pipe ; )
