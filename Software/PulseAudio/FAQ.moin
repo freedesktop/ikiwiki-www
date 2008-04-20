@@ -134,6 +134,11 @@ padsp myapp <arguments to myapp>
    There are to possible solutions: run !PulseAudio with argument {{{--high-priority=1}}} and make yourself member of the group realtime, or increase the fragment sizes of the audio drivers. The former will allow !PulseAudio to activate {{{SCHED_FIFO}}} high priority scheduling (root rights are dropped immediately after this). Keep in mind that this is a potential security hole!
 
 
+=== I have a surround sound card, but !PulseAudio uses just the front speakers! ===
+
+   Many people have a surround card, but have speakers for just two channels, so !PulseAudio can't really default to a surround setup. To enable all the channels, edit `/etc/pulse/daemon.conf`: uncomment the `default-sample-channels` line and set the value to 6 if you have a 5.1 setup, or 8 if you have 7.1 setup etc.
+
+
 === When sending multicast RTP traffic it is recieved on the entire LAN but not by the sender machine itself! ===
 
    Pass {{{loop=1}}} to the sender module!
