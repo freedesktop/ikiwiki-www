@@ -132,11 +132,14 @@ load-module module-rtp-recv sink=rtp
 set-default-source rtp_monitor
 }}}
    Now the audio data will be available from the default source {{{rtp_monitor}}}.
- 1. '''When sending multicast RTP traffic it is recieved on the entire LAN but not by the sender machine itself! '''[[BR]]
+
+== When sending multicast RTP traffic it is recieved on the entire LAN but not by the sender machine itself! ==
    Pass {{{loop=1}}} to the sender module!
- 1. '''Can I have more than one multicast RTP group?'''[[BR]]
+
+== Can I have more than one multicast RTP group? ==
    Yes! Simply use a new multicast group address. Use the {{{destination}}}/{{{sap_address}}} arguments of the RTP modules to select them. Choose your group addresses from the range 225.0.0.x to make sure the audio data never leaves the LAN.
- 1. '''Can I use !PulseAudio to playback music on two sound cards simultaneously?'''[[BR]]
+
+== Can I use !PulseAudio to playback music on two sound cards simultaneously? ==
    Yes! Use {{{module-combine}}} for that.
 {{{
 load-module module-oss-mmap device="/dev/dsp" sink_name=output0
