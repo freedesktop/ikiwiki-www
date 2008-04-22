@@ -272,3 +272,17 @@ load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
 }}}
    * In pulseaudio applet: PA applet -> Default Server -> Other -> Enter the hostname or ip of your windows box.
 
+
+
+=== How can I reverse my left and right speaker channels? ===
+
+This is the same as "reverse stereo", where the left and right channels are to be swapped.
+   * cat /proc/asound/cards and use the name string for the device you wish to use (the one in square brackets)
+   * Edit /etc/pulse/default.pa and comment out module-hal-detect and module-detect lines.
+   * Search for the commented-out line that starts "#load-module module-alsa-sink", uncomment it and change it to 
+{{{
+load-module module-alsa-sink device=hw:[answer from step 0] channel_map=right,left
+}}}
+   * Restart the pulseaudio deamon by running {{{pulseaudio -k; pulseaudio -D}}}
+
+
