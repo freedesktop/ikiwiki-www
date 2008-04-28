@@ -1,0 +1,37 @@
+= Providers included with Geoclue =
+
+== Hostip ==
+
+ Interfaces:: Address, Position
+ Accuracy:: Locality (city/town)
+ Signals:: No (Yes with Geoclue Master)
+ Requires:: Network connection
+
+This provider uses http://www.hostip.info to get current position and address based on the current public IP address. Dynamic IPs are potentially mis-located, but locations can be edited at the web site. Note that when the website says that a location is "guessed", it is exactly that -- geoclue will not used guessed data. See http://api.hostip.info/ for the actual data.
+
+== Plazes ==
+
+ Interfaces:: Address, Position
+ Accuracy:: Street address (at best)
+ Signals:: No (Yes with Geoclue Master)
+ Requires:: Network connection
+
+This provider uses http://plazes.com to get current position and address based on current router mac address. New locations (router mac addresses with coordinates and address) can be added by logged in Plazes users. Official Plazes client is unfortunately not available for Linux. For testing purposes one can add a "Plaze" with the web interface and then edit the mac address with curl: 
+ . {{{
+curl -u 'PLAZES_USERNAME:PLAZES_PASSWORD' -H 'Accept: application/xml' 'http://plazes.com/presences' -F presence[plaze_id]=PLAZES_ID -F presence[status]='hacking geoclue' -F presence[mac_address]=MAC_ADDRESS}}}
+
+== Localnet ==
+
+ Interfaces:: Address
+ Accuracy:: Street address (at best)
+ Signals:: No (Yes with Geoclue Master)
+
+This provider does not strictly speaking require an internet connection, but it does require a connection to a router: it uses the current router mac address and a local keyfile to provide Address data. New addresses can be added through d-Bus. Example:
+ . {{{
+dbus-send --print-reply --type=method_call \
+          --dest=org.freedesktop.Geoclue.Providers.Localnet \
+          /org/freedesktop/Geoclue/Providers/Localnet \
+          org.freedesktop.Geoclue.Localnet.SetAddressFields \
+          string: "" string:"Finland" string: "" string:"Helsinki" \
+          string: "" string: string:"Solnantie 24" }}}
+Localnet is especially useful for often visited places (home,office), since it's super fast and low resource but requires adding the address manually.
