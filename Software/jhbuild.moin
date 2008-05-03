@@ -3,12 +3,15 @@
 ##TOC%
 
 = Introduction =
-Jhbuild is a program that can be used to pull a number of modules from CVS and build them in the correct order.  Unlike some build scripts, jhbuild lets you specify what modules you want built and it will then go and build those modules plus dependencies.
 
-Although jhbuild was originally developed to build [http://www.gnome.org/ Gnome], it is now able to build a number of the modules in freedesktop.org CVS.  Extending it to handle new modules is usually trivial (assuming the build infrastructure matches the other modules it handles).
+JHBuild is a program that can be used to pull a number of modules from a variety of sources (CVS, Subversion, Git, Bazaar, tarballs...) and build them in the correct order.  Unlike some build scripts, JHBuild lets you specify what modules you want built and it will then go and build those modules plus dependencies.
+
+Although JHBuild was originally developed to build [http://www.gnome.org/ GNOME], it is now able to build a number of the modules in freedesktop.org CVS.  Extending it to handle new modules is usually trivial (assuming the build infrastructure matches the other modules it handles).
+
+Uptodate [http://library.gnome.org/devel/jhbuild/unstable/ JHBuild Documentation] is available on [http://library.gnome.org GNOME Library].  There is also useful contents in the [http://live.gnome.org/Jhbuild Jhbuild] page of GNOME wiki.
 
 = Installation =
-To install jhbuild, you will need to check it out of Gnome SVN.  I recommend checking it out into the directory where you will store the working copies of the modules you want to build.  This can be done with the following commands:
+To install JHBuild, you will need to check it out of Gnome SVN.  I recommend checking it out into the directory where you will store the working copies of the modules you want to build.  This can be done with the following commands:
 
 {{{
 	 $ svn co http://svn.gnome.org/svn/jhbuild/trunk jhbuild
@@ -23,11 +26,11 @@ Jhbuild can be installed to `~/bin` (which should be in your path) with the foll
 	 $ make install
 }}}
 
-Before making use of jhbuild, you should make sure the required build tools are installed.
+Before making use of JHBuild, you should make sure the required build tools are installed.
 
 = Prerequisites =
 
-To use jhbuild, you will need to install various build tools.  These include:
+To use JHBuild, you will need to install various build tools.  These include:
 	* [http://www.python.org/ Python] >= 2.0 with expat support (jhbuild needs the Python XML modules).
 	* [http://www.gnu.org/software/autoconf/ autoconf] 2.5x
 	* [http://www.gnu.org/software/automake/ automake] 1.4-p6, 1.7.x, 1.8.x and 1.9.x (these are parallel installable).
@@ -47,7 +50,8 @@ with the exception of automake, only version 1.9.6 is included.
 ''Feel free to add notes about other distros as needed -- JamesHenstridge''
 
 = The Configuration File =
-Jhbuild uses a configuration file to control what gets built.  The configuration file is `~/.jhbuildrc`, and uses standard Python syntax.  There are a few sample configuration files distributed with jhbuild.  Below is a sample configuration file suitable for building [http://www.cairographics.org/ cairo] and [:Software/dbus: dbus]:
+
+JHBuild uses a configuration file to control what gets built.  The configuration file is `~/.jhbuildrc`, and uses standard Python syntax.  There are a few sample configuration files distributed with jhbuild.  Below is a sample configuration file suitable for building [http://www.cairographics.org/ cairo] and [:Software/dbus: dbus]:
 
 {{{
 	 # what to build?
@@ -77,9 +81,9 @@ Here is a list of some of the variables that can be set in the `~/.jhbuildrc` fi
 
 	moduleset: the collection of modules containing the modules to be built.  The 'freedesktop'
 				  module set includes the freedesktop.org modules, so should be sufficient.  If you
-				  want to build some Gnome modules as well, set this to 'gnome26'.  This can also
+				  want to build some Gnome modules as well, set this to 'gnome-2.24'.  This can also
 				  be the URL of a modules file, which makes it possible to maintain module sets
-				  outside of Gnome CVS.
+				  outside of Gnome Subversion.
 	modules:	a list of the modules to build.  The list of modules covered by the 'freedesktop'
 				  moduleset can be found in [http://cvs.gnome.org/viewcvs/jhbuild/modulesets/freedesktop.modules?rev`HEAD&view`auto jhbuild/modulesets/freedesktop.modules].
 	skip:		a list of modules to skip.  Useful if you want to use the system version of some
@@ -103,8 +107,8 @@ You can check whether your jhbuild configuration is okay by running the ``jhbuil
 
 Note that some errors the sanity check reports will only affect a subset of packages, so take the results with a grain of salt.
 
-= Using Jhbuild =
-Once you have set up your jhbuild configuration file, you can start using it to build modules.  To build the list of modules listed in the configuration file (plus the dependencies), use the ``build`` command:
+= Using JHBuild =
+Once you have set up your JHBuild configuration file, you can start using it to build modules.  To build the list of modules listed in the configuration file (plus the dependencies), use the ``build`` command:
 {{{
 	 $ jhbuild build
 }}}
@@ -145,7 +149,7 @@ You can run a completely non-interactive build, and have the results saved to a 
 Note that in this mode that if a package fails to build, no package that depends on it will be built either.  The results of the build will be saved in `outputdir`.
 
 = Extending Jhbuild =
-Jhbuild stores information about modules in simple XML files.  The [http://cvs.gnome.org/viewcvs/jhbuild/modulesets/freedesktop.modules?view=markup jhbuild/modulesets/freedesktop.modules] file describes the freedesktop.org modules that are currently supported.  This list includes:
+JHBuild stores information about modules in simple XML files.  The [http://cvs.gnome.org/viewcvs/jhbuild/modulesets/freedesktop.modules?view=markup jhbuild/modulesets/freedesktop.modules] file describes the freedesktop.org modules that are currently supported.  This list includes:
 	* fontconfig
 	* the X libraries
 	* the X server
