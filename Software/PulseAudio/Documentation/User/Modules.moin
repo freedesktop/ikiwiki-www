@@ -405,10 +405,18 @@ This does not only restores the volume level but also the used sink which is use
 
 === module-detect ===
 
-Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers.
+Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers, and the information is taken directy from them, not through [http://freedesktop.org/wiki/Software/hal HAL].[[BR]]
+Do not use this together with module-detect-hal!
 
+The parameter:
   just-one
     If set to 1 the module will only try to load a single sink/source and than stop.
+
+=== module-detect-hal ===
+
+Detects audio devices on the system using [http://freedesktop.org/wiki/Software/hal HAL].
+
+Do not use this together with module-detect!
 
 === module-zeroconf-publish ===
 
@@ -417,18 +425,6 @@ Publish all local sinks/sources using mDNS Zeroconf.
 === module-rescue-streams ===
 
 Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink.
-
-=== module-detect-hal ===
-
-Detects audio devices on the system using HAL.
-
-Do not use this together with module-detect!
-
-=== module-detect ===
-
-Detects audio devices on the system using traditional methods.
-
-Do not use this together with module-detect-hal!
 
 === module-ladspa-sink ===
 
