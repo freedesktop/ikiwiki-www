@@ -13,9 +13,11 @@ A sound server can serve many functions:
  * Sound API abstraction, alleviating the need for multiple backends in applications to handle the wide diversity of sound systems out there.
  * Generic hardware abstraction, giving the possibility of doing things like individual volumes per application.
 
-!PulseAudio comes with many [wiki:Modules plugin modules].
+!PulseAudio comes with many [wiki:Modules plugin modules]. All audio from/to clients and audio interfaces goes through modules.
 
 Manuel Amador created [http://rudd-o.com/archives/2007/11/05/how-pulseaudio-works/ a diagram] describing how the different parts of !PulseAudio play together.
+
+!PulseAudio clients can send audio to "sinks" and receive audio from "sources". Only the device drivers/audio interfaces can be either sources or sinks (this is often hardware in- and outputs). 
 
 == Current Status ==
 
@@ -33,13 +35,15 @@ API, ABI and the protocol are considered release worthy so effort is spent to no
  * Good low latency behaviour
  * Very accurate latency measurement for playback and recording.
  * Client side latency interpolation
- * Embedabble into other software (the core is available as C library)
+ * Embeddable into other software (the core is available as C library)
  * Completely asynchronous C API, complemented by two synchronous variants for simple use in synchronous applications
  * Simple command line interface for reconfiguring the daemon while running
  * Flexible, implicit sample type conversion and resampling
  * "Zero-Copy" architecture
  * May be used to combine multiple sound cards to one (with sample rate adjustment)
  * Ability to fully synchronize multiple playback streams
+
+!PulseAudio is intended to provide lower latency than the software mixers dmix and esd.
 
 == Supported Operating Systems ==
  * Linux (any modern distribution)
