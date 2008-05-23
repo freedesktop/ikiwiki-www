@@ -16,6 +16,8 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
  * the dB scale is completely useless. dB is a relative scale and ALSA didn't define what the reference level is. All mixer controls on all sound drivers use different reference levels. Hence the dB scale is not any more useful than that they are pretty to look at and make you feel like oh-i-am-such-a-guru-i-look-at-dB-levels.
 
+ * Naming hinting apparently cannot be used to enumerate mixer devices.
+
  * ''elmarco added'': It's not possible to know the inter-relation of ctls (except single switch/track couple), and the relation with actual devices: internal mic, loudspeaker, laptop red jack, rear green jack, usb headset mike (or at least, this is quite tricky, or not well exposed)
 
 == PCM ==
@@ -44,7 +46,7 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
  * [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007354.html The buffering model has major issues.]
 
- * An application which wants to use surround sound has no chance to do so in any sensible way unless it goes directly to the hw devices "surround41:0" and so on. This kicks virtual drivers like PA out of the game however. This boils down to: no practical surround sound for ioplug based plugins. 
+ * An application which wants to use surround sound has no chance to do so in any sensible way unless it goes directly to the hw devices "surround41:0" and so on. This kicks virtual drivers like PA out of the game however. This boils down to: no practical surround sound for ioplug based plugins. For ioplug based plugins only stereo and mono can be implemented sensibly.
 
  * Currently there is no point in opening "default" in anything but 1ch or 2ch, since otherwise the channel mapping is unknown.
 
