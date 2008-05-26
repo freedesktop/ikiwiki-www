@@ -129,6 +129,16 @@ padsp myapp <arguments to myapp>
 
 == Troubleshooting ==
 
+=== I get this error message: "Connection refused" ===
+
+   It is a network level error, which is caused by libpulse trying to connect to the daemon. The most likely reason for this error is that pulseaudio isn't running.
+
+
+=== I get this error message: "Invalid argument" ===
+
+   A likely reason for this is that no devices have been loaded. Stop pulseaudio (run "pulseaudio -k"), and start it again with "pulseaudio -vv". That will print verbose output of the daemon startup. If you can't figure out what might go wrong yourself, send a link to the whole output of the command to the irc channel (see [wiki:Community#IRC]). (Help is not guaranteed. Patience is a virtue.)
+
+
 === I often hear noises when playing back with !PulseAudio, what can I do? ===
 
    There are to possible solutions: run !PulseAudio with argument {{{--high-priority=1}}} and make yourself member of the group realtime, or increase the fragment sizes of the audio drivers. The former will allow !PulseAudio to activate {{{SCHED_FIFO}}} high priority scheduling (root rights are dropped immediately after this). Keep in mind that this is a potential security hole!
