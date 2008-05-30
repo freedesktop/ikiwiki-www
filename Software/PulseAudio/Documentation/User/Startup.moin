@@ -10,12 +10,10 @@ Using this mechanism will ensure that no matter what window manager or desktop e
 Xsession specific modules should be loaded using the same mechanism.
 
 == Existing Alternatives ==
+=== Gnome ===
 Gnome runs !PulseAudio Daemon as part of the gnome session startup, but is the only desktop environment that has native support for starting the daemon.  All other desktop environments implement session startup differently.
 
-In KDE4, Fedora 9 uses an env script to start !PulseAudio Daemon as part of the KDE environment.
-
-In OpenBox on Foresight Linux, a .desktop file is dropped into /etc/xdg/autostart to start the daemon.  This solution required adding support for the xdg autostart mechanism in OpenBox.
-
+=== KDE3 ===
 For KDE3, special care must be taken so that pulseaudio starts both after the console kit session, and before artsd starts.  Otherwise an error message pops up in KDE3:
 {{{
 Sound server informational message:
@@ -24,4 +22,11 @@ device: default can't be opened for playback (Connection refused)
 The sound server will continue, using the null output device.
 }}}
 
-It appears that several Linux distros are using a .desktop file in /etc/xdg/autostart to load module-x11-xsmp.  This is problematic as not all DEs support the xdg standard.
+=== KDE 4.x ===
+In KDE4, Fedora 9 uses an env script to start !PulseAudio Daemon as part of the KDE environment.
+
+=== OpenBox ===
+In OpenBox on Foresight Linux, a .desktop file is dropped into /etc/xdg/autostart to start the daemon.  This solution required adding support for the xdg autostart mechanism in OpenBox.
+
+== Loading X specific modules ==
+It appears that several Linux distros are using a .desktop file in /etc/xdg/autostart to load module-x11-xsmp.  This is problematic as not all Desktop Environments support the xdg standard.
