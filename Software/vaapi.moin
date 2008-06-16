@@ -1,5 +1,7 @@
 ##language:en
 === News ===
+16Jun2007 - Updated rev of the video acceleration API specification (0.27 -> 0.29)
+
 17Dec2007 - New git repo available, see http://gitweb.freedesktop.org/?p=libva.git;a=summary
 
 20Nov2007 - Updated rev of the video acceleration API specification (0.25 -> 0.27)
@@ -67,7 +69,7 @@ Email: jonathan.bian@intel.com
 /*
  * Video Decode Acceleration API Specification
  *
- * Rev. 0.27
+ * Rev. 0.29
  * <jonathan.bian@intel.com>
  *
  * Revision History:
@@ -89,7 +91,11 @@ Email: jonathan.bian@intel.com
  * rev 0.24 (09/18/2007 Jonathan Bian) - Added display attributes.
  * rev 0.25 (10/18/2007 Jonathan Bian) - Changed to use IDs only for some types.
  * rev 0.26 (11/07/2007 Waldo Bastian) - Change vaCreateBuffer semantics
- * rev 0.27 (11/19/2007 Matt Sottek) - Added DeriveImage
+ * rev 0.27 (11/19/2007 Matt Sottek)   - Added DeriveImage
+ * rev 0.28 (12/06/2007 Jonathan Bian) - Added new versions of PutImage and AssociateSubpicture 
+ *                                       to enable scaling
+ * rev 0.29 (02/07/2007 Jonathan Bian) - VC1 parameter fixes,
+ *                                       added VA_STATUS_ERROR_RESOLUTION_NOT_SUPPORTED
  *
  * Acknowledgements:
  *  Some concepts borrowed from XvMC and XvImage.
@@ -152,6 +158,9 @@ typedef int VAStatus;	/* Return status type from functions */
 #define VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT	0x0000000e
 #define VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE	0x0000000f
 #define VA_STATUS_ERROR_SURFACE_BUSY		0x00000010
+#define VA_STATUS_ERROR_FLAG_NOT_SUPPORTED      0x00000011
+#define VA_STATUS_ERROR_INVALID_PARAMETER	0x00000012
+#define VA_STATUS_ERROR_RESOLUTION_NOT_SUPPORTED 0x00000013
 #define VA_STATUS_ERROR_UNKNOWN			0xFFFFFFFF
 
 /*
@@ -194,7 +203,7 @@ VAStatus vaTerminate (
  * hardware accelerator. The format of the returned string is vendor
  * specific and at the discretion of the implementer.
  * e.g. for the Intel GMA500 implementation, an example would be:
- * "Intel-GMA500-1.2-patch3"
+ * "Intel GMA500 - 2.0.0.32L.0005"
  */
 const char *vaQueryVendorString (
     VADisplay dpy
@@ -796,7 +805,7 @@ typedef struct _VAPictureParameterBufferVC1
     union {
         struct {
             unsigned char reference_distance_flag : 1;/* PICTURE_LAYER::REFDIST_FLAG */
-            unsigned char reference_distance	: 1;/* PICTURE_LAYER::REFDIST */
+            unsigned char reference_distance	: 5;/* PICTURE_LAYER::REFDIST */
             unsigned char num_reference_pictures: 1;/* PICTURE_LAYER::NUMREF */
             unsigned char reference_field_pic_indicator	: 1;/* PICTURE_LAYER::REFFIELD */
         };
@@ -820,6 +829,7 @@ typedef struct _VAPictureParameterBufferVC1
     union {
         struct {
             unsigned char dquant	: 2; 	/* ENTRY_POINT_LAYER::DQUANT */
+            unsigned char quantizer	: 2; 	/* ENTRY_POINT_LAYER::QUANTIZER */
             unsigned char half_qp	: 1; 	/* PICTURE_LAYER::HALFQP */
             unsigned char pic_quantizer_scale : 5;/* PICTURE_LAYER::PQUANT */
             unsigned char pic_quantizer_type : 1;/* PICTURE_LAYER::PQUANTIZER */
@@ -1296,6 +1306,24 @@ VAStatus vaPutImage (
 );
 
 /*
+ * Similar to vaPutImage but with additional destination width
+ * and height arguments to enable scaling
+ */
+VAStatus vaPutImage2 (
+    VADisplay dpy,
+    VASurfaceID surface,
+    VAImageID image,
+    int src_x,
+    int src_y,
+    unsigned int src_width,
+    unsigned int src_height,
+    int dest_x,
+    int dest_y,
+    unsigned int dest_width,
+    unsigned int dest_height
+);
+
+/*
  * Derive an VAImage from an existing surface.
  * This interface will derive a VAImage and corresponding image buffer from
  * an existing VA Surface. The image buffer can then be mapped/unmapped for
@@ -1447,6 +1475,30 @@ VAStatus vaAssociateSubpicture (
 );
 
 /*
+ * Similar to vaAssociateSubpicture but with additional destination width
+ * and height to enable scaling
+ */
+VAStatus vaAssociateSubpicture2 (
+    VADisplay dpy,
+    VASubpictureID subpicture,
+    VASurfaceID *target_surfaces,
+    int num_surfaces,
+    short src_x, /* upper left offset in subpicture */
+    short src_y,
+    unsigned short src_width,
+    unsigned short src_height,
+    short dest_x, /* upper left offset in surface */
+    short dest_y,
+    unsigned short dest_width,
+    unsigned short dest_height,
+    /*
+     * whether to enable chroma-keying or global-alpha
+     * see VA_SUBPICTURE_XXX values
+     */
+    unsigned int flags
+);
+
+/*
  * vaDeassociateSubpicture removes the association of the subpicture with target_surfaces.
  */
 VAStatus vaDeassociateSubpicture (
@@ -1561,7 +1613,6 @@ VAStatus vaSetDisplayAttributes (
 #define VA_FRAME_PICTURE	0x00000000 
 #define VA_TOP_FIELD		0x00000001
 #define VA_BOTTOM_FIELD		0x00000002
-/* Note: VA_TOP_FIELD|VA_BOTTOM_FIELD is not allowed */
 
 /* 
  * clears the drawable with background color.
@@ -1610,8 +1661,8 @@ Mostly to demonstrate program flow with no error handling ...
 
 	int max_num_profiles, max_num_entrypoints, max_num_attribs;
 	max_num_profiles = vaMaxNumProfiles(dpy);
-	max_num_entrypoints = vaMaxNumProfiles(dpy);
-	max_num_attribs = vaMaxNumProfiles(dpy);
+	max_num_entrypoints = vaMaxNumEntrypoints(dpy);
+	max_num_attribs = vaMaxNumAttributes(dpy);
 
 	/* find out whether MPEG2 MP is supported */
 	VAProfile *profiles = malloc(sizeof(VAProfile)*max_num_profiles);
