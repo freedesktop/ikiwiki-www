@@ -1,7 +1,6 @@
 This is a short tutorial about how to contribute to the fonts.
 
 == 0. Get ready ==
-
  1. I really recommend to do the development on a native Linux system, because all necessary tools come already with most distributions. It doesn't really matter which distribution you use (I personally use Debian Etch and Ubuntu 8.04 Hardy Heron), as long as it is fairly recent.
  1. The fonts are produced using [http://fontforge.sf.net Fontforge] a superb open source font editor. Get a recent copy of it (from 2008-03-30 or later) and install it on your development machine. As the fonts we work on are fairly large in size and therefor use a lot of memory when opened in Fontforge, I recommend to have at least 1GB of RAM.
  1. Get the development tarball of the fonts (they are already in fontforge's native sfd format): http://people.ubuntu.com/~arne/cjk-unifonts/uming_ukai_sfd.tar.bz2 (55MB)
@@ -11,8 +10,43 @@ This is a short tutorial about how to contribute to the fonts.
  1. Get agrep. It allows you to grep a text file with an AND search. (On Debian / Ubuntu: ''apt-get install agrep'')
  1. One very handy text file, which lists all unique Han characters in Unicode 5.0, their radicals, radical index and remaining strokes and components they are built of in IDS (Ideographic Description Sequence) format: [http://people.ubuntu.com/~arne/cjk-unifonts/ids_rs.tar.gz ids_rs.tar.gz] (tarball) or [http://people.ubuntu.com/~arne/cjk-unifonts/ids_rs.zip ids_rs.zip] (zipfile)
  1. Untar the text file in your working directory: ''tar xvfz ids_rs.tar.gz''
- 1. Han characters can have different glyph shapes, depending on the region they are used in. Glyphs usually look different in China, Hong Kong, Taiwan, Japan, Korea and Vietnam, even if they share the same codepoint. PDF files, which show these different shapes for each codepoint in the Unicode '''CJK Unified Ideographs''' and '''CJK Unified Ideographs Extension A''' blocks are available here: [http://standards.iso.org/ittf/PubliclyAvailableStandards/c039921_ISO_IEC_10646_2003(E).zip] (Please note that the glyph shapes have been submitted to Unicode some time ago. Japan has revised some glyph shapes in its latest JIS X0213-2004 standard.)
-
+ 1. Han characters can have different glyph shapes, depending on the region they are used in. Glyphs usually look different in China, Hong Kong, Taiwan, Japan, Korea and Vietnam, even if they share the same codepoint. PDF files, which show these different shapes for each codepoint in the Unicode '''CJK Unified Ideographs''' and '''CJK Unified Ideographs Extension A''' blocks are available here: http://standards.iso.org/ittf/PubliclyAvailableStandards/c039921_ISO_IEC_10646_2003(E).zip (Please note that the glyph shapes have been submitted to Unicode some time ago. Japan has revised some glyph shapes in its latest JIS X0213-2004 standard.)
 == 1. Basics ==
-
 Now that you've downloaded all this stuff, we are ready to begin.
+
+=== 1.1. ids_rs.txt ===
+If you have downloaded the ids_rs.txt file, now it's the time to take a look at it. You can open it with any text editor. However, as this text file contains all Han characters from Unicode 5.0, including those of Extension B, you would need to have a font installed to actually display the characters. I found the [http://vietunicode.sourceforge.net/fonts/fonts_hannom.html Hannom] fonts (they are free to download and use, but not free to modify or redistribute) to be perfect for this task. Install them on your system, on Linux, just copy them to your ~/.fonts/ directory and call ''fc-cache ~/.fonts/'' to update the cache.
+
+The text file has multiple columns:
+
+ * Codepoint
+ * Character
+ * Radical
+ * Radical Index / Additional Strokes
+ * IDS Sequences (can be more than one column)
+ * Remarks (optional)
+=== 1.2. IDS (Ideographic Description Sequence) ===
+The IDS describes how a Han character looks like. That is, if a specific Han character is not encoded in Unicode yet, you could use IDS to describe how the character looks like. To do this, IDS consists of description characters and Han characters. The description characters are:
+ * U+2FF0 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF0.png IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT
+ * U+2FF1 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF1.png IDEOGRAPHIC DESCRIPTION CHARACTER ABOVE TO BELOW
+ * U+2FF2 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF2.png IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT
+ * U+2FF3 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF3.png IDEOGRAPHIC DESCRIPTION CHARACTER ABOVE TO MIDDLE AND BELOW
+ * U+2FF4 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF4.png IDEOGRAPHIC DESCRIPTION CHARACTER FULL SURROUND
+ * U+2FF5 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF5.png IDEOGRAPHIC DESCRIPTION CHARACTER SURROUND FROM ABOVE
+ * U+2FF6 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF6.png IDEOGRAPHIC DESCRIPTION CHARACTER SURROUND FROM BELOW
+ * U+2FF7 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF7.png IDEOGRAPHIC DESCRIPTION CHARACTER SURROUND FROM LEFT
+ * U+2FF8 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF8.png IDEOGRAPHIC DESCRIPTION CHARACTER SURROUND FROM UPPER LEFT
+ * U+2FF9 http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF9.png IDEOGRAPHIC DESCRIPTION CHARACTER SURROUND FROM UPPER RIGHT
+ * U+2FFA http://people.ubuntu.com/~arne/cjk-unifonts/png/2FFA.png IDEOGRAPHIC DESCRIPTION CHARACTER SURROUND FROM LOWER LEFT
+ * U+2FFB http://people.ubuntu.com/~arne/cjk-unifonts/png/2FFB.png IDEOGRAPHIC DESCRIPTION CHARACTER OVERLAID
+
+The Han characters are the components the desired character is made of. The syntax is:
+First the IDC followed by the components (from outside to inside, from left to right, from top to bottom)
+Examples:
+ * U+4E69  乩 -> [http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF0.png]占乚
+ * U+4E6A  乪 -> [http://people.ubuntu.com/~arne/cjk-unifonts/png/2FFA.png]乙田
+ * U+4E6B  乫 -> [http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF1.png]加乙
+ * U+55C0  嗀 -> [http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF0.png][http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF1.png][http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF3.png]士冖一口殳
+
+The description for U+55C0  嗀 reads like: ([http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF0.png]([http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF1.png]([http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF3.png]士冖一)口)殳
+).
