@@ -5,13 +5,13 @@ This is a short tutorial about how to contribute to the fonts.
  1. The fonts are produced using [http://fontforge.sf.net Fontforge] a superb open source font editor. Get a recent copy of it (from 2008-03-30 or later) and install it on your development machine. As the fonts we work on are fairly large in size and therefor use a lot of memory when opened in Fontforge, I recommend to have at least 1GB of RAM.
  1. Get the development tarball of the fonts (they are already in fontforge's native sfd format): http://people.ubuntu.com/~arne/cjk-unifonts/uming_ukai_sfd.tar.bz2 (55MB)
  1. Untar them into your working directory: ''tar xvfj uming_ukai_sfd.tar.bz2''
- 1. Never modify the original sfd files in place! Use the templates instead: http://people.ubuntu.com/~arne/cjk-unifonts/uming/umingTPL.sfd and http://people.ubuntu.com/~arne/cjk-unifonts/ukai/ukaiTPL.sfd
+ 1. Never modify the original sfd files in place! Use the templates instead: http://people.ubuntu.com/~arne/cjk-unifonts/uming/umingTPL.sfd and  http://people.ubuntu.com/~arne/cjk-unifonts/ukai/ukaiTPL.sfd
  1. As the UMing and Ukai fonts are based on the original free Arphic fonts, it's a good idea to have them on the system, too. (On Debian / Ubuntu use ''apt-get install ttf-arphic-bsmi00lp ttf-arphic-gbsn00lp'' (for the Ming/Song style fonts) and ''apt-get install ttf-arphic-bkai00mp ttf-arphic-gkai00mp'' (for the Kai style fonts). You will find the ttf files in ''/usr/share/fonts/truetype/arphic/''. With other distributions the font packages might have different names.)
  1. Get agrep. It allows you to grep a text file with an AND search. (On Debian / Ubuntu: ''apt-get install agrep'')
  1. One very handy text file, which lists all unique Han characters in Unicode 5.0, their radicals, radical index and remaining strokes and components they are built of in IDS (Ideographic Description Sequence) format: [http://people.ubuntu.com/~arne/cjk-unifonts/ids_rs.tar.gz ids_rs.tar.gz] (tarball) or [http://people.ubuntu.com/~arne/cjk-unifonts/ids_rs.zip ids_rs.zip] (zipfile)
  1. Untar the text file in your working directory: ''tar xvfz ids_rs.tar.gz''
- 1. Han characters can have different glyph shapes, depending on the region they are used in. Glyphs usually look different in China, Hong Kong, Taiwan, Japan, Korea and Vietnam, even if they share the same codepoint. PDF files, which show these different shapes for each codepoint in the Unicode '''CJK Unified Ideographs''' and '''CJK Unified Ideographs Extension A''' blocks are available here: [http://standards.iso.org/ittf/PubliclyAvailableStandards/c039921_ISO_IEC_10646_2003(E).zip] (Please note that the glyph shapes have been submitted to Unicode some time ago. Japan has revised some glyph shapes in its latest JIS X0213-2004 standard.)
-In this PDF, the glyphs for Hong Kong are missing. Therefor I produced a similar PDF for Hong Kong glyphs by myself, using the Ming font which is provided by the HKSAR government: [http://people.ubuntu.com/~arne/cjk-unifonts/CJK_Glyphs_HK.tar.bz2] (Untar them with: ''tar xvfj CJK_Glyphs_HK.tar.bz2'')
+ 1. Han characters can have different glyph shapes, depending on the region they are used in. Glyphs usually look different in China, Hong Kong, Taiwan, Japan, Korea and Vietnam, even if they share the same codepoint. PDF files, which show these different shapes for each codepoint in the Unicode '''CJK Unified Ideographs''' and '''CJK Unified Ideographs Extension A''' blocks are available here: [http://standards.iso.org/ittf/PubliclyAvailableStandards/c039921_ISO_IEC_10646_2003(E).zip] (Please note that the glyph shapes have been submitted to Unicode some time ago. Japan has revised some glyph shapes in its latest JIS X0213-2004 standard.)[[BR]]
+ In this PDF, the glyphs for Hong Kong are missing. Therefor I produced a similar PDF for Hong Kong glyphs by myself, using the Ming font which is provided by the HKSAR government: [http://people.ubuntu.com/~arne/cjk-unifonts/CJK_Glyphs_HK.tar.bz2] (Untar them with: ''tar xvfj CJK_Glyphs_HK.tar.bz2'')
 
 == 1. Basics ==
 Now that you've downloaded all this stuff, we are ready to begin.
@@ -55,7 +55,6 @@ The description for U+55C0  嗀 reads like: ([http://people.ubuntu.com/~arne/cjk
 ).
 
 === 1.3. How to use this? ===
-
 Most of the Han characters in Unicode can be composed out of other Han characters. By far the most cases use a LEFT TO RIGHT composition ([http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF0.png]), the second most common is ABOVE TO BOTTOM ([http://people.ubuntu.com/~arne/cjk-unifonts/png/2FF1.png]). Almost all of these use a radical in either the LEFT, RIGHT, TOP or BOTTOM position (e.g. LEFT: 亻 冫 口 土 女 山 彳 忄 扌 日 月 氵 ..., RIGHT: 刂 支 攵 阝 ..., TOP: 入 八 冖 宀 艹 ..., BOTTOM: 乙 灬 ...).
  
 '''Example:''' We want to add a new glyph to the font. Let's take U+8281 芁.[[BR]]
@@ -75,7 +74,6 @@ Double click on that character, select the radical component by double clicking 
 Now, what if we would need to move a component around to make it fit?  For this, I found it to be a good idea '''not''' to use the mouse to drag the component around, but the '''arrow keys''' on the keyboard. Pressing the arrow keys will move the selection one decimal point, holding down the ALT key while pressing the arrow keys will move the selection 10 decimal points.
 
 == 2. More advanced stuff ==
-
 For an exhaustive tutorial about how to use Fontforge, please see the [http://fontforge.sf.net Fontforge] website.
 
 === 2.1. Resizing ===
@@ -83,3 +81,21 @@ For an exhaustive tutorial about how to use Fontforge, please see the [http://fo
 === 2.2. Editing splines ===
 
 === 2.3. Glyph variants ===
+CJK characters are used in different regions and can look different in each region, although the share the same codepoint. If you have downloaded the PDFs I mentioned in Section 0, item 10, you can see which glyph has been submitted to Unicode by each national body for each codepoint used in that region.
+The regions are:
+|| '''Region''' || '''Internal abbrevation''' || '''UMing font flavor''' || '''UKai font flavor''' ||
+|| China || C  || AR PL UMing CN || AR PL UKai CN ||
+|| Taiwan || T || AR PL UMing TW || AR PL UKai TW ||
+|| Japan || J || AR PL UMing JP || AR PL UKai JP ||
+|| Korea || K || AR PL UMing KR || AR PL UKai KR ||
+|| Vietnam || V || AR PL UMing VN || AR PL UKai VN ||
+|| Hong Kong || H || AR PL UMing HK || AR PL UKai HK ||
+
+To produce these font flavors, we collect all regional flavored glyphs in the same font file and assign tags to them, depending on for which region they should be used. For example: U+4EE4 令 has 3 different glyph shapes: C, TVH and JK. Therefor, we have three glyphs: uni4EE4.C, uni4EE4.TVH and uni4EE4.JK .
+
+'''Short Excursion: Codepoints, Encodings, Slots and Glyphs'''[[BR]]
+ 1. Codepoints and Encodings: In an application (e.g. a text editor) you type some bytes. The Encoding maps these bytes to internal index numbers, the ''codepoints''. In recent years ISO 10646-1, commonly known as "Unicode", has become the de-facto standard to represent texts. For example the ''codepoint'' 4EE4 in ISO 10646-1 has been assigned the character 令. To use this character on the computer, we need to use a byte sequence which maps to this ISO 10646-1 codepoint. The most common ''encoding'' for this on to-date Linux systems is "UTF-8". In UTF-8 the byte sequence, which represents the ISO 10646-1 codepoint 4EE4 is: 0xE4 0xBB 0xA4.
+ 1. Slots and Glyphs: To be able to read an "encoded" text (e.g. with the UTF-8 encoding), we need some graphical representation to map the byte sequence to something human readable. (You can open a non-Latin UTF-8 encoded text file in a hex editor and try to read the text. You will see what I mean. ;) ) To do this mapping, we use ''fonts''. A font is a collection of drawings (''glyphs''), which can map to one or more ISO 10646-1 codepoints.  These ''glyphs'' are organized into ''slots''. A TrueType font can have a maximum of 65536 slots and therefor 65536 glyphs. The glyphs in a font '''can''' have a mapping to one or more codepoints, but '''don't need''' to have one. Glyphs, which don't have a mapping to a codepoint are usually invisible to the user.
+
+ Now why would we want to have invisible (''unassigned'') glyphs?[[BR]]
+ Well, in most cases the reason is, that we don't want them to be visible for the general public all the time, but only in some specific situations. In TrueType fonts this is done by using "Features". The probably most common case for this is "contextual shaping" used in many writing systems, or "ligatures". Here, having a specific codepoint combination in a text would result in a different (''unencoded'') glyph than they would normally map to individually.
