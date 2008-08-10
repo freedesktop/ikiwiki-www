@@ -91,30 +91,65 @@ not yet defined.
 
 === USER ===
 
- * searchuser
- * getuser
- * getfriends
+==== searchuser ====
+coming soon
+
+==== getuser ====
+coming soon
+
+==== getfriends ====
+coming soon
 
 === MESSAGES ===
- * messagefolders
- * messagecount
- * messagelist
+==== messagefolders ====
+Gets a list of the availabe message folders. You need the ids if you want to access the folders via messagecount or messagelist.
+Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /V2/MESSAGEFOLDERS
+ * Result: messagefolder xml
+ * Example: http://frank:password@api.opendesktop.org/V1/MESSAGEFOLDERS
 
+
+==== messagecount ====
+Get the number of messages in a specific message folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /V1/MESSAGELIST/"folder"
+ * Arguments: folder - ID of the folder. Use MESSAGEFOLDERS to get the folder IDs
+ * Result: messagecount
+ * Example: http://frank:password@api.opendesktop.org/V1/MESSAGECOUNT/0 Gets the number of messages in the inbox
+
+
+==== messagelist ====
+Gets the list of messages from a specific folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /V1/MESSAGELIST/"folder"/"page"
+ * Arguments: folder - The ID of the folder you want to get. Use the MESSAGEFOLDER method to get the list of folders.
+ * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
+ * Result: messagelist xml
+ * Fields:
+ * id- the unique id of the message
+ * messagefrom- the username of the message sender
+ * messageto - the username of the message receiver
+ * senddate- the unix timestamp of the message
+ * status- the message status. 0=>unread, 1=>read, 2=>replyed
+ * subject- the subject line of the message
+ * body- the message body
+
+
+Example: http://frank:password@api.opendesktop.org/V1/MESSAGELIST/1/2
+Gets the third page of messages from the "send" folder of user "frank"
 
 === ACTIVITIES ===
- * getactivities
+==== getactivities ====
 
 
 === CONTENT ===
- * categories
- * list
- * get
- * vote
+==== categories ====
+==== list ====
+==== get ====
+==== vote ====
 
 === KNOWLEDGE ===
- * knowledgecategories
- * knowledgelist
- * knowledgeget
+==== knowledgecategories ====
+==== knowledgelist ====
+==== knowledgeget ====
 
 
 
