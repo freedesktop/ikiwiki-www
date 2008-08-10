@@ -1,11 +1,87 @@
 ##language:en
-== Open Collaboration Services  ==
-
-This specification defines a standard set of webservices calls for desktop <-> web community interaction.
-I will post a first draft after the akademy talk at 9 August 2008
+= Open Collaboration Services  =
 
 Email: [[MailTo(karlitschek AT kde.org)]]
 
+== purpose ==
+integration of web communities and web bases servics into desktop and mobile applications. free, secure, privacy protected, vendor independent.
+
+== examples ==
+show all my friends on my desktop and show the reason email addresses, jabber accounts or activities.
+find online support information and show them directly in the application 
+show other users with similar interests or from the same reason and enable filesharing and collaboration
+
+
+== naming ==
+ * server - web bases application, webservices or online communities who provide open collaboration services. 
+ * client - the desktop or mobile application, web frontend or proxy who access the services.
+
+
+== Requirements ==
+
+=== Performance / Scalability ===
+the services should be usable by millions of users at the same time. because of that it is important to build the architecture in a scalable way. 
+every component of the architecture must be cluster enabled. this means that it must be possible to implement every service or component in a server cluster.
+
+
+
+=== Security ===
+the data transfer should be encrypted if possible.  
+   
+
+=== Privacy ===
+it is essential to respect the privacy requirements of the users. 
+every user must have full control over the personal information. 
+
+
+=== Vendor Independent ===
+it important for a application to be independent of a specific websites or services 
+because of that we use independent provider files who map the clients to the servers.
+For example the KDE project has provider files hosted on the KDE.org server who contains a list of providers who are providing a specific service. So the application maintainer has full control over which content and services are accessed by the application (client)
+
+
+
+== Architecture ==
+
+
+=== REST ===
+We use REST for the webservices calls. Unlike, for example SOAP, REST is very, lightweight, easy to learn and implement and cachable. REST is very widthspread in the internet and ist used by other popular webservices. REST support is integrated into various web or desktop frameworks and it is platform and technology independent
+The data exchange format is XML.
+
+=== SSL ===
+we suggest to use ssl to encrypt the data transfer between server and client. unencrypted data transfer is also possible when a SSL it too expensive or slow. 
+
+
+=== Authentication ===
+most services require a authenticated user. this is important for legal reasons. and to prevent DOS attacks.
+
+
+=== Services ===
+the applications or websites don´t have to support every service. We suggest to implement into the server or client only the services which are usefull for the users at this point. 
+
+At the moment there are the following services: 
+
+
+ * users (search, friends, ..)
+
+ * activities
+
+ * messages
+
+ * content
+
+ * knowledgebase
+
+ * ...more to come
+
+
+
+=== versioning ===
+we support versioning of the service specifications. so if we break the api in an incompatible way we can use a new version number and still keep the old API for legacy applications(client) please note that the api is currently in draft state. so it will change in the future
+
+
+=== proxy ===
+it is possible to implement proxy server to integrate other proprietary webservices.
 
 
 ----
