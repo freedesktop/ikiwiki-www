@@ -2,8 +2,7 @@
 = Open Collaboration Services  =
 
 
-Frank Karlitschek
-Email: [[MailTo(karlitschek AT kde.org)]]
+Frank Karlitschek [[MailTo(karlitschek AT kde.org)]]
 
 == Purpose ==
 integration of web communities and web bases servics into desktop and mobile applications. free, secure, privacy protected, vendor independent.
@@ -63,6 +62,9 @@ we suggest to use ssl to encrypt the data transfer between server and client. un
 === Authentication ===
 most services require a authenticated user. this is important for legal reasons. and to prevent DOS attacks.
 
+=== Proxy ===
+it is possible to implement proxy server to integrate other proprietary webservices.
+
 
 === Services ===
 the applications or websites don´t have to support every service. We suggest to implement into the server or client only the services which are usefull for the users at this point. 
@@ -70,26 +72,23 @@ the applications or websites don´t have to support every service. We suggest to
 At the moment there are the following services: 
 
 
- * users (search, friends, ..)
+ * USER (search, friends, ..)
 
- * activities
+ * ACTIVITIES
 
- * messages
+ * MESSAGES
 
- * content
+ * CONTENT
 
- * knowledgebase
+ * KNOWLEDGE
 
- * ...more to come
+ * ...more to come later
 
-
+=== Error Reporting === 
+every response xml contains a "status" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. examples of errormessages are: "data is private" or "user not found".
 
 === Versioning ===
 we support versioning of the service specifications. so if we break the api in an incompatible way we can use a new version number and still keep the old API for legacy applications(client) please note that the api is currently in draft state. so it will change in the future
-
-
-=== Proxy ===
-it is possible to implement proxy server to integrate other proprietary webservices.
 
 === Provider files ===
 it is important to decouple the applications from the services. so we suggest to user provider files to control the mapping of applications to service providers. if an application wants to access a services it first gets the provider file to get the list of available providers. than it can access the different providers and merge the results.
