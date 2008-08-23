@@ -41,27 +41,27 @@ programmers using XCB.
 
 == VOIDREQUEST ==
 
-VOIDREQUEST(name, 0 or more [[#Request''Parameters''and_Fields][PARAMs]])
+VOIDREQUEST(name, 0 or more [[[#Request''Parameters''and_Fields]][PARAMs]])
 
 Creates a function named [[XcbApi#XCBName][XCB&lt;name&gt;]] returning [[XcbApi#XCBNameCookie][XCBVoidCookie]] and
 accepting whatever parameters are necessary to deliver the given
-[[#Request''Parameters''and_Fields][PARAMs]] to the X server.
+[[[#Request''Parameters''and_Fields]][PARAMs]] to the X server.
 Requests created with this macro do not expect a reply.
 
 
 == REQUEST ==
 
-REQUEST(name, 0 or more [[#Request''Parameters''and''Fields][PARAMs]], 1 or more [[#Field''Declarations][FIELDs]])
+REQUEST(name, 0 or more [[[#Request''Parameters''and''Fields]][PARAMs]], 1 or more [[[#Field''Declarations]][FIELDs]])
 
 Creates a function named [[XcbApi#XCBName][XCB&lt;name&gt;]] whose return result is
 an [[XcbApi#XCBNameCookie][XCB&lt;name&gt;Cookie]] and whose parameters are whatever is
 necessary to deliver the given
-[[#Request''Parameters''and_Fields][PARAMs]] to the X
+[[[#Request''Parameters''and_Fields]][PARAMs]] to the X
 server. Declares the struct [[XcbApi#XCBNameCookie][XCB&lt;name&gt;Cookie]].  Creates a
 function named [[XcbApi#XCBNameReply][XCB&lt;name&gt;Reply]] returning a pointer to
 [[XcbApi#XCBNameRep][XCB&lt;name&gt;Rep]] which forces a cookie returned from
 [[XcbApi#XCBName][XCB&lt;name&gt;]], waiting for the response from the server if
-necessary. The [[#Field_Declarations][FIELDs]] must be quoted.
+necessary. The [[[#Field_Declarations]][FIELDs]] must be quoted.
 
 
 == EVENT ==
@@ -99,17 +99,17 @@ ERRORCOPY(new name, new number, old name)
 == Request Parameters and Fields ==
 
 These PARAM and FIELD macros may only appear within the second
-parameter to the [[#REQUEST][REQUEST]] or [[#VOIDREQUEST][VOIDREQUEST]]
+parameter to the [[[#REQUEST]][REQUEST]] or [[[#VOIDREQUEST]][VOIDREQUEST]]
 macros, and must always be quoted.
 
 All of these macro calls must appear in the order specified
 by Appendix B (Protocol Encoding) of the X Window System Protocol
 specification, or the equivalent documentation for any extension.
-However, [[#LISTPARAM][LISTs]] (including !LISTofVALUEs) are
+However, [[[#LISTPARAM]][LISTs]] (including !LISTofVALUEs) are
 always grouped after any fixed-length section.
 
 Information about padding bytes must be known, so you may need to
-specify it using the [[#PAD][PAD]] macro. However, in several cases this
+specify it using the [[[#PAD]][PAD]] macro. However, in several cases this
 information can be inferred by the macros and thus can be omitted:
 	* After the last fixed-length field in a fixed-length request or reply.
 	* After the last fixed-length field in a variable-length request.
@@ -164,12 +164,12 @@ as any C expression and may reference any of the other fields of this
 request.
 
 If the length is not given, then it is obtained in a
-language-dependent manner. In C, a [[#LOCALPARAM][LOCALPARAM]] is
+language-dependent manner. In C, a [[[#LOCALPARAM]][LOCALPARAM]] is
 automatically generated for `name_len` immediately before the list
 parameter.
 
-Note that requests like !QueryTextExtents require a [[#LOCALPARAM][LOCALPARAM]] for
-the length field, while others like !InternAtom require a [[#PARAM][PARAM]].
+Note that requests like !QueryTextExtents require a [[[#LOCALPARAM]][LOCALPARAM]] for
+the length field, while others like !InternAtom require a [[[#PARAM]][PARAM]].
 
 The recommended idiom for strings is to pass the length of the string into
 XCB, because it is much easier for callers to convert null-terminated
@@ -199,7 +199,7 @@ Defines a parameter with no associated field. The name can be used
 in expressions.
 
 This macro can be useful in conjunction with LISTs where you need to
-pass the number of items to the [[#LISTPARAM][LISTPARAM]] macro, but in the protocol
+pass the number of items to the [[[#LISTPARAM]][LISTPARAM]] macro, but in the protocol
 the list length is implicit in the request length.
 
 
@@ -228,7 +228,7 @@ EXPRFIELD(BOOL, `odd''length', `string''len & 1')
 Historically, EXPRFIELD was also used to allow C-style
 null-terminated strings to be passed to XCB and converted to
 counted strings automatically. ''This usage is deprecated.'' See
-[[#LISTPARAM][LISTPARAM]].
+[[[#LISTPARAM]][LISTPARAM]].
 
 <blockquote>
 {{{
@@ -243,14 +243,14 @@ LISTPARAM(char, `name', `name_len')
 
 ARRAYREPLY(field type, field name, length name)
 
-Deprecated: use [[#LISTFIELD][LISTFIELD]].
+Deprecated: use [[[#LISTFIELD]][LISTFIELD]].
 
 
 == REPLY ==
 
 REPLY(type, name)
 
-Deprecated: use [[#FIELD][FIELD]]
+Deprecated: use [[[#FIELD]][FIELD]]
 
 
 = Utility Macros =
@@ -370,7 +370,7 @@ it in the process.
 POPDIV()
 
 Pops the current diversion off the diversion stack, returning to the
-diversion which was in effect before the last [[#PUSHDIV][PUSHDIV]].
+diversion which was in effect before the last [[[#PUSHDIV]][PUSHDIV]].
 
 
 === Indentation ===
@@ -395,7 +395,7 @@ Move line indentation to the left 4 spaces.
 TAB()
 
 Indent current line according to the current indentation level set by
-[[#INDENT][INDENT]] and [[#UNINDENT][UNINDENT]].
+[[[#INDENT]][INDENT]] and [[[#UNINDENT]][UNINDENT]].
 
 
 === Functions ===
@@ -473,8 +473,8 @@ the given name.
 
 == Field Declarations ==
 
-These declarations may be used in [[#STRUCT][STRUCT]],
-[[#UNION][UNION]], or [[#REQUEST][REQUEST]] reply definitions.
+These declarations may be used in [[[#STRUCT]][STRUCT]],
+[[[#UNION]][UNION]], or [[[#REQUEST]][REQUEST]] reply definitions.
 
 
 === FIELD ===
@@ -504,7 +504,7 @@ function.
 
 ARRAYFIELD(type, name, quantity)
 
-Deprecated: use [[#LISTFIELD][LISTFIELD]].
+Deprecated: use [[[#LISTFIELD]][LISTFIELD]].
 
 
 = Undocumented =
