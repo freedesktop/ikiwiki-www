@@ -1,16 +1,16 @@
-||<tablewidth="40%" tablestyle="FONT-SIZE: 0.9em; FLOAT: right; MARGIN: 0pt 0pt 1em 1em"style="PADDING-RIGHT: 0.5em; PADDING-LEFT: 0.5em; PADDING-BOTTOM: 0.5em; PADDING-TOP: 0.5em">'''Contents'''[[BR]][[TableOfContents]] ||
+||<tablewidth="40%" tablestyle="FONT-SIZE: 0.9em; FLOAT: right; MARGIN: 0pt 0pt 1em 1em"style="PADDING-RIGHT: 0.5em; PADDING-LEFT: 0.5em; PADDING-BOTTOM: 0.5em; PADDING-TOP: 0.5em">'''Contents'''<<BR>><<TableOfContents>> ||
 = What is D-Bus? =
 D-Bus is a message bus system, a simple way for applications to talk to one another. In addition to interprocess communication, D-Bus helps coordinate process lifecycle; it makes it simple and reliable to code a "single instance" application or daemon, and to launch applications and daemons on demand when their services are needed.
 
-D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, or through unencrypted TCP/IP suitable for use behind a firewall with shared NFS home directories. (Help wanted with [:Software/DBusRemote:better remote transports] - the transport mechanism is well-abstracted and extensible.)
+D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, or through unencrypted TCP/IP suitable for use behind a firewall with shared NFS home directories. (Help wanted with [[Software/DBusRemote|better remote transports]] - the transport mechanism is well-abstracted and extensible.)
 
-The D-Bus [http://dbus.freedesktop.org/doc/dbus/api/html/index.html low-level API reference implementation] and [http://dbus.freedesktop.org/doc/dbus-specification.html protocol] have been heavily tested in the real world over several years, and are now "set in stone." Future changes will either be compatible or versioned appropriately.
+The D-Bus [[http://dbus.freedesktop.org/doc/dbus/api/html/index.html|low-level API reference implementation]] and [[http://dbus.freedesktop.org/doc/dbus-specification.html|protocol]] have been heavily tested in the real world over several years, and are now "set in stone." Future changes will either be compatible or versioned appropriately.
 
 The low-level libdbus reference implementation has no required dependencies; the bus daemon's only *required* dependency is an XML parser (either libxml or expat). Higher-level bindings specific to particular frameworks (Qt, GLib, Java, C#, Python, etc.) add more dependencies, but can make more assumptions and are thus much simpler to use. The bindings evolve separately from the low-level libdbus, so some are more mature and ABI-stable than others; check the docs for the binding you plan to use.
 
 There are also some reimplementations of the D-Bus protocol for languages such as C#, Java, and Ruby. These do not use the libdbus reference implementation.
 
-The [:Software/DbusProjects:list of projects using D-Bus] is growing and they provide a wealth of examples of using the various APIs to learn from.
+The [[Software/DbusProjects|list of projects using D-Bus]] is growing and they provide a wealth of examples of using the various APIs to learn from.
 
 D-Bus is very portable to any Linux or UNIX flavor, and a port to Windows is in progress.
 
@@ -19,10 +19,10 @@ If you have any trouble with D-Bus or suggestions for improvement, bug reports a
 Get on D-Bus today!
 
 = Mailing List =
-All D-Bus discussion is currently on [http://lists.freedesktop.org/mailman/listinfo/dbus/ dbus@lists.freedesktop.org].
+All D-Bus discussion is currently on [[http://lists.freedesktop.org/mailman/listinfo/dbus/|dbus@lists.freedesktop.org]].
 
 = Reporting Bugs & Sending Patches =
-Please report bugs (and submit patches) through the freedesktop.org [https://bugs.freedesktop.org/ Bugzilla].
+Please report bugs (and submit patches) through the freedesktop.org [[https://bugs.freedesktop.org/|Bugzilla]].
 
 Ideally, include test suite coverage with your patch; or if you report a bug, it's good to add a test that fails even if you don't have a patch otherwise. You can see test coverage stats in the GNOME build bot results, at http://build.gnome.org:8080/coverage/dbus/lcov/ (note, coverage is understated since it counts the test code itself in the coverage, and the test suite does not test itself, in particular all the "test failed" codepaths are not covered).
 
@@ -33,49 +33,49 @@ Some stuff from the doc/ subdirectory is prebuilt and browsable here. If you're 
 
 Generic D-Bus protocol information:
 
- * [http://dbus.freedesktop.org/doc/dbus-specification.html D-Bus specification]
- * [:IntroductionToDBus:An introduction to the basics] by Jeroen Vermeulen
- * [http://doc.trolltech.com/4.2/intro-to-dbus.html Introduction to D-Bus] from the Qt documentation
- * [http://dbus.freedesktop.org/doc/dbus-faq.html FAQ]
- * Overview picture [http://dbus.freedesktop.org/doc/diagram.png png] [http://dbus.freedesktop.org/doc/diagram.svg svg]
- * [http://dbus.freedesktop.org/doc/dbus-tutorial.html D-Bus tutorial (incomplete, has stuff on several bindings and reimplementations)]
- * [http://dbus.freedesktop.org/doc/busconfig.dtd Config file DTD]
+ * [[http://dbus.freedesktop.org/doc/dbus-specification.html|D-Bus specification]]
+ * [[IntroductionToDBus|An introduction to the basics]] by Jeroen Vermeulen
+ * [[http://doc.trolltech.com/4.2/intro-to-dbus.html|Introduction to D-Bus]] from the Qt documentation
+ * [[http://dbus.freedesktop.org/doc/dbus-faq.html|FAQ]]
+ * Overview picture [[http://dbus.freedesktop.org/doc/diagram.png|png]] [[http://dbus.freedesktop.org/doc/diagram.svg|svg]]
+ * [[http://dbus.freedesktop.org/doc/dbus-tutorial.html|D-Bus tutorial (incomplete, has stuff on several bindings and reimplementations)]]
+ * [[http://dbus.freedesktop.org/doc/busconfig.dtd|Config file DTD]]
 Please note that the D-Bus spec is incomplete, especially in its description of the message bus daemon. The spec for the protocol itself is reasonably complete, though not always clear or precise. Your patches are welcome! In the meantime, you may need to supplement your reading of the spec with a reading of the reference implementation source code.
 
 Docs specific to the reference implementation:
 
- * [http://dbus.freedesktop.org/doc/dbus/api/html/index.html API reference manual for the reference implementation (libdbus)]
- * [http://dbus.freedesktop.org/doc/dbus/api/html/todo.html @todo items from reference implementation manual] and high-level [http://dbus.freedesktop.org/doc/TODO TODO]
- * [http://dbus.freedesktop.org/doc/dbus/api/html/files.html Browse reference implementation source]
- * [http://dbus.freedesktop.org/doc/dbus-daemon.1.html dbus-daemon(1)] (includes configuration file docs)
- * [http://dbus.freedesktop.org/doc/dbus-send.1.html dbus-send(1)] [http://dbus.freedesktop.org/doc/dbus-monitor.1.html dbus-monitor(1)] [http://dbus.freedesktop.org/doc/dbus-launch.1.html dbus-launch(1)] [http://dbus.freedesktop.org/doc/dbus-uuidgen.1.html dbus-uuidgen(1)]
- * [http://dbus.freedesktop.org/doc/HACKING HACKING] [http://dbus.freedesktop.org/doc/AUTHORS AUTHORS]
- * [http://dbus.freedesktop.org/doc/NEWS NEWS] [http://dbus.freedesktop.org/doc/ChangeLog ChangeLog] [http://dbus.freedesktop.org/doc/README README]
- * [http://dbus.freedesktop.org/doc/dbus-test-plan.html Test plan]
- * [http://www.freedesktop.org/software/dbus/dbus-docs.tar.gz Tarball] with most of the above docs.
+ * [[http://dbus.freedesktop.org/doc/dbus/api/html/index.html|API reference manual for the reference implementation (libdbus)]]
+ * [[http://dbus.freedesktop.org/doc/dbus/api/html/todo.html|@todo items from reference implementation manual]] and high-level [[http://dbus.freedesktop.org/doc/TODO|TODO]]
+ * [[http://dbus.freedesktop.org/doc/dbus/api/html/files.html|Browse reference implementation source]]
+ * [[http://dbus.freedesktop.org/doc/dbus-daemon.1.html|dbus-daemon(1)]] (includes configuration file docs)
+ * [[http://dbus.freedesktop.org/doc/dbus-send.1.html|dbus-send(1)]] [[http://dbus.freedesktop.org/doc/dbus-monitor.1.html|dbus-monitor(1)]] [[http://dbus.freedesktop.org/doc/dbus-launch.1.html|dbus-launch(1)]] [[http://dbus.freedesktop.org/doc/dbus-uuidgen.1.html|dbus-uuidgen(1)]]
+ * [[http://dbus.freedesktop.org/doc/HACKING|HACKING]] [[http://dbus.freedesktop.org/doc/AUTHORS|AUTHORS]]
+ * [[http://dbus.freedesktop.org/doc/NEWS|NEWS]] [[http://dbus.freedesktop.org/doc/ChangeLog|ChangeLog]] [[http://dbus.freedesktop.org/doc/README|README]]
+ * [[http://dbus.freedesktop.org/doc/dbus-test-plan.html|Test plan]]
+ * [[http://www.freedesktop.org/software/dbus/dbus-docs.tar.gz|Tarball]] with most of the above docs.
 Keep in mind that libdbus is a low-level library, intended to be the backend for a language binding and with extra complexity needed to implement dbus-daemon. You will save yourself a lot of pain if you use a higher-level wrapper or a reimplementation.
 
 Articles from around the web, including some tutorials:
 
- * [http://www-128.ibm.com/developerworks/linux/library/l-dbus.html?ca=dgr-lnxw95D-BUS "Connect desktop apps using D-BUS" (IBM developerWorks)] by Ross Burton (July 2004)
- * [http://www.redhat.com/magazine/003jan05/features/dbus/ "Get on D-BUS" (Red Hat Magazine)] by John Palmieri (January 2005)
- * [http://www.linuxjournal.com/article/7744 "Get on the D-BUS" (Linux Journal)] by Robert Love (January 2005)
- * [http://raphael.slinckx.net/dbustutorial.php "The DBus missing tutorial - DBus Activation"] by RaphaÃ«l Slinckx (2005)
- * [http://dbus.freedesktop.org/doc/dbus/libdbus-tutorial.html D-Bus Low-Level API Tutorial] by Matthew Johnson (Nov 2005)
- * [http://techbase.kde.org/Development/Tutorials/D-Bus/Introduction Introduction To D-BUS] by Aaron Seigo & KDE community (2007)
+ * [[http://www-128.ibm.com/developerworks/linux/library/l-dbus.html?ca=dgr-lnxw95D-BUS|"Connect desktop apps using D-BUS" (IBM developerWorks)]] by Ross Burton (July 2004)
+ * [[http://www.redhat.com/magazine/003jan05/features/dbus/|"Get on D-BUS" (Red Hat Magazine)]] by John Palmieri (January 2005)
+ * [[http://www.linuxjournal.com/article/7744|"Get on the D-BUS" (Linux Journal)]] by Robert Love (January 2005)
+ * [[http://raphael.slinckx.net/dbustutorial.php|"The DBus missing tutorial - DBus Activation"]] by RaphaÃ«l Slinckx (2005)
+ * [[http://dbus.freedesktop.org/doc/dbus/libdbus-tutorial.html|D-Bus Low-Level API Tutorial]] by Matthew Johnson (Nov 2005)
+ * [[http://techbase.kde.org/Development/Tutorials/D-Bus/Introduction|Introduction To D-BUS]] by Aaron Seigo & KDE community (2007)
 = Download =
 == Reference Implementation (dbus-daemon and libdbus) ==
 
-The current release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.2.3.tar.gz D-Bus 1.2.3 "I'm a puppy too"]. (2008-08-06)
+The current release is [[http://dbus.freedesktop.org/releases/dbus/dbus-1.2.3.tar.gz|D-Bus 1.2.3 "I'm a puppy too"]]. (2008-08-06)
 
 Contributors to this release: Scott James Remnant, Ray Strode, Colin Walters, Marc Brockschmidt, John (J5) Palmieri, Thiago Macieira, simon zheng.
 
- * New UpdateActivationEnvironment bus API ([http://bugs.freedesktop.org/show_bug.cgi?id=16669 #16669])
- * Solaris Auditing (ADT) support ([http://bugs.freedesktop.org/show_bug.cgi?id=15740 #15740])
- * Various notable bug fixes: [http://bugs.freedesktop.org/show_bug.cgi?id=16727 #16727], [http://bugs.freedesktop.org/show_bug.cgi?id=16294 #16294], [http://bugs.freedesktop.org/show_bug.cgi?id=15947 #15947] [http://bugs.freedesktop.org/show_bug.cgi?id=15588 #15588]
+ * New UpdateActivationEnvironment bus API ([[http://bugs.freedesktop.org/show_bug.cgi?id=16669|#16669]])
+ * Solaris Auditing (ADT) support ([[http://bugs.freedesktop.org/show_bug.cgi?id=15740|#15740]])
+ * Various notable bug fixes: [[http://bugs.freedesktop.org/show_bug.cgi?id=16727|#16727]], [[http://bugs.freedesktop.org/show_bug.cgi?id=16294|#16294]], [[http://bugs.freedesktop.org/show_bug.cgi?id=15947|#15947]] [[http://bugs.freedesktop.org/show_bug.cgi?id=15588|#15588]]
  * Other more minor bugs
 
-The previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.2.1.tar.gz D-Bus 1.2.1]. (2008-04-04)
+The previous release is [[http://dbus.freedesktop.org/releases/dbus/dbus-1.2.1.tar.gz|D-Bus 1.2.1]]. (2008-04-04)
 
 Due to issues putting the re-licensing effort on hold indefinitely, it has been decided to move to 1.2.x versioning scheme.  Being that 1.1.20 is considered to also be 1.2.0 and this being the second release in the 1.2.x stable series we have versioned this release 1.2.1. This release contains a number of bug fixes identified after 1.1.20.
  * compiles under some older versions of glibc
@@ -90,9 +90,9 @@ Due to issues putting the re-licensing effort on hold indefinitely, it has been 
  * pending calls expire correctly
  * memleak of uuid when the bus is autolaunched fixed
 
-The 2nd previous release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.1.20.tar.gz D-Bus 1.1.20 "Coniston Water"]. (2008-02-27)
+The 2nd previous release is [[http://dbus.freedesktop.org/releases/dbus/dbus-1.1.20.tar.gz|D-Bus 1.1.20 "Coniston Water"]]. (2008-02-27)
 
-This begins a new series of stable releases.  This is effectively the 1.2.x stable series though the versions do not reflect that yet due to non-technical reasons discussed in the release notes bellow.  This replaces the 1.0.x series while still staying ABI compatible.  This means applications written for the 1.0.x versions of D-Bus should still run unmodified using the 1.2.x library and bus.  A complete list of the major changes between the 1.0.x and 1.2.x series can be found on the [:Software/DbusReleaseFeatureNotes: feature notes page].
+This begins a new series of stable releases.  This is effectively the 1.2.x stable series though the versions do not reflect that yet due to non-technical reasons discussed in the release notes bellow.  This replaces the 1.0.x series while still staying ABI compatible.  This means applications written for the 1.0.x versions of D-Bus should still run unmodified using the 1.2.x library and bus.  A complete list of the major changes between the 1.0.x and 1.2.x series can be found on the [[Software/DbusReleaseFeatureNotes| feature notes page]].
 
  * This is the next generation supported STABLE release of D-Bus. For all intents and purposes this is the 1.2.0 release WITHOUT the planned X11/MIT license change due to a couple of license holders who have yet to respond. For the most part this license change is being pursued to simplify licensing issues and fix a couple of licensing corner cases.  When this happens D-Bus will be released under the 1.2.0 version.
  * D-Bus 1.0.x effectively goes into security fix mode and will only be updated for major issues.
@@ -100,14 +100,14 @@ This begins a new series of stable releases.  This is effectively the 1.2.x stab
  * Fixes dbus-launch so the session bus goes away so does D-Bus
  * Builds against latest gcc/glibc changes
  * Correctly unref connections without guids during shutdown
- * About the name: Submitted by Greg K Nicholson, Coniston Water is a lake in Cumbria, England where several water speed records have been broken. Between 1956 and 1959 Sir Malcolm's son Donald Campbell set four successive records on  the lake in Bluebird K7, a hydroplane. [http://en.wikipedia.org/wiki/Coniston_Water#Waterspeed_record Wikipedia]
+ * About the name: Submitted by Greg K Nicholson, Coniston Water is a lake in Cumbria, England where several water speed records have been broken. Between 1956 and 1959 Sir Malcolm's son Donald Campbell set four successive records on  the lake in Bluebird K7, a hydroplane. [[http://en.wikipedia.org/wiki/Coniston_Water#Waterspeed_record|Wikipedia]]
 
-Previous releases can be found in the [:Software/DbusReleaseArchive:release archive].
+Previous releases can be found in the [[Software/DbusReleaseArchive|release archive]].
 
 == Reference Implementation, Legacy Version (dbus-daemon and libdbus) ==
 The legacy 1.0.x branch is still supported but only for security fixes.  Only use this version when upgrading from older stable releases.  For all new development use the new stable releases.
 
-The latest legacy release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0.3.tar.gz D-Bus 1.0.3]. (2008-02-27)
+The latest legacy release is [[http://dbus.freedesktop.org/releases/dbus/dbus-1.0.3.tar.gz|D-Bus 1.0.3]]. (2008-02-27)
 
  * Fixed CVE-2008-0595 - security policy of the type <allow send_interface="some.interface.WithMethods"/> work as an implicit allow for messages sent without an interface bypassing the default deny rules and potentially allowing restricted methods exported on the bus to be executed by unauthorized users.
  * correctly unref connections without guids during shutdown
@@ -120,20 +120,20 @@ The latest legacy release is [http://dbus.freedesktop.org/releases/dbus/dbus-1.0
  * session bus now has higher limits by default
 
 == Bindings and Independent Implementations ==
-Bindings and independent implementations are linked to from the [:Software/DBusBindings:Bindings Page].
+Bindings and independent implementations are linked to from the [[Software/DBusBindings|Bindings Page]].
 
 A binding wraps libdbus (and thus automatically gets e.g. new authentication mechanisms and other additions to libdbus), while a reimplementation codes the protocol from scratch (and thus avoids a dependency on the libdbus C library, but has to be kept in sync with new features). We are working on a hybrid approach where libdbus can be used to set up connections but bindings don't use the message queue or message marshaling from libdbus.
 
 = Windows port =
-Until the merge with the official D-Bus code, the Windows port is hosted on Sourceforge: [http://sourceforge.net/projects/windbus winDBus]. Until the Windows port is merged into the reference implementation and documented in the spec, keep in mind that what eventually gets merged into the reference implementation and spec may not match the current winDBus code's behavior or API.
+Until the merge with the official D-Bus code, the Windows port is hosted on Sourceforge: [[http://sourceforge.net/projects/windbus|winDBus]]. Until the Windows port is merged into the reference implementation and documented in the spec, keep in mind that what eventually gets merged into the reference implementation and spec may not match the current winDBus code's behavior or API.
 
 = Grab the Source =
 
-The core dbus code and the language bindings are under version control using Git.  There is a [http://freedesktop.org/wiki/Infrastructure/git nice tutorial for using git with freedesktop.org projects]. There is also [http://www-128.ibm.com/developerworks/linux/library/l-git/ another tutorial at IBM Developerworks site].
+The core dbus code and the language bindings are under version control using Git.  There is a [[http://freedesktop.org/wiki/Infrastructure/git|nice tutorial for using git with freedesktop.org projects]]. There is also [[http://www-128.ibm.com/developerworks/linux/library/l-git/|another tutorial at IBM Developerworks site]].
 
 All components of dbus are in the dbus/ subdirectory.
 
-[http://gitweb.freedesktop.org/?p=dbus/dbus.git;a=summary View the reference implementation in gitweb]
+[[http://gitweb.freedesktop.org/?p=dbus/dbus.git;a=summary|View the reference implementation in gitweb]]
 
 Anonymous git for reference implementation: git://anongit.freedesktop.org/git/dbus/dbus
 
