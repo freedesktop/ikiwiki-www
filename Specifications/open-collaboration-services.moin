@@ -2,7 +2,7 @@
 = Open Collaboration Services  =
 
 
-Frank Karlitschek <<MailTo(karlitschek AT kde.org)>>
+Frank Karlitschek [[MailTo(karlitschek AT kde.org)]]
 
 == Purpose ==
 integration of web communities and web bases servics into desktop and mobile applications. free, secure, privacy protected, vendor independent.
@@ -73,18 +73,20 @@ At the moment there are the following services:
 
 
  * USER (search, friends, ..)
-  * searchuser
-  * getuser
-  * getfriends
+  * search
+  * get
+  
+ * FRIEND 
+  * get
 
- * MESSAGES
-  * messagefolders
-  * messagecount
-  * messagelist
+ * MESSAGE
+  * folders
+  * count
+  * list
 
 
- * ACTIVITIES
-  * getactivities
+ * ACTIVITY
+  * get
 
 
  * CONTENT
@@ -92,11 +94,6 @@ At the moment there are the following services:
    * list
    * get
    * vote 
-
- * KNOWLEDGE
-   * knowledgecategories
-   * knowledgelist
-   * knowledgeget
 
  * ...more to come later
 
@@ -114,40 +111,63 @@ provider file specs are work in progress
 
 === USER ===
 
-==== searchuser ====
-coming soon
+==== search ====
+find a  specific list of users. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /V1/USER/search/"folder"/"page"
+ * Arguments: username - A part of the name or username you want to search for.
+ * Arguments: country - The country id of the country you want to search in.
+ * Arguments: city - The name of the city as a string.
+ * Arguments: description - A string you want to search for in the description and other fields of the user.
+ * Arguments: pc - A string you want to search for in the pc/hardware field of the users.
+ * Arguments: software - A string you want to search for in the software field of the users.
+ * Arguments: longitude - The longitude of the position where you want to find users.
+ * Arguments: latitude - The latitude of the position where you want to find users.
+ * Arguments: distance - The maximum distance of the user to you longitude/latitude pasition.
+ * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
 
-==== getuser ====
+ * Result: userlist xml
+Example: http://frank:password@api.opendesktop.org/V1/USER/SEARCH/eter//don/development///11.2/22/0.5/2 
+Gets the third page of the search result list from the search for users where "eter" is in the nickname, firstname or name and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
+ 
+==== get ====
 get the date from one specific user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
- * Syntax: /V1/GETUSER/"userid"/ 
+ * Syntax: /V1/USER/GET/"userid"/ 
  * Arguments: userid - Id of a user. for example "frank"
  * Result: user xml
- * Example: http://frank:password@api.opendesktop.org/V1/GETUSER/frank
+ * Example: http://frank:password@api.opendesktop.org/V1/USER/GET/frank
 
 
-==== getfriends ====
-coming soon
+=== FRIEND ===
 
-=== MESSAGES ===
-==== messagefolders ====
+==== get ====
+Gets the list of friends. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /V1/FRIEND/GET/"page"
+ * Arguments: page - The page of the friendslist. Every page has max 10 entries. The first page is 0, the second is 1, ...
+Example: http://frank:password@api.opendesktop.org/V1/FRIEND/GET/1
+Gets the second page of friends of the user "frank"
+
+
+
+=== MESSAGE ===
+==== folders ====
 Gets a list of the availabe message folders. You need the ids if you want to access the folders via messagecount or messagelist.
 Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V2/MESSAGEFOLDERS
+ * Syntax: /V2/MESSAGE/FOLDERS
  * Result: messagefolder xml
- * Example: http://frank:password@api.opendesktop.org/V1/MESSAGEFOLDERS
+ * Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/FOLDERS
 
 
-==== messagecount ====
+==== count ====
 Get the number of messages in a specific message folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/MESSAGELIST/"folder"
+ * Syntax: /V1/MESSAGE/COUNT/"folder"
  * Arguments: folder - ID of the folder. Use MESSAGEFOLDERS to get the folder IDs
  * Result: messagecount
- * Example: http://frank:password@api.opendesktop.org/V1/MESSAGECOUNT/0 Gets the number of messages in the inbox
+ * Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/COUNT/0 Gets the number of messages in the inbox
 
 
-==== messagelist ====
+==== list ====
 Gets the list of messages from a specific folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/MESSAGELIST/"folder"/"page"
+ * Syntax: /V1/MESSAGE/LIST/"folder"/"page"
  * Arguments: folder - The ID of the folder you want to get. Use the MESSAGEFOLDER method to get the list of folders.
  * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
  * Result: messagelist xml
@@ -159,78 +179,53 @@ Gets the list of messages from a specific folder. Only authenticated users are a
   * status- the message status. 0=>unread, 1=>read, 2=>replyed
   * subject- the subject line of the message
   * body- the message body
-
-
-Example: http://frank:password@api.opendesktop.org/V1/MESSAGELIST/1/2
+Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/LIST/1/2
 Gets the third page of messages from the "send" folder of user "frank"
 
-=== ACTIVITIES ===
-==== getactivities ====
+
+=== ACTIVITY ===
+
+==== get ====
 Gets the list of activities. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/GETACTIVITIES/"page"
+ * Syntax: /V1/ACTIVITY/GET/"page"
  * Arguments: page - The activities page. Every page has max 10 entries. The first page is 0, the second is 1, ...
  * Result: activities xml
- * Example: http://frank:password@api.opendesktop.org/V1/GETACTIVITIES/2
+ * Example: http://frank:password@api.opendesktop.org/V1/ACTIVITY/GET/2
  * Gets the third page of the activities of user "frank"
 
 
 === CONTENT ===
+
 ==== categories ====
 Get a list of all available content categories. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/CATEGORIES/
+ * Syntax: /V1/CONTENT/CATEGORIES/
  * Result: categories xml
- * Example: http://frank:password@api.opendesktop.org/V1/CATEGORIES
+ * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/CATEGORIES
 
 
 ==== list ====
 Gets a list of a specific set of contents. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/LIST/"categories"/"sortmode"/"page"
+ * Syntax: /V1/CONTENT/LIST/"categories"/"sortmode"/"page"
   * Arguments: categories - Ids of the requested category ids seperated by "x".
   * Arguments: sortmodes -  The sortmode of the list. Possible values are: "new" - newest first , "alpha" - alphabetical, "high" - highest rated, "down" - most downloads
   * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
  * Result: content xml
- * Example: http://frank:password@api.opendesktop.org/V1/LIST/1x2x3x4/new/1 Gets the second page of the list of the newest contents from categories 1,2,3 and 4 
+ * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/LIST/1x2x3x4/new/1 Gets the second page of the list of the newest contents from categories 1,2,3 and 4 
 
 ==== get ====
 Read content data of one specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
- * Syntax: /V1/GET/"contentid"/ 
+ * Syntax: /V1/CONTENT/GET/"contentid"/ 
  * Arguments: contentid - Id of a content
  * Result: content xml
- * Example: http://frank:password@api.opendesktop.org/V1/GET/12345
+ * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/GET/12345
 
 ==== vote ====
 Vote for one specific content.
- * Syntax: /V1/VOTE/"contentid"/"vote"
+ * Syntax: /V1/CONTENT/VOTE/"contentid"/"vote"
   * Arguments: contentid - Id of a content
   * Arguments: vote - The vote. "good" or "bad"
  * Result: status xml
- * Example: http://api.opendesktop.org/V1/VOTE/12345/good
-
-
-=== KNOWLEDGE ===
-==== knowledgecategories ====
-Get a list of all available knowledge categories. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/KNOWLEDGECATEGORIES/
- * Result: knowledgecategories xml
- * Example: http://frank:password@api.opendesktop.org/V1/KNOWLEDGECATEGORIES
-
-
-==== knowledgelist ====
-Gets a list of a specific set of knowledgeitems. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/LIST/"knowledgecategories"/"sortmode"/"page"
-  * Arguments: knowledgecategories - Ids of the requested category ids seperated by "x".
-  * Arguments: sortmodes -  The sortmode of the list. Possible values are: "new" - newest first , "alpha" - alphabetical, "high" - highest rated, "down" - most downloads
-  * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
- * Result: knowledge xml
- * Example: http://frank:password@api.opendesktop.org/V1/KNOWLEDGELIST/1x2x3x4/new/1 Gets the second page of the list of the newest knowledgeitems from categories 1,2,3 and 4 
-
-
-==== knowledgeget ====
-Read knowledge data of one specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
- * Syntax: /V1/KNOWLEDGEGET/"contentid"/ 
- * Arguments: contentid - Id of a knowledgeid
- * Result: knowledgeitem xml
- * Example: http://frank:password@api.opendesktop.org/V1/KNOWLEDGEGET/12345
+ * Example: http://api.opendesktop.org/V1/CONTENT/VOTE/12345/good
 
 
 
