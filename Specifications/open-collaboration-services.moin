@@ -400,7 +400,25 @@ Get a list of all available content categories. Only authenticated users are all
  * Syntax: /V1/CONTENT/CATEGORIES/
  * Result: categories xml
  * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/CATEGORIES
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <data>
+  <category id="1">KDE Wallpaper 640x480</category>
+  <category id="2">KDE Wallpaper 800x600</category>
+  <category id="3">KDE Wallpaper 1024x768</category>
+  <category id="4">KDE Wallpaper 1280x1024</category>
+  <category id="5">KDE Wallpaper 1600x1200</category>
+  <category id="6">KDE Wallpaper (other)</category>
+  <category id="7">KDE Wallpaper (SVG)</category>
+  <category id="8">Theme-Manager Theme</category>
+  <category id="9">Theme/Style for KDE 4.0</category>
+ </data>
+</apiV1>
+}}}
 
 ==== list ====
 Gets a list of a specific set of contents. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
@@ -410,6 +428,52 @@ Gets a list of a specific set of contents. Only authenticated users are allowed 
   * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
  * Result: content xml
  * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/LIST/1x2x3x4/new/1 Gets the second page of the list of the newest contents from categories 1,2,3 and 4 
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <totalitems>2</totalitems>
+ <itemsperpage>10</itemsperpage>
+ <data>
+  <entry>
+   <id>67651</id>
+   <name>the bay</name>
+   <version></version>
+   <changed>1205671350</changed>
+   <created>1192029550</created>
+   <typeid>2</typeid>
+   <typename>KDE Wallpaper 800x600</typename>
+   <language></language>
+   <user>marvi3l</user>
+   <downloads>777</downloads>
+   <score>67</score>
+   <comments>0</comments>
+   <preview1>http://www.opendesktop.org/content/preview.php?preview=1&amp;id=67651&amp;file1=67651-1.jpg&amp;file2=&amp;file3=&amp;name=the+bay</preview1>
+   <previewpic1>http://www.opendesktop.org/CONTENT/content-pre1/67651-1.jpg</previewpic1>
+  </entry>
+  <entry>
+   <id>61361</id>
+   <name>mare2</name>
+   <version></version>
+   <changed>1183138568</changed>
+   <created>1183138568</created>
+   <typeid>2</typeid>
+   <typename>KDE Wallpaper 800x600</typename>
+   <language></language>
+   <user>standardbus</user>
+   <downloads>1187</downloads>
+   <score>65</score>
+   <comments>1</comments>
+   <preview1>http://www.opendesktop.org/content/preview.php?preview=1&amp;id=61361&amp;file1=61361-1.jpg&amp;file2=&amp;file3=&amp;name=mare</preview1>
+   <previewpic1>http://www.opendesktop.org/CONTENT/content-pre1/61361-1.jpg</previewpic1>
+  </entry>
+ </data>
+</apiV1>
+
+}}}
+
 
 ==== get ====
 Read content data of one specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
@@ -417,6 +481,41 @@ Read content data of one specific content. Only authenticated users are allowed 
  * Arguments: contentid - Id of a content
  * Result: content xml
  * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/GET/12345
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <data>
+  <id>1234</id>
+  <name>Dancing Penguins</name>
+  <version>.000001</version>
+  <typeid>3</typeid>
+  <typename>KDE Wallpaper 1024x768</typename>
+  <language></language>
+  <user>Micromegas</user>
+  <created>1017439224</created>
+  <changed>1017439224</changed>
+  <downloads>524</downloads>
+  <score>54</score>
+  <description>Simple, fluffy penguins</description>
+  <changelog></changelog>
+  <homepage>http://</homepage>
+  <comments>0</comments>
+  <depend></depend>
+  <preview1>http://www.opendesktop.org/content/preview.php?preview=1&amp;id=1234&amp;file1=1234-1.jpg&amp;file2=&amp;file3=&amp;name=Dancing+Penguins</preview1>
+  <preview2></preview2>
+  <preview3></preview3>
+  <previewpic1>http://www.opendesktop.org/CONTENT/content-pre1/1234-1.jpg</previewpic1>
+  <smallpreviewpic1>http://www.opendesktop.org/CONTENT/content-m1/m1234-1.png</smallpreviewpic1>
+  <downloadtype1></downloadtype1>
+  <downloadlink1>http://www.opendesktop.org/content/download.php?content=1234&amp;id=1</downloadlink1>
+  <downloadname1></downloadname1>
+  <downloadsize1>80</downloadsize1>
+ </data>
+</apiV1>
+}}}
 
 ==== vote ====
 Vote for one specific content.
@@ -425,7 +524,14 @@ Vote for one specific content.
   * Arguments: vote - The vote. "good" or "bad"
  * Result: status xml
  * Example: http://api.opendesktop.org/V1/CONTENT/VOTE/12345/good
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+</apiV1>
+}}}
 
 
 ----
