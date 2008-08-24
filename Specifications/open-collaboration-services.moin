@@ -151,13 +151,89 @@ find a  specific list of users. Only authenticated users are allowed to access t
 Example: http://frank:password@api.opendesktop.org/V1/USER/SEARCH/eter//don/development///11.2/22/0.5/2 
 Gets the third page of the search result list from the search for users where "eter" is in the nickname, firstname or name and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
  
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <totalitems>2</totalitems>
+ <itemsperpage>10</itemsperpage>
+ <data>
+  <entry>
+   <user>fjsurs</user>
+   <privacy>0</privacy>
+   <privacytext>public</privacytext>
+   <firstname>Frank</firstname>
+   <lastname>Sum</lastname>
+   <company>Linux Company</company>
+   <gender></gender>
+   <communityrole></communityrole>
+   <city></city>
+   <country></country>
+  </entry>
+  <entry>
+   <user>belac</user>
+   <privacy>0</privacy>
+   <privacytext>public</privacytext>
+   <firstname>Frank</firstname>
+   <lastname>Ma</lastname>
+   <company></company>
+   <gender></gender>
+   <communityrole></communityrole>
+   <city></city>
+   <country></country>
+  </entry>
+ </data>
+</apiV1>
+
+}}}
+
+
 ==== get ====
 get the date from one specific user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
  * Syntax: /V1/USER/GET/"userid"/ 
  * Arguments: userid - Id of a user. for example "frank"
  * Result: user xml
  * Example: http://frank:password@api.opendesktop.org/V1/USER/GET/frank
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <data>
+  <user>Frank</user>
+  <firstname>Frank</firstname>
+  <lastname>Karlitschek</lastname>
+  <gender>man</gender>
+  <communityrole>developer</communityrole>
+  <company></company>
+  <birthday>25-7-1973</birthday>
+  <jobstatus>working</jobstatus>
+  <city>Stuttgart</city>
+  <country>Germany</country>
+  <latitude>48.767</latitude>
+  <longitude>9.183</longitude>
+  <likes>free software, nice people, new ideas</likes>
+  <dontlikes>prejudices</dontlikes>
+  <interests>Free Software&lt;br /&gt;&#13;
+Open Source Desktops&lt;br /&gt;&#13;
+Web 2.0&lt;br /&gt;&#13;
+Online Communities&lt;br /&gt;&#13;
+</interests>
+  <languages>english, german</languages>
+  <programminglanguages>php, C, C++, perl, java, ruby, ..</programminglanguages>
+  <favouritequote></favouritequote>
+  <favouritemusic>nine inch nails, portishead, massive attack, rage against the machine, the gossip, radiohead</favouritemusic>
+  <favouritetvshows></favouritetvshows>
+  <favouritemovies>fightclub, matrix</favouritemovies>
+  <favouritebooks></favouritebooks>
+  <favouritegames>UT3</favouritegames>
+  <description>maintainer of this website</description>
+ </data>
+</apiV1>
+}}}
 
 === FRIEND ===
 
@@ -167,7 +243,24 @@ Gets the list of friends. Only authenticated users are allowed to access this me
  * Arguments: page - The page of the friendslist. Every page has max 10 entries. The first page is 0, the second is 1, ...
 Example: http://frank:password@api.opendesktop.org/V1/FRIEND/GET/1
 Gets the second page of friends of the user "frank"
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <totalitems>2</totalitems>
+ <itemsperpage>10</itemsperpage>
+ <data>
+  <entry>
+   <user>dave0</user>
+  </entry>
+  <entry>
+   <user>feny</user>
+  </entry>
+ </data>
+</apiV1>
+}}}
 
 
 === MESSAGE ===
@@ -177,7 +270,20 @@ Only authenticated users are allowed to access this method. Authentication is do
  * Syntax: /V2/MESSAGE/FOLDERS
  * Result: messagefolder xml
  * Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/FOLDERS
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <data>
+  <folder id="0">inbox</folder>
+  <folder id="1">send</folder>
+  <folder id="2">trash</folder>
+  <folder id="3">archive</folder>
+ </data>
+</apiV1>
+}}}
 
 ==== count ====
 Get the number of messages in a specific message folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
@@ -185,7 +291,15 @@ Get the number of messages in a specific message folder. Only authenticated user
  * Arguments: folder - ID of the folder. Use MESSAGEFOLDERS to get the folder IDs
  * Result: messagecount
  * Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/COUNT/0 Gets the number of messages in the inbox
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <data>27</data>
+</apiV1>
+}}}
 
 ==== list ====
 Gets the list of messages from a specific folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
@@ -203,7 +317,38 @@ Gets the list of messages from a specific folder. Only authenticated users are a
   * body- the message body
 Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/LIST/1/2
 Gets the third page of messages from the "send" folder of user "frank"
-
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <totalitems>2</totalitems>
+ <itemsperpage>10</itemsperpage>
+ <data>
+  <entry>
+   <id>84</id>
+   <messagefrom>Franky2</messagefrom>
+   <messageto>Frank</messageto>
+   <senddate>1218377039</senddate>
+   <status>1</status>
+   <statustext></statustext>
+   <subject>test message</subject>
+   <body>test test 123 123 Thanks</body>
+  </entry>
+  <entry>
+   <id>79</id>
+   <messagefrom>anilg1111</messagefrom>
+   <messageto>Frank</messageto>
+   <senddate>1217824128</senddate>
+   <status>1</status>
+   <statustext></statustext>
+   <subject>re:re: update</subject>
+   <body>Hi Frank</body>
+  </entry>
+ </data>
+</apiV1>
+}}}
 
 === ACTIVITY ===
 
@@ -214,7 +359,39 @@ Gets the list of activities. Only authenticated users are allowed to access this
  * Result: activities xml
  * Example: http://frank:password@api.opendesktop.org/V1/ACTIVITY/GET/2
  * Gets the third page of the activities of user "frank"
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+ <totalitems>4</totalitems>
+ <itemsperpage>10</itemsperpage>
+ <data>
+  <entry>
+   <user>trialuser1</user>
+   <timestamp>1219603506</timestamp>
+   <message>trialuser1 has visited your profile page </message>
+  </entry>
+  <entry>
+   <user>kit2</user>
+   <timestamp>1218855714</timestamp>
+   <message>kit has updated: &quot;Foo Icon&quot;</message>
+  </entry>
+  <entry>
+   <user>kit3</user>
+   <timestamp>1218854102</timestamp>
+   <message>kit3 has uploaded: &quot;Foo Icon&quot;</message>
+  </entry>
+  <entry>
+   <user>killerxxxx101</user>
+   <timestamp>1218641054</timestamp>
+   <message>killerxxxx101 foo bar</message>
+  </entry>
+ </data>
+</apiV1>
 
+}}}
 
 === CONTENT ===
 
