@@ -80,6 +80,7 @@ At the moment there are the following services:
   
  * FRIEND 
   * get
+  * invite
 
  * MESSAGE
   * folders
@@ -245,7 +246,7 @@ Online Communities&lt;br /&gt;&#13;
 ==== get ====
 Gets the list of friends from a user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
  * Syntax: /V1/FRIEND/GET/"user"/"page"
- * Arguments: user - The user from which you want to get the friendslist. Every page has max 10 entries. The first page is 0, the second is 1, ...
+ * Arguments: user - The user from which you want to get the friendslist. 
  * Arguments: page - The page of the friendslist. Every page has max 10 entries. The first page is 0, the second is 1, ...
 Example: http://frank:password@api.opendesktop.org/V1/FRIEND/GET/foobar/1
 Gets the second page of friends of the user "foobar"
@@ -268,6 +269,21 @@ Example:
 </apiV1>
 }}}
 
+==== invite ====
+Invite a user to become a friend. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /V1/FRIEND/INVITE/"user"/"message"
+ * Arguments: user - The user you want to invite as a friend. 
+ * Arguments: message - The message you want to send to the user together with your invitation.
+Example: http://frank:password@api.opendesktop.org/V1/FRIEND/INVITE/foobar/hi.%20how%20are%you
+Invites the user "foobar" and send him a message "hi. how are you"
+Example:
+{{{
+<?xml version="1.0"?>
+<apiV1>
+ <status>ok</status>
+ <message></message>
+</apiV1>
+}}}
 
 === MESSAGE ===
 ==== folders ====
