@@ -15,8 +15,8 @@ integration of web communities and web bases servics into desktop and mobile app
  * show the activities of my friends on my desktop
  * show related free software events in my region in my calendar.
  * make it possible for a user to become a "friend" of a developer and a fan of an application 
- * find other users to work together on one document. (collabroation)
- * find other users with the same hardware to get help from other users.
+ * find other people to work together on one document. (collabroation)
+ * find other people with the same hardware to get help from other people.
  * show kde related and personalized news directly on the desktop
 
 == Naming ==
@@ -27,7 +27,7 @@ integration of web communities and web bases servics into desktop and mobile app
 == Requirements ==
 
 === Performance / Scalability ===
-the services should be usable by millions of users at the same time. because of that it is important to build the architecture in a scalable way. 
+the services should be usable by millions of people at the same time. because of that it is important to build the architecture in a scalable way. 
 every component of the architecture must be cluster enabled. this means that it must be possible to implement every service or component in a server cluster.
 
 
@@ -37,8 +37,8 @@ the data transfer should be encrypted if possible.
    
 
 === Privacy ===
-it is essential to respect the privacy requirements of the users. 
-every user must have full control over the personal information. 
+it is essential to respect the privacy requirements of the people. 
+every person must have full control over the personal information. 
 
 
 === Vendor Independent ===
@@ -69,12 +69,12 @@ it is possible to implement proxy service provider to integrate other proprietar
 All date and time data is in ISO 8601 format.
 
 === Services ===
-the applications or websites don´t have to support every service. We suggest to implement into the clients or service providers only the services which are usefull for the users at this point. 
+the applications or websites don´t have to support every service. We suggest to implement into the clients or service providers only the services which are usefull for the person at this point. 
 
 At the moment there are the following services: 
 
 
- * USER
+ * PEOPLE
   * search
   * get
   
@@ -107,19 +107,19 @@ every response xml contains a "status" and a "message" tag. the status tag has o
 we support versioning of the service specifications. so if we break the api in an incompatible way we can use a new version number and still keep the old API for legacy applications(client) please note that the api is currently in draft state. so it will change in the future
 
 === Provider files ===
-it is important to decouple the applications from the services. so we suggest to user provider files to control the mapping of applications to service providers. if an application wants to access a services it first gets the provider file to get the list of available providers. than it can access the different providers and merge the results.
+it is important to decouple the applications from the services. so we suggest to use provider files to control the mapping of applications to service providers. if an application wants to access a services it first gets the provider file to get the list of available providers. than it can access the different providers and merge the results.
 An example provider file:
 
 
 
 {{{
 <services>
-<user>
+<people>
  <location>socket://api.opendesktop.org:80/V1/</location>
  <protocol>http</protocol>
  <format>rest</format>
  <ocsversion>1</ocsversion>
-</user>
+</peolpe>
 <friend>
  <location>socket://api.opendesktop.org:80/V1/</location>
  <protocol>http</protocol>
@@ -134,11 +134,11 @@ The KDE provider file is here: http://download.kde.org/ocs/providers.xml
 
 == Service Specifications ==
 
-=== USER ===
+=== PEOPLE ===
 
 ==== search ====
-find a  specific list of users. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/USER/search/"username"/"country"/"city"/"description"/"pc"/"software"/"longitude"/"latitude"/"distance"/"page"
+find a  specific list of persons. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/PEOPLE/search/"username"/"country"/"city"/"description"/"pc"/"software"/"longitude"/"latitude"/"distance"/"page"
  * Arguments: username - A part of the name or username you want to search for.
  * Arguments: country - The country id of the country you want to search in.
  * Arguments: city - The name of the city as a string.
@@ -151,7 +151,7 @@ find a  specific list of users. Only authenticated users are allowed to access t
  * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
 
  * Result: userlist xml
-Example: http://frank:password@api.opendesktop.org/V1/USER/SEARCH/eter//don/development///11.2/22/0.5/2 
+Example: http://frank:password@api.opendesktop.org/v1/people/SEARCH/eter//don/development///11.2/22/0.5/2 
 Gets the third page of the search result list from the search for users where "eter" is in the nickname, firstname or name and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
  
 Example:
@@ -164,7 +164,7 @@ Example:
  <itemsperpage>10</itemsperpage>
  <data>
   <entry>
-   <user>fjsurs</user>
+   <userid>fjsurs</userid>
    <privacy>0</privacy>
    <privacytext>public</privacytext>
    <firstname>Frank</firstname>
@@ -197,7 +197,7 @@ Example:
 
 
 ==== get ====
-get the date from one specific user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
+get the date from one specific person. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
  * Syntax: /V1/USER/GET/"userid"/ 
  * Arguments: userid - Id of a user. for example "frank"
  * Result: user xml
