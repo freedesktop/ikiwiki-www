@@ -1,8 +1,9 @@
 ##language:en
-= Open Collaboration Services (version 1 draft 2) =
+= Open Collaboration Services (version 1 draft 3) =
 
 
 Frank Karlitschek [[MailTo(karlitschek AT kde.org)]]
+
 
 == Purpose ==
 integration of web communities and web bases servics into desktop and mobile applications. free, secure, privacy protected, vendor independent.
@@ -11,12 +12,12 @@ integration of web communities and web bases servics into desktop and mobile app
 
  * show all my friends on my desktop and make it possible to contact them via email, messaging, instant messaging, screensharing or other.
  * find online support information and show them directly in the application
- * show other people with similar interests or from the same reason and enable filesharing and collaboration
+ * show other people with similar interests or from the same city and enable filesharing and collaboration
  * show the activities of my friends on my desktop
  * show related free software events in my region in my calendar.
- * make it possible for a user to become a "friend" of a developer and a fan of an application 
+ * make it possible for a person to become a "friend" of a developer and a fan of an application 
  * find other people to work together on one document. (collabroation)
- * find other people with the same hardware to get help from other people.
+ * find other people with the same hardware to get help and exchange tips.
  * show kde related and personalized news directly on the desktop
 
 == Naming ==
@@ -31,7 +32,6 @@ the services should be usable by millions of people at the same time. because of
 every component of the architecture must be cluster enabled. this means that it must be possible to implement every service or component in a server cluster.
 
 
-
 === Security ===
 the data transfer should be encrypted if possible.  
    
@@ -42,7 +42,7 @@ every person must have full control over the personal information.
 
 
 === Vendor Independent ===
-it important for a application to be independent of a specific websites or services 
+it is important for an application to be independent of a specific websites or services 
 because of that we use independent provider files who map the clients to the service providers.
 For example the KDE project has provider files hosted on the KDE.org server who contains a list of providers who are providing a specific service. So the application maintainer has full control over which content and services are accessed by the application (client)
 
@@ -52,7 +52,7 @@ For example the KDE project has provider files hosted on the KDE.org server who 
 
 
 === REST ===
-We use REST for the webservices calls. Unlike, for example SOAP, REST is very, lightweight, easy to learn and implement and cachable. REST is very widespread in the internet and ist used by other popular webservices. REST support is integrated into various web or desktop frameworks and it is platform and technology independent
+We use REST for the webservices calls. Unlike, for example SOAP, REST is very, lightweight, easy to learn and implement and cachable. REST is very widespread in the internet and is used by other popular webservices. REST support is integrated into various web or desktop frameworks and it is platform and technology independent
 The data exchange format is XML.
 
 === SSL ===
@@ -61,6 +61,8 @@ we suggest to use ssl to encrypt the data transfer between client and service pr
 
 === Authentication ===
 most services require a authenticated user. this is important for legal reasons. and to prevent DOS attacks.
+We will support OpenID in a later draft of the specification.
+
 
 === Proxy ===
 it is possible to implement proxy service provider to integrate other proprietary webservices.
@@ -69,39 +71,26 @@ it is possible to implement proxy service provider to integrate other proprietar
 All date and time data is in ISO 8601 format.
 
 === Services ===
-the applications or websites don´t have to support every service. We suggest to implement into the clients or service providers only the services which are usefull for the person at this point. 
+the applications or websites do not have to support every service. We suggest to implement only the services into the clients or service providers which are usefull for the person at this point. 
 
 At the moment there are the following services: 
 
 
- * PEOPLE
-  * search
-  * get
+ * PERSON
   
  * FRIEND 
-  * get
-  * invite
 
  * MESSAGE
-  * folders
-  * count
-  * list
 
  * ACTIVITY
-  * get
-  * put
 
  * CONTENT
-   * categories
-   * list
-   * get
-   * vote 
 
  * ...more to come later
 
 
 === Error Reporting ===
-every response xml contains a "status" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. examples of errormessages are: "data is private" or "user not found".
+every response xml contains a "status" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. examples of errormessages are: "data is private" or "person not found".
 
 === Versioning ===
 we support versioning of the service specifications. so if we break the api in an incompatible way we can use a new version number and still keep the old API for legacy applications(client) please note that the api is currently in draft state. so it will change in the future
@@ -114,12 +103,12 @@ An example provider file:
 
 {{{
 <services>
-<people>
+<person>
  <location>socket://api.opendesktop.org:80/V1/</location>
  <protocol>http</protocol>
  <format>rest</format>
  <ocsversion>1</ocsversion>
-</peolpe>
+</person>
 <friend>
  <location>socket://api.opendesktop.org:80/V1/</location>
  <protocol>http</protocol>
@@ -134,301 +123,325 @@ The KDE provider file is here: http://download.kde.org/ocs/providers.xml
 
 == Service Specifications ==
 
-=== PEOPLE ===
+=== PERSON ===
+The PERSON service is handling the access to user data. you can search people and access personal data of other people of the person made the information public. 
 
 ==== search ====
 find a  specific list of persons. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /v1/PEOPLE/search/"username"/"country"/"city"/"description"/"pc"/"software"/"longitude"/"latitude"/"distance"/"page"
- * Arguments: username - A part of the name or username you want to search for.
- * Arguments: country - The country id of the country you want to search in.
- * Arguments: city - The name of the city as a string.
- * Arguments: description - A string you want to search for in the description and other fields of the user.
- * Arguments: pc - A string you want to search for in the pc/hardware field of the users.
- * Arguments: software - A string you want to search for in the software field of the users.
- * Arguments: longitude - The longitude of the position where you want to find users.
- * Arguments: latitude - The latitude of the position where you want to find users.
- * Arguments: distance - The maximum distance of the user to you longitude/latitude pasition.
- * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
+ * Syntax: /v1/person/data
+ * HTTP method: GET
+ * url arguments: name - A part of the name or personid you want to search for.
+ * url arguments: country - The country id of the country you want to search in.
+ * url arguments: city - The name of the city as a string.
+ * url arguments: description - A string you want to search for in the description and other fields of the person.
+ * url arguments: pc - A string you want to search for in the pc/hardware field of the person.
+ * url arguments: software - A string you want to search for in the software field of the person.
+ * url arguments: longitude - The longitude of the position where you want to find people.
+ * url arguments: latitude - The latitude of the position where you want to find people.
+ * url arguments: distance - The maximum distance of the person to you longitude/latitude position.
+ * url arguments: page - The content page. You can control the size of a page with the pagesize parameter. The first page is 0, the second is 1, ...
+ * url arguments: pagesize - The amount of entries your get per page. 
 
- * Result: userlist xml
-Example: http://frank:password@api.opendesktop.org/v1/people/SEARCH/eter//don/development///11.2/22/0.5/2 
-Gets the third page of the search result list from the search for users where "eter" is in the nickname, firstname or name and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
+
+ * Result: personlist xml
+Example: GET http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&langitude=22&distance=0.5&pae=2&pagesize=10 
+Gets the third page of the search result list from the search for person where "eter" is in the nickname, firstname or lastname and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
  
 Example:
-{{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
- <totalitems>2</totalitems>
- <itemsperpage>10</itemsperpage>
+{{{
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
  <data>
-  <entry>
-   <userid>fjsurs</userid>
+  <person details="summary">
+   <personid>Testy</personid>
    <privacy>0</privacy>
    <privacytext>public</privacytext>
-   <firstname>Frank</firstname>
-   <lastname>Sum</lastname>
-   <homepage>myhomepage.org</homepage>
-   <company>Linux Company</company>
-   <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
-   <avatarpicfound>1</avatarpicfound>
-   <gender></gender>
-   <communityrole></communityrole>
-   <city></city>
-   <country></country>
-  </entry>
-  <entry>
-   <user>belac</user>
-   <privacy>0</privacy>
-   <privacytext>public</privacytext>
-   <firstname>Frank</firstname>
-   <lastname>Ma</lastname>
+   <firstname>Peter</firstname>
+   <lastname>-</lastname>
    <company></company>
    <gender></gender>
    <communityrole></communityrole>
-   <city></city>
+   <city>London</city>
    <country></country>
-  </entry>
+  </person>
+  <person details="summary">
+   <personid>peter</personid>
+   <privacy>0</privacy>
+   <privacytext>public</privacytext>
+   <firstname>Frank</firstname>
+   <lastname>Test</lastname>
+   <company>company</company>
+   <gender>man</gender>
+   <communityrole></communityrole>
+   <city>London</city>
+   <country></country>
+  </person>
  </data>
-</apiV1>
-
+</ocs>
 }}}
 
 
 ==== get ====
 get the date from one specific person. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
- * Syntax: /V1/USER/GET/"userid"/ 
- * Arguments: userid - Id of a user. for example "frank"
- * Result: user xml
- * Example: http://frank:password@api.opendesktop.org/V1/USER/GET/frank
+ * Syntax: /v1/person/data/"personid"/ 
+ * HTTP method: GET
+ * Arguments: personid - Id of a person. for example "frank"
+ * Result: person xml
+ * Example: GET http://frank:password@api.opendesktop.org/v1/person/frank
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
  <data>
-  <user>Frank</user>
-  <firstname>Frank</firstname>
-  <lastname>Karlitschek</lastname>
-  <gender>man</gender>
-  <communityrole>developer</communityrole>
-  <company></company>
-  <birthday>1973-07-25</birthday>
-  <jobstatus>working</jobstatus>
-  <city>Stuttgart</city>
-  <country>Germany</country>
-  <latitude>48.767</latitude>
-  <longitude>9.183</longitude>
-  <likes>free software, nice people, new ideas</likes>
-  <dontlikes>prejudices</dontlikes>
-  <interests>Free Software&lt;br /&gt;&#13;
-Open Source Desktops&lt;br /&gt;&#13;
-Web 2.0&lt;br /&gt;&#13;
-Online Communities&lt;br /&gt;&#13;
-</interests>
-  <languages>english, german</languages>
-  <programminglanguages>php, C, C++, perl, java, ruby, ..</programminglanguages>
-  <favouritequote></favouritequote>
-  <favouritemusic>nine inch nails, portishead, massive attack, rage against the machine, the gossip, radiohead</favouritemusic>
-  <favouritetvshows></favouritetvshows>
-  <favouritemovies>fightclub, matrix</favouritemovies>
-  <favouritebooks></favouritebooks>
-  <favouritegames>UT3</favouritegames>
-  <description>maintainer of this website</description>
+  <person details="full">
+   <personid>Frank</personid>
+   <privacy>1</privacy>
+   <privacytext>visible only for registered users</privacytext>
+   <firstname>Frank</firstname>
+   <lastname>Test</lastname>
+   <gender>man</gender>
+   <communityrole>developer</communityrole>
+   <homepage>opendesktop.org</homepage>
+   <company>opendesktop.org</company>
+   <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
+   <avatarpicfound>1</avatarpicfound>
+   <bigavatarpic>http://www.KDE-Look.org/CONTENT/user-bigpics/0/Frank.jpg</bigavatarpic>
+   <bigavatarpicfound>1</bigavatarpicfound>
+   <birthday>1973-07-25</birthday>
+   <jobstatus>working</jobstatus>
+   <city>Stuttgart</city>
+   <country>Germany</country>
+   <latitude></latitude>
+   <longitude></longitude>
+   <likes>lot of stuff</likes>
+   <dontlikes>nothing</dontlikes>
+   <interests>travel</interests>
+   <languages>english</languages>
+   <programminglanguages>php, c++</programminglanguages>
+   <favouritequote></favouritequote>
+   <favouritemusic>nin</favouritemusic>
+   <favouritetvshows></favouritetvshows>
+   <favouritemovies>fightclub</favouritemovies>
+   <favouritebooks></favouritebooks>
+   <favouritegames>ut3</favouritegames>
+   <description></description>
+   <profilepage>http://www.KDE-Look.org/usermanager/search.php?username=Frank</profilepage>
+  </person>
  </data>
-</apiV1>
+</ocs>
 }}}
 
 === FRIEND ===
+The FRIEND service is for handling friendship relations between people. you can get the friends of a specific person or from yourself. You can invite other persons as a friend and manage the invitations.
 
 ==== get ====
-Gets the list of friends from a user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/FRIEND/GET/"user"/"page"
- * Arguments: user - The user from which you want to get the friendslist. 
- * Arguments: page - The page of the friendslist. Every page has max 10 entries. The first page is 0, the second is 1, ...
-Example: http://frank:password@api.opendesktop.org/V1/FRIEND/GET/foobar/1
-Gets the second page of friends of the user "foobar"
+Gets the list of friends from a person. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * syntax: /v1/friend/data/"personid"
+ * HTTP method: GET
+ * Arguments: personid - The person from which you want to get the friendslist. 
+ * URL Arguments: page - The page of the friendslist. The size of a page is controlled by the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+Example: GET http://frank:password@api.opendesktop.org/v1/friend/data/foobar?pagesize=10&page=1
+Gets the second page of friends of the person "foobar"
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
- <totalitems>2</totalitems>
- <itemsperpage>10</itemsperpage>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>3</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
  <data>
-  <entry>
-   <user>dave0</user>
-  </entry>
-  <entry>
-   <user>feny</user>
-  </entry>
+  <user details="id">
+   <personid>cornelius</personid>
+  </user>
+  <user details="id">
+   <personid>dave</personid>
+  </user>
+  <user details="id">
+   <personid>fen</personid>
+  </user>
  </data>
-</apiV1>
+</ocs>
 }}}
 
 ==== invite ====
-Invite a user to become a friend. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/FRIEND/INVITE/"user"/"message"
- * Arguments: user - The user you want to invite as a friend. 
- * Arguments: message - The message you want to send to the user together with your invitation.
-Example: http://frank:password@api.opendesktop.org/V1/FRIEND/INVITE/foobar/hi.%20how%20are%you
-Invites the user "foobar" and send him a message "hi. how are you"
+Invite a person to become a friend. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/friend/outbox/"personid"
+ * Method: POST
+ * Arguments: personid - The person you want to invite as a friend. 
+ * POST arguments: message - The message you want to send to the person together with your invitation.
+Example: POST http://frank:password@api.opendesktop.org/v1/friend/outbox/foobar/   postdata: message="hi. how are you?"
+Invites the person "foobar" and send him a message "hi. how are you?"
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
+<ocs>
  <status>ok</status>
  <message></message>
-</apiV1>
+</ocs>
 }}}
 
 === MESSAGE ===
+The MESSAGE services can be used to send and receive messages. this is always possible even if you don't know the real email address of the other person. The messages are stored in different folders.
+
 ==== folders ====
-Gets a list of the availabe message folders. You need the ids if you want to access the folders via messagecount or messagelist.
+Gets a list of the availabe message folders. You need the ids if you want to access the folders via messagelist.
 Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V2/MESSAGE/FOLDERS
+ * Syntax: /v1/message
+ * HTTP method: GET
  * Result: messagefolder xml
- * Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/FOLDERS
+ * Example: http://frank:password@api.opendesktop.org/v1/message
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>4</totalitems>
+ </meta>
  <data>
-  <folder id="0">inbox</folder>
-  <folder id="1">send</folder>
-  <folder id="2">trash</folder>
-  <folder id="3">archive</folder>
+  <folder>
+   <id>0</id>
+   <name>inbox</name>
+   <messagecount>27</messagecount>
+   <type>inbox</type>
+  </folder>
+  <folder>
+   <id>1</id>
+   <name>send</name>
+   <messagecount>9</messagecount>
+   <type>send</type>
+  </folder>
+  <folder>
+   <id>2</id>
+   <name>trash</name>
+   <messagecount>0</messagecount>
+   <type>trash</type>
+  </folder>
+  <folder>
+   <id>3</id>
+   <name>archive</name>
+   <messagecount>0</messagecount>
+   <type></type>
+  </folder>
  </data>
-</apiV1>
+</ocs>
 }}}
 
-==== count ====
-Get the number of messages in a specific message folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/MESSAGE/COUNT/"folder"
- * Arguments: folder - ID of the folder. Use MESSAGEFOLDERS to get the folder IDs
- * Result: messagecount
- * Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/COUNT/0 Gets the number of messages in the inbox
-Example:
-{{{
-<?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
- <data>27</data>
-</apiV1>
-}}}
 
 ==== list ====
 Gets the list of messages from a specific folder. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/MESSAGE/LIST/"folder"/"page"
- * Arguments: folder - The ID of the folder you want to get. Use the MESSAGEFOLDER method to get the list of folders.
- * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
+ * Syntax: /v1/message/"folder"
+ * Arguments: folder - The ID of the folder you want to get. Use the folders method to get the list of folders.
+ * URL Arguments: page - The content page. The amount of entries can be controlled by the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
  * Result: messagelist xml
- * Fields:
-  * id- the unique id of the message
-  * messagefrom- the username of the message sender
-  * messageto - the username of the message receiver
-  * senddate- the unix timestamp of the message
-  * status- the message status. 0=>unread, 1=>read, 2=>replyed
-  * subject- the subject line of the message
-  * body- the message body
-Example: http://frank:password@api.opendesktop.org/V1/MESSAGE/LIST/1/2
-Gets the third page of messages from the "send" folder of user "frank"
+Example: GET http://frank:password@api.opendesktop.org/v1/message/1?page=2&pagesize=10
+Gets the third page of messages from the folder with the id 1 of person "frank"
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
- <totalitems>2</totalitems>
- <itemsperpage>10</itemsperpage>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
  <data>
-  <entry>
-   <id>84</id>
-   <messagefrom>Franky2</messagefrom>
+  <message details="full">
+   <id>8490</id>
+   <messagefrom>testy</messagefrom>
    <messageto>Frank</messageto>
    <senddate>2008-08-10T16:03:59+02:00</senddate>
    <status>1</status>
    <statustext></statustext>
    <subject>test message</subject>
-   <body>test test 123 123 Thanks</body>
-  </entry>
-  <entry>
-   <id>79</id>
-   <messagefrom>anilg1111</messagefrom>
-   <messageto>Frank</messageto>
-   <senddate>2008-08-10T16:02:59+02:00</senddate>
+   <body>Sorry for bothering but did you ...</body>
+  </message>
+  <message details="full">
+   <id>8491</id>
+   <messagefrom>testy1</messagefrom>
+   <messageto>Frank1</messageto>
+   <senddate>2008-08-12T16:03:59+02:00</senddate>
    <status>1</status>
    <statustext></statustext>
-   <subject>re:re: update</subject>
-   <body>Hi Frank</body>
-  </entry>
+   <subject>test message</subject>
+   <body>Testy 2 ...</body>
+  </message>
  </data>
-</apiV1>
+</ocs>
 }}}
 
 === ACTIVITY ===
+You can use the ACTIVITY services to see what is going on in your friends network. For example who visited you homepage, wo has send you a message and who uploaded a new content to the website. You can also post a microblogging message which is vivible on you profile page and in the activities of your friends. 
 
 ==== get ====
 Gets the list of activities. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/ACTIVITY/GET/"page"
- * Arguments: page - The activities page. Every page has max 10 entries. The first page is 0, the second is 1, ...
+ * Syntax: /v1/activity
+ * HTTP method: GET
+ * URL Arguments: page - The activities page. The amount of entris per page is controlled by the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
  * Result: activities xml
- * Example: http://frank:password@api.opendesktop.org/V1/ACTIVITY/GET/2
- * Gets the third page of the activities of user "frank"
+ * Example: GET http://frank:password@api.opendesktop.org/v1/activity?page=3&pagesize=10
+ * Gets the third page of the activities of person "frank"
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
- <totalitems>4</totalitems>
- <itemsperpage>10</itemsperpage>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
  <data>
-  <entry>
-   <user>trialuser1</user>
-   <timestamp>2008-08-10T16:03:59+02:00</timestamp>
-   <message>trialuser1 has visited your profile page </message>
-  </entry>
-  <entry>
-   <user>kit2</user>
-   <timestamp>2008-08-10T14:03:59+02:00</timestamp>
-   <message>kit has updated: &quot;Foo Icon&quot;</message>
-  </entry>
-  <entry>
-   <user>kit3</user>
-   <timestamp>2008-08-10T16:03:59+02:00</timestamp>
-   <message>kit3 has uploaded: &quot;Foo Icon&quot;</message>
-  </entry>
-  <entry>
-   <user>killerxxxx101</user>
-   <timestamp>2008-08-10T16:03:59+02:00</timestamp>
-   <message>killerxxxx101 foo bar</message>
-  </entry>
+  <activity details="full">
+   <personid>testy2</personid>
+   <timestamp>2008-08-01T20:30:19+02:00</timestamp>
+   <type>6</type>
+   <message>testy2 has updated: &quot;Extract And Compress&quot;</message>
+   <link>http://www.KDE-Look.org/content/show.php?content=84206</link>
+  </activity>
+  <activity details="full">
+   <personid>foobar2</personid>
+   <timestamp>2008-08-02T19:38:10+02:00</timestamp>
+   <type>6</type>
+   <message>foobar2 has updated: &quot;Arezzo&quot;</message>
+   <link>http://www.KDE-Look.org/content/show.php?content=84403</link>
+  </activity>
  </data>
-</apiV1>
-
+</ocs>
 }}}
 
 ==== put ====
 Updates your activities. This is microblogging like Twitter. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/ACTIVITY/PUT/"message"
- * Arguments: message - The text you want to post.
+ * POST: /v1/activity
+ * POST Arguments: message - The text you want to post.
  * Result: status xml
- * Example: http://frank:password@api.opendesktop.org/V1/ACTIVITY/PUT/coding%20is%20fun
+ * Example: POST http://frank:password@api.opendesktop.org/v1/activity postdata message="coding is fun"
  * Posts the text "coding is fun" to franks hompage and the activities of franks friends.
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
+<ocs>
  <status>ok</status>
  <message></message>
-</apiV1>
+</ocs>
 }}}
 
 
@@ -437,140 +450,164 @@ Example:
 
 ==== categories ====
 Get a list of all available content categories. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/CONTENT/CATEGORIES/
+ * Syntax: /v1/content/categories
+ * HTTP Method: GET
  * Result: categories xml
- * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/CATEGORIES
+ * Example: GET http://frank:password@api.opendesktop.org/v1/content/categories
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>4</totalitems>
+ </meta>
  <data>
-  <category id="1">KDE Wallpaper 640x480</category>
-  <category id="2">KDE Wallpaper 800x600</category>
-  <category id="3">KDE Wallpaper 1024x768</category>
-  <category id="4">KDE Wallpaper 1280x1024</category>
-  <category id="5">KDE Wallpaper 1600x1200</category>
-  <category id="6">KDE Wallpaper (other)</category>
-  <category id="7">KDE Wallpaper (SVG)</category>
-  <category id="8">Theme-Manager Theme</category>
-  <category id="9">Theme/Style for KDE 4.0</category>
+  <category>
+   <id>1</id>
+   <name>KDE Wallpaper 640x480</name>
+  </category>
+  <category>
+   <id>2</id>
+   <name>KDE Wallpaper 800x600</name>
+  </category>
+  <category>
+   <id>3</id>
+   <name>KDE Wallpaper 1024x768</name>
+  </category>
+  <category>
+   <id>4</id>
+   <name>KDE Wallpaper 1280x1024</name>
+  </category>
  </data>
-</apiV1>
+</ocs>
 }}}
 
 ==== list ====
 Gets a list of a specific set of contents. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /V1/CONTENT/LIST/"categories"/"sortmode"/"page"
-  * Arguments: categories - Ids of the requested category ids seperated by "x".
-  * Arguments: sortmodes -  The sortmode of the list. Possible values are: "new" - newest first , "alpha" - alphabetical, "high" - highest rated, "down" - most downloads
-  * Arguments: page - The content page. Every page has max 10 entries. The first page is 0, the second is 1, ...
+ * Syntax: /v1/content/data/
+ * HTTP Method: GET
+ * URL Arguments: categories - Ids of the requested category ids seperated by "x".
+ * URL Arguments: search - the part of the name of the item you want to find.
+ * URL Arguments: sortmodes -  The sortmode of the list. Possible values are: "new" - newest first , "alpha" - alphabetical, "high" - highest rated, "down" - most downloads
+ * URL Arguments: page - The content page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
  * Result: content xml
- * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/LIST/1x2x3x4/new/1 Gets the second page of the list of the newest contents from categories 1,2,3 and 4 
+ * Example: http://frank:password@api.opendesktop.org/v1/content/data?categories=1x2x3x4&search=foo&sortmode=new&page=1 Gets the second page of the list of the newest contents from categories 1,2,3 and 4 with the string foo in the name. 
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
- <totalitems>2</totalitems>
- <itemsperpage>10</itemsperpage>
- <data>
-  <entry>
-   <id>67651</id>
-   <name>the bay</name>
-   <version></version>
-   <changed>2008-08-10T16:03:59+02:00</changed>
-   <created>2008-08-10T16:03:59+02:00</created>
-   <typeid>2</typeid>
-   <typename>KDE Wallpaper 800x600</typename>
-   <language></language>
-   <user>marvi3l</user>
-   <downloads>777</downloads>
-   <score>67</score>
-   <comments>0</comments>
-   <preview1>http://www.opendesktop.org/content/preview.php?preview=1&amp;id=67651&amp;file1=67651-1.jpg&amp;file2=&amp;file3=&amp;name=the+bay</preview1>
-   <previewpic1>http://www.opendesktop.org/CONTENT/content-pre1/67651-1.jpg</previewpic1>
-  </entry>
-  <entry>
-   <id>61361</id>
-   <name>mare2</name>
-   <version></version>
-   <changed>2008-08-10T16:03:59+02:00</changed>
-   <created>2008-08-08T13:23:59+02:00</created>
-   <typeid>2</typeid>
-   <typename>KDE Wallpaper 800x600</typename>
-   <language></language>
-   <user>standardbus</user>
-   <downloads>1187</downloads>
-   <score>65</score>
-   <comments>1</comments>
-   <preview1>http://www.opendesktop.org/content/preview.php?preview=1&amp;id=61361&amp;file1=61361-1.jpg&amp;file2=&amp;file3=&amp;name=mare</preview1>
-   <previewpic1>http://www.opendesktop.org/CONTENT/content-pre1/61361-1.jpg</previewpic1>
-  </entry>
- </data>
-</apiV1>
 
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
+ <data>
+  <content details="summary">
+   <id>1420</id>
+   <name>name</name>
+   <version>11122</version>
+   <changed>2007-11-24T22:41:08+01:00</changed>
+   <created>2007-11-01T22:28:24+01:00</created>
+   <typeid>6</typeid>
+   <typename>KDE Wallpaper (other)</typename>
+   <language></language>
+   <personid>Frank</personid>
+   <downloads>5</downloads>
+   <score>50</score>
+   <comments>0</comments>
+   <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=1420&amp;file1=1420-1.png&amp;file2=1420-2.png&amp;file3=&amp;name=nameeee</preview1>
+   <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/1420-1.png</previewpic1>
+  </content>
+  <content details="summary">
+   <id>1422</id>
+   <name>testy2</name>
+   <version>11</version>
+   <changed>2007-11-01T22:45:20+01:00</changed>
+   <created>2007-11-01T22:43:21+01:00</created>
+   <typeid>7</typeid>
+   <typename>KDE Wallpaper (SVG)</typename>
+   <language></language>
+   <personid>Frank</personid>
+   <downloads>8</downloads>
+   <score>50</score>
+   <comments>0</comments>
+   <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=1422&amp;file1=1422-1.jpg&amp;file2=1422-2.png&amp;file3=1422-3.png&amp;name=vdfdds222</preview1>
+   <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/1422-1.jpg</previewpic1>   
+   <detailpage>http://www.KDE-Look.org/content/show.php?content=100</detailpage>
+  </content>
+ </data>
+</ocs>
 }}}
 
 
 ==== get ====
 Read content data of one specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
- * Syntax: /V1/CONTENT/GET/"contentid"/ 
+ * Syntax: /v1/content/data/"contentid"/ 
+ * HTTP Method: GET
  * Arguments: contentid - Id of a content
  * Result: content xml
- * Example: http://frank:password@api.opendesktop.org/V1/CONTENT/GET/12345
+ * Example: http://frank:password@api.opendesktop.org/v1/content/data/12345
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
- <status>ok</status>
- <message></message>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
  <data>
-  <id>1234</id>
-  <name>Dancing Penguins</name>
-  <version>.000001</version>
-  <typeid>3</typeid>
-  <typename>KDE Wallpaper 1024x768</typename>
-  <language></language>
-  <user>Micromegas</user>
-  <created>2008-06-10T16:01:55+02:00</created>
-  <changed>2008-06-10T16:01:55+02:00</changed>
-  <downloads>524</downloads>
-  <score>54</score>
-  <description>Simple, fluffy penguins</description>
-  <changelog></changelog>
-  <homepage>http://</homepage>
-  <comments>0</comments>
-  <depend></depend>
-  <preview1>http://www.opendesktop.org/content/preview.php?preview=1&amp;id=1234&amp;file1=1234-1.jpg&amp;file2=&amp;file3=&amp;name=Dancing+Penguins</preview1>
-  <preview2></preview2>
-  <preview3></preview3>
-  <previewpic1>http://www.opendesktop.org/CONTENT/content-pre1/1234-1.jpg</previewpic1>
-  <smallpreviewpic1>http://www.opendesktop.org/CONTENT/content-m1/m1234-1.png</smallpreviewpic1>
-  <downloadtype1></downloadtype1>
-  <downloadlink1>http://www.opendesktop.org/content/download.php?content=1234&amp;id=1</downloadlink1>
-  <downloadname1></downloadname1>
-  <downloadsize1>80</downloadsize1>
+  <content details="full">
+   <id>100</id>
+   <name>GradE8</name>
+   <version></version>
+   <typeid>10</typeid>
+   <typename>Theme/Style for KDE 2.1</typename>
+   <language></language>
+   <personid>Hans</personid>
+   <created>2001-09-28T18:45:40+02:00</created>
+   <changed>2001-09-28T18:45:40+02:00</changed>
+   <downloads>2</downloads>
+   <score>67</score>
+   <description>his is my first KDE 2.0 theme. It isn't the final version, I must add some icons etc...</description>
+   <changelog></changelog>
+   <homepage></homepage>
+   <comments>0</comments>
+   <depend></depend>
+   <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=100&amp;file1=100-1.jpg&amp;file2=&amp;file3=&amp;name=GradE8</preview1>
+   <preview2></preview2>
+   <preview3></preview3>
+   <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/100-1.jpg</previewpic1>
+   <smallpreviewpic1>http://www.KDE-Look.org/CONTENT/content-m1/m100-1.png</smallpreviewpic1>
+   <detailpage>http://www.KDE-Look.org/content/show.php?content=100</detailpage>
+   <downloadtype1></downloadtype1>
+   <downloadlink1>http://www.KDE-Look.org/content/download.php?content=100&amp;id=1</downloadlink1>
+   <downloadname1></downloadname1>
+   <downloadsize1>8</downloadsize1>
+  </content>
  </data>
-</apiV1>
+</ocs>
 }}}
 
 ==== vote ====
 Vote for one specific content.
- * Syntax: /V1/CONTENT/VOTE/"contentid"/"vote"
-  * Arguments: contentid - Id of a content
-  * Arguments: vote - The vote. "good" or "bad"
+ * Syntax: /v1/content/vote/"contentid"
+ * HTTP Method: POST 
+ * Arguments: contentid - Id of a content
+ * URL Arguments: vote - The vote. "good" or "bad"
  * Result: status xml
- * Example: http://api.opendesktop.org/V1/CONTENT/VOTE/12345/good
+ * Example: http://api.opendesktop.org/v1/content/vote/12345?vote=good
 Example:
 {{{
 <?xml version="1.0"?>
-<apiV1>
+<ocs>
  <status>ok</status>
  <message></message>
-</apiV1>
+</ocs>
 }}}
 
 
