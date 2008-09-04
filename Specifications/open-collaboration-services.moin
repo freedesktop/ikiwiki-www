@@ -188,12 +188,12 @@ Example:
 
 
 ==== get ====
-get the date from one specific person. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
+get the data from one specific person. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
  * Syntax: /v1/person/data/"personid"/ 
  * HTTP method: GET
  * Arguments: personid - Id of a person. for example "frank"
  * Result: person xml
- * Example: GET http://frank:password@api.opendesktop.org/v1/person/frank
+ * Example: GET http://frank:password@api.opendesktop.org/v1/person/data/frank
 Example:
 {{{
 <?xml version="1.0"?>
@@ -244,6 +244,64 @@ Example:
  </data>
 </ocs>
 }}}
+
+==== get self====
+get the data from yourself. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
+ * Syntax: /v1/person/self 
+ * HTTP method: GET
+ * Result: person xml
+ * Example: GET http://frank:password@api.opendesktop.org/v1/person/self
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
+ <data>
+  <person details="full">
+   <personid>Frank</personid>
+   <privacy>1</privacy>
+   <privacytext>visible only for registered users</privacytext>
+   <firstname>Frank</firstname>
+   <lastname>Test</lastname>
+   <gender>man</gender>
+   <communityrole>developer</communityrole>
+   <homepage>opendesktop.org</homepage>
+   <company>opendesktop.org</company>
+   <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
+   <avatarpicfound>1</avatarpicfound>
+   <bigavatarpic>http://www.KDE-Look.org/CONTENT/user-bigpics/0/Frank.jpg</bigavatarpic>
+   <bigavatarpicfound>1</bigavatarpicfound>
+   <birthday>1973-07-25</birthday>
+   <jobstatus>working</jobstatus>
+   <city>Stuttgart</city>
+   <country>Germany</country>
+   <latitude></latitude>
+   <longitude></longitude>
+   <ircnick>karli</ircnick>
+   <ircchannels>kde-dev, plasma</ircchannels>
+   <irclink>irc://irc.freenode.org/kde-dev</irclink>
+   <irclink>irc://irc.freenode.org/plasma</irclink>
+   <likes>lot of stuff</likes>
+   <dontlikes>nothing</dontlikes>
+   <interests>travel</interests>
+   <languages>english</languages>
+   <programminglanguages>php, c++</programminglanguages>
+   <favouritequote></favouritequote>
+   <favouritemusic>nin</favouritemusic>
+   <favouritetvshows></favouritetvshows>
+   <favouritemovies>fightclub</favouritemovies>
+   <favouritebooks></favouritebooks>
+   <favouritegames>ut3</favouritegames>
+   <description></description>
+   <profilepage>http://www.KDE-Look.org/usermanager/search.php?username=Frank</profilepage>
+  </person>
+ </data>
+</ocs>
+}}}
+
 
 === FRIEND ===
 The FRIEND service is for handling friendship relations between people. you can get the friends of a specific person or from yourself. You can invite other persons as a friend and manage the invitations.
