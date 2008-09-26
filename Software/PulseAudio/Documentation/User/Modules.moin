@@ -141,12 +141,8 @@ load-module module-alsa-sink sink_name=front_stereo device=hw:0 channels=4 chann
 load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels=2 master_channel_map=aux0,aux1 channel_map=front-left,front-right
 }}}
 
-=== module-always-sink ===
 
-'''Since 0.9.11.''' Always keeps at least one sink loaded even if it's a null one
 
-  sink_name
-    The name for the new virtual sink.
 === module-tunnel-{sink,source} ===
 
 Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. It's probably a better idea to connect to the remote sink/source directly since some buffer control is lost through this tunneling.
@@ -177,6 +173,7 @@ Provides the user with a simple [wiki:CLI command line interface] on the control
 
   exit_on_eof
     Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0)
+
 
 
 
@@ -521,3 +518,11 @@ Control output ports are ignored.
 === module-position-event-sounds ===
 
 '''Since 0.9.11.''' Position event sounds between L and R depending on the position on screen of the widget triggering them.
+
+=== module-always-sink ===
+
+'''Since 0.9.11.''' Always keeps at least one sink loaded even if it's a null one
+
+  sink_name
+    The name for the new virtual sink.
+
