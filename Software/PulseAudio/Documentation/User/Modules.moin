@@ -534,6 +534,7 @@ An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin
 load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_1197 label=mbeq control=11.621622,10,4.594594,2.702703,0,0,-1.621622,-0.270270,-5.405406,-3.513514,-8.648648,-5.675676,-4.054054,1.351351,9.189189
 }}}
 
+
 The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [http://jack-rack.sourceforge.net/ JACK Rack] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
 
 Currently this module only works with plugins that have one audio input port named "Input" and one output with name "Output". Patches welcome!
@@ -554,4 +555,15 @@ Control output ports are ignored.
 
   sink_name
     The name for the new virtual sink.
+
+=== module-suspend-on-idle ===
+
+'''Since 0.9.11.''' Disconnects sinks and sources from their backend after a predetermined amount of idle time. Idle time is accumulated when the sink/source in question is not connected to any streams.
+
+Advantages: Saves power. ALSA uses considerably more CPU cycles when pulseaudio has to send empty data to the soundcard during idle. If you don't plan to have an active stream all the time, set the timer to a low value for best power savings.
+
+Disadvantages: When pulseaudio gives up the backend, and the backend is not capable of mixing, errant applications can grab the sound device and hold exclusive control over it, making pulseaudio stop working. If pulseaudio does not give up the backend, errant applications won't be able to play sound, but they will not disrupt pulseaudio's operation either. This scenario is possible 99% of the time, since most users run an ALSA sink/source without a card that has software mixing. An "errant application" would, for example, try to open hw:0 or front:0 rather than the 'default' ALSA device.
+
+  timeout
+    Time, in seconds, which must elapse before a sink or source is deemed idle.
 
