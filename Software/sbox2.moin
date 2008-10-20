@@ -2,12 +2,12 @@
 
 === Target Distribution Instructions ===
 
-[[http://maemo-sdk.garage.maemo.org/|Maemo SDK+]], old [[http://freedesktop.org/Software/sbox2/Maemo|instructions]] are useful for non-debian based hosts.
+[[http://maemo-sdk.garage.maemo.org/|Maemo SDK+]]
 
 === Introduction ===
 Scratchbox 2 is a cross-compilation engine, it can be used to create a highly flexible SDK. 
 
-SB2 is totally distribution neutral. I develop it currently on Fedora 8 using Debian/sid as a build tool distribution. It's known to work at least on Debian, Ubuntu, Gentoo and Fedora. Both x86 and amd64 architectures are supported. PPC host support is possible, but not planned. Mac OS X is a potential platform as well, if you're interested in hacking on that, please contact lle at rahina dot org.
+SB2 is totally distribution neutral. I develop it currently on Debian/sid. It's known to work at least on Debian, Ubuntu, Gentoo and Fedora. Both x86 and amd64 architectures are supported. PPC host support is possible, but not planned. Mac OS X is a potential platform as well, if you're interested in hacking on that, please contact lle at rahina dot org.
 
 For target systems you can do anything that Qemu or sbrsh supports.
 
@@ -15,9 +15,6 @@ For target systems you can do anything that Qemu or sbrsh supports.
  * 2008-09-29 1.99.0.26 Another development snapshot, getting closer to that mythical 2.0!
  * 2008-06-20 1.99.0.25 Development snapshot, this is what the Maemo SDK+ is using at the moment. Not tested by anyone else, but does work quite well for them. Big thanks to Lauri Aarnio for his hard work!
  * 2008-02-12 1.99.0.23 Various bugfixes and traceability improvements.
- * 2007-12-18 1.99.0.22 Mainly build system fixes for x86_64 debian hosts
- * 2007-12-14 1.99.0.20 Huge changes everywhere. No more sb_gcc_wrapper, it's handled by the generic argv/envp mangler, support for separate tool distribution (use a debian/sid rootfs on Fedora 8 host without having to chroot), new Maemo mapping rules, sbrsh support, many bugfixes.
- * 2007-09-19 1.99.0.19 changes target handling by moving sb_tools and sb2.config to $HOME/.scratchbox2. Targets are now given a name and referred through that everywhere. All targets need to be re-initialized when upgrading to this version. sb2-config can be used to set the default target and to list available targets, no need to edit config files manually.
 
 === License ===
 Scratchbox 2 is distributed under LGPL version 2.1, portions are under GPL version 2. Some minor stuff is under MIT style license.
@@ -35,9 +32,13 @@ Tarballs:
 
 For holistic instructions for a particular target distribution, see the links at the top of this page.
 
-SB2 doesn't need root access and it is highly recommended not to use it as root. Actually, if you use it as root, you're insane.
+'''NEVER USE SB2 AS ROOT'''
 
-Read the [[http://cgit.freedesktop.org/sbox2/tree/README|README]] file for installation instructions. It contains brief example of setting up SB2 for use with [[http://maemo.org|Maemo]].
+Because SB2 makes potentially highly confusing things with paths, you just
+cannot ever be 100% sure that your real system files are not modified in ways that may be impossible
+to recover from if you're using it as root.
+
+Read the [[http://cgit.freedesktop.org/sbox2/tree/README|README]] for installation instructions.
 
 NOTE! If you have problems compiling SB2, please check that your make is new enough, GNU make 3.81 or newer is recommended.
 
@@ -61,7 +62,6 @@ For targeting ARM chips you should probably use [[http://codesourcery.com|CodeSo
 Major things missing are:
 
  * Documentation
- * lot's of testing
 
 === CPU Transparency Options ===
 Currently SB2 supports Qemu and sbrsh. You need to get a post 2007-06-18 CVS version of Qemu with -drop-ld-preload support.
