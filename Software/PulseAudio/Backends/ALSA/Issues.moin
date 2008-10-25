@@ -20,6 +20,8 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
  * It's not possible to know the inter-relation of ctls (except single switch/track couple), and the relation with actual devices: internal mic, loudspeaker, laptop red jack, rear green jack, usb headset mike (or at least, this is quite tricky, or not well exposed)
 
+ * Multichannel mixer controls are not exposed properly: http://mailman.alsa-project.org/pipermail/alsa-devel/2008-October/011830.html
+
 == PCM ==
 
  * Timestamps such as state->tstmp are in CLOCK_REALTIME, there's no way to use CLOCK_MONOTONIC instead, which makes them kind of impractical to use. '''Update:''' Since 1.0.16 they are supposed to be CLOCK_MONOTONIC, [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007044.html but actually they are still useless]. '''Update 2:''' There is now [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007067.html snd_pcm_hw_params_is_monotonic() in alsa-lib HG]. I am happy!
@@ -55,6 +57,8 @@ Here's my list of issues I found with the current ALSA API while developing PA:
  * The maximum buffer size on HDA is a too small for real good glitch-free: http://mailman.alsa-project.org/pipermail/alsa-devel/2008-June/008550.html
 
  * snd_pcm_rewind() breaks playback and returns nonsense, unless the naked audio device (hw) is accessed. (i.e. *all* plugins such as softvol break snd_pcm_rewind()) ('''Update:''' This has been fixed in alsa-lib git shortly after the 1.0.17 release)
+ 
+ * The "multi" plugin sends POLLOUT but then snd_pcm_update_avail() returns 0: http://mailman.alsa-project.org/pipermail/alsa-devel/2008-October/011842.html
 
 == ioplug ==
 
