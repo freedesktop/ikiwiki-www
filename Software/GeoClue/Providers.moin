@@ -73,7 +73,8 @@ dbus-send --print-reply --type=method_call \
 After running the above command, Localnet provider will provide that address every time the same router is used. Localnet is especially useful for often visited places (home,office), since it's super fast and low resource but requires adding the address manually.
 
 A geoclue control UI (or any application) could use this provider and Manual provider in the same user interface:
-{{{ +------------------------------+
+{{{
++------------------------------+
 | Street:  _____________       |
 | City:    _____________       |
 | Country: _____________       |
@@ -81,15 +82,16 @@ A geoclue control UI (or any application) could use this provider and Manual pro
 | [X] Remember this location   |
 |                              |
 |                        [OK]  |
-+------------------------------+}}}
++------------------------------+
+}}}
 (Checking 'remember' would mean location would get saved with Localnet)
 
 <<Anchor(Gsmloc)>>
 == Gsmloc ==
 
-This provider uses the [[http://www.gammu.org/|Gammu library]] and http://gsmloc.org to provide position data. It gets cell identification data (MCC, MNC, LAC, CID) from Gammu and queries a position from gsmloc.org with that data. 
+This provider uses the [[http://www.gammu.org/|Gammu library]] and http://opencellid.org/ to provide position data. It gets cell identification data (MCC, MNC, LAC, CID) from Gammu and queries a position from opencellid with that data. 
 
-There are a couple of problems with this provider: First, a compatible phone and a working .gammurc file are needed. Second, gsmloc.org does not have a lot of cell locations. Third, a bluetooth query can take a long time if the phone is actually not available.
+There are a couple of problems with this provider: First, a compatible phone and a working .gammurc file are needed. Second, the database does not have a lot of cell locations. Third, a bluetooth query can take a long time if the phone is actually not available.
 
 <<Anchor(Gypsy)>>
 == Gypsy ==
@@ -99,7 +101,7 @@ On systems with D-Bus 1.1.2 or newer Gypsy service autostarts when Geoclue tries
 
 <<Anchor(Gpsd)>>
 == GPSd ==
-GPSd is a gpsd daemon that uses TCP sockets for communication. The daemon must be running when the provider starts. 
+GPSd is a gps daemon that uses TCP sockets for communication. The daemon must be running when the provider starts. 
 
 The provider accepts two options ''org.freedesktop.Geoclue.GPSDevice'' and ''org.freedesktop.Geoclue.GPSHost''. If these options are not defined, the default GPSd port and localhost will be used.
 
