@@ -52,7 +52,8 @@ Each {{{metadata}}} element might contain any combination of the following eleme
  || name || Yes || The name of the application that has registered the bookmark. It must a unique name for each application. Every application element must have this attribute set ||
  || exec || Yes || The preferred command line to be used when launching the application; it might contain variables, see the list of valid exec attribute variables for more details. If no exec attribute has been provided, implementors should use the application name followed by the {{{%u}}} variable ||
  || count || Yes || The number of times the application has registered the bookmark. If not count attribute has been defined, then implementors should assume that the total number of registrations is equal to one ||
- || timestamp ||	Yes || The last time, expresses in seconds from the system's Epoch, the application registered the bookmark. Each application  element must have this attribute set ||
+ || modified || Yes || The last time, expressed as a string conformant to the ISO 8601 specification and relative to UTC, that the application registered the bookmark. Each application element must have this attribute set
+ || timestamp ||	Yes || The last time, expresses in seconds from the system's Epoch, the application registered the bookmark. Each application  element must have this attribute set. '''This attribute has been deprecated since revision 0.8.5 of the specification, and should not be used by newly written code'''. ||
 
  See the Applications section for the correct behaviour when handling duplicate application registrations.
 
@@ -63,23 +64,28 @@ Each {{{metadata}}} element might contain any combination of the following eleme
  || '''Attribute''' || '''Required''' || '''Notes''' ||
  || type || Yes || The MIME type, belonging to the image/*  family of MIME types, of the icon. If no type is set, implementors should use the application/octect-stream MIME type ||
  || href || Yes || The URI to the icon file ||
+ || name || Yes || The name of the icon inside an icon theme, following the Icon Naming Specification ||
 
- Implementors should use the file specified inside the href of the icon element when showing the bookmark.
+ Implementors should use the file specified inside the href or the name attributes of the icon element when showing the bookmark.
+
+ If both the href and the name attributes are specified, the href element takes precedence.
 
  * The {{{private}}} element, if present, alters the visibility of the bookmark. A bookmark should be considered private to the groups where it belongs and to the applications that have registered it. See the Visibility section.
 
 = Storage Files =
 
-Desktop bookmarks file might contain a variable number of bookmarks. Each bookmark file should contain at least one bookmark stored using the format described previously. The default extension for the desktop bookmarks file should be {{{xbel}}}. Implementors should not rely on these files to contain bookmark entries sorted using any method, and should therefore sort bookmarks using their own sorting methods. Implementors should also take care of avoiding concurrent accesses to these files; for instance, by using file locking techniques.
+Desktop bookmarks file might contain a variable number of bookmarks. Each bookmark file should contain at least one bookmark stored using the format described previously. The default extension for the desktop bookmarks file should be {{{xbel}}}. Imlementors should use the same ordering of the bookmarks stored inside the bookmarks file when displaying them, and should take care into storing the bookmarks inside a bookmarks file using the same order in which they are displayed.
+
+Implementors should also take care of avoiding concurrent accesses to these files; for instance, by using file locking techniques.
 
 == File location ==
 
 Standard locations for bookmark files defined in this specification are:
 
 || '''File''' || '''Use''' ||
-|| $HOME/.recently-used.xbel ||	This file must be used for the bookmarks to recently used resources ||
-|| $HOME/.recent-applications.xbel || This file must be used for the bookmarks to recently used applications, in form of bookmarks to their [[Specifications/desktop-entry-spec|desktop entries]] ||
-|| $HOME/.shortcuts.xbel || This file must be used for bookmarks to user-defined folders ||
+|| $XDG_USER_DATA/recently-used.xbel ||	This file must be used for the bookmarks to recently used resources ||
+|| $XDG_USER_DATA/recent-applications.xbel || This file must be used for the bookmarks to recently used applications, in form of bookmarks to their [[Specifications/desktop-entry-spec|desktop entries]] ||
+|| $XDG_USER_DATA/shortcuts.xbel || This file must be used for bookmarks to user-defined folders ||
 
 Application specific desktop bookmark files should be stored under the $XDG_DATA_DIRS/desktop-bookmarks directory. Each directory in the search path should be used. When two desktop bookmark files have the same name, the one appearing earlier should be used. Only files with the {{{xbel}}} extension are used; other files are ignored. 
 
@@ -168,4 +174,4 @@ In order to properly install a new desktop bookmark file, third party applicatio
 
 Author: Emmanuele Bassi
 
-Version: 0.8.4
+Version: 0.8.5
