@@ -231,8 +231,10 @@ In addition to the options supported by module-cli-protocol-*, this module suppo
     Specify the sink/source this service connects to
   auth-anonymous
     If set to 1 no authentication is required to connect to the service
+  auth-cookie
+    ''' New in 0.9.12:''' Name of the cookie file for authentication purposes
   cookie
-    Name of the cookie file for authentication purposes
+    The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12.
   auth-ip-acl (only for -tcp}
     '''New in 0.9.3:''' A semicolon separated list of IP address range to which anonymous access is allowed. Example: ''auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8''
 
@@ -249,8 +251,10 @@ In addition to the options supported by module-cli-protocol-*, this module suppo
     members of the specified unix group may access the server without further authentication. '''Changed in 0.9.3:''' if the daemon is running in system-wide mode ({{{--system}}} passed when starting up) defaults to {{{pulse-access}}}, otherwise is disabled.
   auth-group-enabled (only for -unix)
     '''New in 0.9.3:''' enable/disable auth-group authentication, takes a boolean value (0 or 1). If {{{auth-group=}}} is specified or started in system-wide mode defaults to 1, otherwise 0.
+  auth-cookie
+    ''' New in 0.9.12:''' Name of the cookie file for authentication purposes
   cookie
-    Name of the cookie file for authentication purposes
+    The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12.
   auth-ip-acl (only for -tcp}
     '''New in 0.9.3:''' A semicolon separated list of IP address range to which anonymous access is allowed. Example: ''auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8''
 
@@ -533,6 +537,7 @@ An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin
 {{{
 load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_1197 label=mbeq control=11.621622,10,4.594594,2.702703,0,0,-1.621622,-0.270270,-5.405406,-3.513514,-8.648648,-5.675676,-4.054054,1.351351,9.189189
 }}}
+
 
 
 The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [http://jack-rack.sourceforge.net/ JACK Rack] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
