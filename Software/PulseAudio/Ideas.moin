@@ -26,7 +26,7 @@ This will be part of !PulseAudio 0.9.14 although the initial support has several
 
 === Passive Popup Notifications ===
 
- '''Status''': Proposed, some development started
+ '''Status''': Proposed, some development started[[br]]
  '''Developer''': Colin Guthrie (coling)[[br]]
  '''Ticket''': None as of yet.
 
@@ -36,7 +36,7 @@ Initial development for this has been started but integration with the GTK mainl
 
 === Active 'Default' Sink Support ===
 
- '''Status''': Proposal Only
+ '''Status''': Proposal Only[[br]]
  '''Developer''': ??? Maybe Colin Guthrie (coling)[[br]]
  '''Ticket''': None as of yet.
 
@@ -47,8 +47,16 @@ NB I'm not 100% sure of the practicalities of writing a virtual sink that can ch
 
 === Default Sink Priority List with Disconnected Sink Memory ===
 
- '''Status''': Proposal Only
- '''Developer''': ???
+ '''Status''': Proposal Only[[br]]
+ '''Developer''': ???[[br]]
  '''Ticket''': None as of yet.
 
+Of many people, the setting of the default (see above) does not work as well as it could when it involves removable devices (be it network sinks or USB auto devices etc.) A common scenario would be similar to the following:
+ 1. A laptop with built in sound
+ 2. A workstation with USB sound system.
+ 3. Want to use the USB system when at workstation and built in when not.
+ 4. Do not want to continually tweak preferences.
 
+In order to achieve this goal, this proposal would redefine the "set-default-sink" command and internally handling to work as a priority list where all sinks are rated in order of desirability. As is should be possible to prefer sinks that do not currently exist, it must be possible to record all the sinks that have ever been added to the system and obtain their current status (e.g. active or disconnected). There should also be a method of removing disconnected sinks from this list (e.g. from a housekeeping/tidy up perspective). This approach clearly needs a modification to the protocol in order to provide the necessary information to the client application that will implement the GUI portion of this proposal.
+
+NB module-rescue-streams could be adapted to use this list as appropriate (although with the changed "default" sink handling outlined in a above proposal, this module would be used much less frequently on a typical setup).
