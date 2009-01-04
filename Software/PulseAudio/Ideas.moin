@@ -14,20 +14,41 @@ This section will list some future proposals and plans for !PulseAudio and it's 
 
 Below are listed the development proposals and (where relevant) a link to their tracking tickets.
 
-=== Support for Apple AirTunes as Remote Network Sinks ===
+=== Support for Apple !AirTunes (!Airport Express) as Remote Network Sinks ===
 
-TBC
+ '''Status''': In Progress - Working, but needs refinement[[br]]
+ '''Developer''': Colin Guthrie (coling)[[br]]
+ '''Ticket''': #69
+
+Support using Apple Airport devices as network sinks. These can be auto-detected via Avahi.
+
+This will be part of !PulseAudio 0.9.14 although the initial support has several limitations (including not being able to automatically reconnect and hogging any devices it finds)
 
 === Passive Popup Notifications ===
 
-TBC
+ '''Status''': Proposed, some development started
+ '''Developer''': Colin Guthrie (coling)[[br]]
+ '''Ticket''': None as of yet.
+
+As padevchooser is no longer actively developed but did provide nice popups (via libnotify), there is a gap in the market! I am proposing to create a new pulseaudio module that would be started at X11 login (in the same manner as module-x11-publish/xsmp). This module will sit in the background and inform the user when new sinks are detected and other similar events. As libnotify can provide callbacks this interface could be used to provided simple interaction for common tasks (e.g. setting a USB sink as default and moving all streams across to it.
+
+Initial development for this has been started but integration with the GTK mainloop is proving problematic. Lennart has a plan for this so development is stalled until this comes to fruition.
 
 === Active 'Default' Sink Support ===
 
-TBC
+ '''Status''': Proposal Only
+ '''Developer''': ??? Maybe Colin Guthrie (coling)[[br]]
+ '''Ticket''': None as of yet.
+
+One of the most confusing things for new !PulseAudio users is how the setting of the default sink actually works (i.e. a pavucontrol UI issue), but also what setting the "default" actually means. As pulse remembers the sink chosen for a given stream, the "default" is only every used for the initial choice of where to play a ''new'' stream. After it's initial play the choice of which sink to play a stream on falls typically to module-stream-restore. For most people this is not what they expect of a "default", therefore this is a proposal to create a module which creates a virtual sink that can attach itself to the users choice of default sink. If the users sets a new default sink, this module will automatically reattach itself to this device. This will allow users to still manually select which sink they want to play a given stream on, but also have an "active" default sink that behaves as one would typically expect a default to behave (where changing the default would automatically appear to "move" the running tracks to that sink. 
+
+NB I'm not 100% sure of the practicalities of writing a virtual sink that can change the master sinks it connects to and what this means for e.g. sample rates, formats and channels etc.
+
 
 === Default Sink Priority List with Disconnected Sink Memory ===
 
-TBC
+ '''Status''': Proposal Only
+ '''Developer''': ???
+ '''Ticket''': None as of yet.
 
 
