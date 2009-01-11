@@ -57,11 +57,17 @@ In addition to the general device driver options described above this module sup
   fragment_size
     The desired fragment size in bytes when opening the device (defaults to 1024)
 
+'''Since 0.9.11'''
+
+  tsched
+    Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
+
+
 === module-alsa-source ===
 
 Provides a recording source for devices supported by the Advanced Linux Sound Architecture (ALSA). The source name defaults to alsa_input.
 
-This module supports device=, fragments= and fragment_size= arguments the same way as module-alsa-sink.
+This module supports device=, fragments=, fragment_size= and tsched= arguments the same way as module-alsa-sink.
 
 === module-oss ===
 
@@ -170,6 +176,7 @@ Create a playback sink using an ESOUND server as backend. Whenever you can, try 
 === module-cli ===
 
 Provides the user with a simple [wiki:CLI command line interface] on the controlling TTY of the daemon. This module may not be loaded more than once.
+
 
   exit_on_eof
     Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0)
@@ -505,6 +512,11 @@ The parameter:
 Detects audio devices on the system using [http://freedesktop.org/wiki/Software/hal HAL].
 
 Do not use this together with module-detect!
+
+'''Since 0.9.11'''
+
+  tsched
+    Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). This value is simply passed through to the alsa sink/source modules. If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
 
 === module-zeroconf-publish ===
 
