@@ -172,6 +172,8 @@ To monitor a source, simple create a PA_STREAM_RECORD stream on it. To monitor a
 
 Wehn you want to present a volume meter then it is highly recommended to use the PA_STREAM_PEAK_DETECT feature of pa_stream. This cuts down the traffic and processing time for each monitored stream immensly.
 
+Please note that monitoring PCM like this will get you PCM data that is untouched by the hardware volume. That means that manipulating a sink's volume might not actually have any affect on the PCM stream your monitoring, or -- when PA extends the volume range -- a non-obvious effect.
+
 == Information for the User ==
 
 When you present sinks/sources/sink inputs/source outputs it might be a good idea to show some information about them to make it easy for the user to map them to physical devices or running applications. To ease that this objects carry a set of "properties". Properties are usually UTF8 strings (with the exception of very few that carry raw data). All proprties are optional. You should not rely on them being set.
