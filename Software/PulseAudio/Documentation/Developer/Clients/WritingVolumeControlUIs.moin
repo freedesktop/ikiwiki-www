@@ -164,13 +164,13 @@ When a new stream is created and the client does not specify a specific sink/sou
 
 == Saved Volumes/Devices ==
 
-PA's module-stream-restore will automatically save/restore volumes/devices for streams. In the database of saved volumes/devices streams are identified by a string that is generated from the stream properties set by the application. The module will add the property "module-stream-restore.id" that contains this id. Generally more generic properties (such as "media.role") are preferred over more specific ones. 
+PA's module-stream-restore will automatically save/restore volumes/devices for streams. In the database of saved volumes/devices streams are identified by a string that is generated from the stream properties set by the application. The module will add the property "module-stream-restore.id" to each stream that contains this key. Generally more generic properties (such as "media.role") are preferred over more specific ones. 
 
-The database may be read and manipulated from clients. Use the APIs in ext-stream-restore.h for that. Why would you want to do this? Some types of sounds are very short in nature and hence might appear only for a very short time as a proper stream. That makes it difficult to control them in the volume control, before you can grab the slider the slider might already be gone again. Those short sounds are usually event sounds. It hence might make sense to add an explicit slider for event sounds that stays available all the time. To implement this simply manipulate the stream database for the "sink-input-by-media-role:event" key (assuming that your event sounds are properly tagged, like libcanberra properly does). You can even make this instant-apply. In future, if more streams are tagged properly you could even show an UI that always controls volume based on the role, and ignores dynamically created streams. i.e. one slider for "Telephony", another one for "Games" and so on. 
+The database may be read and manipulated from clients. Use the APIs in ext-stream-restore.h for that. Why would you want to do this? Some types of sounds are very short in nature and hence might appear only for a very short time as a proper stream. That makes it difficult to control them in the volume control UI -- before you can grab the slider the slider might already be gone again. Those short sounds are usually event sounds. It hence might make sense to add an explicit slider for event sounds that stays available all the time. To implement this simply manipulate the stream database for the "sink-input-by-media-role:event" key (assuming that your event sounds are properly tagged, like libcanberra properly does). You can even make this instant-apply. In future, if more streams are tagged properly you could even show an UI that always controls volume based on the role, and ignores dynamically created streams. i.e. one slider for "Telephony", another one for "Games" and so on. 
 
-This functionality can be used in other interesting ways as well. For example using the mentioned "module-stream-restore.id" property you can continue to show each slider for some time after a stream ended in which case it would not manipulate the stream volume itself then anymore but simply the database entry.
+This functionality can be used in other interesting ways as well. For example using the mentioned "module-stream-restore.id" property you can continue to show each slider for some time after a stream ended in which case it would not manipulate the stream volume itself anymore but simply the database entry.
 
-And then, since not only the volume is stored in this database but also the device last used for a stream, you may use this to write an UI that allows you to edit preferred devices for certain streams, for example one dropdown box for selecting a device for all music playback, another one for all telephony, and so on.
+And then, since not only the volume is stored in this database but also the device last used for a stream, you may use this to write an UI that allows you to edit preferred devices for certain streams, for example one dropdown box for selecting a device for all music playback, another one for all telephony, and so on. Again, this can also be made instant-apply.
 
 == Monitoring PCM ==
 
@@ -195,6 +195,8 @@ Of particular interest are these non-obvious properties:
  * PA_PROP_WINDOW_X11_xxx: Can be used to attach a stream to a specific X11 window. It might be a good idea to visually present the relation of streams in the mixer tool and windows on the screen in some way.
 
  * PA_PROP_MEDIA_ICON(_NAME), PA_PROP_APPLICATION_ICON(_NAME): an icon to show next to a stream.
+
+ * PA_PROP_APPLICATION_PROCESS_MACHINE_ID: This contains the D-Bus machine UUID (as available in /var/lib/dbus/machine-id) of the client that registered the stream. Never forget that PA streams may not necessarily come from a local process! Hence make sure to use this property to identify hosts (and NOT the hostname since it might change at any time).
 
 Please note that at this point in time only the fewest applications set more than the most basic properties. However this is a chicken-and-egg problem: if noone uses the properties applications won't set them. So please, make use of these properties in your mixer application.
 
