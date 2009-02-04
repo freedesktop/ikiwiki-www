@@ -146,6 +146,8 @@ For converting a pa_cvolume to a single pa_volume_t for presentation the best op
 
 For calculating a balance value from a pa_cvolume use pa_cvolume_get_balance(). It will return a float between -1.0 (sound only on left speakers, right speakers silent) and +1.0 (sound only on right speakers, left speakers silent). 0.0 is returned when left and right speakers have the same volume. This function does the "right thing" for streams/devices with more than two channels. You may adjust the balance of pa_cvolume with pa_cvolume_set_balance(). Of course, not in all cases you actually have channels that are "left" or "right". You can check for this with pa_channel_map_can_balance(). For sinks/sources/streams where this call returns 0, you should not show a balance slider at all.
 
+Similar functionality is available for the fade value (i.e. balance between front and rear).
+
 == Controlling Clients ==
 
 It is a good idea to allow the user to terminate certain sink inputs/source outputs form the mixer UI. Generally it might be a good idea to kill the entire client instead of just a sink input/source output. Hence the logic for killing should be: does this sink input/source output belong to a client? If yes, kill the client, if not, kill just the sink input/source output.
