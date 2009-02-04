@@ -164,7 +164,13 @@ When a new stream is created and the client does not specify a specific sink/sou
 
 == Saved Volumes/Devices ==
 
+PA's module-stream-restore will automatically save/restore volumes/devices for streams. In the database of saved volumes/devices streams are identified by a string that is generated from the stream properties set by the application. The module will add the property "module-stream-restore.id" that contains this id. Generally more generic properties (such as "media.role") are preferred over more specific ones. 
 
+The database may be read and manipulated from clients. Use the APIs in ext-stream-restore.h for that. Why would you want to do this? Some types of sounds are very short in nature and hence might appear only for a very short time as a proper stream. That makes it difficult to control them in the volume control, before you can grab the slider the slider might already be gone again. Those short sounds are usually event sounds. It hence might make sense to add an explicit slider for event sounds that stays available all the time. To implement this simply manipulate the stream database for the "sink-input-by-media-role:event" key (assuming that your event sounds are properly tagged, like libcanberra properly does). You can even make this instant-apply. In future, if more streams are tagged properly you could even show an UI that always controls volume based on the role, and ignores dynamically created streams. i.e. one slider for "Telephony", another one for "Games" and so on. 
+
+This functionality can be used in other interesting ways as well. For example using the mentioned "module-stream-restore.id" property you can continue to show each slider for some time after a stream ended in which case it would not manipulate the stream volume itself then anymore but simply the database entry.
+
+And then, since not only the volume is stored in this database but also the device last used for a stream, you may use this to write an UI that allows you to edit preferred devices for certain streams, for example one dropdown box for selecting a device for all music playback, another one for all telephony, and so on.
 
 == Monitoring PCM ==
 
