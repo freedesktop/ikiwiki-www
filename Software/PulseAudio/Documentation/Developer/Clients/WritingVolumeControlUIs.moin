@@ -36,7 +36,7 @@ Volumes stored in pa_volume_t/pa_cvolume should be considered opaque, i.e. arith
 
 Sinks, sources and sink inputs have a volume attached. Source outputs do *not* have a volume attached! In addition a 'mute' boolean is available for the same objects. For normal playback first the sink input volume is applied  followed by the sink volume. For recording only the source volume matters. (Also note the part about "Flat volumes" below)
 
-Generally pa_volume_t/pa_cvolume_t cannot be converted to linear factors or decibel values -- except for some situations. These situations are the following:
+Generally pa_volume_t/pa_cvolume_t cannot be converted to linear factors or decibel values — except for some situations. These situations are the following:
 
  * All volumes attached to sink inputs
  * All sinks for which the PA_SINK_DECIBEL_VOLUME is set
@@ -81,7 +81,7 @@ Volumes > PA_VOLUME_NORM ...
 
 Please note that the latter only make sense in some
 situations. And always remember: the conversion between these
-formats is only valid in the few cases mentioned earlier --
+formats is only valid in the few cases mentioned earlier —
 not in every case!
 
 The actual mapping of the gradient of pa_volume_t in relation
@@ -128,7 +128,7 @@ Many underlying drivers provide us with the necessary information for the implem
 
 Sinks and sources carry information about a special volume setting, the "base volume". It is not clearly defined what this actually refers to and its meaning highly depending on the backend. Also in most case it will equal PA_VOLUME_NORM.
 
-Confused now why this might useful? So here's the intended use: it is to be mapped to the volume where the analog output is at some kind of normalized, pre-defined voltage level.  I.e. in theory at this base volume all analog sound cards should produce the exact same voltage level (usually measured in dbV) that has a good 'default' volume. In reality however there are multiple established and not-so-established reference voltages around hence the actual meaning is dependant on the driver and hardware. However, generally if a "good default volume" is needed the base volume is the one to use, not PA_VOLUME_NORM! The reason for this is that -- as we mentioned before -- PA_VOLUME_NORM is mapped to maximum amplification on sound cards. For some cards which include a proper amplifier (such as my pair of USB speakers) PA_VOLUME_NORM is hence incredibly loud. Again, for many cards this value is actually unknown, and hence equals PA_VOLUME_NORM. For SPDIF card the base volume refers to the setting where the output PCM samples are unscaled.
+Confused now why this might useful? So here's the intended use: it is to be mapped to the volume where the analog output is at some kind of normalized, pre-defined voltage level.  I.e. in theory at this base volume all analog sound cards should produce the exact same voltage level (usually measured in dbV) that has a good 'default' volume. In reality however there are multiple established and not-so-established reference voltages around hence the actual meaning is dependant on the driver and hardware. However, generally if a "good default volume" is needed the base volume is the one to use, not PA_VOLUME_NORM! The reason for this is that — as we mentioned before — PA_VOLUME_NORM is mapped to maximum amplification on sound cards. For some cards which include a proper amplifier (such as my pair of USB speakers) PA_VOLUME_NORM is hence incredibly loud. Again, for many cards this value is actually unknown, and hence equals PA_VOLUME_NORM. For SPDIF card the base volume refers to the setting where the output PCM samples are unscaled.
 
 The UI should probably show explicit markers on the sliders for PA_VOLUME_MUTED, PA_VOLUME_NORM and base_volume. Especially on SPDIF cards base_volume is very important. Also, on many newer cards hardware volume control is implemented digitally, and hence to get the full bit depth out of your DAC base_volume matters a lot, too.
 
@@ -166,7 +166,7 @@ When a new stream is created and the client does not specify a specific sink/sou
 
 PA's module-stream-restore will automatically save/restore volumes/devices for streams. In the database of saved volumes/devices streams are identified by a string that is generated from the stream properties set by the application. The module will add the property "module-stream-restore.id" to each stream that contains this key. Generally more generic properties (such as "media.role") are preferred over more specific ones. 
 
-The database may be read and manipulated from clients. Use the APIs in ext-stream-restore.h for that. Why would you want to do this? Some types of sounds are very short in nature and hence might appear only for a very short time as a proper stream. That makes it difficult to control them in the volume control UI -- before you can grab the slider the slider might already be gone again. Those short sounds are usually event sounds. It hence might make sense to add an explicit slider for event sounds that stays available all the time. To implement this simply manipulate the stream database for the "sink-input-by-media-role:event" key (assuming that your event sounds are properly tagged, like libcanberra properly does). You can even make this instant-apply. In future, if more streams are tagged properly you could even show an UI that always controls volume based on the role, and ignores dynamically created streams. i.e. one slider for "Telephony", another one for "Games" and so on. 
+The database may be read and manipulated from clients. Use the APIs in ext-stream-restore.h for that. Why would you want to do this? Some types of sounds are very short in nature and hence might appear only for a very short time as a proper stream. That makes it difficult to control them in the volume control UI — before you can grab the slider the slider might already be gone again. Those short sounds are usually event sounds. It hence might make sense to add an explicit slider for event sounds that stays available all the time. To implement this simply manipulate the stream database for the "sink-input-by-media-role:event" key (assuming that your event sounds are properly tagged, like libcanberra properly does). You can even make this instant-apply. In future, if more streams are tagged properly you could even show an UI that always controls volume based on the role, and ignores dynamically created streams. i.e. one slider for "Telephony", another one for "Games" and so on. 
 
 This functionality can be used in other interesting ways as well. For example using the mentioned "module-stream-restore.id" property you can continue to show each slider for some time after a stream ended in which case it would not manipulate the stream volume itself anymore but simply the database entry.
 
@@ -180,7 +180,7 @@ To monitor a source, simple create a PA_STREAM_RECORD stream on it. To monitor a
 
 When you want to present a volume meter then it is highly recommended to use the PA_STREAM_PEAK_DETECT feature of pa_stream. This cuts down the traffic and processing time for each monitored stream immensely.
 
-Please note that monitoring PCM like this will get you PCM data that is untouched by the hardware volume. That means that manipulating a sink's volume might not actually have any affect on the PCM stream your monitoring, or -- when PA extends the volume range -- a non-obvious effect.
+Please note that monitoring PCM like this will get you PCM data that is untouched by the hardware volume. That means that manipulating a sink's volume might not actually have any affect on the PCM stream your monitoring, or — when PA extends the volume range — a non-obvious effect.
 
 == Information for the User ==
 
