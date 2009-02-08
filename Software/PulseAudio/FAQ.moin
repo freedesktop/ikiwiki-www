@@ -171,7 +171,7 @@ As of PulseAudio 0.9.11, the system-wide daemon looks for a separate pa file by 
 
 If you want to continue using default.pa for system-wide mode, just symlink /etc/pulse/default.pa to /etc/pulse/system.pa.
 
-=== Why do I not get remote streams in control apps? ===
+=== Why do I not see remote sinks in control applications? ===
 
 Sending a stream to a remote server is done through control apps such as pavucontrol or padevchooser (marked obsolete). The streams to choose from are selected using zeroconf (avahi) publishing and discovering of services. If pavucontrol or padevchooser does not list a sink on a remote server the problem can be that the server is not reachable or the zeroconf mechanism is not working.
 
@@ -324,6 +324,7 @@ This is the same as "reverse stereo", where the left and right channels are to b
    * cat /proc/asound/cards and use the name string for the device you wish to use (the one in square brackets)
    * Edit /etc/pulse/default.pa and comment out module-hal-detect and module-detect lines.
    * Search for the commented-out line that starts "#load-module module-alsa-sink", uncomment it and change it to 
+
 
 {{{
 load-module module-alsa-sink device=hw:[answer from step 0] channel_map=right,left
