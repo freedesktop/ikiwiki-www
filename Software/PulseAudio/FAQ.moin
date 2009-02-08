@@ -171,6 +171,35 @@ As of PulseAudio 0.9.11, the system-wide daemon looks for a separate pa file by 
 
 If you want to continue using default.pa for system-wide mode, just symlink /etc/pulse/default.pa to /etc/pulse/system.pa.
 
+=== Why do I not get remote streams in control apps? ===
+
+Sending a stream to a remote server is done through control apps such as pavucontrol or padevchooser (marked obsolete). The streams to choose from are selected using zeroconf (avahi) publishing and discovering of services. If pavucontrol or padevchooser does not list a sink on a remote server the problem can be that the server is not reachable or the zeroconf mechanism is not working.
+
+1. Make sure your host is reachable, firewall allows connections, cables are plugged in, whatever, ...
+
+2. Check if you can reach the remote server using the PULSE_SERVER environment variable from CLI: run a pulseaudio configured application like this:
+{{{
+$ PULSE_SERVER=<hostname> <command>
+}}}
+If your host does not start playing you need to fix the network protocols supported by your server. Refer to protocol sections in the [wiki:Modules] page, refer to ServerStrings page, refer to FAQ item [wiki:FAQ#HowdoIusePulseAudiooverthenetwork How do I use PulseAudio over the network?].
+
+Assuming that your host started playing we can probably limit the problem to zeroconf.
+
+3. Check that module-zeroconf-publish is loaded on the remote server using paman:
+{{{
+$ PULSE_SERVER=<hostname> paman
+}}}
+and that module-zeroconf-discover is loaded on the local server, also using paman.
+
+If either are not, load them and see if the sink is discovered.
+
+4. Check, using avahi-browse (in avahi-utils for debian based distros), that services are discovered okay. Use following command on both the local and the remote end to dump all (-a) services found on the network and the terminate (-t) the avahi-browse process after dumping:
+{{{
+$ avahi-browse -ta
+}}}
+
+If in this step the remote end does not show the !PulseAudio services locally then check avahi configuration for things like disabled publishing for example. Consider restarting the avahi process. Make sure firewalls allow the avahi traffic. ...
+
 
 == I want to do this specific thing... ==
 
@@ -295,6 +324,7 @@ This is the same as "reverse stereo", where the left and right channels are to b
    * cat /proc/asound/cards and use the name string for the device you wish to use (the one in square brackets)
    * Edit /etc/pulse/default.pa and comment out module-hal-detect and module-detect lines.
    * Search for the commented-out line that starts "#load-module module-alsa-sink", uncomment it and change it to 
+
 {{{
 load-module module-alsa-sink device=hw:[answer from step 0] channel_map=right,left
 }}}
