@@ -8,6 +8,21 @@ Since popularity of Linux operating system in industrial environment increase, n
 
 Trivial diagrammatic description of DBPC architecture. 
 
+== Definitions ==
+ DBus:: Formally, D-Bus is an inter-process communication mechanism. Simply, DBus is a software data bus which permits communication between applications. Unless it is not a process field bus as used in factory floor, its core functionality can easily be apprehended in the same way by control engineer. For more detail about DBus please read [[Software/dbus|related specification]].
+
+ DBPC:: DBPC is a layer above DBUS which define a standard set of objects, interfaces and methods for use in process control and manufacturing automation applications to facilitate interoperability. Primary goal is defining a common communication language for real time communication of plant data between control devices from different manufacturers and SCADA, HMI, process control and open source applications.
+
+ DBPC-server:: DBPC servers are service who provide common items access trough DBus. Generally a DBPC server grants real time data access to one or more remote programmable logic controller. Typically DBus servers represent a field bus protocol. (For example : ModbusTCP DBPC server, Profibus DBPC server).
+
+ DBPC-client:: DBPC client are application who access to one or more remote programmable logic controller via DBus.
+
+ Field bus:: Fieldbus is an industrial network system for real-time distributed control. It is a way to connect instruments in a manufacturing plant. Many competing technologies for fieldbus exist.
+
+ PLC:: Programmable logical controller. Programmable logic controllers are a digital computer used for automation of electromechanical processes. Unlike general-purpose computers, the PLC are designed for multiple inputs and output arrangements, extended temperature ranges, immunity to electrical noise, and resistance to vibration and impact. Majors world PLC manufacturer are Siemens Simatic, Allen Bradeley, Telemecanique and GE fanuc. Although the norm IEC 61131-3 define PLC programming languages each manufacturer has its own programming tool. Furthermore, as a result of encouraging there own HMI and SADA suite, interoperability is not the priority of the manufacturer.  
+
+ Item:: Each data point available trought a DBPC server are called Items. Mainly, items correspond to physical value, factory state, command signals, and so on.  
+
 == Audience and related benefit ==
  Process control and automation engineer::  ...
  SCADA and IHM designer::  ...
@@ -15,17 +30,6 @@ Trivial diagrammatic description of DBPC architecture.
  PLC and industrial devices equipment manufacturer::  ...
  Industrial computer and HMI manufacturer::  ...
  Industrial embedded systems manufacturer::  ...
-
-== Definitions ==
- DBus:: Formally, D-Bus is an inter-process communication mechanism. Simply, DBus is a software data bus which permits communication between applications. Unless it is not a process field bus as used in factory floor, its core functionality can easily be apprehended in the same way by control engineer. For more detail about DBus please read [[Software/dbus|related specification]].
- DBPC:: DBPC is a layer above DBUS which define a standard set of objects, interfaces and methods for use in process control and manufacturing automation applications to facilitate interoperability. Primary goal is defining a common communication language for real time communication of plant data between control devices from different manufacturers and SCADA, HMI, process control and open source applications.
- DBPC-server:: DBPC servers are service who provide common items access trough DBus. Generally a DBPC server grants real time data access to one or more remote programmable logic controller. Typically DBus servers represent a field bus protocol. (For example : ModbusTCP DBPC server, Profibus DBPC server).
- DBPC-client:: DBPC client are application who access to one or more remote programmable logic controller via DBus.
- Field bus:: ...in progress...
- PLC:: Programmable logical controller. in progress...
- Item:: ...in progress...
- Physical view:: ...in progress...
- Logical view:: ...in progress...
 
 == Specification ==
  Part 1, DBPC Mechanisms::  ...in progress...(add here link to a new page + summary)...
@@ -41,14 +45,14 @@ was designed to bridge Windows based applications and process control hardware a
 
 Same needs for interoperability is also desired in Linux world. Unfortunately OPC-DA is based on the OLE, COM, and DCOM technologies developed by Microsoft for the Microsoft Windows operating system family. Then a Linux port is not realistic. As a result of, DBPC as been created, having in mind that final users needs to find same habits they get used to work with. So from this point of view, DBPC and OPC-DA sould appear similar.
 
-Nevertheless, DBPC distinguish of OPC-DA in one sens that it target to exploit full advantage and benefit provided by Linux and Open source software development.  
+Nevertheless, DBPC distinguish of OPC-DA in one sens that it target to exploit full advantage and benefit provided by Linux and Open source software development. Although, DBPC still to encourage, manufacturer providing there own DBPC compliant tools.  
 
 === What about OPC-UA? ===
 [[http://www.opcfoundation.org/Default.aspx/01_about/UA.asp?MID=AboutOPC|OPC-UA]]
-has been created for make up OPC-DA lacke. In some years, OPC-UA will probably replace OPC-DA in Windows world as is it strategically designed to. Contrary, in linux, OPC-UA and DBPC will stay complimentary.
+has been created for make up some OPC-DA lack. Actually, OPC-UA seems to be pushed to replace OPC-DA in Windows world. Contrary, in linux, OPC-UA and DBPC will stay complimentary.
 
-  * In one hand, OPC-UA will be more suitable for network automation interoperability because it is XML based and include authentication support. 
+  * In one hand, OPC-UA will be more suitable for automation network and inter-systems interoperability, because it is XML based and include authentication support.  
 
-  * In the other hand  DBPC will be more suitable for embedded systems, heavy loaded servers and human machine interfaces, because it is binary oriented. Besides DBPC is rooted in Linux thanks to D-bus which allow deep system integration and easy application development. 
+  * In the other hand DBPC is rooted in Linux thanks to D-bus which allow deep system integration and easy application development. Besides D-Bus is low-latency and low-overhead, designed to be small and efficient to minimize round-trips. So very suitable for embedded systems as well as fanless touchscreen HMI. In addition, the protocol is binary, not textual, which removes the costly serialization process.  
 
-In fact OPC-UA will benefit of DBPC and reciprocally. As a reslut of OPC-UA will be implemented as a upper layer above DBPC as will may be XMP-RPC, SOAP, CGI and so on. 
+In fact OPC-UA will benefit of DBPC and reciprocally. As a reslut of OPC-UA will be implemented as a upper layer above DBPC similar to XMP-RPC, SOAP, CGI and so on.
