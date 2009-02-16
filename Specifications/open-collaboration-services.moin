@@ -1,5 +1,5 @@
 ##language:en
-= Open Collaboration Services (v 1.0) =
+= Open Collaboration Services (v 1.1) =
 
 
 Frank Karlitschek [[MailTo(karlitschek AT kde.org)]]
@@ -85,6 +85,8 @@ At the moment there are the following services:
  * ACTIVITY
 
  * CONTENT
+
+ * KNOWLEDGEBASE
 
  * ...more to come later
 
@@ -726,6 +728,94 @@ Example:
  <message></message>
 </ocs>
 }}}
+
+
+=== KNOWLEDGEBASE ===
+
+==== list ====
+Gets a list of a specific set of knowledgebase entries. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/knowledgebase/data/
+ * HTTP Method: GET
+ * URL Arguments: content - Id of the content entry if you want to get knowledgebase entries from a specific content entry.
+ * URL Arguments: search - a keyword you want find in the name, description or answer of a knowledgebase entry.
+ * URL Arguments: sortmodes -  The sortmode of the list. Possible values are: "new" - newest first or "alpha" - alphabetical
+ * URL Arguments: page - The list page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+ * Result: knowledgebase xml
+ * Example: http://frank:password@api.opendesktop.org/v1/knowledgebase/data?content=123&search=foo&sortmode=new&page=1 Gets the second page of the list of the newest knowledgebase entries from content 123 with the string foo in the name, description or answer. 
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
+ <data>
+  <knowledgebase>
+   <id>1</id>
+   <status>not answered</status>
+   <contentid>12345</contentid>
+   <user>testy</user>
+   <changed>2009-02-07T23:14:11+01:00</changed>
+   <name>app question</name>
+   <description>How can I ........</description>
+   <answer></answer>
+   <comments>0</comments>
+   <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12345</detailpage>
+  </knowledgebase>
+ </data>
+  <data>
+  <knowledgebase>
+   <id>2</id>
+   <status>answered</status>
+   <contentid>12345</contentid>
+   <user>testy</user>
+   <changed>2009-02-03T21:11:01+01:00</changed>
+   <name>app question 22</name>
+   <description>How can I 22........</description>
+   <answer></answer>
+   <comments>0</comments>
+   <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12</detailpage>
+  </knowledgebase>
+ </data>
+}}}
+
+
+==== get ====
+Read one specific knowledgebase entry. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
+ * Syntax: /v1/knowledgebase/data/"contentid"/ 
+ * HTTP Method: GET
+ * Arguments: knowledgebaseid - Id of a knowledgebase entry
+ * Result: knowledgebase xml
+ * Example: http://frank:password@api.opendesktop.org/v1/knowledgebase/data/12345
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
+ <data>
+  <knowledgebase>
+   <id>1</id>
+   <status>not answered</status>
+   <contentid>12345</contentid>
+   <user>testy</user>
+   <changed>2009-02-07T23:14:11+01:00</changed>
+   <name>app question</name>
+   <description>How can I ........</description>
+   <answer></answer>
+   <comments>0</comments>
+   <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12345</detailpage>
+  </knowledgebase>
+ </data>
+</ocs>
+}}}
+
 
 
 ----
