@@ -15,9 +15,9 @@ int main(int argc, char *argv[]) {
         ... 
         gtk_init(&argc, &argv);
         ... 
-        g_set_application_name(_("Totem Media Player"));
+        g_set_application_name(_("Totem Movie Player"));
         gtk_window_set_default_icon_name("totem");
-        g_setenv("PULSE_PROP_media.role", "music");
+        g_setenv("PULSE_PROP_media.role", "video");
         ...
 }}}
 
@@ -28,13 +28,13 @@ This property should contain a human readable, localized application name, e.g. 
 In GLib applications the PA client libraries will automatically use the application name that may be set via the GLib function g_set_application_name(). Hence make sure to call this function very early when starting up:
 
 {{{
-g_set_application_name(_("Totem Media Player"));
+g_set_application_name(_("Totem Movie Player"));
 }}}
 
 In applications that do not use GLib you may instead set the environment variable PULSE_PROP_application.name:
 
 {{{
-setenv("PULSE_PROP_application.name", _("Foobar Media Player"), 1);
+setenv("PULSE_PROP_application.name", _("Foobar Music Player"), 1);
 }}}
 
 Please note that setting environment variables like this is a bit problematic: they are usually inherited by child processes, they are not particularly 'directed' and use awkward memory allocation. But it should be good enough for most cases at least for now. The PulseAudio client libraries will look for all env variables starting with PULSE_PROP to initialize the properties that are sent to the PA server.
@@ -72,7 +72,7 @@ This is a property of the actual streamed data, not so much the application. How
 For Glib applications:
 
 {{{
-g_setenv("PULSE_PROP_media.role, "music", TRUE);
+g_setenv("PULSE_PROP_media.role, "video", TRUE);
 }}}
 
 And for non-GLib applications:
