@@ -21,3 +21,23 @@ Possible workarounds to make PA work on these chips are:
 Other problematic drivers:
 
  - Some drivers block the CPU for too long and inhibit PA from getting scheduled in time. (Particularly problematic are closed sources drivers -- hey Ubuntu that means you! nvidia/ndis. latencytop might be useful) 
+
+'''This is how you can help fixing these issues:'''
+
+Please download alsa-time-test.c:
+
+  wget -O alsa-time-test.c 'http://git.0pointer.de/?p=pulseaudio.git;a=blob_plain;f=src/tests/alsa-time-test.c'
+  
+Compile it: (this obviously requires gcc to be installed as well as the alsa-lib-devel package -- that's the Fedora name, no clue what other distros call that)
+
+  gcc -Wall -Wextra -O0 -g alsa-time-test.c -o alsa-time-test `pkg-config --cflags --libs alsa`
+
+Now run it:
+  
+  ./alsa-time-test > log
+
+This will run forever, unless an assertion is hit. This will generate a *lot* of data. So make sure you have enough disk space before you run this. If after a while an assertion is hit, please send me an email containing the exact message of the assert as well as the end of 'log' (You can generate that with 'tail -n 50 log'). If after 30mins still no assertion is hit then contact me. You might need to send me the entire log (compress is first with gzip) -- but please do that only ''after'' contacting me since this is a '''lot''' of data. Also, I am not interested in duplicates. If you write me an email like this, please also include the lspci line for your card (i.e. 'lspci  | grep Multimedia audio controller') as well as the driver name ('lsmod | grep snd_'). Please understand that I want to keep my signal-to-noise ratio high, so please DO NOT SEND ME more than this unless I ask for it. My address is lennart poettering net. Thank you.
+
+And don't forget, unless you sent me the rquested output you have no right to complain!
+
+
