@@ -54,4 +54,13 @@ I already got this data for snd-intel8x0 and snd-ens1371. Please do not send me 
 
 Thank you!
 
+If you want to understand the ouput of this tool, here's what it does: It enters a busy loop, writing one sample to the device at a time (unless the card's buffer is already filled up), then querying the various timing parameters of the card. And then the next iteration happens, and so on, and so on. The values printed contain the following information:
+
+The first column is clock_gettime(CLOCK_MONOTONIC) in us. Second column in the timestamp stored in the snd_pcm_state_t. The third is the calculated playback time (i.e. write count - delay).  The fourth column is avail, the fifth is delay.
+
+Also see http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014992.html
+
+
+
+
 
