@@ -331,9 +331,65 @@ load-module module-alsa-sink device=hw:[answer from step 0] channel_map=right,le
 }}}
    * Restart the pulseaudio deamon by running {{{pulseaudio -k; pulseaudio -D}}}
 
-=== How can I pipe microphone input to the speakers ===
+
+=== How can I pipe microphone input to the speakers? ===
+
 This is useful to setup a PA system on a LAN. 
 {{{
  pacat -r --channels=1 --format=s16le --rate=22050 |sox -t sw -r 22050 -c 1 - -t wav - |paplay
 }}}
 pacat outputs raw wave files, sox is needed to put a proper header on them so paplay play them. Now setup your pulseaudio to play over the network and enjoy.
+
+
+=== How do I record stuff? ===
+
+(Question added 2009-03-14)
+
+==== Selecting the input device ====
+
+Most recording programs use ALSA. In those cases you need to set the input device in the recording program to be either "default" (if you have !PulseAudio set up as the default ALSA device) or whatever name you or your distribution has set up for the pulse plugin for ALSA. If the recording program offers input devices that have a more descriptive name, including the sound card name or something like that, don't choose those, because in those cases the recording program will access the sound card directly (that may not be such a bad thing, actually, if you don't have any real reason to record through !PulseAudio).
+
+If the recording program uses ALSA, and you configure it to use the pulse plugin (as described in the previous paragraph), then the real device you will use depends on which source (source is a !PulseAudio term for input devices, physical or virtual) is the default. If you're not happy with the default, you can change the default for example with pavucontrol, but there's another way to choose the device. When the PULSE_SOURCE environment variable is set when starting the recording program, the environment variable will be used to select the source. So, if we assume that you want to use the fictious myrecordingapp program, you would start it in the console like this:
+
+{{{
+PULSE_SOURCE=<source_name> myrecordingapp
+}}}
+
+<source_name> is of course the name of the source you want to use, but how to find out what the name is? This command lists all available sources:
+
+{{{
+LANG=C pactl list | grep -A2 'Source #' | grep 'Name: ' | cut -d" " -f2
+}}}
+
+The names can be rather cryptic, but hopefully you can figure out which name identifies which source.
+
+==== Which program to use for recording ====
+
+I don't do any recording myself, so I'm not an expert on what is available, but here is some information anyway. If you know more, please edit this! The situation for !PulseAudio support in GUI programs doesn't look too good. Audacity is quite nice, but getting it to work can currently be a hassle. See PerfectSetup#Audacity for more information. I gave Jokosher 0.9 a quick try recently, but didn't get it to work properly. In my experience, command line programs work much better (you can of course edit the file with any program you want after recording it). The two programs I have tested are arecord (comes with ALSA) and parec (comes with !PulseAudio). I'll give an example command for both:
+
+arecord:
+
+{{{
+PULSE_SOURCE=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 arecord --format=S16_LE --rate=44100 --channels=2 output.wav
+}}}
+
+That command assumes that !PulseAudio is the default ALSA device. If that's not the case, but instead !PulseAudio is assigned a device name "pulse", add `-D pulse` somewhere to the command (see `man arecord` for more information about the parameters).
+
+parec:
+
+{{{
+parec --device=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 --format=s16le --rate=44100 --channels=2 | sox --type raw -s2L --rate 44100 --channels 2 - --type wav output.wav
+}}}
+
+As you can see, in addition to parec, we use sox. That is done because parec generates only raw data, which is not nice to work with. sox is used to add the WAV header to the file. For information about parec and sox parameters, see `parec --help` and `man sox`, respectively.
+
+
+=== How do I record other programs' output? ===
+
+(Question added 2009-03-14)
+
+After reading the answer to the previous question, all you need to know is that every sink automatically has a monitor source, which you can use for recording. To list all monitor source names, run
+
+{{{
+LANG=C pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2
+}}}
