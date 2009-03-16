@@ -4,6 +4,70 @@ This page is to collect ideas for [[Software/ooo-build/SummerOfCode|Google Summe
 
 == Proposals ==
 
+=== Applications (Calc, Impress, Writer) ===
+
+==== Make Impress master pages copyable ====
+
+Currently, when in master page edit mode, the slide sorter has cut/copy/paste disabled. The task would be to add this missing functionality, and correctly handle masterpage-attached styles.
+
+ Required skills/knowledge:: c++
+ Difficulty:: easy
+ Contact:: thb at openoffice.org
+
+==== Attach Impress animations to styles ====
+
+Currently, Impress styles control most of the visual shape appearance, but not the slideshow animation effect. Which is a pity, as the styles concept is pretty powerful inside OOo, and provides a nice way to change animation settings and type for a great number of objects simultaneously.
+
+ Required skills/knowledge:: c++
+ Difficulty:: hard
+ Contact:: thb at openoffice.org
+
+==== Implement additional 3D slideshow transitions ====
+
+Building on top of a successful GSoC project from two years ago, the goal is to add more 3D transitions to the Impress application. A transition is an animation where one page is visible in the beginning and another in the end. It is used during presentation slideshow to switch pages.
+
+The already existing OpenGL transition engine gets the previous and next page as a prerendered image, and then gets the stage (i.e. the screen) exclusively, for the duration of the transition.
+
+ Required skills/knowledge:: c++
+ Difficulty:: easy
+ Contact:: rodo at novell.com
+
+==== Page preview for Writer ====
+
+Modify existing Writer page preview, such that it works as a live preview side-by-side the actual edit area.
+
+ Required skills/knowledge:: c++
+ Difficulty:: medium
+ Contact:: freuter at novell.com
+
+==== Style optimizer for Writer ====
+
+Often, people format their text document in weird ways, using whitespace for formatting, putting in section numbers literally instead of using the numbering feature etc. This proposal is about detecting such suboptimal content and converting it into a properly formatted document (using styles wherever possible).
+
+ Required skills/knowledge:: c++
+ Difficulty:: medium
+ Contact:: freuter at novell.com
+
+==== Word macro compatibility ====
+
+Recently Sun and Novell announced to pool resources to provide VBA macro compatability see [http://blogs.sun.com/GullFOSS/entry/sun_and_novell_work_together here].
+
+Currently work in the project is concentrated on providing Excel support by providing the framework for the compatibiltiy api via a plugable component, modifying the basic engine to support more compatibility features and porting the Helperapi code (for excel) to c++ (see. VBA & Porting_notes).
+
+The task at hand would be to extend the base framework by developing helper objects and implementations to be used by both the excel and writer compatibility object implementations, and to port the existing (word) helper api objects from Java to C++
+
+ Required skills/knowledge:: c++
+ Difficulty:: hard
+ Contact:: npower at novell.com
+
+==== Improve Calc autofilter ====
+
+In comparison to Calc, Excel 2007 has a much improved cell autofilter implementation. This proposal is about improving the existing filter inside Calc. This blog gives you the basic idea behind this task. At minimum, we are looking to add support for multiple entry selection to the existing autofilter, by adding check box to each filter item entry. If time permits, we might go even further.
+
+ Required skills/knowledge:: c++
+ Difficulty:: medium
+ Contact:: kyoshida at novell.com
+
 === Filters ===
 
 ==== Create a Visio import filter for Draw ====
@@ -154,23 +218,7 @@ OOo can use the KDE3 and Gtk+ themes, but not KDE4.  There exist a preliminary p
  Difficulty:: medium to hard
  Contact:: kendy at suse cz
 
-=== Unsorted ===
-
-==== Make Impress master pages copyable ====
-
-Currently, when in master page edit mode, the slide sorter has cut/copy/paste disabled. The task would be to add this missing functionality, and correctly handle masterpage-attached styles.
-
- Required skills/knowledge:: c++
- Difficulty:: easy
- Contact:: thb at openoffice.org
-
-==== Attach Impress animations to styles ====
-
-Currently, Impress styles control most of the visual shape appearance, but not the slideshow animation effect. Which is a pity, as the styles concept is pretty powerful inside OOo, and provides a nice way to change animation settings and type for a great number of objects simultaneously.
-
- Required skills/knowledge:: c++
- Difficulty:: hard
- Contact:: thb at openoffice.org
+=== Other ===
 
 ==== Standalone presentation viewer ====
 
@@ -179,52 +227,6 @@ In comparison to PowerPoint, OOo Impress does not have a standalone presentation
  Required skills/knowledge:: c++
  Difficulty:: hard
  Contact:: tbehrens at novell.com, rodo at novell com
-
-==== Implement additional 3D slideshow transitions ====
-
-Building on top of a successful GSoC project from two years ago, the goal is to add more 3D transitions to the Impress application. A transition is an animation where one page is visible in the beginning and another in the end. It is used during presentation slideshow to switch pages.
-
-The already existing OpenGL transition engine gets the previous and next page as a prerendered image, and then gets the stage (i.e. the screen) exclusively, for the duration of the transition.
-
- Required skills/knowledge:: c++
- Difficulty:: easy
- Contact:: rodo at novell.com
-
-==== Page preview for Writer ====
-
-Modify existing Writer page preview, such that it works as a live preview side-by-side the actual edit area.
-
- Required skills/knowledge:: c++
- Difficulty:: medium
- Contact:: freuter at novell.com
-
-==== Style optimizer for Writer ====
-
-Often, people format their text document in weird ways, using whitespace for formatting, putting in section numbers literally instead of using the numbering feature etc. This proposal is about detecting such suboptimal content and converting it into a properly formatted document (using styles wherever possible).
-
- Required skills/knowledge:: c++
- Difficulty:: medium
- Contact:: freuter at novell.com
-
-==== Word macro compatibility ====
-
-Recently Sun and Novell announced to pool resources to provide VBA macro compatability see [http://blogs.sun.com/GullFOSS/entry/sun_and_novell_work_together here].
-
-Currently work in the project is concentrated on providing Excel support by providing the framework for the compatibiltiy api via a plugable component, modifying the basic engine to support more compatibility features and porting the Helperapi code (for excel) to c++ (see. VBA & Porting_notes).
-
-The task at hand would be to extend the base framework by developing helper objects and implementations to be used by both the excel and writer compatibility object implementations, and to port the existing (word) helper api objects from Java to C++
-
- Required skills/knowledge:: c++
- Difficulty:: hard
- Contact:: npower at novell.com
-
-==== Improve Calc autofilter ====
-
-In comparison to Calc, Excel 2007 has a much improved cell autofilter implementation. This proposal is about improving the existing filter inside Calc. This blog gives you the basic idea behind this task. At minimum, we are looking to add support for multiple entry selection to the existing autofilter, by adding check box to each filter item entry. If time permits, we might go even further.
-
- Required skills/knowledge:: c++
- Difficulty:: medium
- Contact:: kyoshida at novell.com
 
 ==== GUI builder for OOo ====
 
@@ -250,7 +252,7 @@ There are several known performance bottlenecks inside OpenOffice, and clearly m
  Difficulty:: medium
  Contact:: mmeeks at novell.com
 
-==== have uno-skeletonmaker generate code based on templates ====
+==== uno-skeletonmaker: generate code based on templates ====
 
 Modify or rewrite the uno-skeletonmaker to make it templatable. The current implementation is completely hard-coded. Every developer has its own development style guide and has to change the generated code every time, which is a PITA.
 
