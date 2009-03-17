@@ -367,14 +367,6 @@ The names can be rather cryptic, but hopefully you can figure out which name ide
 
 I don't do any recording myself, so I'm not an expert on what is available, but here is some information anyway. If you know more, please edit this! The situation for !PulseAudio support in GUI programs doesn't look too good. Audacity is quite nice, but getting it to work can currently be a hassle. See PerfectSetup#Audacity for more information. I gave Jokosher 0.9 a quick try recently, but didn't get it to work properly. In my experience, command line programs work much better (you can of course edit the file with any program you want after recording it). The two programs I have tested are arecord (comes with ALSA) and parec (comes with !PulseAudio). I'll give an example command for both:
 
-arecord:
-
-{{{
-PULSE_SOURCE=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 arecord --format=S16_LE --rate=44100 --channels=2 output.wav
-}}}
-
-That command assumes that !PulseAudio is the default ALSA device. If that's not the case, but instead !PulseAudio is assigned a device name "pulse", add `-D pulse` somewhere to the command (see `man arecord` for more information about the parameters).
-
 parec:
 
 {{{
@@ -384,6 +376,17 @@ parec --device=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 --forma
 As you can see, in addition to parec, we use sox. That is done because parec generates only raw data, which is not nice to work with. sox is used to add the WAV header to the file. For information about parec and sox parameters, see `parec --help` and `man sox`, respectively.
 
 
+arecord:
+
+{{{
+PULSE_SOURCE=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 arecord --format=S16_LE --rate=44100 --channels=2 output.wav
+}}}
+
+That command assumes that !PulseAudio is the default ALSA device. If that's not the case, but instead !PulseAudio is assigned a device name "pulse", add `-D pulse` somewhere to the command (see `man arecord` for more information about the parameters).
+
+And the arecord command seems to not be working because the PULSE_SOURCE seems to be out of order. But the parec is working.
+
+
 === How do I record other programs' output? ===
 
 (Question added 2009-03-14)
@@ -391,5 +394,5 @@ As you can see, in addition to parec, we use sox. That is done because parec gen
 After reading the answer to the previous question, all you need to know is that every sink automatically has a monitor source, which you can use for recording. To list all monitor source names, run
 
 {{{
-LANG=C pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2
+pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2
 }}}
