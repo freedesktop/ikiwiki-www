@@ -7,3 +7,5 @@ There might be multiple reasons for this: actual bugs in PulseAudio, or bugs in 
 [wiki:HowToUseOProfile Please use oprofile to gather some data about where the CPU load is lost]
 
 It might be worth trying to disable timer scheduling (i.e. "glitch-free") by passing tsched=0 to module-hal-detect. When g-f is enabled PA will dynamically shorten wakeup times when an underrun is hit, to lower the chance that it happens again. Shorter wakeup times mean higher CPU load. Often enough the underruns are caused by broken timing of sound drivers. See BrokenSoundDrivers for more information on that.
+
+Also, while debugging you probably want to disable the CPU load limiter by passing --no-cpu-limit.
