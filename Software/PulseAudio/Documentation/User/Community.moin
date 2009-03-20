@@ -28,7 +28,18 @@ You have a chance to meet the developers on [irc://irc.freenode.org/pulseaudio #
 
 '''Bugs''' are reported by creating a [/newticket new ticket]. But first make sure that the bug isn't already [/report/1 listed]. Because of heavy spamming, you have to be logged in to create and modify tickets. Registration is a simple matter of choosing a user name. An email address is not required. However, if you do specify an email address you will be notified about ticket changes. Click on the top right [/register Register button] to create a user now. 
 
-'''Important:''' If you are encountering a '''crash''', please make sure to provide a '''stack trace''' when you file a bug. The various distributions usually provide documentation how you do this best. [http://fedoraproject.org/wiki/StackTraces Here's the one for Fedora], [https://wiki.ubuntu.com/Backtrace and here the one for Ubuntu]. Also, make sure to include the verbose output of PA when this problem happens. For that run "pulseaudio -vvvvv" in a terminal and try to reproduce your issue. You might need to stop a running PA first by issuing "pulseaudio -k".
+'''Important:''' If you are encountering a '''crash''', please make sure to provide a '''stack trace''' when you file a bug. The various distributions usually provide documentation how you do this best.  Here are the guides for [http://fedoraproject.org/wiki/StackTraces Fedora], [http://wiki.mandriva.com/en/Development/Howto/Software_Crash Mandriva] and [https://wiki.ubuntu.com/Backtrace Ubuntu]. Also, make sure to include the verbose output of PA when this problem happens. For that run "pulseaudio -vvvvv" in a terminal and try to reproduce your issue. You might need to stop a running PA first by issuing "pulseaudio -k".
+
+'''Caveats:''' Due to the jiggery pokery and black magic used in pulseaudio, running it in gdb can actually be a little problematic. You may need to issue to following commands to get things to fail properly.
+{{{
+$ export LD_BIND_NOW=1
+$ gdb pulseaudio
+>> handle SIGXCPU SIGPWR SIG33 SIG34 SIG42 SIG43 SIG44 SIG45 SIG46 SIG47 SIG48 SIG49 SIG50 SIG51 SIG52 SIG53 SIG63 SIG62 SIG61 SIG60 SIG59 SIG58 nostop noprint
+>> run
+>> ....
+>> *** crash ***
+>> bt thread apply all bt full (etc. etc.)
+}}}
 
 Before posting a bug report you might awant to check [wiki:BrokenSoundDrivers this list of broken ALSA sound drivers].
 
