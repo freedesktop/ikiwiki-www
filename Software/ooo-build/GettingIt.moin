@@ -1,0 +1,107 @@
+== Getting the sources ==
+
+ooo-build sources are stored in [[http://git-scm.com/|git]].  To clone the latest version of ooo-build, please use:
+{{{
+git clone git://anongit.freedesktop.org/git/ooo-build/ooo-build
+}}}
+
+Registered developers should use the following command to enable writing to the repository:
+{{{
+git clone ssh://git.freedesktop.org/git/ooo-build/ooo-build
+}}}
+
+Please check our '''[[Software/ooo-build/SVNToGitCheatSheet|SVN to git cheat sheet]]''', or read the detailed instructions below.
+
+== Getting a particular branch ==
+
+When you have cloned the repository, you can switch to any branch you need.  The bleeding edge development happens in ''master'', which is what you get when you clone the repository.  To switch eg. to branch ''ooo-build-3-0-1'', do:
+{{{
+git checkout -b ooo-build-3-0-1 origin/ooo-build-3-0-1
+}}}
+
+This exactly means "please create a local branch ooo-build-3-0-1 that tracks what's happening in the remote branch ooo-build-3-0-1".  You can get a list of all the available remote branches using ''git branch -r''.
+
+Once you have created the branch(es), you can switch between them using ''git checkout'':
+{{{
+git checkout master
+git checkout ooo-build-3-0-1
+}}}
+
+''Note: You might want to keep the older ooo-build branches in separate locations.  When you have cloned ooo-build master to eg. ~/ooo-build, you can use the --refence feature of git clone to save bandwidth:''
+{{{
+git clone --reference ~/ooo-build \
+    ssh://git.freedesktop.org/git/ooo-build/ooo-build ooo-build-3-0-1
+cd ooo-build-3-0-1
+git checkout -b ooo-build-3-0-1 origin/ooo-build-3-0-1
+}}}
+
+== Getting the latest updates ==
+
+We use the same git workflow as described in the [[Infrastructure/git/Developers|common freedesktop.org git instructions]] - we don't want to see any 'merge' commits in the repository.  To get the updates, please use
+{{{
+git pull -r
+}}}
+
+'''Do not forget the -r!''' - it rebases your local changes instead of merging them.
+
+== Committing the changes ==
+
+When you commit your changes, it happens locally.  You probably want to use any of the following forms of committing
+{{{
+git commit -a                          # commit all the changed or removed files
+git commit file1 file2 file3 ... fileN # commit the specified files
+git add file1 file2 file3 ... fileN
+git commit                             # commit the files added by the previous git add
+}}}
+
+Of course, there's also the usual:
+{{{
+git rm file1 file2 # remove file
+git mv source dest # move file
+git commit         # commit the removes/moves
+}}}
+
+The commit logs should have the following form:
+{{{
+First line roughly describing the change.
+
+Leave one empty line, and then follow with more detailed description
+what and why you changed.  This is really important, because some
+of the git tools (like gitk, git log --pretty=oneline, git rebase
+--interactive, etc.) show just the first line.  Also we don't have
+a ChangeLog any more, so git log is now your source of the information
+about the changes.
+
+* file1: Did this and that.
+
+* file2: And something else here.
+}}}
+
+== Pushing the changes ==
+
+If you have write permissions to the repository, and want to publish your changes, push them to the repository using
+{{{
+git push
+}}}
+
+When it fails because somebody else has pushed something, update your repository using
+{{{
+git pull -r
+}}}
+as already described above.  Again, '''don't forget the -r'''!
+
+''TODO: Describe here how it can be fixed by rebasing manually.''
+
+== Mailing the changes ==
+
+If you do not have the write permissions, please mail the results of
+{{{
+git format-patch
+}}}
+to the '''dev@lists.go-oo.org''' mailing list, we will review and commit them for you.
+
+== More info ==
+
+* [[http://git-scm.com/|git home page]]
+* ooo-build [[Software/ooo-build/SVNToGitCheatSheet|SVN to git cheat sheet]]
+* [[Infrastructure/git/Developers|freedesktop.org git instructions]]
