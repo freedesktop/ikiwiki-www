@@ -13,11 +13,11 @@ Please note that the git workflow is not completely 1:1 to SVN workflow thanks t
 
 Generally though, it is usually better not to hurry with pushing the changes, and check eg. ''git log -p'' before you do that.
 
-||<:20%> '''What''' ||<:40%> '''How you used to do it in SVN''' ||<:40%> '''How you do it now in git''' ||
-|| Getting the repository (anonymous) || svn checkout http://svn.gnome.org/svn/ooo-build/trunk ooo-build || git clone git://anongit.freedesktop.org/git/ooo-build/ooo-build ||
-|| Getting the repository || svn checkout svn+ssh://login@svn.gnome.org/svn/ooo-build/trunk ooo-build || git clone ssh://git.freedesktop.org/git/ooo-build/ooo-build ||
-|| Getting a fresh branch || svn checkout svn+ssh://login@svn.gnome.org/svn/ooo-build/branches/ooo-build-3-0-1 || git clone ssh://git.freedesktop.org/git/ooo-build/ooo-build ooo-build-3-0-1 ; cd ooo-build-3-0-1 ; git checkout -b ooo-build-3-0-1 origin/ooo-build-3-0-1 ||
-|| Switching the repository to a branch || svn switch svn+ssh://login@svn.gnome.org/svn/ooo-build/branches/ooo-build-3-0-1 || git checkout ooo-build-3-0-1 ||
+||<:10%> '''What''' ||<:45%> '''How you used to do it in SVN''' ||<:45%> '''How you do it now in git''' ||
+|| Getting the repository (anonymous) || svn checkout http://.../trunk ooo-build || git clone git://anongit.freedesktop.org/git/ooo-build/ooo-build ||
+|| Getting the repository || svn checkout svn+ssh://.../trunk ooo-build || git clone ssh://git.freedesktop.org/git/ooo-build/ooo-build ||
+|| Getting a fresh branch || svn checkout svn+ssh://.../branches/ooo-build-3-0-1 || git clone ssh://git.freedesktop.org/git/ooo-build/ooo-build ooo-build-3-0-1<<BR>>cd ooo-build-3-0-1<<BR>>git checkout -b ooo-build-3-0-1 origin/ooo-build-3-0-1<<BR>># '''NOTE:''' If you already have any clone of the repository, use git clone ''--reference <the-repository>'' ssh://git.freedesktop.org/git/ooo-build/ooo-build to save bandwidth. ||
+|| Switching the repository to a branch || svn switch svn+ssh://.../branches/ooo-build-3-0-1 || git checkout ooo-build-3-0-1 ||
 || Getting new changes || svn up || git pull -r ||
 || Committing & publishing the changes || svn commit || git commit -a ; git push ||
 || Adding files || svn add file1 file2 ; svn commit || git add file1 file2 ; git commit ; git push ||
@@ -26,7 +26,7 @@ Generally though, it is usually better not to hurry with pushing the changes, an
 || Checking history of changes || less !ChangeLog (or svn log | less) || git log ||
 || Checking status || svn status || git status ||
 || Differences || svn diff || git diff ||
-|| Tagging a release || svn cp .../trunk .../tags/<tag-name> || git tag -s <tag-name > ; git push ||
+|| Tagging a release || svn cp svn+ssh://.../trunk svn+ssh://.../tags/<tag-name> || git tag -s <tag-name > ; git push ||
 
 == ChangeLog ==
 
