@@ -102,6 +102,22 @@ as already described above.  Again, '''don't forget the -r'''!
 
 ''Note: If you used just 'git pull' instead of 'git pull -r' accidentally, you can still fix that by re-running '''git pull -r'''.  There is also a hook that warns about the plain 'git pull' usage, and instructs you what to do.''
 
+== What if I committed something wrong ==
+
+If you did not push it yet, all is fine.  Just use
+{{{
+git rebase -i origin/master
+# [this supposes you are in the 'master' branch; for ooo-build-3-0-1
+# you would use origin/ooo-build-3-0-1]
+}}}
+and edit the history.  The use of origin/master as the starting commit decreases the probability that you'll do something wrong.
+
+'git rebase -i' presents you with a list of the commits and a small help; you can let the commit as it is, move it up/down, remove it, squash it together with the previous commit(s), or edit it.
+
+After you save the list, each time there is a conflict, or when rebase finds a commit to edit, you get a shell, do your changes, ''git add the.txt changed.txt files.txt'', and ''git rebase --continue''.  After few iterations, and with a bit of luck, all will be as good as you wanted.
+
+'''However - if you pushed your changes already, don't you try to rebase them!  You have to commit the fixes and push them as completely new stuff.'''
+
 == Mailing the changes ==
 
 If you do not have the write permissions, please mail the results of
