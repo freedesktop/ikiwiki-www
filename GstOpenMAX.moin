@@ -1,113 +1,62 @@
-'''GstOpenMAX''' is a GStreamer plug-in that allows communication with OpenMAX IL components.
+'''gst-openmax''' is a GStreamer plug-in that allows communication with OpenMAX IL components.
 
 OpenMAX IL is an industry standard that provides an abstraction layer for computer graphics, video, and sound routines.
 
-== Why is it good? ==
-
-The easiest way to see OpenMAX IL is to think about OpenGL; both standards are controlled by the Khronos Group, both standards are open and royalty free.
-
-In a similar way you can think of Bellagio/OpenMAX IL as Mesa/Open GL. They are not official implementations, but they follow the standard.
-
-There are many Open Source encoders/decoders, but they all have different API's, so in order to use it you need to learn the API. In fact some projects as FFmpeg constantly change their API, so it makes things difficult.
-
-If you use Bellagio's omxil you don't have to worry about FFmpeg's API changes, those are wrapped inside a standard API.
-
-The standard has been reviewed by several parties including: Texas Instruments, ARM, ATI Technologies, Beatnik, Broadcom, Emuzed, Fraunhofer, Freescale, Infineon, Intel, Motorola, Nokia, NVIDIA, Philips, SKY MobileMedia, Samsung, Sasken, Siemens, ST Microelectronics, and Symbian.
-
-The gst-openmax project is a collaboration between [[http://www.fluendo.com|Fluendo]], 
-[[http://www.nokia.com|Nokia]], [[http://www.nxp.com|NXP]], [[http://www.st.com|STMicroelectronics]], [[http://www.ti.com|Texas Instruments]], and the Open Source community.
-
-The following is a diagram showing examples of what could be possible to do with OpenMAX IL:
-
-{{attachment:gst-openmax.png}}
-
-== What's bad? ==
-
-Not all of the codecs are defined. For example Vorbis is defined, but not Theora. Of course it could be added as an extension, but that API wouldn't be set in stone.
+This project is a collaboration between [[http://www.nokia.com|Nokia]], [[http://www.nxp.com|NXP]], [[http://www.collabora.co.uk|Collabora]], [[http://www.st.com|STMicroelectronics]], [[http://www.ti.com|Texas Instruments]], and the open source community.
 
 == What's the status? ==
 
-Right now a few Bellagio components can be used:
+Many component wrappers have been developed for different OpenMAX IL implemenatations
+
+=== ti (OMAP-3430) ===
+
+Hardware-accelerated through DSP.
+
+ * H.264 video encoder/decoder
+ * H.263 video encoder/decoder
+ * MPEG4 video encoder/decoder
+ * WMV video decoder
+ * JPEG image encoder
+
+=== Maemo ===
+
+Uses bellagio.
+
+ * MP3 audio decoder
+ * AAC audio encoder/decoder
+ * G.711 audio encoder/decoder
+ * G.719 audio encoder/decoder
+ * iLBC audio encoder/decoder
+ * AMR-NB audio encoder/decoder
+ * AMR-WB audio encoder/decoder
+
+=== bellagio ===
 
  * MP3 audio decoder (libmad)
  * Vorbis audio decoder
  * MPEG4 video decoder (FFmpeg)
  * H.263 video decoder (FFmpeg)
- * ALSA sink
-
-Basic playback functionality is provided:
-
- * A/V sync
- * Play/Pause
- * Seeking
-
-The GstOpenMAX elements can be used in multimedia applications like Rhythmbox or Totem instead of the original ones.
+ * Audio sink (ALSA... not maintained)
 
 We are missing:
 
  * OpenMAX IL facilities (tunneling, clock)
- * More codecs
-
-And of course, input from the community and the first release.
 
 == How to get it ==
 
-You'll need an OpenMAX IL implementation. Luckily STMicroelectronics has provided an useful sample implementation in the Bellagio project which is Open Source.
+gst-openmax is already distributed in many embedded platforms, such as Angstrom and Maemo. If you need the source-code it's available just as any other GStreamer modules.
+
+ * [[http://cgit.freedesktop.org/gstreamer/gst-openmax/|git repository]]
+
+== How to try it ==
+
+It depends on your platform, but if want to try on x86 you can use Bellagio's implementation:
 
 === omxil ===
 
-So, first install Bellagio's omxil from [[http://omxil.sourceforge.net/|here]], or [[http://downloads.sourceforge.net/omxil/libomxil-B-0.9.0.tar.gz|direct link]]. Version 0.9.0 is recommended.
+So, first install Bellagio's omxil from [[http://omxil.sourceforge.net/|here]], or [[http://downloads.sourceforge.net/omxil/libomxil-bellagio-0.9.1.tar.gz|direct link]]. Version 0.9.1 is recommended.
 
 Install as usual:
-
-{{{
- ./configure --prefix="$HOME/omx" --disable-ffmpegcomponents
- make
- make install
-}}}
-
-NOTE: The ffmpeg components don't compile on Ubuntu.
-
-Register the components:
-
-{{{
-$HOME/omx/bin/omxregister -v
-}}}
-
-You'll get an output like this:
-
-{{{
-Component OMX.st.volume.component registered
-  Specific role OMX.st.volume.component registered
-Component OMX.st.audio_decoder.ogg.single registered
-  Specific role OMX.st.audio_decoder.ogg.single registered
-Component OMX.st.alsa.alsasink registered
-  Specific role OMX.st.alsa.alsasink registered
-Component OMX.st.audio_filereader registered
-Component OMX.st.audio_decoder registered
-  Specific role OMX.st.audio_decoder.mp3 registered
-  Specific role OMX.st.audio_decoder.ogg registered
-  Specific role OMX.st.audio_decoder.aac registered
-Component OMX.st.video_decoder registered
-  Specific role OMX.st.video_decoder.mpeg4 registered
-  Specific role OMX.st.video_decoder.avc registered
-Component OMX.st.video_colorconv.ffmpeg registered
-  Specific role OMX.st.video_colorconv.ffmpeg registered
-Component OMX.st.audio_decoder.mp3.mad registered
-  Specific role OMX.st.audio_decoder.mp3.mad registered
-
- 8 OpenMAX IL ST static components with 11 roles succesfully scanned
-}}}
-
-Make sure you have:
- * "OMX.st.audio_decoder.mp3.mad" for MP3 decoding
- * "OMX.st.audio_decoder.ogg.single" for Vorbis decoding
- * "OMX.st.video_decoder.mpeg4" for MPEG4 video decoding
- * "OMX.st.alsa.alsasink" for ALSA sound output
-
-=== GstOpenMAX ===
-
-Download from [[http://gstreamer.freedesktop.org/src/gst-openmax/pre/|here]].
 
 {{{
 ./configure --prefix="$HOME/omx"
@@ -115,12 +64,46 @@ make
 make install
 }}}
 
-== How to try it ==
+Register the components:
+
+{{{
+$HOME/omx/bin/omxregister-bellagio -v
+}}}
+
+You'll get an output like this:
+
+{{{
+ Scanning directory /home/felipec/omx/lib/bellagio/
+
+ Scanning openMAX libary /home/felipec/omx/lib/bellagio/libomxvorbis.so
+Component OMX.st.audio_decoder.ogg.single registered
+  Specific role OMX.st.audio_decoder.ogg.single registered
+
+ 1 OpenMAX IL ST static components with 1 roles succesfully scanned
+}}}
+
+Make sure you have:
+ * "OMX.st.audio_decoder.mp3.mad" for MP3 decoding
+ * "OMX.st.audio_decoder.ogg.single" for Vorbis decoding
+ * "OMX.st.video_decoder.mpeg4" for MPEG4 video decoding
+
+=== gst-openmax ===
+
+It's always better to get the latest code:
+
+{{{
+git clone git://anongit.freedesktop.org/gstreamer/gst-openmax
+./autogen.sh --noconfigure
+./configure --prefix="$HOME/omx"
+make install
+}}}
 
 {{{
 export GST_PLUGIN_PATH=$HOME/omx/lib/gstreamer-0.10
 export LD_LIBRARY_PATH=$HOME/omx/lib
 }}}
+
+=== Running ===
 
 You'll be able to play audio and video with MP3, Vorbis, MPEG4, H.264, or H.263 content using Bellagio's components.
 
@@ -132,7 +115,7 @@ GStreamer-CRITICAL **: gst_segment_clip: assertion `segment->format == format' f
 If you want to see what's happening:
 
 {{{
- export GST_DEBUG=omx:4
+export GST_DEBUG=omx:4
 }}}
 
 == How to contribute ==
@@ -148,35 +131,14 @@ If you find any issues please fill a bug report [[http://bugzilla.gnome.org/ente
 
 == Roadmap ==
 
-0.1 (07-wk44) <- Released in (0.10.0.2)
- * mp3dec, vorbisdec, mpeg4dec, h263dec, alsasink
- * A/V sync
- * pause/resume
- * basic seeking
- * zero-copy
- * multiple OpenMAX IL implementations
-0.2 (08-wk07) <- Released in (0.10.0.3)
- * h264dec, aacdec, amr-nb-dec, videoenc
-0.3 (08-wk08)
- * amr-wb-dec
- * testing framework
-0.4 (08-wk26) <- Released in (0.10.0.4)
- * threading fixes
-0.5
- * tunneling
-0.6
- * special registry
-1.0
- * documentation
- * samples
-1.1
- * proper error handling
- * QoS
-
-More codecs will be developed on the way, but we are still not sure which ones. Also, probably omx-clock mapping, depending on the resources of the parties involved. Patches are welcome :)
+ * Merge tunneling branch
+ * Documentation
+ * More unit tests
+ * First real release
 
 == News ==
 
+ * [[http://www.youtube.com/watch?v=EH4ZSpehNQw|gst-openmax on the beagleboard (video)]]
  * [[http://maemo.org/news/view/1183357408.html|Maemo News - GstOpenMAX kicked off]]
 
 == External Links ==
