@@ -48,12 +48,14 @@ git branch -D master
 
 == Getting the latest updates ==
 
-We use the same git workflow as described in the [[Infrastructure/git/Developers|common freedesktop.org git instructions]] - we don't want to see any 'merge' commits in the repository.  To get the updates, please use
+We use the same git workflow as described in the [[Infrastructure/git/Developers|common freedesktop.org git instructions]].  The reasoning is simple - using just the ''git pull'' (without the ''-r'') tends to create too many unnecessary 'merge' commits when there are more people working on the single repository, and this is what we want to avoid.
+
+So, to get the updates, use
 {{{
 git pull -r
 }}}
 
-'''Do not forget the -r!''' - it rebases your local changes instead of merging them.
+Please, '''do not forget the ''-r'' !''' - it means that instead of merging, ''git pull'' rebases your local changes against the changes from the remote repository.
 
 == Committing the changes ==
 
@@ -127,6 +129,17 @@ After you save the list, each time there is a conflict, or when rebase finds a c
 
 '''However - if you pushed your changes already, don't you try to rebase them!  You have to commit the fixes and push them as completely new stuff.'''
 
+== Introducing a change in more branches ==
+
+To get commits from other branches, please use
+{{{
+git cherry-pick <commit-id>
+}}}
+
+It will take the changes introduced in <commit-id>, and commit them it in the current branch.
+
+We may allow full merges from other branches in the future, but so far we do not consider it safe on the branches automatically converted from the SVN.
+
 == Mailing the changes ==
 <<Anchor(mailthechanges)>>
 
@@ -141,11 +154,13 @@ to the '''dev@lists.go-oo.org''' mailing list, we will review, commit, and push 
 When you want to tag a release, you have to first create the tag, and then push it:
 
 {{{
+# create a tag, signed by the GPG key you configured using git config user.signingkey
 git tag -s <tag-name>
+# push the tags to the remote repository
 git push --tags
 }}}
 
-You can also create the tag using another key (git tag -u <key-id> <tag-name>), or an unsigned tag (git tag -a <tag-name>); though you should avoid the unsigned tags.
+You can also create the tag using another key (git tag -u <key-id> <tag-name>), or create an unsigned tag (git tag -a <tag-name>); though you should avoid the unsigned tags.
 
 == More info ==
 
