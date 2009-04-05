@@ -58,7 +58,23 @@ For users with commit access: git+ssh://git.freedesktop.org/git/dbus/dbus-java
 
 For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-java
 
-'''The latest bug-fix release is [[http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.5.1.tar.gz|dbus-java-2.5.1.tar.gz]]. (2008-11-16)'''
+'''The current release is [[http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.6.tar.gz|dbus-java-2.6.tar.gz]]. (2009-04-05)'''
+
+Version 2.6:
+
+	* Add DBusConnection.releaseBusName API
+	* Add DBusConnection.PeerSet for tracking peer lifetimes
+	* Fix bug where DBusDaemon never sends NameOwnerChanged/NameLost
+	  signals
+	* Patches from Omair Majid <omajid -at- redhat -dot- com> to fix
+	  DBusCall manpage and allow alternative docbook-to-man implementations.
+	* Fix dependency on unix.jar even in tcp mode
+	* Fix Path/ObjectPath cast issues (reported by Greg DeAngelis
+	  <gdeangel -at- gmail -dot- com>)
+	* Fix behavior when disconnected (spotted by Christopher 
+	  Armstrong <carmstrong -at- fastmail -dot- com -dot- au>)
+
+'''The previous release was [[http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.5.1.tar.gz|dbus-java-2.5.1.tar.gz]]. (2008-11-16)'''
 
 Version 2.5.1:
 
@@ -73,8 +89,6 @@ Version 2.5.1:
         * Fix clearing of string buffer during marshalling (Fixes: #17362)
         * Fix array marshalling bug (Fixes: #13291)
 
-'''The latest release is [[http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.5.tar.gz|dbus-java-2.5.tar.gz]]. (2008-06-24)'''
-
 Version 2.5:
 
 	* Patch from  Omair Majid <omajid -at- redhat -dot- com> to have seperate javadoc installation directory
@@ -87,36 +101,6 @@ Version 2.5:
 	* Fix CreateInterface to mangle names which are reserved words (Spotted by Sveinung Kvilhaugsvik <sveinung84 -at- users -dot- sourceforge -dot- net>)
 	* Fix DBusDaemon to not crash on bad tcp connections (Patch from Hugues Moreau <hmoreau -at- gmail -dot- com>)
 	* Relicence to LGPL or AFL.
-
-'''The previous release was [[http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.4.tar.gz|dbus-java-2.4.tar.gz]]. (2007-02-05)'''
-
-Version 2.4:
-
-   * Add DBusMemberName to force method names or signal names to something
-     other than the Java name (suggested byaViktar Vauchkevich <vctr -at-
-     yandex -dot- ru>)
-   * Don't respond to Introspect/Ping except on the right interface 
-     (pointed out by Serkan Kaba <serkan_kaba -at- yahoo -dot- com>)
-   * Automatically unexport objects which go out of scope in the 
-     parent program (don't hold a strong reference). This is now
-     optional and not the default for 1. sanity and 2. a possible
-     bug in the WeakReference workings in Sun.
-   * Add fallback objects---a single object can be called for any
-     object under a given path prefix.
-   * Add support for localization of strings via gettext.
-   * Throw a nicer error when signals are not declared as part of an
-     interface.
-   * .viewerclasses needs to depend on .binclasses
-   * Use libunixsocket-java support for writing multiple byte arrays at 
-     once to write message vectors
-   * check that the unix-socket-received uid matches for connections to 
-     DBusDaemon
-   * Update to use libunixsocket-java syntax which works on BSDs
-   * Fix utf-8 characters used in test to actually be the same character...
-   * Add code to preallocate the buffer array array (Suggested by Adam
-     Bennett <cruxic -at- gmail -dot- com>)
-   * Fix warnings when building with gcj (fixes a bug in Peer handling and
-     DBusSerializable handling)
 
 
 The last release binding the reference implementation is [[http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.13.tar.gz|libdbus-java-1.13.tar.gz]].
