@@ -19,3 +19,22 @@ A little overview on the different volumes PA handles internally:
 '''reference_volume''' is the volume that if pa_sink_input_set_volume() is called with absolute=FALSE or pa_sink_input_new() with data->absolute_volume=FALSE the volumes should be considered relative to. Often this is identical to '''virtual_volume'''. Generally if the virtual volume is changed due to sink input volume changes the reference volume is not updated. It is however updated if the virtual volume is directly modified.
 
 '''soft_volume''' is an internal volume that is applied to the PCM data before it is handed out to the device. For devices lacking hw volume control this is used to apply volumes. Also, on devices that do dB based volumes this is used to extend the volume range.
+
+== Formulas ==
+
+{{{
+i->soft_volume := i->relative_volume * i->volume_factor
+}}}
+
+In flat volume mode:
+
+{{{
+i->relative_volume := i->virtual_volume / s->virtual_volume
+}}}
+
+In classic volume mode:
+{{{
+i->relative_volume := i->virtual_volume
+}}}
+
+
