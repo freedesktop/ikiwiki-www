@@ -368,6 +368,33 @@ Adjust the volume of a sink when the volume buttons of an infrared remote contro
   sink
     The sink to control
 
+Here is a sample ''~/.lircrc'' entry configured to forward signals to !PulseAudio. Note that you may have to change the button names (Vol_Up, Vol_Down...) to match those in your ''/etc/lirc/lircd.conf''.
+{{{
+begin
+    prog = PulseAudio
+    remote = *
+    button = Vol_Up
+    config = volume-up
+    repeat = 5
+end
+
+begin
+    prog = PulseAudio
+    remote = *
+    button = Vol_Down
+    config = volume-down
+    repeat = 5
+end
+
+begin
+    prog = PulseAudio
+    remote = *
+    button = Mute
+    config = mute-toggle
+end
+}}}
+Available ''config''s include: ''volume-up'', ''volume-down'', ''mute'', ''mute-toggle'' and ''reset''.
+
 == Bluetooth ==
 
 === module-bluetooth-discover ===
