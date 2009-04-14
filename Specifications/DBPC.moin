@@ -23,17 +23,17 @@ Trivial diagrammatic description of DBPC architecture.
 
  DBus:: Formally, D-Bus is an inter-process communication mechanism. Simply, DBus is a software data bus which permits communication between applications. Unless it is not a process field bus as used in factory floor, its core functionality can easily be apprehended in the same way by control engineer. For more detail about DBus please read related specification.
 
- DBPC:: DBPC is a layer above DBUS. It define a standard set of objects, interfaces and methods for use in process control, automation an domotic applications, to facilitate interoperability. Primary goal is defining a common communication language for real time communication of plant data between control devices from different manufacturers and SCADA, HMI, process control and open source applications.
+ DBPC:: DBPC is a layer above DBUS. It define a standard set of objects, interfaces and methods for use in process control, automation and domotic applications, to facilitate interoperability. Primary goal is defining a common communication language for real time communication of plant data between control devices from different manufacturers and SCADA, HMI, process control and open source applications.
 
  DBPC-server:: DBPC servers are services which provide common items access trough DBus. Generally a DBPC server grants real time data access to one or more remote programmable logic controller. Most of time is done by pooling. Typically DBus servers represent a field bus protocol. (For example : ModbusTCP DBPC server, Profibus DBPC server).
 
  DBPC-client:: DBPC client are compliant application which access to items in one or more DBPC-server.
 
- Item:: Each data point available trought a DBPC server are called Items. Mainly, items correspond to physical value, factory state, command signals, or so on. An item value can be read or write. 
+ Items:: Each data point available trought a DBPC server are called Items. Mainly, items correspond to physical value, factory state, command signals, or so on. An item value can be read or write. 
 
  Device :: Form DBPC point of view, devices are equipment or objects which may be controlled or monitored trough a DBPC server. Still DBPC target industrial world, DBPC servers can also be implemented for such devices : HVAC, heating control, domotic, real time data producers, metéo stations, telescopes, multimedia equipments, IR remote controls, DCF clocks, robots, usb gadgets, RFID readers,...   
 
- PLC Programmable logical controller:: Programmable logic controllers are a digital computer used for automation of electromechanical processes. Unlike general-purpose computers, the PLC are designed for multiple inputs and output arrangements, extended temperature ranges, immunity to electrical noise, and resistance to vibration and impact. Although the norm IEC 61131-3 define PLC programming languages each manufacturer has its own programming tool. Interoperability is not yet a priority for PLC manufacturers. Majors world PLC manufacturer are Siemens Simatic S7, Allen Bradeley, Telemecanique and GE fanuc.
+ PLC Programmable logical controller:: Programmable logic controllers are a digital computer used for automation of electromechanical processes. Unlike general-purpose computers, the PLC are designed for multiple inputs and output arrangements, extended temperature ranges, immunity to electrical noise, and resistance to vibration and impact. Although the norm IEC 61131-3 define PLC programming languages each manufacturer has its own programming tool. Interoperability is not yet a priority for PLC manufacturers. Majors world PLC manufacturer are Siemens Simatic S7, Allen Bradley, Telemecanique and GE fanuc.
 
  Field bus:: Fieldbus is an industrial automation network system for real-time distributed control. It is a way to interconnect instruments, actuator and sensor with controller. Field buses typically take place in a plant. Many fieldbus competing technologies exist. So merging them in D-Bus is a brave goal followed by DBPC.   
 
@@ -82,7 +82,7 @@ This part introduce basis usage of D-Bus for process control.
 It start by specifying common usage of methods call and signals. Basically, DBPC-client can read or write items through standard methode calls. DBPC-client may also subscribe to an event and be notified in case of item value change.
 
 Next, convention usage of bus name are described. Root path name is{{{ /org/dbpc/}}}. Items are orginised in two way :
- * '''Unique bus name :''' Items are orginized related to field bus or physically connected equipment.{{{ (/org/opc/fieldbus/controller_name/item)}}}
+ * '''Unique bus name :''' Items are orginized related to field bus or physically connected equipment.{{{ (/org/dbpc/fieldbus/controller_name/item)}}}
  * '''Well-know bus name : ''' Items are mapped to equipment hierarchy related to ISA88 recommendation.{{{ (/org/dbpc/entreprise/site/area/process_cell/unit/equipement/item)}}}
 
 === Part 2, DBPC Objects, interfaces and methods description ===
