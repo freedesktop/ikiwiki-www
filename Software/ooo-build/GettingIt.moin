@@ -35,27 +35,44 @@ git checkout master
 git checkout ooo-build-3-0-1
 }}}
 
+To get a list of all available remote branches, use:
+{{{
+git branch -r
+}}}
+
 ''Note: You might want to keep the older ooo-build branches in separate locations.  When you have cloned ooo-build master to eg. ~/ooo-build, you can use the --refence feature of git clone to save bandwidth:''
 {{{
 git clone --reference ~/ooo-build \
     ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build ooo-build-3-0-1
 cd ooo-build-3-0-1
 git checkout -b ooo-build-3-0-1 origin/ooo-build-3-0-1
-# you probably want to have ooo-build-3-0-1 as the only branch here
+}}}
+
+''We recommend you to have the branch you are interested in as the only branch there:''
+{{{
+# remove the master branch in this repository, we are interested only in ooo-build-3-0-1
 git branch -D master
 }}}
 
 == Getting a particular tag ==
 
-You might switch your local copy of the git tree to the given tag by the following command, e.g to get the tag OOO_BUILD_3_0_99_3:
+To switch your local repository to the given tag, use the following command:
 {{{
-git checkout -b OOO_BUILD_3_0_99_3 OOO_BUILD_3_0_99_3
+# let's say we want the tag OOO_BUILD_3_0_99_3
+git checkout -b tag-OOO_BUILD_3_0_99_3 OOO_BUILD_3_0_99_3
 }}}
 
-This exactly means "please create a local branch OOO_BUILD_3_0_99_3 that shows the state of the sources when created the tag OOO_BUILD_3_0_99_3".
-
-The tags are created for released sources, branches or some specific commits. You might list all available tags by the command:
+This exactly means "please create a local branch tag-OOO_BUILD_3_0_99_3 that shows the state of the sources when the tag OOO_BUILD_3_0_99_3 was created".  For the operations like diff, log, etc. you don't have to create the branch; just directly do
 {{{
+git log OOO_BUILD_3_0_99_3
+git diff OOO_BUILD_3_0_99_3 master
+}}}
+
+The tags are created for released sources, branches or some specific commits.  To list them all, use:
+{{{
+# ensure that you have all the tags from the remote repository
+git pull -t
+# show the tags
 git tag
 }}}
 
@@ -68,12 +85,14 @@ So, to get the updates, use
 git pull -r
 }}}
 
-Please, '''do not forget the ''-r'' !''' - ''-r'' means that instead of merging, ''git pull'' rebases your local changes against the changes from the remote repository.
+Please, '''do not forget the ''-r'' !''' - ''-r'' means that instead of merging, ''git pull'' rebases your local changes against the changes from the remote repository.  See also the [[#pushthechanges|Pushing the changes]] section.
 
 <<Anchor(committhechanges)>>
 == Committing the changes ==
 
-When you commit your changes, it happens locally.  You probably want to use any of the following forms of committing
+When you commit your changes, it happens locally; you have to push your commits later so that they appear in the remote repository.
+
+You probably want to use any of the following forms of committing
 {{{
 # commit all the changed or removed files
 git commit -a
@@ -123,7 +142,7 @@ The commit hooks that get installed when you do ./autogen.sh should help you to 
 <<Anchor(pushthechanges)>>
 == Pushing the changes ==
 
-If you have write permissions to the repository, and want to publish your changes, push them to the repository using
+If you have write permissions to the remote repository, and want to publish your changes, push them to the repository using
 {{{
 git push
 }}}
@@ -135,6 +154,13 @@ git pull -r
 as already described above.  Again, '''don't forget the -r'''!
 
 ''Note: If you used just 'git pull' instead of 'git pull -r' accidentally, you can still fix that by re-running '''git pull -r'''.  There is also a hook that warns about the plain 'git pull' usage, and instructs you what to do.''
+
+''Note2: You might get warnings during git push when you have multiple branches to push in your repository (which happens when you did eg. delete the master branch as recommended in 'Getting a particular branch').  These are just warnings, but if do not want to get them, use the full form of git push:''
+
+{{{
+# let's push just the branch 'ooo-build-3-0-1'
+git push origin ooo-build-3-0-1
+}}}
 
 == What if I committed something wrong ==
 
