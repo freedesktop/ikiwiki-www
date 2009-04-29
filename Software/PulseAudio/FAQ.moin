@@ -396,3 +396,48 @@ After reading the answer to the previous question, all you need to know is that 
 {{{
 pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2
 }}}
+
+=== How do I play sounds from my chroot to my host's Pulseaudio daemon? ===
+
+(Question added 2009-04-29)
+
+First, ensure that pulseaudio is working and playing audible sound within your host. If it is not, look through the rest of this wiki and make sure it works.
+
+Setup of the chroot is outside the scope of this wiki, and should be done in whatever manner is recommended by your distro. Pulseaudio then needs to be installed within the chroot. A default install should be sufficient, no need to run the daemon or change any of the .conf files. Finally, Pulseaudio needs access to certain folders within the host system, the following list should enable all functionality on a default Pulseaudio install.
+
+{{{
+/var/lib/dbus
+~/.pulse
+/tmp
+/dev/shm
+}}}
+
+/var/lib/dbus contains a reference to the machine-id which pulse uses to identify the local instance of the daemon. ~/.pulse contains various files created by the daemon, one of them, named <id_number>:runtime, symlinks to a folder in /tmp, hence both these folders should be accessible. /dev/shm is needed for proper running of pulseaudio, to prevent audio glitches.
+
+Most guides to setting up chroots (for example, 32-bit chroots in a 64-bit host) will already have /home and /tmp mounted, at least. Some would include /dev/shm, but very few, if any, would include /var/lib/dbus. You can manually mount the appropriate directories using the following commands, where /path/to/chroot is the path to your chroot.
+
+{{{
+mount --bind /var/lib/dbus /path/to/chroot/var/lib/dbus
+mount --bind /home /path/to/chroot/home
+mount --bind /tmp /path/to/chroot/tmp
+mount --bind /dev/shm /path/to/chroot/dev/shm
+}}}
+
+If you use a helper app for your chroot, such as schroot, you will need to change the mount options for that helper app instead. Here is an example of a /etc/schroot/mount-<name_of_chroot> file, including the necessary options for Pulseaudio within the chroot:-
+
+{{{
+# mount.defaults: static file system information for chroots.
+# Note that the mount point will be prefixed by the chroot path
+# (CHROOT_PATH)
+#
+# <file system>	<mount point>	<type>	<options>	<dump>	<pass>
+/proc		/proc		proc	defaults	0	0
+/proc/bus/usb	/proc/bus/usb	none	rw,bind		0	0
+/dev		/dev		none	rw,bind		0	0
+/dev/pts	/dev/pts	none	rw,bind		0	0
+/dev/shm	/dev/shm	none	rw,bind		0	0
+/sys		/sys		none	rw,bind		0	0
+/tmp		/tmp		none	rw,bind		0	0
+/var/lib/dbus	/var/lib/dbus	none	rw,bind		0	0
+/home		/home		none	rw,bind		0	0
+}}}
