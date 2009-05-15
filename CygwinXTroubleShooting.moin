@@ -89,10 +89,15 @@ then kill connections which are already running on that port.
 
 See [[http://x.cygwin.com/docs/faq/cygwin-x-faq.html#q-ssh-no-x11forwarding|FAQ Entry]]
 
-== XDMCP ==
-=== Cygwin/X reports AUDIT: client 1 rejected from IP ''remotehost'' ===
+== Cygwin/X reports AUDIT: client 1 rejected from IP ''remotehost'' ==
 
-Problem is maybe a wrong DNS (Network name resolution). 
+By default remote connections are not allowed (security).  You can work around this by either of:
+ a. add `-ac` to your Xwin.exe arguments (e.g. in `\cygwin\bin\startxwin.bat`)
+ a. use the xhost program (you may need to run cygwin setup to install it) to allow access.
+   1. `xhost +`  to allow all hosts
+   1. `xhost +yourappserver` to allow just clients on ''yourappserver''.
+
+If you're using XDMCP then the problem may be wrong DNS resolution.
 Make sure your windows host has a hostname which is valid from linux too and an IP address which linux can resolve to that hostname.
 
 If you add a line 
