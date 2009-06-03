@@ -1,40 +1,19 @@
 This page should eventually contain the final D-Bus control interface specification.
 
-Disclaimer: I'm not a D-Bus expert yet. The following text may include misconceptions.
-
 == Proposal ==
 
-If I don't get any opposition, I will aim to the following (names are preliminary, not much thought has been gone into deciding them):
+Note: Whenever "user bus" is mentioned in this document, it means "session bus" until the user bus gets implemented in D-Bus.
 
-''Per-user mode:''
+Most of the functionality won't be available in any bus. Instead, pulseaudio will act as a server that D-Bus clients connect directly to.
 
- * When pulseaudio starts, it connects to the session bus and reserves name org.pulseaudio.Server.
-   - If there is no session bus, tough luck - the D-Bus module fails to load.
-     * What does this mean for console, SSH and cron users?
- * When a client wants to use the service, it calls org.freedesktop.DBus.!StartServiceByName on session bus.
-   - If it succeeds, the client calls org.pulseaudio.Server.Ref
-     * This is analogous to reference counting. When there are no references, the server may autoexit. Calling .Unref decrements the reference counter; disconnecting from the bus does the same thing, if .Unref hasn't been called.
- * If .!StartSerciveByName actually needs to start the service, it is done via a helper program, "pulse-dbus-helper".
-   - pulse-dbus-helper checks if there already is a pulseaudio server running (in which case the server is connected to some other bus than the current session bus).
-     * If there is, pulse-dbus-helper reads ~/.pulse/dbus-session-buses-in-use, which contains the list of the session buses (as newline-separated socket names) that the D-Bus module is already connected to. pulse-dbus-helper takes the first and connects to that bus, and calls org.pulseaudio.Server.!ConnectToAnotherBus, giving the current session bus socket name as a parameter. The server connects to the current session bus.
-       - If the file is non-existent or empty, or contains bogus data, service starting fails.
-     * If there isn't, pulse-dbus-helper starts the server.
+When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a space-separated list of server addresses. The client should try them in order until connecting to one of the servers succeed, or until the list ends.
 
-''System-wide mode:''
+If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls org.pulseaudio.!PulseAudio.GetDBusServers. It returns a list similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the addresses in the list, and if connecting to none of them succeeds, the client gives up.
 
- * When pulseaudio starts, it connects to the system bus and reserves name org.pulseaudio.Server.
- * When a client wants to use the service, it tries to start the service in the session bus first. That fails, so next the client checks if org.pulseaudio.Server exists in the system bus. It does, because when in system-wide mode, the server is started at boot and it doesn't autoexit. (Is this a bad assumption?)
- * Clients have permission to use the service, if they belong to the right group.
+If pulseaudio configuration says that a local per-user server should be used, then activating org.pulseaudio.!PulseAudio starts the user daemon. Otherwise the activation starts just a dummy daemon that provides org.pulseaudio.!PulseAudio.GetDBusServers for a while. GetDBusServers gets its information from client.conf, or from the fact that a system-wide daemon is running.
 
-''Remote access:''
+System-wide daemon doesn't autospawn nor autoexit, so it should be started from an init script or something like that.
 
- * When pulseaudio starts, it launches a custom tcp bus and reserves name org.pulseaudio.Server.
- * When a client wants to use the service, it just connects to the right bus. How this is configured is left to each individual client program.
-   - This might be a bad idea. Maybe we should extend the server string spec to include D-Bus services - those could be prefixed with "dbus:". The clients would of course now need to parse environment variables and client.conf. Maybe a helper script would be appropriate that would just print out the bus address based on the environment variables and client.conf?
- * If pulseaudio autoexits, the custom bus shuts down too, because the only alternative to this, what I'm able to come up with, is to leave the bus running indefinitely.
- * Because of the previous point, there's no need to call org.freedesktop.DBus.!StartServiceByName, but calling it doesn't hurt.
- * Authentication is done by calling org.pulseaudio.Server.Authenticate with the pulseaudio cookie as a parameter.
-   - The bus has to be configured to disallow eavesdropping.
-   - The TCP stream usually isn't encrypted, so sniffing the cookie at an intermediary machine is possible. (AFAIK this isn't a regression?)
-   - Remote connections can't be limited by IP address. This is a regression.
- * After authentication, .Ref and .Unref need to be used to handle autoexiting properly.
+If the D-Bus module is configured to allow remote connections, those are available only when the server is running, which means that connecting to a remote autoexiting user daemon requires luck (as I believe is the current situation too). The common case is probably to use system-wide mode when receiving remote connections.
+
+The system-wide daemon and a daemon that accepts remote connections use D-Bus authentication and connection encryption capabilities. Currently authorization based on user groups is possible, so that can be used for the system-wide daemon. Otherwise these features are still lacking in D-Bus, therefore allowing remote D-Bus connections is quite insecure.
