@@ -1,19 +1,33 @@
 This page should eventually contain the final D-Bus control interface specification.
 
-== Proposal ==
-
 Note: Whenever "user bus" is mentioned in this document, it means "session bus" until the user bus gets implemented in D-Bus.
 
-Most of the functionality won't be available in any bus. Instead, pulseaudio will act as a server that D-Bus clients connect directly to.
+Pulseaudio doesn't expose its main D-Bus interface in any bus. Instead, pulseaudio will act as a server that D-Bus clients connect directly to. To get the address of the server, clients send a query to the user bus. More about that is in the Connecting to a Server section. In order to provide the address lookup service, the daemon startup procedure has to be modified.
+
+
+== Daemon Startup ==
+
+The daemon can be started just as it is started now, and additionally by using the D-Bus service activation feature. Activating org.pulseaudio.!PulseAudio on the user bus runs `pulseaudio -D`.
+
+If pulseaudio is compiled with D-Bus support, the startup logic is modified:
+
+ * The daemon configuration has a new option: local-server-type. Its value can be "user", "system" or "none". The default value is "user". "none" is used, when only remote servers are to be used. local-server-type conflicts with the old option system-instance. If local-server-type is left undefined, and system-instance is not, the system-instance value is honored. Otherwise local-server-type overrides system-instance.
+
+ * If the server type is either "system" or "none", running pulseaudio as a normal user only starts the server lookup service on the user bus, reserving org.pulseaudio.!PulseAudio.
+
+ * When running as root and the type is "system", a system daemon is started, which reserves org.pulseaudio.Server on the system bus. The system daemon also reserves org.pulseaudio.!PulseAudio on root's user bus and provides the server lookup service. Otherwise running as root isn't different from running as a normal user (apart from possibly getting additional warnings about running as root).
+
+ * If org.pulseaudio.!PulseAudio is already reserved, the new instance refuses to start.
+
+Switching smoothly between local-server-type options isn't supported. Patches welcome! When changing the option, the user has to kill all currently running pulseaudio instances in order to avoid surprises.
+
+
+== Connecting to a Server ==
 
 When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a space-separated list of server addresses. The client should try them in order until connecting to one of the servers succeed, or until the list ends.
 
 If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls org.pulseaudio.!PulseAudio.GetDBusServers. It returns a list similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the addresses in the list, and if connecting to none of them succeeds, the client gives up.
 
-If pulseaudio configuration says that a local per-user server should be used, then activating org.pulseaudio.!PulseAudio starts the user daemon. Otherwise the activation starts just a dummy daemon that provides org.pulseaudio.!PulseAudio.GetDBusServers for a while. GetDBusServers gets its information from client.conf, or from the fact that a system-wide daemon is running.
+GetDBusServers works by reading the current default-dbus-server option in client.conf. If the option is unset, the local-server-type daemon option is used to determine the address. If it's "none", GetDBusServers returns an empty string.
 
-System-wide daemon doesn't autospawn nor autoexit, so it should be started from an init script or something like that.
-
-If the D-Bus module is configured to allow remote connections, those are available only when the server is running, which means that connecting to a remote autoexiting user daemon requires luck (as I believe is the current situation too). The common case is probably to use system-wide mode when receiving remote connections.
-
-The system-wide daemon and a daemon that accepts remote connections use D-Bus authentication and connection encryption capabilities. Currently authorization based on user groups is possible, so that can be used for the system-wide daemon. Otherwise these features are still lacking in D-Bus, therefore allowing remote D-Bus connections is quite insecure.
+Pulseaudio relies on D-Bus for authenticating and authorizing users, local and remote. TODO: Information for users about how to set up secure remote D-Bus connections is needed. (XXX: I have yet to confirm that there really isn't anything that pulseaudio needs to worry about. --tanuk)
