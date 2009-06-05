@@ -1,4 +1,4 @@
-This page should eventually contain the final D-Bus control interface specification.
+This page should eventually contain the final D-Bus control interface specification. Currently it's just a draft, comments welcome.
 
 Note: Whenever "user bus" is mentioned in this document, it means "session bus" until the user bus gets implemented in D-Bus.
 
@@ -26,7 +26,7 @@ Switching smoothly between local-server-type options isn't supported. Patches we
 
 When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a space-separated list of server addresses. The client should try them in order until connecting to one of the servers succeed, or until the list ends.
 
-If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls org.pulseaudio.!PulseAudio.GetDBusServers. It returns a list similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the addresses in the list, and if connecting to none of them succeeds, the client gives up.
+If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls GetDBusServers on /org/pulseaudio/config. It returns a list similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the addresses in the list, and if connecting to none of them succeeds, the client gives up.
 
 GetDBusServers works by reading the current default-dbus-server option in client.conf. If the option is unset, the local-server-type daemon option is used to determine the address. If it's "none", GetDBusServers returns an empty string.
 
