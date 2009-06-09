@@ -94,6 +94,8 @@ At the moment there are the following services:
 
  * KNOWLEDGEBASE
 
+ * EVENT
+
  * ...more to come later
 
 
@@ -900,6 +902,129 @@ Example:
  </data>
 </ocs>
 }}}
+
+
+== EVENT ===
+
+==== list ====
+Gets a list of a specific set of events. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/event/data/
+ * HTTP Method: GET
+ * URL Arguments: type - Id of the event type.
+ * URL Arguments: country - ISO code of the country.
+ * URL Arguments: startat - Earliest possible start date of the events.
+ * URL Arguments: search - a keyword you want find in the name or description of a event entry.
+ * URL Arguments: sortmodes -  The sortmode of the list. Possible values are: "new" - newest first or "alpha" - alphabetical
+ * URL Arguments: page - The list page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+ * type 10: Party
+ * type 15: User Group
+ * type 20: Conference
+ * type 25: Developer Meeting
+ * type 50: Install Party
+ * type 1000: otherParty
+ * Result: event xml
+ * Example: http://frank:password@api.opendesktop.org/v1/event/data?country=us&startat=01-01-2009&type=10&search=foo&sortmode=new&page=1 Gets the second page of the list of the newest events of 2009 from type party in the US with the string foo in the name or description. 
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
+ <data>
+  <event details="detail">
+   <id>4</id>
+   <name>Test Party</name>
+   <category>Party</category>
+   <startdate>2010-08-02T00:00:00+02:00</startdate>
+   <enddate>2011-10-03T00:00:00+02:00</enddate>
+   <user>Frank</user>
+   <city>Stuttgart</city>
+   <country>Germany</country>
+   <longitude>9.183</longitude>
+   <latitude>48.767</latitude>
+   <changed>2009-05-18T14:03:55+02:00</changed>
+   <comments>2</comments>
+   <participants>2</participants>
+   <badge></badge>
+   <detailpage>http://www.opendesktop.org/events/?id=4</detailpage>
+  </event>
+  <event details="detail">
+   <id>3</id>
+   <name>Another Party</name>
+   <category>Party</category>
+   <startdate>1979-01-01T01:00:01+01:00</startdate>
+   <enddate>1979-01-01T01:00:01+01:00</enddate>
+   <user>Frank</user>
+   <city>Stuttgart</city>
+   <country>Germany</country>
+   <longitude>1.2</longitude>
+   <latitude>1.1</latitude>
+   <changed>2009-05-16T00:25:31+02:00</changed>
+   <comments>0</comments>
+   <participants>1</participants>
+   <badge></badge>
+   <detailpage>http://www.opendesktop.org/events/?id=3</detailpage>
+  </event>
+ </data>
+</ocs>
+
+
+
+}}}
+
+
+==== get ====
+Read one specific event entry. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
+ * Syntax: /v1/event/data/"contentid"/ 
+ * HTTP Method: GET
+ * Arguments: eventid - Id of a event entry
+ * Result: event xml
+ * Example: http://frank:password@api.opendesktop.org/v1/event/data/12345
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
+ <data>
+  <event>
+   <id>6</id>
+   <name>bbb</name>
+   <description>here is the description text</description>
+   <category>Party</category>
+   <startdate>1970-01-01T00:00:00+01:00</startdate>
+   <enddate>1970-01-01T00:00:00+01:00</enddate>
+   <user>Frank</user>
+   <organizer></organizer>
+   <location></location>
+   <city></city>
+   <country>Germany</country>
+   <longitude>0</longitude>
+   <latitude>0</latitude>
+   <homepage></homepage>
+   <tel></tel>
+   <fax></fax>
+   <email></email>
+   <changed>2009-05-18T18:49:15+02:00</changed>
+   <comments>1</comments>
+   <participants>2</participants>
+   <detailpage>http://www.opendesktop.org/events/?id=6</detailpage>
+   <badge>http://www.opendesktop.org/CONTENT/event-badge/0/6.png</badge>
+   <image></image>
+  </event>
+ </data>
+</ocs>
+
+}}}
+
+
 
 
 
