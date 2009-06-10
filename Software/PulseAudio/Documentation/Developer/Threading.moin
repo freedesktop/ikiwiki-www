@@ -19,7 +19,7 @@ PA now supports a very basic glib-inspired object model. See [source:/branches/l
 
 Most of the methods of pa_sink/pa_source are intended to be called only from the main thread, not from the real-time threads. Notable exceptions are pa_sink_render() and friends and pa_source_post(). Many of the operations that can be done on a pa_sink object require some work in the RT threads. Due to that the default implementations will notify the RT thread via a pa_asyncmsgq. To make sure that no locking is necessary for accessing the data attached to a pa_sink the threads maintain their own copy of a couple of variables in pa_sink::thread_info.
 
-The RT thread should look like this (in very rough pseudocode, with noe error handling or anything):
+The RT thread should look like this (in very rough pseudocode, with no error handling or anything):
 
 {{{
 void thread_func(...) {
