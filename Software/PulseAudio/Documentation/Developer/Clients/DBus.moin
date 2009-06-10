@@ -1,8 +1,14 @@
+= PulseAudio's D-Bus interface =
+
 This page should eventually contain the final D-Bus control interface specification. Currently it's just a draft, comments welcome.
 
 Note: Whenever "user bus" is mentioned in this document, it means "session bus" until the user bus gets implemented in D-Bus.
 
-Pulseaudio doesn't expose its main D-Bus interface in any bus. Instead, pulseaudio will act as a server that D-Bus clients connect directly to. To get the address of the server, clients send a query to the user bus. More about that is in the Connecting to a Server section. In order to provide the address lookup service, the daemon startup procedure has to be modified.
+== Overview ==
+
+The D-Bus interface is implemented in the main daemon code and in module-dbus-protocol. If PA is compiled with D-Bus support, the functionality in the main daemon code is always available. The daemon by itself reserves two names: org.pulseaudio.PulseAudio and org.pulseaudio.Server. The first is reserved always on the user bus - if it's present, it means that the pulseaudio binary is running. The latter, org.pulseaudio.Server, is only reserved if a full audio server is started.
+
+Pulseaudio doesn't expose its main D-Bus interface (implemented by module-dbus-protocol) in any bus. Instead, pulseaudio will act as a server that D-Bus clients connect directly to. To get the address of the server, clients send a query to the user bus. More about that is in the Connecting to a Server section. In order to provide the address lookup service, the daemon startup procedure has to be modified.
 
 
 == Daemon Startup ==
@@ -11,7 +17,7 @@ The daemon can be started just as it is started now, and additionally by using t
 
 If pulseaudio is compiled with D-Bus support, the startup logic is modified:
 
- * The daemon configuration has a new option: local-server-type. Its value can be "user", "system" or "none". The default value is "user". "none" is used, when only remote servers are to be used. local-server-type conflicts with the old option system-instance. If local-server-type is left undefined, and system-instance is not, the system-instance value is honored. Otherwise local-server-type overrides system-instance.
+ * The daemon configuration has a new option: local-server-type. Its value can be "user", "system" or "none". The default value is "user". "none" is used when only remote servers are to be used. local-server-type conflicts with the old option system-instance. If local-server-type is left undefined, and system-instance is not, the system-instance value is honored. Otherwise local-server-type overrides system-instance.
 
  * If the server type is either "system" or "none", running pulseaudio as a normal user only starts the server lookup service on the user bus, reserving org.pulseaudio.!PulseAudio.
 
@@ -26,10 +32,25 @@ Switching smoothly between local-server-type options isn't supported. Patches we
 
 == Connecting to a Server ==
 
-When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a space-separated list of server addresses. The client should try them in order until connecting to one of the servers succeed, or until the list ends.
+When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a server addresses or a list of addresses, as specified in the [http://dbus.freedesktop.org/doc/dbus-specification.html#addresses D-Bus Specification, section Server Addresses]. The client should be able to use the string directly as the address parameter used in the underlying D-Bus library.
 
-If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls GetDBusServers on /org/pulseaudio/config. It returns a list similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the addresses in the list, and if connecting to none of them succeeds, the client gives up.
+If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls GetDBusServers on /org/pulseaudio/server_lookup. It returns a string similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the address string, and if connecting to none of the contained addresses succeed, the client gives up.
 
 GetDBusServers works by reading the current default-dbus-server option in client.conf. If the option is unset, the local-server-type daemon option is used to determine the address. If it's "none", GetDBusServers returns an empty string.
 
 Pulseaudio relies on D-Bus for authenticating and authorizing users, local and remote. TODO: Information for users about how to set up secure remote D-Bus connections is needed. (XXX: I have yet to confirm that there really isn't anything that pulseaudio needs to worry about. --tanuk)
+
+
+== Interfaces and Objects ==
+
+=== org.pulseaudio.!ServerLookup ===
+
+The daemon always creates a singleton object /org/pulseaudio/server_lookup, which implements org.pulseaudio.!ServerLookup and org.freedesktop.DBus.Introspectable.
+
+==== Methods ====
+
+{{{
+org.pulseaudio.ServerLookup.GetDBusServers (out STRING server_list)
+}}}
+
+GetDBusServers returns a list of addresses to audio servers listening for client connections. The list is encoded as is specified in the [http://dbus.freedesktop.org/doc/dbus-specification.html#addresses D-Bus Specification, section Server Addresses]. The string may also be empty, if the configuration doesn't point to any server. The method may fail, in which case an error is sent as the reply.
