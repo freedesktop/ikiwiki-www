@@ -27,14 +27,14 @@ If pulseaudio is compiled with D-Bus support, the startup logic is modified:
 
  * When a user daemon is started, pulseaudio reserves org.pulseaudio.Server on the user bus.
 
-Switching smoothly between local-server-type options isn't supported. Patches welcome! When changing the option, the user has to kill all currently running pulseaudio instances in order to avoid surprises.
+Switching smoothly between local-server-type options isn't supported. When changing the option, the user has to kill all currently running pulseaudio instances in order to avoid surprises.
 
 
 == Connecting to a Server ==
 
 When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a server addresses or a list of addresses, as specified in the [http://dbus.freedesktop.org/doc/dbus-specification.html#addresses D-Bus Specification, section Server Addresses]. The client should be able to use the string directly as the address parameter used in the underlying D-Bus library.
 
-If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client activates org.pulseaudio.!PulseAudio on the user bus and then calls GetDBusServers on /org/pulseaudio/server_lookup. It returns a string similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the address string, and if connecting to none of the contained addresses succeed, the client gives up.
+If $PULSE_DBUS_SERVER is empty or connecting to none of the servers succeeds, the client calls org.pulseaudio.!ServerLookup.GetDBusServers on /org/pulseaudio/server_lookup, with destination org.pulseaudio.!PulseAudio (this may cause pulseaudio to be autospawned). It returns a string similar to the $PULSE_DBUS_SERVER environment variable. The client again tries the address string, and if connecting to none of the contained addresses succeed, the client gives up. Due to the fact that pulseaudio may exit automatically after a while, the client shouldn't wait too long between calling GetDBusServers and connecting to the server.
 
 GetDBusServers works by reading the current default-dbus-server option in client.conf. If the option is unset, the local-server-type daemon option is used to determine the address. If it's "none", GetDBusServers returns an empty string.
 
