@@ -1,4 +1,13 @@
-= DBPC, part 2 =
+|| ... ||... ||...||n export objects for other applications' use. To start working with an object in another application, you need to know:
+
+    *
+
+      The bus name. This identifies which application you want to communicate with. You'll usually identify applications by a well-known name, which is a dot-separated string starting with a reversed domain name, such as org.freedesktop.NetworkManager or com.example.WordProcessor.
+    *
+
+      The object path. Applications can export many objects - for instance, example.com's word processor might provide an object representing the word processor application itself 
+|| ... ||... ||...||
+|| ... ||... ||...||= DBPC, part 2 =
 == Introduction ==
 
 All data points available trough DBPC are represented by an items object. Those objects are available trough DBUS thanks to a DBPC server. 
@@ -16,8 +25,9 @@ This is the basic item class.
 || address || STRING || This string store where the value can be retried by the DBPC server. It format is specific to the protocol implemented by the DBPC server. ||
 || timestamps || DOUBLE || This property store the late time when the value has been updated. Generally timestamps is set by the server itself according to system clock. Depending on the protocol implemented, this value can also come directly from the device. If communication time are not predictable, timestamps must be set when the update request is send to the Device. So the stored timestamps is always earlier than the real timestamps. ||
 || validity || DOUBLE || This property store the validity of the value. Validity is given in seconds. On client read request, according to timestamps and validity, outdated value are updated. ||
-||  ||... ||...||
-|| ... ||... ||...||
+|| mode || int || update method : 1 = continuous, 2 = on use. ||
+|| permissions || int || Unix like based permission. (need more research) ||
+|| ... || ... || ... ||
 ||||||<(#cccccc>'''methods'''||
 || ... ||... ||...||
 || ... ||... ||...||
@@ -25,11 +35,7 @@ This is the basic item class.
 || ... ||... ||...||
 || ... ||... ||...||
 ||||||<(#cccccc>'''events'''||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
+|| data_change  || ... || In continuous mode, this event append when value change ||
 
 
 == Example item class ==
