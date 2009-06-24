@@ -8,34 +8,123 @@ Note: Whenever "user bus" is mentioned in these pages, it means "session bus" un
 
 Previously the only D-Bus services !PulseAudio provided were an implementation of the [http://git.0pointer.de/?p=reserve.git;a=blob_plain;f=reserve.txt Device Reservation spec] for sound cards and reservation of the org.pulseaudio.Server name on the session or system bus for server tracking purposes. Those features remain untouched, and this document doesn't have anything to do with them.
 
-The new functionality consists of two parts: a server lookup service and the main control interface. When clients want to use the control interface, they have to first figure out where they should connect to. How to connect to the control interface is specified on the [wiki:DBusInterface/ConnectingToServer ConnectingToServer] page. The main control interface is provided as a server. That is, it's not available on any bus, but instead clients make direct connections to !PulseAudio.
+The new functionality consists of two parts: a server lookup service and the main control interface. When clients want to use the control interface, they have to first figure out where they should connect to. How to connect to the control interface is specified on the [wiki:DBusInterface/ConnectingToServer ConnectingToServer] page. The main control interface is provided as a "D-Bus server". That is, it's not available on any bus, but instead clients make direct connections to !PulseAudio.
 
 
 == Control API ==
 
-The detailed descriptions are spread to separate pages, roughly one per object type.
+The detailed descriptions are spread to separate pages, roughly one per object type. This page provides only a minimal reference and links to the details.
 
 
 === General Server Functionality ===
 
+ * Object '''/org/pulseaudio1''' implements interfaces '''org.pulseaudio.Core1''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1 ====
+
+
 === Memory Statistics ===
+
+ * Object '''/org/pulseaudio1/memstats''' implements interfaces '''org.pulseaudio.Core1.Memstats''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.Memstats ====
+
 
 === Cards ===
 
+ * Objects '''/org/pulseaudio1/cardX''' implement interfaces '''org.pulseaudio.Core1.Card''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.Card ====
+
+
 === Card Profiles ===
+
+ * Objects '''/org/pulseaudio1/cardX/profileY''' implement interfaces '''org.pulseaudio.Core1.!CardProfile''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.!CardProfile ====
+
 
 === Devices (Sinks and Sources) ===
 
+ * Objects '''/org/pulseaudio1/sinkX''' and '''/org/pulseaudio1/sourceX''' implement interfaces '''org.pulseaudio.Core1.Device''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+ * Objects '''/org/pulseaudio1/sinkX''' implement interface '''org.pulseaudio.Core1.Sink'''
+
+ * Objects '''/org/pulseaudio1/sourceX''' implement interface '''org.pulseaudio.Core1.Source'''
+
+
+==== org.pulseaudio.Core1.Device ====
+
+
+==== org.pulseaudio.Core1.Sink ====
+
+
+==== org.pulseaudio.Core1.Source ====
+
+
 === Device Ports ===
+
+ * Objects '''/org/pulseaudio1/sinkX/portY''' and '''/org/pulseaudio1/sourceX/portY''' implement interfaces '''org.pulseaudio.Core1.!DevicePort''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.!DevicePort ====
+
 
 === Streams ===
 
+ * Objects '''/org/pulseaudio1/playback_streamX''' and '''/org/pulseaudio1/record_streamX''' implement interfaces '''org.pulseaudio.Core1.Stream''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+ * Objects '''/org/pulseaudio1/playback_streamX''' implement interface '''org.pulseaudio.Core1.!PlaybackStream'''
+
+
+==== org.pulseaudio.Core1.Stream ====
+
+
+==== org.pulseaudio.Core1.!PlaybackStream ====
+
+
 === Samples ===
+
+ * Objects '''/org/pulseaudio1/sampleX''' implement interfaces '''org.pulseaudio.Core1.Sample''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.Sample ====
+
 
 === Modules ===
 
+ * Objects '''/org/pulseaudio1/moduleX''' implement interfaces '''org.pulseaudio.Core1.Module''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.Module ====
+
+
 === Clients ===
 
+ * Objects '''/org/pulseaudio1/clientX''' implement interfaces '''org.pulseaudio.Core1.Client''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.Client ====
+
+
 === "Self": Special Per-Client Interface ===
+
+ * Object '''/org/pulseaudio1/self''' implements interfaces '''org.pulseaudio.Core1.Self''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.Core1.Self ====
+
+
+=== Stream Restore Extension ===
+
+ * Object '''/org/pulseaudio1/stream_restore''' implements interfaces '''org.pulseaudio.ext.!StreamRestore1''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
+
+==== org.pulseaudio.ext.!StreamRestore1 ====
+
 
 === Errors ===
