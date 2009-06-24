@@ -1,6 +1,6 @@
 = D-Bus Interface: Connecting to a Server =
 
-[wiki:DBusInterface (Back to toplevel D-Bus Interface page)]
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
 
 
 == Procedure ==
@@ -14,9 +14,9 @@ If $PULSE_DBUS_SERVER is not set, the client calls org.pulseaudio.!ServerLookup.
 
 D-Bus handles authentication automatically, so client programmers shouldn't need to care about that otherwise than keeping in mind that authentication may fail. For now the access control is done in the following way (very likely to change):
 
-* When a server runs in the system mode, it by default listens only local unix domain socket connections and accepts all connections.
-* When a server runs in the user mode and listens only local unix domain socket connections (the default case), only connections by the same user as the server and connections by root are accepted.
-* Whenever a server listens TCP connections all connections are accepted.
+ * When a server runs in the system mode, it by default listens only local unix domain socket connections and accepts all connections.
+ * When a server runs in the user mode and listens only local unix domain socket connections (the default case), only connections by the same user as the server and connections by root are accepted.
+ * Whenever a server listens TCP connections all connections are accepted.
 
 
 == Example Python Code ==
@@ -55,4 +55,4 @@ Contrary to earlier behavior, running the pulseaudio executable with D-Bus suppo
 
 There is a new option in daemon.conf: local-server-type. Its value can be either "user", "system" or "none". The default is "user". However, the option conflicts with the old option system-instance. If system-instance is set and local-server-type is not, system-instance value is honored. On the other hand, if local-server-type is set, it overrides whatever is the value of system-instance.
 
-If user's pulseaudio executable isn't running when a client calls the D-Bus method !GetAddress, D-Bus automatically starts pulseaudio. Depending on server configuration, a real sound server may be started, but another possibility is that only the server lookup service is enabled. The server lookup service, i.e. the !GetAddress method, works by first reading the user's (or in absence of that, the system version of) client.conf. client.conf too has a new option: default-dbus-server. If it is set, then that value is returned to the client. If default-dbus-server is not set, the address is deduced from the local-server-type configuration: in case of "user" the returned address is the unix socket of the user's server (~/.pulse/<machine_id>:runtime/dbus_socket), in case of "system" the returned address is the system server's unix socket (/var/run/pulse/dbus_socket), and in case of "none" the returned address is an empty string.
+If user's pulseaudio executable isn't running when a client calls the D-Bus method !GetAddress, D-Bus automatically starts pulseaudio. Depending on server configuration, a real sound server may be started, but another possibility is that only the server lookup service is enabled. The server lookup service, i.e. the !GetAddress method, works by first reading the user's (or in absence of that, the system version of) client.conf. client.conf too has a new option: default-dbus-server. If it is set, then that value is returned to the client. If default-dbus-server is not set, the address is deduced from the local-server-type option: in case of "user" the returned address is the unix socket of the user's server (~/.pulse/<machine_id>:runtime/dbus_socket), in case of "system" the returned address is the system server's unix socket (/var/run/pulse/dbus_socket), and in case of "none" the returned address is an empty string.
