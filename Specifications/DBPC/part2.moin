@@ -7,41 +7,38 @@ This part describe standard DBPC items class models.
 There is a basic class called item. all items class corresponding to data points value are inherited from this basic class 
 
 
+
 == Basic item class ==
 
 This is the basic item class.
 
-||<tablewidth="1000px">'''Name'''||'''Type'''||'''Description'''||
-||||||<(:#cccccc>'''Properties'''||
-|| address || STRING || This string store where the value can be retried by the DBPC server. It format is specific to the protocol implemented by the DBPC server. ||
-|| timestamps || DOUBLE || This property store the late time when the value has been updated. Generally timestamps is set by the server itself according to system clock. Depending on the protocol implemented, this value can also come directly from the device. If communication time are not predictable, timestamps must be set when the update request is send to the Device. So the stored timestamps is always earlier than the real timestamps. ||
-|| validity || DOUBLE || This property store the validity of the value. Validity is given in seconds. On client read request, according to timestamps and validity, outdated value are updated. ||
-|| mode || int || update method : 1 = continuous, 2 = on use. ||
-|| permissions || int || Unix like based permission. (need more research) ||
-|| ... || ... || ... ||
-||||||<(#cccccc>'''methods'''||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-||||||<(#cccccc>'''events'''||
-|| data_change  || ... || In continuous mode, this event append when value change ||
+
+=== Properties ===
+
+==== STRING address ====
+This string store where the value can be retried by the DBPC server. It format is specific to the protocol implemented by the DBPC server.
+
+==== DOUBLE timestamps ====
+This property store the late time when the value has been updated. Generally timestamps is set by the server itself according to system clock. Depending on the protocol implemented, this value can also come directly from the device. If communication time are not predictable, timestamps must be set when the update request is send to the Device. So the stored timestamps is always earlier than the real timestamps.
+
+==== DOUBLE validity ====
+This property store the validity of the value. Validity is given in seconds. On client read request, according to timestamps and validity, outdated value are updated.
+
+==== INT mode ====
+correspond to update mode : 1 = continuous, 2 = on use. 
+
+==== INT permissions ====
+This need more research. Dbus seems to provide security functionality. 
 
 
-== Example item class ==
+=== Methods ===
+...
 
-This is only a template for new class writing
+=== Events===
 
-||'''Name'''||'''Type'''||'''Description'''||
-||||||<(#cccccc>'''Properties'''||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-||||||<(#cccccc>'''Methods'''||
-|| ... ||... ||...||
-|| ... ||... ||...||
-|| ... ||... ||...||
-||||||<(#cccccc>'''Events'''||
-|| ... ||... ||...||
-|| ... ||... ||...||
+==== data_change ====
+In continuous mode, this event append when value change
+
+
+
+== Bool item class ==
