@@ -11,9 +11,18 @@ Previously the only D-Bus services !PulseAudio provided were an implementation o
 The new functionality consists of two parts: a server lookup service and the main control interface. When clients want to use the control interface, they have to first figure out where they should connect to. How to connect to the control interface is specified on the [wiki:DBusInterface/ConnectingToServer ConnectingToServer] page. The main control interface is provided as a "D-Bus server". That is, it's not available on any bus, but instead clients make direct connections to !PulseAudio.
 
 
+== Open Questions ==
+
+ * Should the server cookie be available? I think that's not a good idea until authentication has been improved. System mode and allowing TCP connections in whatever mode is currently insecure anyway, but when a user decides to disable either system mode or TCP access, the cookie may have already leaked, allowing unwanted connections via the traditional protocol.
+
+ * Do cards have stable names, that is, does it make sense for clients to save the names? If not, the .Core1.!GetCardByName method is probably unneeded.
+
+ * Should sample file and directory names be byte arrays instead of strings? I believe utf-8 file names are common, but not universal. On the other hand, nobody requires us to accept every possible file as a sample.
+
+
 == Control API ==
 
-The detailed descriptions are spread to separate pages, roughly one per object type. This page provides only a minimal reference and links to the details.
+The detailed descriptions are spread to separate pages, roughly one per object type. This page provides only a minimal reference and links to the details (TODO: Links and details missing).
 
 
 === General Server Functionality ===
@@ -22,6 +31,66 @@ The detailed descriptions are spread to separate pages, roughly one per object t
 
 
 ==== org.pulseaudio.Core1 ====
+
+Properties:
+
+ * !InterfaceRevision : Uint32 (r)
+ * Name : String (r)
+ * Version : String (r)
+ * Local : Boolean (r)
+ * Username : String (r)
+ * Hostname : String (r)
+ * !DefaultChannels : [Byte] (rw)
+ * !DefaultSampleFormat : Byte (rw)
+ * !DefaultSampleRate : Uint32 (rw)
+ * Sinks : [!ObjectPath] (r)
+ * !FallbackSink : !ObjectPath (rw) # Doesn't exists when there are no sinks.
+ * Sources : [!ObjectPath] (r)
+ * !FallbackSource : !ObjectPath (rw) # Doesn't exists when there are no sources.
+ * !PlaybackStreams : [!ObjectPath] (r)
+ * !RecordStreams : [!ObjectPath] (r)
+ * Samples : [!ObjectPath] (r)
+ * Modules : [!ObjectPath] (r)
+ * Clients : [!ObjectPath] (r)
+ * Extensions : [String] (r)
+
+
+Methods:
+
+ * !GetCardByName(in Name : String ; out Card : !ObjectPath)
+ * !GetSinkByName(in Name : String ; out Sink : !ObjectPath)
+ * !GetSourceByName(in Name : String ; out Source : !ObjectPath
+ * !GetSampleByName(in Name : String ; out Sample : !ObjectPath)
+ * !UploadSample(in Name : String, !SampleFormat : Byte, !SampleRate : Uint32, Channels : [Byte], !DefaultVolume : [Uint32], Proplist : {String -> [Byte]}, Data : [Byte] ; out Sample : !ObjectPath)
+ * !LoadSampleFromFile(in Name : String, Filepath : String ; out Sample : !ObjectPath)
+ * !AddLazySample(in Name : String, Filepath : String ; out Sample : !ObjectPath)
+ * !AddLazySamplesFromDirectory(in Dirpath : String)
+ * !RemoveSample(in Sample : !ObjectPath)
+ * !LoadModule(in Name : String, Argument : String ; out Module : !ObjectPath)
+ * Exit()
+
+
+Signals:
+
+ * !NewCard(Card : !ObjectPath)
+ * !CardRemoved(Card : !ObjectPath)
+ * !NewSink(Sink : !ObjectPath)
+ * !SinkRemoved(Sink : !ObjectPath)
+ * !FallbackSinkUpdated(Sink : !ObjectPath)
+ * !NewSource(Source : !ObjectPath)
+ * !SourceRemoved(Source : !ObjectPath)
+ * !FallbackSourceUpdated(Source : !ObjectPath)
+ * !NewPlaybackStream(!PlaybackStream : !ObjectPath)
+ * !PlaybackStreamRemoved(!PlaybackStream : !ObjectPath)
+ * !NewRecordStream(!RecordStream : !ObjectPath)
+ * !RecordStreamRemoved(!RecordStream : !ObjectPath)
+ * !NewSample(Sample : !ObjectPath)
+ * !SampleRemoved(Sample : !ObjectPath)
+ * !NewModule(Module : !ObjectPath)
+ * !ModuleRemoved(Module : !ObjectPath)
+ * !NewClient(Client : !ObjectPath)
+ * !ClientRemoved(Client : !ObjectPath)
+
 
 
 === Memory Statistics ===
