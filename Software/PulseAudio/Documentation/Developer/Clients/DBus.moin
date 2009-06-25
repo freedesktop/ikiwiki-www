@@ -15,9 +15,17 @@ The new functionality consists of two parts: a server lookup service and the mai
 
  * Should the server cookie be available? I think that's not a good idea until authentication has been improved. System mode and allowing TCP connections in whatever mode is currently insecure anyway, but when a user decides to disable either system mode or TCP access, the cookie may have already leaked, allowing unwanted connections via the traditional protocol.
 
- * Do cards have stable names, that is, does it make sense for clients to save the names? If not, the .Core1.!GetCardByName method is probably unneeded.
+ * Does it make sense for clients to save card names? If not, the .Core1.!GetCardByName method is probably unneeded.
+
+ * Same for .Core1.Card.!GetProfileByName.
+
+ * Same for .Core1.Device.!GetPortByName.
 
  * Should sample file and directory names be byte arrays instead of strings? I believe utf-8 file names are common, but not universal. On the other hand, nobody requires us to accept every possible file as a sample.
+
+ * Some properties that are available in the C API are exposed both explicitly and in the proplist. Should this interface do the same, or only have the proplist? (I vote for proplist only.) This decision affects device descriptions, stream names and client names. If separate properties are the way to go, then the Set* methods are unneeded, as the properties can be made read/write.
+
+ * Currently stream names can be changed, but only by the owning client. At least in the first phase a D-Bus client can't be a stream owner. Currently all stream owning clients have to use the C API anyway, so they can set the name with it just fine. But does it make sense, nevertheless, to allow any client change any stream's name via D-Bus? If not, what about in the future, if things go as planned and the normal way of streaming is to use RTSP/RTP, are the RTSP clients still able to set the name, or is RTSP so limited that it's not possible?
 
 
 == Control API ==
@@ -44,9 +52,9 @@ Properties:
  * !DefaultSampleFormat : Byte (rw)
  * !DefaultSampleRate : Uint32 (rw)
  * Sinks : [!ObjectPath] (r)
- * !FallbackSink : !ObjectPath (rw) # Doesn't exists when there are no sinks.
+ * !FallbackSink : !ObjectPath (rw) # Doesn't exist when there are no sinks.
  * Sources : [!ObjectPath] (r)
- * !FallbackSource : !ObjectPath (rw) # Doesn't exists when there are no sources.
+ * !FallbackSource : !ObjectPath (rw) # Doesn't exist when there are no sources.
  * !PlaybackStreams : [!ObjectPath] (r)
  * !RecordStreams : [!ObjectPath] (r)
  * Samples : [!ObjectPath] (r)
@@ -100,6 +108,15 @@ Signals:
 
 ==== org.pulseaudio.Core1.Memstats ====
 
+Properties:
+
+ * !CurrentMemblocks : Uint32 (r)
+ * !CurrentMemblocksSize : Uint32 (r)
+ * !AllMemblocks : Uint32 (r)
+ * !AllMemblocksSize : Uint32 (r)
+ * !SampleCacheSize : Uint32 (r)
+
+
 
 === Cards ===
 
@@ -108,6 +125,28 @@ Signals:
 
 ==== org.pulseaudio.Core1.Card ====
 
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * Driver : String (r)
+ * !OwnerModule : !ObjectPath (r) # Does not exist for all cards.
+ * Profiles : [!ObjectPath] (r)
+ * !ActiveProfile : !ObjectPath (rw) # Does not exist if there are no profiles.
+ * Proplist : {String -> [Byte]} (r)
+
+
+Methods:
+
+ * !GetProfileByName(in Name : String ; out Profile : !ObjectPath)
+
+
+Signals:
+
+ * !ActiveProfileUpdated(Profile : !ObjectPath)
+ * !ProplistUpdated(Proplist : {String -> [Byte]})
+
+
 
 === Card Profiles ===
 
@@ -115,6 +154,16 @@ Signals:
 
 
 ==== org.pulseaudio.Core1.!CardProfile ====
+
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * Description : String (r)
+ * Sinks : Uint32 (r)
+ * Sources : Uint32 (r)
+ * Priority : Uint32 (r)
+
 
 
 === Devices (Sinks and Sources) ===
@@ -128,11 +177,66 @@ Signals:
 
 ==== org.pulseaudio.Core1.Device ====
 
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * Driver : String (r)
+ * !OwnerModule : !ObjectPath (r) # Does not exist for all devices.
+ * Card : !ObjectPath (r) # Does not exist for all devices.
+ * !SampleFormat : Byte (r)
+ * !SampleRate : Uint32 (r)
+ * Channels : [Byte] (r)
+ * Volume : [Uint32] (rw)
+ * !DecibelVolume : Boolean (r)
+ * !BaseVolume : Uint32 (r)
+ * !VolumeSteps : Uint32 (r)
+ * Muted : Boolean (rw)
+ * !HardwareVolume : Boolean (r)
+ * !HardwareMute : Boolean (r)
+ * !ConfiguredLatency : Uint64 # usec
+ * !DynamicLatency : Boolean (r)
+ * Latency : Uint64 (r) # usec, does not exist for all devices.
+ * !HardwareDevice : Boolean (r)
+ * !NetworkDevice : Boolean (r)
+ * State : Byte (r)
+ * Ports : [!ObjectPath] (r)
+ * !ActivePort : !ObjectPath (rw) # Does not exist if there are no ports.
+ * Proplist : {String -> [Byte]} (r)
+
+
+Methods:
+
+ * !SetDescription(in Description : String)
+ * Suspend(in Suspend : Boolean)
+ * !GetPortByName(in Name : String ; out Port : !ObjectPath)
+
+
+Signals:
+
+ * !VolumeUpdated(Volume : [Uint32])
+ * !MuteUpdated(Muted : Boolean)
+ * !StateUpdated(State : Byte)
+ * !ActivePortUpdated(Port : !ObjectPath)
+ * !ProplistUpdated(Proplist : {String -> [Byte]})
+
+
 
 ==== org.pulseaudio.Core1.Sink ====
 
+Properties:
+
+ * !FlatVolume : Boolean (r)
+ * !MonitorSource : !ObjectPath (r)
+
+
 
 ==== org.pulseaudio.Core1.Source ====
+
+Properties:
+
+ * !MonitorOfSink : !ObjectPath (r) # Does not exist if this is not a monitor source.
+
 
 
 === Device Ports ===
@@ -141,6 +245,14 @@ Signals:
 
 
 ==== org.pulseaudio.Core1.!DevicePort ====
+
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * Description : String (r)
+ * Priority : Uint32 (r)
+
 
 
 === Streams ===
@@ -152,8 +264,50 @@ Signals:
 
 ==== org.pulseaudio.Core1.Stream ====
 
+Properties:
+
+ * Index : Uint32 (r)
+ * Driver : String (r)
+ * !OwnerModule : !ObjectPath (r) # Does not exist for all streams.
+ * Client : !ObjectPath (r) # Does not exist for all streams.
+ * Device : !ObjectPath (r)
+ * !SampleFormat : Byte (r)
+ * !SampleRate : Uint32 (r)
+ * Channels : [Byte] (r)
+ * !BufferLatency : Uint64 (r) # usec
+ * !DeviceLatency : Uint64 (r) # usec
+ * !ResampleMethod : String (r)
+ * Proplist : {String -> [Byte]} (r)
+
+
+Methods:
+
+ * !SetName(in Description : String)
+ * Move(in Device : !ObjectPath)
+ * Kill()
+
+
+Signals:
+
+ * !DeviceUpdated(Device : !ObjectPath)
+ * !SampleRateUpdated(!SampleRate : Uint32)
+ * !ProplistUpdated(Proplist : {String -> [Byte]})
+
+
 
 ==== org.pulseaudio.Core1.!PlaybackStream ====
+
+Properties:
+
+ * Volume : [Uint32] (rw)
+ * Muted : Boolean (rw)
+
+
+Signals:
+
+ * !VolumeUpdated(Volume : [Uint32])
+ * !MuteUpdated(Muted : Boolean)
+
 
 
 === Samples ===
@@ -163,6 +317,32 @@ Signals:
 
 ==== org.pulseaudio.Core1.Sample ====
 
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * !SampleFormat : Byte (r)
+ * !SampleRate : Uint32 (r)
+ * Channels : [Byte] (r)
+ * !DefaultVolume : [Uint32] (r)
+ * Duration : Uint64 (r) # usec
+ * Bytes : Uint32 (r)
+ * Lazy : Boolean (r)
+ * Filename : String (r) # Exists only for lazy samples.
+ * Proplist : {String -> [Byte]} (r)
+
+
+Methods:
+
+ * Play(in Sink : !ObjectPath, Volume : [Uint32], Proplist : {String -> [Byte]})
+ * Remove()
+
+
+Signals:
+
+ * !ProplistUpdated(Proplist : {String -> [Byte]})
+
+
 
 === Modules ===
 
@@ -170,6 +350,25 @@ Signals:
 
 
 ==== org.pulseaudio.Core1.Module ====
+
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * Argument : String (r)
+ * !UsageCounter : Uint32 (r) # Does not exist for all modules.
+ * Proplist : {String -> [Byte]} (r)
+
+
+Methods:
+
+ * Unload()
+
+
+Signals:
+
+ * !ProplistUpdated(Proplist : {String -> [Byte]})
+
 
 
 === Clients ===
@@ -179,6 +378,24 @@ Signals:
 
 ==== org.pulseaudio.Core1.Client ====
 
+Properties:
+
+ * Index : Uint32 (r)
+ * Driver : String (r)
+ * !OwnerModule : !ObjectPath (r) # Does not exist for all clients.
+ * Proplist : {String -> [Byte]} (r)
+
+
+Methods:
+
+ * Kill()
+
+
+Signals:
+
+ * !ProplistUpdated(Proplist : {String -> [Byte]})
+
+
 
 === "Self": Special Per-Client Interface ===
 
@@ -187,13 +404,69 @@ Signals:
 
 ==== org.pulseaudio.Core1.Self ====
 
+Properties:
+
+ * Client : !ObjectPath (r)
+
+
+Methods:
+
+ * !UpdateProperties(in Proplist : {String -> [Byte]}, !UpdateMode : Byte)
+ * !RemoveProperties(in Keys : [String])
+
+
+Signals:
+
+ * !ClientEvent(Name : String, Proplist : {String -> [Byte]})
+
+
 
 === Stream Restore Extension ===
 
  * Object '''/org/pulseaudio1/stream_restore''' implements interfaces '''org.pulseaudio.ext.!StreamRestore1''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
+ * Objects '''/org/pulseaudio1/stream_restore/entryX''' implement interfaces '''org.pulseaudio.ext.!StreamRestore1.!RestoreEntry''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
+
 
 ==== org.pulseaudio.ext.!StreamRestore1 ====
+
+Properties:
+
+ * !InterfaceRevision : Uint32 (r)
+ * Entries : [!ObjectPath] (r)
+
+
+Methods:
+
+ * !PutEntries(in Entries : [(String, [(Byte, Uint32)], Boolean)], !UpdateMode : Byte)
+ * !RemoveEntries(in Entries : [!ObjectPath])
+
+
+Signals:
+
+ * !NewEntry(Entry : !ObjectPath)
+ * !EntryRemoved(Entry : !ObjectPath)
+
+
+
+==== org.pulseaudio.ext.!StreamRestore1.!RestoreEntry ====
+
+Properties:
+
+ * Index : Uint32 (r)
+ * Name : String (r)
+ * Channels : [Byte] (r)
+ * Volume : [Uint32] (r)
+ * Muted : Boolean (r)
+
+
+
+=== Enumerations ===
+
+ * Sample formats
+ * Channel positions
+ * Device states
+ * Update modes
 
 
 === Errors ===
