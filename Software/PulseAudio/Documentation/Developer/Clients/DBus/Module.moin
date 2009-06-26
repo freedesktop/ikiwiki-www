@@ -1,0 +1,75 @@
+= D-Bus Interface: Modules =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+Objects and their interfaces:
+ * /org/pulseaudio1/moduleX
+   - org.pulseaudio.Core1.Module
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+
+
+== org.pulseaudio.Core1.Module ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The module index.
+
+
+==== Name ====
+
+ * Type: String
+ * Access: read
+
+The module name.
+
+
+==== Arguments ====
+
+ * Type: {String -> String}
+ * Access: read
+
+The arguments used when loading the module. The keys are argument names and the values are argument values.
+
+
+==== !UsageCounter ====
+
+ * Type: Uint32
+ * Access: read
+
+The number of module users. Not all modules count their users; in those cases this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this module doesn't count its users.
+
+
+==== Proplist ====
+
+ * Type: {String -> [Byte]}
+ * Access: read
+
+The module proplist.
+
+
+
+=== Methods ===
+
+==== Unload ====
+
+Unloads the module.
+
+
+
+=== Signals ===
+
+==== !ProplistUpdated ====
+
+ * Parameters: Proplist : {String -> [Byte]}
+   - Proplist: The new proplist
+
+The module's proplist was modified.
