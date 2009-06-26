@@ -89,7 +89,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Core#LoadSampleFromFile LoadSampleFromFile](in Name : String, Filepath : String ; out Sample : !ObjectPath)
  * [wiki:DBusInterface/Core#AddLazySample AddLazySample](in Name : String, Filepath : String ; out Sample : !ObjectPath)
  * [wiki:DBusInterface/Core#AddLazySamplesFromDirectory AddLazySamplesFromDirectory](in Dirpath : String)
- * [wiki:DBusInterface/Core#LoadModule LoadModule](in Name : String, Argument : String ; out Module : !ObjectPath)
+ * [wiki:DBusInterface/Core#LoadModule LoadModule](in Name : String, Arguments : {String -> String} ; out Module : !ObjectPath)
  * [wiki:DBusInterface/Core#Exit Exit]()
 
 
@@ -145,7 +145,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Card#Index Index] : Uint32 (r)
  * [wiki:DBusInterface/Card#Name Name] : String (r)
  * [wiki:DBusInterface/Card#Driver Driver] : String (r)
- * [wiki:DBusInterface/Card#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist for all cards.
+ * [wiki:DBusInterface/Card#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist with all cards.
  * [wiki:DBusInterface/Card#Profiles Profiles] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Card#ActiveProfile ActiveProfile] : !ObjectPath (rw) # Does not exist if there are no profiles.
  * [wiki:DBusInterface/Card#Proplist Proplist] : {String -> [Byte]} (r)
@@ -198,7 +198,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Device#Name Name] : String (r)
  * [wiki:DBusInterface/Device#Driver Driver] : String (r)
  * [wiki:DBusInterface/Device#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist for all devices.
- * [wiki:DBusInterface/Device#Card Card] : !ObjectPath (r) # Does not exist for all devices.
+ * [wiki:DBusInterface/Device#Card Card] : !ObjectPath (r) # Does not exist with all devices.
  * [wiki:DBusInterface/Device#SampleFormat SampleFormat] : Byte (r)
  * [wiki:DBusInterface/Device#SampleRate SampleRate] : Uint32 (r)
  * [wiki:DBusInterface/Device#Channels Channels] : [Byte] (r)
@@ -211,7 +211,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Device#HardwareMute HardwareMute] : Boolean (r)
  * [wiki:DBusInterface/Device#ConfiguredLatency ConfiguredLatency] : Uint64 # usec
  * [wiki:DBusInterface/Device#DynamicLatency DynamicLatency] : Boolean (r)
- * [wiki:DBusInterface/Device#Latency Latency] : Uint64 (r) # usec, does not exist for all devices.
+ * [wiki:DBusInterface/Device#Latency Latency] : Uint64 (r) # usec, does not exist with all devices.
  * [wiki:DBusInterface/Device#HardwareDevice HardwareDevice] : Boolean (r)
  * [wiki:DBusInterface/Device#NetworkDevice NetworkDevice] : Boolean (r)
  * [wiki:DBusInterface/Device#State State] : Byte (r)
@@ -283,8 +283,8 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
  * [wiki:DBusInterface/Stream#Index Index] : Uint32 (r)
  * [wiki:DBusInterface/Stream#Driver Driver] : String (r)
- * [wiki:DBusInterface/Stream#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist for all streams.
- * [wiki:DBusInterface/Stream#Client Client] : !ObjectPath (r) # Does not exist for all streams.
+ * [wiki:DBusInterface/Stream#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist with all streams.
+ * [wiki:DBusInterface/Stream#Client Client] : !ObjectPath (r) # Does not exist with all streams.
  * [wiki:DBusInterface/Stream#Device Device] : !ObjectPath (r)
  * [wiki:DBusInterface/Stream#SampleFormat SampleFormat] : Byte (r)
  * [wiki:DBusInterface/Stream#SampleRate SampleRate] : Uint32 (r)
@@ -343,7 +343,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Sample#Duration Duration] : Uint64 (r) # usec
  * [wiki:DBusInterface/Sample#Bytes Bytes] : Uint32 (r)
  * [wiki:DBusInterface/Sample#Lazy Lazy] : Boolean (r)
- * [wiki:DBusInterface/Sample#Filename Filename] : String (r) # Exists only for lazy samples.
+ * [wiki:DBusInterface/Sample#Filename Filename] : String (r) # Exists only with lazy samples.
  * [wiki:DBusInterface/Sample#Proplist Proplist] : {String -> [Byte]} (r)
 
 
@@ -359,30 +359,30 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 
 
-=== Modules ===
+=== [wiki:DBusInterface/Module Modules] ===
 
  * Objects '''/org/pulseaudio1/moduleX''' implement interfaces '''org.pulseaudio.Core1.Module''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
 
-==== org.pulseaudio.Core1.Module ====
+==== [wiki:DBusInterface/Module#org.pulseaudio.Core1.Module org.pulseaudio.Core1.Module] ====
 
-Properties:
+[wiki:DBusInterface/Module#Properties Properties]:
 
- * Index : Uint32 (r)
- * Name : String (r)
- * Argument : {String -> String} (r)
- * !UsageCounter : Uint32 (r) # Does not exist for all modules.
- * Proplist : {String -> [Byte]} (r)
-
-
-Methods:
-
- * Unload()
+ * [wiki:DBusInterface/Module#Index Index] : Uint32 (r)
+ * [wiki:DBusInterface/Module#Name Name] : String (r)
+ * [wiki:DBusInterface/Module#Arguments Arguments] : {String -> String} (r)
+ * [wiki:DBusInterface/Module#UsageCounter UsageCounter] : Uint32 (r) # Does not exist with all modules.
+ * [wiki:DBusInterface/Module#Proplist Proplist] : {String -> [Byte]} (r)
 
 
-Signals:
+[wiki:DBusInterface/Module#Methods Methods]:
 
- * !ProplistUpdated(Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Module#Unload Unload]()
+
+
+[wiki:DBusInterface/Module#Signals Signals]:
+
+ * [wiki:DBusInterface/Module#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
 
 
 
@@ -397,7 +397,7 @@ Properties:
 
  * Index : Uint32 (r)
  * Driver : String (r)
- * !OwnerModule : !ObjectPath (r) # Does not exist for all clients.
+ * !OwnerModule : !ObjectPath (r) # Does not exist with all clients.
  * Proplist : {String -> [Byte]} (r)
 
 
