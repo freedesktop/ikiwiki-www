@@ -27,6 +27,8 @@ The new functionality consists of two parts: a server lookup service and the mai
 
  * Currently stream names can be changed, but only by the owning client. At least in the first phase a D-Bus client can't be a stream owner. Currently all stream owning clients have to use the C API anyway, so they can set the name with it just fine. But does it make sense, nevertheless, to allow any client change any stream's name via D-Bus? If not, what about in the future, if things go as planned and the normal way of streaming is to use RTSP/RTP, are the RTSP clients still able to set the name, or is RTSP so limited that it's not possible (my knowledge about RTSP is obviously next to none)?
 
+ * The device property !DecibelVolume documentation includes the algorithm behind pa_sw_volume_to_dB. Is the algorithm an implementation detail that shouldn't be exposed in the documentation?
+
 
 == Control API ==
 
@@ -181,7 +183,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 
 
-=== Devices (Sinks and Sources) ===
+=== [wiki:DBusInterface/Device Devices (Sinks and Sources)] ===
 
  * Objects '''/org/pulseaudio1/sinkX''' and '''/org/pulseaudio1/sourceX''' implement interfaces '''org.pulseaudio.Core1.Device''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
@@ -190,67 +192,67 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * Objects '''/org/pulseaudio1/sourceX''' implement interface '''org.pulseaudio.Core1.Source'''
 
 
-==== org.pulseaudio.Core1.Device ====
+==== [wiki:DBusInterface/Device#org.pulseaudio.Core1.Device org.pulseaudio.Core1.Device] ====
 
-Properties:
+[wiki:DBusInterface/Device#Properties Properties]:
 
- * Index : Uint32 (r)
- * Name : String (r)
- * Driver : String (r)
- * !OwnerModule : !ObjectPath (r) # Does not exist for all devices.
- * Card : !ObjectPath (r) # Does not exist for all devices.
- * !SampleFormat : Byte (r)
- * !SampleRate : Uint32 (r)
- * Channels : [Byte] (r)
- * Volume : [Uint32] (rw)
- * !DecibelVolume : Boolean (r)
- * !BaseVolume : Uint32 (r)
- * !VolumeSteps : Uint32 (r)
- * Muted : Boolean (rw)
- * !HardwareVolume : Boolean (r)
- * !HardwareMute : Boolean (r)
- * !ConfiguredLatency : Uint64 # usec
- * !DynamicLatency : Boolean (r)
- * Latency : Uint64 (r) # usec, does not exist for all devices.
- * !HardwareDevice : Boolean (r)
- * !NetworkDevice : Boolean (r)
- * State : Byte (r)
- * Ports : [!ObjectPath] (r)
- * !ActivePort : !ObjectPath (rw) # Does not exist if there are no ports.
- * Proplist : {String -> [Byte]} (r)
-
-
-Methods:
-
- * !SetDescription(in Description : String)
- * Suspend(in Suspend : Boolean)
- * !GetPortByName(in Name : String ; out Port : !ObjectPath)
+ * [wiki:DBusInterface/Device#Index Index] : Uint32 (r)
+ * [wiki:DBusInterface/Device#Name Name] : String (r)
+ * [wiki:DBusInterface/Device#Driver Driver] : String (r)
+ * [wiki:DBusInterface/Device#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist for all devices.
+ * [wiki:DBusInterface/Device#Card Card] : !ObjectPath (r) # Does not exist for all devices.
+ * [wiki:DBusInterface/Device#SampleFormat SampleFormat] : Byte (r)
+ * [wiki:DBusInterface/Device#SampleRate SampleRate] : Uint32 (r)
+ * [wiki:DBusInterface/Device#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/Device#Volume Volume] : [Uint32] (rw)
+ * [wiki:DBusInterface/Device#DecibelVolume DecibelVolume] : Boolean (r)
+ * [wiki:DBusInterface/Device#BaseVolume BaseVolume] : Uint32 (r)
+ * [wiki:DBusInterface/Device#VolumeSteps VolumeSteps] : Uint32 (r)
+ * [wiki:DBusInterface/Device#Muted Muted] : Boolean (rw)
+ * [wiki:DBusInterface/Device#HardwareVolume HardwareVolume] : Boolean (r)
+ * [wiki:DBusInterface/Device#HardwareMute HardwareMute] : Boolean (r)
+ * [wiki:DBusInterface/Device#ConfiguredLatency ConfiguredLatency] : Uint64 # usec
+ * [wiki:DBusInterface/Device#DynamicLatency DynamicLatency] : Boolean (r)
+ * [wiki:DBusInterface/Device#Latency Latency] : Uint64 (r) # usec, does not exist for all devices.
+ * [wiki:DBusInterface/Device#HardwareDevice HardwareDevice] : Boolean (r)
+ * [wiki:DBusInterface/Device#NetworkDevice NetworkDevice] : Boolean (r)
+ * [wiki:DBusInterface/Device#State State] : Byte (r)
+ * [wiki:DBusInterface/Device#Ports Ports] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Device#ActivePort ActivePort] : !ObjectPath (rw) # Does not exist if there are no ports.
+ * [wiki:DBusInterface/Device#Proplist Proplist] : {String -> [Byte]} (r)
 
 
-Signals:
+[wiki:DBusInterface/Device#Methods Methods]:
 
- * !VolumeUpdated(Volume : [Uint32])
- * !MuteUpdated(Muted : Boolean)
- * !StateUpdated(State : Byte)
- * !ActivePortUpdated(Port : !ObjectPath)
- * !ProplistUpdated(Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Device#SetDescription SetDescription](in Description : String)
+ * [wiki:DBusInterface/Device#Suspend Suspend](in Suspend : Boolean)
+ * [wiki:DBusInterface/Device#GetPortByName GetPortByName](in Name : String ; out Port : !ObjectPath)
 
 
+[wiki:DBusInterface/Device#Signals Signals]:
 
-==== org.pulseaudio.Core1.Sink ====
-
-Properties:
-
- * !FlatVolume : Boolean (r)
- * !MonitorSource : !ObjectPath (r)
+ * [wiki:DBusInterface/Device#VolumeUpdated VolumeUpdated](Volume : [Uint32])
+ * [wiki:DBusInterface/Device#MuteUpdated MuteUpdated](Muted : Boolean)
+ * [wiki:DBusInterface/Device#StateUpdated StateUpdated](State : Byte)
+ * [wiki:DBusInterface/Device#ActivePortUpdated ActivePortUpdated](Port : !ObjectPath)
+ * [wiki:DBusInterface/Device#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
 
 
 
-==== org.pulseaudio.Core1.Source ====
+==== [wiki:DBusInterface/Device#org.pulseaudio.Core1.Sink org.pulseaudio.Core1.Sink] ====
 
-Properties:
+[wiki:DBusInterface/Device#Properties1 Properties]:
 
- * !MonitorOfSink : !ObjectPath (r) # Does not exist if this is not a monitor source.
+ * [wiki:DBusInterface/Device#FlatVolume FlatVolume] : Boolean (r)
+ * [wiki:DBusInterface/Device#MonitorSource MonitorSource] : !ObjectPath (r)
+
+
+
+==== [wiki:DBusInterface/Device#org.pulseaudio.Core1.Source org.pulseaudio.Core1.Source] ====
+
+[wiki:DBusInterface/Device#Properties2 Properties]:
+
+ * [wiki:DBusInterface/Device#MonitorOfSink MonitorOfSink] : !ObjectPath (r) # Does not exist if this is not a monitor source.
 
 
 
@@ -480,7 +482,7 @@ Properties:
 
  * [wiki:DBusInterface/Enumerations#Sampleformats Sample formats]
  * [wiki:DBusInterface/Enumerations#Channelpositions Channel positions]
- * Device states
+ * [wiki:DBusInterface/Enumerations#Devicestates Device states]
  * Update modes
 
 
