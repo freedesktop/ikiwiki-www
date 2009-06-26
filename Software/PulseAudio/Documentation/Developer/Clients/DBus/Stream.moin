@@ -1,0 +1,212 @@
+= D-Bus Interface: Streams =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+Objects and their interfaces:
+ * /org/pulseaudio1/playback_streamX
+   - org.pulseaudio.Core1.Stream
+   - org.pulseaudio.Core1.!PlaybackStream
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+ * /org/pulseaudio1/record_streamX
+   - org.pulseaudio.Core1.Stream
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+
+
+== org.pulseaudio.Core1.Stream ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The stream index. Playback and record stream indices are separate, so it's perfectly normal to have two streams with the same index: the other stream is a playback stream and the other is a record stream.
+
+
+==== Driver ====
+
+ * Type: String
+ * Access: read
+
+The driver that implements the stream object. This is usually expressed as a source code file name, for example "protocol-native.c".
+
+
+==== !OwnerModule ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The module that owns this stream. It's not guaranteed that any module claims ownership; in such case this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this stream is not owned by any module.
+
+
+==== Client ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The client whose stream this is. Not all streams are created by clients, in those cases this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this stream is not created by a client.
+
+
+==== Device ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The device this stream is connected to.
+
+
+==== !SampleFormat ====
+
+ * Type: Byte
+ * Access: read
+
+The sample format of the stream. See [wiki:DBusInterface/Enumerations#Sampleformats] for the list of possible values.
+
+
+==== !SampleRate ====
+
+ * Type: Uint32
+ * Access: read
+
+The sample rate of the stream.
+
+
+==== Channels ====
+
+ * Type: [Byte]
+ * Access: read
+
+The channel map of the stream. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
+
+
+==== !BufferLatency ====
+
+ * Type: Uint64
+ * Access: read
+
+The length of buffered audio in microseconds that is not at the device yet/anymore.
+
+
+==== !DeviceLatency ====
+
+ * Type: Uint64
+ * Access: read
+
+The length of buffered audio in microseconds at the device.
+
+
+==== !ResampleMethod ====
+
+ * Type: String
+ * Access: read
+
+The resampling algorithm that is used to convert the stream audio data to/from the device's sample rate.
+
+
+==== Proplist ====
+
+ * Type: {String -> [Byte]}
+ * Access: read
+
+The stream proplist.
+
+
+
+=== Methods ===
+
+==== !SetName ====
+
+ * Arguments: Name : String
+   - Name: New name for the stream
+
+Assigns a new name for the stream.
+
+
+==== Move ====
+
+ * Arguments: Device : !ObjectPath
+   - Device: The device to move to
+
+Moves the stream to another device.
+
+
+==== Kill ====
+
+Kills the stream.
+
+
+
+=== Signals ===
+
+==== !DeviceUpdated ====
+
+ * Parameters: Device : !ObjectPath
+   - Device: The new device
+
+The stream was moved to another device.
+
+
+==== !SampleRateUpdated ====
+
+ * Parameters: !SampleRate : Uint32
+   - !SampleRate: The new sample rate
+
+The stream's sample rate was changed.
+
+
+==== !ProplistUpdated ====
+
+ * Parameters: Proplist : {String -> [Byte]}
+   - Proplist: The new proplist
+
+The stream's proplist was modified.
+
+
+
+
+== org.pulseaudio.Core1.!PlaybackStream ==
+
+=== Properties ===
+
+==== Volume ====
+
+ * Type: [Uint32]
+ * Access: read/write
+
+The volume of the stream. The volume elements in the array must match the channel positions in the Stream interface's Channels property array.
+
+
+==== Muted ====
+
+ * Type: Boolean
+ * Access: read/write
+
+Whether or not the stream is currently muted.
+
+
+
+=== Signals ===
+
+==== !VolumeUpdated ====
+
+ * Parameters: Volume : [Uint32]
+   - Volume: The new volume values
+
+The stream's volume was modified.
+
+
+==== !MuteUpdated ====
+
+ * Parameters: Muted : Boolean
+   - Muted: The new mute state
+
+The stream was muted or unmuted.
