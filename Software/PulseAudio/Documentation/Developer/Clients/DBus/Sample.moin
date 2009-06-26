@@ -1,0 +1,133 @@
+= D-Bus Interface: Samples =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+Objects and their interfaces:
+ * /org/pulseaudio1/sampleX
+   - org.pulseaudio.Core1.Sample
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+
+
+== org.pulseaudio.Core1.Sample ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The sample index.
+
+
+==== Name ====
+
+ * Type: String
+ * Access: read
+
+The sample name.
+
+
+==== !SampleFormat ====
+
+ * Type: Byte
+ * Access: read
+
+The sample format of the sample (try not to get confused, the two "samples" in that sentence referred to different things). See [wiki:DBusInterface/Enumerations#Sampleformats] for the list of possible values.
+
+
+==== !SampleRate ====
+
+ * Type: Uint32
+ * Access: read
+
+The sample rate of the sample.
+
+
+==== Channels ====
+
+ * Type: [Byte]
+ * Access: read
+
+The channel map of the sample. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
+
+
+==== !DefaultVolume ====
+
+ * Type: [Uint32]
+ * Access: read
+
+The default volume of the sample. The volume elements in the array match the channel positions in the Stream interface's Channels property array.
+
+
+==== Duration ====
+
+ * Type: Uint64
+ * Access: read
+
+The duration of the sample in microseconds.
+
+
+==== Bytes ====
+
+ * Type: Uint32
+ * Access: read
+
+The length of the sample in bytes.
+
+
+==== Lazy ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not this is a lazy sample. Lazy samples are loaded from the disk only if they are played.
+
+
+==== Filename ====
+
+ * Type: String
+ * Access: read
+
+The filename of the sample. Only lazy samples have filenames; if this is not a lazy sample, this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this is not a lazy sample.
+
+
+==== Proplist ====
+
+ * Type: {String -> [Byte]}
+ * Access: read
+
+The sample proplist.
+
+
+
+=== Methods ===
+
+==== Play ====
+
+ * Arguments: Sink : !ObjectPath, Volume : [Uint32], Proplist : {String -> [Byte]}
+   - Sink: The sink through which the sample shall be played
+   - Volume: The volume with which to play the sample. The values must match the sample channels, or alternatively you can give an empty array, in which case the server decides the volume (this is often a good choice).
+   - Proplist: Additional properties to use when playing the sample. This can also be used to override existing properties.
+
+Plays the sample.
+
+
+==== Remove ====
+
+Removes the sample from the sample cache.
+
+
+
+=== Signals ===
+
+==== !ProplistUpdated ====
+
+ * Parameters: Proplist : {String -> [Byte]}
+   - Proplist: The new proplist
+
+The sample's proplist was modified.
