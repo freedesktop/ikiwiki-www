@@ -1,0 +1,432 @@
+= D-Bus Interface: General Server Functionality =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+Objects and their interfaces:
+ * /org/pulseaudio1
+   - org.pulseaudio.Core1
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable.
+
+
+== org.pulseaudio.Core1 ==
+
+=== Properties ===
+
+==== !InterfaceRevision ====
+
+ * Type: Uint32
+ * Access: read
+
+The "major" version of the main D-Bus interface is embedded in the interface name: org.pulseaudio.Core1. When changes are made that break compatibility between old clients and new servers the major version is incremented. This property tells the "minor" version, that is, when new features are added to the interface, this version number is incremented so that new clients can check if the server they talk to supports the new features. This documentation defines revision 0.
+
+
+==== Name ====
+
+ * Type: String
+ * Access: read
+
+The server name. At the time of writing no competing implementations have appeared, so the expected name is "pulseaudio".
+
+
+==== Version ====
+
+ * Type: String
+ * Access: read
+
+The server version string, for example "0.9.17".
+
+
+==== Local ====
+
+ * Type: Boolean
+ * Access: read
+
+This can be used to find out whether the client connection is local.
+
+
+==== Username ====
+
+ * Type: String
+ * Access: read
+
+The username that the server is running under.
+
+
+==== Hostname ====
+
+ * Type: String
+ * Access: read
+
+The hostname of the machine the server is running on.
+
+
+==== !DefaultChannels ====
+
+ * Type: [Byte]
+ * Access: read/write
+
+The default channel map that is used when initializing a device and the configuration information doesn't specify the desired channel map. The default channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
+
+
+==== !DefaultSampleFormat ====
+
+ * Type: Byte
+ * Access: read/write
+
+The default sample format that is used when initializing a device and the configuration information doesn't specify the desired sample format. See [wiki:DBusInterface/Enumerations#Sampleformats] for the list of possible values.
+
+
+==== !DefaultSampleRate ====
+
+ * Type: Uint32
+ * Access: read/write
+
+The default sample rate that is used when initializing a device and the configuration information doesn't specify the desired sample rate.
+
+
+==== Sinks ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All currently available sinks.
+
+
+==== !FallbackSink ====
+
+ * Type: !ObjectPath
+ * Access: read/write
+
+When a new playback stream is created and there is no other policy about to which sink the stream should be connected, the fallback sink is selected. This property doesn't exist if there are no sinks, so an error is returned if this property is accessed in such situation.
+
+
+==== Sources ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All currently available sources.
+
+
+==== !FallbackSource ====
+
+ * Type: !ObjectPath
+ * Access: read/write
+
+When a new record stream is created and there is no other policy about to which source the stream should be connected, the fallback source is selected. This property doesn't exist if there are no sources, so an error is returned if this property is accessed in such situation.
+
+
+==== !PlaybackStreams ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All current playback streams.
+
+
+==== !RecordStreams ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All current record streams.
+
+
+==== Samples ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All currently loaded samples.
+
+
+==== Modules ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All currently loaded modules.
+
+
+==== Clients ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All currently connected clients.
+
+
+==== Extensions ====
+
+ * Type: [String]
+ * Access: read
+
+All available server extension interfaces. Each extension interface defines an unique string that clients can search from this array. The string should contain a version part so that if backward compatibility breaking changes are made to the interface, old clients don't detect the new interface at all, or both old and new interfaces can be provided.
+
+The string is specific to the D-Bus interface of the extension, so if an extension module offers access through both the C API and D-Bus, the interfaces can be updated independently.
+
+The strings are intended to follow the structure and restrictions of D-Bus interface names, but that is not enforced. The clients should treat the strings as opaque identifiers.
+
+
+
+=== Methods ===
+
+==== !GetCardByName ====
+
+ * Arguments: Name : String
+   - Name: Card name
+ * Returns: Card : !ObjectPath
+   - Card: Card object
+
+Find the card with the given name.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NotFoundError org.pulseaudio.Core1.NotFoundError] if no such card is available.
+
+
+==== !GetSinkByName ====
+
+ * Arguments: Name : String
+   - Name: Sink name
+ * Returns : Sink : !ObjectPath
+   - Sink: Sink object
+
+Find the sink with the given name.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NotFoundError org.pulseaudio.Core1.NotFoundError] if no such sink is available.
+
+
+==== !GetSourceByName ====
+
+ * Arguments: Name : String
+   - Name: Source name
+ * Returns:  Source : !ObjectPath
+   - Source: Source object
+
+Find the source with the given name.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NotFoundError org.pulseaudio.Core1.NotFoundError] if no such source is available.
+
+
+==== !GetSampleByName ====
+
+ * Arguments: Name : String
+   - Name: Sample name
+ * Returns: Sample : !ObjectPath
+   - Sample: Sample object
+
+Find the sample with the given name.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NotFoundError org.pulseaudio.Core1.NotFoundError] if no such sample is loaded.
+
+
+==== !UploadSample ====
+
+ * Arguments: Name : String, !SampleFormat : Byte, !SampleRate : Uint32, Channels : [Byte], !DefaultVolume : [Uint32], Proplist : {String -> [Byte]}, Data : [Byte]
+   - Name: Sample name
+   - !SampleFormat: Sample format, see [wiki:DBusInterface/Enumerations#Sampleformats]
+   - Channels: Channel map as an array of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions]
+   - !DefaultVolume: The volume at which the sample should be played if the volume isn't given at the time of playing. The volume elements in the array must match the channel positions in the Channels array, or alternatively an empty array may be given, in which case the server decides the default volume (this is often a good choice). Volume elements are given in the linear form, and should be between 0 (muted) and 65536 (normal).
+   - Proplist: Proplist for the sample
+   - Data: Audio data
+ * Returns: Sample : !ObjectPath
+   - Sample: Added sample object
+
+Loads a sample. If there is already a sample loaded with the same name, the old sample is replaced.
+
+
+==== !LoadSampleFromFile ====
+
+ * Arguments: Name : String, Filepath : String
+   - Name: Sample name
+   - Filepath: Sample file on the server machine
+ * Returns: Sample : !ObjectPath
+   - Sample: Added sample object
+
+Loads a sample from a file. If there is already a sample loaded with the same name, the old sample is replaced.
+
+
+==== !AddLazySample ====
+
+ * Arguments: Name : String, Filepath : String
+   - Name: Sample name
+   - Filepath: Sample file on the server machine
+ * Returns: Sample : !ObjectPath
+   - Sample: Added sample object
+
+Adds a lazy sample. If there is already a sample loaded with the same name, the old sample is replaced.
+
+
+==== !AddLazySamplesFromDirectory ====
+
+ * Arguments: Dirpath : String
+   - Dirpath: Sample directory on the server machine
+
+Adds all samples in the given directory as lazy samples. The file names are used as sample names.
+
+
+==== !LoadModule ====
+
+ * Arguments: Name : String, Arguments : {String -> String}
+   - Name: Module name (e.g. "module-alsa-sink")
+   - Arguments: Module arguments. Keys are argument names and values are argument values.
+ * Returns: Module : !ObjectPath
+   - Module: Loaded module object
+
+Loads a module.
+
+
+==== Exit ====
+
+Shuts down the server.
+
+
+
+=== Signals ===
+
+==== !NewCard ====
+
+ * Parameters: Card : !ObjectPath
+   - Card: Added card object
+
+A card was added.
+
+
+==== !CardRemoved ====
+
+ * Parameters: Card : !ObjectPath
+   - Card: Removed card object
+
+A card was removed.
+
+
+==== !NewSink ====
+
+ * Parameters: Sink : !ObjectPath
+   - Sink: Added sink object
+
+A sink was added.
+
+
+==== !SinkRemoved ====
+
+ * Parameters: Sink : !ObjectPath
+   - Sink: Removed sink object
+
+A sink was removed.
+
+
+==== !FallbackSinkUpdated ====
+
+ * Parameters: Sink : !ObjectPath
+   - Sink: New fallback sink
+
+The fallback sink was changed. When the last sink is removed, this signal is not emitted. On the other hand, when there were previously no sinks and a new sink is added, it becomes the fallback sink and this signal is emitted.
+
+
+==== !NewSource ====
+
+ * Parameters: Source : !ObjectPath
+   - Source: Added source object
+
+A source was added.
+
+
+==== !SourceRemoved ====
+
+ * Parameters: Source : !ObjectPath
+   - Source: Removed source object
+
+A source was removed.
+
+
+==== !FallbackSourceUpdated ====
+
+ * Parameters: Source : !ObjectPath
+   - New fallback source
+
+The fallback source was changed. When the last source is removed, this signal is not emitted. On the other hand, when there were previously no sources and a new source is added, it becomes the fallback source and this signal is emitted.
+
+
+==== !NewPlaybackStream ====
+
+ * Parameters: !PlaybackStream : !ObjectPath
+   - !PlaybackStream: Added playback stream object
+
+A playback stream was added.
+
+
+==== !PlaybackStreamRemoved ====
+
+ * Parameters: !PlaybackStream : !ObjectPath
+   - !PlaybackStream: Removed playback stream object
+
+A playback stream was removed.
+
+
+==== !NewRecordStream ====
+
+ * Parameters: !RecordStream : !ObjectPath
+   - !RecordStream: Added record stream object
+
+A record stream was added.
+
+
+==== !RecordStreamRemoved ====
+
+ * Parameters: !RecordStream : !ObjectPath
+   - !RecordStream: Removed record stream object
+
+A record stream was removed.
+
+
+==== !NewSample ====
+
+ * Parameters: Sample : !ObjectPath
+   - Sample: Loaded sample object
+
+A sample was loaded.
+
+
+==== !SampleRemoved ====
+
+ * Parameters: Sample : !ObjectPath
+   - Sample: Unloaded sample object
+
+A sample was unloaded.
+
+
+==== !NewModule ====
+
+ * Parameters: Module : !ObjectPath
+   - Module: Loaded module object
+
+A module was loaded.
+
+
+==== !ModuleRemoved ====
+
+ * Parameters: Module : !ObjectPath
+   - Module: Unloaded module object
+
+A module was unloaded.
+
+
+==== !NewClient ====
+
+ * Parameters: Client : !ObjectPath
+   - Client: Connected client object
+
+A new client connected.
+
+
+==== !ClientRemoved ====
+
+ * Parameters: Client : !ObjectPath
+   - Client: Disconnected client
+
+A client disconnected.
