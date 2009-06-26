@@ -27,8 +27,6 @@ The new functionality consists of two parts: a server lookup service and the mai
 
  * Currently stream names can be changed, but only by the owning client. At least in the first phase a D-Bus client can't be a stream owner. Currently all stream owning clients have to use the C API anyway, so they can set the name with it just fine. But does it make sense, nevertheless, to allow any client change any stream's name via D-Bus? If not, what about in the future, if things go as planned and the normal way of streaming is to use RTSP/RTP, are the RTSP clients still able to set the name, or is RTSP so limited that it's not possible (my knowledge about RTSP is obviously next to none)?
 
- * The device property !DecibelVolume documentation includes the algorithm behind pa_sw_volume_to_dB. Is the algorithm an implementation detail that shouldn't be exposed in the documentation?
-
 
 == Control API ==
 
@@ -272,92 +270,92 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 
 
-=== Streams ===
+=== [wiki:DBusInterface/Stream Streams] ===
 
  * Objects '''/org/pulseaudio1/playback_streamX''' and '''/org/pulseaudio1/record_streamX''' implement interfaces '''org.pulseaudio.Core1.Stream''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
  * Objects '''/org/pulseaudio1/playback_streamX''' implement interface '''org.pulseaudio.Core1.!PlaybackStream'''
 
 
-==== org.pulseaudio.Core1.Stream ====
+==== [wiki:DBusInterface/Stream#org.pulseaudio.Core1.Stream org.pulseaudio.Core1.Stream] ====
 
-Properties:
+[wiki:DBusInterface/Stream#Properties Properties]:
 
- * Index : Uint32 (r)
- * Driver : String (r)
- * !OwnerModule : !ObjectPath (r) # Does not exist for all streams.
- * Client : !ObjectPath (r) # Does not exist for all streams.
- * Device : !ObjectPath (r)
- * !SampleFormat : Byte (r)
- * !SampleRate : Uint32 (r)
- * Channels : [Byte] (r)
- * !BufferLatency : Uint64 (r) # usec
- * !DeviceLatency : Uint64 (r) # usec
- * !ResampleMethod : String (r)
- * Proplist : {String -> [Byte]} (r)
-
-
-Methods:
-
- * !SetName(in Description : String)
- * Move(in Device : !ObjectPath)
- * Kill()
+ * [wiki:DBusInterface/Stream#Index Index] : Uint32 (r)
+ * [wiki:DBusInterface/Stream#Driver Driver] : String (r)
+ * [wiki:DBusInterface/Stream#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist for all streams.
+ * [wiki:DBusInterface/Stream#Client Client] : !ObjectPath (r) # Does not exist for all streams.
+ * [wiki:DBusInterface/Stream#Device Device] : !ObjectPath (r)
+ * [wiki:DBusInterface/Stream#SampleFormat SampleFormat] : Byte (r)
+ * [wiki:DBusInterface/Stream#SampleRate SampleRate] : Uint32 (r)
+ * [wiki:DBusInterface/Stream#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/Stream#BufferLatency BufferLatency] : Uint64 (r) # usec
+ * [wiki:DBusInterface/Stream#DeviceLatency DeviceLatency] : Uint64 (r) # usec
+ * [wiki:DBusInterface/Stream#ResampleMethod ResampleMethod] : String (r)
+ * [wiki:DBusInterface/Stream#Proplist Proplist] : {String -> [Byte]} (r)
 
 
-Signals:
+[wiki:DBusInterface/Stream#Methods Methods]:
 
- * !DeviceUpdated(Device : !ObjectPath)
- * !SampleRateUpdated(!SampleRate : Uint32)
- * !ProplistUpdated(Proplist : {String -> [Byte]})
-
-
-
-==== org.pulseaudio.Core1.!PlaybackStream ====
-
-Properties:
-
- * Volume : [Uint32] (rw)
- * Muted : Boolean (rw)
+ * [wiki:DBusInterface/Stream#SetName SetName](in Name : String)
+ * [wiki:DBusInterface/Stream#Move Move](in Device : !ObjectPath)
+ * [wiki:DBusInterface/Stream#Kill Kill]()
 
 
-Signals:
+[wiki:DBusInterface/Stream#Signals Signals]:
 
- * !VolumeUpdated(Volume : [Uint32])
- * !MuteUpdated(Muted : Boolean)
+ * [wiki:DBusInterface/Stream#DeviceUpdated DeviceUpdated](Device : !ObjectPath)
+ * [wiki:DBusInterface/Stream#SampleRateUpdated SampleRateUpdated](!SampleRate : Uint32)
+ * [wiki:DBusInterface/Stream#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
 
 
 
-=== Samples ===
+==== [wiki:DBusInterface/Stream#org.pulseaudio.Core1.PlaybackStream org.pulseaudio.Core1.PlaybackStream] ====
+
+[wiki:DBusInterface/Stream#Properties1 Properties]:
+
+ * [wiki:DBusInterface/Stream#Volume Volume] : [Uint32] (rw)
+ * [wiki:DBusInterface/Stream#Muted Muted] : Boolean (rw)
+
+
+[wiki:DBusInterface/Stream#Signals1 Signals]:
+
+ * [wiki:DBusInterface/Stream#VolumeUpdated VolumeUpdated](Volume : [Uint32])
+ * [wiki:DBusInterface/Stream#MuteUpdated MuteUpdated](Muted : Boolean)
+
+
+
+=== [wiki:DBusInterface/Sample Samples] ===
 
  * Objects '''/org/pulseaudio1/sampleX''' implement interfaces '''org.pulseaudio.Core1.Sample''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
 
-==== org.pulseaudio.Core1.Sample ====
+==== [wiki:DBusInterface/Sample#org.pulseaudio.Core1.Sample org.pulseaudio.Core1.Sample] ====
 
-Properties:
+[wiki:DBusInterface/Sample#Properties Properties]:
 
- * Index : Uint32 (r)
- * Name : String (r)
- * !SampleFormat : Byte (r)
- * !SampleRate : Uint32 (r)
- * Channels : [Byte] (r)
- * !DefaultVolume : [Uint32] (r)
- * Duration : Uint64 (r) # usec
- * Bytes : Uint32 (r)
- * Lazy : Boolean (r)
- * Filename : String (r) # Exists only for lazy samples.
- * Proplist : {String -> [Byte]} (r)
-
-
-Methods:
-
- * Play(in Sink : !ObjectPath, Volume : [Uint32], Proplist : {String -> [Byte]})
- * Remove()
+ * [wiki:DBusInterface/Sample#Index Index] : Uint32 (r)
+ * [wiki:DBusInterface/Sample#Name Name] : String (r)
+ * [wiki:DBusInterface/Sample#SampleFormat SampleFormat] : Byte (r)
+ * [wiki:DBusInterface/Sample#SampleRate SampleRate] : Uint32 (r)
+ * [wiki:DBusInterface/Sample#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/Sample#DefaultVolume DefaultVolume] : [Uint32] (r)
+ * [wiki:DBusInterface/Sample#Duration Duration] : Uint64 (r) # usec
+ * [wiki:DBusInterface/Sample#Bytes Bytes] : Uint32 (r)
+ * [wiki:DBusInterface/Sample#Lazy Lazy] : Boolean (r)
+ * [wiki:DBusInterface/Sample#Filename Filename] : String (r) # Exists only for lazy samples.
+ * [wiki:DBusInterface/Sample#Proplist Proplist] : {String -> [Byte]} (r)
 
 
-Signals:
+[wiki:DBusInterface/Sample#Methods Methods]:
 
- * !ProplistUpdated(Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Sample#Play Play](in Sink : !ObjectPath, Volume : [Uint32], Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Sample#Remove Remove]()
+
+
+[wiki:DBusInterface/Sample#Signals Signals]:
+
+ * [wiki:DBusInterface/Sample#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
 
 
 
