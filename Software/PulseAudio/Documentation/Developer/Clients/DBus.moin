@@ -25,79 +25,94 @@ The new functionality consists of two parts: a server lookup service and the mai
 
  * Some properties that are available in the C API are exposed both explicitly and in the proplist. Should this interface do the same, or only have the proplist? (I vote for proplist only.) This decision affects device descriptions, stream names and client names. If separate properties are the way to go, then the Set* methods are unneeded, as the properties can be made read/write.
 
- * Currently stream names can be changed, but only by the owning client. At least in the first phase a D-Bus client can't be a stream owner. Currently all stream owning clients have to use the C API anyway, so they can set the name with it just fine. But does it make sense, nevertheless, to allow any client change any stream's name via D-Bus? If not, what about in the future, if things go as planned and the normal way of streaming is to use RTSP/RTP, are the RTSP clients still able to set the name, or is RTSP so limited that it's not possible?
+ * Currently stream names can be changed, but only by the owning client. At least in the first phase a D-Bus client can't be a stream owner. Currently all stream owning clients have to use the C API anyway, so they can set the name with it just fine. But does it make sense, nevertheless, to allow any client change any stream's name via D-Bus? If not, what about in the future, if things go as planned and the normal way of streaming is to use RTSP/RTP, are the RTSP clients still able to set the name, or is RTSP so limited that it's not possible (my knowledge about RTSP is obviously next to none)?
 
 
 == Control API ==
 
-The detailed descriptions are spread to separate pages, roughly one per object type. This page provides only a minimal reference and links to the details (TODO: Links and details missing).
+The detailed descriptions are spread to separate pages, roughly one per object type. This page provides only a minimal reference and links to the details.
 
 
-=== General Server Functionality ===
+=== Notation ===
+
+ * Arrays are written as [<type>]. For example, [Byte] is an array of bytes. 
+ * Dictionaries are written as {<type1> -> <type2>}. For example, {String -> [Byte]} is a dictionary with strings as keys and byte arrays as values.
+ * Structs are written as (<type1>, <type2>, ..., <typeN>). For example (Byte, Uint32) is a struct of a byte and an unsigned 32 bit integer.
+ * On this page only, property access is denoted with (r) for read and with (rw) for read/write.
+ * The rest should be obvious.
+
+
+
+=== Proplists ===
+
+Proplists (short for property lists) are dictionaries that are associated with many objects. The keys are utf-8 strings and the values are arbitrary data (usually they are utf-8 strings too, though). Proplists are used to attach many kinds of metadata to the objects: names, descriptions, intended roles and so on. For now the best source of information about available properties is the [http://0pointer.de/lennart/projects/pulseaudio/doxygen/proplist_8h.html proplist.h] file documentation.
+
+
+
+=== [wiki:DBusInterface/Core General Server Functionality] ===
 
  * Object '''/org/pulseaudio1''' implements interfaces '''org.pulseaudio.Core1''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
 
-==== org.pulseaudio.Core1 ====
+==== [wiki:DBusInterface/Core#org.pulseaudio.Core1 org.pulseaudio.Core1] ====
 
-Properties:
+[wiki:DBusInterface/Core#Properties Properties]:
 
- * !InterfaceRevision : Uint32 (r)
- * Name : String (r)
- * Version : String (r)
- * Local : Boolean (r)
- * Username : String (r)
- * Hostname : String (r)
- * !DefaultChannels : [Byte] (rw)
- * !DefaultSampleFormat : Byte (rw)
- * !DefaultSampleRate : Uint32 (rw)
- * Sinks : [!ObjectPath] (r)
- * !FallbackSink : !ObjectPath (rw) # Doesn't exist when there are no sinks.
- * Sources : [!ObjectPath] (r)
- * !FallbackSource : !ObjectPath (rw) # Doesn't exist when there are no sources.
- * !PlaybackStreams : [!ObjectPath] (r)
- * !RecordStreams : [!ObjectPath] (r)
- * Samples : [!ObjectPath] (r)
- * Modules : [!ObjectPath] (r)
- * Clients : [!ObjectPath] (r)
- * Extensions : [String] (r)
-
-
-Methods:
-
- * !GetCardByName(in Name : String ; out Card : !ObjectPath)
- * !GetSinkByName(in Name : String ; out Sink : !ObjectPath)
- * !GetSourceByName(in Name : String ; out Source : !ObjectPath
- * !GetSampleByName(in Name : String ; out Sample : !ObjectPath)
- * !UploadSample(in Name : String, !SampleFormat : Byte, !SampleRate : Uint32, Channels : [Byte], !DefaultVolume : [Uint32], Proplist : {String -> [Byte]}, Data : [Byte] ; out Sample : !ObjectPath)
- * !LoadSampleFromFile(in Name : String, Filepath : String ; out Sample : !ObjectPath)
- * !AddLazySample(in Name : String, Filepath : String ; out Sample : !ObjectPath)
- * !AddLazySamplesFromDirectory(in Dirpath : String)
- * !RemoveSample(in Sample : !ObjectPath)
- * !LoadModule(in Name : String, Argument : String ; out Module : !ObjectPath)
- * Exit()
+ * [wiki:DBusInterface/Core#InterfaceRevision InterfaceRevision] : Uint32 (r)
+ * [wiki:DBusInterface/Core#Name Name] : String (r)
+ * [wiki:DBusInterface/Core#Version Version] : String (r)
+ * [wiki:DBusInterface/Core#Local Local] : Boolean (r)
+ * [wiki:DBusInterface/Core#Username Username] : String (r)
+ * [wiki:DBusInterface/Core#Hostname Hostname] : String (r)
+ * [wiki:DBusInterface/Core#DefaultChannels DefaultChannels] : [Byte] (rw)
+ * [wiki:DBusInterface/Core#DefaultSampleFormat DefaultSampleFormat] : Byte (rw)
+ * [wiki:DBusInterface/Core#DefaultSampleRate DefaultSampleRate] : Uint32 (rw)
+ * [wiki:DBusInterface/Core#Sinks Sinks] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#FallbackSink FallbackSink] : !ObjectPath (rw) # Doesn't exist when there are no sinks.
+ * [wiki:DBusInterface/Core#Sources Sources] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#FallbackSource FallbackSource] : !ObjectPath (rw) # Doesn't exist when there are no sources.
+ * [wiki:DBusInterface/Core#PlaybackStreams PlaybackStreams] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#RecordStreams RecordStreams]: [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#Samples Samples] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#Modules Modules] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#Clients Clients] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#Extensions Extensions] : [String] (r)
 
 
-Signals:
+[wiki:DBusInterface/Core#Methods Methods]:
 
- * !NewCard(Card : !ObjectPath)
- * !CardRemoved(Card : !ObjectPath)
- * !NewSink(Sink : !ObjectPath)
- * !SinkRemoved(Sink : !ObjectPath)
- * !FallbackSinkUpdated(Sink : !ObjectPath)
- * !NewSource(Source : !ObjectPath)
- * !SourceRemoved(Source : !ObjectPath)
- * !FallbackSourceUpdated(Source : !ObjectPath)
- * !NewPlaybackStream(!PlaybackStream : !ObjectPath)
- * !PlaybackStreamRemoved(!PlaybackStream : !ObjectPath)
- * !NewRecordStream(!RecordStream : !ObjectPath)
- * !RecordStreamRemoved(!RecordStream : !ObjectPath)
- * !NewSample(Sample : !ObjectPath)
- * !SampleRemoved(Sample : !ObjectPath)
- * !NewModule(Module : !ObjectPath)
- * !ModuleRemoved(Module : !ObjectPath)
- * !NewClient(Client : !ObjectPath)
- * !ClientRemoved(Client : !ObjectPath)
+ * [wiki:DBusInterface/Core#GetCardByName GetCardByName](in Name : String ; out Card : !ObjectPath)
+ * [wiki:DBusInterface/Core#GetSinkByName GetSinkByName](in Name : String ; out Sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#GetSourceByName GetSourceByName](in Name : String ; out Source : !ObjectPath
+ * [wiki:DBusInterface/Core#GetSampleByName GetSampleByName](in Name : String ; out Sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#UploadSample UploadSample](in Name : String, !SampleFormat : Byte, !SampleRate : Uint32, Channels : [Byte], !DefaultVolume : [Uint32], Proplist : {String -> [Byte]}, Data : [Byte] ; out Sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#LoadSampleFromFile LoadSampleFromFile](in Name : String, Filepath : String ; out Sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#AddLazySample AddLazySample](in Name : String, Filepath : String ; out Sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#AddLazySamplesFromDirectory AddLazySamplesFromDirectory](in Dirpath : String)
+ * [wiki:DBusInterface/Core#LoadModule LoadModule](in Name : String, Argument : String ; out Module : !ObjectPath)
+ * [wiki:DBusInterface/Core#Exit Exit]()
+
+
+[wiki:DBusInterface/Core#Signals Signals]:
+
+ * [wiki:DBusInterface/Core#NewCard NewCard](Card : !ObjectPath)
+ * [wiki:DBusInterface/Core#CardRemoved CardRemoved](Card : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewSink NewSink](Sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#SinkRemoved SinkRemoved](Sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#FallbackSinkUpdated FallbackSinkUpdated](Sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewSource NewSource](Source : !ObjectPath)
+ * [wiki:DBusInterface/Core#SourceRemoved SourceRemoved](Source : !ObjectPath)
+ * [wiki:DBusInterface/Core#FallbackSourceUpdated FallbackSourceUpdated](Source : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewPlaybackStream NewPlaybackStream](!PlaybackStream : !ObjectPath)
+ * [wiki:DBusInterface/Core#PlaybackStreamRemoved PlaybackStreamRemoved](!PlaybackStream : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewRecordStream NewRecordStream](!RecordStream : !ObjectPath)
+ * [wiki:DBusInterface/Core#RecordStreamRemoved RecordStreamRemoved](!RecordStream : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewSample NewSample](Sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#SampleRemoved SampleRemoved](Sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewModule NewModule](Module : !ObjectPath)
+ * [wiki:DBusInterface/Core#ModuleRemoved ModuleRemoved](Module : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewClient NewClient](Client : !ObjectPath)
+ * [wiki:DBusInterface/Core#ClientRemoved ClientRemoved](Client : !ObjectPath)
 
 
 
@@ -461,12 +476,14 @@ Properties:
 
 
 
-=== Enumerations ===
+=== [wiki:DBusInterface/Enumerations Enumerations] ===
 
- * Sample formats
- * Channel positions
+ * [wiki:DBusInterface/Enumerations#Sampleformats Sample formats]
+ * [wiki:DBusInterface/Enumerations#Channelpositions Channel positions]
  * Device states
  * Update modes
 
 
-=== Errors ===
+=== [wiki:DBusInterface/Errors Errors] ===
+
+ * [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NotFoundError org.pulseaudio.Core1.NotFoundError]
