@@ -1,0 +1,340 @@
+= D-Bus Interface: General Server Functionality =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+Objects and their interfaces:
+ * /org/pulseaudio1/sinkX
+   - org.pulseaudio.Core1.Device
+   - org.pulseaudio.Core1.Sink
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable.
+ * /org/pulseaudio1/sourceX
+   - org.pulseaudio.Core1.Device
+   - org.pulseaudio.Core1.Source
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable.
+
+
+== org.pulseaudio.Core1.Device ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The device index. Sink and source indices are separate, so it's perfectly normal to have two devices with the same index: the other device is a sink and the other is a source.
+
+
+==== Name ====
+
+ * Type: String
+ * Access: read
+
+The device name.
+
+
+==== Driver ====
+
+ * Type: String
+ * Access: read
+
+The driver that implements the device object. This is usually expressed as a source code file name, for example "module-alsa-card.c".
+
+
+==== !OwnerModule ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The module that owns this device. It's not guaranteed that any module claims ownership; in such case this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this device is not owned by any module.
+
+
+==== Card ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The card that this device belongs to. Not all devices are part of cards; in those cases this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this device is not part of any card.
+
+
+==== !SampleFormat ====
+
+ * Type: Byte
+ * Access: read
+
+The sample format of the device. See [wiki:DBusInterface/Enumerations#Sampleformats] for the list of possible values.
+
+
+==== !SampleRate ====
+
+ * Type: Uint32
+ * Access: read
+
+The sample rate of the device.
+
+
+==== Channels ====
+
+ * Type: [Byte]
+ * Access: read
+
+The channel map of the device. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
+
+
+==== Volume ====
+
+ * Type: [Uint32]
+ * Access: read/write
+
+The volume of the device. The volume elements in the array must match the channel positions in the Channels property array.
+
+
+==== !DecibelVolume ====
+
+ * Type: Boolean
+ * Access: read
+
+If this is true, the volume values of the Volume property can be converted to decibels with pa_sw_volume_to_dB(). If you want to avoid the C API, the function does the conversion as follows:
+
+ * If input = 0, then output = -200.0
+ * Otherwise output = 20 * log10((input / 65536)^3^)
+
+
+==== !BaseVolume ====
+
+ * Type: Uint32
+ * Access: read
+
+The volume level at which the device doesn't perform any amplification or attenuation.
+
+
+==== !VolumeSteps ====
+
+ * Type: Uint32
+ * Access: read
+
+If the device doesn't support arbitrary volume values, this property tells the number of possible volume values. Otherwise this property has value 65537.
+
+
+==== Muted ====
+
+ * Type: Boolean
+ * Access: read/write
+
+Whether or not the device is currently muted.
+
+
+==== !HardwareVolume ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not the device volume controls the hardware volume.
+
+
+==== !HardwareMute ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not muting the device controls the hardware mute state.
+
+
+==== !ConfiguredLatency ====
+
+ * Type: Uint64
+ * Access: read
+
+The latency in microseconds that device has been configured to.
+
+
+==== !DynamicLatency ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not the device latency can be adjusted according to the needs of the connected streams.
+
+
+==== Latency ====
+
+ * Type: Uint64
+ * Access: read
+
+The length of queued audio in the device buffer. Not all devices support latency querying; in those cases this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if the device doesn't support latency querying.
+
+
+==== !HardwareDevice ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not this device is a hardware device.
+
+
+==== !NetworkDevice ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not this device is a network device.
+
+
+==== State ====
+
+ * Type: Byte
+ * Access: read
+
+The current state of the device. See [wiki:DBusInterface/Enumerations#Devicestates] for the list of possible values.
+
+
+==== Ports ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All available card profiles. May be empty.
+
+
+==== !ActivePort ====
+
+ * Type: !ObjectPath
+ * Access: read/write
+
+The currently active device port. This property doesn't exist if the device does not have any ports.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this device doesn't have any ports.
+
+
+==== Proplist ====
+
+ * Type: {String -> [Byte]}
+ * Access: read
+
+The device proplist.
+
+
+
+=== Methods ===
+
+==== !SetDescription ====
+
+ * Arguments: Description : String
+   - Description: New description for the device
+
+Assigns a new description for the device.
+
+
+==== Suspend ====
+
+ * Arguments: Suspend : Boolean
+   - Suspend: True to suspend, false to unsuspend
+
+Suspends or unsuspends the device.
+
+
+==== !GetPortByName ====
+
+ * Arguments: Name : String
+   - Name: Port name
+ * Returns: Port : !ObjectPath
+   - Port: Device port object
+
+Find the device port with the given name.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NotFoundError org.pulseaudio.Core1.NotFoundError] if no such port is available.
+
+
+
+=== Signals ===
+
+==== !VolumeUpdated ====
+
+ * Parameters: Volume : [Uint32]
+   - Volume: The new volume values
+
+The device's volume was modified.
+
+
+==== !MuteUpdated ====
+
+ * Parameters: Muted : Boolean
+   - Muted: The new mute state
+
+The device was muted or unmuted.
+
+
+==== !StateUpdated ====
+
+ * Parameters: State : Byte
+   - State: The new device state
+
+The device's state changed.
+
+
+==== !ActivePortUpdated ====
+
+ * Parameters: Port : !ObjectPath
+   - Port: Activated device port
+
+The active device port was changed.
+
+
+==== !ProplistUpdated ====
+
+ * Parameters: Proplist : {String -> [Byte]}
+   - Proplist: The new proplist
+
+The device's proplist was modified.
+
+
+
+
+== org.pulseaudio.Core1.Sink ==
+
+=== Properties ===
+
+==== !FlatVolume ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not the sink is configured to use the "flat volume" logic, that is, the device volume follows the maximum volume of all connected streams.
+
+
+==== !MonitorSource ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The monitor source object of this sink.
+
+
+
+
+== org.pulseaudio.Core1.Source ==
+
+=== Properties ===
+
+==== !MonitorOfSink ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The sink of which monitor source this source is. If this source is not a monitor source, this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this source isn't a monitor source.
