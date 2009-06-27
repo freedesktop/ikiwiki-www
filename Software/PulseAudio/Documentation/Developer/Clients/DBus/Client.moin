@@ -1,0 +1,67 @@
+= D-Bus Interface: Clients =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+Objects and their interfaces:
+ * /org/pulseaudio1/clientX
+   - org.pulseaudio.Core1.Client
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+
+
+== org.pulseaudio.Core1.Client ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The client index.
+
+
+==== Driver ====
+
+ * Type: String
+ * Access: read
+
+The driver that implements the client object. This is usually expressed as a source code file name, for example "protocol-native.c".
+
+
+==== !OwnerModule ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The module that owns this client object. It's not guaranteed that any module claims ownership; in such case this property does not exist.
+
+ * Errors:
+   - [wiki:DBusInterface/Errors#org.pulseaudio.Core1.NoSuchPropertyError org.pulseaudio.Core1.NoSuchPropertyError] if this client is not owned by any module.
+
+
+==== Proplist ====
+
+ * Type: {String -> [Byte]}
+ * Access: read
+
+The client proplist.
+
+
+
+=== Methods ===
+
+==== Kill ====
+
+Cut the client's connection, terminating also its streams.
+
+
+
+=== Signals ===
+
+==== !ProplistUpdated ====
+
+ * Parameters: Proplist : {String -> [Byte]}
+   - Proplist: The new proplist
+
+The client's proplist was modified.
