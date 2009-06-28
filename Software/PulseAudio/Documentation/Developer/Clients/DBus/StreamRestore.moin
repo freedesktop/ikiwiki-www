@@ -1,0 +1,125 @@
+= D-Bus Interface: Stream Restore Extension =
+
+[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+
+TODO: Explain how this extension works.
+
+Objects and their interfaces:
+ * /org/pulseaudio/stream_restore1
+   - org.pulseaudio.ext.!StreamRestore1
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+ * /org/pulseaudio/stream_restore1/entryX
+
+
+== org.pulseaudio.ext.!StreamRestore1 ==
+
+=== Properties ===
+
+==== !InterfaceRevision ====
+
+ * Type: Uint32
+ * Access: read
+
+Similarly to the core API, the "major" version of the stream restore extension interface is embedded in the interface name: org.pulseaudio.ext.!StreamRestore1. When changes are made that break compatibility between old clients and new servers the major version is incremented. This property tells the "minor" version, that is, when new features are added to the interface, this version number is incremented so that new clients can check if the server they talk to supports the new features. This documentation defines revision 0.
+
+
+==== Entries ====
+
+ * Type: [!ObjectPath]
+ * Access: read
+
+All stored policy entries.
+
+
+
+=== Methods ===
+
+==== !PutEntries ====
+
+ * Arguments: Entries : [(String, String, [(Byte, Uint32)], Boolean)], !UpdateMode : Byte
+   - Entries: New entry set with a struct for each entry: the first struct member is the entry name, the second is the device name, the third contains the channel map and volume, and the last is the mute state. The device can be an empty string, in which case it is not saved. The array containing the channel map and volume can be left empty, in which case those properties are not saved.
+   - !UpdateMode: How the entries should be merged, see DBusInterface/Enumerations#Updatemodes for the list of possible values 
+
+Updates the policy database with new entries.
+
+
+==== !RemoveEntries ====
+
+ * Arguments: Entries : [!ObjectPath]
+   - Entries: The entries to remove
+
+Removes entries from the policy database.
+
+
+
+=== Signals ===
+
+==== !NewEntry ====
+
+ * Parameters: Entry : !ObjectPath
+   - Added entry object
+
+An entry was added.
+
+
+==== !EntryRemoved ====
+
+ * Parameters: Entry : !ObjectPath
+   - Removed entry object
+
+An entry was removed.
+
+
+
+
+== org.pulseaudio.ext.!StreamRestore1.!RestoreEntry ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The entry index. The index is specific to this D-Bus interface: Name is the real key property, but an index is generated for the object paths.
+
+
+==== Name ====
+
+ * Type: String
+ * Access: read
+
+The entry name.
+
+
+==== Device ====
+
+ * Type: String
+ * Access: read
+
+The device to which matching streams are connected. May be an empty string, in which case this entry doesn't dictate the device.
+
+
+==== Channels ====
+
+ * Type: [Byte]
+ * Access: read
+
+The saved channel map (for volume restoring). May be an empty array, in which case this entry doesn't dictate the stream volume.
+
+
+==== Volume ====
+
+ * Type: [Uint32]
+ * Access: read
+
+The saved volume. May be an empty array, in which case this entry doesn't dictate the stream volume.
+
+
+==== Muted ====
+
+ * Type: Boolean
+ * Access: read
+
+The saved mute status (or if not saved, the default is unmuted).
