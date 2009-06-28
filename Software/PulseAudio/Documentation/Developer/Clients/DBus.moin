@@ -25,8 +25,6 @@ The new functionality consists of two parts: a server lookup service and the mai
 
  * Some properties that are available in the C API are exposed both explicitly and in the proplist. Should this interface do the same, or only have the proplist? (I vote for proplist only.) This decision affects device descriptions, stream names and client names. If separate properties are the way to go, then the Set* methods are unneeded, as the properties can be made read/write.
 
- * Currently stream names can be changed, but only by the owning client. At least in the first phase a D-Bus client can't be a stream owner. Currently all stream owning clients have to use the C API anyway, so they can set the name with it just fine. But does it make sense, nevertheless, to allow any client change any stream's name via D-Bus? If not, what about in the future, if things go as planned and the normal way of streaming is to use RTSP/RTP, are the RTSP clients still able to set the name, or is RTSP so limited that it's not possible (my knowledge about RTSP is obviously next to none)?
-
 
 == Control API ==
 
@@ -61,7 +59,6 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Core#InterfaceRevision InterfaceRevision] : Uint32 (r)
  * [wiki:DBusInterface/Core#Name Name] : String (r)
  * [wiki:DBusInterface/Core#Version Version] : String (r)
- * [wiki:DBusInterface/Core#Local Local] : Boolean (r)
  * [wiki:DBusInterface/Core#Username Username] : String (r)
  * [wiki:DBusInterface/Core#Hostname Hostname] : String (r)
  * [wiki:DBusInterface/Core#DefaultChannels DefaultChannels] : [Byte] (rw)
@@ -297,7 +294,6 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Stream#Methods Methods]:
 
- * [wiki:DBusInterface/Stream#SetName SetName](in Name : String)
  * [wiki:DBusInterface/Stream#Move Move](in Device : !ObjectPath)
  * [wiki:DBusInterface/Stream#Kill Kill]()
 
@@ -412,27 +408,30 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 
 
-=== "Self": Special Per-Client Interface ===
+=== [wiki:DBusInterface/Self "Self": Special Per-Client Interface] ===
 
  * Object '''/org/pulseaudio1/self''' implements interfaces '''org.pulseaudio.Core1.Self''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
 
 
-==== org.pulseaudio.Core1.Self ====
+==== [wiki:DBusInterface/Self#org.pulseaudio.Core1.Self ====
 
-Properties:
+[wiki:DBusInterface/Self#Properties Properties]:
 
- * Client : !ObjectPath (r)
-
-
-Methods:
-
- * !UpdateProperties(in Proplist : {String -> [Byte]}, !UpdateMode : Byte)
- * !RemoveProperties(in Keys : [String])
+ * [wiki:DBusInterface/Self#Client Client]: !ObjectPath (r)
+ * [wiki:DBusInterface/Self#Local Local]: Boolean
 
 
-Signals:
+[wiki:DBusInterface/Self#Methods Methods]:
 
- * !ClientEvent(Name : String, Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Self#ListenForSignal ListenForSignal](Signal : String, Objects : [!ObjectPath])
+ * [wiki:DBusInterface/Self#StopListeningForSignal StopListeningForSignal](Signal : String)
+ * [wiki:DBusInterface/Self#UpdateProperties UpdateProperties](in Proplist : {String -> [Byte]}, !UpdateMode : Byte)
+ * [wiki:DBusInterface/Self#RemoveProperties RemoveProperties](in Keys : [String])
+
+
+[wiki:DBusInterface/Self#Signals Signals]:
+
+ * [wiki:DBusInterface/Self#ClientEvent ClientEvent](Name : String, Proplist : {String -> [Byte]})
 
 
 
