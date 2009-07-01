@@ -4,6 +4,12 @@ These pages should eventually contain the final D-Bus control interface specific
 
 Note: Whenever "user bus" is mentioned in these pages, it means "session bus" until the user bus gets implemented in D-Bus.
 
+== Recent Changes ==
+
+ * 2009-07-01
+   - Change argument names to lowercase, as it seems to be the standard way (this statement is actually only based on that the D-Bus spec has them lowercase in the examples).
+
+
 == Overview ==
 
 Previously the only D-Bus services !PulseAudio provided were an implementation of the [http://git.0pointer.de/?p=reserve.git;a=blob_plain;f=reserve.txt Device Reservation spec] for sound cards and reservation of the org.pulseaudio.Server name on the session or system bus for server tracking purposes. Those features remain untouched, and this document doesn't have anything to do with them.
@@ -80,38 +86,38 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Core#Methods Methods]:
 
- * [wiki:DBusInterface/Core#GetCardByName GetCardByName](in Name : String ; out Card : !ObjectPath)
- * [wiki:DBusInterface/Core#GetSinkByName GetSinkByName](in Name : String ; out Sink : !ObjectPath)
- * [wiki:DBusInterface/Core#GetSourceByName GetSourceByName](in Name : String ; out Source : !ObjectPath
- * [wiki:DBusInterface/Core#GetSampleByName GetSampleByName](in Name : String ; out Sample : !ObjectPath)
- * [wiki:DBusInterface/Core#UploadSample UploadSample](in Name : String, !SampleFormat : Byte, !SampleRate : Uint32, Channels : [Byte], !DefaultVolume : [Uint32], Proplist : {String -> [Byte]}, Data : [Byte] ; out Sample : !ObjectPath)
- * [wiki:DBusInterface/Core#LoadSampleFromFile LoadSampleFromFile](in Name : String, Filepath : String ; out Sample : !ObjectPath)
- * [wiki:DBusInterface/Core#AddLazySample AddLazySample](in Name : String, Filepath : String ; out Sample : !ObjectPath)
- * [wiki:DBusInterface/Core#AddLazySamplesFromDirectory AddLazySamplesFromDirectory](in Dirpath : String)
- * [wiki:DBusInterface/Core#LoadModule LoadModule](in Name : String, Arguments : {String -> String} ; out Module : !ObjectPath)
+ * [wiki:DBusInterface/Core#GetCardByName GetCardByName](in name : String ; out card : !ObjectPath)
+ * [wiki:DBusInterface/Core#GetSinkByName GetSinkByName](in name : String ; out sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#GetSourceByName GetSourceByName](in name : String ; out source : !ObjectPath
+ * [wiki:DBusInterface/Core#GetSampleByName GetSampleByName](in name : String ; out sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#UploadSample UploadSample](in name : String, sample_format : Byte, !sample_rate : Uint32, channels : [Byte], default_volume : [Uint32], property_list : {String -> [Byte]}, data : [Byte] ; out sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#LoadSampleFromFile LoadSampleFromFile](in name : String, filepath : String ; out sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#AddLazySample AddLazySample](in name : String, filepath : String ; out sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#AddLazySamplesFromDirectory AddLazySamplesFromDirectory](in dirpath : String)
+ * [wiki:DBusInterface/Core#LoadModule LoadModule](in name : String, arguments : {String -> String} ; out module : !ObjectPath)
  * [wiki:DBusInterface/Core#Exit Exit]()
 
 
 [wiki:DBusInterface/Core#Signals Signals]:
 
- * [wiki:DBusInterface/Core#NewCard NewCard](Card : !ObjectPath)
- * [wiki:DBusInterface/Core#CardRemoved CardRemoved](Card : !ObjectPath)
- * [wiki:DBusInterface/Core#NewSink NewSink](Sink : !ObjectPath)
- * [wiki:DBusInterface/Core#SinkRemoved SinkRemoved](Sink : !ObjectPath)
- * [wiki:DBusInterface/Core#FallbackSinkUpdated FallbackSinkUpdated](Sink : !ObjectPath)
- * [wiki:DBusInterface/Core#NewSource NewSource](Source : !ObjectPath)
- * [wiki:DBusInterface/Core#SourceRemoved SourceRemoved](Source : !ObjectPath)
- * [wiki:DBusInterface/Core#FallbackSourceUpdated FallbackSourceUpdated](Source : !ObjectPath)
- * [wiki:DBusInterface/Core#NewPlaybackStream NewPlaybackStream](!PlaybackStream : !ObjectPath)
- * [wiki:DBusInterface/Core#PlaybackStreamRemoved PlaybackStreamRemoved](!PlaybackStream : !ObjectPath)
- * [wiki:DBusInterface/Core#NewRecordStream NewRecordStream](!RecordStream : !ObjectPath)
- * [wiki:DBusInterface/Core#RecordStreamRemoved RecordStreamRemoved](!RecordStream : !ObjectPath)
- * [wiki:DBusInterface/Core#NewSample NewSample](Sample : !ObjectPath)
- * [wiki:DBusInterface/Core#SampleRemoved SampleRemoved](Sample : !ObjectPath)
- * [wiki:DBusInterface/Core#NewModule NewModule](Module : !ObjectPath)
- * [wiki:DBusInterface/Core#ModuleRemoved ModuleRemoved](Module : !ObjectPath)
- * [wiki:DBusInterface/Core#NewClient NewClient](Client : !ObjectPath)
- * [wiki:DBusInterface/Core#ClientRemoved ClientRemoved](Client : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewCard NewCard](card : !ObjectPath)
+ * [wiki:DBusInterface/Core#CardRemoved CardRemoved](card : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewSink NewSink](sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#SinkRemoved SinkRemoved](sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#FallbackSinkUpdated FallbackSinkUpdated](sink : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewSource NewSource](source : !ObjectPath)
+ * [wiki:DBusInterface/Core#SourceRemoved SourceRemoved](source : !ObjectPath)
+ * [wiki:DBusInterface/Core#FallbackSourceUpdated FallbackSourceUpdated](source : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewPlaybackStream NewPlaybackStream](playback_stream : !ObjectPath)
+ * [wiki:DBusInterface/Core#PlaybackStreamRemoved PlaybackStreamRemoved](playback_stream : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewRecordStream NewRecordStream](record_stream : !ObjectPath)
+ * [wiki:DBusInterface/Core#RecordStreamRemoved RecordStreamRemoved](record_stream : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewSample NewSample](sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#SampleRemoved SampleRemoved](sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewModule NewModule](module : !ObjectPath)
+ * [wiki:DBusInterface/Core#ModuleRemoved ModuleRemoved](module : !ObjectPath)
+ * [wiki:DBusInterface/Core#NewClient NewClient](client : !ObjectPath)
+ * [wiki:DBusInterface/Core#ClientRemoved ClientRemoved](client : !ObjectPath)
 
 
 
@@ -152,13 +158,13 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Card#Methods Methods]:
 
- * [wiki:DBusInterface/Card#GetProfileByName GetProfileByName](in Name : String ; out Profile : !ObjectPath)
+ * [wiki:DBusInterface/Card#GetProfileByName GetProfileByName](in name : String ; out profile : !ObjectPath)
 
 
 [wiki:DBusInterface/Card#Signals Signals]:
 
- * [wiki:DBusInterface/Card#ActiveProfileUpdated ActiveProfileUpdated](Profile : !ObjectPath)
- * [wiki:DBusInterface/Card#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Card#ActiveProfileUpdated ActiveProfileUpdated](profile : !ObjectPath)
+ * [wiki:DBusInterface/Card#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -221,17 +227,17 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Device#Methods Methods]:
 
- * [wiki:DBusInterface/Device#Suspend Suspend](in Suspend : Boolean)
- * [wiki:DBusInterface/Device#GetPortByName GetPortByName](in Name : String ; out Port : !ObjectPath)
+ * [wiki:DBusInterface/Device#Suspend Suspend](in suspend : Boolean)
+ * [wiki:DBusInterface/Device#GetPortByName GetPortByName](in name : String ; out port : !ObjectPath)
 
 
 [wiki:DBusInterface/Device#Signals Signals]:
 
- * [wiki:DBusInterface/Device#VolumeUpdated VolumeUpdated](Volume : [Uint32])
- * [wiki:DBusInterface/Device#MuteUpdated MuteUpdated](Muted : Boolean)
- * [wiki:DBusInterface/Device#StateUpdated StateUpdated](State : Byte)
- * [wiki:DBusInterface/Device#ActivePortUpdated ActivePortUpdated](Port : !ObjectPath)
- * [wiki:DBusInterface/Device#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Device#VolumeUpdated VolumeUpdated](volume : [Uint32])
+ * [wiki:DBusInterface/Device#MuteUpdated MuteUpdated](muted : Boolean)
+ * [wiki:DBusInterface/Device#StateUpdated StateUpdated](state : Byte)
+ * [wiki:DBusInterface/Device#ActivePortUpdated ActivePortUpdated](port : !ObjectPath)
+ * [wiki:DBusInterface/Device#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -295,15 +301,15 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Stream#Methods Methods]:
 
- * [wiki:DBusInterface/Stream#Move Move](in Device : !ObjectPath)
+ * [wiki:DBusInterface/Stream#Move Move](in device : !ObjectPath)
  * [wiki:DBusInterface/Stream#Kill Kill]()
 
 
 [wiki:DBusInterface/Stream#Signals Signals]:
 
- * [wiki:DBusInterface/Stream#DeviceUpdated DeviceUpdated](Device : !ObjectPath)
- * [wiki:DBusInterface/Stream#SampleRateUpdated SampleRateUpdated](!SampleRate : Uint32)
- * [wiki:DBusInterface/Stream#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Stream#DeviceUpdated DeviceUpdated](device : !ObjectPath)
+ * [wiki:DBusInterface/Stream#SampleRateUpdated SampleRateUpdated](sample_rate : Uint32)
+ * [wiki:DBusInterface/Stream#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -317,8 +323,8 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Stream#Signals1 Signals]:
 
- * [wiki:DBusInterface/Stream#VolumeUpdated VolumeUpdated](Volume : [Uint32])
- * [wiki:DBusInterface/Stream#MuteUpdated MuteUpdated](Muted : Boolean)
+ * [wiki:DBusInterface/Stream#VolumeUpdated VolumeUpdated](volume : [Uint32])
+ * [wiki:DBusInterface/Stream#MuteUpdated MuteUpdated](muted : Boolean)
 
 
 
@@ -346,13 +352,13 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Sample#Methods Methods]:
 
- * [wiki:DBusInterface/Sample#Play Play](in Sink : !ObjectPath, Volume : [Uint32], Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Sample#Play Play](in sink : !ObjectPath, volume : [Uint32], property_list : {String -> [Byte]})
  * [wiki:DBusInterface/Sample#Remove Remove]()
 
 
 [wiki:DBusInterface/Sample#Signals Signals]:
 
- * [wiki:DBusInterface/Sample#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Sample#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -379,7 +385,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Module#Signals Signals]:
 
- * [wiki:DBusInterface/Module#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Module#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -405,7 +411,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Client#Signals Signals]:
 
- * [wiki:DBusInterface/Client#ProplistUpdated ProplistUpdated](Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Client#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -424,15 +430,15 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Self#Methods Methods]:
 
- * [wiki:DBusInterface/Self#ListenForSignal ListenForSignal](Signal : String, Objects : [!ObjectPath])
- * [wiki:DBusInterface/Self#StopListeningForSignal StopListeningForSignal](Signal : String)
- * [wiki:DBusInterface/Self#UpdateProperties UpdateProperties](in Proplist : {String -> [Byte]}, !UpdateMode : Byte)
- * [wiki:DBusInterface/Self#RemoveProperties RemoveProperties](in Keys : [String])
+ * [wiki:DBusInterface/Self#ListenForSignal ListenForSignal](in signal : String, objects : [!ObjectPath])
+ * [wiki:DBusInterface/Self#StopListeningForSignal StopListeningForSignal](in signal : String)
+ * [wiki:DBusInterface/Self#UpdateProperties UpdateProperties](in property_list : {String -> [Byte]}, update_mode : Byte)
+ * [wiki:DBusInterface/Self#RemoveProperties RemoveProperties](in keys : [String])
 
 
 [wiki:DBusInterface/Self#Signals Signals]:
 
- * [wiki:DBusInterface/Self#ClientEvent ClientEvent](Name : String, Proplist : {String -> [Byte]})
+ * [wiki:DBusInterface/Self#ClientEvent ClientEvent](name : String, property_list : {String -> [Byte]})
 
 
 
@@ -453,14 +459,14 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/StreamRestore#Methods Methods]:
 
- * [wiki:DBusInterface/StreamRestore#PutEntries PutEntries](in Entries : [(String, String, [(Byte, Uint32)], Boolean)], !UpdateMode : Byte)
- * [wiki:DBusInterface/StreamRestore#RemoveEntries RemoveEntries](in Entries : [!ObjectPath])
+ * [wiki:DBusInterface/StreamRestore#PutEntries PutEntries](in entries : [(String, String, [(Byte, Uint32)], Boolean)], update_mode : Byte)
+ * [wiki:DBusInterface/StreamRestore#RemoveEntries RemoveEntries](in entries : [!ObjectPath])
 
 
 [wiki:DBusInterface/StreamRestore#Signals Signals]:
 
- * [wiki:DBusInterface/StreamRestore#NewEntry NewEntry](Entry : !ObjectPath)
- * [wiki:DBusInterface/StreamRestore#EntryRemoved EntryRemoved](Entry : !ObjectPath)
+ * [wiki:DBusInterface/StreamRestore#NewEntry NewEntry](entry : !ObjectPath)
+ * [wiki:DBusInterface/StreamRestore#EntryRemoved EntryRemoved](entry : !ObjectPath)
 
 
 
