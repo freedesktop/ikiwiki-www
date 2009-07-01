@@ -7,6 +7,7 @@ Note: Whenever "user bus" is mentioned in these pages, it means "session bus" un
 == Recent Changes ==
 
  * 2009-07-01
+   - Remove the Self interface, move the functionality to Core and Client interfaces.
    - Move everything in the !PlaybackStream interface to the Stream interface and remove !PlaybackStream.
    - Add !StreamEvent to the Stream interface.
    - Rename proplist -> property list.
@@ -64,6 +65,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Core#InterfaceRevision InterfaceRevision] : Uint32 (r)
  * [wiki:DBusInterface/Core#Name Name] : String (r)
  * [wiki:DBusInterface/Core#Version Version] : String (r)
+ * [wiki:DBusInterface/Core#Local Local]: Boolean (r)
  * [wiki:DBusInterface/Core#Username Username] : String (r)
  * [wiki:DBusInterface/Core#Hostname Hostname] : String (r)
  * [wiki:DBusInterface/Core#DefaultChannels DefaultChannels] : [Byte] (rw)
@@ -78,6 +80,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Core#Samples Samples] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Core#Modules Modules] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Core#Clients Clients] : [!ObjectPath] (r)
+ * [wiki:DBusInterface/Core#MyClient MyClient] : !ObjectPath (r)
  * [wiki:DBusInterface/Core#Extensions Extensions] : [String] (r)
 
 
@@ -93,6 +96,9 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Core#AddLazySamplesFromDirectory AddLazySamplesFromDirectory](in dirpath : String)
  * [wiki:DBusInterface/Core#LoadModule LoadModule](in name : String, arguments : {String -> String} ; out module : !ObjectPath)
  * [wiki:DBusInterface/Core#Exit Exit]()
+ * [wiki:DBusInterface/Core#ListenForSignal ListenForSignal](in signal : String, objects : [!ObjectPath])
+ * [wiki:DBusInterface/Core#StopListeningForSignal StopListeningForSignal](in signal : String)
+
 
 
 [wiki:DBusInterface/Core#Signals Signals]:
@@ -392,38 +398,14 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 [wiki:DBusInterface/Client#Methods Methods]:
 
  * [wiki:DBusInterface/Client#Kill Kill]()
+ * [wiki:DBusInterface/Client#UpdateProperties UpdateProperties](in property_list : {String -> [Byte]}, update_mode : Byte)
+ * [wiki:DBusInterface/Client#RemoveProperties RemoveProperties](in keys : [String])
 
 
 [wiki:DBusInterface/Client#Signals Signals]:
 
  * [wiki:DBusInterface/Client#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
-
-
-
-=== [wiki:DBusInterface/Self "Self": Special Per-Client Interface] ===
-
- * Object '''/org/pulseaudio1/self''' implements interfaces '''org.pulseaudio.Core1.Self''', org.freedesktop.DBus.Properties and org.freedesktop.DBus.Introspectable.
-
-
-==== [wiki:DBusInterface/Self#org.pulseaudio.Core1.Self ====
-
-[wiki:DBusInterface/Self#Properties Properties]:
-
- * [wiki:DBusInterface/Self#Client Client]: !ObjectPath (r)
- * [wiki:DBusInterface/Self#Local Local]: Boolean
-
-
-[wiki:DBusInterface/Self#Methods Methods]:
-
- * [wiki:DBusInterface/Self#ListenForSignal ListenForSignal](in signal : String, objects : [!ObjectPath])
- * [wiki:DBusInterface/Self#StopListeningForSignal StopListeningForSignal](in signal : String)
- * [wiki:DBusInterface/Self#UpdateProperties UpdateProperties](in property_list : {String -> [Byte]}, update_mode : Byte)
- * [wiki:DBusInterface/Self#RemoveProperties RemoveProperties](in keys : [String])
-
-
-[wiki:DBusInterface/Self#Signals Signals]:
-
- * [wiki:DBusInterface/Self#ClientEvent ClientEvent](name : String, property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Client#ClientEvent ClientEvent](name : String, property_list : {String -> [Byte]})
 
 
 
