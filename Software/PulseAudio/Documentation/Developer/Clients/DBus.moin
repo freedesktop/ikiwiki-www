@@ -7,6 +7,7 @@ Note: Whenever "user bus" is mentioned in these pages, it means "session bus" un
 == Recent Changes ==
 
  * 2009-07-01
+   - Change enumeration types from Byte to Uint32.
    - Remove the Self interface, move the functionality to Core and Client interfaces.
    - Move everything in the !PlaybackStream interface to the Stream interface and remove !PlaybackStream.
    - Add !StreamEvent to the Stream interface.
@@ -68,8 +69,8 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Core#Local Local]: Boolean (r)
  * [wiki:DBusInterface/Core#Username Username] : String (r)
  * [wiki:DBusInterface/Core#Hostname Hostname] : String (r)
- * [wiki:DBusInterface/Core#DefaultChannels DefaultChannels] : [Byte] (rw)
- * [wiki:DBusInterface/Core#DefaultSampleFormat DefaultSampleFormat] : Byte (rw)
+ * [wiki:DBusInterface/Core#DefaultChannels DefaultChannels] : [Uint32] (rw)
+ * [wiki:DBusInterface/Core#DefaultSampleFormat DefaultSampleFormat] : Uint32 (rw)
  * [wiki:DBusInterface/Core#DefaultSampleRate DefaultSampleRate] : Uint32 (rw)
  * [wiki:DBusInterface/Core#Sinks Sinks] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Core#FallbackSink FallbackSink] : !ObjectPath (rw) # Doesn't exist when there are no sinks.
@@ -90,7 +91,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Core#GetSinkByName GetSinkByName](in name : String ; out sink : !ObjectPath)
  * [wiki:DBusInterface/Core#GetSourceByName GetSourceByName](in name : String ; out source : !ObjectPath
  * [wiki:DBusInterface/Core#GetSampleByName GetSampleByName](in name : String ; out sample : !ObjectPath)
- * [wiki:DBusInterface/Core#UploadSample UploadSample](in name : String, sample_format : Byte, !sample_rate : Uint32, channels : [Byte], default_volume : [Uint32], property_list : {String -> [Byte]}, data : [Byte] ; out sample : !ObjectPath)
+ * [wiki:DBusInterface/Core#UploadSample UploadSample](in name : String, sample_format : Uint32, !sample_rate : Uint32, channels : [Uint32], default_volume : [Uint32], property_list : {String -> [Byte]}, data : [Byte] ; out sample : !ObjectPath)
  * [wiki:DBusInterface/Core#LoadSampleFromFile LoadSampleFromFile](in name : String, filepath : String ; out sample : !ObjectPath)
  * [wiki:DBusInterface/Core#AddLazySample AddLazySample](in name : String, filepath : String ; out sample : !ObjectPath)
  * [wiki:DBusInterface/Core#AddLazySamplesFromDirectory AddLazySamplesFromDirectory](in dirpath : String)
@@ -207,9 +208,9 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Device#Driver Driver] : String (r)
  * [wiki:DBusInterface/Device#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist for all devices.
  * [wiki:DBusInterface/Device#Card Card] : !ObjectPath (r) # Does not exist with all devices.
- * [wiki:DBusInterface/Device#SampleFormat SampleFormat] : Byte (r)
+ * [wiki:DBusInterface/Device#SampleFormat SampleFormat] : Uint32 (r)
  * [wiki:DBusInterface/Device#SampleRate SampleRate] : Uint32 (r)
- * [wiki:DBusInterface/Device#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/Device#Channels Channels] : [Uint32] (r)
  * [wiki:DBusInterface/Device#Volume Volume] : [Uint32] (rw)
  * [wiki:DBusInterface/Device#DecibelVolume DecibelVolume] : Boolean (r)
  * [wiki:DBusInterface/Device#BaseVolume BaseVolume] : Uint32 (r)
@@ -222,7 +223,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Device#Latency Latency] : Uint64 (r) # usec, does not exist with all devices.
  * [wiki:DBusInterface/Device#HardwareDevice HardwareDevice] : Boolean (r)
  * [wiki:DBusInterface/Device#NetworkDevice NetworkDevice] : Boolean (r)
- * [wiki:DBusInterface/Device#State State] : Byte (r)
+ * [wiki:DBusInterface/Device#State State] : Uint32 (r)
  * [wiki:DBusInterface/Device#Ports Ports] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Device#ActivePort ActivePort] : !ObjectPath (rw) # Does not exist if there are no ports.
  * [wiki:DBusInterface/Device#PropertyList PropertyList] : {String -> [Byte]} (r)
@@ -238,7 +239,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 
  * [wiki:DBusInterface/Device#VolumeUpdated VolumeUpdated](volume : [Uint32])
  * [wiki:DBusInterface/Device#MuteUpdated MuteUpdated](muted : Boolean)
- * [wiki:DBusInterface/Device#StateUpdated StateUpdated](state : Byte)
+ * [wiki:DBusInterface/Device#StateUpdated StateUpdated](state : Uint32)
  * [wiki:DBusInterface/Device#ActivePortUpdated ActivePortUpdated](port : !ObjectPath)
  * [wiki:DBusInterface/Device#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
@@ -291,9 +292,9 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/Stream#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist with all streams.
  * [wiki:DBusInterface/Stream#Client Client] : !ObjectPath (r) # Does not exist with all streams.
  * [wiki:DBusInterface/Stream#Device Device] : !ObjectPath (r)
- * [wiki:DBusInterface/Stream#SampleFormat SampleFormat] : Byte (r)
+ * [wiki:DBusInterface/Stream#SampleFormat SampleFormat] : Uint32 (r)
  * [wiki:DBusInterface/Stream#SampleRate SampleRate] : Uint32 (r)
- * [wiki:DBusInterface/Stream#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/Stream#Channels Channels] : [Uint32] (r)
  * [wiki:DBusInterface/Stream#Volume Volume] : [Uint32] (rw)
  * [wiki:DBusInterface/Stream#Muted Muted] : Boolean (rw)
  * [wiki:DBusInterface/Stream#BufferLatency BufferLatency] : Uint64 (r) # usec
@@ -330,9 +331,9 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 
  * [wiki:DBusInterface/Sample#Index Index] : Uint32 (r)
  * [wiki:DBusInterface/Sample#Name Name] : String (r)
- * [wiki:DBusInterface/Sample#SampleFormat SampleFormat] : Byte (r)
+ * [wiki:DBusInterface/Sample#SampleFormat SampleFormat] : Uint32 (r)
  * [wiki:DBusInterface/Sample#SampleRate SampleRate] : Uint32 (r)
- * [wiki:DBusInterface/Sample#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/Sample#Channels Channels] : [Uint32] (r)
  * [wiki:DBusInterface/Sample#DefaultVolume DefaultVolume] : [Uint32] (r)
  * [wiki:DBusInterface/Sample#Duration Duration] : Uint64 (r) # usec
  * [wiki:DBusInterface/Sample#Bytes Bytes] : Uint32 (r)
@@ -398,7 +399,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 [wiki:DBusInterface/Client#Methods Methods]:
 
  * [wiki:DBusInterface/Client#Kill Kill]()
- * [wiki:DBusInterface/Client#UpdateProperties UpdateProperties](in property_list : {String -> [Byte]}, update_mode : Byte)
+ * [wiki:DBusInterface/Client#UpdateProperties UpdateProperties](in property_list : {String -> [Byte]}, update_mode : Uint32)
  * [wiki:DBusInterface/Client#RemoveProperties RemoveProperties](in keys : [String])
 
 
@@ -426,7 +427,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 
 [wiki:DBusInterface/StreamRestore#Methods Methods]:
 
- * [wiki:DBusInterface/StreamRestore#PutEntries PutEntries](in entries : [(String, String, [(Byte, Uint32)], Boolean)], update_mode : Byte)
+ * [wiki:DBusInterface/StreamRestore#PutEntries PutEntries](in entries : [(String, String, [(Uint32, Uint32)], Boolean)], update_mode : Uint32)
  * [wiki:DBusInterface/StreamRestore#RemoveEntries RemoveEntries](in entries : [!ObjectPath])
 
 
@@ -444,7 +445,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
  * [wiki:DBusInterface/StreamRestore#Index Index] : Uint32 (r)
  * [wiki:DBusInterface/StreamRestore#Name Name] : String (r)
  * [wiki:DBusInterface/StreamRestore#Device Device] : String (r)
- * [wiki:DBusInterface/StreamRestore#Channels Channels] : [Byte] (r)
+ * [wiki:DBusInterface/StreamRestore#Channels Channels] : [Uint32] (r)
  * [wiki:DBusInterface/StreamRestore#Volume Volume] : [Uint32] (r)
  * [wiki:DBusInterface/StreamRestore#Muted Muted] : Boolean (r)
 
