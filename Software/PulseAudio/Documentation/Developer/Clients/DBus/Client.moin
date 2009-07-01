@@ -56,6 +56,23 @@ The client's property list.
 Cut the client's connection, terminating also its streams.
 
 
+==== !UpdateProperties ====
+
+ * Arguments: property_list : {String -> [Byte]}, update_mode : Byte
+   - property_list: The properties to update
+   - update_mode: How the properties should be merged, see [wiki:DBusInterface/Enumerations#Updatemodes] for the list of possible values
+
+Updates the client's property list with new values. A client can modify only its own properties.
+
+
+==== !RemoveProperties ====
+
+ * Arguments: keys : [String]
+   - keys: Array of property names
+
+Removes properties from the client's property list. A client can modify only its own properties.
+
+
 
 === Signals ===
 
@@ -65,3 +82,12 @@ Cut the client's connection, terminating also its streams.
    - property_list: The new property list
 
 The client's property list was modified.
+
+
+==== !ClientEvent ====
+
+ * Parameters: name : String, property_list : {String -> [Byte]}
+   - name: Event name
+   - property_list: Additional event parameters
+
+The server may send per-client events (visible only to the clients that are the intended recipients). However, currently no such events are generated, so until some events are actually defined this signal remains unused.
