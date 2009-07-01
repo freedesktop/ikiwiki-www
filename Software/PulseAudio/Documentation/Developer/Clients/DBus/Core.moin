@@ -42,7 +42,7 @@ The server version string, for example "0.9.17".
  * Type: Boolean
  * Access: read
 
-This can be used to find out whether the client connection is local.
+This per-client property can be used to find out whether the client has connected to a local server.
 
 
 ==== Username ====
@@ -161,6 +161,14 @@ All currently loaded modules.
  * Access: read
 
 All currently connected clients.
+
+
+==== MyClient ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+This property has a different value for each client: it tells the reading client the client object that is assigned to its connection.
 
 
 ==== Extensions ====
@@ -289,6 +297,29 @@ Loads a module.
 ==== Exit ====
 
 Shuts down the server.
+
+
+==== !ListenForSignal ====
+
+ * Arguments: signal : String, objects : [!ObjectPath]
+   - signal: The signal name containing the interface, for example "org.pulseaudio.org.pulseaudio.Core1.Device.!ActivePortUpdated"
+   - objects: If non-empty, only signals originating from the listed objects are sent
+
+By default the server doesn't send any signals to clients, but a client can use this method to inform the server about the signals that the client is interested in.
+
+If the objects argument is an empty list, then all signals of the given type are sent, otherwise the signals are filtered based on the emitting object. If this method is called more than once for the same signal, the latest call always replaces the previous object list.
+
+In order to support clients that want to receive absolutely all signals, an empty string can be given as the signal name. In that case all previous signal filters are discarded. The objects parameter can still be used to limit the signals to certain objects. If this method is called after giving the "all-pass" filter, the "all-pass" filter is discarded, so the resulting state is equal to as if there weren't any previous filters.
+
+Note that no error is returned if the signal name is unknown to the server. This is because an extension could be loaded at any time that would start sending the given signal.
+
+
+==== !StopListeningForSignal ====
+
+ * Arguments: signal : String
+   - signal: Signal name containing the interface, for example "org.pulseaudio.org.pulseaudio.Core1.Device.!ActivePortUpdated"
+
+Tells the server to stop sending signals of the given type.
 
 
 
