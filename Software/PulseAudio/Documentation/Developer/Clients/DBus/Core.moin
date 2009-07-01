@@ -180,10 +180,10 @@ The strings are intended to follow the structure and restrictions of D-Bus inter
 
 ==== !GetCardByName ====
 
- * Arguments: Name : String
-   - Name: Card name
- * Returns: Card : !ObjectPath
-   - Card: Card object
+ * Arguments: name : String
+   - name: Card name
+ * Returns: card : !ObjectPath
+   - Card: card object
 
 Find the card with the given name.
 
@@ -193,10 +193,10 @@ Find the card with the given name.
 
 ==== !GetSinkByName ====
 
- * Arguments: Name : String
-   - Name: Sink name
- * Returns : Sink : !ObjectPath
-   - Sink: Sink object
+ * Arguments: name : String
+   - name: Sink name
+ * Returns : sink : !ObjectPath
+   - sink: Sink object
 
 Find the sink with the given name.
 
@@ -206,10 +206,10 @@ Find the sink with the given name.
 
 ==== !GetSourceByName ====
 
- * Arguments: Name : String
-   - Name: Source name
- * Returns:  Source : !ObjectPath
-   - Source: Source object
+ * Arguments: name : String
+   - name: Source name
+ * Returns:  source : !ObjectPath
+   - source: Source object
 
 Find the source with the given name.
 
@@ -219,10 +219,10 @@ Find the source with the given name.
 
 ==== !GetSampleByName ====
 
- * Arguments: Name : String
-   - Name: Sample name
- * Returns: Sample : !ObjectPath
-   - Sample: Sample object
+ * Arguments: name : String
+   - name: Sample name
+ * Returns: sample : !ObjectPath
+   - sample: Sample object
 
 Find the sample with the given name.
 
@@ -232,56 +232,56 @@ Find the sample with the given name.
 
 ==== !UploadSample ====
 
- * Arguments: Name : String, !SampleFormat : Byte, !SampleRate : Uint32, Channels : [Byte], !DefaultVolume : [Uint32], Proplist : {String -> [Byte]}, Data : [Byte]
-   - Name: Sample name
-   - !SampleFormat: Sample format, see [wiki:DBusInterface/Enumerations#Sampleformats]
-   - Channels: Channel map as an array of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions]
-   - !DefaultVolume: The volume at which the sample should be played if the volume isn't given at the time of playing. The volume elements in the array must match the channel positions in the Channels array, or alternatively an empty array may be given, in which case the server decides the default volume (this is often a good choice). Volume elements should normally be between 0 (muted) and 65536 (normal). Any bigger values amplify the signal digitally, which very often causes clipping.
-   - Proplist: Proplist for the sample
-   - Data: Audio data
- * Returns: Sample : !ObjectPath
-   - Sample: Added sample object
+ * Arguments: name : String, sample_format : Byte, sample_rate : Uint32, channels : [Byte], default_volume : [Uint32], property_list : {String -> [Byte]}, Data : [Byte]
+   - name: Sample name
+   - sample_format: Sample format, see [wiki:DBusInterface/Enumerations#Sampleformats]
+   - channels: Channel map as an array of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions]
+   - default_volume: The volume at which the sample should be played if the volume isn't given at the time of playing. The volume elements in the array must match the channel positions in the channels array, or alternatively an empty array may be given, in which case the server decides the default volume (this is often a good choice). Volume elements should normally be between 0 (muted) and 65536 (normal). Any bigger values amplify the signal digitally, which very often causes clipping.
+   - property_list: Proplist for the sample
+   - data: Audio data
+ * Returns: sample : !ObjectPath
+   - sample: Added sample object
 
 Loads a sample. If there is already a sample loaded with the same name, the old sample is replaced.
 
 
 ==== !LoadSampleFromFile ====
 
- * Arguments: Name : String, Filepath : String
-   - Name: Sample name
-   - Filepath: Sample file on the server machine
- * Returns: Sample : !ObjectPath
-   - Sample: Added sample object
+ * Arguments: name : String, filepath : String
+   - name: Sample name
+   - filepath: Sample file on the server machine
+ * Returns: sample : !ObjectPath
+   - sample: Added sample object
 
 Loads a sample from a file. If there is already a sample loaded with the same name, the old sample is replaced.
 
 
 ==== !AddLazySample ====
 
- * Arguments: Name : String, Filepath : String
-   - Name: Sample name
-   - Filepath: Sample file on the server machine
- * Returns: Sample : !ObjectPath
-   - Sample: Added sample object
+ * Arguments: name : String, filepath : String
+   - name: Sample name
+   - filepath: Sample file on the server machine
+ * Returns: sample : !ObjectPath
+   - sample: Added sample object
 
 Adds a lazy sample. If there is already a sample loaded with the same name, the old sample is replaced.
 
 
 ==== !AddLazySamplesFromDirectory ====
 
- * Arguments: Dirpath : String
-   - Dirpath: Sample directory on the server machine
+ * Arguments: dirpath : String
+   - dirpath: Sample directory on the server machine
 
 Adds all samples in the given directory as lazy samples. The file names are used as sample names.
 
 
 ==== !LoadModule ====
 
- * Arguments: Name : String, Arguments : {String -> String}
-   - Name: Module name (e.g. "module-alsa-sink")
-   - Arguments: Module arguments. Keys are argument names and values are argument values.
- * Returns: Module : !ObjectPath
-   - Module: Loaded module object
+ * Arguments: name : String, arguments : {String -> String}
+   - name: Module name (e.g. "module-alsa-sink")
+   - arguments: Module arguments. Keys are argument names and values are argument values.
+ * Returns: module : !ObjectPath
+   - module: Loaded module object
 
 Loads a module.
 
@@ -296,143 +296,143 @@ Shuts down the server.
 
 ==== !NewCard ====
 
- * Parameters: Card : !ObjectPath
-   - Card: Added card object
+ * Parameters: card : !ObjectPath
+   - card: Added card object
 
 A card was added.
 
 
 ==== !CardRemoved ====
 
- * Parameters: Card : !ObjectPath
-   - Card: Removed card object
+ * Parameters: card : !ObjectPath
+   - card: Removed card object
 
 A card was removed.
 
 
 ==== !NewSink ====
 
- * Parameters: Sink : !ObjectPath
-   - Sink: Added sink object
+ * Parameters: sink : !ObjectPath
+   - sink: Added sink object
 
 A sink was added.
 
 
 ==== !SinkRemoved ====
 
- * Parameters: Sink : !ObjectPath
-   - Sink: Removed sink object
+ * Parameters: sink : !ObjectPath
+   - sink: Removed sink object
 
 A sink was removed.
 
 
 ==== !FallbackSinkUpdated ====
 
- * Parameters: Sink : !ObjectPath
-   - Sink: New fallback sink
+ * Parameters: sink : !ObjectPath
+   - sink: New fallback sink
 
 The fallback sink was changed. When the last sink is removed, this signal is not emitted. On the other hand, when there were previously no sinks and a new sink is added, it becomes the fallback sink and this signal is emitted.
 
 
 ==== !NewSource ====
 
- * Parameters: Source : !ObjectPath
-   - Source: Added source object
+ * Parameters: source : !ObjectPath
+   - source: Added source object
 
 A source was added.
 
 
 ==== !SourceRemoved ====
 
- * Parameters: Source : !ObjectPath
-   - Source: Removed source object
+ * Parameters: source : !ObjectPath
+   - source: Removed source object
 
 A source was removed.
 
 
 ==== !FallbackSourceUpdated ====
 
- * Parameters: Source : !ObjectPath
-   - New fallback source
+ * Parameters: source : !ObjectPath
+   - source: New fallback source
 
 The fallback source was changed. When the last source is removed, this signal is not emitted. On the other hand, when there were previously no sources and a new source is added, it becomes the fallback source and this signal is emitted.
 
 
 ==== !NewPlaybackStream ====
 
- * Parameters: !PlaybackStream : !ObjectPath
-   - !PlaybackStream: Added playback stream object
+ * Parameters: playback_stream : !ObjectPath
+   - playback_stream: Added playback stream object
 
 A playback stream was added.
 
 
 ==== !PlaybackStreamRemoved ====
 
- * Parameters: !PlaybackStream : !ObjectPath
-   - !PlaybackStream: Removed playback stream object
+ * Parameters: playback_stream : !ObjectPath
+   - playback_stream: Removed playback stream object
 
 A playback stream was removed.
 
 
 ==== !NewRecordStream ====
 
- * Parameters: !RecordStream : !ObjectPath
-   - !RecordStream: Added record stream object
+ * Parameters: record_stream : !ObjectPath
+   - record_stream: Added record stream object
 
 A record stream was added.
 
 
 ==== !RecordStreamRemoved ====
 
- * Parameters: !RecordStream : !ObjectPath
-   - !RecordStream: Removed record stream object
+ * Parameters: record_stream : !ObjectPath
+   - record_stream: Removed record stream object
 
 A record stream was removed.
 
 
 ==== !NewSample ====
 
- * Parameters: Sample : !ObjectPath
-   - Sample: Loaded sample object
+ * Parameters: sample : !ObjectPath
+   - sample: Loaded sample object
 
 A sample was loaded.
 
 
 ==== !SampleRemoved ====
 
- * Parameters: Sample : !ObjectPath
-   - Sample: Unloaded sample object
+ * Parameters: sample : !ObjectPath
+   - sample: Unloaded sample object
 
 A sample was unloaded.
 
 
 ==== !NewModule ====
 
- * Parameters: Module : !ObjectPath
-   - Module: Loaded module object
+ * Parameters: module : !ObjectPath
+   - module: Loaded module object
 
 A module was loaded.
 
 
 ==== !ModuleRemoved ====
 
- * Parameters: Module : !ObjectPath
-   - Module: Unloaded module object
+ * Parameters: module : !ObjectPath
+   - module: Unloaded module object
 
 A module was unloaded.
 
 
 ==== !NewClient ====
 
- * Parameters: Client : !ObjectPath
-   - Client: Connected client object
+ * Parameters: client : !ObjectPath
+   - client: Connected client object
 
 A new client connected.
 
 
 ==== !ClientRemoved ====
 
- * Parameters: Client : !ObjectPath
-   - Client: Disconnected client
+ * Parameters: client : !ObjectPath
+   - client: Disconnected client
 
 A client disconnected.
