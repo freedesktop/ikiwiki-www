@@ -5,7 +5,6 @@
 Objects and their interfaces:
  * /org/pulseaudio1/playback_streamX
    - org.pulseaudio.Core1.Stream
-   - org.pulseaudio.Core1.!PlaybackStream
    - org.freedesktop.DBus.Properties
    - org.freedesktop.DBus.Introspectable
  * /org/pulseaudio1/record_streamX
@@ -88,6 +87,22 @@ The sample rate of the stream.
 The channel map of the stream. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
 
 
+==== Volume ====
+
+ * Type: [Uint32]
+ * Access: read/write
+
+The volume of the stream. The volume elements in the array must match the channel positions in the Channels property array. Record streams don't currently have volume associated with them, so this property exists for playback streams only for now.
+
+
+==== Muted ====
+
+ * Type: Boolean
+ * Access: read/write
+
+Whether or not the stream is currently muted. Record streams don't currently support muting, so this property exists for playback streams only for now.
+
+
 ==== !BufferLatency ====
 
  * Type: Uint64
@@ -155,39 +170,6 @@ The stream was moved to another device.
 The stream's sample rate was changed.
 
 
-==== !PropertyListUpdated ====
-
- * Parameters: property_list : {String -> [Byte]}
-   - property_list: The new property list
-
-The stream's property list was modified.
-
-
-
-
-== org.pulseaudio.Core1.!PlaybackStream ==
-
-=== Properties ===
-
-==== Volume ====
-
- * Type: [Uint32]
- * Access: read/write
-
-The volume of the stream. The volume elements in the array must match the channel positions in the Stream interface's Channels property array.
-
-
-==== Muted ====
-
- * Type: Boolean
- * Access: read/write
-
-Whether or not the stream is currently muted.
-
-
-
-=== Signals ===
-
 ==== !VolumeUpdated ====
 
  * Parameters: volume : [Uint32]
@@ -202,3 +184,25 @@ The stream's volume was modified.
    - muted: The new mute state
 
 The stream was muted or unmuted.
+
+
+==== !PropertyListUpdated ====
+
+ * Parameters: property_list : {String -> [Byte]}
+   - property_list: The new property list
+
+The stream's property list was modified.
+
+
+==== !StreamEvent ====
+
+ * Parameters: name : String, property_list : {String -> [Byte]}
+   - name: Event name
+   - property_list: Additional event parameters
+
+This signal is emitted when the server sends an event to a stream. Currently two stream events are defined:
+
+ * "request-cork"
+   - An application should cork a specific stream. This can be sent for example if the server implements a policy that when a phone call starts, all music streams shall pause. The property list doesn't contain any additional parameters.
+ * "request-uncork"
+   - Opposite of "request-cork". The property list doesn't contain any additional parameters.
