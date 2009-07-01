@@ -7,6 +7,7 @@ Note: Whenever "user bus" is mentioned in these pages, it means "session bus" un
 == Recent Changes ==
 
  * 2009-07-01
+   - Rename proplist -> property list.
    - Change argument names to lowercase, as it seems to be the standard way (this statement is actually only based on that the D-Bus spec has them lowercase in the examples).
 
 
@@ -19,17 +20,11 @@ The new functionality consists of two parts: a server lookup service and the mai
 
 == Open Questions ==
 
- * Should the server cookie be available? I think that's not a good idea until authentication has been improved. System mode and allowing TCP connections in whatever mode is currently insecure anyway, but when a user decides to disable either system mode or TCP access, the cookie may have already leaked, allowing unwanted connections via the traditional protocol.
-
  * Does it make sense for clients to save card names? If not, the .Core1.!GetCardByName method is probably unneeded.
 
  * Same for .Core1.Card.!GetProfileByName.
 
  * Same for .Core1.Device.!GetPortByName.
-
- * Should sample file and directory names be byte arrays instead of strings? I believe utf-8 file names are common, but not universal. On the other hand, nobody requires us to accept every possible file as a sample.
-
- * Some properties that are available in the C API are exposed both explicitly and in the proplist. Should this interface do the same, or only have the proplist? (I vote for proplist only.) This decision affects device descriptions, stream names and client names.
 
  * Do error cases need better documentation? The current guideline has been that if an error can be returned even if the situation is more like a special case than an error, it is explicitly documented.
 
@@ -49,9 +44,9 @@ The detailed descriptions are spread to separate pages, roughly one per object t
 
 
 
-=== Proplists ===
+=== Property Lists ===
 
-Proplists (short for property lists) are dictionaries that are associated with many objects. The keys are utf-8 strings and the values are arbitrary data (usually they are utf-8 strings too, though). Proplists are used to attach many kinds of metadata to the objects: names, descriptions, intended roles and so on. For now the best source of information about available properties is the [http://0pointer.de/lennart/projects/pulseaudio/doxygen/proplist_8h.html proplist.h] file documentation.
+Property lists (not to be confused with D-Bus properties) are dictionaries that are associated with many objects. The keys are utf-8 strings and the values are arbitrary data (usually they are utf-8 strings too, though). Property lists are used to attach many kinds of metadata to the objects: names, descriptions, intended roles and so on. For now the best source of information about available properties is the [http://0pointer.de/lennart/projects/pulseaudio/doxygen/proplist_8h.html proplist.h] file documentation.
 
 
 
@@ -153,7 +148,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Card#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist with all cards.
  * [wiki:DBusInterface/Card#Profiles Profiles] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Card#ActiveProfile ActiveProfile] : !ObjectPath (rw) # Does not exist if there are no profiles.
- * [wiki:DBusInterface/Card#Proplist Proplist] : {String -> [Byte]} (r)
+ * [wiki:DBusInterface/Card#PropertyList PropertyList] : {String -> [Byte]} (r)
 
 
 [wiki:DBusInterface/Card#Methods Methods]:
@@ -164,7 +159,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 [wiki:DBusInterface/Card#Signals Signals]:
 
  * [wiki:DBusInterface/Card#ActiveProfileUpdated ActiveProfileUpdated](profile : !ObjectPath)
- * [wiki:DBusInterface/Card#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Card#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -222,7 +217,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Device#State State] : Byte (r)
  * [wiki:DBusInterface/Device#Ports Ports] : [!ObjectPath] (r)
  * [wiki:DBusInterface/Device#ActivePort ActivePort] : !ObjectPath (rw) # Does not exist if there are no ports.
- * [wiki:DBusInterface/Device#Proplist Proplist] : {String -> [Byte]} (r)
+ * [wiki:DBusInterface/Device#PropertyList PropertyList] : {String -> [Byte]} (r)
 
 
 [wiki:DBusInterface/Device#Methods Methods]:
@@ -237,7 +232,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Device#MuteUpdated MuteUpdated](muted : Boolean)
  * [wiki:DBusInterface/Device#StateUpdated StateUpdated](state : Byte)
  * [wiki:DBusInterface/Device#ActivePortUpdated ActivePortUpdated](port : !ObjectPath)
- * [wiki:DBusInterface/Device#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Device#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -296,7 +291,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Stream#BufferLatency BufferLatency] : Uint64 (r) # usec
  * [wiki:DBusInterface/Stream#DeviceLatency DeviceLatency] : Uint64 (r) # usec
  * [wiki:DBusInterface/Stream#ResampleMethod ResampleMethod] : String (r)
- * [wiki:DBusInterface/Stream#Proplist Proplist] : {String -> [Byte]} (r)
+ * [wiki:DBusInterface/Stream#PropertyList PropertyList] : {String -> [Byte]} (r)
 
 
 [wiki:DBusInterface/Stream#Methods Methods]:
@@ -309,7 +304,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
  * [wiki:DBusInterface/Stream#DeviceUpdated DeviceUpdated](device : !ObjectPath)
  * [wiki:DBusInterface/Stream#SampleRateUpdated SampleRateUpdated](sample_rate : Uint32)
- * [wiki:DBusInterface/Stream#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Stream#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -347,7 +342,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Sample#Bytes Bytes] : Uint32 (r)
  * [wiki:DBusInterface/Sample#Lazy Lazy] : Boolean (r)
  * [wiki:DBusInterface/Sample#Filename Filename] : String (r) # Exists only with lazy samples.
- * [wiki:DBusInterface/Sample#Proplist Proplist] : {String -> [Byte]} (r)
+ * [wiki:DBusInterface/Sample#PropertyList PropertyList] : {String -> [Byte]} (r)
 
 
 [wiki:DBusInterface/Sample#Methods Methods]:
@@ -358,7 +353,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Sample#Signals Signals]:
 
- * [wiki:DBusInterface/Sample#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Sample#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -375,7 +370,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Module#Name Name] : String (r)
  * [wiki:DBusInterface/Module#Arguments Arguments] : {String -> String} (r)
  * [wiki:DBusInterface/Module#UsageCounter UsageCounter] : Uint32 (r) # Does not exist with all modules.
- * [wiki:DBusInterface/Module#Proplist Proplist] : {String -> [Byte]} (r)
+ * [wiki:DBusInterface/Module#PropertyList PropertyList] : {String -> [Byte]} (r)
 
 
 [wiki:DBusInterface/Module#Methods Methods]:
@@ -385,7 +380,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Module#Signals Signals]:
 
- * [wiki:DBusInterface/Module#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Module#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
 
 
@@ -401,7 +396,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
  * [wiki:DBusInterface/Client#Index Index] : Uint32 (r)
  * [wiki:DBusInterface/Client#Driver Driver] : String (r)
  * [wiki:DBusInterface/Client#OwnerModule OwnerModule] : !ObjectPath (r) # Does not exist with all clients.
- * [wiki:DBusInterface/Client#Proplist Proplist] : {String -> [Byte]} (r)
+ * [wiki:DBusInterface/Client#PropertyList PropertyList] : {String -> [Byte]} (r)
 
 
 [wiki:DBusInterface/Client#Methods Methods]:
@@ -411,7 +406,7 @@ Proplists (short for property lists) are dictionaries that are associated with m
 
 [wiki:DBusInterface/Client#Signals Signals]:
 
- * [wiki:DBusInterface/Client#ProplistUpdated ProplistUpdated](property_list : {String -> [Byte]})
+ * [wiki:DBusInterface/Client#PropertyListUpdated PropertyListUpdated](property_list : {String -> [Byte]})
 
 
 
