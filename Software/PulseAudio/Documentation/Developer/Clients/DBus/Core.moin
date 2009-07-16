@@ -295,7 +295,7 @@ If the objects argument is an empty list, then all signals of the given type are
 
 In order to support clients that want to receive absolutely all signals, an empty string can be given as the signal name. In that case all previous signal filters are discarded. The objects parameter can still be used to limit the signals to certain objects. If this method is called after giving the "all-pass" filter, the "all-pass" filter is discarded, so the resulting state is equal to as if there weren't any previous filters.
 
-Note that no error is returned if the signal name is unknown to the server. This is because an extension could be loaded at any time that would start sending the given signal.
+Note that no error is returned if the signal name or an object path is unknown to the server. This is because an extension could be loaded at any time that would start sending the given signal, or create the object.
 
 
 ==== !StopListeningForSignal ====
@@ -303,7 +303,7 @@ Note that no error is returned if the signal name is unknown to the server. This
  * Arguments: signal : String
    - signal: Signal name containing the interface, for example "org.!PulseAudio.Core1.Device.!ActivePortUpdated"
 
-Tells the server to stop sending signals of the given type.
+Tells the server to stop sending signals of the given type. Empty signal name means that no signals should be sent anymore.
 
 
 
