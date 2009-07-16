@@ -25,8 +25,8 @@ The public interface of a Gallium3D driver is described by the src/gallium/inclu
 
 The pipe_context structure (in p_context.h) is an abstract base class with per-context methods for:
 
- * Setting rendering state (texture sampler state, vertex array info, drawing surfaces, etc.)
- * Setting shader state, using the [[gallium_tgsi|TGSI]] binary shader representation.
+ * Setting rendering state (texture sampler state, blending state, rasterization state, vertex array info, drawing surfaces, etc.)
+ * Setting shader state, using the TGSI binary shader representation.
  * Vertex array and indexed vertex array drawing.
 
 The p_state.h file defines data structures for things such as:
@@ -97,9 +97,9 @@ The failover module acts as a selector between a hardware driver and the softpip
 
 A number of ancillary modules are available to Gallium3D drivers:
 
-1. The [[gallium_draw|Draw]] module provides point/line/polygon rendering services such as vertex transformation, polygon culling and clipping.  It will be used by drivers for hardware which lacks vertex transformation (such as the i915/i945).  It may also be instantiated and used directly by the state tracker to implement some API functionality that doesn't map well to hardware capabilities.
+1. The [[Software/gallium_draw|Draw]] module provides point/line/polygon rendering services such as vertex transformation, polygon culling and clipping.  It will be used by drivers for hardware which lacks vertex transformation (such as the i915/i945).  It may also be instantiated and used directly by the state tracker to implement some API functionality that doesn't map well to hardware capabilities.
 
-2. The [[gallium_tgsi|TGSI]] module provides a universal representation of shaders
+2. The TGSI module provides a universal representation of shaders
 and CPU-based execution of shaders.  All Mesa vertex/fragment programs
 and shaders are translated into the TGSI representation before being
 passed to the driver.  In turn, the driver will convert the TGSI
@@ -120,6 +120,8 @@ math and miscellaneous helper routines.
 
 
 == Status ==
+
+The Gallium3D source code lives in the Mesa git repository under mesa/src/gallium/.
 
 As of Spring 2009:
 
