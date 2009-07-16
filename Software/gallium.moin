@@ -1,0 +1,141 @@
+= Gallium3D Technical Overview =
+
+Gallium3D is a new architecture for building 3D graphics drivers.  Initially supporting Mesa and Linux graphics drivers, Gallium3D is designed to allow portability to all major operating systems and graphics interfaces.
+
+Compared to existing Linux graphics drivers, Gallium3D will:
+
+ * Make drivers smaller and simpler.
+  Current DRI drivers are rather complicated.  They're large, contain duplicated code and are burdened with implementing many concepts tightly tied to the OpenGL 1.x/2.x API.
+
+ * Model modern graphics hardware.
+  The new driver architecture is an abstraction of modern graphics hardware, rather than an OpenGL->hardware translator.  The new driver interface will assume the presence of programmable vertex/fragment shaders and flexible memory objects.
+
+ * Support multiple graphics APIs.
+  The reduced OpenGL 3.1+ APIs will be much smaller than OpenGL 1.x/2.x.  We'd like a driver model that is API-neutral so that it's not tied to a specific graphics API.
+
+ * Support multiple operating systems.
+  Gallium drivers have no OS-specific code (OS-specific code goes into the "winsys/screen" modules) so they're portable to Linux, Windows and other operating systems.
+
+This document describes the software components of the Gallium3D architecture.  The intended audience is graphics software developers.
+
+
+== The Gallium3D Interface ==
+
+The public interface of a Gallium3D driver is described by the src/gallium/include/*.h header files.
+
+The pipe_context structure (in p_context.h) is an abstract base class with per-context methods for:
+
+ * Setting rendering state (texture sampler state, vertex array info, drawing surfaces, etc.)
+ * Setting shader state, using the [[gallium_tgsi|TGSI]] binary shader representation.
+ * Vertex array and indexed vertex array drawing.
+
+The p_state.h file defines data structures for things such as:
+
+ * Graphics state (blending, texture sampling, rasterization)
+ * Texture and surface resources
+ * Vertex array layout
+
+The pipe_screen structure is an abstract base class with context-independent methods for:
+
+ * Creating textures (and drawing surfaces)
+ * Getting "views" into textures
+ * Hardware queries (number of texture units, max texture size, etc).
+ * Creating generic memory buffers
+ * Mapping/unmapping buffers
+ * Fencing
+
+By abstracting OS and window system services, pipe drivers are portable to other platforms (e.g. embedded devices).
+
+Additional [[gallium_interface|Gallium3D interface]] information.
+
+
+== State Trackers ==
+
+The Mesa state tracker is the piece which interfaces core Mesa to the
+Gallium3D interface.  It's responsible for translating Mesa state (blend
+modes, texture state, etc) and drawing commands (like glDrawArrays and
+glDrawPixels) into pipe objects and operations.
+
+Traditional fixed-function OpenGL components (such as lighting and
+texture combining) are implemented with shaders.  OpenGL commands such
+as glDrawPixels are translated into textured quadrilateral rendering.
+Basically, any rendering operation that isn't directly supported by
+modern graphics hardware is translated into a hardware-friendly form.
+
+Future state trackers will be created for OpenGL 3.0 and OpenGL-ES 2.x.
+
+
+== Softpipe Driver ==
+
+The softpipe driver is a software implementation of the Gallium3D
+interface.  It will be used as a reference implementation and as a
+fallback driver when a hardware driver isn't available.  The softpipe
+driver will make extensive use of run-time code generation to
+efficiently execute vertex, fragment and rasterization operations.
+
+
+== Simple i915 Driver ==
+
+The i915 Gallium3D Driver is an initial hardware driver implementation
+within the Gallium3D driver architecture.  We expect that once complete this
+driver will have equivalent functionality and performance to the current 
+Mesa i915tex driver, but from a much smaller codebase.
+
+
+== Cell Driver ==
+
+Tungsten Graphics developed a Gallium3D driver for the IBM Cell processor (as found in the PS3) in conjunction with Lawrence Berkeley National Lab.  For more information see the
+[[http://www.mesa3d.org/cell.html|Mesa Cell documentation]].
+
+
+== Failover Module ==
+
+The failover module acts as a selector between a hardware driver and the softpipe driver.  When the hardware can't implement a particular rendering operation, the failover module will pass the request to the softpipe driver.  This is a different solution to the "software fallbacks" scheme of previous Mesa drivers.
+
+
+== Ancillary Modules ==
+
+A number of ancillary modules are available to Gallium3D drivers:
+
+1. The [[gallium_draw|Draw]] module provides point/line/polygon rendering services such as vertex transformation, polygon culling and clipping.  It will be used by drivers for hardware which lacks vertex transformation (such as the i915/i945).  It may also be instantiated and used directly by the state tracker to implement some API functionality that doesn't map well to hardware capabilities.
+
+2. The [[gallium_tgsi|TGSI]] module provides a universal representation of shaders
+and CPU-based execution of shaders.  All Mesa vertex/fragment programs
+and shaders are translated into the TGSI representation before being
+passed to the driver.  In turn, the driver will convert the TGSI
+instructions into GPU-specific instructions.  For hardware that lacks
+vertex or fragment shader support, the TGSI's executor can be used.
+The TGSI executor includes support for SSE code generation.  Support
+for other processors (such as Cell) will be added in the future.
+
+3. The RTASM module provides support for Run-Time Assembly/Machine code generation.
+There are sub-modules for X86/SSE, PPC and Cell machine code generation.
+
+4. The CSO module provides support for Constant State Objects.  CSOs help
+to filter out redundant state changes from getting sent to the driver.  State
+changes can be expensive and we want to avoid them whenever possible.
+
+5. The util module has code for debugging, image manipulation, hashing,
+math and miscellaneous helper routines.
+
+
+== Status ==
+
+As of Spring 2009:
+
+The softpipe driver is basically feature complete and runs most OpenGL programs.  There is limited support for SSE and LLVM code generation, but that's still under development.
+
+The i915 driver runs most OpenGL programs, though there's still loose ends.
+
+The i965 driver is under construction.
+
+The Cell driver is in the Mesa tree and runs many OpenGL demos.
+
+
+== References ==
+
+[[http://www.tungstengraphics.com/wiki/files/gallium3d-xds2007.pdf|Gallum3D talk from XDS 2007]]
+
+[[http://people.freedesktop.org/~jrfonseca/gallium/|Cross-referenced source code]]
+
+[[http://www.tungstengraphics.com/wiki/files/tgsi.pdf|TGSI specification]]
