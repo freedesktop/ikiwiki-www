@@ -1,0 +1,71 @@
+This page is work in progress. I'm just writing down the steps I'm taking to make this work.
+
+== git ==
+
+If you want to be at PA's bleeding edge, you need to have [http://www.git-scm.com git] installed. There's a resource for [http://code.google.com/p/git-osx-installer/downloads/list?can=3 git for Mac OS X] which even has a nice installer.
+
+== Mac Ports ==
+
+PA depends on quite some libraries which need to be installed in order to make it build from the sources. Fortunately, [http://www.macports.org/ Mac Ports] provides all of them. Download and install it, following the instructions found on their side.
+
+Once installed, you need at least to install the following packages:
+
+{{{
+sudo port install intltool libtool libsndfile speex-devel gdbm liboil
+}}}
+
+== Patches ==
+
+There currently only one patch panding to make the bootstrap.sh call system tools with appropriate flags. (Please remove this section once this is merged)
+
+
+{{{
+diff --git a/bootstrap.sh b/bootstrap.sh
+index aa9755f..a5bd9a7 100755
+--- a/bootstrap.sh
++++ b/bootstrap.sh
+@@ -40,10 +40,22 @@ run_versioned() {
+ 
+ set -ex
+ 
++case $(uname) in
++	*Darwin*)
++		CP_OPTS="-R"
++		CHMOD_OPTS=""
++		LIBTOOLIZE="glibtoolize"
++		;;
++	*)
++		CP_OPTS="-av"
++		CHMOD_OPTS="-c"
++		;;
++esac
++
+ if [ -f .git/hooks/pre-commit.sample -a ! -f .git/hooks/pre-commit ] ; then
+     echo "Activating pre-commit hook."
+-    cp -av .git/hooks/pre-commit.sample .git/hooks/pre-commit
+-    chmod -c +x  .git/hooks/pre-commit
++    cp ${CP_OPTS}  .git/hooks/pre-commit.sample .git/hooks/pre-commit
++    chmod ${CHMOD_OPTS} +x  .git/hooks/pre-commit
+ fi
+ 
+ if [ -f .tarball-version ]; then
+}}}
+
+
+== Building ==
+
+There are some variables that need to be set to make the build process look at the right places of your system.
+
+{{{
+export CC="gcc-4.2"
+export CFLAGS="-I/opt/local/include"
+export LDFLAGS="-L/opt/local/lib"
+}}}
+
+Then run
+
+{{{
+./autogen.sh && make
+}}}
+
+
