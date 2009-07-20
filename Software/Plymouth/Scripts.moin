@@ -1,0 +1,57 @@
+This is a brief introduction to the Plymouth scripting language. The language has many points in common with Javascript and C, so if you know those languages, little should be of surprise.
+
+There are three types of supported comments:
+
+# script style line comments
+
+// C++ style line comments
+
+/``* and C style block comments /``* which may be nested */ */
+
+There are some basic objects: numbers, strings, scalars, functions and null.
+
+Simple expression operations such as must be terminated with a semicolon, e.g.
+
+a = b;
+
+Multiple operations can be grouped using curly “{}” brackets, e.g.
+
+{a = b; c = a + 8;}
+
+Numbers can be operated with +, -, *, / and %. Amend assignments (+=, /= etc.) are allowed, as are pre/post inc/decrement, e.g. 
+
+a *= ++b;
+
+Strings can be appended using + (even to numbers), e.g.
+
+a = “A” + 7 + “B”;  # gives a string “A7B”
+
+Applying operations on incomparable operands gives a NULL, e.g.
+
+a = “eight” / 2;  # gives a NULL
+
+Comparisons return a number 1, for true, or 0, for false, e.g.
+
+a = (7 >= 6); # sets a to 1
+
+Conditional execution operations, “if/else”, “while” and “for” are supported, e.g.
+
+if (a > 1) {a++; b=0;}
+
+Conditions evaluate NULL, 0 and “” (empty string) to false, everything else is true, e.g.
+
+a = 9; while (a--) b++;
+
+Scalars can be created by simply accessing their contents using a dot or [] brackets, e.g.
+
+a.size = 1; b = a[“size”]; # b equals 1
+
+All scalar indexing is done using strings even when using a number, e.g.
+
+a[1] = 1; a[“1”] = 2; # a[1] now equals 2
+
+To define a function use the “fun” keyword, e.g.
+
+fun functionname(index, par1, par2)
+
+{ if (index == 1) return par1; else return par2;}
