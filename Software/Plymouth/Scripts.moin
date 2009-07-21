@@ -1,57 +1,200 @@
 This is a brief introduction to the Plymouth scripting language. The language has many points in common with Javascript and C, so if you know those languages, little should be of surprise.
 
+= Basics =
+
 There are three types of supported comments:
 
+{{{
 # script style line comments
-
 // C++ style line comments
-
-/``* and C style block comments /``* which may be nested */ */
+/* and C style block comments /* which may be nested */ */
+}}}
 
 There are some basic objects: numbers, strings, scalars, functions and null.
 
 Simple expression operations such as must be terminated with a semicolon, e.g.
 
+{{{
 a = b;
+}}}
 
-Multiple operations can be grouped using curly “{}” brackets, e.g.
+Multiple operations can be grouped using curly “{ }” brackets, e.g.
 
-{a = b; c = a + 8;}
+{{{
+{
+ a = b;
+ c = a + 8;
+}
+}}}
 
 Numbers can be operated with +, -, *, / and %. Amend assignments (+=, /= etc.) are allowed, as are pre/post inc/decrement, e.g. 
 
+{{{
 a *= ++b;
+}}}
 
 Strings can be appended using + (even to numbers), e.g.
 
+{{{
 a = “A” + 7 + “B”;  # gives a string “A7B”
+}}}
 
 Applying operations on incomparable operands gives a NULL, e.g.
 
+{{{
 a = “eight” / 2;  # gives a NULL
+}}}
 
 Comparisons return a number 1, for true, or 0, for false, e.g.
 
+{{{
 a = (7 >= 6); # sets a to 1
+b = ("Cat" == "Dog"); # sets b to 0
+}}}
 
 Conditional execution operations, “if/else”, “while” and “for” are supported, e.g.
 
-if (a > 1) {a++; b=0;}
+{{{
+if (a > 0)
+ {
+  a--;
+  b = 0;
+ }
+else
+ a = 0
+}}}
 
 Conditions evaluate NULL, 0 and “” (empty string) to false, everything else is true, e.g.
 
-a = 9; while (a--) b++;
+{{{
+while (a--)
+ b *= a;
+}}}
+
+Or operations are lazily evaluated and return the first value that evaluates to true (And returns the first false value), e.g.
+
+{{{
+value = cached || (cached = do_lookup (index)); # if cached is already set then it is used, otherwise a lookup is executed
+if (value > 0 && value < 10) valid == 1;
+}}}
 
 Scalars can be created by simply accessing their contents using a dot or [] brackets, e.g.
 
-a.size = 1; b = a[“size”]; # b equals 1
+{{{
+a.size = 1;
+b = a[“size”]; # b equals 1
+}}}
 
 All scalar indexing is done using strings even when using a number, e.g.
 
-a[1] = 1; a[“1”] = 2; # a[1] now equals 2
+{{{
+a[1] = 1;
+a[“1”] = 2; # a[1] now equals 2
+}}}
 
 To define a function use the “fun” keyword, e.g.
 
-fun functionname(index, par1, par2)
+{{{
+fun functionname (index, par1, par2)
+ {
+  if (index == 1)
+   return par1;
+  else
+   return par2;
+ }
+}}}
 
-{ if (index == 1) return par1; else return par2;}
+Functions have local variables but if a global one exists, that is used instead. You can force the use of a local even though a global already exists (and vice versa) by using the "local" and "global" scalars, e.g.
+
+{{{
+val = 1;             #global val = 1
+fun functionname ()
+ {
+  val = 2;           #global val = 2   (global exists, so is used)
+  local.val = 3;     #local  val = 3   (explicitly uses the local)
+  val = 4;           #local  val = 4   (local exists, so is used)
+  mval = 5;          #local mval = 5   (neither global nor local exist, so a local is created)
+ }
+}}}
+
+= Plymouth Interaction =
+
+There are two basic Plymouth objects: Image and Sprite.
+
+== Plymouth Images ==
+To create a new image you need to supply the filename of the image within the theme image directory to I``mageNew, e.g.
+{{{
+box_image = ImageNew ("box.png");
+logo_image = ImageNew ("special://logo");   # "special://logo" is a special keyword which finds the logo image
+}}}
+
+The width and height of an image can be attained using I``mageGetWidth and I``mageGetHeight, e.g.
+{{{
+logo_area = ImageGetWidth(logo_image) * ImageGetHeight(logo_image);
+}}}
+
+An image can be rotated or scaled using I``mageRotate and I``mageScale, e.g.
+{{{
+upside_down_logo_image = ImageRotate (logo_image, 3.1415); # the second paramiter is the angle in radians 
+fat_logo_image = ImageScale (logo_image, ImageGetWidth (logo_image) * 2 , ImageGetHeight (logo_image)) # make the image twice the width
+}}}
+
+== Plymouth Sprites ==
+To place an image on the screen, we use sprites.
+
+To create a new sprite call S``priteNew, then set the image using S``priteSetImage, e.g.
+{{{
+my_sprite = SpriteNew ();
+SpriteSetImage (my_sprite, fat_logo_image);
+}}}
+
+This will place the sprite at the top left corner of the screen (at 0,0). To change the position call S``priteSetX and S``priteSetY, e.g.
+{{{
+SpriteSetX (my_sprite, 100);
+SpriteSetY (my_sprite, 200);
+}}}
+
+If there are multiple sprites it us useful to decide which sprite should be shown above other. This is controled using the Z component, the sprite with higher the Z is drawn on top.
+{{{
+SpriteSetZ (background_sprite, -10);
+SpriteSetZ (foreground_sprite, 10);
+}}}
+
+S``priteSetOpacity can make sprites transparent or even invisible (the default opacity is solid 1), e.g.
+{{{
+SpriteSetOpacity (faded_sprite, 0.1);
+SpriteSetOpacity (invisible_sprite, 0);
+}}}
+
+Knowing the size of the window can be useful to position sprites. This can be reached using S``priteWindowGetWidth and S``priteWindowGetHeight, e.g.
+{{{
+SpriteSetX (centred_sprite, SpriteWindowGetWidth ()  / 2 - ImageGetWidth(centred_image)  / 2);
+SpriteSetY (centred_sprite, SpriteWindowGetHeight () / 2 - ImageGetHeight(centred_image) / 2);
+}}}
+
+If the sprites do not fully cover the whole window, some of the sprite background will be exposed. To set the background colours use S``priteWindowSetBackground{Top,Bottom}Color. These take Red, Green and Blue values between 0 and 1, e.g.
+{{{
+SpriteWindowSetBackgroundTopColor (0, 0, 1);           # Nice blue on top of the screen fading to 
+SpriteWindowSetBackgroundBottomColor (0.8, 0.2, 0.1);  # an equally nice brown on the bottom
+}}}
+
+== Plymouth Callbacks ==
+
+Calling P``lymouthSetRefreshFunction with a function will set that function to be called up to 50 times every second, e.g.
+
+{{{
+fun refresh_callback ()
+{
+ time++;
+}
+PlymouthSetRefreshFunction (refresh_callback);
+}}}
+
+Other callbacks which can be hooked onto are:
+* P``lymouthSetBootProgressFunction: the callback function is called with two numbers, the progress (between 0 and 1) and the time spent booting so far
+* P``lymouthSetRootMountedFunction: the callback function is called when a new root is mounted
+* P``lymouthSetKeyboardInputFunction: the callback function is called with a string containing a new character entered on the keyboard
+* P``lymouthSetUpdateStatusFunction: the callback function is called with the new boot status string
+* P``lymouthSetDisplayPasswordFunction: the callback function is called when the display should display a password dialogue. First arg is prompt string, the second is the number of bullets.
+* P``lymouthSetDisplayQuestionFunction: the callback function is called when the display should display a question dialogue. First arg is prompt string, the second is the entry contents.
+* P``lymouthSetDisplayNormalFunction: the callback function is called when the display should return to normal
