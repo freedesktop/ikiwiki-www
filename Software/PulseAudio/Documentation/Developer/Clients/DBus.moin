@@ -9,6 +9,7 @@ Note: Whenever "user bus" is mentioned in these pages, it means "session bus" un
  * 2009-07-31
    - Change the non-extension object path prefix from /org/pulseaudio1/ to /org/pulseaudio/core1/. This way the core and the extensions have consistent object path prefix (/org/pulseaudio/).
    - Add signals .Core1.!NewExtension and .Core1.!ExtensionRemoved.
+   - Rework the stream restore interface.
 
  * 2009-07-15
    - Remove the sink argument from Sample.Play() and add new method Sample.!PlayToSink().
@@ -447,8 +448,7 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 
 [wiki:DBusInterface/StreamRestore#Methods Methods]:
 
- * [wiki:DBusInterface/StreamRestore#PutEntries PutEntries](in entries : [(String, String, [(Uint32, Uint32)], Boolean)], update_mode : Uint32)
- * [wiki:DBusInterface/StreamRestore#RemoveEntries RemoveEntries](in entries : [!ObjectPath])
+ * [wiki:DBusInterface/StreamRestore#AddEntry AddEntry](in name : String, device : String, volume : [(Uint32, Uint32)], is_muted : Boolean ; out entry : !ObjectPath)
 
 
 [wiki:DBusInterface/StreamRestore#Signals Signals]:
@@ -460,14 +460,18 @@ Property lists (not to be confused with D-Bus properties) are dictionaries that 
 
 ==== [wiki:DBusInterface/StreamRestore#org.PulseAudio.Ext.StreamRestore1.RestoreEntry org.PulseAudio.Ext.StreamRestore1.RestoreEntry] ====
 
-[wiki:DBusInterface/StreamRestore#Properties Properties]:
+[wiki:DBusInterface/StreamRestore#Properties1 Properties]:
 
  * [wiki:DBusInterface/StreamRestore#Index Index] : Uint32 (r)
  * [wiki:DBusInterface/StreamRestore#Name Name] : String (r)
  * [wiki:DBusInterface/StreamRestore#Device Device] : String (r)
- * [wiki:DBusInterface/StreamRestore#Channels Channels] : [Uint32] (r)
- * [wiki:DBusInterface/StreamRestore#Volume Volume] : [Uint32] (r)
+ * [wiki:DBusInterface/StreamRestore#Volume Volume] : [(Uint32, Uint32)] (r)
  * [wiki:DBusInterface/StreamRestore#IsMuted IsMuted] : Boolean (r)
+
+
+[wiki:DBusInterface/StreamRestore#Methods1 Methods]:
+
+ * [wiki:DBusInterface/StreamRestore#Remove Remove]()
 
 
 
