@@ -9,6 +9,7 @@ Objects and their interfaces:
    - org.!PulseAudio.Ext.!StreamRestore1
    - org.freedesktop.DBus.Properties
    - org.freedesktop.DBus.Introspectable
+
  * /org/pulseaudio/stream_restore1/entryX
    - org.!PulseAudio.Ext.!StreamRestore1.!RestoreEntry
    - org.freedesktop.DBus.Properties
@@ -38,21 +39,17 @@ All stored policy entries.
 
 === Methods ===
 
-==== !PutEntries ====
+==== !AddEntry ====
 
- * Arguments: entries : [(String, String, [(Uint32, Uint32)], Boolean)], update_mode : Uint32
-   - entries: New entry set with a struct for each entry: the first struct member is the entry name, the second is the device name, the third contains the channel map and volume, and the last is the mute state. The device can be an empty string, in which case it is not saved. The array containing the channel map and volume can be left empty, in which case those properties are not saved.
-   - update_mode: How the entries should be merged, see [wiki:DBusInterface/Enumerations#Updatemodes] for the list of possible values 
+ * Arguments: name : String, device : String, volume : [(Uint32, Uint32)], is_muted : Boolean
+   - name: The entry name, formatted as specified somewhere (TODO: where?)
+   - device: The device that the matching streams should use, or an empty string to not restore the device
+   - volume: The volume as ([wiki:DBusInterface/Enumerations#Channelpositions channel position], volume) pairs that the matching streams should use, or an empty array to not restore the volume.
+   - is_muted: Whether the matching streams should be muted
+ * Returns: entry : !ObjectPath
+   - entry: Added entry object
 
-Updates the policy database with new entries.
-
-
-==== !RemoveEntries ====
-
- * Arguments: entries : [!ObjectPath]
-   - entries: The entries to remove
-
-Removes entries from the policy database.
+Adds a new entry to the stream restore database.
 
 
 
@@ -85,7 +82,7 @@ An entry was removed.
  * Type: Uint32
  * Access: read
 
-The entry index. The index is specific to this D-Bus interface: Name is the real key property, but an index is generated for the object paths.
+The entry index. This index is specific to the D-Bus interface only: the entry name is the real key property, but entries are assigned an index for generating the object path.
 
 
 ==== Name ====
@@ -104,20 +101,12 @@ The entry name.
 The device to which matching streams are connected. May be an empty string, in which case this entry doesn't dictate the device.
 
 
-==== Channels ====
-
- * Type: [Uint32]
- * Access: read
-
-The saved channel map (for volume restoring). May be an empty array, in which case this entry doesn't dictate the stream volume.
-
-
 ==== Volume ====
 
- * Type: [Uint32]
+ * Type: [(Uint32, Uint32)]
  * Access: read
 
-The saved volume. May be an empty array, in which case this entry doesn't dictate the stream volume.
+The saved volume as ([wiki:DBusInterface/Enumerations#Channelpositions channel position], volume) pairs. May be an empty array, in which case this entry doesn't dictate the stream volume.
 
 
 ==== !IsMuted ====
@@ -125,4 +114,12 @@ The saved volume. May be an empty array, in which case this entry doesn't dictat
  * Type: Boolean
  * Access: read
 
-The saved mute status (or if not saved, the default is unmuted).
+The saved mute status.
+
+
+
+=== Methods ===
+
+==== Remove ====
+
+Removes this entry from the stream restore database.
