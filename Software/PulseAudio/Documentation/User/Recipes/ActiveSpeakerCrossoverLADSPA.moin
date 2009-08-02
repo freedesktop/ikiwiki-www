@@ -1,0 +1,98 @@
+PulseAudio enables you to use LADSPA plugins on its virtual sinks and so you can create a digital crossover for an active speaker.
+
+Here is a short summary:[[BR]]
+-- I upmix stereo sound.[[BR]]
+-- This takes about 12% CPU time for me - I have an AMDX2 3800+ and a Debian 2.6.30 kernel with no preemt at all enabled - for a mono four-way-setup.[[BR]]
+-- This is a rather static setup so you do have to reload the virtual sinks if you change the LADSPA parameters.[[BR]]
+-- These are IIR filters, not FIR.
+
+What I use:[[BR]]
+-- I have Debian Lenny/Sid, PulseAudio 0.9.15, LADPSA plugins from Steve Harris ([http://plugin.org.uk/]) and CMT ([http://www.ladspa.org/cmt/]). I'll try a preempt-kernel too.[[BR]]
+-- The soundcard is a multichannel onboard soundchip (Realtek RC888). You need a channel for each speaker-driver so for four-way stereo speakers you need a 7.1 card.
+
+What to do:[[BR]]
+-- I copy the hardware output (device-sink) to virtual sinks.[[BR]]
+-- Then I add filters like lowpass, EQ, delay, etc.[[BR]]
+-- I combine all sinks into one for output and set it as default.[[BR]]
+-- I set the amplifiers so there is not much difference in output and the soundcard's DACs don't have to scale a lot. Then 'alsamixer -c0' can be used to adjust the relative loudness of the channels and the device-sink is there for changing the overall system-volume in the end.
+
+----
+
+I created a script which does all this:
+
+{{{
+#sub
+pactl load-module module-ladspa-sink sink_name=subeq master=front_stereo plugin=single_para_1203 label=singlePara control=-4,45,0.5
+sleep 1
+pactl load-module module-ladspa-sink sink_name=subsonic master=subeq plugin=highpass_iir_1890 label=highpass_iir control=25,4
+sleep 1
+pactl load-module module-ladspa-sink sink_name=subout master=subsonic plugin=lowpass_iir_1891 label=lowpass_iir control=55,4
+sleep 1
+pactl load-module module-remap-sink sink_name=sub master=subout channels=1 master_channel_map=front-left channel_map=mono
+sleep 1
+
+#low
+pactl load-module module-ladspa-sink sink_name=loweq master=front_stereo plugin=single_para_1203 label=singlePara control=-8,300,2
+sleep 1
+pactl load-module module-ladspa-sink sink_name=lowhp master=loweq plugin=highpass_iir_1890 label=highpass_iir control=60,2
+sleep 1
+pactl load-module module-ladspa-sink sink_name=lowout master=lowhp plugin=lowpass_iir_1891 label=lowpass_iir control=350,2
+sleep 1
+pactl load-module module-remap-sink sink_name=low master=lowout channels=1 master_channel_map=front-right channel_map=mono
+sleep 1
+
+#mid
+pactl load-module module-ladspa-sink sink_name=middelay master=front_stereo plugin=cmt label=delay_0.01s control=0.0001,0.00006
+sleep 1
+pactl load-module module-ladspa-sink sink_name=midhp master=middelay plugin=highpass_iir_1890 label=highpass_iir control=370,2
+sleep 1
+pactl load-module module-ladspa-sink sink_name=midout master=midhp plugin=lowpass_iir_1891 label=lowpass_iir control=2000,4
+sleep 1
+pactl load-module module-remap-sink sink_name=mid master=midout channels=1 master_channel_map=aux0 channel_map=mono
+sleep 1
+
+#high
+pactl load-module module-ladspa-sink sink_name=highdelay master=front_stereo plugin=cmt label=delay_0.01s control=0.0005,0.00015
+sleep 1
+pactl load-module module-ladspa-sink sink_name=highout master=highdelay plugin=highpass_iir_1890 label=highpass_iir control=2100,4
+sleep 1
+pactl load-module module-remap-sink sink_name=high master=highout channels=1 master_channel_map=aux1 channel_map=mono
+sleep 1
+
+#crossover
+pactl load-module module-combine sink_name=crossover slaves=sub,low,mid,high
+}}}
+
+Note that I have a mono setup so I use remap-sinks for this. Important is that you put them at the end of the chains because there will be clipping(?) distortion. To remove this I lower the volume of the sinks before each remap-sinks to 90%. Luckily PulseAudio remembers these volumes.[[BR]]
+Currently there are descriptors for the sinks available in the git version of PA which I don't have. Using these you can better see what each virtual sink does in Volume Control if you want.
+
+I added daemon.conf to ~/.pulse/ so get better software volume with higher bit-rate. My card actually supports only 24bit but PA always reports 32bit so I left it like this. Changing default sampling rate doesn't work well because of the kernel without preempt I guess. The same goes for the resampler, while SRC seems to works better than the default, the best quality-setting won't work for me.
+
+{{{
+resample-method = src-sinc-medium-quality
+default-sample-format = s32le
+; default-sample-rate = 192000
+}}}
+
+Here are the changed lines from my default.pa. I disabled automatic hardware detection and loaded a four-channel-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card would naturally want to do with them - so there cannot be 5.1 sound I guess.
+
+{{{
+load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels=4 channel_map=front-left,front-right,aux0,aux1
+
+### Automatically load driver modules depending on the hardware available
+#.ifexists module-hal-detect.so
+#load-module module-hal-detect
+#.else
+### Alternatively use the static hardware detection module (for systems that
+### lack HAL support)
+#load-module module-detect
+#.endif
+}}}
+
+
+
+----
+
+I guess some of the LADSPA plugins don't like empty buffers since I need to play some music before starting the script. Also having Volume Control opened seems to help too?
+
+Enjoy! :)
