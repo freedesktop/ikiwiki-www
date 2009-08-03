@@ -5,7 +5,7 @@ With LADSPA plugins applied to virtual sinks you can have a configurable active 
 
 '''Here is a short summary:'''[[BR]]
 -- I upmix stereo sound.[[BR]]
--- This takes about 12% CPU time - I have an AMDX2 3800+ - for a mono four-way-setup and it works better on a seperate machine however it is quite stable for me on a KDE4 desktop with desktop effects (HD videos work). I can't use the highest sample rates or best resamplers though.[[BR]]
+-- This takes about 12% CPU time - I have an AMDX2 3800+ - for a mono four-way-setup and it works better on a seperate machine however it is quite stable for me on a KDE4 desktop with desktop effects (HD videos work). I can use the best resamplers with a fully preempted Debian kernel.[[BR]]
 -- This is a rather static setup so you do have to reload the virtual sinks if you change the LADSPA parameters.[[BR]]
 -- These are IIR filters, not FIR.
 
@@ -67,12 +67,12 @@ sleep 1
 pactl load-module module-combine sink_name=crossover slaves=sub,low,mid,high
 }}}
 
-I added daemon.conf to ~/.pulse/ too. The LADSPA plugins seem to convert all to 32bit so I set the default format to 32bit in order to reduce conversions. My card actually supports only 24bit but PA always reports 32bit so I left it like this. Changing default sampling rate or a better resampler are too much for my system.
+I added daemon.conf to ~/.pulse/ too. The LADSPA plugins seem to convert all to 32bit so I set the default format to 32bit in order to reduce conversions. My card actually supports only 24bit but PA always reports 32bit so I left it like this. Changing to a better resampler is too much for my system unless I use a kernel with forced preemption.
 
 {{{
 resample-method = src-sinc-medium-quality
 default-sample-format = s32le
-; default-sample-rate = 192000
+default-sample-rate = 44100
 }}}
 
 Here are the changed lines from my default.pa. I disabled automatic hardware detection and loaded a four-channel-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card would naturally want to do with them - so there cannot be 5.1 sound I guess.
