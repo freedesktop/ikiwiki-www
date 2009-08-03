@@ -1,16 +1,19 @@
-PulseAudio enables you to use LADSPA plugins on its virtual sinks and so you can create a digital crossover for an active speaker.
 
-Here is a short summary:[[BR]]
+== A digital crossover for an active speaker: ==
+
+With LADSPA plugins applied to virtual sinks you can have a configurable active setup. You can seperate the sound for each of the driver into sub-, low-, mid- and high-sections and apply equalisation and delay too.
+
+'''Here is a short summary:'''[[BR]]
 -- I upmix stereo sound.[[BR]]
--- This takes about 12% CPU time for me - I have an AMDX2 3800+ and a Debian 2.6.30 kernel with no preemt at all enabled - for a mono four-way-setup.[[BR]]
+-- This takes about 12% CPU time - I have an AMDX2 3800+ - for a mono four-way-setup and it works better on a seperate machine it it is quite stable on a KDE4 desktop with desktop effects.[[BR]]
 -- This is a rather static setup so you do have to reload the virtual sinks if you change the LADSPA parameters.[[BR]]
 -- These are IIR filters, not FIR.
 
-What I use:[[BR]]
--- I have Debian Lenny/Sid, PulseAudio 0.9.15, LADPSA plugins from Steve Harris ([http://plugin.org.uk/]) and CMT ([http://www.ladspa.org/cmt/]). I'll try a preempt-kernel too.[[BR]]
+'''What I use:'''[[BR]]
+-- I have Debian Lenny/Sid, PulseAudio 0.9.15, LADPSA plugins from Steve Harris ([http://plugin.org.uk/]) and CMT ([http://www.ladspa.org/cmt/]).[[BR]]
 -- The soundcard is a multichannel onboard soundchip (Realtek RC888). You need a channel for each speaker-driver so for four-way stereo speakers you need a 7.1 card.
 
-What to do:[[BR]]
+'''What to do:'''[[BR]]
 -- I copy the hardware output (device-sink) to virtual sinks.[[BR]]
 -- Then I add filters like lowpass, EQ, delay, etc.[[BR]]
 -- I combine all sinks into one for output and set it as default.[[BR]]
@@ -18,7 +21,8 @@ What to do:[[BR]]
 
 ----
 
-I created a script which does all this:
+I created a script which does all this since default.pa is probably too fast(?). Note that I have a mono setup so I use remap-sinks for this. Important is that you put them at the end of the chains because there will be clipping(?) distortion. To remove this I lower the volume of the sinks before each remap-sinks to 90%. Luckily PulseAudio remembers these volumes. Performance can be varied by using different resampling methods for the combined sink, but the default is a fast one and since there is no resampling needed I think I left it that way.[[BR]]
+Currently there will be descriptors for the sinks available in version 0.9.16 of PA which I don't have. Using these you can better see what each virtual sink does in Volume Control if you want:
 
 {{{
 #sub
@@ -63,10 +67,7 @@ sleep 1
 pactl load-module module-combine sink_name=crossover slaves=sub,low,mid,high
 }}}
 
-Note that I have a mono setup so I use remap-sinks for this. Important is that you put them at the end of the chains because there will be clipping(?) distortion. To remove this I lower the volume of the sinks before each remap-sinks to 90%. Luckily PulseAudio remembers these volumes.[[BR]]
-Currently there are descriptors for the sinks available in the git version of PA which I don't have. Using these you can better see what each virtual sink does in Volume Control if you want.
-
-I added daemon.conf to ~/.pulse/ so get better software volume with higher bit-rate. My card actually supports only 24bit but PA always reports 32bit so I left it like this. Changing default sampling rate doesn't work well because of the kernel without preempt I guess. The same goes for the resampler, while SRC seems to works better than the default, the best quality-setting won't work for me.
+I added daemon.conf to ~/.pulse/ too. The LADSPA plugins seem to convert all to 32bit so I set the default format to 32bit in order to reduce conversions. My card actually supports only 24bit but PA always reports 32bit so I left it like this. Changing default sampling rate or a better resampler are too much for my system.
 
 {{{
 resample-method = src-sinc-medium-quality
@@ -89,10 +90,8 @@ load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels
 #.endif
 }}}
 
-
-
 ----
 
-I guess some of the LADSPA plugins don't like empty buffers since I need to play some music before starting the script. Also having Volume Control opened seems to help too?
+I guess some of the LADSPA plugins don't like empty buffers since I need to play some music before starting the script. Also Volume Control needs to be running because of a bug(?).
 
 Enjoy! :)
