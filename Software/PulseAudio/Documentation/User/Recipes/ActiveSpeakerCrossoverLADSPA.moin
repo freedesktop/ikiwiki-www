@@ -9,14 +9,14 @@ With LADSPA plugins applied to virtual sinks you can have a configurable active 
 -- These are IIR filters, not FIR.
 
 ==== ''software'' ====
--- I have Debian Lenny/Sid with KDE4.3, PulseAudio 0.9.15, LADPSA plugins from Steve Harris ([http://plugin.org.uk/]) and CMT ([http://www.ladspa.org/cmt/]).[[BR]]
+-- I have Debian Lenny/Sid with KDE4.3, PulseAudio 0.9.16, LADPSA plugins from Steve Harris ([http://plugin.org.uk/]) and CMT ([http://www.ladspa.org/cmt/]).[[BR]]
 -- The soundcard is a multichannel onboard soundchip (Realtek RC888). You need a channel for each speaker-driver so for four-way stereo speakers you need a 7.1 card.
 
 ==== ''What to do:'' ====
 -- I copy the hardware output (device-sink) to virtual sinks.[[BR]]
 -- Then I add filters like lowpass, EQ, delay, etc.[[BR]]
 -- I combine all sinks into one for output and set it as default.[[BR]]
--- I set the amplifiers so there is not much difference in output and the soundcard's DACs don't have to scale a lot. Then 'alsamixer -c0' can be used to adjust the relative loudness of the channels and the device-sink is there for changing the overall system-volume in the end.
+-- I set the amplifiers so there is not much difference in output. Then 'alsamixer -c0' can be used to finetune the relative loudness of the channels and the device-sink is there for changing the overall system-volume in the end.
 
 ----
 
@@ -70,24 +70,6 @@ sleep 1
 pactl load-module module-combine sink_name=crossover slaves=subout,lowout,midout,highout adjust_time=0 resample_method=trivial
 }}}
 
-=== configuration files: ===
-
-I added daemon.conf to ~/.pulse/ in order to get realtime scheduling (which can lock up your PC). Try without this if your system is fast enough.
-
-{{{
-realtime-scheduling = yes
-}}}
-
-Also for realtime I had to add to /etc/security/limits.conf (you need to be in the pulse-rt group as well):
-
-{{{
-@audio          -       rtprio          99
-@audio          -       nice            -20
-@audio          -       memlock         4000000
-@pulse-rt       -       rtprio          99
-@pulse-rt       -       nice            -20
-}}}
-
 Here are the changed lines from my default.pa. I disabled automatic hardware detection and loaded a four-channel-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card "naturally" would want to do with them.
 
 {{{
@@ -104,8 +86,5 @@ load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels
 }}}
 
 ----
-
-== notes ==
-Volume Control needs to be running while loading the last sink because of a bug(?) in the combine-sink.
 
 Enjoy! :)
