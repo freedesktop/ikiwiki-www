@@ -4,7 +4,7 @@ With LADSPA plugins applied to virtual sinks you can have a configurable active 
 
 ==== ''summary'' ====
 -- I expect stereo sound.[[BR]]
--- I have an AMDX2 3800+ and CPU it is stable for me on a KDE4 desktop with desktop effects.[[BR]]
+-- I have an AMDX2 3800+ and CPU it is stable for me on a KDE4 desktop with desktop effects and the ''default resampler speex=float-3''.[[BR]]
 -- This is a rather static setup so you do have to reload the virtual sinks if you change the LADSPA parameters.[[BR]]
 -- These are IIR filters, not FIR.
 
@@ -67,7 +67,7 @@ pactl load-module module-ladspa-sink sink_name=highout master=highdelay plugin=h
 sleep 1
 
 #crossover
-pactl load-module module-combine sink_name=crossover slaves=subout,lowout,midout,highout adjust_time=0 resample_method=trivial
+pactl load-module module-combine sink_name=crossover slaves=subout,lowout,midout,highout adjust_time=0
 }}}
 
 Here are the changed lines from my default.pa. I disabled automatic hardware detection and loaded a four-channel-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card "naturally" would want to do with them.
@@ -84,6 +84,8 @@ load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels
 #load-module module-detect
 #.endif
 }}}
+
+Each time you restart PA, you will have to set the combined crossover sink as default too.
 
 ----
 
