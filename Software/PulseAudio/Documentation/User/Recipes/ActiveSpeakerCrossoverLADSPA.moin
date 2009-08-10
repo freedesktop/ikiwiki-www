@@ -85,6 +85,16 @@ load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels
 #.endif
 }}}
 
+Also for realtime I had to add to /etc/security/limits.conf (you need to be in the pulse-rt group as well). Debian has no realtime enabled kernel at all so you want to try one with voluntary preemption.
+
+{{{
+@audio          -       rtprio          99
+@audio          -       nice            -20
+@audio          -       memlock         4000000
+@pulse-rt       -       rtprio          99
+@pulse-rt       -       nice            -20
+}}}
+
 Each time you restart PA, you will have to set the combined crossover sink as default too.
 
 ----
