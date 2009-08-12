@@ -1,0 +1,135 @@
+The equalizer is now fairly stable for general usage, issues not withstanding
+though.  Some users report problems when changing around volume.  Another issue is that popping may occur if the cpu speed is too low. These issues are being looked into.  Note that the actual plugin doesn't use much cpu, it's just that a faster cpu (or faster cpu setting if you're using cpufreq) will make the issue go away.  Setting tsched=0 also helps.
+
+
+== Getting the equalizer ==
+
+Binaries for Ubuntu coming soon!
+
+
+{{{
+git clone git://gitorious.org/pulseaudio-equalizer/pulseaudio-equalizer.git
+}}}
+
+
+Getting the GUI (pqaeq):
+
+{{{
+git clone git://gitorious.org/qpaeq/qpaeq.git
+}}}
+
+
+
+== Compiling ==
+
+You will then need to install all normal pulseaudio devel dependencies and fftw3.
+I prefer a local installation but this will still overwrite your old configurations in /etc/pulse, be sure to back up!
+You can probably use the following commands:
+
+{{{
+cd pulseaudio-equalizer.git
+./autogen.sh
+CFLAGS="-O0 -ggdb -mtune=native -fno-strict-aliasing" ./configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access --libdir=/usr/local/lib64 --sysconfdir=/etc
+make
+sudo make install
+sudo ldconfig
+}}}
+
+
+== Disabling tsched ==
+Unfortunately this method has changed in git, specifically pulseaudio now likes udev.  So you can try the following configuration for your devices:
+
+{{{
+### Automatically load driver modules depending on the hardware available
+.ifexists module-udev-detect.so
+load-module module-udev-detect tsched=0
+.else
+### Alternatively use the static hardware detection module (for systems that
+### lack udev support)
+load-module module-detect tsched=0
+.endif
+}}}
+
+
+
+(32bit users will want to use lib instead of lib64 in the above)
+
+
+
+== Configuring ==
+
+You will need to find out the name of your current sink. You can use a gui (paman) for this or perform this command:
+
+{{{
+pacmd list-sinks|grep 'name:'
+}}}
+
+The names should be in between the < >.  You will probably only have one.
+
+Put something like the following in your default.pa (a few lines are added for context):
+
+{{{
+
+.ifexists module-esound-protocol-unix.so
+load-module module-esound-protocol-unix
+.endif
+.ifexists module-dbus-protocol.so
+load-module module-dbus-protocol
+.endif
+load-module module-native-protocol-unix
+load-module module-equalizer-sink sink_name=equalized master=alsa_output.pci-0000_00_1b.0.analog-surround-51
+set-default-sink equalized
+}}}
+
+
+Make sure the dbus module is also loaded as above and that you replace the master=alsa part with master=YOURSINKNAME.
+
+
+
+== GUI and Equalizing: ==
+
+You will need python, pyqt4, and python-dbus to launch the gui (qpaeq), launch it via:
+python qpaeq.py
+If the frequency bands in there aren't good enough for you, add in your own (in order) inside qpaeq.py, its under the variable named DEFAULT_FREQUENCIES.  Restart the gui and wala.
+
+
+
+== Crashes/Bad performance: ==
+
+I'm trying to determine if the cause of the popping/crackling/dropouts this popping is a driver bug, a PA bug, or my
+own bug.  Any help in finding the culprit is much welcomed.  It happens at least on snd_hda_intel with snd_hda_codec_reltek/analog.
+
+You can test the to extremes to see how the filter will work for you by seeing how things perform in min/max performance modes:
+
+{{{
+sudo -s
+cd /sys/devices/system/cpu/cpu0/cpufreq
+echo userspace > scaling_governor
+cat scaling_min_freq > scaling_setspeed
+}}}
+
+(test equalizer)
+or
+
+{{{
+cat scaling_max_freq > scaling_setspeed
+}}}
+
+(test equalizer)
+
+Timing information is printed for data collection/processing times if launched with -vvv.
+
+Forward compatibility:
+There shouldn't be much to worry about except for the possibility of
+incompatible presets in the future.
+
+
+
+Please submit backtraces if you can get things to crash! See
+[http://pulseaudio.org/wiki/Community#BugsPatchesTranslations here] for info on
+how to collect backtraces.
+
+Packages are forthcoming
+http://download.opensuse.org/repositories/home://jenewton/ carries some packages for opensuse factory but old libraries present a problem for opensuse 11.1.
+
+
