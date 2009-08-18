@@ -92,6 +92,8 @@ At the moment there are the following services:
 
  * CONTENT
 
+ * FAN
+
  * KNOWLEDGEBASE
 
  * EVENT
@@ -876,6 +878,104 @@ Example:
  <message></message>
 </ocs>
 }}}
+
+
+=== FAN ===
+
+==== get ====
+Gets a list of fans of a specific content entries. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/fan/data/"contentid"
+ * HTTP Method: GET
+ * URL Arguments: contentid - Id of the content entry where you want to get the fans is from.
+ * URL Arguments: page - The list page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+ * Result: fan xml
+ * Example: http://frank:password@api.opendesktop.org/v1/fan/data/123&page=1&pagesize=10 Gets the second page of the list of fans of the content with the id 123. The pagesize is 10
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+  <totalitems>2</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
+ <data>
+  <fan details="fans">
+   <personid>Frank</personid>
+   <timestamp>2009-08-18T10:40:09+02:00</timestamp>
+  </fan>
+  <fan details="fans">
+   <personid>Test</personid>
+   <timestamp>2009-07-18T11:41:15+02:00</timestamp>
+  </fan>
+ </data>
+</ocs>
+}}}
+
+
+==== isfan ====
+Check if the current user is fan of a specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/fan/status/"contentid"
+ * HTTP Method: GET
+ * URL Arguments: contentid - Id of the content entry where you want to get the fan status from.
+ * Result: fan xml Possible stati are "fan" or "notfan"
+ * Example: http://frank:password@api.opendesktop.org/v1/fan/status/123 Checks if the user frank is a fan of the content 123
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
+ <data>
+  <status>fan</status>
+ </data>
+</ocs>
+}}}
+
+
+==== add ====
+Become a fan of a specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/fan/add/"contentid"
+ * HTTP Method: POST
+ * URL Arguments: contentid - Id of the content entry
+ * Result: fan xml
+ * Example: http://frank:password@api.opendesktop.org/v1/fan/add/123 The user frank becomes a fan of the content 123
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
+</ocs>
+}}}
+
+
+==== remove ====
+Remove the user from the fans list of a specific content. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/fan/remove/"contentid"
+ * HTTP Method: POST
+ * URL Arguments: contentid - Id of the content entry
+ * Result: fan xml
+ * Example: http://frank:password@api.opendesktop.org/v1/fan/remove/123 The user frank is no longer a fan of the content 123
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <message></message>
+ </meta>
+</ocs>
+}}}
+
+
+
 
 
 === KNOWLEDGEBASE ===
