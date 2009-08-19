@@ -2,21 +2,23 @@ A little overview on the different volumes PA handles internally:
 
 == pa_sink_input ==
 
-'''virtual_volume''' is the volume that is visible to the user. In classic volume mode this is relative to the current sink volume. In flat volume mode it is absolute, i.e. in the same units/range as the sink's volume.
+'''volume''' is the volume that is visible to the user. In classic volume mode this is relative to the current sink volume. In flat volume mode it is absolute, i.e. in the same units/range as the sink's volume.
 
 '''volume_factor''' is an internal volume factor that can be used by effect modules to apply additional software volume adjustments to a stream. Primary user for now is module-position-event-sounds.
 
-'''relative_volume''' is the software volume that shall be applied on all PCM data handed to the sink without the '''volume_factor''' applied. For flat volumes this is usually near 0dB for the loudest stream.
+'''reference_ratio''' is the ratio of the sink input's volume to the sink's reference volume.
 
-'''soft_volume''' is an internal volume calculated as the multiplication of '''relative_volume''' by '''volume_factor'''. It is as such the actual factor applied on the PCM data.
+'''real_ratio''' is the ratio of the sink input's volume to sink's real volume.
+
+'''soft_volume''' is an internal volume calculated as the multiplication of '''real_ratio''' by '''volume_factor'''. It is as such the actual factor applied on the PCM data of this stream.
 
 == pa_sink ==
 
-'''virtual_volume''' is the volume that is visible to the user. 
+'''reference_volume''' is the volume that is visible to the user. Saved/restored stream volumes are relative to this.
+
+'''real_volume''' is the volume the hardware is actually configured to. This is always lower or equal than the reference volume. In flat volume mode this equals the highest volume of all streams. In non-flat volume mode this equals the reference volume.
 
 '''base_volume''' is an informational value that stores where a 'good' virtual volume level is for the device. Depending on the backend drivers this might be set to something < 0dB but most often is 0dB. This value stays constant and may not be modified.
-
-'''reference_volume''' is the volume that if pa_sink_input_set_volume() is called with absolute=FALSE or pa_sink_input_new() with data->absolute_volume=FALSE the volumes should be considered relative to. Often this is identical to '''virtual_volume'''. Generally if the virtual volume is changed due to sink input volume changes the reference volume is not updated. It is however updated if the virtual volume is directly modified.
 
 '''soft_volume''' is an internal volume that is applied to the PCM data before it is handed out to the device. For devices lacking hw volume control this is used to apply volumes. Also, on devices that do dB based volumes this is used to extend the volume range.
 
@@ -25,18 +27,31 @@ A little overview on the different volumes PA handles internally:
 Object ''i'' shall be a pa_sink_input, object ''s'' a pa_sink.
 
 {{{
-i->soft_volume := i->relative_volume * i->volume_factor
+i->soft_volume := i->real_ratio * i->volume_factor
+}}}
+
+This is always true:
+
+{{{
+i->real_ratio <= i->reference_ratio
+s->real_volume <= s->reference_volume
 }}}
 
 In flat volume mode:
 
 {{{
-i->relative_volume := i->virtual_volume / s->virtual_volume
+i->real_ratio := i->real_volume / s->volume
+i->reference_ratio := i->reference_volume / s->volume
+
+s->real_volume = MAX(i->volume for all i of s)
 }}}
 
 In classic volume mode:
 {{{
-i->relative_volume := i->virtual_volume
+i->real_ratio := i->volume
+i->reference_ratio := i->volume
+
+s->real_volume := s->reference_volume
 }}}
 
 
