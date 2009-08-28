@@ -105,7 +105,7 @@ load-module module-cork-music-on-phone
 load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels=4 channel_map=front-left,front-right,aux0,aux1
 
 #mono remap
-load-module module-ladspa-sink sink_name=inamp master=front_stereo plugin=amp_1181 label=amp control=-9
+load-module module-ladspa-sink sink_name=inamp master=front_stereo plugin=amp_1181 label=amp control=-6
 
 #sub
 load-module module-remap-sink sink_name=sub master=inamp channels=1 master_channel_map=front-left channel_map=mono
@@ -147,14 +147,11 @@ load-module module-combine sink_name=crossover slaves=subout,lowout,midout,higho
 set-default-sink crossover
 }}}
 
-Also for realtime I had to add to /etc/security/limits.conf (you need to be in the pulse-rt group as well). Debian has no realtime enabled kernel at all so you want to try one with voluntary preemption.
+In order to start PA in gigh-priority mode, you have to add two lines to /etc/security/limits.conf (you need to be in the pulse-rt group as well).
 
 {{{
-@audio          -       rtprio          99
-@audio          -       nice            -20
-@audio          -       memlock         4000000
-@pulse-rt       -       rtprio          99
-@pulse-rt       -       nice            -20
+@pulse-rt       -       rtprio          9
+@pulse-rt       -       nice            -11
 }}}
 
 ----
