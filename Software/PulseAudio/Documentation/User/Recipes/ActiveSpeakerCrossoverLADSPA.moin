@@ -4,7 +4,7 @@ With LADSPA plugins applied to virtual sinks you can have a configurable active 
 
 ==== ''summary'' ====
 -- I expect stereo sound.[[BR]]
--- I have an AMDX2 3800+ and CPU it is stable for me on a KDE4 desktop with desktop effects and the ''default resampler speex=float-3''.[[BR]]
+-- I have an AMDX2 3800+ CPU and in high-priority mode PA is stable for me on a KDE4 desktop and with good resampling quality.[[BR]]
 -- This is a rather static setup so you do have to reload the virtual sinks if you change the LADSPA parameters.[[BR]]
 -- These are IIR filters, not FIR.
 -- I would use a passive crossover (bipolar capacitors) for the tweeter so when PA would shut down for some reason and your tweeter got the full audio spectrum, it would not get fried.
@@ -23,7 +23,7 @@ With LADSPA plugins applied to virtual sinks you can have a configurable active 
 
 === default.pa ===
 
-Here is my ~/.pulse/default.pa (I removed all commented lines from the standard file). I disabled automatic hardware detection and I loaded a four-channel-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card "naturally" would want to do with them. Then I create virtual sinks for the crossover. Note that I have a mono setup so I use remap-sinks for this and since these seem to produce clipping distortion I use a LADPSPA amplifier too.
+Here is my ~/.pulse/default.pa (I removed all commented lines from the standard file). I disabled automatic hardware detection and I loaded a four-channel-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card "naturally" would want to do with them. Then I create virtual sinks for the crossover. Note that I have a mono setup (For mono like I have you have to set the crossover sink to about 74% volume so the mono remapping doesn't generate clipping.). The final combine sink uses a 'trivial' resampler since the sinks it combines are all from the same card:
 
 {{{
 #!/usr/bin/pulseaudio -nF
@@ -104,11 +104,8 @@ load-module module-cork-music-on-phone
 
 load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels=4 channel_map=front-left,front-right,aux0,aux1
 
-#mono remap
-load-module module-ladspa-sink sink_name=inamp master=front_stereo plugin=amp_1181 label=amp control=-6
-
-#sub
-load-module module-remap-sink sink_name=sub master=inamp channels=1 master_channel_map=front-left channel_map=mono
+# sub
+load-module module-remap-sink sink_name=sub master=front_stereo channels=1 master_channel_map=front-left channel_map=mono
 
 load-module module-ladspa-sink sink_name=subeq master=sub plugin=single_para_1203 label=singlePara control=-4,45,0.5
 
@@ -116,17 +113,17 @@ load-module module-ladspa-sink sink_name=subsonic master=subeq plugin=highpass_i
 
 load-module module-ladspa-sink sink_name=subout master=subsonic plugin=lowpass_iir_1891 label=lowpass_iir control=55,4
 
-#low
-load-module module-remap-sink sink_name=low master=inamp channels=1 master_channel_map=front-right channel_map=mono
+# low
+load-module module-remap-sink sink_name=low master=front_stereo channels=1 master_channel_map=front-right channel_map=mono
 
-load-module module-ladspa-sink sink_name=loweq master=low plugin=single_para_1203 label=singlePara control=-8,300,2
+load-module module-ladspa-sink sink_name=loweq master=low plugin=single_para_1203 label=singlePara control=-9,300,2
 
 load-module module-ladspa-sink sink_name=lowhp master=loweq plugin=highpass_iir_1890 label=highpass_iir control=60,2
 
 load-module module-ladspa-sink sink_name=lowout master=lowhp plugin=lowpass_iir_1891 label=lowpass_iir control=350,2
 
-#mid
-load-module module-remap-sink sink_name=mid master=inamp channels=1 master_channel_map=aux0 channel_map=mono
+# mid
+load-module module-remap-sink sink_name=mid master=front_stereo channels=1 master_channel_map=aux0 channel_map=mono
 
 load-module module-ladspa-sink sink_name=middelay master=mid plugin=cmt label=delay_0.01s control=0.0001,0.00006
 
@@ -134,20 +131,26 @@ load-module module-ladspa-sink sink_name=midhp master=middelay plugin=highpass_i
 
 load-module module-ladspa-sink sink_name=midout master=midhp plugin=lowpass_iir_1891 label=lowpass_iir control=2000,4
 
-#high
-load-module module-remap-sink sink_name=high master=inamp channels=1 master_channel_map=aux1 channel_map=mono
+# high
+load-module module-remap-sink sink_name=high master=front_stereo channels=1 master_channel_map=aux1 channel_map=mono
 
 load-module module-ladspa-sink sink_name=highdelay master=high plugin=cmt label=delay_0.01s control=0.0005,0.00015
 
 load-module module-ladspa-sink sink_name=highout master=highdelay plugin=highpass_iir_1890 label=highpass_iir control=2100,4
 
-#crossover
-load-module module-combine sink_name=crossover slaves=subout,lowout,midout,highout adjust_time=0
+# crossover
+load-module module-combine sink_name=crossover slaves=subout,lowout,midout,highout resample_method=trivial
 
 set-default-sink crossover
 }}}
 
-In order to start PA in high-priority mode, you have to add two lines to /etc/security/limits.conf (you need to be in the pulse-rt group as well).
+For better audio quality I changed the resampler in ~/.pulse/daemon.conf:
+
+{{{
+resample-method = speex-float-6
+}}}
+
+In order to start PA in high-priority mode, you have to add two lines to /etc/security/limits.conf (you need to be in the pulse-rt group as well):
 
 {{{
 @pulse-rt       -       rtprio          9
