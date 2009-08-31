@@ -1,0 +1,116 @@
+This page presents some useful informations to debug ooo-build. Some gdb functions can be pasted into you ''.gdbinit'' file. '''Remember that gdb only has global variables: this means that some of those snippets may need to be adapted.'''
+
+== General ==
+
+ * Here are some useful functions to debug  the STL objects: http://help.lockergnome.com/linux/GDB-capabilities-exploring-STL-classes--ftopict279673.html
+ * The upstream debugging page: http://wiki.services.openoffice.org/wiki/Debugging
+
+
+== Sw ==
+
+=== Dumping SfxItemSet objects: ===
+{{{
+define dump_pSfxItemSet
+   printf "count=%i\n", $arg0->_nCount
+   set $is_i=0
+   set $is_k=0
+   while($arg0->_pWhichRanges[$is_i]!=0)
+      printf "[%i; %i]\n", $arg0->_pWhichRanges[$is_i], $arg0->_pWhichRanges[$is_i+1]
+      set $is_j=$arg0->_pWhichRanges[$is_i]
+      while($is_j<=$arg0->_pWhichRanges[$is_i+1])
+         if ($arg0->_aItems[$is_k]!=0)
+            printf "%i %i %p\n", $is_k, $is_j, $arg0->_aItems[$is_k]
+         end
+         set $is_j++ 
+         set $is_k++
+      end
+      set $is_i=$is_i+2
+   end
+end
+}}}
+
+
+=== Dumping the nodes structure ===
+
+This functions doesn't seem to be friendly with ''set print object'' or ''set print pretty''.
+{{{
+define pIndent
+  set $level = $arg0
+  set $iLevel = 0
+  while ( $iLevel < $level )
+    printf "\t"
+    set $iLevel = $iLevel + 1
+  end
+end
+
+define pNodeType
+    if ($sw_node->nNodeType==1)
+        printf "ND_ENDNODE "
+    end 
+    if ($sw_node->nNodeType==2)
+        printf "ND_STARTNODE "
+    end
+    if ($sw_node->nNodeType==6)
+        printf "ND_TABLENODE "
+    end
+    if ($sw_node->nNodeType==8)
+        printf "ND_TEXTNODE "
+    end
+    if ($sw_node->nNodeType==0x10)
+        printf "ND_GRFNODE "
+    end
+    if ($sw_node->nNodeType==0x20)
+        printf "ND_OLENODE "
+    end
+    if ($sw_node->nNodeType==0x38)
+        printf "ND_CONTENTNODE "
+    end
+    if ($sw_node->nNodeType==0x30)
+        printf "ND_NOTXTNODE "
+    end
+    if ($sw_node->nNodeType==0x42)
+        printf "ND_SECTIONNODE "
+    end
+end
+
+
+define dump_pSwUndo
+  set $su_i=0
+  while ($su_i<$arg0->nA)
+    set $su_n=((SwUndo**)($arg0->pData))[$su_i]
+    printf "%i %p %i\n", $su_i, $su_n, $su_n->nId
+    set $su_i++
+  end
+end
+
+define pNodesArr
+  set $sw_size = $arg0->nSize
+  set $iNodes = 0
+  set $indent = 0
+  while ( $iNodes++<$sw_size && $iNodes<255 )
+    set $sw_node=$arg0[$iNodes-1]
+
+    if ( $sw_node->nNodeType == 1 )
+        set $indent = $indent - 1
+    end
+
+    pIndent $indent
+
+    printf "%d ", $iNodes - 1
+    pNodeType
+
+    if ( $sw_node->nNodeType == 2 || $sw_node->nNodeType == 6 )
+        printf ", EoS: %d", $sw_node->GetStartNode( )->pEndOfSection->nOffset
+        set $indent = $indent + 1
+    end
+    
+    if ( $sw_node->IsTxtNode( ) )
+        printf ", Text: "
+        set $sw_txt = $sw_node->GetTxtNode( )->aText
+        ptu $sw_txt
+    else
+        printf "\n"
+    end
+  end
+end
+}}}
