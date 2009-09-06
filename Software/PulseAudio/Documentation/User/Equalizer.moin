@@ -54,7 +54,7 @@ make
 sudo make install
 sudo ldconfig
 }}}
-
+(32bit users will want to use lib instead of lib64 in the above)
 
 == Disabling tsched ==
 Unfortunately this method has changed in git, specifically pulseaudio now likes udev.  So you can try the following configuration for your devices:
@@ -72,12 +72,13 @@ load-module module-detect tsched=0
 
 
 
-(32bit users will want to use lib instead of lib64 in the above)
+
 
 
 
 == Configuring ==
 
+Update:  The module now automatically makes itself the default sink, so for most users simply removing the module-equalizer-sink master argument (and sink_name) in the below can make configuration a bit easier.
 You will need to find out the name of your current sink. You can use a gui (paman) for this or perform this command:
 
 {{{
@@ -97,12 +98,12 @@ load-module module-esound-protocol-unix
 load-module module-dbus-protocol
 .endif
 load-module module-native-protocol-unix
-load-module module-equalizer-sink sink_name=equalized master=alsa_output.pci-0000_00_1b.0.analog-surround-51
+load-module module-equalizer-sink sink_name=equalized master=alsa_output.pci-0000_00_1b.0.analog-surround-51 set_default=true
 set-default-sink equalized
 }}}
 
 
-Make sure the dbus module is also loaded as above and that you replace the master=alsa part with master=YOURSINKNAME.
+Make sure the dbus module is also loaded as above and that you replace the master=alsa part with master=YOURSINKNAME or it will use the default sink.  You can set set_default=false if you do not want the new sink to be the default.
 
 
 
@@ -116,15 +117,13 @@ Launch the GUI via:
 python qpaeq.py
 }}}
 
-If the frequency bands in there aren't good enough for you, add in your own (in order) inside qpaeq.py, its under the variable named DEFAULT_FREQUENCIES.  Restart the gui and voilà.
+If the frequency bands in there aren't good enough for you, add in your own (in order) inside qpaeq.py, its under the variable named DEFAULT_FREQUENCIES.  Restart the gui and voilà.  The equalizer also automatically subdivides frequency ranges depending on the width of the window and supports presets.
 
 
 
 == Crashes/Bad performance: ==
 
-I'm trying to determine if the cause of the popping/crackling/dropouts this popping is a driver bug, a PA bug, or my
-own bug.  Any help in finding the culprit is much welcomed.  It happens at least on snd_hda_intel with snd_hda_codec_reltek/analog.
-
+They happen and are being worked on - give a shout out to Lennart so he knows you care and so he'll help me fix the problems ;-).
 You can test the to extremes to see how the filter will work for you by seeing how things perform in min/max performance modes:
 
 {{{
@@ -145,10 +144,7 @@ cat scaling_max_freq > scaling_setspeed
 
 Timing information is printed for data collection/processing times if launched with -vvv.
 
-Forward compatibility:
-There shouldn't be much to worry about except for the possibility of
-incompatible presets in the future.
-
+On particular git versions and configurations it is also possible to get constant rewindings or superfast playback on pulse/alsa clients. Go figure.  Try toggling tsched and see if that helps.  Please complain about this loudly.
 
 
 Please submit backtraces if you can get things to crash! See
