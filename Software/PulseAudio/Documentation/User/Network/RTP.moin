@@ -75,3 +75,24 @@ vlc rtp://@0.0.0.0:46444/
 }}}
 
 In this simple configuration vlc does not support more then one stream and is not very stable when it comes to changing streams.
+
+ == Stream it with vlc as mp3 for low bandwidth ==
+
+As uncompressed audio needs a lot of bandwidth you can compress the stream first and then send it as a mp3 stream
+
+1. You should change the configuration file default.pa to send the RTP traffic to 127.0.0.1 and a specific port (in my case 46998)
+{{{
+load-module module-null-sink sink_name=rtp format=s16be channels=2 rate=44100 description="RTP Multicast Sink"
+load-module module-rtp-send source=rtp.monitor destination=127.0.0.1 port=46998 loop=1
+}}}
+2. Log off and back on or reboot to enable the changes
+3. Now you can transcode the incomming RTP/s16be stream with vlc and send the RTP/mp3 stream to a multicast address
+{{{
+cvlc --ipv4 rtp://@127.0.0.1:46998 ":sout=#transcode{acodec=mp3,ab=256,channels=2}:duplicate{dst=rtp{dst=225.0.0.1,mux=ts,port=12345}}"
+}}}
+4. Playback the stream on any computer
+{{{
+vlc --ipv4 rtp://@225.0.0.1:12345
+}}}
+
+This way you can stream your audio to a lot of Pcs (in different rooms) and playback songs synchronic (You just need to fist start the clients for the vlc playback and then the transcoder)
