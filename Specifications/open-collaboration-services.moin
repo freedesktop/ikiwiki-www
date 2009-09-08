@@ -102,7 +102,7 @@ At the moment there are the following services:
 
 
 === Error Reporting ===
-every response xml contains a "status", "statuscode" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. Examples of errormessages are: "data is private" or "person not found". You get a machine readable status in the "statuscode" tag. Statuscode 100 means "request sucessfull", 999 means "unknown request". All other codes are specific to the called method and described below. 
+every response xml contains a "status", "statuscode" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. Examples of errormessages are: "data is private" or "person not found". You get a machine readable status in the "statuscode" tag. Statuscode 100 means "request sucessful", 999 means "unknown request". All other codes are specific to the called method and described below. 
 
 === Versioning ===
 we support versioning of the service specifications. so if we break the api in an incompatible way we can use a new version number and still keep the old API for legacy applications(client) please note that the api is currently in draft state. so it will change in the future
@@ -153,16 +153,14 @@ find a  specific list of persons. Only authenticated users are allowed to access
  * url arguments: distance - The maximum distance of the person to you longitude/latitude position. if you specify the latitude and longitude but no distance the resultset will be ordered by distance. The unit of the distance parameter is degrees. 
  * url arguments: page - The content page. You can control the size of a page with the pagesize parameter. The first page is 0, the second is 1, ...
  * url arguments: pagesize - The amount of entries your get per page. 
-
-
- * Result: personlist xml
-Example: GET http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&longitude=22&distance=0.5&page=2&pagesize=10 
-Gets the third page of the search result list from the search for person where "eter" is in the nickname, firstname or lastname and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
-
  * Statuscodes:
    * 100 - successfull
    * 101 - too many API requests in the last 15 minutes from your IP address. please try again later.
    * 102 - more than 1000 people found. it is not allowed to fetch such a big resultset. please specify more search conditions
+ * Result: personlist xml
+Example: GET http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&longitude=22&distance=0.5&page=2&pagesize=10 
+Gets the third page of the search result list from the search for person where "eter" is in the nickname, firstname or lastname and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
+
 
  
 Example:
@@ -171,6 +169,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -211,6 +210,10 @@ get the data from one specific person. Only authenticated users are allowed to a
  * HTTP method: GET
  * Arguments: personid - Id of a person. for example "frank"
  * Result: person xml
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - person not found
+   * 102 - data is private
  * Example: GET http://frank:password@api.opendesktop.org/v1/person/data/frank
 Example:
 {{{
@@ -218,6 +221,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -268,6 +272,8 @@ get the data from yourself. Only authenticated users are allowed to access this 
  * Syntax: /v1/person/self 
  * HTTP method: GET
  * Result: person xml
+ * Statuscodes:
+   * 100 - successfull
  * Example: GET http://frank:password@api.opendesktop.org/v1/person/self
 Example:
 {{{
@@ -275,6 +281,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -328,6 +335,9 @@ Update the latitude, longitude, city and country of myself. Only authenticated u
  * POST Arguments: longitude - The longitude of myself 
  * POST Arguments: city - Your city 
  * POST Arguments: country - The 2 letter ISO country code 
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - no parameters to update found
 Example: POST http://frank:password@api.opendesktop.org/v1/person/self   postdata: longitude="1.23" latitude="3.45"
 Updated my position to 1.23 and 3.45 
 Example:
@@ -353,6 +363,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -375,6 +386,10 @@ Gets the list of friends from a person. Only authenticated users are allowed to 
  * Arguments: personid - The person from which you want to get the friendslist. 
  * URL Arguments: page - The page of the friendslist. The size of a page is controlled by the pagesize argument. The first page is 0, the second is 1, ...
  * URL Arguments: pagesize - The amount of entries per page.
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - data is private
+   * 102 - user not found
 Example: GET http://frank:password@api.opendesktop.org/v1/friend/data/foobar?pagesize=10&page=1
 Gets the second page of friends of the person "foobar"
 Example:
@@ -383,6 +398,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>3</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -407,6 +423,11 @@ Invite a person to become a friend. Only authenticated users are allowed to acce
  * Method: POST
  * Arguments: personid - The person you want to invite as a friend. 
  * POST arguments: message - The message you want to send to the person together with your invitation.
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - message must not be empty
+   * 102 - you can´t invite yourself
+   * 103 - user not found
 Example: POST http://frank:password@api.opendesktop.org/v1/friend/outbox/foobar/   postdata: message="hi. how are you?"
 Invites the person "foobar" and send him a message "hi. how are you?"
 Example:
@@ -427,6 +448,9 @@ Only authenticated users are allowed to access this method. Authentication is do
  * Syntax: /v1/message
  * HTTP method: GET
  * Result: messagefolder xml
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - user not found
  * Example: http://frank:password@api.opendesktop.org/v1/message
 Example:
 {{{
@@ -434,6 +458,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>4</totalitems>
  </meta>
@@ -475,9 +500,11 @@ Gets the list of messages from a specific folder. Only authenticated users are a
  * URL Arguments: page - The content page. The amount of entries can be controlled by the pagesize argument. The first page is 0, the second is 1, ...
  * URL Arguments: pagesize - The amount of entries per page.
  * Result: messagelist xml
-  * Status: 0 - unread 
-  * Status: 1 - read
-  * Status: 2 - answered
+   * Status: 0 - unread 
+   * Status: 1 - read
+   * Status: 2 - answered
+ * Statuscodes:
+   * 100 - successfull
 Example: GET http://frank:password@api.opendesktop.org/v1/message/1?page=2&pagesize=10
 Gets the third page of messages from the folder with the id 1 of person "frank"
 Example:
@@ -486,6 +513,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -528,9 +556,12 @@ Get a message. Only authenticated users are allowed to access this method. Authe
  * Arguments: folderid - The ID of the folder. Use the folders method to get the list of folders.
  * Arguments: messageid - The ID of the message you want to get. 
  * Result: message xml
-  * Status: 0 - unread 
-  * Status: 1 - read
-  * Status: 2 - answered
+   * Status: 0 - unread 
+   * Status: 1 - read
+   * Status: 2 - answered
+ * Statuscodes:
+   * 100 - successful
+   * 101 - message not found
 Example: GET http://frank:password@api.opendesktop.org/v1/message/1/42
 Get the message with the id 42 in the folder 1
 Example:
@@ -539,6 +570,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -569,6 +601,11 @@ Send a message. Only authenticated users are allowed to access this method. Auth
  * POST Arguments: subject - The subject of the message.
  * POST Arguments: message - The text you want to send.
  * Result: status xml
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - user not found
+   * 102 - subject or message not found
+   * 103 - you can not send a message to yourself.
  * Example: POST http://frank:password@api.opendesktop.org/v1/message/2 postdata message="coding is fun" subject="hello" to=frank
  * Send a message to "frank" with the subject "hello" and a messagebody "coding is fun"
 Example:
@@ -611,6 +648,8 @@ Gets the list of activities. Only authenticated users are allowed to access this
    * 17 - created the job offer
    * 18 - edited the job offer
    * 19 - has registered (new user)
+ * Statuscodes:
+   * 100 - successfull
  * Example: GET http://frank:password@api.opendesktop.org/v1/activity?page=3&pagesize=10
  * Gets the third page of the activities of person "frank"
 Example:
@@ -619,6 +658,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -659,6 +699,10 @@ Updates your activities. This is microblogging like Twitter. Only authenticated 
  * Result: status xml
  * Example: POST http://frank:password@api.opendesktop.org/v1/activity postdata message="coding is fun"
  * Posts the text "coding is fun" to franks hompage and the activities of franks friends.
+ * Statuscodes:
+   * 100 - successful
+   * 101 - empty message
+   * 102 - user not found
 Example:
 {{{
 <?xml version="1.0"?>
@@ -677,6 +721,8 @@ Get a list of all available content categories. Only authenticated users are all
  * Syntax: /v1/content/categories
  * HTTP Method: GET
  * Result: categories xml
+ * Statuscodes:
+   * 100 - successful
  * Example: GET http://frank:password@api.opendesktop.org/v1/content/categories
 Example:
 {{{
@@ -684,6 +730,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>4</totalitems>
  </meta>
@@ -719,6 +766,8 @@ Gets a list of a specific set of contents. Only authenticated users are allowed 
  * URL Arguments: page - The content page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
  * URL Arguments: pagesize - The amount of entries per page.
  * Result: content xml
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/content/data?categories=1x2x3x4&search=foo&sortmode=new&page=1 Gets the second page of the list of the newest contents from categories 1,2,3 and 4 with the string foo in the name. 
 Example:
 {{{
@@ -727,6 +776,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -790,6 +840,10 @@ Read content data of one specific content. Only authenticated users are allowed 
  * HTTP Method: GET
  * Arguments: contentid - Id of a content
  * Result: content xml
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - content not found
+
  * Example: http://frank:password@api.opendesktop.org/v1/content/data/12345
 Example:
 {{{
@@ -797,6 +851,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -854,6 +909,11 @@ Download or buy one specific content item.
  * Arguments: contentid - Id of a content
  * Arguments: itemid - Id of a content
  * Result: status xml
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - content not found
+   * 102 - payment failed
+   * 103 - content item not found
  * Example: http://api.opendesktop.org/v1/content/download/12345/2
 Example:
 {{{
@@ -861,6 +921,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -881,6 +942,9 @@ Vote for one specific content.
  * Arguments: contentid - Id of a content
  * URL Arguments: vote - The vote. "good" or "bad"
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - content not found
  * Example: http://api.opendesktop.org/v1/content/vote/12345?vote=good
 Example:
 {{{
@@ -1070,8 +1134,11 @@ Add a new content entry:
  * POST Arguments: donationreason - a reason we you want a donation
  * POST Arguments: osbsproject - the opensuse build service project id
  * POST Arguments: osbspackage - the opensuse build service package id
-
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - please specify all mandatory fields
+   * 102 - no permission to change content
  * Example: http://api.opendesktop.org/v1/content/add
 Example:
 {{{
@@ -1079,6 +1146,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -1268,8 +1336,11 @@ Edit a content entry:
  * POST Arguments: osbsproject - the opensuse build service project id
  * POST Arguments: osbspackage - the opensuse build service package id
  * POST Arguments: announceupdate - announce this edit on the frontpage. possible values are 1 - announce, 0 - not announce, the default is 1
-
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - please specify all mandatory fields
+   * 102 - no permission to change content
  * Example: http://api.opendesktop.org/v1/content/edit/12345
 Example:
 {{{
@@ -1289,6 +1360,9 @@ Delete a content entry:
  * HTTP Method: POST 
  * Arguments: contentid - Id of a content
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - no permission to change content
  * Example: http://api.opendesktop.org/v1/content/delete/12345
 Example:
 {{{
@@ -1307,6 +1381,11 @@ Upload a new download file to a content:
  * Arguments: contentid - Id of a content
  * POST Arguments: localfile - The file to upload
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - upload error
+   * 102 - localfile not found
+   * 103 - no permission to change content
  * Example: http://api.opendesktop.org/v1/content/uploaddownload/12345
 Example:
 {{{
@@ -1324,6 +1403,9 @@ Delete the download file from a content:
  * HTTP Method: POST 
  * Arguments: contentid - Id of a content
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - no permission to change content
  * Example: http://api.opendesktop.org/v1/content/deletedownload/12345
 Example:
 {{{
@@ -1342,6 +1424,11 @@ Upload a new preview image for a content:
  * Arguments: previewid - Id of the preview image. (1,2 or 3)
  * POST Arguments: localfile - The imagefile to upload
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - localfile not found
+   * 102 - no permission to change content
+   * 103 - preview must be 1, 2 or 4
  * Example: http://api.opendesktop.org/v1/content/uploadpreview/12345/1
 Example:
 {{{
@@ -1359,6 +1446,10 @@ Delete a preview image from a content:
  * Arguments: contentid - Id of a content
  * Arguments: previewid - Id of the preview image. (1,2 or 3)
  * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - no permission to change content
+   * 102 - preview not found
  * Example: http://api.opendesktop.org/v1/content/deletepreview/12345/1
 Example:
 {{{
@@ -1380,6 +1471,8 @@ Gets a list of fans of a specific content entries. Only authenticated users are 
  * URL Arguments: page - The list page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
  * URL Arguments: pagesize - The amount of entries per page.
  * Result: fan xml
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/fan/data/123&page=1&pagesize=10 Gets the second page of the list of fans of the content with the id 123. The pagesize is 10
 Example:
 {{{
@@ -1387,6 +1480,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -1411,6 +1505,8 @@ Check if the current user is fan of a specific content. Only authenticated users
  * HTTP Method: GET
  * URL Arguments: contentid - Id of the content entry where you want to get the fan status from.
  * Result: fan xml Possible stati are "fan" or "notfan"
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/fan/status/123 Checks if the user frank is a fan of the content 123
 Example:
 {{{
@@ -1418,6 +1514,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -1433,6 +1530,8 @@ Become a fan of a specific content. Only authenticated users are allowed to acce
  * HTTP Method: POST
  * URL Arguments: contentid - Id of the content entry
  * Result: fan xml
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/fan/add/123 The user frank becomes a fan of the content 123
 Example:
 {{{
@@ -1440,6 +1539,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
 </ocs>
@@ -1452,6 +1552,8 @@ Remove the user from the fans list of a specific content. Only authenticated use
  * HTTP Method: POST
  * URL Arguments: contentid - Id of the content entry
  * Result: fan xml
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/fan/remove/123 The user frank is no longer a fan of the content 123
 Example:
 {{{
@@ -1459,6 +1561,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
 </ocs>
@@ -1480,6 +1583,8 @@ Gets a list of a specific set of knowledgebase entries. Only authenticated users
  * URL Arguments: page - The list page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
  * URL Arguments: pagesize - The amount of entries per page.
  * Result: knowledgebase xml
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/knowledgebase/data?content=123&search=foo&sortmode=new&page=1 Gets the second page of the list of the newest knowledgebase entries from content 123 with the string foo in the name, description or answer. 
 Example:
 {{{
@@ -1487,6 +1592,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -1526,6 +1632,9 @@ Read one specific knowledgebase entry. Only authenticated users are allowed to a
  * HTTP Method: GET
  * Arguments: knowledgebaseid - Id of a knowledgebase entry
  * Result: knowledgebase xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - entry not found
  * Example: http://frank:password@api.opendesktop.org/v1/knowledgebase/data/12345
 Example:
 {{{
@@ -1533,6 +1642,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
@@ -1573,6 +1683,8 @@ Gets a list of a specific set of events. Only authenticated users are allowed to
  * type 50: Install Party
  * type 1000: otherParty
  * Result: event xml
+ * Statuscodes:
+   * 100 - successful
  * Example: http://frank:password@api.opendesktop.org/v1/event/data?country=us&startat=01-01-2009&type=10&search=foo&sortmode=new&page=1 Gets the second page of the list of the newest events of 2009 from type party in the US with the string foo in the name or description. 
 Example:
 {{{
@@ -1580,6 +1692,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
   <totalitems>2</totalitems>
   <itemsperpage>10</itemsperpage>
@@ -1633,6 +1746,9 @@ Read one specific event entry. Only authenticated users are allowed to access th
  * HTTP Method: GET
  * Arguments: eventid - Id of a event entry
  * Result: event xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - entry not found
  * Example: http://frank:password@api.opendesktop.org/v1/event/data/12345
 Example:
 {{{
@@ -1640,6 +1756,7 @@ Example:
 <ocs>
  <meta>
   <status>ok</status>
+  <statuscode>100</statuscode>
   <message></message>
  </meta>
  <data>
