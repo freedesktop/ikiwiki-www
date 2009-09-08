@@ -102,7 +102,7 @@ At the moment there are the following services:
 
 
 === Error Reporting ===
-every response xml contains a "status" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. examples of errormessages are: "data is private" or "person not found".
+every response xml contains a "status", "statuscode" and a "message" tag. the status tag has only two possible values. "ok" or "failed". If the status is "failed" you can get a human readable errortext from the "message" tag. Examples of errormessages are: "data is private" or "person not found". You get a machine readable status in the "statuscode" tag. Statuscode 100 means "request sucessfull", 999 means "unknown request". All other codes are specific to the called method and described below. 
 
 === Versioning ===
 we support versioning of the service specifications. so if we break the api in an incompatible way we can use a new version number and still keep the old API for legacy applications(client) please note that the api is currently in draft state. so it will change in the future
@@ -158,6 +158,12 @@ find a  specific list of persons. Only authenticated users are allowed to access
  * Result: personlist xml
 Example: GET http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&longitude=22&distance=0.5&page=2&pagesize=10 
 Gets the third page of the search result list from the search for person where "eter" is in the nickname, firstname or lastname and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5
+
+ * Statuscodes:
+   * 100 - successfull
+   * 101 - too many API requests in the last 15 minutes from your IP address. please try again later.
+   * 102 - more than 1000 people found. it is not allowed to fetch such a big resultset. please specify more search conditions
+
  
 Example:
 <?xml version="1.0"?>
