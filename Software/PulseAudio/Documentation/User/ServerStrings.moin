@@ -6,7 +6,7 @@ A server string contains information how to contact a !PulseAudio server. You ca
 
 The server string is a space-seperated list of server addresses. A server address is parsed according the following rules:
 
- 1. If it starts with a string enclosed in '''{}''' the address string is ignored unless the local hostname equals the string in the '''{}'''. Otherwise this prefix is skipped.
+ 1. If it starts with a string enclosed in '''{}''' the address string is ignored unless the local hostname or D-Bus machine id equals the string in the '''{}'''. Otherwise this prefix is skipped.
  1. If the string starts with '''/''' or '''unix:''' the remaining address string is taken as UNIX socket name.
  1. If the string starts with '''tcp4:''' or '''tcp:''' the remaining address string is split at the next colon, the first part is taken as hostname/IP address for IPv4, the second part as port number. If no colon is specified the default port number is assumed and the full remaining string is used as hostname/IP address.
  1. If the string starts with '''tcp6:''' a similar rule applies, but this time for IPv6
@@ -15,10 +15,10 @@ The server string is a space-seperated list of server addresses. A server addres
 An example string:
 
 {{{
-{ecstasy}unix:/tmp/pulse-lennart/native tcp6:ecstasy.ring2.lan:4713 tcp:ecstasy.ring2.lan:4713
+{ecstasy}unix:/tmp/pulse-6f7zfg/native tcp6:ecstasy.ring2.lan:4713 tcp:ecstasy.ring2.lan:4713
 }}}
 
-This tells !PulseAudio to connect to the UNIX socket ''/tmp/pulse-lennart/native'' if the local host name is ''ecstasy''. If that fails (or the hostname doesn't match) try to connect to host ''ecstasy.ring2.lan'' on port 4713 usng TCP/IPv6. If even that fails, connect to the same host/port with TCP/IPv4.
+This tells !PulseAudio to connect to the UNIX socket ''/tmp/pulse-6f7zfg/native'' if the local host name is ''ecstasy''. If that fails (or the hostname doesn't match) try to connect to host ''ecstasy.ring2.lan'' on port 4713 usng TCP/IPv6. If even that fails, connect to the same host/port with TCP/IPv4.
 
 Another example string:
 
