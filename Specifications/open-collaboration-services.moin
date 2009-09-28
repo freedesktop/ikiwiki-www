@@ -1907,7 +1907,122 @@ Example:
 
 }}}
 
+==== add ====
+Add a new event entry:
+ * Syntax: v1/event/add
+ * HTTP Method: POST 
 
+ * POST Arguments: name - the name of the entry
+ * POST Arguments: category - the category of the event. possible values are:
+ *   10 - Party
+ *   15 - User Group
+ *   20 - Conference
+ *   25 - Developer Meeting
+ *   50 - Install Party
+ *   1000 - other
+ * POST Arguments: description - the description text of the event.
+ * POST Arguments: startdate - the startdate of the event.
+ * POST Arguments: enddate - the enddate of the event
+ * POST Arguments: organizer - the organizer of the event.
+ * POST Arguments: location - the location where the event takes place.
+ * POST Arguments: city - the city.
+ * POST Arguments: country - the description text of the event.
+ * POST Arguments: longitude - the longitude of the event.
+ * POST Arguments: latitude - the latitude of the event.
+ * POST Arguments: homepage - the homepage of the event.
+ * POST Arguments: tel - the telefon number.
+ * POST Arguments: fax - the fax number.
+ * POST Arguments: email - a contact email address.
+
+ * Result: status xml
+ * Mandatory fields: "name" and "category" are mandatory fields
+ * Statuscodes:
+   * 100 - successful
+   * 101 - please specify all mandatory fields
+   * 102 - no permission to add event
+ * Example: http://api.opendesktop.org/v1/event/add
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+ </meta>
+ <data>
+  <event>
+   <id>1234567</id>
+  </event>
+ </data>
+</ocs>
+}}}
+
+
+==== edit ====
+Edit a event entry:
+ * Syntax: v1/event/edit/"12345"
+ * HTTP Method: POST 
+
+ * POST Arguments: name - the name of the entry
+ * POST Arguments: category - the category of the event. possible values are:
+ *   10 - Party
+ *   15 - User Group
+ *   20 - Conference
+ *   25 - Developer Meeting
+ *   50 - Install Party
+ *   1000 - other
+ * POST Arguments: description - the description text of the event.
+ * POST Arguments: startdate - the startdate of the event.
+ * POST Arguments: enddate - the enddate of the event
+ * POST Arguments: organizer - the organizer of the event.
+ * POST Arguments: location - the location where the event takes place.
+ * POST Arguments: city - the city.
+ * POST Arguments: country - the description text of the event.
+ * POST Arguments: longitude - the longitude of the event.
+ * POST Arguments: latitude - the latitude of the event.
+ * POST Arguments: homepage - the homepage of the event.
+ * POST Arguments: tel - the telefon number.
+ * POST Arguments: fax - the fax number.
+ * POST Arguments: email - a contact email address.
+
+ * Result: status xml
+ * Mandatory fields: "name" and "category" are mandatory fields
+ * Statuscodes:
+   * 100 - successful
+   * 101 - please specify all mandatory fields
+   * 102 - no permission to change event
+ * Example: http://api.opendesktop.org/v1/event/edit/12345
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <status>ok</status>
+ <message></message>
+</ocs>
+}}}
+
+
+
+
+==== delete event entry ====
+Delete a event entry:
+ * Syntax: v1/event/delete/"contentid"
+ * HTTP Method: POST 
+ * Arguments: eventid - Id of a event
+ * Result: status xml
+ * Statuscodes:
+   * 100 - successful
+   * 101 - no permission to change event
+ * Example: http://api.opendesktop.org/v1/event/delete/12345
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <status>ok</status>
+ <message></message>
+</ocs>
+}}}
 
 
 
