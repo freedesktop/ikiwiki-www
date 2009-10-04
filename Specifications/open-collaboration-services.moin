@@ -162,6 +162,65 @@ The KDE provider file is here: http://download.kde.org/ocs/providers.xml
 === PERSON ===
 The PERSON service is handling the access to user data. you can search people and access personal data of other people of the person made the information public. 
 
+==== check ====
+Check if the given login and password or the API key is valid. It returns the associated username.
+ * Syntax: /v1/person/check
+ * Method: POST
+ * POST Arguments: login - The login or the API key 
+ * POST Arguments: password - The password  
+ * Mandatory fields: "login"
+ * Statuscodes:
+   * 100 - successfull / valid account
+   * 101 - please specify all mandatory fields
+   * 102 - login not valid
+Example: POST http://api.opendesktop.org/v1/person/check   postdata: login="frank" password="123456"
+Checks if frank,123456 is a valid account.
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+ </meta>
+ <data>
+  <login>Frank</login>
+ </data>
+</ocs>
+}}}
+
+==== add ====
+Registers a new user account on the server. The users still have to approve the account by clicking on a link in a confirmation email to activate the account
+ * Syntax: /v1/person/add
+ * Method: POST
+ * POST Arguments: login - The login or the API key 
+ * POST Arguments: password - The password  
+ * POST Arguments: firstname - The firstname of the user
+ * POST Arguments: lastname - The lastname of the user
+ * POST Arguments: email - the email address. the address must be valid, because the user gets a confirmation email to this address. 
+ * Mandatory fields: "login", "password", "firstname", "lastname" and "email"
+ * Statuscodes:
+   * 100 - successfull / valid account
+   * 101 - please specify all mandatory fields
+   * 102 - please specify a valid password
+   * 103 - please specify a valid login
+   * 104 - login already exists
+Example: POST http://api.opendesktop.org/v1/person/add   postdata: login="frank" password="123456" firstname="Frank" lastname="Karlitschek" email="karlitschek@kde.org"
+registers a new user account.
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+ </meta>
+</ocs>
+
+}}}
+
 ==== search ====
 find a  specific list of persons. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. It is not possible to get a list of more than 1000 people because of privacy issues.
  * Syntax: /v1/person/data
@@ -368,8 +427,11 @@ Example:
 {{{
 <?xml version="1.0"?>
 <ocs>
- <status>ok</status>
- <message></message>
+ <meta>
+   <status>ok</status>
+   <statuscode>100</statuscode>
+   <message></message>
+ </meta>
 </ocs>
 }}}
 
