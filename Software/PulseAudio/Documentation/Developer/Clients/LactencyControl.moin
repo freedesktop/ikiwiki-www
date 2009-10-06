@@ -1,0 +1,24 @@
+= Latency Control = 
+
+So you are writing an application and want to control the latency PA provides for it, for example because you are writing a voip tool that needs latencies that are near to some specific value. Here's how you to it with PulseAudio:
+
+First, make sure you run PulseAudio in timer scheduling mode (tsched=1) for ALSA devices which is the default for most modern distributions, with the infamous exception of Ubuntu. Only when that is enabled PulseAudio is able to adjust the latency to what your application asks for. Non-ALSA devices (such as Bluetooth audio) generally have a fixed latency which cannot be influenced by software.
+
+In your code you then have to do the following when calling pa_stream_connect_playback() resp. pa_stream_connect_record():
+
+ 1. Pass ''PA_STREAM_ADJUST_LATENCY'' in the ''flags'' parameter. Only if this flag is set PA will reconfigure the low-level device's buffer size and adjust it to the latency you specify.
+ 2. Pass a pa_buffer_attr struct in the ''buffer_attr'' parameter. In the fields of this struct make sure to initialize ''every single field'' to (uint32_t) -1, with the exception of ''tlength'' (for playback) resp. ''fragsize'' (for recording). Initialize those to the latency you want to achieve. Use pa_usec_to_bytes(&ss, ...) to convert the latency from a time unit to bytes.
+
+Plese note that clients may ask for a specific latency, but PA only takes this only as a hint, it does not guarantee that it will provide it. That means after initialization you MUST base your timing code on the actually measured latency as returned by pa_stream_get_latency() (and friends), you MAY NOT make assumptions that the measured latency will actually be near or even below what you asked for. 
+
+If the underlying has latency restrictions the actual measured latency might be either higher and lower than what you asked for. If the OS scheduler was not able to provide PA with the necessary scheduling latencies needed to fulfill the audio latencies these will be increased to make sure drop-outs stay the exception, not the rule. If a stream gets moved between devices the latency may change, due to different hardware constraints. Finally, PA will configure the device buffer to the lowest latency of all applications streams connected to it. That means that your measured latency might dynamically change during runtime.
+
+So in summary: tell PA what latency you want, but program diffensively so that you can deal with getting lower or higher measured latencies.
+
+= Developing High-Latency Applications =
+
+By default (i.e. when the buffer_attr argument to pa_stream_connect_playback() is NULL) PA will pick a latency that is somewhat similar to what programs used to get when using OSS, or ALSA. For a lot of use cases where latency does not matter (such as media players) this latency is much shorter then would be good for optimal power consumption. That means it is highly recommended passing a buffer_attr argument in those applications, with a tlength field initialized to (uint32_t) -1, which effectively means "pick the highest latency the device supports". Usually that means that you get 2s latency, which has the effect of reducing wakeups to something near 1/s. Make sure to drop the server side playback buffers when seeking/pausing/..., so that these actions are instantanious although you buffered 2s.
+
+= Why such a complex API? =
+
+Mostly historical reasons.
