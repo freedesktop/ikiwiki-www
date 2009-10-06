@@ -13,7 +13,9 @@ Plese note that clients may ask for a specific latency, but PA only takes this o
 
 If the underlying has latency restrictions the actual measured latency might be either higher and lower than what you asked for. If the OS scheduler was not able to provide PA with the necessary scheduling latencies needed to fulfill the audio latencies these will be increased to make sure drop-outs stay the exception, not the rule. If a stream gets moved between devices the latency may change, due to different hardware constraints. Finally, PA will configure the device buffer to the lowest latency of all applications streams connected to it. That means that your measured latency might dynamically change during runtime.
 
-So in summary: tell PA what latency you want, but program diffensively so that you can deal with getting lower or higher measured latencies.
+'''So in summary: tell PA what latency you want, but program diffensively so that you can deal with getting both lower or higher measured latencies.'''
+
+If you want to verify how the latencies your application asked for are actually handled by PA check the output of "pacmd list-sinks". This will show you the list of sinks with their configured and measured latencies. The 'current latency' field is the currently measured latency (probably not too useful unless you combine it with a timestamp). The 'configured latency' shows the minimal latency configured by all applications connected to the device, plus the range that is acceptable to the device. It is only shown for variable latency devices. For those with fixed latency, check out the 'fixed latency' field. Also check out the output of "pacmd list-sink-inputs" which shows both the measured latency for the application stream as well as the requested latency for it.
 
 = Developing High-Latency Applications =
 
@@ -22,3 +24,5 @@ By default (i.e. when the buffer_attr argument to pa_stream_connect_playback() i
 = Why such a complex API? =
 
 Yes, requiring to set a flag plus filling in a struct is a bit too complex. This has mostly historical reasons. 
+
+This all applies to PA 0.9.16 and newer.
