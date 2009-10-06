@@ -1,6 +1,6 @@
 = Latency Control = 
 
-So you are writing an application and want to control the latency PA provides for it, for example because you are writing a voip tool that needs latencies that are near to some specific value. Here's how you to it with PulseAudio:
+So you are writing an application and want to control the latency PA provides for it, for example because you are writing a voip tool that needs latencies that are near to some specific value. Here's how you do it with PulseAudio:
 
 First, make sure you run PulseAudio in timer scheduling mode (tsched=1) for ALSA devices which is the default for most modern distributions, with the infamous exception of Ubuntu. Only when that is enabled PulseAudio is able to adjust the latency to what your application asks for. Non-ALSA devices (such as Bluetooth audio) generally have a fixed latency which cannot be influenced by software.
 
@@ -21,4 +21,4 @@ By default (i.e. when the buffer_attr argument to pa_stream_connect_playback() i
 
 = Why such a complex API? =
 
-Mostly historical reasons.
+Yes, requiring to set a flag plus filling in a struct is a bit too complex. This has mostly historical reasons. 
