@@ -2,32 +2,32 @@ Here are the instructions for building the OpenGL and OpenVG Gallium Softpipe EG
 
 1) Get latest Mesa3D repository. It's where Gallium3D is hosted right now.
 
-  git clone git://git.freedesktop.org/git/mesa/mesa
+  `git clone git://git.freedesktop.org/git/mesa/mesa`
 
 2) Compile Mesa3D in a way that compiles Gallium3D and software driver.
 
-  cd mesa
-  export GALLIUM=$PWD
-  make linux-x86-debug
+  `cd mesa`
+  `export GALLIUM=$PWD`
+  `make linux-x86-debug`
 
 3) Compile OpenVG if you want to:
 
-  cd src/gallium/state_trackers/vega
-  make
-  cd $GALLIUM
+  `cd src/gallium/state_trackers/vega`
+  `make`
+  `cd $GALLIUM`
 
 4) Make sure that from now on all apps pick up your newly compiled Gallium
 libs:
 
-  export LD_LIBRARY_PATH=$GALLIUM/lib/gallium:$GALLIUM/lib:$LD_LIBRARY_PATH
+  `export LD_LIBRARY_PATH=$GALLIUM/lib/gallium:$GALLIUM/lib:$LD_LIBRARY_PATH`
 
 5) Make sure Gallium's EGL implementation is using the software driver:
 
-  export EGL_DRIVER="egl_softpipe"
+  `export EGL_DRIVER="egl_softpipe"`
 
 6) Play around with demos.
 
-  cd progs/openvg/demos
-  make
-  ./sp
-  ./lion
+  `cd progs/openvg/demos`
+  `make`
+  `./sp`
+  `./lion`
