@@ -21,8 +21,14 @@ If you want to verify how the latencies your application asked for are actually 
 
 By default (i.e. when the buffer_attr argument to pa_stream_connect_playback() is NULL) PA will pick a latency that is somewhat similar to what programs used to get when using OSS, or ALSA. For a lot of use cases where latency does not matter (such as media players) this latency is much shorter then would be good for optimal power consumption. That means it is highly recommended passing a buffer_attr argument in those applications, with a tlength field initialized to (uint32_t) -1, which effectively means "pick the highest latency the device supports". Usually that means that you get 2s latency, which has the effect of reducing wakeups to something near 1/s. Make sure to drop the server side playback buffers when seeking/pausing/..., so that these actions are instantanious although you buffered 2s.
 
+''Note that passing a NULL buffer_attr is different from passing one with every field initialized to (uint32_t) -1! The former means 'get me the default latency'. The latter means 'get me the highest latency possible'. The latter is a much better idea most of the time than the former!''
+
+= How to pick the latency =
+
+For the sake of reducing power consumption and drop-out safety always make sure to pick the '''highest latency possible''' that fulfills your needs. Never pick a lower latency than you really need. If you do pick needlessly low latencies you just burn CPU and make it more likely that we will get a drop-out. And worst of all that makes PA and me look bad, since people will blame PA and me for it. Extensive CPU load will show up as PA CPU load in 'top'.
+
 = Why such a complex API? =
 
-Yes, requiring to set a flag plus filling in a struct is a bit too complex. This has mostly historical reasons. 
+Yes, requiring to set a flag plus filling in a struct is a bit too complex. This has mostly historical reasons. Sorry for that.
 
 This all applies to PA 0.9.16 and newer.
