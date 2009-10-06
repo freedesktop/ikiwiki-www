@@ -1,8 +1,8 @@
 = Latency Control = 
 
-So you are writing an application and want to control the latency !PulseAudio provides for it, for example because you are writing a voip tool that needs latencies that are near to some specific value. Here's how you do it with !PA:
+So you are writing an application and want to control the latency !PulseAudio provides for it, for example because you are writing a voip tool that needs latencies that are near to some specific value. Here's how you do it with PA:
 
-First, make sure you run PulseAudio in timer scheduling mode (tsched=1) for ALSA devices which is the default for most modern distributions, with the infamous exception of Ubuntu. Only when that is enabled PA is able to adjust the latency to what your application asks for. Non-ALSA devices (such as Bluetooth audio) generally have a fixed latency which cannot be influenced by software.
+First, make sure you run PA in timer scheduling mode (tsched=1) for ALSA devices which is the default for most modern distributions, with the infamous exception of Ubuntu. Only when that is enabled PA is able to adjust the latency to what your application asks for. Non-ALSA devices (such as Bluetooth audio) generally have a fixed latency which cannot be influenced by software.
 
 In your code you then have to do the following when calling pa_stream_connect_playback() resp. pa_stream_connect_record():
 
