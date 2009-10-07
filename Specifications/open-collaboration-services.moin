@@ -1,5 +1,5 @@
 ##language:en
-= Open Collaboration Services (v 1.3) =
+= Open Collaboration Services (v1.3) =
 
 
 Frank Karlitschek [[MailTo(karlitschek AT kde.org)]]
@@ -539,9 +539,69 @@ Example:
 </ocs>
 }}}
 
+==== receivedinvitations ====
+Gets the list of friendship invitations. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * syntax: /v1/friend/receivedinvitations
+ * HTTP method: GET
+ * URL Arguments: page - The page of the list. The size of a page is controlled by the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+ * Statuscodes:
+   * 100 - successfull
+Example: GET http://frank:password@api.opendesktop.org/v1/friend/receivedinvitations?page=1
+Gets the second page of my received invitations. 
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+  <totalitems>1</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
+ <data>
+  <user details="id">
+   <personid>testy</personid>
+  </user>
+ </data>
+</ocs>
+}}}
+
+==== sentinvitations ====
+Gets the list of sent friendship invitations. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * syntax: /v1/friend/sentinvitations
+ * HTTP method: GET
+ * URL Arguments: page - The page of the list. The size of a page is controlled by the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+ * Statuscodes:
+   * 100 - successfull
+Example: GET http://frank:password@api.opendesktop.org/v1/friend/sentinvitations?page=1
+Gets the second page of my sent invitations. 
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+  <totalitems>1</totalitems>
+  <itemsperpage>10</itemsperpage>
+ </meta>
+ <data>
+  <user details="id">
+   <personid>testy</personid>
+  </user>
+ </data>
+</ocs>
+}}}
+
+
+
 ==== invite ====
 Invite a person to become a friend. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * Syntax: /v1/friend/outbox/"personid"
+ * Syntax: /v1/friend/invite/"personid"
  * Method: POST
  * Arguments: personid - The person you want to invite as a friend. 
  * POST arguments: message - The message you want to send to the person together with your invitation.
@@ -550,7 +610,7 @@ Invite a person to become a friend. Only authenticated users are allowed to acce
    * 101 - message must not be empty
    * 102 - you can´t invite yourself
    * 103 - user not found
-Example: POST http://frank:password@api.opendesktop.org/v1/friend/outbox/foobar/   postdata: message="hi. how are you?"
+Example: POST http://frank:password@api.opendesktop.org/v1/friend/invite/foobar/   postdata: message="hi. how are you?"
 Invites the person "foobar" and send him a message "hi. how are you?"
 Example:
 {{{
@@ -560,6 +620,65 @@ Example:
  <message></message>
 </ocs>
 }}}
+
+
+==== approve ====
+Approve a friendship request. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/friend/approve/"personid"
+ * Method: POST
+ * Arguments: personid - The person you want to approve as a friend. 
+ * Statuscodes:
+   * 100 - successful
+Example: POST http://frank:password@api.opendesktop.org/v1/friend/approve/foobar/ 
+Approve the invitation from the user "foobar"
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <status>ok</status>
+ <message></message>
+</ocs>
+}}}
+
+==== decline ====
+Decline a friendship request. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/friend/decline/"personid"
+ * Method: POST
+ * Arguments: personid - The person you want to decline. 
+ * Statuscodes:
+   * 100 - successful
+Example: POST http://frank:password@api.opendesktop.org/v1/friend/decline/foobar/ 
+Decline the invitation from the user "foobar"
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <status>ok</status>
+ <message></message>
+</ocs>
+}}}
+
+==== cancel ====
+Cancel a friendship with a user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/friend/cancel/"personid"
+ * Method: POST
+ * Arguments: personid - The person you want to cancel the friendship with. 
+ * Statuscodes:
+   * 100 - successful
+Example: POST http://frank:password@api.opendesktop.org/v1/friend/cancel/foobar/ 
+Cancel the friendship with the user "foobar"
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <status>ok</status>
+ <message></message>
+</ocs>
+}}}
+
+
+
+
 
 <<Anchor(MESSAGE)>>
 === MESSAGE ===
