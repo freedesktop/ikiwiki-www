@@ -1,135 +1,115 @@
-== A digital crossover for an active speaker: ==
+== A digital crossover for an active-speaker-system: ==
 
-With LADSPA plugins applied to virtual sinks you can have a configurable active setup. You can seperate the sound for each of the driver into sub-, low-, mid- and high-sections and apply equalisation and delay too.
+With LADSPA plugins applied to virtual sinks you can have a configurable active setup. You can seperate the sound for each of the speaker and apply equalisation and delay too.
 
 ==== ''summary'' ====
--- I expect stereo sound.[[BR]]
--- I have an AMDX2 3800+ CPU and in high-priority mode PA is stable for me on a KDE 4.3 desktop with desktop effects and best resampler settings.[[BR]]
+-- I create virtual sinks from the hardware sinks with LADSPA effects applied.[[BR]]
+-- I have an AMDX2 3800+ CPU and PA is stable for me on a KDE 4.3 desktop with desktop effects and best resampler settings (since PA 0.9.16 CPU load has been about 2%).[[BR]]
 -- This is a rather static setup so you do have to reload the virtual sinks if you change the LADSPA-filter parameters.[[BR]]
--- These are IIR filters, not FIR.
+-- These are IIR filters, not FIR.[[BR]]
 -- I would use a passive crossover (bipolar capacitors) for the tweeter so when PA would shut down for some reason and your tweeter got the full audio spectrum, it would not get fried.
 
 ==== ''software'' ====
 -- I have Debian Lenny/Sid with KDE4.3, PulseAudio 0.9.16, LADSPA plugins from Steve Harris ([http://plugin.org.uk/]) and CMT ([http://www.ladspa.org/cmt/]).[[BR]]
 -- The soundcards are a multichannel onboard soundchip (Realtek RC888) or an X-Fi Extreme Music. You need a channel for each speaker-driver so for four-way stereo speakers you need a 7.1 card.[[BR]]
--- The current pulse plugin for Mplayer and ESD are broken, but the ESD-types are good alternatives. KDE 4.3.1 and its xine backend don't support PA well either.
+-- The current pulse plugin for Mplayer and SDL seem broken, but the ESD-types are good alternatives. The Xine backend for Phonon in KDE4 doesn't support PA well either.
 
 ----
 
 === 1. default.pa for a Realtek integrated audio with one surround device in ALSA: ===
 
-I left out automatic hardware detection and loaded a custom four-channel alsa-module instead (first card '0' and its device 'surround40' - if you have two cards and 7.1 it may look like 'device=surround71:1' instead). The aux channels let PA override whatever the card "naturally" would want to do with them. Then I create LADPSA sinks for the crossover. Note that I have a mono setup so I use extra remap-sinks too (You have to set the combined sink to about 73% volume so the mono remapping doesn't generate clipping. edit: PA 0.9.17 seems to have fixed it?). The final combine sink uses a 'trivial' resampler since the sinks it combines are all from the same card and the remap sinks are 32bit format to avoid unnessecary resampling. Also descriptions for the sinks are changed because they get quite long by default.
+I left out automatic hardware detection and loaded a custom four-channel alsa-module instead (card number ''0'' and its device ''surround40'' - if you have two cards and 7.1 it may look like ''device=surround71:1'' instead). The aux channels let PA override whatever the card "naturally" would want to do with them. Then I create LADPSA sinks for the crossover. Note that I have a mono setup so I use extra remap-sinks too (You have to set the combined sink to about 73% volume so the mono remapping doesn't generate clipping. The final combine sink uses a 'trivial' resampler since the sinks it combines are all from the same card and the remap sinks are 32bit format to avoid unnecessary resampling. Also descriptions for the sinks are changed because they get quite long by default.
 
 {{{
 ### LADSPA crossover
-load-module module-alsa-sink sink_name=front_stereo device=surround40:0 channels=4 channel_map=front-left,front-right,aux0,aux1
-update-sink-proplist front_stereo device.description="front_stereo"
+load-module module-alsa-sink sink_name=front_stereo sink_properties=device.description=front_stereo device=surround40:0 channels=4 channel_map=front-left,front-right,aux0,aux1
 
-load-module module-remap-sink sink_name=sub master=front_stereo channels=1 master_channel_map=front-left channel_map=mono format=float32le
-update-sink-proplist sub device.description="sub"
-load-module module-remap-sink sink_name=low master=front_stereo channels=1 master_channel_map=front-right channel_map=mono format=float32le
-update-sink-proplist low device.description="low"
-load-module module-remap-sink sink_name=mid master=front_stereo channels=1 master_channel_map=aux0 channel_map=mono format=float32le
-update-sink-proplist mid device.description="mid"
-load-module module-remap-sink sink_name=high master=front_stereo channels=1 master_channel_map=aux1 channel_map=mono format=float32le
-update-sink-proplist high device.description="high"
+load-module module-remap-sink sink_name=sub sink_properties=device.description=sub master=front_stereo channels=1 master_channel_map=front-left channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=subHp master=sub plugin=highpass_iir_1890 label=highpass_iir control=26,4
-update-sink-proplist subHp device.description="subHp"
-load-module module-ladspa-sink sink_name=subLp master=subHp plugin=lowpass_iir_1891 label=lowpass_iir control=40,4
-update-sink-proplist subLp device.description="subLp"
+load-module module-remap-sink sink_name=low master=front_stereo sink_properties=device.description=low channels=1 master_channel_map=front-right channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=lowHp master=low plugin=highpass_iir_1890 label=highpass_iir control=60,4
-update-sink-proplist lowHp device.description="lowHp"
-load-module module-ladspa-sink sink_name=lowLp master=lowHp plugin=lowpass_iir_1891 label=lowpass_iir control=290,2
-update-sink-proplist lowLp device.description="lowLp"
-load-module module-ladspa-sink sink_name=lowEq master=lowLp plugin=single_para_1203 label=singlePara control=-8,300,1.9
-update-sink-proplist lowEq device.description="lowEq"
+load-module module-remap-sink sink_name=mid sink_properties=device.description=mid master=front_stereo channels=1 master_channel_map=aux0 channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=midDelay master=mid plugin=cmt label=delay_0.01s control=0.0001,0.00006
-update-sink-proplist midDelay device.description="midDelay"
-load-module module-ladspa-sink sink_name=midHp master=midDelay plugin=highpass_iir_1890 label=highpass_iir control=370,2
-update-sink-proplist midHp device.description="midHp"
-load-module module-ladspa-sink sink_name=midLp master=midHp plugin=lowpass_iir_1891 label=lowpass_iir control=2000,4
-update-sink-proplist midLp device.description="midLp"
+load-module module-remap-sink sink_name=high sink_properties=device.description=high master=front_stereo channels=1 master_channel_map=aux1 channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=highDelay master=high plugin=cmt label=delay_0.01s control=0.0005,0.00015
-update-sink-proplist highDelay device.description="highDelay"
-load-module module-ladspa-sink sink_name=highHp master=highDelay plugin=highpass_iir_1890 label=highpass_iir control=2100,4
-update-sink-proplist highHp device.description="highHp"
+load-module module-ladspa-sink sink_name=subHp sink_properties=device.description=subHp master=sub plugin=highpass_iir_1890 label=highpass_iir control=26,4
 
-load-module module-combine sink_name=jacks slaves=subLp,lowEq,midLp,highHp resample_method=trivial
-update-sink-proplist jacks device.description="jacks"
+load-module module-ladspa-sink sink_name=subLp sink_properties=device.description=subLp master=subHp plugin=lowpass_iir_1891 label=lowpass_iir control=40,4
+
+load-module module-ladspa-sink sink_name=lowHp sink_properties=device.description=lowHp master=low plugin=highpass_iir_1890 label=highpass_iir control=60,4
+
+load-module module-ladspa-sink sink_name=lowLp sink_properties=device.description=lowLp master=lowHp plugin=lowpass_iir_1891 label=lowpass_iir control=290,2
+
+load-module module-ladspa-sink sink_name=lowEq sink_properties=device.description=lowEq master=lowLp plugin=single_para_1203 label=singlePara control=-8,300,1.9
+
+
+load-module module-ladspa-sink sink_name=midDelay sink_properties=device.description=midDelay master=mid plugin=cmt label=delay_0.01s control=0.0001,0.00006
+
+load-module module-ladspa-sink sink_name=midHp sink_properties=device.description=midHp master=midDelay plugin=highpass_iir_1890 label=highpass_iir control=370,2
+
+load-module module-ladspa-sink sink_name=midLp sink_properties=device.description=midLp master=midHp plugin=lowpass_iir_1891 label=lowpass_iir control=2000,4
+
+
+load-module module-ladspa-sink sink_name=highDelay sink_properties=device.description=highDelay master=high plugin=cmt label=delay_0.01s control=0.0005,0.00015
+
+load-module module-ladspa-sink sink_name=highHp sink_properties=device.description=highHp master=highDelay plugin=highpass_iir_1890 label=highpass_iir control=2100,4
+
+load-module module-combine sink_name=jacks sink_properties=device.description=jacks slaves=subLp,lowEq,midLp,highHp resample_method=trivial
 
 set-default-sink jacks
 }}}
 
 === 2. default.pa for an X-Fi audio card with multiple stereo devices ALSA (one for each output jack): ===
 
-Here I left automatic hardware detection enabled (I use hw:0,0 forstandard headphone output). Additionally loaded custom modules for hw:0,1 and hw:0,2. As above I create LADPSA sinks for the filters and combine them in the end.
+Here I left automatic hardware detection enabled (I use hw:0,0 for standard headphone output). Additionally loaded custom modules for hw:0,1 and hw:0,2. As above I create LADPSA sinks for the filters and combine them in the end.
 
 {{{
 ### LADSPA crossover
-load-module module-alsa-sink sink_name=rearJack device=hw:0,1
-update-sink-proplist rearJack device.description="rearJack"
-load-module module-alsa-sink sink_name=centreLfeJack device=hw:0,2
-update-sink-proplist centreLfeJack device.description="centreLfeJack"
+load-module module-alsa-sink sink_name=rearJack sink_properties=device.description=rearJack device=hw:0,1
+load-module module-alsa-sink sink_name=centreLfeJack sink_properties=device.description=centreLfeJack device=hw:0,2
 
-load-module module-remap-sink sink_name=sub master=rearJack channels=1 master_channel_map=front-left channel_map=mono format=float32le
-update-sink-proplist sub device.description="sub"
-load-module module-remap-sink sink_name=low master=rearJack channels=1 master_channel_map=front-right channel_map=mono format=float32le
-update-sink-proplist low device.description="low"
-load-module module-remap-sink sink_name=mid master=centreLfeJack channels=1 master_channel_map=front-left channel_map=mono format=float32le
-update-sink-proplist mid device.description="mid"
-load-module module-remap-sink sink_name=high master=centreLfeJack channels=1 master_channel_map=front-right channel_map=mono format=float32le
-update-sink-proplist high device.description="high"
+load-module module-remap-sink sink_name=sub sink_properties=device.description=sub master=rearJack channels=1 master_channel_map=front-left channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=subHp master=sub plugin=highpass_iir_1890 label=highpass_iir control=26,4
-update-sink-proplist subHp device.description="subHp"
-load-module module-ladspa-sink sink_name=subLp master=subHp plugin=lowpass_iir_1891 label=lowpass_iir control=40,4
-update-sink-proplist subLp device.description="subLp"
+load-module module-remap-sink sink_name=low master=rearJack sink_properties=device.description=low channels=1 master_channel_map=front-right channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=lowHp master=low plugin=highpass_iir_1890 label=highpass_iir control=60,4
-update-sink-proplist lowHp device.description="lowHp"
-load-module module-ladspa-sink sink_name=lowLp master=lowHp plugin=lowpass_iir_1891 label=lowpass_iir control=290,2
-update-sink-proplist lowLp device.description="lowLp"
-load-module module-ladspa-sink sink_name=lowEq master=lowLp plugin=single_para_1203 label=singlePara control=-8,300,1.9
-update-sink-proplist lowEq device.description="lowEq"
+load-module module-remap-sink sink_name=mid sink_properties=device.description=mid master=centreLfeJack channels=1 master_channel_map=aux0 channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=midDelay master=mid plugin=cmt label=delay_0.01s control=0.0001,0.00006
-update-sink-proplist midDelay device.description="midDelay"
-load-module module-ladspa-sink sink_name=midHp master=midDelay plugin=highpass_iir_1890 label=highpass_iir control=370,2
-update-sink-proplist midHp device.description="midHp"
-load-module module-ladspa-sink sink_name=midLp master=midHp plugin=lowpass_iir_1891 label=lowpass_iir control=2000,4
-update-sink-proplist midLp device.description="midLp"
+load-module module-remap-sink sink_name=high sink_properties=device.description=high master=centreLfeJack channels=1 master_channel_map=aux1 channel_map=mono format=float32le
 
-load-module module-ladspa-sink sink_name=highDelay master=high plugin=cmt label=delay_0.01s control=0.0005,0.00015
-update-sink-proplist highDelay device.description="highDelay"
-load-module module-ladspa-sink sink_name=highHp master=highDelay plugin=highpass_iir_1890 label=highpass_iir control=2100,4
-update-sink-proplist highHp device.description="highHp"
+load-module module-ladspa-sink sink_name=subHp sink_properties=device.description=subHp master=sub plugin=highpass_iir_1890 label=highpass_iir control=26,4
 
-load-module module-combine sink_name=jacks slaves=subLp,lowEq,midLp,highHp resample_method=trivial
-update-sink-proplist jacks device.description="jacks"
+load-module module-ladspa-sink sink_name=subLp sink_properties=device.description=subLp master=subHp plugin=lowpass_iir_1891 label=lowpass_iir control=40,4
+
+load-module module-ladspa-sink sink_name=lowHp sink_properties=device.description=lowHp master=low plugin=highpass_iir_1890 label=highpass_iir control=60,4
+
+load-module module-ladspa-sink sink_name=lowLp sink_properties=device.description=lowLp master=lowHp plugin=lowpass_iir_1891 label=lowpass_iir control=290,2
+
+load-module module-ladspa-sink sink_name=lowEq sink_properties=device.description=lowEq master=lowLp plugin=single_para_1203 label=singlePara control=-8,300,1.9
+
+
+load-module module-ladspa-sink sink_name=midDelay sink_properties=device.description=midDelay master=mid plugin=cmt label=delay_0.01s control=0.0001,0.00006
+
+load-module module-ladspa-sink sink_name=midHp sink_properties=device.description=midHp master=midDelay plugin=highpass_iir_1890 label=highpass_iir control=370,2
+
+load-module module-ladspa-sink sink_name=midLp sink_properties=device.description=midLp master=midHp plugin=lowpass_iir_1891 label=lowpass_iir control=2000,4
+
+
+load-module module-ladspa-sink sink_name=highDelay sink_properties=device.description=highDelay master=high plugin=cmt label=delay_0.01s control=0.0005,0.00015
+
+load-module module-ladspa-sink sink_name=highHp sink_properties=device.description=highHp master=highDelay plugin=highpass_iir_1890 label=highpass_iir control=2100,4
+
+load-module module-combine sink_name=jacks sink_properties=device.description=jacks slaves=subLp,lowEq,midLp,highHp resample_method=trivial
 
 set-default-sink jacks
 }}}
 
 === daemon.conf: ===
 
-I change the default resampler in ~/.pulse/daemon.conf as well. You may need to omit this if your CPU is too slow. My card want 48KHz by default (I checked it with 'pulseaudio -v') so I put in a line for that too.
+I change the default resampler in ~/.pulse/daemon.conf as well. You may need to omit this if your CPU is too slow. My sound-card wants 48KHz by default (I checked it with ''pulseaudio -v''), so I put in a line for that too.
 
 {{{
 resample-method = src-sinc-best-quality
 default-sample-rate = 48000
-}}}
-
-=== limits.conf: ===
-
-In order to start PA in high-priority mode, you have to add two lines to /etc/security/limits.conf. You need to be member of the pulse-rt group as well. Note that PA wil use RealtimeKit in the feature instead of limits.conf (which has not been packaged for Debian yet).
-
-{{{
-@pulse-rt       -       rtprio          9
-@pulse-rt       -       nice            -11
 }}}
 
 ----
