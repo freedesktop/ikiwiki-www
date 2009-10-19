@@ -997,6 +997,160 @@ Example:
 </ocs>
 }}}
 
+==== licenses ====
+Get a list of all possible licenses. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/content/licenses
+ * HTTP Method: GET
+ * Result: categories xml
+ * Statuscodes:
+   * 100 - successful
+ * Example: GET http://frank:password@api.opendesktop.org/v1/content/licenses
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+  <totalitems>17</totalitems>
+ </meta>
+ <data>
+  <license>
+   <id>1000</id>
+   <name></name>
+   <link></link>
+  </license>
+  <license>
+   <id>3</id>
+   <name>Artistic 2.0</name>
+   <link>http://dev.perl.org/perl6/rfc/346.html</link>
+  </license>
+  <license>
+   <id>6</id>
+   <name>BSD</name>
+   <link>http://www.opensource.org/licenses/bsd-license.php</link>
+  </license>
+ </data>
+</ocs>
+}}}
+
+==== distributions ====
+Get a list of all possible distributions. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/content/distributions
+ * HTTP Method: GET
+ * Result: categories xml
+ * Statuscodes:
+   * 100 - successful
+ * Example: GET http://frank:password@api.opendesktop.org/v1/content/distributions
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+  <totalitems>23</totalitems>
+ </meta>
+ <data>
+  <distribution>
+   <id>0</id>
+   <name></name>
+  </distribution>
+  <distribution>
+   <id>2200</id>
+   <name>Arch</name>
+  </distribution>
+  <distribution>
+   <id>2000</id>
+   <name>Ark</name>
+  </distribution>
+  <distribution>
+   <id>1100</id>
+   <name>Debian</name>
+  </distribution>
+ </data>
+</ocs>
+}}}
+
+==== dependencies ====
+Get a list of all possible dependencies. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/content/dependencies
+ * HTTP Method: GET
+ * Result: categories xml
+ * Statuscodes:
+   * 100 - successful
+ * Example: GET http://frank:password@api.opendesktop.org/v1/content/dependencies
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+  <totalitems>36</totalitems>
+ </meta>
+ <data>
+  <dependtypes>
+   <id>0</id>
+   <name></name>
+  </dependtypes>
+  <dependtypes>
+   <id>30</id>
+   <name>GNOME 1.x</name>
+  </dependtypes>
+  <dependtypes>
+   <id>31</id>
+   <name>GNOME 2.x</name>
+  </dependtypes>
+  <dependtypes>
+   <id>20</id>
+   <name>GTK 1.x</name>
+  </dependtypes>
+ </data>
+</ocs>
+}}}
+
+==== homepagestypes ====
+Get a list of all possible homepagetypes. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * Syntax: /v1/content/homepages
+ * HTTP Method: GET
+ * Result: categories xml
+ * Statuscodes:
+   * 100 - successful
+ * Example: GET http://frank:password@api.opendesktop.org/v1/content/homepages
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+  <totalitems>14</totalitems>
+ </meta>
+ <data>
+  <homepagetypes>
+   <id>0</id>
+   <name>&amp;nbsp;</name>
+  </homepagetypes>
+  <homepagetypes>
+   <id>10</id>
+   <name>Blog</name>
+  </homepagetypes>
+  <homepagetypes>
+   <id>20</id>
+   <name>Facebook</name>
+  </homepagetypes>
+ </data>
+</ocs>
+}}}
+
+
+
+
 ==== list ====
 Gets a list of a specific set of contents. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
  * Syntax: /v1/content/data/
@@ -1225,69 +1379,11 @@ Add a new content entry:
 
  * POST Arguments: name - the name of the entry
  * POST Arguments: type - the type or category of the entry. call the categories method to get a list of all categories.
- * POST Arguments: depend - the dependency of this entry. possible values are:
- *   1 - KDE 1.x
- *   2 - KDE 2.x
- *   3 - KDE 3.x
- *   4 - KDE 3.0.x
- *   5 - KDE 3.1.x
- *   6 - KDE 3.2.x
- *   7 - KDE 3.3.x
- *   8 - KDE 3.4.x
- *   9 - KDE 3.5.x
- *   10 - Qt 1.x
- *   11 - Qt 2.x
- *   12 - Qt 3.x
- *   13 - Qt 4.x
- *   20 - GTK 1.x
- *   21 - GTK 2.x
- *   30 - GNOME 1.x
- *   31 - GNOME 2.x
- *   40 - Kommander
- *   41 - Gambas 1.x
- *   42 - Gambas 2.x
- *   50 - KDE 4.x
- *   51 - KDE 3.x and KDE 4.x
- *   60 - PyKDE/PyQt
- *   80 - Opie
- *   85 - KOffice 1.4
- *   86 - KOffice 1.5
- *   87 - KOffice 2.x
- *   100 - Qtopia
- *   200 - Mac OS X
- *   300 - MS Windows
- *   401 - Maemo 1.0
- *   402 - Maemo 2.0
- *   404 - Maemo 3.0
- *   405 - Maemo 4.0
- *   406 - Maemo 5.0
+ * POST Arguments: depend - the dependency of this entry. get the possible values by calling /v1/content/dependencies
  * POST Arguments: downloadtyp1 - the type of the first download. possible values are: 0 - use the uploaded file, 1 - use the downloadlink1
  * POST Arguments: downloadname1 - the name of the 1. downloadlink
  * POST Arguments: downloadlink1 - the url of the downloadlink
- * POST Arguments: downloaddistributiontype1 - the type of the distribution for the download.
- *   0 -
- *   500 - Source
- *   600 - SUSE
- *   700 - Novell
- *   800 - Fedora
- *   900 - Red Hat
- *   1000 - Gentoo
- *   1100 - Debian
- *   1200 - Ubuntu
- *   1300 - Mandriva
- *   1400 - Linspire
- *   1500 - Slackware
- *   1600 - FreeBSD
- *   1700 - Xandros
- *   1800 - MEPIS
- *   1900 - Solaris
- *   2000 - Ark
- *   2100 - Yoper
- *   2200 - Arch
- *   3000 - Mac OS X
- *   3100 - MS Windows
- *   10000 - Klik
- *   20000 - other
+ * POST Arguments: downloaddistributiontype1 - the type of the distribution for the download. call /v1/content/distributions for a list of possible options
  * POST Arguments: downloadbuy1 - is this download free or paid. 0 - free, 1 - paid.
  * POST Arguments: downloadbuyreason1 - the description why is content is not for free.
  * POST Arguments: downloadbuyprice1 - the price of this content in USD.
@@ -1370,40 +1466,10 @@ Add a new content entry:
  * POST Arguments: downloadbuyprice12 - the price of this content in USD.
 
  * POST Arguments: description - a description text of the entry
- * POST Arguments: licensetype - the license this content is under. possible values are:
- *   0 - Other
- *   1 - GPL
- *   2 - LGPL
- *   3 - Artistic 2.0
- *   4 - X11
- *   5 - QPL
- *   6 - BSD
- *   7 - Proprietary License
- *   8 - GFDL
- *   9 - CPL 1.0
- *   10 - Creative Commons by
- *   11 - Creative Commons by-sa
- *   12 - Creative Commons by-nd
- *   13 - Creative Commons by-nc
- *   14 - Creative Commons by-nc-sa
- *   15 - Creative Commons by-nc-nd
+ * POST Arguments: licensetype - the license this content is under. get the possible values by calling /v1/content/licenses
  * POST Arguments: license - the license text
  * POST Arguments: homepage - a link to the homepage of the entry
- * POST Arguments: homepagetype - the type of the link. possible values are:
- *   0 -
- *   10 - Blog
- *   20 - Facebook
- *   30 - Forum
- *   40 - Homepage
- *   50 - Mailinglist
- *   60 - Twitter
- *   70 - Wiki
- *   80 - Wikipedia
- *   90 - identi.ca
- *   100 - last.fm
- *   110 - libre.fm
- *   120 - StackOverflow
- *   500 - other
+ * POST Arguments: homepagetype - the type of the link. get the possible values by calling /v1/content/homepages
  * POST Arguments: homepage2 - a link to the homepage of the entry
  * POST Arguments: homepagetype2 - the type of the link.
  * POST Arguments: homepage3 - a link to the homepage of the entry
@@ -1460,69 +1526,11 @@ Edit a content entry:
 
  * POST Arguments: name - the name of the entry
  * POST Arguments: type - the type or category of the entry. call the categories method to get a list of all categories.
- * POST Arguments: depend - the dependency of this entry. possible values are:
- *   1 - KDE 1.x
- *   2 - KDE 2.x
- *   3 - KDE 3.x
- *   4 - KDE 3.0.x
- *   5 - KDE 3.1.x
- *   6 - KDE 3.2.x
- *   7 - KDE 3.3.x
- *   8 - KDE 3.4.x
- *   9 - KDE 3.5.x
- *   10 - Qt 1.x
- *   11 - Qt 2.x
- *   12 - Qt 3.x
- *   13 - Qt 4.x
- *   20 - GTK 1.x
- *   21 - GTK 2.x
- *   30 - GNOME 1.x
- *   31 - GNOME 2.x
- *   40 - Kommander
- *   41 - Gambas 1.x
- *   42 - Gambas 2.x
- *   50 - KDE 4.x
- *   51 - KDE 3.x and KDE 4.x
- *   60 - PyKDE/PyQt
- *   80 - Opie
- *   85 - KOffice 1.4
- *   86 - KOffice 1.5
- *   87 - KOffice 2.x
- *   100 - Qtopia
- *   200 - Mac OS X
- *   300 - MS Windows
- *   401 - Maemo 1.0
- *   402 - Maemo 2.0
- *   404 - Maemo 3.0
- *   405 - Maemo 4.0
- *   406 - Maemo 5.0
+ * POST Arguments: depend - the dependency of this entry. get the possible dependencies by calling /v1/content/dependencies
  * POST Arguments: downloadtyp1 - the type of the first download. possible values are: 0 - use the uploaded file, 1 - use the downloadlink1
  * POST Arguments: downloadname1 - the name of the 1. downloadlink
  * POST Arguments: downloadlink1 - the url of the downloadlink
- * POST Arguments: downloaddistributiontype1 - the type of the distribution for the download.
- *   0 -
- *   500 - Source
- *   600 - SUSE
- *   700 - Novell
- *   800 - Fedora
- *   900 - Red Hat
- *   1000 - Gentoo
- *   1100 - Debian
- *   1200 - Ubuntu
- *   1300 - Mandriva
- *   1400 - Linspire
- *   1500 - Slackware
- *   1600 - FreeBSD
- *   1700 - Xandros
- *   1800 - MEPIS
- *   1900 - Solaris
- *   2000 - Ark
- *   2100 - Yoper
- *   2200 - Arch
- *   3000 - Mac OS X
- *   3100 - MS Windows
- *   10000 - Klik
- *   20000 - other
+ * POST Arguments: downloaddistributiontype1 - the type of the distribution for the download. get the possible distributions by calling /v1/content/distributions
  * POST Arguments: downloadbuy1 - is this download free or paid. 0 - free, 1 - paid.
  * POST Arguments: downloadbuyreason1 - the description why is content is not for free.
  * POST Arguments: downloadbuyprice1 - the price of this content in USD.
@@ -1605,40 +1613,10 @@ Edit a content entry:
  * POST Arguments: downloadbuyprice12 - the price of this content in USD.
 
  * POST Arguments: description - a description text of the entry
- * POST Arguments: licensetype - the license this content is under. possible values are:
- *   0 - Other
- *   1 - GPL
- *   2 - LGPL
- *   3 - Artistic 2.0
- *   4 - X11
- *   5 - QPL
- *   6 - BSD
- *   7 - Proprietary License
- *   8 - GFDL
- *   9 - CPL 1.0
- *   10 - Creative Commons by
- *   11 - Creative Commons by-sa
- *   12 - Creative Commons by-nd
- *   13 - Creative Commons by-nc
- *   14 - Creative Commons by-nc-sa
- *   15 - Creative Commons by-nc-nd
+ * POST Arguments: licensetype - the license this content is under. get the possible values by calling /v1/content/licenses
  * POST Arguments: license - the license text
  * POST Arguments: homepage - a link to the homepage of the entry
- * POST Arguments: homepagetype - the type of the link. possible values are:
- *   0 -
- *   10 - Blog
- *   20 - Facebook
- *   30 - Forum
- *   40 - Homepage
- *   50 - Mailinglist
- *   60 - Twitter
- *   70 - Wiki
- *   80 - Wikipedia
- *   90 - identi.ca
- *   100 - last.fm
- *   110 - libre.fm
- *   120 - StackOverflow
- *   500 - other
+ * POST Arguments: homepagetype - the type of the link. get the possible values by calling /v1/content/homepages
  * POST Arguments: homepage2 - a link to the homepage of the entry
  * POST Arguments: homepagetype2 - the type of the link.
  * POST Arguments: homepage3 - a link to the homepage of the entry
