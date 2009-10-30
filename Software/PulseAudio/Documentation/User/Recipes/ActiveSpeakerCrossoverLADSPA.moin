@@ -66,7 +66,7 @@ Here I left automatic hardware detection enabled (I use hw:0,0 for standard head
 {{{
 ### LADSPA crossover
 load-module module-alsa-sink sink_name=rearJack sink_properties=device.description=rearJack device=hw:0,1
-load-module module-alsa-sink sink_name=centreLfeJack sink_properties=device.description=centreLfeJack device=hw:0,2
+load-module module-alsa-sink sink_name=centreLfeJack sink_properties=device.description=centreLfeJack device=hw:0,2 channel_map=aux0,aux1
 
 load-module module-remap-sink sink_name=sub sink_properties=device.description=sub master=rearJack channels=1 master_channel_map=front-left channel_map=mono format=float32le
 
@@ -105,7 +105,7 @@ set-default-sink jacks
 
 === daemon.conf: ===
 
-I change the default resampler in ~/.pulse/daemon.conf as well. You may need to omit this if your CPU is too slow. My sound-card wants 48KHz by default (I checked it with ''pulseaudio -v''), so I put in a line for that too.
+I change the default resampler in ~/.pulse/daemon.conf as well. You may need to omit this if your CPU is too slow. My X-Fi sound-card wants 48KHz by default (I checked it with ''pulseaudio -v'', also I hear clicks on initialization when using default 40.1kHz), so I put in a line for that too.
 
 {{{
 resample-method = src-sinc-best-quality
