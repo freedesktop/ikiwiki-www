@@ -1,0 +1,37 @@
+= What !PulseAudio does to your low-level mixer controls =
+
+Since !PulseAudio 0.9.16 we merge the capabilities of all hardware mixer controls that are in the mixer pipeline between the application writing the PCM audio and the speakers actually synthesizing the audio waves into one powerful synthetic control, and expose this as our user volume control. This has various advantages: a lot of complexity and user-unfriendliness is removed, as there is only one volume control for the entire pipeline. And when audio is too faint it is clear that it is this control that needs to be changed, the user no longer has to search which control is to blame for the wrong volume. Also, a lot of technical control names such as "PCM", "Master" and suchlike are hidden, that are not understood by the average user. The resulting volume control will provide a range that is the combined range of all mixer controls it is built of, and the combined granularity of all mixer controls in the pipeline. Also, PulseAudio will make sure that the mixer controls are initialized in the optimal way, when two or more different ways exist to configure the same volume. i.e. if -3dB can be reached by setting PCM to -3dB and Master to 0dB OR by setting Master to -3dB and PCM to 0dB the latter is preferred. Finally, if a mixer element does not provide certain functionality (for example: independant per-channel volumes), other elements' capabilities can be used to add this. As last step PulseAudio will emulate in software all the functionality the entire pipeline of hardware volume elements cannot provide.
+
+== So how does the algorithm work? ==
+
+First of all, when trying to understand the volume logic please do not think in percentages! Volume percentages are an artificial unit, whose definition changes between different hardware and different software. If you speak of 50% volume it is not clear what is meant by that in a device-independant way and what physically happens if you apply that. In fact the percantage scales of most sound cards are defined very arbitrarly.
+
+If talking about volumes, always talk about dB. If you don't know what dB are, [http://en.wikipedia.org/wiki/Decibel read the Wikipedia page].
+
+When !PulsaAudio is asked to set a specific volume x in dB, it will go from the outermost to the innermost mixer element and apply the volume there: on consumer cards, the "Master" element is usually the outermost. Hence first it is asked to apply the volume x there. Of course, the hardware usually allows only a number of discrete volume steps, hence what can be applied is only a volume x' with x' near (and usually greater than) x. As next step we then subtract the volume adjustment done in 'Master' from the volume we want to set y = x - x'. (Remember that dB is logarithmic, so we actually divide the linear factors here). Then we apply y on the next element in the pipeline, in this case "PCM". Again, the hardware only knows a discrete step y', that is near to the requested y. Then again we subtract what we set from what we wanted: z = y - y'. Since this is the last element in our pipeline we apply that volume z in software.
+
+The effect of this is that "greatest" part of the volume adjustment is applied on the outermost volume element, while the inner elements are usually configured to something near 0dB. If the dB information exported by ALSA's mixer controls is correct this should be the optimal configuration: the outermost control usually influences an analog amp if there is any. The innermost controls should provide the maximum resolution while not inducing clipping.
+
+== But this is evil, my PCM control is always set to 100% this way! ==
+
+First of all, as mentioned above please do not think in volume percentages! They have no meaning. Think in the dB values ALSA shows you, too. 
+
+!PulseAudio depends on the correctness of the dB information the ALSA drivers export. That means that the "inner" controls should usually be configured to something next to 0dB which is the optimal setting for getting the best resolution whith no distortion/clipping. If the inner controls are configured to a volume greater than 0dB this means that you requested an overall volume greater than the "base" volume. Simply lowering the overall volume to the base volume should then make sure clipping goes away.
+
+If you are experiencing distortions/clipping even though the inner volumes are set to 0dB, then this means that the dB information your ALSA driver exports is simply incorrect. In this case please file a bug against your audio driver and ask them to correct (i.e. shift up) the volume scale of that volume control.
+
+== But I hate all this, you suck! ==
+
+We love you too. 
+
+If you want to disable the merging of volume controls like this you may pass the 'control=' parameter to module-alsa-sink (and friends) and pass the name of a single mixer control that !PulseAudio should control. !PulseAudio will then refrain from changing any other controls.
+
+== I think !PulseAudio is confused about the order in which it applies volumes to the controls of my pipeline! ==
+
+The order in which !PulseAudio applies volumes to the mixer controls is mostly based on assumptions (i.e. the control "Master" is more 'outside' than "PCM"). For almost all consumer cards these assumptions should be valid. However for some drivers this might turn out to be incorrect. In that case it is highly recommended to file a bug against those drivers so that their naming of mixer controls is fixed. If that is not possible or not applicable it is possible to influence the mixer handling of !PulseAudio by editing the files in /usr/share/pulseaudio/alsa-mixer/paths/*, /usr/share/pulseaudio/alsa-mixer/profile-sets/* and /lib/udev/rules.d/90-pulseaudio.rules.
+
+== I want to know more! ==
+
+[https://tango.0pointer.de/pipermail/pulseaudio-discuss/2009-June/004229.html Please read the initial announcement of the new mixer handling logic.] This contains quite a few hints on the lower-level control possibilities.
+
+[http://pulseaudio.org/wiki/WritingVolumeControlUIs Read this introduction on writing volume control UIs.] If you want to do development with the volume control handling this is what you want to read.
