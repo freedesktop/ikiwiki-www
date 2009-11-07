@@ -68,6 +68,10 @@ sudo apt-get -y install llvm-dev
 sudo apt-get -y install python-dev swig python-imaging python-imaging-tk
 }}}
 
+  1. Install GTK for rbug-gui{{{
+sudo apt-get -y install libgtk2.0-dev libgtkglext1-dev
+}}}
+
   1. Create and change to Gallium3D build director{{{
 mkdir Gallium3D
 cd Gallium3D
@@ -104,6 +108,15 @@ make
 ./lion
 }}}
 
+  1. Get special version of udis86 for llvmpipe{{{
+cd $GALLIUM/..
+git clone git://people.freedesktop.org/~jrfonseca/udis86
+cd udis86
+./configure --with-pic
+make
+sudo make install
+}}}
+
   1. Build llvmpipe{{{
 cd $GALLIUM
 scons debug=yes statetrackers=mesa drivers=llvmpipe winsys=xlib dri=false -k
@@ -121,4 +134,15 @@ scons debug=yes statetrackers=python drivers=softpipe,trace winsys=none
   1. Test Python State Tracker{{{
 export PYTHONPATH=$GALLIUM/build/linux-x86-debug/gallium/state_trackers/python
 python $GALLIUM/src/gallium/state_trackers/python/samples/tri.py
+}}}
+
+  1. Get rbug-gui source{{{
+cd $GALLIUM/..
+git clone git://git.freedesktop.org/git/mesa/rbug-gui
+}}}
+
+  1. Build rbug-gui{{{
+cd rbug-gui
+./autogen.sh
+make
 }}}
