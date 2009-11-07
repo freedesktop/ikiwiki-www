@@ -112,3 +112,13 @@ scons debug=yes statetrackers=mesa drivers=llvmpipe winsys=xlib dri=false -k
   1. Test llvmpipe{{{
 export LD_LIBRARY_PATH=$GALLIUM/build/linux-x86-debug/lib:$GALLIUM/build/linux-x86_64-debug:$LD_LIBRARY_PATH
 }}}
+
+  1. Build Python State Tracker{{{
+cd $GALLIUM
+scons debug=yes statetrackers=python drivers=softpipe,trace winsys=none
+}}}
+
+  1. Test Python State Tracker{{{
+export PYTHONPATH=$GALLIUM/build/linux-x86-debug/gallium/state_trackers/python
+python $GALLIUM/src/gallium/state_trackers/python/samples/tri.py
+}}}
