@@ -32,6 +32,13 @@ User login: user
 User password: chrysaor.info
 }}}
 
+  1. Turn off automatic updates
+    a. Launch Update Manager: "System"->"Administration"->"Update Manager"
+    a. Access Settings Pane: "Settings..." button in lower left corner
+    a. Select Updates Pane: "Updates" tab half way across top
+    a. Turnoff updates: deselect all update options
+    a. Close up Update Manager: select "Close" twice
+
   1. Start Terminal: "Applications"->"Accessories"->"Terminal"
 
   1. Change user password to gallium3d{{{
@@ -41,12 +48,24 @@ gallium3d
 gallium3d
 }}}
 
-  1. Install git source control package{{{
-sudo apt-get install git-core
+  1. Install build tool packages{{{
+sudo apt-get -y install autoconf automake1.9 libtool build-essential
 }}}
 
-  1. Install packages Mesa depends on{{{
-sudo apt-get build-dep mesa
+  1. Clarify build dependencies{{{
+sudo apt-get -y build-dep xorg mesa xserver-xorg-video-intel libdrm-dev
+}}}
+
+  1. Install more tools and libraries{{{
+sudo apt-get -y install git-core libxmu-dev xorg-dev xorg-build-macros flex bison libtiff4-dev libglut-dev sawfish git-core gitk libxmu-dev libxi-dev x11proto-xf86dga-dev scons
+}}}
+
+  1. Install LLVM{{{
+sudo apt-get -y install llvm-dev
+}}}
+
+  1. Install Python State Tracker{{{
+sudo apt-get -y install python-dev swig python-imaging python-imaging-tk
 }}}
 
   1. Create and change to Gallium3D build director{{{
@@ -54,4 +73,42 @@ mkdir Gallium3D
 cd Gallium3D
 }}}
 
-Once these steps are complete return to the parent page and follow the steps for building the reference driver.
+  1. Get latest Mesa3D repository.  It's where Gallium3D is hosted right now{{{
+git clone git://git.freedesktop.org/git/mesa/mesa
+}}}
+
+  1. Compile Mesa3D in a way that compiles Gallium3D and software driver{{{
+cd mesa
+export GALLIUM=$PWD
+make linux-x86-debug
+}}}
+
+  1. Compile OpenVG{{{
+cd src/gallium/state_trackers/vega
+make
+cd $GALLIUM
+}}}
+
+  1. Make sure that from now on all apps pick up newly compiled Gallium libs{{{
+export LD_LIBRARY_PATH=$GALLIUM/lib/gallium:$GALLIUM/lib:$LD_LIBRARY_PATH
+}}}
+
+  1. Make sure Gallium's EGL implementation is using the software driver{{{
+export EGL_DRIVER="egl_softpipe"
+}}}
+
+  1. Build and test OpenVG demos{{{
+cd progs/openvg/demos
+make
+./sp
+./lion
+}}}
+
+  1. Build llvmpipe{{{
+cd $GALLIUM
+scons debug=yes statetrackers=mesa drivers=llvmpipe winsys=xlib dri=false -k
+}}}
+
+  1. Test llvmpipe{{{
+export LD_LIBRARY_PATH=$GALLIUM/build/linux-x86-debug/lib:$GALLIUM/build/linux-x86_64-debug:$LD_LIBRARY_PATH
+}}}
