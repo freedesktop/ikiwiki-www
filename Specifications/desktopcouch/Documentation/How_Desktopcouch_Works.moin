@@ -1,0 +1,44 @@
+= How desktopcouch works =
+
+The process of giving every user a CouchDB for their applications to work with involves a number of engineering choices. This document explains how all those parts fit together and gives some indication as to why the decisions were made.
+
+If you are using desktopcouch from your applications, or are looking at your desktop CouchDB in a web browser, you don't need to read this document (but go ahead if you want to). It's for people hacking on the core of desktopcouch or people trying to debug strange problems.
+
+== Finding the desktopcouch port number ==
+
+The Desktop Couch CouchDB server runs on a randomly chosen port. This is because a fixed port would not make sense on a multi-user machine. Since the port is randomly generated, there has to be a way to discover the port; desktopcouch provides a D-Bus API to do so. You can discover the port from the command line with
+
+{{{
+dbus-send --session --dest=org.desktopcouch.CouchDB \
+   --print-reply --type=method_call / \
+   org.desktopcouch.CouchDB.getPort
+}}}
+
+Calling the D-Bus getPort API actually starts desktopcouch if it is not already running. This means that desktopcouch does not impact desktop startup time for people who don't use it. It also means that the API is the only reliable way to discover the port; do not grovel through the couchdb log files or `lsof` yourself to get it.
+
+It is safe to call getPort if desktopcouch is already running; it will simply return the port of the running desktop CouchDB.
+
+Libraries that wrap desktopcouch, such as `desktopcouch.records` and `couchdb-glib`, should call this API for their users. Users should not have to manually call the D-Bus API themselves, unless they're programming at a very low level. 
+
+The D-Bus getPort API is provided by `/usr/lib/desktopcouch/desktopcouch-service`. This script is run by D-Bus activation, and takes care of starting up desktopcouch if desktopcouch is not already running.
+
+Desktopcouch should never exit once it is running. However, it may crash; no software is perfect. Applications should be robust against desktopcouch crashing; if the port stops responding, call the D-Bus `getPort` API again, which will restart desktopcouch if crashed. Wrapper libraries such as `desktopcouch.records` should take care of this for applications and not expose this implementation detail where possible.
+
+== The desktopcouch startup process ==
+
+All desktopcouch's files are stored in the appropriate folders according to the [[http://standards.freedesktop.org/basedir-spec/basedir-spec-0.6.html|XDG BaseDirectory specification]]. On a default machine, desktopcouch-service will look for a CouchDB ini settings file in `$HOME/.config/desktop-couch/desktop-couchdb.ini`. If this ini file does not exist it is created (most of this initialisation work is done in the desktopcouch Python library, specifically `local_files.py` and `start_local_couchdb.py`). Startup also looks for and uses ini files in `/etc/xdg/desktop-couch`; desktopcouch ships with `compulsory-auth.ini` in this folder which sets CouchDB to ''require'' authentication for access. The distinction between these two places is that the user-specific ini file is regenerated if it doesn't exist, and contains user-specific data such as the user's OAuth tokens; ini files in `/etc/xdg/desktop-couch` are settings that apply to all desktop CouchDBs.
+
+On first desktopcouch startup, when the new ini file is created, desktopcouch randomly generates a basic authentication username/password and an OAuth token and token secret, for controlling access to the user's desktop CouchDB. It also writes a "bookmark" file at `$HOME/.local/share/desktop-couch/couchdb.html`, which "forwards" the user to the Futon web  interface for their desktop CouchDB. This "forwarding" file is needed because CouchDB is running on a randomly chosen port and therefore Futon itself can't be bookmarked (as the port will change whenever desktopcouch is restarted). So the user can bookmark the "bookmark page" instead, at the `file:///home/USERNAME/.local/share/desktop-couch/couchdb.html` URL.
+
+CouchDB writes out a logfile which can be used for troubleshooting to `$HOME/.cache/desktop-couch/desktop-couchdb.log`, and also writes its stdout and stderr to the same folder. See FIXME TROUBLESHOOTING DOC for details.
+
+== Replication ==
+
+The `desktopcouch-service` daemon also manages replication &mdash; this is how data is synced between "paired" desktop CouchDBs. Every ten minutes (time hardcoded in `desktopcouch/replication.py`), the daemon does stuff.
+
+Notes for this part:
+ * talk about zeroconf discovery and identifiers
+ * talk about replication_services
+ * talk about push and pull
+ * describe a paired-server record
+ * say about desktopcouch-pair in apt:desktopcouch-tools
