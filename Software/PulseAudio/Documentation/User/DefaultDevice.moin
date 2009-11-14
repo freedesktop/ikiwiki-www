@@ -1,0 +1,27 @@
+= Default devices =
+
+== The difference of "default" and "fallback" ==
+
+Standard !PulseAudio setup doesn't really have a concept of a "default" device. Whenever a new stream appears, !PulseAudio's stream-restore module checks if the same stream has been seen before, and if it is, then the stream is connected to the same sink or source where it was previously. There is a concept of a "fallback" device, which is used if the stream has not been seen before.
+
+== How to set the fallback device ==
+
+The fallback sink and source can be set with pavucontrol or pacmd, or configured in /etc/pulse/default.pa.
+
+Setting the device with pavucontrol happens in the "Output Devices" and "Input Devices" tabs by checking the "Default" or "Fallback" (depending on pavucontrol version) item in a device's menu.
+
+The pacmd commands are
+{{{
+pacmd set-default-sink <sink index or sink name>
+pacmd set-default-source <source index or source name>
+}}}
+
+Similarly the lines to put to /etc/pulse/default.pa are
+{{{
+set-default-sink <sink index or sink name>
+set-default-source <source index or source name>
+}}}
+
+== How to set the default device ==
+
+If you, for example, plug in a new sound card and want it to be the default device from now on, you can tell !PulseAudio to change the fallback sink to the new sound card, but that will only have effect on programs that !PulseAudio hasn't seen before. For this particular use case the current (as of 2009-11-14) state-of-the-art method to move everything to the new sound card is to use gnome-volume-control version 2.28, which modifies the stream-restore database when you set some device as the default. The second alternative is to use pavucontrol to move streams to the new sound card whenever you notice that some program is playing to a wrong sound card. The third alternative is to first set the fallback device, then stop !PulseAudio, then erase the stream-restore database by deleting the file containing the string "stream-volumes" in its name in the ~/.pulse directory, and finally restarting !PulseAudio.
