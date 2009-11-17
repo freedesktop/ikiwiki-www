@@ -2,142 +2,58 @@ The schema for contacts records, used by Evolution and Akonadi
 
 {{{
 {
-    "_id": "id_of_this_document", # internal to CouchDB
-    "_rev": "revision_for_this_document", #internal to CouchDB
+    "_id": string - unique ID of this document, # internal to CouchDB
+    "_rev": string - revision_for_this_document, #internal to CouchDB
     "record_type": "http://www.freedesktop.org/wiki/Specifications/desktopcouch/contact",
-    "first_name": "myFirstName",
-    "middle_name": "myMiddleName",
-    "last_name": "myLastName",
-    "title": "Mr",
-    "suffix": "Suffix",
-    "birth_date": "1971-01-01",
-    "nick_name": "nickname",
-    "spouse_name": "Spouse Name",
-    "wedding_date": 1971-01-01",
-    "company": "Company",
-    "department": "Department",
-    "job_title": "Job Title",
-    "manager_name": "Manager Name",
-    "assistant_name": "Assistant Name",
-    "office": "Office",
-    "addresses": {
-       "e84fde3e-4a7a-4997-8108-1353353bf0ce": {
-           "city": "myWorkCity",
-           "description": "work",
-           "address1": "1 myWorkStreet",
-           "state": "myWorkState",
-           "country": "myWorkCountry",
-           "postalcode": "myWorkPostalCode"
-       },
-       "d76bf1d1-db68-457f-978b-6c7c8f029831": {
-           "city": "myOtherCity",
-           "description": "other",
-           "country": "myOtherCountry",
-           "state": "myOtherState",
-           "address1": "1 myOtherStreet",
-           "postalcode": "myOtherPostalCode"
-       },
-       "fabdddf7-490c-4c42-bb11-dceaea578668": {
-           "city": "myHomeCity",
-           "description": "home",
-           "address1": "1 myHomeStreet",
-           "state": "myHomeState",
-           "country": "myHomeCountry",
-           "postalcode": "myHomePostalCode"
+    "first_name": string - First name of the contact,
+    "middle_name": string - Middle name of the contact,
+    "last_name": string - Last name of the contact,
+    "title": string - Title of the contact,
+    "suffix": string - Suffix of the contact,
+    "birth_date": string - Birth date in YYYY-MM-DD format,
+    "nick_name": string - Nick name,
+    "spouse_name": string - Spouse name,
+    "wedding_date": string - Wedding/Anniversary date in YYYY-MM-DD format,
+    "company": string - Company name,
+    "department": string - Department name,
+    "job_title": string - Job title,
+    "manager_name": string - Manager name,
+    "assistant_name": string - Assistant name,
+    "office": string - Office name,
+    "addresses": mergeable list of {
+       {
+           "city": string - City name,
+           "description": string - "work", "home" or "other",
+           "street": string - Street name,
+           "state": string - State / Region name,
+           "country": string - Country name,
+           "postalcode": string - Postal code
        }
     },
-    "phone_numbers": {
-       "00b10d79-cf9e-459b-bbb1-3a01727114ed": {
-           "description": "home",
-           "number": "myHomePhone"
-       },
-       "3d56e68f-c314-43bf-8020-58f7682065b6": {
-           "description": "mobile",
-           "number": "myMobilePhone"
-       },
-       "385a6cde-8877-4863-b1d7-8e592c7f0d47": {
-           "description": "home fax",
-           "number": "myHomeFax"
-       },
-       "09bce785-eb6a-49e3-bab3-a63e7565b6ae": {
-           "description": "work",
-           "number": "myWorkPhone"
-       },
-       "58aef0cf-22cc-4b6c-9354-3612113b8cf4": {
-           "description": "car",
-           "number": "123"
-       },
-       "cdfbbeb1-ec74-4d61-82e5-a0a7d1a16663": {
-           "description": "radio",
-           "number": "345"
-       },
-       "58d89f0b-de73-4193-8119-f1445afc1db9": {
-           "description": "pager",
-           "number": "myPager"
-       },
-       "ef94b639-aca6-4558-babe-8b9656298a1f": {
-           "description": "work fax",
-           "number": "myWorkFax"
-       },
-       "5a332a2a-1022-4f77-bc78-47c58f91ecb5": {
-           "description": "assistant",
-           "number": "assistantPhone"
-       },
-       "7f1d3197-c649-46a7-bb47-f62c04c8e4e0": {
-           "description": "callback",
-           "number": "callbackPhone"
-       },
-       "1a207a7d-ea03-4dec-b7e5-3ea6f856fa66": {
-           "description": "company",
-           "number": "companyPhone"
-       },
-       "6d803d19-1cce-4490-ace3-c50166d0fe0b": {
-           "description": "other",
-           "number": "otherPhone"
-       },
-       "0f148758-d1a0-49d8-a60d-e7875cfa046c": {
-           "description": "other fax",
-           "number": "otherFax"
-       },
-       "badfe6b4-b3f2-40c6-80ff-042df47cbc1b": {
-           "description": "primary",
-           "number": "primaryPhone"
-       },
-       "000b75ec-9f41-4231-b7f4-6e9b9b59293e": {
-           "description": "telex",
-           "number": "telexNumber"
+    "phone_numbers": mergeable list of {
+       {
+           "description": string - "home", "mobile", "home fax", "work", "car", "pager", "work fax", "assistant", "callback", "company", "other", "other fax", "primary", or "telex"
+           "number": string - Phone number
        }
     },
-    "email_addresses": {
-       "1716f4d1-7482-40c7-9f97-3f7b561e4c34": {
-           "description": "work",
-           "address": "myOtherEmail@example.com"
-       },
-       "1459bf35-129e-43fc-b2cd-c20ffa69850f": {
-           "description": "other",
-           "address": "myHomeEmail@example.com"
-       },
-       "cc198316-4f87-431f-8b20-a73a30de7b69": {
-           "description": "home",
-           "address": "myWorkEmail@example.com"
+    "email_addresses": mergeable list of {
+       {
+           "description": string - "work", "home" or "other"
+           "address": string - Email address
        }
     },
-    "urls": {
-       "02914d64-9df6-4f5c-838c-5aa0d360a776": {
-           "description": "blog",
-           "address": "http://blog.mysite.com"
-       },
-       "1bb9f0f8-1e02-437a-b27c-e22f2839c866": {
-           "description": "home page",
-           "address": "http://mysite.com"
+    "urls": mergeable list of {
+       {
+           "description": string - "blog" or "home page"
+           "address": string - URL
+       }
     },
-    "im_addresses": {
-        "1fce6f32-d2ec-4847-9a90-43b878ece904": {
-            "address": "idOfUser",
-            "description": "a description",
-            "protocol": "protocol (aim|gadu-gadu|groupwise|icq|irc|jabber|msn|skype|yahoo)"
+    "im_addresses": mergeable list of {
+        {
+            "address": string - IM user ID
+            "description": string - Description
+            "protocol": string - Protocol (aim|gadu-gadu|groupwise|icq|irc|jabber|msn|skype|yahoo)
         }
-        .... more im_addresses
     },
     "application_annotations": {
        "application_name": { ... }
