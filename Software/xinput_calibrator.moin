@@ -1,0 +1,25 @@
+#format wiki
+#language en
+== xinput_calibrator ==
+A generic touchscreen calibration program, for all Xorg touchscreen drivers.
+
+Before this application was created, the author spent quite some time trying to find a generic touchscreen calibration program. An overview of the calibration programs found is available at [[http://tias.ulyssis.org/calibration/]].
+
+Because all existing calibrators were driver dependent and hard to use, xinput_calibrator was created. The goal of xinput_calibrator is to:
+ * work for any Xorg driver (use Xinput to get axis valuators),
+ * output the calibration as Xorg.conf and FDI policy file values,
+ * support advanced driver options, such as Evdev's dynamic calibration,
+ * have a very intuitive GUI (normal X client).
+
+Xinput_calibrator is based on a simple calibrator that was [[http://lists.x.org/archives/xorg/2008-September/039064.html|proposed]] on the Xorg mailinglist. The first release(v0.2.0) improved upon it by reading axis valuators from Xinput, hence making it generic for all touchscreen drivers. The [[http://lists.freedesktop.org/archives/xorg/2009-September/047195.html|announcement]] was done on the Xorg mailinglist, and [[http://tias.ulyssis.org/calibration/#xinput_calibrator|the code]] is on Tias' webpage.
+
+The new version (v0.4.0) writes Xorg.conf and (HAL) FDI policy file values, and contains a wrapper script to get axis valuator information for the evtouch driver (evtouch does not export the current calibration through its axis valuators). It is also the first program to support dynamic evdev calibration, by using its advanced Xinput functionality.
+
+The project will hopefully live here, with a GIT repository and a BugZilla tracker.
+
+=== Roadmap ===
+After the project infrastructure is up, and the v0.4.0 release is done, the goals are to:
+ * Split the one-huge-file into clean components
+ * Rewrite the GTK-mm frontend in pure X windowing,
+ * Create manpage, readme etc and package for some distributions
+ * (perhaps) read HAL information in the program ? eg hardware name, driver name, evtouch calibration, ...
