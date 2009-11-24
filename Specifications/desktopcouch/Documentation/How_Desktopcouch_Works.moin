@@ -33,14 +33,10 @@ On first desktopcouch startup, when the new ini file is created, desktopcouch ra
 CouchDB writes out a logfile which can be used for troubleshooting to `$HOME/.cache/desktop-couch/desktop-couchdb.log`, and also writes its stdout and stderr to the same folder. See FIXME TROUBLESHOOTING DOC for details.
 
 == Authentication ==
-Notes for this section:
 
-* oauth
-* language bindings should retrieve oauth tokens from file
-* don't use basic auth from apps, it's just for the web browser view
-* don't cache auth details in your own application; ask for them when you need them
-* all this stuff is done by the language bindings, don't do it manually
-* point to desktopcouch.records documentation
+Access to desktopcouch requires authentication, so that only the owner of the desktopcouch can see the data in it. Authentication is through two-legged OAuth. The OAuth token and token secret should be retrieved from the desktopcouch ini file, `$HOME/.config/desktop-couch/desktop-couchdb.ini`, when required; do not cache these tokens, but request them when needed. (They may change; if the ini file is deleted, it will be regenerated with new tokens.) Libraries that access desktopcouch should seamlessly access these tokens and use them to OAuth-sign requests without bothering the user. The desktopcouch.records Python library does this in `desktopcouch.local_files.get_oauth_tokens`, for example; use the code here as a template for how your library should do it, if you're writing a library.
+
+When the ini file is generated, an HTTP basic authentication username and password are also generated. Do not use basic auth to access desktopcouch from code; use OAuth. The basic auth username and password are generated so that the user can have web-browser access to Futon from the bookmark file; if web browsers did OAuth natively, this wouldn't be required. However, if browsers start doing OAuth natively, the basic-auth username/password will be removed; do not rely on them. Use OAuth.
 
 == Replication ==
 
