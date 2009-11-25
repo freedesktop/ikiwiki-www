@@ -1,0 +1,100 @@
+= Simple Guide to using desktopcouch in your applications =
+
+This document describes in basic terms how to store data to and retrieve data from desktopcouch for application developers.
+
+== desktopcouch.records ==
+
+`desktopcouch.records` is the Python library for accessing desktopcouch from applications. Basic use is as follows (simple examples are also available offline in `/usr/share/doc/python-desktopcouch-records/api/records.txt`):
+
+{{{
+>>> from desktopcouch.records.server import CouchDatabase
+>>> from desktopcouch.records.record import Record
+}}}
+
+Create a database object. Your database needs to exist. If it doesn't, you
+can create it by passing create=True.
+
+{{{
+>>> db = CouchDatabase('testing', create=True)
+}}}
+
+Create a Record object. Records have a record type, which should be a
+URL.  The URL should point to a human-readable document which
+describes your record type. (This is not checked, though.) You can
+pass in an initial set of data.
+
+{{{
+>>> r = Record({'a':'b'}, record_type='http://example.com/testrecord')
+}}}
+
+Records work like Python dicts.
+
+{{{
+>>> r['c'] = ['d','e','f']
+}}}
+
+Save the record into the database with put_record:
+
+{{{
+>>> record_id = db.put_record(r)
+}}}
+
+Fetch existing records from the database by ID:
+
+{{{
+>>> fetched = db.get_record(record_id)
+>>> print fetched['a']
+b
+>>>
+}}}
+
+There is no ad-hoc query functionality.
+
+For views, you should specify a design document for most all calls.
+
+{{{
+>>> design_doc = "application"
+}}}
+
+To create a view:
+
+{{{
+>>> map_js = """function(doc) { emit(doc._id, null) }"""
+>>> reduce_js = None
+>>> db.add_view("blueberries", map_js, reduce_js, design_doc)
+}}}
+
+List views for a given design document:
+
+{{{
+>>> db.list_views(design_doc)
+['blueberries']
+}}}
+
+Test that a view exists:
+
+{{{
+>>> db.view_exists("blueberries", design_doc)
+True
+}}}
+
+Execute a view.  Results from execute_view() take list-like syntax to
+pick one or more rows to retrieve.  Use index or slice notation.
+
+{{{
+>>> result = db.execute_view("blueberries", design_doc)
+>>> for row in result["idfoo"]:
+...     pass  # all rows with id "idfoo".  Unlike lists, may be more than one.
+}}}
+
+Finally, remove a view.  It returns a dict containing the deleted view data.
+
+{{{
+>>> db.delete_view("blueberries", design_doc)
+{'map': 'function(doc) { emit(doc._id, null) }'}
+}}}
+
+For most operations (except testing existence), if the view you ask for does
+not exist, the function will throw a KeyError exception.
+
+There are also some introductory desktopcouch code snippets on the [[https://wiki.ubuntu.com/Quickly/Snippets|Quickly code snippets]] page.
