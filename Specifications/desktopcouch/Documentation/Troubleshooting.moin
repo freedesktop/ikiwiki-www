@@ -18,3 +18,13 @@ To re-start desktopcouch from scratch, do the following, in a terminal window:
  2. `rm ~/.config/desktop-couch/desktop-couchdb.ini` - this will remove the desktopcouch configuration file, which will then be re-generated. (This will ''not'' lose any data stored in desktopcouch, do not worry.)
  3. `dbus-send --session --dest=org.desktopcouch.CouchDB --print-reply --type=method_call / org.desktopcouch.CouchDB.getPort` - this should restart desktopcouch. You can ignore messages printed by this command
  4. `xdg-open file:///home/YOURUSERNAME/.local/share/desktop-couch/couchdb.html` - open the bookmark file, which should then correctly take you to your desktopcouch web interface
+
+== Can't open CouchDB addressbook from Evolution contacts ==
+This usually means that desktopcouch is not running, but it might be due to other causes, so to troubleshoot it, please run, on a terminal:
+{{{
+$ evolution --force-shutdown
+$ /usr/lib/evolution/evolution-data-server-2.28    # note that this path might be different depending on your distro/version
+                                                   # so make sure you check where the evolution-data-server binary is on your
+                                                   # system if this doesn't work
+}}}
+Then, start Evolution again and try to open again the CouchDB addressbook. If it fails, have a look at the output on the terminal, it should have some hints as to why it failed. If you don't understand it, please copy all the output and [[https://bugs.edge.launchpad.net/evolution-couchdb/+filebug|file a bug here]], making sure you paste the output from the terminal to the bug report.
