@@ -101,4 +101,17 @@ There are also some introductory desktopcouch code snippets on the [[https://wik
 
 == couchdb-glib ==
 
-`couchdb-glib` is the C library for accessing desktopcouch from applications.
+`couchdb-glib` is a C library for accessing CouchDB servers, included desktopcouch. It heavily uses Glib's GObject to offer a nice API that easily integrates into GNOME/GTK applications.
+
+To start using, first thing is to include the top-level header file
+{{{
+#include <couchdb-glib/couchdb-glib.h>
+}}}
+
+The entry point for the API is the ''CouchDB'' object, which can be obtained as shown in the following example:
+{{{
+CouchDB *couchdb;
+
+couchdb = couchdb_new ("http://localhost:5984");
+}}}
+The only argument to ''couchdb_new'' is the URL of the CouchDB instance to connect to. If NULL, it would use the system-wide CouchDB instance (located at http://localhost:5984). Also, take into account that at the time of this writing, couchdb-glib doesn't know anything specific about desktopcouch, so you need to get the port and OAuth credentials as shown [[http://git.gnome.org./cgit/evolution-couchdb/tree/addressbook/e-book-backend-couchdb.c|here]] (see function ''e_book_backend_couchdb_load_source'' in that code). Code to do this automatically for you is being added to couchdb-glib unstable version, so should be available soon in the stable API.
