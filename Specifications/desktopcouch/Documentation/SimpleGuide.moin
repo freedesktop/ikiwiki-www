@@ -136,3 +136,17 @@ Or delete existing databases:
 {{{
 gboolean couchdb_delete_database (CouchDB *couchdb, const char *dbname, GError **error);
 }}}
+
+Also, before starting to work with documents on a specific database, you might want to listen for changes on the database(s) you're working with. To do so, you just need to call the following function:
+{{{
+void couchdb_listen_for_changes (CouchDB *couchdb, const char *dbname);
+}}}
+This will setup a listener for changes on the database specificied by the ''dbname'' argument. Notification of changes are sent to the caller via GObject's signals, so to actually receive those notifications in your application, you would need to connect to one (or all) of the following signals of the ''CouchDB'' object:
+{{{
+void (* database_created) (CouchDB *couchdb, const char *dbname);
+void (* database_deleted) (CouchDB *couchdb, const char *dbname);
+void (* document_created) (CouchDB *couchdb, const char *dbname, CouchDBDocument *document);
+void (* document_updated) (CouchDB *couchdb, const char *dbname, CouchDBDocument *document);
+void (* document_deleted) (CouchDB *couchdb, const char *dbname, const char *docid);
+}}}
+If you don't call ''couchdb_listen_for_changes'' on your program, you might still get some notifications through these signals of the changes done through your application, but you won't get any notification for external changes.
