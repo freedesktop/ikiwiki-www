@@ -166,7 +166,7 @@ CouchDBDocument *couchdb_document_get (CouchDB *couchdb,
                                        const char *docid,
                                        GError **error);
 }}}
-This returns a ''CouchDBDocument'' object, which lets you read/modify a document in memory. There are several functions you'd want to know for retrieving/setting fields' data on a document:
+This returns a ''CouchDBDocument'' object, which lets you read/modify a document in memory. You can also create an empty ''CouchDBDocument'' object in memory with the ''couchdb_document_new'' function, for later saving it to the database. There are several functions you'd want to know for retrieving/setting fields' data on a document:
 {{{
 gboolean         couchdb_document_has_field (CouchDBDocument *document, const char *field);
 void             couchdb_document_remove_field (CouchDBDocument *document, const char *field);
@@ -196,3 +196,64 @@ void                couchdb_struct_field_set_string_field (CouchDBStructField *s
 CouchDBStructField *couchdb_struct_field_get_struct_field (CouchDBStructField *sf, const char *field);
 void                couchdb_struct_field_set_struct_field (CouchDBStructField *sf, const char *field, CouchDBStructField *value);
 }}}
+Once you have modified your document and want to save it to the database, you use the following function:
+{{{
+gboolean couchdb_document_put (CouchDBDocument *document,
+                               const char *dbname,
+                               GError **error);
+}}}
+Also, you can remove documents, based on their unique ID:
+{{{
+gboolean couchdb_document_delete (CouchDBDocument *document, GError **error);
+}}}
+
+=== Working with contacts ===
+couchdb-glib provide high-level API for dealing with ''CouchDBDocument'' that are contacts. For that, you can use the following functions:
+{{{
+const char *couchdb_document_contact_get_first_name (CouchDBDocument *document);
+void        couchdb_document_contact_set_first_name (CouchDBDocument *document, const char *first_name);
+const char *couchdb_document_contact_get_last_name (CouchDBDocument *document);
+void        couchdb_document_contact_set_last_name (CouchDBDocument *document, const char *last_name);
+const char *couchdb_document_contact_get_nick_name (CouchDBDocument *document);
+void        couchdb_document_contact_set_nick_name (CouchDBDocument *document, const char *nick_name);
+const char *couchdb_document_contact_get_spouse_name (CouchDBDocument *document);
+void        couchdb_document_contact_set_spouse_name (CouchDBDocument *document, const char *spouse_name);
+const char *couchdb_document_contact_get_birth_date (CouchDBDocument *document);
+void        couchdb_document_contact_set_birth_date (CouchDBDocument *document, const char *birth_date);
+const char *couchdb_document_contact_get_wedding_date (CouchDBDocument *document);
+void        couchdb_document_contact_set_wedding_date (CouchDBDocument *document, const char *wedding_date);
+
+const char *couchdb_document_contact_get_company (CouchDBDocument *document);
+void        couchdb_document_contact_set_company (CouchDBDocument *document, const char *company);
+const char *couchdb_document_contact_get_department (CouchDBDocument *document);
+void        couchdb_document_contact_set_department (CouchDBDocument *document, const char *department);
+const char *couchdb_document_contact_get_title (CouchDBDocument *document);
+void        couchdb_document_contact_set_title (CouchDBDocument *document, const char *title);
+const char *couchdb_document_contact_get_job_title (CouchDBDocument *document);
+void        couchdb_document_contact_set_job_title (CouchDBDocument *document, const char *job_title);
+const char *couchdb_document_contact_get_manager_name (CouchDBDocument *document);
+void        couchdb_document_contact_set_manager_name (CouchDBDocument *document, const char *manager_name);
+const char *couchdb_document_contact_get_assistant_name (CouchDBDocument *document);
+void        couchdb_document_contact_set_assistant_name (CouchDBDocument *document, const char *assistant_name);
+const char *couchdb_document_contact_get_office (CouchDBDocument *document);
+void        couchdb_document_contact_set_office (CouchDBDocument *document, const char *office);
+
+GSList     *couchdb_document_contact_get_email_addresses (CouchDBDocument *document);
+void        couchdb_document_contact_set_email_addresses (CouchDBDocument *document, GSList *list);
+
+GSList     *couchdb_document_contact_get_phone_numbers (CouchDBDocument *document);
+void        couchdb_document_contact_set_phone_numbers (CouchDBDocument *document, GSList *list);
+
+GSList     *couchdb_document_contact_get_addresses (CouchDBDocument *document);
+void        couchdb_document_contact_set_addresses (CouchDBDocument *document, GSList *list);
+
+GSList     *couchdb_document_contact_get_im_addresses (CouchDBDocument *document);
+void        couchdb_document_contact_set_im_addresses (CouchDBDocument *document, GSList *list);
+
+GSList     *couchdb_document_contact_get_urls (CouchDBDocument *document);
+void        couchdb_document_contact_set_urls (CouchDBDocument *document, GSList *list);
+
+const char *couchdb_document_contact_get_notes (CouchDBDocument *document);
+void        couchdb_document_contact_set_notes (CouchDBDocument *document, const char *notes);
+}}}
+They allow you to easily get/set values from the contacts records without having to remember the names of the fields
