@@ -118,6 +118,7 @@ The only argument to ''couchdb_new'' is the URL of the CouchDB instance to conne
 
 Once you have a ''CouchDB'' object, you can do all the operations the API provides from it. Please note that most of the API functions have a ''GError'' argument as the last parameter, which is used to return error information to the caller.
 
+=== Working with databases ===
 First, you can list the databases that are available:
 {{{
 GSList *couchdb_list_databases (CouchDB *couchdb, GError **error);
@@ -150,3 +151,48 @@ void (* document_updated) (CouchDB *couchdb, const char *dbname, CouchDBDocument
 void (* document_deleted) (CouchDB *couchdb, const char *dbname, const char *docid);
 }}}
 If you don't call ''couchdb_listen_for_changes'' on your program, you might still get some notifications through these signals of the changes done through your application, but you won't get any notification for external changes.
+
+=== Working with documents ===
+Once you know what database you'll be working with, you can use the documents part of the API. First, to list documents on a specific database:
+{{{
+GSList          *couchdb_list_documents (CouchDB *couchdb, const char *dbname, GError **error);
+}}}
+This returns a list of ''CouchDBDocumentInfo'', which is a struct that contains the unique identifier and last revision number for a specific document.
+
+To get a specific document:
+{{{
+CouchDBDocument *couchdb_document_get (CouchDB *couchdb,
+                                       const char *dbname,
+                                       const char *docid,
+                                       GError **error);
+}}}
+This returns a ''CouchDBDocument'' object, which lets you read/modify a document in memory. There are several functions you'd want to know for retrieving/setting fields' data on a document:
+{{{
+gboolean         couchdb_document_has_field (CouchDBDocument *document, const char *field);
+void             couchdb_document_remove_field (CouchDBDocument *document, const char *field);
+gboolean         couchdb_document_get_boolean_field (CouchDBDocument *document, const char *field);
+void             couchdb_document_set_boolean_field (CouchDBDocument *document, const char *field, gboolean value);
+gint             couchdb_document_get_int_field (CouchDBDocument *document, const char *field);
+void             couchdb_document_set_int_field (CouchDBDocument *document, const char *field, gint value);
+gdouble          couchdb_document_get_double_field (CouchDBDocument *document, const char *field);
+void             couchdb_document_set_double_field (CouchDBDocument *document, const char *field, gdouble value);
+const char      *couchdb_document_get_string_field (CouchDBDocument *document, const char *field);
+void             couchdb_document_set_string_field (CouchDBDocument *document, const char *field, const char *value);
+CouchDBStructField *couchdb_document_get_struct_field (CouchDBDocument *document, const char *field);
+void             couchdb_document_set_struct_field (CouchDBDocument *document,
+                                                    const char *field,
+                                                    CouchDBStructField *value);
+}}}
+These functions allow you to check for the existence of a field in a document (''couchdb_document_has_field''), remove a field from it (''couchdb_document_remove_field'') and retrieve/set the value of a field in different formats (boolean, integer, double, string). A special mention is needed for the ''couchdb_document_get_struct_field'' and ''couchdb_document_get_struct_field'', which allow you to have object fields (or structs, if you find it easier to understand it that way) on your documents. Object fields can in turn contain other object fields, and they are manager by the ''CouchDBStructField'' object, which contains very similar methods to those of ''CouchDBDocument'' shown above:
+{{{
+gboolean            couchdb_struct_field_get_boolean_field (CouchDBStructField *sf, const char *field);
+void                couchdb_struct_field_set_boolean_field (CouchDBStructField *sf, const char *field, gboolean value);
+gdouble             couchdb_struct_field_get_double_field (CouchDBStructField *sf, const char *field);
+void                couchdb_struct_field_set_double_field (CouchDBStructField *sf, const char *field, gdouble value);
+gint                couchdb_struct_field_get_int_field (CouchDBStructField *sf, const char *field);
+void                couchdb_struct_field_set_int_field (CouchDBStructField *sf, const char *field, gint value);
+const char         *couchdb_struct_field_get_string_field (CouchDBStructField *sf, const char *field);
+void                couchdb_struct_field_set_string_field (CouchDBStructField *sf, const char *field, const char *value);
+CouchDBStructField *couchdb_struct_field_get_struct_field (CouchDBStructField *sf, const char *field);
+void                couchdb_struct_field_set_struct_field (CouchDBStructField *sf, const char *field, CouchDBStructField *value);
+}}}
