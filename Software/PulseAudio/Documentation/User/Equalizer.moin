@@ -114,38 +114,6 @@ python qpaeq.py
 If the frequency bands in there aren't good enough for you, add in your own (in order) inside qpaeq.py, its under the variable named DEFAULT_FREQUENCIES.  Restart the gui and voilà.  The equalizer also automatically subdivides frequency ranges depending on the width of the window and supports presets.
 
 
-
-== Crashes/Bad performance: ==
-
-They happen and are being worked on - give a shout out to Lennart so he knows you care and so he'll help me fix the problems ;-).
-You can test the to extremes to see how the filter will work for you by seeing how things perform in min/max performance modes:
-
-{{{
-sudo -s
-cd /sys/devices/system/cpu/cpu0/cpufreq
-echo userspace > scaling_governor
-cat scaling_min_freq > scaling_setspeed
-}}}
-
-(test equalizer)
-or
-
-{{{
-cat scaling_max_freq > scaling_setspeed
-}}}
-
-(test equalizer)
-
-Timing information is printed for data collection/processing times if launched with -vvv.
-
-On particular git versions and configurations it is also possible to get constant rewindings or superfast playback on pulse/alsa clients. Go figure.  Try toggling tsched and see if that helps.  Please complain about this loudly.
-
-
-Please submit backtraces if you can get things to crash! See
-[http://pulseaudio.org/wiki/Community#BugsPatchesTranslations here] for info on
-how to collect backtraces.
-
-
 == Questions/Comments/Problems ==
 
 Drop phish3 a line in the irc channel on freenode or join the [http://pulseaudio.org/wiki/Community#MailingLists mailing list].
