@@ -1,6 +1,6 @@
-= PulseAudio shows as using so much memory in top! Why? =
+= !PulseAudio shows up as memory hogger in top! Why? =
 
-When starting up PulseAudio allocates a 64mb shared memory segment and then for each active client another 64mb segment is added. For the uninitiated this might look as if PA wastes substantial amounts of memory. However this is actually not the case. And here's why:
+When starting up !PulseAudio allocates a 64mb shared memory segment and then for each active client another 64mb segment is added. For the uninitiated this might look as if PA wastes substantial amounts of memory. However this is actually not the case. And here's why:
 
 What PA does is allocating address space that is not actually backed with real RAM until first use. Most modern operating systems distuingish between allocation of memory and allocation of address space and allocating these segments comes at virtually no cost. Usually only a very small part of these segments is actually ever backed by proper memory because it is actually used. Also note that these shared memory segments are shared between the process that allocates them and the processes that access them (due to their very nature as ''shared memory'' segments). That means that if you just look at the amount of address space that is allocated for each process you will get a value that is substantially higher than the actual memory consumption of PA and the PA clients.
 
