@@ -3,8 +3,6 @@
 
 == A quick description of the threading model ==
 
-Please note that this documentation covers only the new not-yet-released code from the master branch in GIT.
-
 PA now supports a new RT threading model. That means that access to the audio drivers is now seperated from the main event loop. Originally, doing all stuff in the single event loop seemed to be a good idea but as we started to hook up more and more stuff (including X11 now) to the event loop this turned out to be a bad idea.
 
 In the new model, each driver should run its I/O code in a seperate thread. Usually this means that each sink and each source are handled in a thread of their own. In some cases (like OSS) a single thread is shared for a pair for sink and source. Communication between the (non-realtime) main thread (that still exists and where a lot of code remains) and the real-time I/O threads is intended to be done entirely lock-free (at least on the RT side). For this we have added couple of lock-free APIs. Most importantly this is pa_asyncmsgq which is a message queue object where pushing and popping is most of the time a lock-free operation, unless we have to sleep an event in which case a unix pipe is used internally.
