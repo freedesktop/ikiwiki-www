@@ -24,10 +24,16 @@ set-default-source <source index or source name>
 
 == How to set the default device ==
 
-If you, for example, plug in a new sound card and want it to be the default device from now on, you can tell !PulseAudio to change the fallback sink to the new sound card, but that will only have effect on programs that !PulseAudio hasn't seen before. For this particular use case the current (as of 2009-11-14) state-of-the-art method to move everything to the new sound card is to use gnome-volume-control version 2.28, which modifies the stream-restore database when you set some device as the default. The second alternative is to use pavucontrol to move streams to the new sound card whenever you notice that some program is playing to a wrong sound card. The third alternative is to first set the fallback device, then stop !PulseAudio, then erase the stream-restore database by deleting the file containing the string "stream-volumes" in its name in the ~/.pulse directory, and finally restarting !PulseAudio.
+If you, for example, plug in a new sound card and want it to be the default device from now on, you can tell !PulseAudio to change the fallback sink to the new sound card, but that will only have effect on programs that !PulseAudio hasn't seen before. For this particular use case the current (as of 2010-01-23) state-of-the-art method to move everything to the new sound card is to use gnome-volume-control version 2.28, which modifies the stream-restore database when you set some device as the default.
 
-There is also the third option to make default sink and source to work to all applications by disabling stream target device reading from the stream cache. Simply modify your /etc/pulse/default.pa containing the the following line and restart pulseaudio daemon. 
+The second alternative is to use pavucontrol to move streams to the new sound card whenever you notice that some program is playing to a wrong sound card.
+
+The third alternative is to first set the fallback device, then stop !PulseAudio, then erase the stream-restore database by deleting the file containing the string "stream-volumes" in its name in the ~/.pulse directory, and finally restarting !PulseAudio.
+
+There is also the fourth option to make default sink and source to work to all applications by disabling stream target device reading from the stream cache. Simply modify the `load-module module-stream-restore` line that should already be in your /etc/pulse/default.pa, so that it looks like this:
 {{{
 load-module module-stream-restore restore_device=false
 }}}
-Now all opened stream will open to default sink or source even in the case that there is a record in the stream-volumes for the stream. Now you can plug an USB audio device and set it as default sink and source and all opened streams (new and or already seen) will go to the new device. Only streams that are open need to be moved by pavucontrol or re-opened.
+Then restart !PulseAudio.
+
+Now all opened streams will open to default sink or source even in the case that there is a record in the stream-volumes for the stream. Now you can plug an USB audio device and set it as default sink and source and all opened streams (new and or already seen) will go to the new device. Only streams that are open need to be moved by pavucontrol or re-opened.
