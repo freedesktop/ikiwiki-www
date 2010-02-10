@@ -10,6 +10,10 @@ This normally means that desktopcouch didn't properly write the bookmark file la
 
 If data isn't syncing to other CouchDBs properly, so (for example) your Evolution contacts are stored in desktopcouch but are not appearing in the Ubuntu One web interface, check the replication log. This is a logfile listing the output from replication, and is at `~/.cache/desktop-couch/log/desktop-couch-replication.log`. This log may give you some clues as to what's going wrong. Ask on irc.freenode.net `#ubuntuone` if the log makes no sense.
 
+Verify that you have Avahi running: '''[[https://bugs.launchpad.net/bugs/506601|#506601]]''' Pairing and replication does not work if Avahi is down.
+
+Verify that desktopcouch is properly started. The correct way of desktopcouch startup is via desktopcouch-service (or DBus autolaunch e.g. on getPort()). desktopcouch.records module is able to start couchdb if it is not running, but it does not start related services: '''[[https://bugs.launchpad.net/bugs/519028|#519028]]''' Desktopcouch replication and org.desktopcouch.CouchDB.service are NOT started on desktopcouch.records calls.
+
 == Killing and restarting desktopcouch ==
 
 To re-start desktopcouch from scratch, do the following, in a terminal window:
