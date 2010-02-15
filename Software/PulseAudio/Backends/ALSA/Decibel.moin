@@ -21,13 +21,13 @@ This will test the dB data of the "Master" mixer control of the "Aureon51MkII" s
 $ cat /proc/asound/cards
 }}}
 
-The ID string is enclosed in []. Instead of card names you may also use card indexes as first parameter to dbverify. The list of suitable mixer controls for the second parameter of dbverify you may list with:
+The ALSA card ID string is enclosed in []. Instead of card names you may also use ALSA card indexes as first parameter to dbverify. The list of suitable mixer controls for the second parameter of dbverify you may list with:
 
 {{{
-amixer -D hw:Aureon51MkII
+amixer -D hw:Aureon51MkII | grep "Simple mixer control"
 }}}
 
-If the third and fourth parameter is ommited, the tool will test the loudest volume setting against the softest one. If specified the tool will compare these two discrete volumes. It is advisable to play around with these values to compare multiple volume steps of the hardware. It is especially wise not to pick your own values if the lowest hw volume setting is not hearable.
+If the third and fourth parameter to dbverify are ommited, the tool will test the loudest volume setting against the softest one. If those arguments are specified the tool will compare these two discrete volumes. It is advisable to play around with these values to compare multiple volume steps of the hardware. It is especially wise to pick your own values if the lowest hw volume setting is too silent to be audible.
 
 The tool will play a 1s sine wave twice and in a loop, and attenuate it once in software and once in hardware. The effect should be that the wave should have the same volume both times if the dB information is reliable. If the dB data is not correct, then they will have different volumes.
 
