@@ -8,7 +8,7 @@ manipulate and get information about PA objects. For that
 please consult the doxygen documentation. Instead it is just a
 rough list of things you should keep in mind and be aware of.
 
-A lot of this applies only to PA >= 0.9.15.
+A lot of this applies only to PA >= 0.9.19.
 
 For a low-level overview on what is happening underneath [wiki:PulseAudioStoleMyVolumes read this wiki page!]
 
@@ -34,7 +34,7 @@ PA is very dynamic. Sinks/sources/sink inputs/source outputs/clients/cards can c
 
 In PulseAudio volumes are stored in the pa_volume_t (a single integer) and pa_cvolume (an array of one pa_volume_t integer per channel) data types. The values range from 0 (silence) to 65536 ("maximum" sensible volume). In some situations volumes > 65536 are possible as well (see below).
 
-Volumes stored in pa_volume_t/pa_cvolume should be considered opaque, i.e. arithmetic calculations like multiplication, addition, division should not be applied to them.
+Volumes stored in pa_volume_t/pa_cvolume should be considered opaque, i.e. arithmetic calculations like multiplication, addition, division should not be applied to them. Where possible pa_volume_t is selected in a way that makes it suitable for showing in UI volume controls mapped linearly to pixels.
 
 Sinks, sources and sink inputs have a volume attached. Source outputs do *not* have a volume attached! In addition a 'mute' boolean is available for the same objects. For normal playback first the sink input volume is applied  followed by the sink volume. For recording only the source volume matters. (Also note the part about "Flat volumes" below)
 
@@ -59,7 +59,7 @@ Silence ...
 
   ... as linear volume is 0.0
 
-  ... as decibel value is something <= -90dB
+  ... as decibel value is something near -inf dB
 
 "Maximum" applicable volume:
 
