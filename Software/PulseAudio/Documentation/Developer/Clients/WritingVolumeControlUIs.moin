@@ -136,6 +136,22 @@ The UI should probably show explicit markers on the sliders for PA_VOLUME_MUTED,
 
 Note that the base volume is purely a hint for the UI. It should not be used for any calculations. It's definition is very vague.
 
+== Colored volume sliders ==
+
+If you want to it might make sense to color certain parts of the volume slider in green, yellow, red. The logic should be like this:
+
+If base_volume > PA_VOLUME_MUTED and < PA_VOLUME_NORM then use:
+
+ * green for the range between PA_VOLUME_MUTED and base_volume
+ * yellow for the range between base_volume and PA_VOLUME_NORM
+ * red for the range beyond PA_VOLUME_NORM.
+
+If base_volume is == PA_VOLUME_MUTED or >= PA_VOLUME NORM then use:
+
+ * green for the range from PA_VOLUME_MUTED to PA_VOLUME_NORM
+ * no yellow
+ * red for the range beyond PA_VOLUME_NORM
+
 == Flat Volumes ==
 
 As mentioned above for playback the final volume you hear is comprised of the sink and the sink input volume. Having these two volumes in series is of course confusing to the user. That's where the "flat volume" features comes into play. It's based on Vista's flat volume mechanism. Basically when this is enabled, the volume of the sink is always the maximum volume of all inputs connected to the sink. That means when you adjust a sink input volume it will directly influence the sink volume if it is the loudest of the streams connected to it. In reverse, if you manipulate the sink volume this will scale all sink input volumes equally.
