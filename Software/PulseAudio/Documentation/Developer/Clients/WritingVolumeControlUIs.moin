@@ -114,13 +114,13 @@ It probably is a good idea to show the list of cards to allow switching of diffe
 
 == Presenting Volumes ==
 
-Generally you should present sliders that ranges from PA_VOLUME_MUTED to PA_VOLUME_NORM. For sink inputs that slider should probably show no steps (although in fact you have 65537 steps due to the range of 0..65536 that is PA_VOLUME_MUTED..PA_VOLUME_NORM). For sinks and sources the same applies if PA_SINK_DECIBEL/PA_SOURCE_DECIBEL is set. If it is not set the n_volume_steps field will tell you how many steps the hardware actually supports that are between PA_VOLUME_MUTED and PA_VOLUME_NORM. If the flags are set the n_volume_steps field will be set to 65537.
+Generally you should present sliders that ranges from PA_VOLUME_MUTED to PA_VOLUME_NORM, possibly extending it beyond that. For sink inputs that slider should probably show no steps (although in fact you have 65537 steps due to the range of 0..65536 that is PA_VOLUME_MUTED..PA_VOLUME_NORM). For sinks and sources the same applies if PA_SINK_DECIBEL/PA_SOURCE_DECIBEL is set. If it is not set the n_volume_steps field will tell you how many steps the hardware actually supports that are between PA_VOLUME_MUTED and PA_VOLUME_NORM. If the flags are set the n_volume_steps field will be set to 65537.
 
 Normal users probably prefer a a volume range in percent, i.e. 0%..100%. You should map that linearly to 0..65536 (i.e. PA_VOLUME_MUTED..PA_VOLUME_NORM). Advanced users probably prefer dB volumes. Hence it makes sense to present this volume format as well, similarly to how most better Hifi racks do it. It might be a good idea to hide them by default and only show them when you click somewhere or so.
 
 There is no point in presenting raw pa_volume_t or even linear volumes to the users. They are either incomprehensible or give a wrong "feeling" of volume.
 
-While generally it is a good idea to limit the volume slider to PA_VOLUME_MUTED..PA_VOLUME_NORM it makes sense to extend this further for some sources (and only for sources). The reason for this is that some sound cards record audio in a very low bit depth and in the LSBs of the PCM samples and need digital amplification to produce a suitable signal for applications. To deal with these cases it makes sense to extend the volume range to PA_VOLUME_MUTED..PA_VOLUME_NORM*2 or something similar. For all volumes that are > PA_VOLUME_NORM (i.e. beyond the maximum volume setting of the hw) PA will do digital amplification. This works only for devices that have PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME set. For devices that lack this flag do *not* extend the volume slider like this, it will not have any effect.
+While generally it is a good idea to limit the volume slider to PA_VOLUME_MUTED..PA_VOLUME_NORM it makes sense to extend this further for sources (and possibly sinks). The reason for this is that some sound cards record audio in a very low bit depth and in the LSBs of the PCM samples and need digital amplification to produce a suitable signal for applications. To deal with these cases it makes sense to extend the volume range to PA_VOLUME_MUTED..PA_VOLUME_NORM*2 or something similar. For all volumes that are > PA_VOLUME_NORM (i.e. beyond the maximum volume setting of the hw) PA will do digital amplification. This works only for devices that have PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME set. For devices that lack this flag do *not* extend the volume slider like this, it will not have any effect. For playback devices it might be advisable to extend the scale beyond PA_VOLUME_NORM as well, because often enough digital amplification is useful on limited hardware.
 
 Internally PA accepts any volume setting for all sinks/source/sink inputs. However devices with PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME unset might limit the actually settings to a certain subset. And for UI purposes you should only consider the aformentioned ranges.
 
@@ -134,11 +134,15 @@ Confused now why this might useful? So here's the intended use: it is to be mapp
 
 The UI should probably show explicit markers on the sliders for PA_VOLUME_MUTED, PA_VOLUME_NORM and base_volume. Especially on SPDIF cards base_volume is very important. Also, on many newer cards hardware volume control is implemented digitally, and hence to get the full bit depth out of your DAC base_volume matters a lot, too.
 
+Note that the base volume is purely a hint for the UI. It should not be used for any calculations. It's definition is very vague.
+
 == Flat Volumes ==
 
 As mentioned above for playback the final volume you hear is comprised of the sink and the sink input volume. Having these two volumes in series is of course confusing to the user. That's where the "flat volume" features comes into play. It's based on Vista's flat volume mechanism. Basically when this is enabled, the volume of the sink is always the maximum volume of all inputs connected to the sink. That means when you adjust a sink input volume it will directly influence the sink volume if it is the loudest of the streams connected to it. In reverse, if you manipulate the sink volume this will scale all sink input volumes equally.
 
 Flat volumes are enabled on a per-sink basis. You can check for this with the PA_SINK_FLAT_VOLUME flag. Generally flat volumes are only available for sinks where PA_SINK_DECIBEL_VOLUME is also set. It might be a good idea to visually present the relation of the sink and the sink input volumes in some way when flat volumes are enabled. Vista does this by drawing a line that shows the connection of the loudest stream volume with the sink volume.
+
+This also means that for sinks where flat volumes are supported it makes sense to show the base volume (see above) on the sink input sliders as well!
 
 == Multichannel Volumes ==
 
