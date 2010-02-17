@@ -82,6 +82,18 @@ git pull -r
 
 Please, '''do not forget the ''-r'' !''' - ''-r'' means that instead of merging, ''git pull'' rebases your local changes against the changes from the remote repository.  See also the [[#pushthechanges|Pushing the changes]] section.
 
+''Note: Using rebase might be dangerous, and can lead to a situation when you seemingly lose a commit.  Don't worry, nothing is lost with git - after the finished git pull -r do the following:''
+{{{
+# let git search for the lost commits
+git fsck --lost-found
+# show them all, together with the patches
+git show `cat .git/lost-found/commit/*`
+# find the commit ID in the git show, and create a temporary branch
+git checkout -b tmpbranch the_ID_you_just_found
+# now you have the commit in tmpbranch, and you can do what you need
+# (eg. another rebase, or something)
+}}}
+
 <<Anchor(committhechanges)>>
 == Committing the changes ==
 
