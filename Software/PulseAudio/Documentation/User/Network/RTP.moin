@@ -32,6 +32,13 @@ From the [https://tango.0pointer.de/pipermail/pulseaudio-discuss/2007-September/
 mplayer -demuxer rawaudio -rawaudio channels=2:rate=44100:samplesize=2:format=0x10001 rtp://[addr]:[port]
 }}}
 For me it did not really work, mplayer always played it back at 48000hz - although I specified it otherwise -  and thus pitch was too high and lots of buffer-underruns (guess why ; )
+Mplayer ignores in that case your rate parameter and uses the rate from formatstring(dvdpcm). This works for me good
+{{{
+mplayer -cache 2048 -demuxer rawaudio -rawaudio format=0x20776172 rtp://[addr]:[port]
+}}}
+
+  1. -cache - use a buffersize of 2048 kbyte
+  1. format - take a look here http://www.mplayerhq.hu/DOCS/codecs-status.html for explanation. Does somebody know a better site with detailed informations of the fourcc strings ?
 
  == Play it using rtpdump and sox (invoked as "play") ==
 Now for the really cool and low-resource way.
