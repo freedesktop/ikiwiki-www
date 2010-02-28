@@ -1,18 +1,20 @@
 {{attachment:screenshot_v050b.png|xinput_calibrator screenshot|align="right"}}
 
-== xinput_calibrator ==
+== xinput calibrator ==
 A generic touchscreen calibration program for X.Org
 
- * Latest version: [[http://github.com/tias/xinput_calibrator/tarball/v0.5.0|v0.5.0]] (build instructions in the [[http://github.com/tias/xinput_calibrator/blob/master/README|README]])
+ * Latest version: [[http://github.com/tias/xinput_calibrator/tarball/v0.6.0|v0.6.0]] (see [[http://github.com/tias/xinput_calibrator/blob/master/README|README]])
  * Source and bugs: http://github.com/tias/xinput_calibrator
 
-The application is as good as stable and ready to be included in distributions. Any packaging help is appreciated, contact me at tias@ulyssis.org
-
 xinput_calibrator is created to fill the gap of touchscreen calibration software, featuring:
- * be generic and work for any Xorg driver (use Xinput to get axis valuators),
- * output the calibration as Xorg.conf and FDI policy file values,
+ * be generic and work for any Xorg driver (use Xinput protocol),
+ * output the calibration as Xorg.conf, HAL policy and UDEV rule,
  * support advanced driver options, such as Evdev's dynamic calibration,
  * have a minimalistic and intuitive GUI (normal X client).
+
+For some background information on Xorg's touchscreen handling, see [[http://tias.ulyssis.org/calibration/device_support.html|this short article]].
+The application is as good as stable and ready to be included in distributions. Any packaging help is appreciated, you can contact me at tias@ulyssis.org
+
 
 === Architecture ===
 The calibrator consists of 2 possible frontend GUIs and currently has backends for the recommended evdev touchscreen driver, the (older) usbtouchscreen driver and for standard X.Org touchscreen drivers (like evtouch, mutouch, elographics, ...)
@@ -45,3 +47,5 @@ Xinput_calibrator is based on a simple calibrator that was [[http://lists.x.org/
 The new version (v0.4.0) writes Xorg.conf and (HAL) FDI policy file values, and contains a wrapper script to get axis valuator information for the evtouch driver (evtouch does not export the current calibration through its axis valuators). It is also the first program to support dynamic evdev calibration, by using its advanced Xinput functionality.
 
 The v0.5.0 version is written entirely in the X window system, needing no external dependencies. Because of its modular structure, other frontends can be easily created too.
+
+v0.6.0 contains many improvements suggested by different users, especially from the OE community. The most important changes are an autotools build system, debugging option, specific device selection, a manpage and much more (see [[http://github.com/tias/xinput_calibrator/blob/master/Changelog|Changelog]]).
