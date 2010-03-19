@@ -4,16 +4,27 @@
 
 The freedesktop.org [[Specifications/shared-mime-info-spec| Shared MIME database]] provides a single way to store static information about MIME types and rules for determining a type.
 
-In addition to this, two further pieces of information are often needed:
+In addition to this, three further pieces of information are often needed:
 
-	* Which applications can open a file (''Mozilla can view files of type text/html'').
-	* Which application should open a file by default (''Bob wishes to view text/html files in Mozilla by default'').
+	* Which applications can open a file (''Mozilla can view files of type text/html''). This is defined in the MimeTypes key of the .desktop file of the application, see the desktop entry spec.
+	* Which application should open a file by default (''Application X wants to be the default application for text/html after installation'')
+	* How to let the user change the default application (''Bob wishes to view text/html files in Mozilla by default'').
 
 == Status ==
 
-This specification is in the requirements-gathering / early-planning stages.
+This specification has been finalized through discussions on the xdg mailing-list, but no formal spec has been written (volunteers welcome).
 
-== Recording that an application can handle a particular type ==
+== Default preferred application ==
+
+This hasn't been finalized in a cross-desktop way yet; especially since the default application is probably desktop specific in some cases. Discussions happened on the mailing-list about this (TODO: link missing).
+
+The current status-quo is that KDE orders on the InitialPreference key in the .desktop files (higher = preferred). Gnome uses a global configuration file (TODO: details missing).
+
+However, note that the next item provides another solution for ISV applications which want to ensure they become the default application after being installed: they can edit the global mimeapps.list file in /usr/share/applications.
+
+== Initial set of requirements, not all of which are covered by the current specification ==
+
+Do not use any of this in implementations at this point, this was just input for the discussion.
 
 The list of applications which can open files of a particular type is static information and should be stored in the MIME database, using some extension elements. The
 [[Specifications/AddingMIMETutor| Adding to the MIME database tutorial]] provides a sample of how this might look. The extension element associates MIME entries with application '''.desktop''' files (eg, '''gimp.desktop'''). Issues to address:
@@ -24,12 +35,11 @@ The list of applications which can open files of a particular type is static inf
 
 	* Internationalised descriptions of applications should not be repeated (Gimp should not have to specify translations of "Edit in Gimp" for every MIME type it supports).
 
-	* There should be a way to overwrite the system defauts by user defaults. (eg. User a[dmin] will edit text files with vim and user b will use emacs)
-	* There should be a way to choose a program for an action, therefore there must be made a list of the programs that can do this action to a file format. On this way you can open a file with a program that is not the default programm for the file format.(eg. png editor is gimp but you want to test a new picture editor)
+	* There should be a way to overwrite the system defaults by user defaults. (eg. User a[dmin] will edit text files with vim and user b will use emacs)
+	* There should be a way to choose a program for an action, therefore there must be made a list of the programs that can do this action to a file format. On this way you can open a file with a program that is not the default program for the file format.(eg. png editor is gimp but you want to test a new picture editor)
 	* There should be a way to detect which environment is being used and how a file should be open (eg. editing a text file by choosing them with mc in a terminal should use a console based editor, but when mc runs in a xterm, an X-Window editor can also be used)
 
-
-== Setting the default application ==
+Setting the default application:
 
 Because this is configuration information, it should not go in the MIME database. Instead, it should be set using the
 [[Specifications/config-spec| Shared Configuration System]]. This specification should define a set of key names to be used for this.
@@ -40,4 +50,3 @@ Because this is configuration information, it should not go in the MIME database
 	* [[http://thread.gmane.org/gmane.linux.xdg.devel/2524|Associating programs with file types thread]]
 	* [[http://thread.gmane.org/gmane.linux.xdg.devel/554|MIME activation discussion thread]]
 	* [[http://thread.gmane.org/gmane.linux.xdg.devel/2228|Default Program | File Association thread]] ([[http://thread.gmane.org/gmane.linux.xdg.devel/2239|part II]])
-
