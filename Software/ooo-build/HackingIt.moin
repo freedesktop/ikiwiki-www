@@ -117,5 +117,78 @@ So we see in the vcl case that `vcl\source\unotypes` (vc_unot) has to be built b
 
 There is also documentation [[http://tools.openoffice.org/tools/build.html|here]] on it.
 
+=== deliver, deliver.log and prj/d.lst ===
+
+The syntax of d.lst is more comprehensible than build.lst, it omits some default actions, such as copying build.lst into `inc/&lt;module&gt;/build.lst`.
+
+A line is of the form:
+{{{
+[action]: [arguments]
+mkdir:    %_DEST%\inc%_EXT%\external
+}}}
+where if '[action]:' is omitted, it defaults to the 'copy' action. Typical actions are `copy`, `mkdir`, `touch`, `hedabu`, `dos` and `linklib`.
+
+The 'hedabu' action is particularly interesting, inasmuch that it
+cosmetically re-formats the header to shrink it on install and adds the module name to the include path (''#include "my_header.hxx"'' becomes ''#include <my_module/my_header.hxx>''). Otherwise it's much like the copy action.
+
+During the action, various macro variables are expanded some of which are:
+ * %__SRC% &mdash; distribution directory name eg. `unxlngi4.pro`</li>
+ * %_DEST% &mdash; absolute path into solver eg. `/opt/OpenOffice/OOO_STABLE_1/solver/641/unxlngi4.pro`
+ * %_EXT% &mdash; (unusual) way of having minor updates eg. 641.1, typically used to version every base sub-directory.
+
+Typically then, if indeed you need to add a rule (cf. implicit directory copies), it will be of the form:
+{{{
+..\%__SRC%\inc\sal\*.h %_DEST%\inc%_EXT%\sal\*.h
+}}}
+
+NB. relative paths are relative to the 'prj/' directory.
+
+Sometimes you might run into the situation where you'd like to remove the delivered files from solver. Your configuration might have changed and they are no longer needed. "deliver -delete" does just that, however you might still need to delete "deliver.log" files manually as well.
+
+== Can I get a `char *`, please? ==
+
+Just barely.  OO.o has at least six string wrappers, although the C implementations are of little interest:
+
+ rtl_String` (sal/inc/rtl/string.h):: "Normal" string plus reference counting. `rtlstring-`&gt;`buffer` is useful, as is `rtlstring-`&gt;`length`.  This object encapsulates an generic 8bit string - of unknown encoding. Feel free to treat `rtlstring-`&gt;`buffer` as your beloved `char *`. If you really want to look at the implementation of some `rtl_String` function and lxr nor grep can help you, have a look at sal/rtl/source/strtmpl.c.
+
+ OString (sal/inc/rtl/string.hxx):: Simply a rtl_String wrapped inside a `class`; you can use `ostring.pData` to get at the rtl_String (it's public).  `OString` has reasonably useful methods for if you need them.
+
+ rtl_uString (sal/inc/rtl/ustring.h):: "Normal" Unicode string, similar to rtl_String, and refcounted as well.  However, this one always comes in UCS-2 encoding, presumably to be compatible with Java's questionable choices. See `rtl_String` above to find where the implementation of some `rtl_uString`functions is hidden.
+
+ OUString (sal/inc/rtl/ustring.hxx):: An rtl_uString wrapped inside a `class`.  This is what most of the OO.o code uses to pass strings around. To convert an `OString` to an `OUString`
+ it is necessary to specify the character set of the `OString` see; `sal/inc/rtl/textenc.h` - the only interesting case is `RTL_TEXTENCODING_UTF8`
+
+ String (tools/inc/string.hxx):: This is an obsolete string class, aliased to 'UniString'. It has a number of limitations such as a 64k length limit. You can have the buffer with `GetBuffer()`, but it's Utf-16 encoded.
+
+A couple of conversion functions are really useful here, particularly:
+{{{
+// OUString -> OString
+rtl::OString aOString = ::rtl::OUStringToOString( aOUString, RTL_TEXTENCODING_UTF8 );
+// OString -> OUString
+rtl::OUString aOUString = ::rtl::OStringToOUString( aOString, RTL_TEXTENCODING_UTF8 );
+}}}
+
+If you just want to programattically print out a string for debugging purposes you probably want define a macro like:
+{{{
+#define CHAR_POINTER(THE_OUSTRING) ::rtl::OUStringToOString( THE_OUSTRING, RTL_TEXTENCODING_UTF8 ).getStr()
+// Use it:
+printf( "SvXMLNamespaceMap::AddIfKnown : %s / %s\n", CHAR_POINTER(rPrefix), CHAR_POINTER(rName) );
+// For the obsolete String class, aliased UniString, it's like:
+printf( "rGrfName : %s\n", ByteString( rGrfName, RTL_TEXTENCODING_UTF8).GetBuffer() );
+}}}
+
+To print the value of rtl::OUString directly in the debugger, you can use `dbg_dump()`.  It is intended to be called interactively from the debugger, in both debug and non-debug builds of OOo.  You can see the definition in sal/rtl/source/debugprint.cxx.
+
+Some code snippets about manipulating those objects can be found on the codesnippets service page : [http://codesnippets.services.openoffice.org/Office/cpp.xml]
+
+== Linkoo & Limitations ==
+
+Linkoo is the tool that implements the `-l` functionality of `bin/ooinstall`. It essentially sym-links files of similar names into your local tree, allowing a fast development iteration.
+
+It is however slightly limited - some of the modules cannot be linked for various reasons; these are: `cppuhelper` and `configmgr`, thus in the rare case that these are altered, they must be copied manually into `/opt/OOInstall/program`.
+
+In addition symlinks cannot be used for soffice.bin, and this is more commonly altered - it has to be installed from `desktop/unxlngi4.pro/bin/soffice` NB. with an appended '.bin'
+
 == References ==
-* [[http://go-oo.org/developers/hackers-guide.html|Unofficial OpenOffice Hacker's Guide]]
+
+ * The old source of this: [[http://go-oo.org/developers/hackers-guide.html|Unofficial OpenOffice Hacker's Guide]]
