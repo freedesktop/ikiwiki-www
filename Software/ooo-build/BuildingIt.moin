@@ -9,3 +9,14 @@ Building ooo-build requires that you install many additional packages that the o
 sudo zypper si OpenOffice_org-bootstrap
 }}}
 which should automatically resolve and install all packages necessary to build ooo-build.  Note the command '''si''', which is short for '''source-install'''.  ''You need to install the source package in order to install the build-dependent packages''.  Installing the bootstrap package with the usual '''in''' command will not resolve build dependencies.
+
+After having installed all necessary packages, run the following:
+{{{
+./autogen.sh --with-distro=SUSE
+./download
+make
+}}}
+to get the build going.
+
+== Build tips ==
+If you are building on a multi-core CPU, consider using the '''--with-num-cpus=<num>''' configure option to enable parallel build in order to speed up the build time.  Usually, specifying twice the number of your cores will yield optimum build performance.  We also recommend that you use either ccache or icecream to further speed up the build.  To use ccache, specify '''--with-gcc-speedup=ccache''' to the autogen.sh script.  To use icecream, please read [[http://people.gnome.org/~michael/blog/icecream.html|Michael's blog post detailing how to set up icecream]], and specify '''--with-gcc-speedup=icecream''' to the autogen.sh script.
