@@ -1,0 +1,22 @@
+<<TableOfContent>>
+
+= Updating the webpages =
+
+The go-oo pages are served by freedesktop.org, and are version controlled in git.  To do modifications:
+
+{{{
+git clone ssh://git.freedesktop.org/git/ooo-build/website
+cd website
+# edit what you need
+git commit -a
+git push
+# Now we have to pull on annarchy.
+# Pushing to the website repo is not enough, no auto update is implemented.
+ssh annarchy
+cd /srv/ooo-build.freedesktop.org/www
+git pull -r
+}}}
+
+Some of the pages are in 2 versions - .php, and .html.  .php is the source - edit that one, do php index.php > index.html, do git diff to check the changes, and '''commit both'''.
+
+And - when you look at the local copy of the page in a browser, don't be surprised if it does not look well at all - the css files that make the pages pretty are not found.
