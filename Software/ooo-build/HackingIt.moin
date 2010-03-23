@@ -19,5 +19,103 @@ bin/ooinstall -l <installation dir path>
 
 Notice the `-l` option given to the `ooinstall` script, which sets symbolic links to the shared libraries in the build directory instead of copying them into the installation directory.  This saves disk space since it avoids making duplicated binaries.  But more importantly, it makes it more efficient to make changes to the code, re-build it and test the change in the installation since '''you don't have to overwrite the libraries after each re-build'''.  But keep in mind that, '''you do need to source the `ooenv` script''' when you install ooo-build with an `-l` option, or else the application would fail to start and probably crash right after the splash screen.
 
+== Up-stream/ooo-build boundary ==
+
+When hacking, you have to use the up-stream tools to build parts of OOo.  The boundary is the `build/` subdirectory of ooo-build, ie. when you get to `build/ooo320-m12`, you are leaving ooo-build, and have to use the up-stream tools.
+
+== My first hack ==
+
+So - we've built and run OO.o, and we want to prove to ourselves that it is in fact possible to hack on it. So in a new terminal do this:
+{{{
+cd build/ooo320-m12
+. ./LinuxX86Env.Set.sh
+cd vcl
+}}}
+
+Now have a hack at vcl/source/window/menu.cxx (Menu::Set``ItemText);
+(near line 1770) I suggest manually applying this change:
+{{{
+-               pData->aText = rStr;
++               pData->aText = String(rStr).Reverse();
+}}}
+
+Then save. (You can find more things to hack in the [[http://wiki.services.openoffice.org/wiki/Tutorials|Tutorials]].)
+
+You're still in vcl/ yes ? then type 'build debug=true'; wait for the scrolling text to stop; (5 seconds?). Now re-run `soffice -writer`. You should notice the effect in the menus. If not, ensure the previous soffice.bin was dead with `killall -9 soffice.bin`
+
+'''Note:''' for day to day hacking you want to just run 'build' inside the source tree. It is also highly recommended to work inside a copy of the build tree, and generate / test patches in an un-hacked version.  To copy just the build/ooo300-m12 directory elsewhere, you need to use the `bin/relocate` tool.
+
+== Read the Fine manual ==
+
+With the power of C++ comes the ability to shoot yourself in the foot all the more easily; (and implicitly), cf. '''Holub, Rules for C and C++ programming, McGraw-Hill, 95'''.
+
+The best way to prepare yourself for battle is to read the
+[[http://tools.openoffice.org/CodingGuidelines.sxw|OpenOffice coding guidelines]], and for the easily confused c'tor / d'tor is short for
+constructor / destructor.
+
+Also, there's an extensive list of [[http://wiki.services.openoffice.org/wiki/Recommended_Reading|recommended literature]] about C++ - but that's of course <em>no prerequisite</em> to start coding.
+
+== Starting the right app ==
+
+As you start soffice.bin, there are several useful parameters to use to accelerate your debugging experience; particularly `-writer`, `-calc`, `-draw`, and (the wizardly painful) `-impress` arguments.
+
+== Understanding D' make (man) ==
+
+While the build system is in similar to many other systems, it is also perhaps slightly different. The overview is that each module is `built`, and then the results are ''delivered'' into the [[http://www.openoffice.org/dev_docs/source/solver.html|solver]]. Each module builds against the headers in the solver. Thus there are a few intricacies.
+
+ * '''build''' &mdash; this perl script `solenv/bin/build.pl` is used in conjunction with `prj/build.lst` to ensure that every module that is needed is built first.  `build` then un-winds internal module dependencies, and builds each module with a chdir, dmake pair.
+ * '''deliver''' &mdash; this perl script `solenv/bin/deliver.pl` installs headers, and libraries (etc.) into the solver, as informed by `prj/d.lst`. Crucially deliver ensures that the date stamp on any file that is installed to the solver is the same as that in the module's directory. This ensures, that (particularly for headers) that there is no dependency cascade triggering re-builds in other modules.
+
+=== Standard directories ===
+
+There are various standard directories and files in most of the modules that make up OO.o, here are some of the more useful:
+
+ * '''prj'''
+   * ''build.lst'' &mdash; this lists directories to be made, '^#' comments are allowed, the order of the list is immaterial see the prj/build.lst description below, it is dictates build's operation.
+   * ''d.lst'' &mdash; this file describes the ''deliver'' process, see prj/d.lst details below.
+ * '''util''' &mdash; typically the util directory is charged with glueing together the sub-libraries for each sub-module into a single large library, adding system library dependencies, building GUI resource files etc. All the work is described in ''makefile.mk'', this is usually the last directory to be built in a project.
+ *'''inc''' &mdash; public headers are typically separated into an 'inc' directory, these will be installed into the solver by the 'deliver' phase (using prj/d.lst)
+
+Build's mode of operation is to invoke 'dmake' in each of the projects' directories with a given dependency order. dmake then executes the rules in makefile.mk.
+
+=== prj/build.lst ===
+
+On first view build.lst looks scary:
+{{{
+vc      vcl : NAS:nas FREETYPE:freetype psprint rsc sot ucbhelper unotools sysui NULL
+vc      vcl                      usr1   -       all     vc_mkout NULL
+vc      vcl\source\unotypes      nmake  -       all     vc_unot NULL
+vc      vcl\source\glyphs        nmake  -       all     vc_glyphs vc_unot NULL
+...
+vc	vcl\mac\source\src	 nmake	-	m	vc__srcm vc_unot NULL
+vc	vcl\util		 nmake	-	all	
+vc_util vc__plug.u vc__appa.u vc__appm.m vc__appu.u vc__appw.w vc__gdim.m 
+vc__gdiu.u vc__gdiw.w vc__srcm.m vc__srcu.u vc__srcw.w 
+vc__wina.u vc__winm.m vc__winu.u vc__winw.w vc__du.u 
+vc__gtka.u vc__gtkw.u vc__gtkg.u vc__kde.u vc_app 
+vc_ctrl vc_gdi vc_hlp vc_src vc_win vc_glyphs NULL
+}}}
+so we need to try and un-pack what's going on here, which is in fact not
+as odd as it might seem at first glance. Firstly lists are terminated
+by the 'NULL' string. Every line is prefixed by a shortcut which has to be unique, no two modules are allowed to have the same shortcut.
+
+ * First active line contains a ':', this describes the fact that this project (vcl) depends on these other modules `nas`, `freetype`, `psprint` etc. to be built first. This is for inter-project dependencies.
+ * Some modules have a CAPITALS:lowercase arrangement; the first segment is a conditional, driven by a space delimited list in the BUILD_TYPE environment variable at build time.
+ * Then we have a redundant line 'usr1' [ for fun ? ], in fact only lines containing the magic string 'nmake' are valid after this.
+ * The next lines describe internal project directory dependencies and look like:
+{{{
+[shortcut] [path to dir to build] nmake - [flags] [unique-name] [deps...] NULL
+vc           vcl\source\glyphs    nmake -   all     vc_glyphs   vc_unot   NULL
+}}}
+
+  `shortcut` is not used; `flags` determines which platforms this builds on; usually single char platform codes: 'dnpum' 'u' being
+  Unix. The higher up the system, the more stuff is flagged 'all'.
+
+  `unique-name` this is a magic name, used by other lines to describe an internal dependency. `deps...` any number of names of other directories in this file, that must be built before this one. If such prerequisite dir is built for special platforms only, the platform code has to be appended to its magic name.
+
+So we see in the vcl case that `vcl\source\unotypes` (vc_unot) has to be built before `vcl\source\glyphs` (vc_glyphs). For Mac `vcl\mac\source\src` (vc__srcm) has to be built before `vcl\util` (vc_util) It is '''important''' to understand that the order of the list is ~immaterial, and instead of a simple ordered list, we have a more complex internal dependency system &mdash; this contrasts with most other make systems.
+
+There is also documentation [[http://tools.openoffice.org/tools/build.html|here]] on it.
+
 == References ==
 * [[http://go-oo.org/developers/hackers-guide.html|Unofficial OpenOffice Hacker's Guide]]
