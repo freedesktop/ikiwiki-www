@@ -1,6 +1,8 @@
 <<TableOfContents>>
 
-= Updating the webpages =
+= Webpages =
+
+== Updating the webpages ==
 
 The go-oo pages are served by freedesktop.org, and are version controlled in git.  To do modifications:
 
@@ -20,3 +22,65 @@ git pull -r
 Some of the pages are in 2 versions - .php, and .html.  .php is the source - edit that one, do `php index.php > index.html`, do `git diff` to check the changes, and '''commit both'''.
 
 And - when you look at the local copy of the page in a browser, don't be surprised if it does not look well at all - the css files that make the pages pretty are not found.
+
+= ooo-build git =
+
+== Tagging a release ==
+
+When you want to tag a release, you have to first create the tag, and then push it:
+
+{{{
+# create a tag, signed by the GPG key you configured using git config user.signingkey
+git tag -s <tag-name>
+# push the tags to the remote repository
+git push --tags
+}}}
+
+You can also create the tag using another key (git tag -u <key-id> <tag-name>), or create an unsigned tag (git tag -a <tag-name>); though you should avoid the unsigned tags.
+
+<<Anchor(createbranch)>>
+== Creating a release branch ==
+
+When there's a particularly good reason for a branch, such as a MWS is moved to the maintenance mode and we want open master for further development, one of the core ooo-build hackers will follow something like this:
+
+{{{
+# the branch is usually created from a beta release tag
+# checkout the tag OOO_BUILD_I_J_K into the new branch ooo-build-X-Y-Z
+git checkout -b ooo-build-X-Y-Z OOO_BUILD_I_J_K
+# alternatively, you might do the branch from the current master
+#   git checkout -b ooo-build-X-Y-Z master
+# create the tag in that branch and use the comment
+git tag -s OOO-BUILD-X-Y-Z-ANCHOR
+>    Tag OOO-BUILD-X-Y-Z-ANCHOR for the branch ooo-build-X-Y-Z
+# modify the message printed at the end of 'configure.in'
+vim configure.in
+>    This is ooo-build-2-0-4 - the stable branch for the 2.0.4 release.
+>    If you want to build something cool, unstable, and risky, use master.
+# commit the changes and use the comment:
+git commit -a
+>    Branch ooo-build-X-Y-Z (stable branch for OOo-X.Y.Z)
+>    
+>    Branch     ooo-build-X-Y-Z
+>    Anchor tag OOO-BUILD-X-Y-Z-ANCHOR
+>    
+>    based on ooo-build, version I.J.K, tag OOO_BUILD_I_J_K
+# push the branch
+git push origin ooo-build-X-Y-Z:ooo-build-X-Y-Z
+# push the tag
+git push --tags
+}}}
+
+And there might be some changes needed in the original tree (master) too.
+
+{{{
+# switch back to the master
+git checkout master
+# if it is an important branch, such as for a minor OOo version, add
+# a line to the message printed at the end of 'configure.in'
+vim configure.in
+>    ooo-build-X-Y-Z  branch for X.Y.Z
+# commit the changes
+git commit -a
+# push the changes
+git push
+}}}
