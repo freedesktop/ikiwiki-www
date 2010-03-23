@@ -1,17 +1,23 @@
 == Installing ooo-build for development ==
-When your build finally finishes, it's time to install it so that you can start hacking it.  To install, run
+
+In order to install the freshly built ooo-build, run
 {{{
-bin/ooinstall -l <installation dir path>
+make dev-install
 }}}
 
-which creates that directory and install ooo-build into it.  Once done,
+This installs ooo-build in the `build/install` directory of the source tree. Once done, you can launch ooo-build this way:
 {{{
-cd <installation dir path>/program
+cd build/install/program
 source ooenv
 ./soffice
 }}}
 
-to launch the program.  Notice the '''-l''' option given to the '''ooinstall''' script, which sets symbolic links to the shared libraries in the build directory instead of copying them into the installation directory.  This saves disk space since it avoids making duplicated binaries.  But more importantly, it makes it more efficient to make changes to the code, re-build it and test the change in the installation since you don't have to overwrite the libraries after each re-build.  But keep in mind that, you do need to source the '''ooenv''' script when you install ooo-build with an '''-l''' option, or else the application would fail to start.
+This is equivalent to the following with the installation dir path set to `build/install`
+{{{
+bin/ooinstall -l <installation dir path>
+}}}
+
+Notice the `-l` option given to the `ooinstall` script, which sets symbolic links to the shared libraries in the build directory instead of copying them into the installation directory.  This saves disk space since it avoids making duplicated binaries.  But more importantly, it makes it more efficient to make changes to the code, re-build it and test the change in the installation since '''you don't have to overwrite the libraries after each re-build'''.  But keep in mind that, '''you do need to source the `ooenv` script''' when you install ooo-build with an `-l` option, or else the application would fail to start.
 
 == References ==
 * [[http://go-oo.org/developers/hackers-guide.html|Unofficial OpenOffice Hacker's Guide]]
