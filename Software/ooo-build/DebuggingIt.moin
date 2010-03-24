@@ -1,10 +1,29 @@
 <<TableOfContents>>
 
-== Before you start ==
+== Start debugging ==
 
 You need a ''linked'' build - please have a look at the [[Software/ooo-build/HackingIt|HackingIt]] pages, and install either using the `make dev-install`, or `bin/ooinstall -l`.
 
-== gdb minimum ==
+{{{
+# change directory to the installation provided by make dev-install
+cd build/install/program
+source ooenv
+gdb --tui ./soffice.bin
+(gdb) run -writer
+}}}
+
+You soon realize that you have no debugging symbols in your build.  Let's say, you need symbols for `vcl` - then you need to completely rebuild `vcl` using `build debug=true`, instead of `build`, like:
+{{{
+cd build/ooo320-m12/vcl
+# remove the old build
+rm -r unxlngi6.pro
+# setup the build environment
+source ../LinuxX86Env.Set.sh
+# and build
+build debug=true
+}}}
+
+== gdb Tips & Tricks for OOo ==
 
 These instructions are mostly Linux (gdb) related, for Windows, you might consult [[http://wiki.services.openoffice.org/wiki/Windows_Debugging|this page]].  gdb is a powerful tool, but it pays off to get familiar with it a bit.
 
@@ -68,7 +87,7 @@ def ptu
 end
 }}}
 
-If you want to define your own macros, please remember that gdb only has global variables.
+If you want to define your own macros, please remember that gdb only has global variables, so be careful to choose different names.
 
 === Text user interface ===
 
@@ -86,31 +105,143 @@ When you want your code to stop whenever an exception is raised, do:
 
 Alternatively, you can do `break __cxa_throw`.  More info in [[http://kohei.us/2009/12/22/setting-break-point-where-an-exception-is-thrown/|Kohei's blog]].
 
-== Start debugging ==
+=== Examining strings ===
 
-Now, when you have setup your `.gdbinit`, you can start debugging:
+As we have already seen in [[Software/ooo-build/HackingIt|HackingIt]], OOo has its own set of string classes, none of which gdb understands.  The recommended `.gdbinit` allows you to examine them using the macros, most notably `pou`.  Let's say, you have `rtl::OUString aString;`, and you want to know its value in gdb:
 {{{
-# change directory to the installation provided by make dev-install
-cd build/install/program
-source ooenv
-gdb --tui ./soffice.bin
-(gdb) run -writer
+(gdb) pou aString
+"the value"
 }}}
 
-== How to get the symbols ==
-
-You soon realize that you have no debugging symbols in your build.  Let's say, you need symbols for `vcl` - then you need to completely rebuild `vcl` using `build debug=true`, instead of `build`, like:
+Simple as that.  But there are other possibilities if the above fails from some reason, like:
 {{{
-cd build/ooo320-m12/vcl
-# remove the old build
-rm -r unxlngi6.pro
-# setup the build environment
-source ../LinuxX86Env.Set.sh
-# and build
-build debug=true
+(gdb) print dbg_dump(aString)
 }}}
 
-== Sw ==
+This works on all UniString/ByteString/rtl::OUString/rtl::OString regardless of the type when debugging C++ code. See Caolan's [[http://www.skynet.ie/~caolan/TechTexts/GdbUnicodePrinting.html|write-up]] for details.
+
+In case the functions `dbg_dump()` are not available in gdb due to linking, just copy them in your current source file from '/sal/rtl/sourc/debug_print' and add the associated includes `#include <rtl/strbuf.hxx> #include <rtl/ustring.hxx>`. gdb should recognize them then.
+
+=== It crashes, but only in gdb ===
+
+What fun - you symlinked desktop/unxlngi4.pro/bin/soffice to soffice.bin in your install tree didn't you. That works fine if you just run it, but it seems gdb unpacks the symlink and passes a fully qualified path as argv[0], which defeats the hunting for the binary in the path, so it assigns the program base path as `/opt/OpenOffice/OOO_STABLE_1/desktop/unxlngi4.pro/bin` and starts looking for (eg. applicat.rdb) in there. Of course
+when it fails to find any setup information, it silently crashes somewhere else yards away from the original problem.
+
+=== It crashes, but doesn't crash ===
+
+For various reasons signal handlers are trapped and life can get rather confusing; thus it's best for builders to apply something like this:
+{{{
+--- sal/osl/unx/signal.c
++++ sal/osl/unx/signal.c
+@@ -188,6 +188,8 @@ static sal_Bool InitSignal()
+             bSetILLHandler = sal_True;
+        }
+ 
++       bSetSEGVHandler = bSetWINCHHandler = bSetILLHandler = bDoHardKill = sal_False;
++
+        SignalListMutex = osl_createMutex();
+ 
+        act.sa_handler = SignalHandlerFunction;
+}}}
+
+=== I can't find the code from the trace ===
+
+Some methods, are described as having a special linkage, such that they can be used in callbacks; these typically have a prefix: `LinkStub`, so search for the latter part of the identifier in a freetext search. eg. the following builds the 'LinkStubImplHandlePaintHdl' method:
+{{{
+IMPL_LINK( Window, ImplHandlePaintHdl, void*, EMPTYARG )
+}}}
+
+=== It always crashes in sal_XErrorHdl ===
+
+You are a victim of asynchronous X error reporting.  Before you start gdb, do:
+{{{
+export SAL_SYNCHRONIZE=1
+}}}
+
+It will make all the X traffic synchronous, and report the error by the method that caused it, it'll also make OOo far slower, and the timing different.
+
+=== The trace shows a crash in 'poll' ===
+
+OO.o is a fairly threaded program, you're probably just looking at the wrong thread: there are not likely to be bugs in poll. Use
+{{{
+(gdb) thread apply all backtrace
+}}}
+to get a backtrace of all threads - this will most likely fail. When it does do: `thread 1` then `bt` - most crashers occur in the 'main' thread.
+
+=== What does this trace mean ? ===
+
+There are several typical stack-traces that come up again and again, one would be:
+{{{
+    #15 0x4164a501 in raise () from /lib/tls/libc.so.6
+#16 0x4164bcd9 in abort () from /lib/tls/libc.so.6
+#17 0x415fb5a5 in std::set_unexpected ()
+   from /home/mnagashree/m72install/program/libstdc++.so.5
+#18 0x415fb5e2 in std::terminate ()
+   from /home/mnagashree/m72install/program/libstdc++.so.5
+#19 0x415fb69c in __cxa_rethrow ()
+}}}
+
+This section of trace means (essentially) that an exception was thrown - but there was no-one trying to catch it. Often this means there was a missing
+'try {} catch()' clause in one of the calling frames.
+
+A great way to debug exceptions is to add a breakpoint in catch/throw, do this with `catch throw` or `catch catch` in gdb - see Intercepting Exceptions above.
+
+=== Useful places to put breakpoints ===
+
+If you have compiled with debugging enabled: `build debug=true` it is possible that you get some nice churning debug / assertion failure - and you want to get a pleasant & detailed stack-trace: to do that do `break osl_assertFailedLine`.
+
+== How to re-build just the relevant pieces ==
+
+Often when you run gdb on a build without debugging symbols, you get an unhelpful gdb trace, but yet you can't afford the time/space to recompile all of OO.o with debugging symbols. Thus we have created a small perl helper, which will hunt for and touch files containing the symbols from your trace. This sub-set can then be re-built with debugging enabled for a better trace next time around:
+{{{
+    gdb ./soffice.bin
+    ...
+    bt
+#0  0x40b4e0a1 in kill () from /lib/libc.so.6
+#1  0x409acfe6 in raise () from /lib/libpthread.so.0
+#2  0x447bcdbd in SfxMedium::DownLoad(Link const&amp;) () from ./libsfx641li.so
+#3  0x447be151 in SfxMedium::SfxMedium(String const&amp;, unsigned short, unsigned char, SfxFilter const*, SfxItemSet*) ()
+   from ./libsfx641li.so
+#4  0x448339d3 in getCppuType(com::sun::star::uno::Reference<com::sun::star::document::XImporter> const*) () from ./libsfx641li.so
+...
+    quit
+    cd base/OOO_STABLE_1/sfx2
+    ootouch SfxMedium
+    build debug=true
+}}}
+
+Thus, all files referencing or implementing anything with SfxMedium will be touched, and hence rebuilt with  debugging symbols.  ootouch is available in `bin/oootouch`.
+
+If you want to recompile the code in just your current directory, you can use the `killobj` dmake target to remove the object files:
+{{{
+dmake killobj
+dmake
+}}}
+
+== Getting the build order right ==
+
+The build dependencies of the modules are clearly crucial to getting a clean build. When you type 'build' in a module, first build examines prj/build.list, eg. `neon/prj/build.lst`:
+{{{
+xh      neon  :  soltools external expat NULL
+}}}
+
+This specifies that 'soltools', 'external' and 'expat' have to be satisfactorily built and delivered before neon can be built.  Occasionally these rules get broken, and people don't notice for a while.
+
+== What is a debug console ? ==
+
+So OO.o contains some hefty debugging infrastructure that you get by using `--enable-dbgutil` switch during `configure`. Note that libraries from product and non-product builds are usually incompatible, so don't mix them in the same installation.
+
+For available tools in such builds, have a look at the various `DBG_foo` macros in `tools/debug.hxx`, or, if you already are knowledgeable about this, let others participate by writing your knowledge down here.
+
+To actually fire up the debug settings dialog, press <ctrl><alt><shift>-D.
+
+== Writer-specific hints ==
+
+=== It silently fails to load my word file ===
+
+Caolan suggests: put breakpoints in ww8par.cxx top and tail of SwWW8ImplReader::LoadDoc, and confirm that the document gets as far as the import filter.
+
+A handy human place to put a breakpoint is in SwWW8ImplReader::ReadPlainChars, you can see chunks of text as they are read in. Alternatively SwWW8ImplReader::AppendTxtNode as each paragraph is inserted.
 
 === Dumping SfxItemSet objects: ===
 {{{
@@ -132,7 +263,6 @@ define dump_pSfxItemSet
    end
 end
 }}}
-
 
 === Dumping the nodes structure ===
 
@@ -218,3 +348,28 @@ define pNodesArr
   end
 end
 }}}
+
+== Calc-specific hints ==
+
+=== Excel Interop debugging ===
+
+To dump the contents of binary MS Excel files while loading them into OpenOffice.org, first get a local copy of the code module "oox". Then:
+
+ * XLS files (BIFF2-BIFF8): define the environment variable `OOO_BIFFDUMPER` pointing to file://..../oox/source/dump/biffdumper.ini (full path needed). Then run `soffice.bin foo.xls` and you should get a foo.xls.dump directory in the same directory with the debug data in it. The new directory will contain the complete storage structure with all original streams, and the decoded streams with ".dump" suffix.
+ * XLSX, XLSM, XLSB files: define the environment variable `OOO_XLSBDUMPER` pointing to file://..../oox/source/dump/xlsbdumper.ini (full path needed). Then run `soffice.bin foo.xlsb`. XML streams will be pretty-printed, and known binary streams (e.g. the VBA project, and the streams used in XLSB format) are decoded.
+ * also PPTX, PPTM files are supported: define the environment variable `OOO_PPTXDUMPER` pointing to file://..../oox/source/dump/pptxdumper.ini (full path needed). Then run <code>soffice.bin foo.pptx</code>.
+
+Note: this requires a debug build of the `oox` module.  To easily get such a build, execute the following within your `sc` directory:
+{{{
+build -- killobj ; build debug=true
+}}}
+
+== Impress-specific hints ==
+
+=== Draw/Impress text edit debugging ===
+
+When running a build configured with `--enable-dbgutil`, live edit mode in Draw/Impress text boxes has an extra debug hotkey: pressing <ctrl><alt>-F2 writes information about the currently edited text into a debug.log file (currently Windows-only).
+
+=== PPTX import ===
+
+See the Excel Interop Debug above for information about `OOO_PPTXDUMPER` variable.
