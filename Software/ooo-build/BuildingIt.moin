@@ -1,4 +1,6 @@
-= Building ooo-build =
+<<TableOfContents>>
+
+== Building ooo-build ==
 
 If you need to know how to check out the ooo-build sources, please refer to the [[Software/ooo-build/GettingIt|GettingIt]] page.
 
@@ -9,15 +11,18 @@ cd ooo-build
 ./download
 make 
 }}}
-where the ''<distro name>'' refers to one of the distros that ooo-build supports.  Look under the '''distro-configs''' directory to see what distro names are available.  For instance, if you see a file named My''''''Distro''''''Foo.conf.in in that directory, My''''''Distro''''''Foo would be the supported distro name.  Picking a distro determines what patches get applied when the build process starts, per rules specified in the '''patches/dev300/apply''' file.  Please note that some distros are more tested than others, and picking the name of the distro that matches yours does not necessarily guarantee buildability on that platform.
+where the ''<distro name>'' refers to one of the distros (meaning either a Linux distribution, or a Windows build) that ooo-build supports.  If you don't know which distro to use, just run `./autogen.sh` without any parameters, and you will get a list of available distros.  Alternatively, you can list the content of the `distro-configs/` subdirectory.
+
+Picking a distro determines what patches get applied when the build process starts, per rules specified in the `patches/dev300/apply` file.  Please note that some distros are more tested than others, and picking the name of the distro that matches yours does not necessarily guarantee buildability on that platform.
 
 == Building on specific platforms ==
+
 === openSUSE ===
 Building ooo-build requires that you install many additional packages that the ooo-build depends on.  To install all dependent packages in one step, run 
 {{{
-sudo zypper si OpenOffice_org-bootstrap
+sudo zypper si -d OpenOffice_org-bootstrap
 }}}
-which should automatically resolve and install all packages necessary to build ooo-build.  Note the command '''si''', which is short for '''source-install'''.  ''You need to install the source package in order to install the build-dependent packages''.  Installing the bootstrap package with the usual '''in''' command will ''not'' resolve build dependencies.
+which should automatically resolve and install all packages necessary to build ooo-build.  Note the command `si`, which is short for `source-install`.  In connection with the `-d` option, this means ''install all the build dependencies of the specified package, but do not install the package itself''.
 
 After having installed all necessary packages, run the following:
 {{{
@@ -39,7 +44,15 @@ It's hard to get help on building ooo-build on Fedora since no one is actively m
 Having said that, we don't anticipate too many build issues on Fedora since the upstream build is tested on Fedora on a regular basis.  And if you would like to step up and maintain ooo-build on Fedora on your own, we would encourage you to do that.  If you decide to do so, please don't forget to share your knowledge with the rest of the world by adding build tips in this section.
 
 == Build tips ==
-If you are building on a multi-core CPU, consider using the '''--with-num-cpus=<num>''' configure option to enable parallel build in order to speed up the build time.  Usually, specifying twice the number of your cores will yield optimum build performance.  We also recommend that you use either ccache or icecream to further speed up the build.  To use ccache, specify '''--with-gcc-speedup=ccache''' to the autogen.sh script.  To use icecream, please read [[http://people.gnome.org/~michael/blog/icecream.html|Michael's blog post detailing how to set up icecream]], and specify '''--with-gcc-speedup=icecream''' to the autogen.sh script.
+
+If you are building on a multi-core CPU, consider using the '''--with-num-cpus=<num>''' configure option to enable parallel build in order to speed up the build time.  Usually, specifying twice the number of your cores will yield optimum build performance.
+
+When you have more machines around, we also recommend that you use icecream to further speed up the build.  Please read [[http://people.gnome.org/~michael/blog/icecream.html|Michael's blog post detailing how to set up icecream]], and specify '''--with-gcc-speedup=icecream''' to the `autogen.sh` script.  In an ideal case (more cores, and more machines around), the following would be the best for you:
+{{{
+./autogen.sh --with-distro=<distro name> --with-num-cpus=<number of cores> --with-gcc-speedup=icecream
+}}}
+
+If nothing from the above fits, consider using at least ccache.  To do so, specify '''--with-gcc-speedup=ccache''' to the autogen.sh script.
 
 == How do I know when the build is finished? ==
 When your build process stops with the following output (or something similar to it):
