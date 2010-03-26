@@ -51,6 +51,34 @@ You're still in vcl/ yes ? then type 'build debug=true'; wait for the scrolling 
 
 Where to start with hacking?  The best is to fix something you ''personally'' hate in OOo.  Do you have a document that crashes, but nobody seems to care?  Is there a feature you'd love using, but nobody has implemented it yet?  Do it yourself!  And when you have finished, please let us know about that - please see the [[Software/ooo-build/Contributing|Contributing]] page.
 
+== Coding conventions ==
+
+First thing you'll notice is that the tabs are not 8 spaces, but 4 - please setup your favorite text editor to reflect that, otherwise you'll see the source code distorted.  The second thing you'll notice is that the coding style is not consistent; we don't like that situation, and try to enforce the most usual style where possible:
+
+ * For aligning code, never use tab stops, just spaces [vi: set tabstop=4 expandtab]
+ * 4 spaces for alignment
+ * '{'s (beginnings of blocks) on new lines, newlines after '}'s
+ * Spaces after ',', '(', and keywords
+ * Spaces before ')'
+ * Variables are named like xName [where x is 'p' for pointers, 'r' for references, 'n' for integer types, 'e' for enums, 'a' for other types]
+ * Attributes are prefixed with m_ doing m_xName
+ * Methods use Capital``First``Letters(), static functions impl_The``Function()
+
+So, something like:
+{{{
+void Blah::DoBleh( const rtl::OUString &rString )
+{
+    m_aBlah = rString;
+
+    for ( sal_uInt32 nIndex = 0; nIndex < 10; ++nIndex )
+    {
+        impl_DoBleh( nIndex, m_aBlah );
+        if ( nIndex > 8 )
+            impl_DontDoUgh( nIndex );
+    }
+}
+}}}
+
 == Read the Fine manual ==
 
 With the power of C++ comes the ability to shoot yourself in the foot all the more easily; (and implicitly), cf. '''Holub, Rules for C and C++ programming, Mc``Graw-Hill, 95'''.
