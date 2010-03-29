@@ -63,6 +63,26 @@ If nothing of the above fits, consider using at least ccache.  To do so, specify
 === Someone told me to disable a patch.  But how? ===
 Rules on what patches get applied under which distro configuration are all specified in the '''patches/dev300/apply''' file.  To disable a patch, search for the name of the patch you want to disable, and comment it out by placing a '#' in front of it.
 
+So, let's way you are having trouble getting the patch named ubuntu-sparc-hack.diff to get applied, and someone told you to disable that patch.  The first thing you do is open up the apply file mentioned above, and search for 'ubuntu-sparc-hack.diff.  Let's suppose you find the patch listed as below:
+{{{
+...
+ubuntu-lpi.diff, i#64895, mklose
+ubuntu-sparc-hack.diff, mklose
+human-icons-add.diff, mklose
+static-libs-use-_pic.diff, rengelha
+...
+}}}
+To disable, put a '#' in front of the patch name. like so:
+{{{
+...
+ubuntu-lpi.diff, i#64895, mklose
+#ubuntu-sparc-hack.diff, mklose
+human-icons-add.diff, mklose
+static-libs-use-_pic.diff, rengelha
+...
+}}}
+Now the patch is disabled.  Re-run make and see if you can get past this patch that previously failed to apply.
+
 === How do I know when the build is finished? ===
 When your build process stops with the following output (or something similar to it):
 {{{
