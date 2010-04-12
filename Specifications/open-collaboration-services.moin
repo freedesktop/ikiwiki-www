@@ -1,5 +1,5 @@
 ##language:en
-= Open Collaboration Services (v1.4) =
+= Open Collaboration Services (v1.5) =
 
 
 Frank Karlitschek [[MailTo(karlitschek AT kde.org)]]
@@ -103,6 +103,8 @@ At the moment there are the following services:
  * [[#KNOWLEDGEBASE|KNOWLEDGEBASE]]
 
  * [[#EVENT|EVENT]]
+
+ * [[#COMMENTS|COMMENTS]]
 
  * ...more to come later
 
@@ -2324,6 +2326,72 @@ Example:
  <message></message>
 </ocs>
 }}}
+
+
+
+
+<<Anchor(COMMENTS)>>
+=== COMMENTS ===
+
+==== get ====
+Gets a list of comments. 
+ * Syntax: /v1/comments/data/"type"/"contentid"/"contentid2"
+ * HTTP Method: GET
+ * URL Arguments: type - Id of the content entry where you want to get the comments is from.
+ * URL Arguments: contentid - Id of the content entry where you want to get the comments is from.
+ * URL Arguments: contentid2 - Id of the content entry where you want to get the comments is from.
+ * URL Arguments: page - The list page. You can control the size of a page with the pagesize argument. The first page is 0, the second is 1, ...
+ * URL Arguments: pagesize - The amount of entries per page.
+ * Result: comments xml
+ * Statuscodes:
+   * 100 - successful
+ * Types:
+   * 1 - content
+   * 4 - forum
+   * 7 - knowledgebase
+   * 8 - event
+ * Example: http://frank:password@api.opendesktop.org/v1/comments/data/1/123/0&page=1&pagesize=10 Gets the second page of the list of comments of the content with the id 123. The pagesize is 10
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+ </meta>
+ <data>
+  <comment>
+   <id>234</id>
+   <subject>vfvvdsx</subject>
+   <text>vdxvvsx</text>
+   <childcount>0</childcount>
+   <user>test</user>
+   <date>2005-01-29T18:58:40+01:00</date>
+  </comment>
+  <comment>
+   <id>235</id>
+   <subject>vxvdfvd</subject>
+   <text>gfdgfdgfgfgf
+   </text>
+   <childcount>1</childcount>
+   <user>test</user>
+   <date>2005-01-29T19:17:06+01:00</date>
+   <childs>
+    <comment>
+     <id>315</id>
+     <subject>Re: jjjjjjjjjjjjjjj</subject>
+     <text>gfdg</text>
+     <childcount>0</childcount>
+     <user>Frank</user>
+     <date>2007-03-13T21:34:43+01:00</date>
+    </comment>
+   </childs>
+  </comment>
+ </data>
+</ocs>
+}}}
+
 
 
 
