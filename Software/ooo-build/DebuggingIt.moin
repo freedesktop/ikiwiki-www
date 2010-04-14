@@ -61,9 +61,8 @@ end
 
 # define "pus" command to display rtl_uString
 define pus
-  set $ns = $arg0
-  if ($ns.buffer)
-    pu $ns.buffer $ns.length
+  if ($arg0.buffer)
+    pu $arg0.buffer $arg0.length
   else
     print "Invalid/non-initialized rtl_uString."
   end
@@ -71,9 +70,8 @@ end
 
 # define "pou" command to display rtl::OUString
 define pou
-  set $ns = $arg0
-  if ($ns.pData)
-    pus $ns.pData
+  if ($arg0.pData)
+    pus $arg0.pData
   else
     print "Invalid/non-initialized OUString."
   end
@@ -81,9 +79,8 @@ end
 
 # define "ptu" command to display tools (Uni)String
 define ptu
-  set $ns = $arg0
-  if ($ns.mpData)
-    pu $ns.mpData->maStr $ns.mpData->mnLen
+  if ($arg0.mpData)
+    pu $arg0.mpData->maStr $arg0.mpData->mnLen
   else
     print "Invalid/non-initialized tools String."
   end
@@ -92,29 +89,33 @@ end
 # define "ps" command that will autodetect the type of the string,
 # and call a function accordingly
 define ps
-  set $ns = $arg0
-  if ($ns.pData)
-    pou $ns
+  if ($arg0.pData)
+    pou $arg0
   else
-    if ($ns.mpData)
-      ptu $ns
+    if ($arg0.mpData)
+      ptu $arg0
     else
-      if ($ns.buffer)
-        pus $ns
+      if ($arg0.buffer)
+        pus $arg0
       else
         set $len = $arg1
 	if ($len)
-          pu $ns $len
+          pu $arg0 $len
         else
           # first 20 (unicode) chars
-          pu $ns 20
+          pu $arg0 20
         end
       end
     end
   end
 end
 document ps
+ps somestring [len]
+
 Print the content of pretty much any OpenOffice.org string.
+The length parameter is only used for sal_Unicode* strings: if not 
+provided, the first 20 characters will be printed for those kinds 
+of strings.
 end
 }}}
 
