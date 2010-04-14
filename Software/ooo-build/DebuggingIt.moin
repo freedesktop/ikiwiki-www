@@ -44,7 +44,7 @@ handle SIG33 nostop noprint
 tabset 4
 
 # define "pu" command to display sal_Unicode *
-def pu
+define pu
   set $uni = $arg0
   set $len = $arg1
   set $i = 0
@@ -60,7 +60,7 @@ def pu
 end
 
 # define "pus" command to display rtl_uString
-def pus
+define pus
   set $ns = $arg0
   if ($ns.buffer)
     pu $ns.buffer $ns.length
@@ -70,7 +70,7 @@ def pus
 end
 
 # define "pou" command to display rtl::OUString
-def pou
+define pou
   set $ns = $arg0
   if ($ns.pData)
     pus $ns.pData
@@ -80,13 +80,41 @@ def pou
 end
 
 # define "ptu" command to display tools (Uni)String
-def ptu
+define ptu
   set $ns = $arg0
   if ($ns.mpData)
     pu $ns.mpData->maStr $ns.mpData->mnLen
   else
     print "Invalid/non-initialized tools String."
   end
+end
+
+# define "ps" command that will autodetect the type of the string,
+# and call a function accordingly
+define ps
+  set $ns = $arg0
+  if ($ns.pData)
+    pou $ns
+  else
+    if ($ns.mpData)
+      ptu $ns
+    else
+      if ($ns.buffer)
+        pus $ns
+      else
+        set $len = $arg1
+	if ($len)
+          pu $ns $len
+        else
+          # first 20 (unicode) chars
+          pu $ns 20
+        end
+      end
+    end
+  end
+end
+document ps
+Print the content of pretty much any OpenOffice.org string.
 end
 }}}
 
