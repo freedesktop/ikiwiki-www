@@ -50,7 +50,22 @@ b
 
 There is no ad-hoc query functionality.
 
-For views, you should specify a design document for most all calls.
+For views, you should specify a design document for all calls.
+
+Understanding views is the key to using desktopcouch. Do not think of a view as being like a SQL statement. Instead, a view should basically return all your records, with a key of the thing you care about. So, if you have a load of records which are about podcasts, and you want to get the record with a particular URL set, then your view might look like:
+
+{{{
+function(doc) { emit(doc.url, doc) }
+}}}
+
+and you would then call this view and slice the result with the key you want:
+
+{{{
+results = db.execute_view("myview", "myapp")
+results_i_care_about = results[url_i_care_about]
+}}}
+
+The basics of creating and deleting views:
 
 {{{
 >>> design_doc = "application"
