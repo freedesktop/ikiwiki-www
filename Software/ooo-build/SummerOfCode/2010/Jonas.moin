@@ -25,3 +25,14 @@ Improvement of the visual equation editor for Open``Office, by seperating the vi
 
 = About me =
 I'm Jonas Finnemann Jensen, student at AAU in Denmark. I'm working on Go Open``Office for GSoC 2010. For more info ask me or see http://jopsen.dk/blog/.
+
+= Log/progress report =
+''On request of my mentor, I'll be posting progress reports here as often as possible.''
+
+== Sunday the 9th of May ==
+Since the meeting friday ([[http://wiki.ooo4kids.org/index.php/ImproveMathEquationEditor/IRCMeetings/May2010/7th_May2010|log here]]) I've built StarMath with debug symbols... Also tried to activiate SM_RECT_DEBUG for visual debug information, not really useful for my project, and by the way SM_RECT_DEBUG needs to be defined in rect.hxx not node.cxx where it is mentioned.
+I have played a bit with the debugger, I used beaverdbg to get a nice GUI (sorry I'm too lazy to learn raw gdb)...
+
+Furthermore I've tried to make SmGraphicWindow grab focus and handled KeyInput in view.cxx. Well, Now that I had this KeyInput I had to use it for something :)
+So I wrote a simple method on SmNode for dumping the entire equation tree to a dot-graph (for graphviz), and used KeyInput to do the dump. The graphs gives a pretty good overview of how the nodes are composed... I've published a few graphs under the notes section.
+I've also given all SmNode a parent node, which is NULL for the root, this made it easier to make the graph and is probably going to be necessary later anyway...
