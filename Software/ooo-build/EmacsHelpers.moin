@@ -13,3 +13,86 @@ For the while, this is my place to collect random emacs inifile (aka init.el) sn
 
 * compile from inside emacs (compile script is [[http://wiki.services.openoffice.org/wiki/Compile_with_Emacs|oob]]):
     `(global-set-key 'f12 (lambda () (interactive) (compile "oob debug=t")))`
+
+For completeness, my c mode setup:
+
+`;;; ********************`
+
+`;;; cc-mode (the mode you're in when editing C, C++, and Objective C files)`
+
+`;; Tell cc-mode not to check for old-style (K&R) function declarations.`
+
+`;; This speeds up indenting a lot.`
+
+`(setq c-recognize-knr-p nil)`
+
+``
+
+`;; Change the indentation amount to 4 spaces instead of 2.`
+
+`;; You have to do it in this complicated way because of the`
+
+`;; strange way the cc-mode initializes the value of `c-basic-offset'.`
+
+`;;(add-hook 'c-mode-hook (lambda () (setq c-basic-offset 4)))`
+
+``
+
+`;; we use to have a tab width of 4...`
+
+`(setq-default tab-width 4)`
+
+``
+
+`(defun my-c-mode-common-hook ()`
+
+`  ;; use Ellemtel style for all C, C++, and Objective-C code`
+
+`  (c-set-style "BSD")`
+
+`  (define-key c-mode-base-map '(shift tab) 'indent-relative)	;; indent relative to previous line`
+
+`  (define-key c-mode-base-map 'f10 'c-beginning-of-defun)	;; skip to start of function`
+
+`  (define-key c-mode-base-map 'f9 'gid)	                    ;; run id utils on word under cursor`
+
+`  (define-key c-mode-base-map '(shift f10) 'c-end-of-defun)	;; skip to end of function`
+
+`  (define-key c-mode-base-map 'f5 'comment-region)	;; comment marked region`
+
+`  (define-key c-mode-base-map 'f6 'c-indent-defun)	;; indent current function`
+
+`  (define-key c-mode-base-map "\C-cl" 'thb-show-soffice-class)	;; load definition file for class under cursor`
+
+`  (define-key c-mode-base-map "\C-ci" 'thb-show-soffice-header)	;; load include file under cursor`
+
+`  ;; other customizations can go here`
+
+`  (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72`
+
+`						  76 80 84 88 92 96 100 104 108 112 116 120))`
+
+`  (setq c-basic-offset 4)`
+
+`  (setq indent-tabs-mode nil)	;; NO tabs for indentation`
+
+`  (c-set-offset 'case-label '+)`
+
+`  (setq c-tab-always-indent 2) ;; always indent, but insert tab in strings`
+
+`  ;make DEL take all previous whitespace with it`
+
+`  (c-toggle-hungry-state 1)`
+
+`  ;; (c-label-offset 0)`
+
+`  ;; setup tempo for c-mode`
+
+`  ;;(thb-c-mode-tempo)`
+
+`  )`
+
+`(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)`
+
+
+</pre>
