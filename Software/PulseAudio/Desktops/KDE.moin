@@ -10,20 +10,20 @@ Firstly there are two primary areas of KDE in which PulseAudio support is needed
 
 With regards to a properly integrated Phonon, you can verify that your build supports PulseAudio by going to "System Settings" -> "Multimedia" (on some distros the "Multimedia" tab is labelled as "Audio and Video Settings"). If all is well, you should see a screen similar to the following:
 
-IMG
+[[Image(phonon-pulse-working-full.png)]]
 
 The devices shown will obviously be different on your system, however 99% of systems will have an "Internal Audio Analog Stereo" listing (or an "Internal Audio Digital Stereo" entry). To cross reference, the command {{{pacmd list-sinks | grep device.description}}} should list the same device names as the active (i.e. non-greyed out) outputs.
 
 If you do not see this full list, you may see simply a single PulseAudio entry like this:
 
-IMG
+[[Image(phonon-pulse-working-half.png)]]
 
 This generally implies that Phonon has been compiled correctly with PulseAudio support but that the KDE-specific support module for PulseAudio has not been loaded. This module (called module-device-manager) can be started manually by running the script "start-pulseaudio-kde" which should be shipped with PulseAudio since 0.9.21. This file is launched on startup via an XDG compliant .desktop file ({{{/etc/xdg/autostart/pulseaudio-kde.desktop}}}).
 
 
 Finally you may see a list that looks more like this:
 
-IMG
+[[Image(phonon-pulse-working-broken.png)]]
 
 This indicates that PulseAudio support is NOT enabled in your Phonon build, or that PulseAudio itself is not running when the config dialog was launched. On most systems where PulseAudio is deployed, it is configured to auto-spawn, so this is an unlikely scenario in which to find yourself.
 
@@ -36,13 +36,13 @@ KMix provides a general purpose mixer to adjust device volumes under KDE. With p
 
 If you KMix installation is properly compiled with PA support (full support is included in KDE 4.5 and patches against 4.4 can be found via Colin Guthrie's [http://colin.guthr.ie/git/ GIT repository] - simply clone the repo and run {{{git diff master..pulse}}} to get a patch that should apply to your KDE Multimedia 4.4 source), you should see the following UI:
 
-IMG
+[[Image(kmix-pulse-working.png)]]
 
 The primary UI will always consist of four fixed tabs - in contrast to the traditional KMix which shows one tab per device. The tabs should be self explanatory, but the first tab will automatically show any new devices when they become available. If you wish to control individual channels, simply right click on the slider and choose the "Split Channels" option.
 
 If you see a more traditional KMix interface like this:
 
-IMG
+[[Image(kmix-pulse-broken.png)]]
 
 Then chances are that if you see this interface, your KDE Multimedia package was not compiled with support for PulseAudio (as above, PA is generally configured to auto-spawn when needed, so it should be running when KMix starts). If this is the case, you should again contact your distro and ask them to integrate support.
 
