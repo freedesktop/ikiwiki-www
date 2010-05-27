@@ -2,7 +2,7 @@
 
 '''To editors''': Please do not use that list as bugzilla. Think about general changes, not particular bugs. Make sure the functionality you're asking is not possible currently.
 
-1. Break the limit of maximum number of groups (currently 4). Make it at least 5.
+1. Break the limit of maximum number of groups (currently 4). Make it at least 5. (daniels: not a problem, though requires xi2.)
 
 2. Full support of network-transparent handling for XKB configuration specified as Rules, Models, Layouts, Variants, Options (RMLVO). That includes:
 
@@ -57,3 +57,17 @@ There are also some ideas related to implementation - like dropping binary (xkm)
 #132 (removed) ''Allow oval shapes, being "circles" a particular case. --alvarezp'' - The ultimate goal would be to use some subset of SVG for geometry - just incorporate keycodes and indicators into it. #99 updated.
 
 #133 - could you please elaborate, what's the current behavior?
+
+'''daniels''' (27.5.2010)
+
+#1 Easily done, but requires clients to be using Xi2 as well.
+
+#2 No problem, except I'm skeptical of the translation/extensible metadata thing - half the point of this was to remove stuff and make it smaller!
+
+#4 I don't think it's reasonable to put this in the spec.  xk-c is the de facto standard in this area anyway, though I might cobble together a much more minimal dataset that you could reasonably expect would be present everywhere.
+
+#50 Single->multiple is easily doable, but multiple->single is _much_ more delicate (say you have 'o' and '/' generating 'ø', and a grab on '/': what happens when you press '/'?), and I'd rather leave it in the input method for the time being.
+
+#97 This is something for Xi rather than XKB, as XKB does not deal with sending events to clients, and any XTest replacement would need pointer motion anyway.
+
+#99 NNNNNNNNNNNNNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO.  I'd like to kill geom from XKB anyway; if it does exist, I don't think it has any particular business being on the wire.  #128 is part of the reason why - it's ungodly complex, and the server has absolutely zero use for it.
