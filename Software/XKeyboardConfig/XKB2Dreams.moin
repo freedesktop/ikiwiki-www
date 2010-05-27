@@ -1,5 +1,7 @@
 = Random collection of ideas related to XKB2 =
 
+'''To editors''': Please do not use that list as bugzilla. Think about general changes, not particular bugs. Make sure the functionality you're asking is not possible currently.
+
 1. Break the limit of maximum number of groups (currently 4). Make it at least 5.
 
 2. Full support of network-transparent handling for XKB configuration specified as Rules, Models, Layouts, Variants, Options (RMLVO). That includes:
@@ -20,19 +22,9 @@
 
 97. Support for virtual devices (shouldn't need to use XTest for things like x2x/synergy/vnc, and virtual devices would be slicker for virtual-machine interfaces)
 
-98. Good support for per-device layout management (Just because 1 keyboard plugged is in dvorak doesn't mean they all are)
-
 99. XKB config syntax using XML
 
-100. Support for pressing the Windows button as well as pressing Windows + L in the same keyboard layout/settings. Currently the Windows key can either be a normal key or a modifier but not both.
-
-128. In the geometry, allow to define an area for label placement for each key. Must be a rectangle, inside or outside the key, as it is on the physical keyboard. Useful for irregular poligons like L-shaped keys. Difficult to calculate for arbitrary polygons, more if they are curved (like if the key has the shape of a U, a moon, an irregular star...) --alvarezp
-
-129. Allow the enumeration of arbitrary keyboards outside of the current configuration. It is a common mistake on some configurations that no geometry is configured, and the clients can't query XKB for 'pc(pc10[45])' to get a default. --alvarezp
-
-130. Explicitly standardize the semantics of "model", particularly to be able to specify an exact model as described by the manufacturer. For example: External keyboards => exact model of the keyboard used to create the record; for laptops => exact model of the keyboard AND exact model of the laptop with original keyboard. For KVMs... --alvarezp
-
-131. Explicitly standardize that geometries should always include shapes in multiples of two, the base and the top for each step up in the shape, even if they are equal (like in some netbooks), OR that if it is an even number, that the last one should be duplicated. Useful for identifying lateral sides of keys and painting accordingly. --alvarezp
+128. In the geometry, allow to define an area for label placement for each key. Must be a rectangle, inside or outside the key, as it is on the physical keyboard. Useful for irregular polygons like L-shaped keys. Difficult to calculate for arbitrary polygons, more if they are curved (like if the key has the shape of a U, a moon, an irregular star...) --alvarezp
 
 132. Allow oval shapes, being "circles" a particular case. --alvarezp
 
@@ -51,3 +43,17 @@
 #50 - separate discussion required. Can replace "Compose" functionality, can help various Input Methods
 
 There are also some ideas related to implementation - like dropping binary (xkm) format, using text-only representation.
+
+'''svu''' (27.05.2010)
+
+#98 (removed) ''Good support for per-device layout management (Just because 1 keyboard plugged is in dvorak doesn't mean they all are)'' XKB always supported it. GUI tools usually don't.
+
+#100 (removed) ''Support for pressing the Windows button as well as pressing Windows + L in the same keyboard layout/settings. Currently the Windows key can either be a normal key or a modifier but not both.'' - related to the fact that you cannot have different actions on press and release. See #3
+
+#129 (removed) ''Allow the enumeration of arbitrary keyboards outside of the current configuration. It is a common mistake on some configurations that no geometry is configured, and the clients can't query XKB for 'pc(pc10[45])' to get a default. --alvarezp'' - this can be fixed with the existing framework of rules. IIRC if no geometru specified, pc105 is used by default. If it is not - it should be fixed. But there is always possibility to request arbitrary configuration from the server, see XkbGetKeyboardByName (and if you want it in terms of RMLVO, see #2).
+
+#130 (removed) ''Explicitly standardize the semantics of "model", particularly to be able to specify an exact model as described by the manufacturer. For example: External keyboards => exact model of the keyboard used to create the record; for laptops => exact model of the keyboard AND exact model of the laptop with original keyboard. For KVMs... --alvarezp'' - possible within the current framework. Feel free to open a bug, where we can discuss that.
+
+#131 (removed) ''Explicitly standardize that geometries should always include shapes in multiples of two, the base and the top for each step up in the shape, even if they are equal (like in some netbooks), OR that if it is an even number, that the last one should be duplicated. Useful for identifying lateral sides of keys and painting accordingly. --alvarezp'' - I do not think this is fair requirement. It can be easily done with simple math (CMIIW)
+
+#133 - could you please elaborate, what's the current behavior?
