@@ -52,7 +52,7 @@ There are also some ideas related to implementation - like dropping binary (xkm)
 
 #130 (removed) ''Explicitly standardize the semantics of "model", particularly to be able to specify an exact model as described by the manufacturer. For example: External keyboards => exact model of the keyboard used to create the record; for laptops => exact model of the keyboard AND exact model of the laptop with original keyboard. For KVMs... --alvarezp'' - possible within the current framework. Feel free to open a bug, where we can discuss that.
 
-#131 (removed) ''Explicitly standardize that geometries should always include shapes in multiples of two, the base and the top for each step up in the shape, even if they are equal (like in some netbooks), OR that if it is an even number, that the last one should be duplicated. Useful for identifying lateral sides of keys and painting accordingly. --alvarezp'' - I do not think this is fair requirement. It can be easily done with simple math (CMIIW)
+#131 (removed) ''Explicitly standardize that geometries should always include outlines in multiples of two, the base and the top for each step up in the shape, even if they are equal (like in some netbooks), OR that if it is an even number, that the last one should be duplicated. Useful for identifying lateral sides of keys and painting accordingly. --alvarezp'' - I do not think this is fair requirement. It can be easily done with simple math (CMIIW)
 
 #132 (removed) ''Allow oval shapes, being "circles" a particular case. --alvarezp'' - The ultimate goal would be to use some subset of SVG for geometry - just incorporate keycodes and indicators into it. #99 updated.
 
@@ -71,3 +71,17 @@ There are also some ideas related to implementation - like dropping binary (xkm)
 #97 This is something for Xi rather than XKB, as XKB does not deal with sending events to clients, and any XTest replacement would need pointer motion anyway.
 
 #99 NNNNNNNNNNNNNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO.  I'd like to kill geom from XKB anyway; if it does exist, I don't think it has any particular business being on the wire.  #128 is part of the reason why - it's ungodly complex, and the server has absolutely zero use for it.
+
+'''alvarezp''' (2010-05-27)
+
+#99 -- ''I'd like to kill geom from XKB anyway --daniels'' -- Nonono, no killing. Geometries are central to my application, as it paints the current keyboard on screen whatever it is. #128 is just adding another field to the database, with whatever implications.
+
+#129 (removed by svu) ''this can be fixed with the existing framework of rules. IIRC if no geometru specified, pc105 is used by default. If it is not - it should be fixed. But there is always possibility to request arbitrary configuration from the server, see XkbGetKeyboardByName (and if you want it in terms of RMLVO, see #2).'' -- Thanks, will raise bugs for both, since pc105 is not a default, and XkbGetKeyboardByName fails to load geometries outside of current configuration.
+
+#130 (removed by svu) ''possible within the current framework. Feel free to open a bug, where we can discuss that.'' -- Will be done, thanks.
+
+#131 (removed by svu) ''I do not think this is fair requirement. It can be easily done with simple math (CMIIW)'' -- Yes, it can be done by making simple assumptions, and that's how I do it, but those assumptions are outside of the specification. That's why I ask.
+
+#132 (removed by svu) ''Allow oval shapes -- The ultimate goal would be to use some subset of SVG for geometry - just incorporate keycodes and indicators into it. #99 updated.'' -- Sounds really nice. It would just be needed to keep the semantics: bounding box, primary outline, approximation outline, detailed outline, to be able to detect the top of the key and drawing inside it, not just a meaningless shape.
+
+#133 - ''could you please elaborate, what's the current behavior? --svu'' // http://web.archiveorange.com/archive/v/Ky751V5Yp70TRzlmvsit Daniel says it is not a bug as, according to XKB, actions only affect unpressed keys.
