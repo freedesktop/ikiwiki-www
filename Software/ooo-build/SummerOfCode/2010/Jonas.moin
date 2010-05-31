@@ -79,6 +79,186 @@ lbrace 1, 2, 3 rbrace nsubset setZ
 
 [[http://jopsen.dk/downloads/GSoC2010/graph5.png|Graph as png]] or  [[http://jopsen.dk/downloads/GSoC2010/dump5.gv|Graph in dot format]].
 
+== Caret Movement ==
+The problem with caret movement is to compute the next caret position in a given direction using the current
+caret position.
+
+A caret position can be defined as a node and an index within this node:
+{{{
+struct SmCaretPos{SmNode* pSelectedNode; int index};
+}}}
+
+ Note:: this index does not denote subnode of the selected node. However, it can be used by nodes such as text node, in order to let the cursor exist within such node.
+
+Using this definition of a caret position, we can discus methods for computation of caret movement.
+
+=== Approach 1: Intelligent Tree Searching ===
+
+The idea behind this approach is to do intelligent tree traversal in order to find the next caret position.
+To implement this approach we'll need to define a complex visitor for each direction of movement: left, right, up
+and down. The methods on this visitor will take a !SmCaretPos as parameter, and will return a !SmCaretPos.
+
+Consider this pseudo implementation of a method in the visitor for computing a movement to the right:
+{{{
+SmCaretPos RightMovementVisitor::visit(SmXXXNode* curNode, SmCaretPos param){
+                                      //Where SmXXXNode is a derivation of SmNode
+    if(param.pSelectedNode == NULL){
+        //We will move within this node using index
+        //if not possible we will move out of this node by calling the parent:
+        return curNode->GetParent()->accept(this, SmCaretPos(curNode, -1));
+    }else if(param.pSelectedNode == curNode->GetParent()){
+        //We will move into this node from the given direction.
+        //i.e. return left-most child, or curNode doesn't have children return curNode and left-most index
+        //for the RightMovementVisitor
+    }else{
+        //We will move out of a child of curNode, and select the next child after param.pSelectedNode
+        //By next I mean the child to the right of param.pSelectedNode for the RightMovementVisitor.
+        //If no such child is available we will move of this node by calling the parent:
+        return curNode->GetParent()->accept(this, SmCaretPos(curNode, -1)); 
+    }
+}
+}}}
+The above can hardly be called pseudo-code, however, the comments should give an idea to the in-variants.
+Basic idea is that if pSelectedNode is NULL, then we will choose the next index if possible, or ask the parent to move out of the current node. If pSelectedNode is the parent node, then it is because the parent is trying to move into the current node, thus return current node if it is visible otherwise ask a child node. If pSelectedNode is not NULL and not the parent node, then it is a child node of the current node; and we should try to move into the next child or ask the parent to handle it.
+
+With a visitor like this, the next caret position to the right can be determined using:
+{{{
+SmCaretPos start_param(NULL, -1);
+RightMovementVisitor v;
+currentCaretPos = currentCaretPos.pSelectedNode->accept(&v, start_param);
+//Now draw: currentCaretPos
+}}}
+
+=== Approach 2: Closest Caret Position Search ===
+
+The idea in this approach is to suggest all possible caret positions, and select the closes caret position
+in the desired direction. This can be implemented using an abstract visitor, that suggests caret positions
+to template methods. Concrete implementation of this visitor then saves the suggested caret positions
+they are interested in.
+
+Pseudo-implementation:
+{{{
+class MovementVisitor : public Visitor{
+    virtual void suggest(SmCaretPos caret, Point pos) = 0;
+    void visit(SmXXXNode* node){     //This is an implementation of an abstract method from the Visitor class
+        if(node->IsVisible()){
+            suggest(SmCaretPos(node, 0), node->GetCenter());
+            //When implementing an I-beam caret, don't use center...
+        }else{
+            //Visit all the children
+            for(each child) {
+                child->accept(this);
+            }
+        }
+    }
+};
+
+class RightMovementVisitor : MovementVisitor{
+    RightMovementVisitor(Point from_pos) { this->from_pos = from_pos; }
+    Point from_pos;
+    Point best_pos;
+    SmCaretPos best_caret;
+    suggest(SmCaretPos caret, Point pos){
+        //If the suggested caret position is to the right of the position we're moving from:
+        if(pos.X() > from_pos.X()){
+            //If pos is closer to what we're moving from than best_pos:
+            if((pos - from_pos).distance() < (best_pos - from_pos).distance()){
+                //Choose caret and pos to be the best suggestion offered so far...
+                best_caret = caret;
+                best_pos = pos;
+            }
+        }
+    }
+};
+}}}
+
+With this approach, implementing a visitor for moving up, down, and left is almost trivial. Also these
+position search visitors, can also be used for handling mouse clicks.
+Using visitors such as above the next right position can be easily computed as:
+
+{{{
+RightMovementVisitor v(currentCaretPosPoint);
+GetFormulaTree()->accept(&v);           //Notice that we search the entire tree!
+currentCaretPos = v.best_caret;
+currentCaretPosPoint = v.best_pos;
+//Now draw: currentCaretPos
+}}}
+
+Note that this approach searches the entire tree, however, the square roots in the distance computations
+can be omitted, because we only need to compare. It can also be optimized so that entire subtrees are not
+searched if their bounding box (the structure node that holds them) are placed so that they cannot offer a
+better caret position than what have already been suggested.
+Also equation trees are usually quite small, e.g. doesn't spand multiple pages. And even if so, axis 
+aligned bounding boxes performs very well in practical implementations.
+
+It obvious that this the condition:
+{{{
+    (pos - from_pos).distance() < (best_pos - from_pos).distance()
+}}}
+Can be improved. For instance when moving right, distance different on the Y axis could be multiplied with
+two, in order to favor caret position on the same line as the current position.
+A more complex algorithm for doing this, might help solve ackward cases. And note that such an algorithm
+would not something that needs to be updated when new nodes are added.
+
+=== Pros and cons ===
+''A list of pro and cons for the two approaches.''
+
+==== Pros for approach 1 ====
+ * It is efficient, e.g. not a wide-expensive-search
+ * It's a predictable for the user. Consider the equation:
+{{{
+             2
+            a  + b              code for equation: a^2 + b
+}}}
+  If we decide that the next position from "a" when moving right is "+". Then it will not 
+  suddenly select "2" in an equation like:
+{{{
+             2 + c
+            a      + b          code for equation: a^{2+c}+b
+}}}
+  Where the exponent is closer to "a" than "b" is...
+  So it can be argued that this offers more predictable behavior for the user. However, if the
+  exponent is sufficiently large it can be argued that the user will expect the cursor to move
+  into the exponent instead. I don't know if users imagine the tree behind the editor and expects
+  movement to operate accordingly.
+  Nevertheless, this illutrates an example of how approach 1 differs from approach 2. And there
+  can propably be argued for both approaches, from a usability point of view.
+
+
+==== Cons for approach 1 ====
+ * It's hard to maintain! It will require four complex visitors inorder to do movement, and each of these will need a special method for each node. Sometime the parsing context in which the node appears need to be taken into consideration too! Nevertheless, adding new nodes to the editor will become harder with this approach because they will need to be worked into four complex visitors.
+ * It will not move to the closes position, consider this equation:
+{{{
+        a  +  a  +  a 
+         1     2     n
+        --------------
+              b                 code for equation: {a_1 + a_2 + a_n} over b
+}}}
+  If "b" is selected it is unlikely that "2" will be selected when moving up. Using approach 2, this
+  would happen easily. A complex hack that combines stuff from approach 2, to solve this might be
+  possible, but it would also be harder to maintain.
+ * Bugs are likely to be serious, a bug in this approach could very easily result in infinite recursion, given a rare equation subtree.
+
+==== Pros for approach 2 ====
+ * It's maintainable: Instead of four complex visitors, we will only need one: the MovementVisitor. And even this is in most cases rather simple. But adding a new Node will only require modifications to this visitor.
+ * It's reusable for handling mouse clicks, i.e. finding the caret position closest to a click.
+ * It selects the caret position that is visually closest, not logically.
+
+==== Cons for approach 2 ====
+ * It's more expensive, however, requires less code, thus smaller binary, which might have just a big a positive performance implication as the more efficient search.
+ * It's not logically predictable...
+
+=== Summary ===
+We need to figure out which approach is best in terms of maintainability and usability. It's obvious to me that
+approach 2, offers the easiest maintainability. And I believe that it is possible to define the condition, i.e.
+the distance computation algorithm so that result becomes reasonable.
+However, if we do want a strict behaviour in terms of how nodes are composed, approach 2 is the way to go.
+But again this is visual movement, thus strict behaviour according the composition of nodes is not necessarily always desired, so maybe the solution is to enhance approach 2, with some of the ideas from approach 1.
+
+Current status, is that I have approach 2 working for all directions, however, it does have a few abnormalities, likely because I'm not using I-beam, but a selection around the entire selected node.
+I've also got a somewhat working implementation of approach 1, for left movement, but it still lacks many specific nodes and is not working very well at the moment.
+
+
 = External links =
 ''Information that might be relevant for hacking StarMath.''
  * [[http://wiki.ooo4kids.org/index.php/ImproveMathEquationEditor | ImproveMathEquationEditor on wiki.ooo4kids.org and sub-pages]]
