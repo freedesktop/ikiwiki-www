@@ -60,33 +60,24 @@ Trivial diagrammatic description of DBPC architecture.
 
 === Part 1, DBPC Basis ===
 
-[[/part1|Part 1]] 
-
-This part introduce basis usage of D-Bus for process control.
-
-It start by specifying common usage of methods call and signals. Next, convention usage of bus name are described. 
+[[/part1|Part 1]] This part introduce basis usage of D-Bus for process control.
 
 === Part 2, DBPC Tags : interfaces and methods description ===
 
-[[/part2|Part 2]] 
+[[/part2|Part 2]] This part specify common D-Bus objects, interface and method for DBPC tags.
 
-This part specify common objects, interface and method of D-Bus for process control.
+=== Part 3, DBPC Devices : specification, interfaces and methods description  ===
 
-=== Part 3, DBPC Server : specification, interfaces and methods description  ===
+[[/part3|Part 3]] This part specify common D-Bus objects, interface and method for DBPC devices.  
 
-[[/part3|Part 3]] 
+=== Part 4, DBPC Servers : specification, interfaces and methods description  ===
 
-This part is targeted to be a development guideline for programmers. It describe server behaviours.    
+[[/part4|Part 4]] This part specify common D-Bus objects, interface and method for DBPC server.
 
-=== Part 4, DBPC Configuration file ===
+=== Part 5, DBPC Configuration file ===
 
-[[/part4|Part 4]] 
+[[/part5|Part 5]] This part define a common configuration file format which are used by DBPC servers. 
 
-Configuration files must be generated, imported or exported by thirds-party software or bash scripts. This part define a common configuration file format which should be used by DBPC servers.  
-
-=== Part 5, DBPC Common Gui configuration tool guideline ===
-
-In the Future, a modular Gui configuration tool will allow graphical DBPC setup. This part will describe how to develop a DBPC server specific plugin/capplet for this tool. 
 
 == FAQ ==
 
@@ -94,22 +85,24 @@ In the Future, a modular Gui configuration tool will allow graphical DBPC setup.
 [[http://www.opcfoundation.org/Default.aspx/01_about/01_whatis.asp?MID=AboutOPC|OPC-DA]]
 was designed to bridge Windows and process control hardware and software applications. Standard defines consistent method of accessing field data from plant floor devices. Actually, OPC-DA is probably the most common interoperability tool used in automation and process control world.
 
-Same needs for interoperability is also desired in Linux world. Unfortunately OPC-DA is based on the OLE, COM, and DCOM technologies developed by Microsoft for the Microsoft Windows operating system family. Then a Linux port is not realistic. As a result of, DBPC as been created, having in mind that final users needs to find same habits they get used to work with. So from this point of view, DBPC and OPC-DA sould appear similar.
+Same needs for interoperability is also desired in Linux world. Unfortunately OPC-DA is based on the OLE, COM, and DCOM technologies developed by Microsoft for the Microsoft Windows operating system family. Then a Linux port is not realistic. As a result of, DBPC as been created, having in mind that final users needs to have the same feeling than they get used to work with. So from this point of view, DBPC and OPC-DA sould appear similar. 
 
-Nevertheless, DBPC distinguish of OPC-DA in one sens that it target to exploit full advantage and benefit provided by Linux and Open source software development. Although, DBPC still to encourage, manufacturer providing there own DBPC compliant tools.  
+Nevertheless, DBPC distinguish of OPC-DA in one sens that it target to exploit full advantage and benefit provided by Linux operating system and Open source software development. So we personally expect better performance and reliability. 
 
-=== New specification OPC-UA work with linux ? Do we really need DBPC ? ===
+Although DBPC is open source oriented, DBPC also still to encourage, manufacturer providing there own DBPC compliant software, not necessary open source, in the same way than OPC.  
+
+=== New specification OPC-UA work with Linux ? Do we really need DBPC ? ===
 [[http://www.opcfoundation.org/Default.aspx/01_about/UA.asp?MID=AboutOPC|OPC-UA]] is a evolution of OPC-DA.
 It has been created for make up some OPC-DA lack. 
 
-OPC-UA is a communucation protocol. DBPC is an Inter-Process Communication.
+OPC-UA is more like a communication protocol. DBPC is still an Inter-Process Communication.
 
   * In one hand, OPC-UA will be suitable for automation network and inter-systems interoperability, because it is XML based and include authentication support. 
 
   * In the other hand DBPC is rooted in Linux thanks to D-bus which allow deep system integration and easy application development. Besides D-Bus is low-latency and low-overhead, designed to be small and efficient to minimize round-trips. So very suitable for embedded systems as well as fanless touchscreen HMI. In addition, the protocol is binary, not textual, which removes the costly serialization process.
 
 
-In fact OPC-UA will benefit of DBPC and reciprocally. As a reslut of OPC-UA can be implemented as a upper layer (wrapper) above DBPC, similar to XMP-RPC, SOAP, CGI and so on.
+In fact OPC-UA will benefit of DBPC and reciprocally. As a reslut of OPC-UA can be implemented as a upper layer (wrapper) above DBPC, similar to upcoming XMP-RPC, SOAP, CGI and so on.
 
 === There is many interprocess communication or networking protocols. Why D-BUS ? ===
 
@@ -120,7 +113,7 @@ More precisely, When choosing an IPC for process control in Linux, some criteria
  * Portability : D-Bus is very portable to any Linux or UNIX flavor, and a port to Windows is in progress. 
  * Liability : The D-Bus low-level API reference implementation and protocol have been heavily tested in the real world over several years, and are now "set in stone."
  * Multi-language support : D-Bus is supported by most common Linux programming language : C, C++, Java, Python, Perl, and so one. 
- * Scripting : D-Bus can be used from terminal which mean bash scripting.
+ * Scripting : D-Bus can be used from terminal (dbus-send) which mean bash scripting.
  * Efficiency : D-Bus is light enough to be implemented in low performance hardware and embedded systems.
  * Openness : A a side effect, Instead of DBPC, HMI application can also benefit of all Desktop application supporting D-Bus connectivity.
  * Simplicity : It is easy to start programming D-Bus support.
