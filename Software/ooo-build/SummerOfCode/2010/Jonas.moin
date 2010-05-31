@@ -1,5 +1,7 @@
 ''This page contains notes, plan and other information relevant to Jonas' GSoC project for improvement of Open``Office equation editor.''
 
+<<TableOfContents()>>
+
 If page should be named differently or moved to another wiki, or if you have questions I can be contacted by e-mail <jopsen at gmail dot com>.
 My orginal GSoC proposal for this project can be found here: http://lists.freedesktop.org/archives/ooo-build/2010-April/000771.html
 
@@ -257,7 +259,7 @@ But again this is visual movement, thus strict behaviour according the compositi
 
 Current status, is that I have approach 2 working for all directions, however, it does have a few abnormalities, likely because I'm not using I-beam, but a selection around the entire selected node.
 I've also got a somewhat working implementation of approach 1, for left movement, but it still lacks many specific nodes and is not working very well at the moment.
-
+Anyway, a solution could be to go forward with a better implementation of approach 2, and if that doesn't work out nicely at the end, well then it can always be replaced later.
 
 = External links =
 ''Information that might be relevant for hacking StarMath.''
@@ -266,8 +268,11 @@ I've also got a somewhat working implementation of approach 1, for left movement
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
-== Sunday the 31th of May ==
-I've been testing out the visual movement I implemented friday, and trying to improve it. Then I've also worked on the second approach, e.g. my initial idea, it's a bit more complicated, but yield more predictable results... Nevertheless, at the current stage my quick-n-dirty implementation didn't work. I'll try to bugfix it later, also I'll make some pretty pictures to explain the two approaches, with pros and cons.
+== Monday the 31th of May ==
+I've been writing notes on the two approaches to computing the next position for visual movement... I've also gotten the first approach stuff, that didn't work yesterday working, but the implementation is still so partial that it's almost not worth testing out. Anyway, I'll publish my patch, e.g. the combined patch of all my nasty hacks, and send a link to the notes to my mentor(s).
+
+== Sunday the 30th of May ==
+I've been testing out the visual movement I implemented friday, and trying to improve it. Then I've also worked on the first approach, e.g. my initial idea, it's a bit more complicated, but yield more predictable results... Nevertheless, at the current stage my quick-n-dirty implementation didn't work. I'll try to bugfix it later, also I'll make some pretty pictures to explain the two approaches, with pros and cons.
 
 == Friday the 28th of May ==
 I had a some trouble sleeping last night... It might be slightly related to the fact that I had an epiphany: Instead of making complex rules about how to find the next caret position, based on Sm``Node type and information about context from the parser, I define a set of Caret``Position within each node and let a visitor search for a position to the left of the current caret position.
