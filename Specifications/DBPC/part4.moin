@@ -5,32 +5,31 @@
 <<TableOfContents(2)>> 
 
 == Introduction ==
-A DBPC server is a programme offering communication facilities trough a dbus service.  
+A DBPC server is a D-Bus service offering communication facilities with industrial equipement.  
 
 
 == Servers type ==
 
 Server can be mandatory for a field bus, protocol or electronic equipment : 
 
-   * '''Field bus or protocol based servers''' allow retrieving tags value trough dedicated communication interface and make those values available, thanks to D-bus, trough a DBPC server. 
+   * '''Field bus or protocol based servers''' allow retrieving tags value trough a communication interface and make those values available, thanks to D-bus, trough a DBPC server. 
  
    * '''Electronic device based server''' are generally supplied by manufacturers which would provide a standardized interface for there equipments within Linux systems. 
 
-== Server implementation name ==
 
-Server name usually begin  with the field bus or protocol designation, optionally followed by a specific name or identifier and finish with "DBPC server". (example: ModbusTCP_..._DBPCserver)
+== D-bus service bus name ==
 
-Electronic equipment server name usually begin with manufacturer name followed by model designation and finish with "DBPC_server". (example: Wago_750-863_DBPCserver)
+D-Bus service name of DBPC server begin always with "org.dbpc.". Usually server name correspond to the corresponding protocol. (example: org.dbpc.modbustcp) 
+
+An other name can be choose with option -n  
+
 
 == Servers configuration file ==
 
-By default, configuration file is stored in "/etc/dbpc/". Configuration file has the same name than the server, folowed by ".conf". (example: ModbusTCP_DBPCserver.conf) 
+By default, configuration file is stored in "/etc/dbpc/". Configuration file has the same name than the D-Bus service name, folowed by ".conf". (example: modbustcp.conf) 
 
-An other file can be choose with option -f  
-  
-== D-bus service bus name ==
+Another file can be choose with option -f  
 
-Service D-Bus name of DBPC server begin always with "org.dbpc.". Usually server name correspond to the corresponding protocol. (example: org.dbpc.modbus) 
 
 == Server methods ==
 {{{
@@ -53,3 +52,11 @@ Service D-Bus name of DBPC server begin always with "org.dbpc.". Usually server 
 
 </node>
 }}}
+
+== Server implementation name ==
+
+Server implementations are usually named with the field bus or protocol designation, optionally followed by a specific name or identifier and finishing with "DBPC server". (example: ModbusTCP_..._DBPCserver)
+
+Generic server may be only called with a specific name or identifier followed by "DBPCserver".
+
+Electronic equipment server name usually begin with manufacturer name followed by model designation and finish with "DBPC_server". (example: Wago_750-863_DBPCserver)
