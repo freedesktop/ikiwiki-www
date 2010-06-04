@@ -13,71 +13,89 @@ This part describe standard DBPC tags class models.
 There is a basic class called tag. all tags class corresponding to data points value are inherited from this basic class 
 
 
+== Tags interface ==
 
-== Generic tag class ==
+{{{
+  <interface name="org.dbpc.tag">
+    <method name="get_description">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_refresh">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_validity">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_device">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_adress">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_name">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+</node>
+}}}
+
+== Boolean interface ==
+{{{
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+  <interface name="org.dbpc.boolean">
+    <method name="read">
+      <arg direction="out" type="b" />
+    </method>
+    <method name="write">
+      <arg direction="in"  type="b" name="value" />
+      <arg direction="out" type="b" />
+    </method>
+  </interface>
+}}}
 
 
-=== Properties ===
+== Interger interface ==
+{{{
+  <interface name="org.dbpc.integer">
+    <method name="read">
+      <arg direction="out" type="i" />
+    </method>
+    <method name="write">
+      <arg direction="in"  type="i" name="value" />
+      <arg direction="out" type="b" />
+    </method>
+  </interface>
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+}}}
 
-==== STRING address ====
-This string store where the value can be retried by the DBPC server. It format is specific to the protocol implemented by the DBPC server.
 
-==== DOUBLE timestamps ====
-This property store the late time when the value has been updated. Generally timestamps is set by the server itself according to system clock. Depending on the protocol implemented, this value can also come directly from the device. If communication time are not predictable, timestamps must be set when the update request is send to the Device. So the stored timestamps is always earlier than the real timestamps.
+== Real interface ==
 
-==== DOUBLE validity ====
-This property store the validity of the value. Validity is given in 1/100 seconds. On client read request, according to timestamps and validity, outdated value are updated.
-
-==== INT mode ====
-correspond to update mode : 1 = continuous, 2 = on use. 
-
-==== INT permissions ====
-This need more research. Dbus seems to provide security functionality. 
-
-
-=== Methods ===
 ...
 
-=== Events ===
 
-==== data_change ====
-In continuous mode, this event append when value change
+== Analog input interface ==
 
-
-
-== Bool tag class ==
-
-=== Properties ===
-...
-
-=== Methods ===
-...
-
-=== Events ===
 ...
 
 
+== Analog output interface ==
 
-== Interger tag class ==
-
-=== Properties ===
-...
-
-=== Methods ===
-...
-
-=== Events ===
 ...
 
 
+== Alarm Interface interface ==
 
-== Real tag class ==
-
-=== Properties ===
 ...
 
-=== Methods ===
-...
 
-=== Events ===
+== Isa88 Function interface ==
 ...
