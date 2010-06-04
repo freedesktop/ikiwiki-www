@@ -16,37 +16,65 @@ Introduction exemple :
 <project>
     <devices>
         <device name="FillingControler">
-            <address>192.168.1.4<address>
-            <protocol>ModbusTCP<protocol>
-            <description>...</description>
-            ...
+            <address>192.168.1.4</address>
+            <description>Filling machine programmable logic controler for DBPC simulation</description>
+
+            <tags>
+                <tag name="A230LI10" type="integer">
+                    <address>MW10</address>
+                    <refresh>on use</refresh>
+                    <validity>3s</validity>
+                    <description>unit A230 level indicator 10</description>
+                </tag>
+                <tag name="motor/A230M20" type="bool">
+                    <address>A10.3</address>
+                    <refresh>on use</refresh>
+                    <validity>2.5s</validity>
+                    <description>unit A230 command filling pumpe 20</description>
+                </tag>
+                <tag name="motor/A230M20MS" type="bool">
+                    <address>E10.3</address>
+                    <refresh>on use</refresh>
+                    <validity>2s</validity>
+                    <description>unit A230 status filling pumpe 20</description>
+                </tag>
+            </tags>
+
         </device>
-        <device>
-            ...
+
+        <device name="MixerController">
+            <address>adr18</address>
+            <protocol>ModbusRTU</protocol>
+            <description>Bier tank mixer programmable logic controler for DBPC simulation</description>
+
+            <tags>
+                <tag name="A300LI10" type="integer">
+                    <address>MW10</address>
+                    <refresh>on use</refresh>
+                    <validity>3s</validity>
+                    <description>unit A230 level indicator 10</description>
+                </tag>
+                <tag name="A300M20" type="bool">
+                    <address>A11.3</address>
+                    <refresh>on use</refresh>
+                    <validity>2.5s</validity>
+                    <description>unit A230 command filling pumpe 20</description>
+                </tag>
+                <tag name="A300M20MS" type="bool">
+                    <address>A11.3</address>
+                    <refresh>on use</refresh>
+                    <validity>2s</validity>
+                    <description>unit A230 status filling pumpe 20</description>
+                </tag>
+            </tags>
+
         </device>
+
     </devices>
-    <tags>
-        <tag name="A230LI10">
-            <address>MW10</address>
-            <device>plc1</device>
-            <type>integer</type>
-            <refresh>on use</refresh>
-            <validity>3s</validity>
-            <busname>dbpc/corp/building18/A230/LI10</busname>
-            <description>...</description>
-            ...
-        </tag>
-        <tag name="nametag2">
-            ...
-        </tag>
-        <tag name="nametag3">
-            ...
-        </tag>
-    <tags>
-    ....
+
+    ...
+
 </project>
-
-
 }}}
 
 Unknow entry are ignored. So this file can be shared with other app und custom tag can be added.
