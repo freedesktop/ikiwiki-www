@@ -279,7 +279,18 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
-== Sunday the 6 of June ==
+== Monday the 7th of June ==
+Today, I've been working on drawing a proper caret, that is a straight line. Not very hard to do... However, as it turns out drawing isn't very fast. Actually invalidating the entire SmGraphicWindow at each caret movement causes the widget to flicker a little at times. This is something we can live with as it only flickers when caret is moving, note this may be specific to my computer (though I doubt it).
+
+It should be possible to avoid invalidating the entire widget when moving the caret, this might solve the flickering issue. However, we'll need to redraw the entire equation whenever it is edited, i.e. the !SmNode tree is changed. Thus full redraw needs to be fast enough to avoid flickering. A quick guess is that it flickers because the underlying drawing stuff, first blits the entire widget blank/white, before blitting the content.
+
+Anyway, I've made a patch where any keystroke to the plaintext editor for entering equations, causes SmGraphicWindow to parse and redraw the entire formula (The patch is available below). The result is that the widget flickers when entering the formula. I suppose that parsing and arranging the formula takes some time, but I still guess that it's the drawing that causes the flickering.
+
+  * http://jopsen.dk/downloads/GSoC2010/updatehack-7-june.diff
+
+This may be a deeply rooted issue in !OpenOffice, it may be specific to my system (doubt that), it may also be specific to Linux (more likely), or it could be a general issue in !OpenOffice. I suppose that drawing performance is a bit out of my scope and probably quite difficult, if not impossible, to improve; so I don't know if I should look more into this or just accept the current situation.
+
+== Sunday the 6th of June ==
 This past week I've been preparing for an exam and celebrating my parents 25th wedding anniversary, anyway as of today I'm past that... I've got a new exam to prepare for, but I'm done with the wedding anniversary stuff... So today, I've been reading about specifications for OpenOffice and written a quick draft, link is available on this page.
 
 I'm slightly torn as to how detailed it should be, more details is probably needed. But I'm fairly sure we won't get them all before the implementation is complete.
