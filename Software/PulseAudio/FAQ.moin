@@ -211,6 +211,16 @@ The up/down are actually working, incrementing or decrementing the volume by 1 u
 
 You can adjust the volume in alsamixer from 0 to 90% in 1/9 increments with the number keys 0-9.
 
+=== Sound doesn't work when switching users ===
+
+!PulseAudio works with a single user, but when an additional user logs in ([http://en.wikipedia.org/wiki/Fast_user_switching fast user switching]), sound/audio does not work for the additional user.
+
+Check that no users are part of the "audio" [http://en.wikipedia.org/wiki/Group_identifier_%28Unix%29 group].
+
+In simple setups, users must be a member of the "audio" group to access sound devices (/dev/snd/*) that have "audio" group write permissions, but switching users does release the sound devices in use by the previous user.
+
+By removing all users from the "audio" group (the !PulseAudio server still runs in the "audio" group), !PulseAudio is able manage access to sound devices (/dev/snd/*) amongst multiple users with the help of [http://www.freedesktop.org/wiki/Software/ConsoleKit ConsoleKit].
+
 == I want to do this specific thing... ==
 
 === I want to run !PulseAudio only when it is needed, how do I do this? ===
