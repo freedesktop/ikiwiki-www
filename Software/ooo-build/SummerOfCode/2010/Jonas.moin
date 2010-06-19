@@ -279,8 +279,20 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Friday the 19th of June ==
+I've been playing some more with !VirtualDevice for drawing double buffered, however, this didn't solve the flickering issue. Quite to contrary, it made drawing slower, which in turn made the flickering more visible. Somehow !VirtualDevice also managed to disable anti-alias, so the result wasn't pretty.
+
+Anyway, I tried to do the drawing to the !VirtualDevice in {{{SmGraphicWindow::PrePaint}}} instead of {{{SmGraphicWindow::Paint}}}, but this didn't solve the issue even though it should reduce the time from the {{{Window::Erase()}}} call in {{{Window::ImplCallPaint()}}} to the painting of the content is done. The patch where I tried this hack is available below:
+
+  * [[http://jopsen.dk/downloads/GSoC2010/flickering-prepaint-fix-attempt.diff|Patch for flickering fix attempt, using PrePaint on VirtualDevice]]
+  * [[http://gsl.openoffice.org/servlets/ReadMsg?list=dev&msgNo=2369|Thread on dev@gsl...]]
+
+I think that a solution to the flickering would be to draw the background in {{{SmGraphicWindow::Paint}}} instead of having {{{Window::Erase()}}} called in {{{Window::ImplCallPaint()}}}. I tried this by calling {{{Window::SetBackground()}}} in the constructor of {{{SmGraphicWindow}}}. This did indeed solve the flickering issue, however, I couldn't figure out how to draw the background manually in {{{SmGraphicWindow::Paint}}}, with more work this might be a solution...
+
+By request on Eric I also started playing a little with implementing new symbols. I'll be implementing new symbols later, and will document the process so that others can implement new symbols if desired...
+
 == Thursday the 17th of June ==
-I've been trying to use VirtualDevice for drawing double buffered... However, so far this is with limited success, I think I've got some logical and pixel sizes messed up. And maybe some antialiasing that doesn't work... Flickering is still an issue, but I'm not done getting the VirtualDevice working...
+I've been trying to use !VirtualDevice for drawing double buffered... However, so far this is with limited success, I think I've got some logical and pixel sizes messed up. And maybe some antialiasing that doesn't work... Flickering is still an issue, but I'm not done getting the !VirtualDevice working...
 
 == Monday the 14th of June ==
 I've written a message to dev at gsl... for help on the flickering issue. And attached the patch for reproducing it, if that should be necessary... Somehow I get the feeling that vcl doesn't double buffer by default, something we're used to from modern GUI-toolkits today (gtk and qt off the top of my head)...
