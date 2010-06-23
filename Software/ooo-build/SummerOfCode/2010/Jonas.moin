@@ -279,6 +279,13 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Wednesday the 23th of June ==
+Today I worked on allowing the {{{union}}} and {{{intersection}}} operators to work with {{{to}}} and {{{from}}} boundaries as it is known from the {{{sum}}} operator. This turned out to be achievable with a few very small changes in {{{parser.cxx}}}. However, it would be nice to have a larger symbol to use for union and intersection, when used in this context. But no such symbol is in OpenSymbol, so we'd have to draw one. While this is working pretty good, there might be a few parsing abnormalities, because the command {{{union}}} is now used for union as binary operator and construction that can be seen below (which is what I just created):
+
+{{http://jopsen.dk/downloads/GSoC2010/union.png}}
+
+So it's necessary to check that this change in the parser doesn't have consequences on backwards compatibility. If it does there might be a few parameters that we can twist in the parser. If that doesn't work, we can always choose another command for union with from and to boundaries. Anyway, I haven't done extensive testing yet, so I'm not going to worry about potential backwards compatibility issues before I discover them.
+
 == Tuesday the 22th of June ==
 These past two days I've between rewriting and cleaning up the code I've written so far. Basically made a diff, reset my branch to master and started copying and writing in the changes that I wanted to have... Thus, I've removed all the testing code that I'm not using for caret movement anymore. I've also taken the time to cleanup in {{{edit.cxx}}} where the synchronization timer won't be needed anymore. I've also removed all the old cursor/caret code from !SmGraphicWindow, previously most of it was just commented out enough to disable it... :)
 
