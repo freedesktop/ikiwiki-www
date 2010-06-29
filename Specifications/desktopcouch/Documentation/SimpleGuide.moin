@@ -139,144 +139,83 @@ DesktopcouchSession *couchdb;
 
 couchdb = desktopcouch_session_new ();
 }}}
-Once you have a ''CouchDBSession'' object, you can do all the operations the API provides from it. Please note that most of the API functions have a ''GError'' argument as the last parameter, which is used to return error information to the caller.
+Once you have a ''CouchdbSession'' object, you can do all the operations the API provides from it. Please note that most of the API functions have a ''GError'' argument as the last parameter, which is used to return error information to the caller.
 
 === Working with databases ===
 First, you can list the databases that are available:
 {{{
-GSList *couchdb_session_list_databases (CouchDBSession *couchdb, GError **error);
+GSList *couchdb_session_list_databases (CouchdbSession *couchdb, GError **error);
 }}}
-This would return a list of ''CouchDBDatabaseInfo'' structures, which contain information (such as database name, number of documents, etc) for each database available on the CouchDB instance you're connecting to. If you already know the name of a database, you can easily obtain that information for that specific database with the following function:
+This would return a list of ''CouchdbDatabaseInfo'' structures, which contain information (such as database name, number of documents, etc) for each database available on the CouchDB instance you're connecting to. If you already know the name of a database, you can easily obtain that information for that specific database with the following function:
 {{{
-CouchDBDatabaseInfo *couchdb_session_get_database_info (CouchDBSession *couchdb, const char *dbname, GError **error);
+CouchdbDatabaseInfo *couchdb_session_get_database_info (CouchdbSession *couchdb, const char *dbname, GError **error);
 }}}
 
 You can also create new databases:
 {{{
-gboolean couchdb_session_create_database (CouchDBSession *couchdb, const char *dbname, GError **error);
+gboolean couchdb_session_create_database (CouchdbSession *couchdb, const char *dbname, GError **error);
 }}}
 
 Or delete existing databases:
 {{{
-gboolean couchdb_session_delete_database (CouchDBSession *couchdb, const char *dbname, GError **error);
+gboolean couchdb_session_delete_database (CouchdbSession *couchdb, const char *dbname, GError **error);
 }}}
-
-Also, before starting to work with documents on a specific database, you might want to listen for changes on the database(s) you're working with. To do so, you just need to call the following function:
-{{{
-void couchdb_session_listen_for_changes (CouchDBSession *couchdb, const char *dbname);
-}}}
-This will setup a listener for changes on the database specificied by the ''dbname'' argument. Notification of changes are sent to the caller via GObject's signals, so to actually receive those notifications in your application, you would need to connect to one (or all) of the following signals of the ''CouchDB'' object:
-{{{
-void (* database_created) (CouchDB *couchdb, const char *dbname);
-void (* database_deleted) (CouchDB *couchdb, const char *dbname);
-void (* document_created) (CouchDB *couchdb, const char *dbname, CouchDBDocument *document);
-void (* document_updated) (CouchDB *couchdb, const char *dbname, CouchDBDocument *document);
-void (* document_deleted) (CouchDB *couchdb, const char *dbname, const char *docid);
-}}}
-If you don't call ''couchdb_listen_for_changes'' on your program, you might still get some notifications through these signals of the changes done through your application, but you won't get any notification for external changes.
 
 === Working with documents ===
-Once you know what database you'll be working with, you can use the documents part of the API. First, to list documents on a specific database:
+Once you know what database you'll be working with, you can use the documents part of the API. First, you need to obtain a reference to the database you want to use, which is done with ''couchdb_session_get_database'':
 {{{
-GSList          *couchdb_list_documents (CouchDB *couchdb, const char *dbname, GError **error);
+CouchdbDatabase *couchdb_session_get_database (CouchdbSession *couchdb, const gchar *dbname, GError **error);
 }}}
-This returns a list of ''CouchDBDocumentInfo'', which is a struct that contains the unique identifier and last revision number for a specific document.
-
-To get a specific document:
+Then, the ''CouchdbDatabase'' object offers access to the documents contained in that database:
 {{{
-CouchDBDocument *couchdb_document_get (CouchDB *couchdb,
-                                       const char *dbname,
-                                       const char *docid,
-                                       GError **error);
+GSList          *couchdb_database_list_documents (CouchdbDatabase *database, const char *dbname, GError **error);
 }}}
-This returns a ''CouchDBDocument'' object, which lets you read/modify a document in memory. You can also create an empty ''CouchDBDocument'' object in memory with the ''couchdb_document_new'' function, for later saving it to the database. There are several functions you'd want to know for retrieving/setting fields' data on a document:
+This returns a list of ''CouchDBDocumentInfo'', which is a struct that contains the unique identifier and last revision number for a specific document. This doesn't retrieve the actual document's contents, just information about them. You can retrieve all documents at once by calling:
 {{{
-gboolean         couchdb_document_has_field (CouchDBDocument *document, const char *field);
-void             couchdb_document_remove_field (CouchDBDocument *document, const char *field);
-gboolean         couchdb_document_get_boolean_field (CouchDBDocument *document, const char *field);
-void             couchdb_document_set_boolean_field (CouchDBDocument *document, const char *field, gboolean value);
-gint             couchdb_document_get_int_field (CouchDBDocument *document, const char *field);
-void             couchdb_document_set_int_field (CouchDBDocument *document, const char *field, gint value);
-gdouble          couchdb_document_get_double_field (CouchDBDocument *document, const char *field);
-void             couchdb_document_set_double_field (CouchDBDocument *document, const char *field, gdouble value);
-const char      *couchdb_document_get_string_field (CouchDBDocument *document, const char *field);
-void             couchdb_document_set_string_field (CouchDBDocument *document, const char *field, const char *value);
-CouchDBStructField *couchdb_document_get_struct_field (CouchDBDocument *document, const char *field);
-void             couchdb_document_set_struct_field (CouchDBDocument *document,
+GSList          *couchdb_database_get_all_documents (CouchdbDatabase *database, GError **error);
+}}}
+This returns a GSList of ''CouchdbDocument''s. Or, to get a a specific document:
+{{{
+CouchDBDocument *couchdb_database_get_document (CouchdbDatabase *database, const char *docid, GError **error);
+}}}
+This returns a ''CouchdbDocument'' object, which lets you read/modify a document in memory. You can also create an empty ''CouchdbDocument'' object in memory with the ''couchdb_document_new'' function, for later saving it to the database. There are several functions you'd want to know for retrieving/setting fields' data on a document:
+{{{
+gboolean         couchdb_document_has_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_remove_field (CouchdbDocument *document, const char *field);
+gboolean         couchdb_document_get_boolean_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_boolean_field (CouchdbDocument *document, const char *field, gboolean value);
+gint             couchdb_document_get_int_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_int_field (CouchdbDocument *document, const char *field, gint value);
+gdouble          couchdb_document_get_double_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_double_field (CouchdbDocument *document, const char *field, gdouble value);
+const char      *couchdb_document_get_string_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_string_field (CouchdbDocument *document, const char *field, const char *value);
+CouchdbStructField *couchdb_document_get_struct_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_struct_field (CouchdbDocument *document,
                                                     const char *field,
-                                                    CouchDBStructField *value);
+                                                    CouchdbStructField *value);
 }}}
-These functions allow you to check for the existence of a field in a document (''couchdb_document_has_field''), remove a field from it (''couchdb_document_remove_field'') and retrieve/set the value of a field in different formats (boolean, integer, double, string). A special mention is needed for the ''couchdb_document_get_struct_field'' and ''couchdb_document_get_struct_field'', which allow you to have object fields (or structs, if you find it easier to understand it that way) on your documents. Object fields can in turn contain other object fields, and they are manager by the ''CouchDBStructField'' object, which contains very similar methods to those of ''CouchDBDocument'' shown above:
+These functions allow you to check for the existence of a field in a document (''couchdb_document_has_field''), remove a field from it (''couchdb_document_remove_field'') and retrieve/set the value of a field in different formats (boolean, integer, double, string). A special mention is needed for the ''couchdb_document_get_struct_field'' and ''couchdb_document_get_struct_field'', which allow you to have object fields (or structs, if you find it easier to understand it that way) on your documents. Object fields can in turn contain other object fields, and they are manager by the ''CouchdbStructField'' object, which contains very similar methods to those of ''CouchdbDocument'' shown above:
 {{{
-gboolean            couchdb_struct_field_get_boolean_field (CouchDBStructField *sf, const char *field);
-void                couchdb_struct_field_set_boolean_field (CouchDBStructField *sf, const char *field, gboolean value);
-gdouble             couchdb_struct_field_get_double_field (CouchDBStructField *sf, const char *field);
-void                couchdb_struct_field_set_double_field (CouchDBStructField *sf, const char *field, gdouble value);
-gint                couchdb_struct_field_get_int_field (CouchDBStructField *sf, const char *field);
-void                couchdb_struct_field_set_int_field (CouchDBStructField *sf, const char *field, gint value);
-const char         *couchdb_struct_field_get_string_field (CouchDBStructField *sf, const char *field);
-void                couchdb_struct_field_set_string_field (CouchDBStructField *sf, const char *field, const char *value);
-CouchDBStructField *couchdb_struct_field_get_struct_field (CouchDBStructField *sf, const char *field);
-void                couchdb_struct_field_set_struct_field (CouchDBStructField *sf, const char *field, CouchDBStructField *value);
+gboolean            couchdb_struct_field_get_boolean_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_boolean_field (CouchdbStructField *sf, const char *field, gboolean value);
+gdouble             couchdb_struct_field_get_double_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_double_field (CouchdbStructField *sf, const char *field, gdouble value);
+gint                couchdb_struct_field_get_int_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_int_field (CouchdbStructField *sf, const char *field, gint value);
+const char         *couchdb_struct_field_get_string_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_string_field (CouchdbStructField *sf, const char *field, const char *value);
+CouchdbStructField *couchdb_struct_field_get_struct_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_struct_field (CouchdbStructField *sf, const char *field, CouchdbStructField *value);
 }}}
 Once you have modified your document and want to save it to the database, you use the following function:
 {{{
-gboolean couchdb_document_put (CouchDBDocument *document,
-                               const char *dbname,
-                               GError **error);
+gboolean couchdb_database_put_document (CouchdbDatabase *database, CouchdbDocument *document, GError **error);
 }}}
 Also, you can remove documents, based on their unique ID:
 {{{
-gboolean couchdb_document_delete (CouchDBDocument *document, GError **error);
+gboolean couchdb_database_delete_document (CouchdbDatabase *database, CouchdbDocument *document, GError **error);
 }}}
 
 === Working with contacts ===
-couchdb-glib provide high-level API for dealing with ''CouchDBDocument'' that are contacts. For that, you can use the following functions:
-{{{
-const char *couchdb_document_contact_get_first_name (CouchDBDocument *document);
-void        couchdb_document_contact_set_first_name (CouchDBDocument *document, const char *first_name);
-const char *couchdb_document_contact_get_last_name (CouchDBDocument *document);
-void        couchdb_document_contact_set_last_name (CouchDBDocument *document, const char *last_name);
-const char *couchdb_document_contact_get_nick_name (CouchDBDocument *document);
-void        couchdb_document_contact_set_nick_name (CouchDBDocument *document, const char *nick_name);
-const char *couchdb_document_contact_get_spouse_name (CouchDBDocument *document);
-void        couchdb_document_contact_set_spouse_name (CouchDBDocument *document, const char *spouse_name);
-const char *couchdb_document_contact_get_birth_date (CouchDBDocument *document);
-void        couchdb_document_contact_set_birth_date (CouchDBDocument *document, const char *birth_date);
-const char *couchdb_document_contact_get_wedding_date (CouchDBDocument *document);
-void        couchdb_document_contact_set_wedding_date (CouchDBDocument *document, const char *wedding_date);
-
-const char *couchdb_document_contact_get_company (CouchDBDocument *document);
-void        couchdb_document_contact_set_company (CouchDBDocument *document, const char *company);
-const char *couchdb_document_contact_get_department (CouchDBDocument *document);
-void        couchdb_document_contact_set_department (CouchDBDocument *document, const char *department);
-const char *couchdb_document_contact_get_title (CouchDBDocument *document);
-void        couchdb_document_contact_set_title (CouchDBDocument *document, const char *title);
-const char *couchdb_document_contact_get_job_title (CouchDBDocument *document);
-void        couchdb_document_contact_set_job_title (CouchDBDocument *document, const char *job_title);
-const char *couchdb_document_contact_get_manager_name (CouchDBDocument *document);
-void        couchdb_document_contact_set_manager_name (CouchDBDocument *document, const char *manager_name);
-const char *couchdb_document_contact_get_assistant_name (CouchDBDocument *document);
-void        couchdb_document_contact_set_assistant_name (CouchDBDocument *document, const char *assistant_name);
-const char *couchdb_document_contact_get_office (CouchDBDocument *document);
-void        couchdb_document_contact_set_office (CouchDBDocument *document, const char *office);
-
-GSList     *couchdb_document_contact_get_email_addresses (CouchDBDocument *document);
-void        couchdb_document_contact_set_email_addresses (CouchDBDocument *document, GSList *list);
-
-GSList     *couchdb_document_contact_get_phone_numbers (CouchDBDocument *document);
-void        couchdb_document_contact_set_phone_numbers (CouchDBDocument *document, GSList *list);
-
-GSList     *couchdb_document_contact_get_addresses (CouchDBDocument *document);
-void        couchdb_document_contact_set_addresses (CouchDBDocument *document, GSList *list);
-
-GSList     *couchdb_document_contact_get_im_addresses (CouchDBDocument *document);
-void        couchdb_document_contact_set_im_addresses (CouchDBDocument *document, GSList *list);
-
-GSList     *couchdb_document_contact_get_urls (CouchDBDocument *document);
-void        couchdb_document_contact_set_urls (CouchDBDocument *document, GSList *list);
-
-const char *couchdb_document_contact_get_notes (CouchDBDocument *document);
-void        couchdb_document_contact_set_notes (CouchDBDocument *document, const char *notes);
-}}}
-They allow you to easily get/set values from the contacts records without having to remember the names of the fields
+couchdb-glib provide high-level API for dealing with ''CouchdbDocument'' that are contacts. For that, you can use desktopcouch-glib, which is part of couchdb-glib, and which provides high level classes to make it easier to deal with desktopcouch data.
