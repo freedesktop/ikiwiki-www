@@ -125,39 +125,45 @@ To start using, first thing is to include the top-level header file
 #include <couchdb-glib/couchdb-glib.h>
 }}}
 
-The entry point for the API is the ''CouchDB'' object, which can be obtained as shown in the following example:
+The entry point for the API is the ''CouchDBSession'' object, which can be obtained as shown in the following example:
 {{{
-CouchDB *couchdb;
+CouchDBSession *couchdb;
 
-couchdb = couchdb_new ("http://localhost:5984");
+couchdb = couchdb_session_new ("http://localhost:5984");
 }}}
-The only argument to ''couchdb_new'' is the URL of the CouchDB instance to connect to. If NULL, it would use the system-wide CouchDB instance (located at http://localhost:5984). Also, take into account that at the time of this writing, couchdb-glib doesn't know anything specific about desktopcouch, so you need to get the port and OAuth credentials as shown [[http://git.gnome.org./cgit/evolution-couchdb/tree/addressbook/e-book-backend-couchdb.c|here]] (see function ''e_book_backend_couchdb_load_source'' in that code). Code to do this automatically for you is being added to couchdb-glib unstable version, so should be available soon in the stable API.
+The only argument to ''couchdb_session_new'' is the URL of the CouchDB instance to connect to. If NULL, it would use the system-wide CouchDB instance (located at http://localhost:5984). If you want to connect to desktopcouch without having to know what port it is listening in, you can use the high-level object DesktopcouchSession, which is available in desktopcouch-session.h:
+{{{
+#include <desktopcouch-glib/desktopcouch-session.h>
 
-Once you have a ''CouchDB'' object, you can do all the operations the API provides from it. Please note that most of the API functions have a ''GError'' argument as the last parameter, which is used to return error information to the caller.
+DesktopcouchSession *couchdb;
+
+couchdb = desktopcouch_session_new ();
+}}}
+Once you have a ''CouchDBSession'' object, you can do all the operations the API provides from it. Please note that most of the API functions have a ''GError'' argument as the last parameter, which is used to return error information to the caller.
 
 === Working with databases ===
 First, you can list the databases that are available:
 {{{
-GSList *couchdb_list_databases (CouchDB *couchdb, GError **error);
+GSList *couchdb_session_list_databases (CouchDBSession *couchdb, GError **error);
 }}}
 This would return a list of ''CouchDBDatabaseInfo'' structures, which contain information (such as database name, number of documents, etc) for each database available on the CouchDB instance you're connecting to. If you already know the name of a database, you can easily obtain that information for that specific database with the following function:
 {{{
-CouchDBDatabaseInfo *couchdb_get_database_info (CouchDB *couchdb, const char *dbname, GError **error);
+CouchDBDatabaseInfo *couchdb_session_get_database_info (CouchDBSession *couchdb, const char *dbname, GError **error);
 }}}
 
 You can also create new databases:
 {{{
-gboolean couchdb_create_database (CouchDB *couchdb, const char *dbname, GError **error);
+gboolean couchdb_session_create_database (CouchDBSession *couchdb, const char *dbname, GError **error);
 }}}
 
 Or delete existing databases:
 {{{
-gboolean couchdb_delete_database (CouchDB *couchdb, const char *dbname, GError **error);
+gboolean couchdb_session_delete_database (CouchDBSession *couchdb, const char *dbname, GError **error);
 }}}
 
 Also, before starting to work with documents on a specific database, you might want to listen for changes on the database(s) you're working with. To do so, you just need to call the following function:
 {{{
-void couchdb_listen_for_changes (CouchDB *couchdb, const char *dbname);
+void couchdb_session_listen_for_changes (CouchDBSession *couchdb, const char *dbname);
 }}}
 This will setup a listener for changes on the database specificied by the ''dbname'' argument. Notification of changes are sent to the caller via GObject's signals, so to actually receive those notifications in your application, you would need to connect to one (or all) of the following signals of the ''CouchDB'' object:
 {{{
