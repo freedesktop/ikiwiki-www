@@ -308,6 +308,20 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Saturday the 3rd of July ==
+I've tested Michal Spisiak's (Spiso) patch for the baseline alignment issue. It took a few adjustments to make it apply, but the patch seemed good. Michal still needs some UI, so that the user can choose this and it is not something that just magically happens. However, the baselines do align as they are supposed to, which is really nice, congratulations on work well done... :)
+
+By the way, if you've noticed that there's no log entries for the past week, it because I've been off to [[http://jopsen.dk/blog/2010/07/hjemme-fra-b%C3%B8rnesommerlejr-2010/|summercamp (Danish)]]. But I'm back and almost awake again :)
+
+== Sunday the 27th of June ==
+This weekend I've been working on the {{{|-->}}} symbol (0x27fc). I defined the symbol in {{{Math.xcu}}}, so that it appears in the symbol catalog. Then I drew the symbol in inkscape and imported it to fontforge. Once I've decided if this was the right approach to take I'll write a neat little article about adding symbols to !OpenOffice Math.
+
+{{http://jopsen.dk/downloads/GSoC2010/mapsto.png}}
+
+Above you have see the result as rendered in !OpenOffice Math. The hardest part was drawing the arrow, and making it look good, e.g. symmetric and stuff. Patch is included below, it's possible that it still needs a little cleaning to look good, for instance I'm not sure the changes in the {{{.src}}} are needed. The patch also makes {{{union}}} and {{{intersection}}} work as operators with boundaries as described in the 23th of June.
+
+  * [[http://jopsen.dk/downloads/GSoC2010/symbols-27-june.diff|Patch for new symbols in OpenOffice Math]]
+
 == Wednesday the 23th of June ==
 Today I worked on allowing the {{{union}}} and {{{intersection}}} operators to work with {{{to}}} and {{{from}}} boundaries as it is known from the {{{sum}}} operator. This turned out to be achievable with a few very small changes in {{{parser.cxx}}}. However, it would be nice to have a larger symbol to use for union and intersection, when used in this context. But no such symbol is in !OpenSymbol, so we'd have to draw one. While this is working pretty good, there might be a few parsing abnormalities, because the command {{{union}}} is now used for union as binary operator and construction that can be seen below (which is what I just created):
 
