@@ -308,6 +308,14 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Wednesday the 7th of July ==
+Today I've moved all the drawing code into a visitor, this makes it a lot easier to locate the code and modify a section of it. Which will be needed when I'm going to draw selections. Anyway, the drawing visitor works, it still ugly because I didn't clean up the drawing code... It would be nice to do this... And move all the arrange methods etc. into visitors as well, however, for the moment being I don't need to modify these. So I'll take them when/if I get around to it.
+
+With the regards to selections, I'm making a small progress, I'm still pretty much working in my head trying to figure out how selections can be handle easily. I've decided to try adding a {{{SetSelectionVisitor}}} that will set a boolean {{{IsSelected}}} property to true on nodes that are selected. Then this visitor should be able to mark a reasonable selection based on two caret positions. Using the {{{IsSelected}}} property I believe it should be possible to draw the selection, and hopefully also delete, copy and paste it.
+
+I'm not certain that this approach will work, there's still some issues I need to work out. Nevertheless, I'm going to go forward with this approach and see where it ends... :)
+If it doesn't workout well, I'll write some notes on the problematics of selections, and work on something else until one of my infinitely wise mentors throws an idea at me.
+
 == Tuesday the 6th of July ==
 Today I've played with {{{OutputDevice}}} and using {{{GetTextWidth}}} I've managed to allow for the caret to be placed inside an {{{SmTextNode}}}. The solution is pretty good and stable, but it might be a bit slow, I don't know how fast {{{Push}}}, {{{Pop}}} and {{{GetTextWidth}}} on {{{OutputDevice}}} is. But again performance is probably not an issue, if it is we can optimize by implementing {{{CanExclude}}} and/or caching expensive computations.
 
