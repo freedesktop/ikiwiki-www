@@ -1,0 +1,97 @@
+= Tips & Tricks =
+
+== Listing running services ==
+
+{{{
+$ systemctl
+UNIT                                          LOAD   ACTIVE       SUB          JOB             DESCRIPTION
+messagebus.service                            loaded active       running                      messagebus.service
+basic.target                                  loaded active       active                       Basic System
+sysinit.target                                loaded active       active                       Systemd Initialization
+local-fs.target                               loaded active       active                       Local File Systems
+swap.target                                   loaded active       active                       Swap
+sockets.target                                loaded active       active                       Sockets
+...
+}}}
+
+== Showing runtime status ==
+{{{
+$ systemctl status udisks.service
+udisks.service - udisks Disk Manager
+	  Loaded: loaded (/etc/systemd/system/multi-user.target.wants/../udisks.service)
+	  Active: active (running)
+	 Process: 999 (udisks-daemon)
+	  CGroup: name=systemd:/systemd-1/udisks.service
+		  │
+		  ├ 999 /usr/libexec/udisks-daemon
+		  ├ 1018 udisks-daemon: polling /dev/sr0
+		  └ 1132 /usr/libexec/udisks-daemon
+}}}
+
+== cgroup tree ==
+
+The tree tool is very handy to list the tree of control groups:
+
+{{{
+$ tree -d /cgroup/systemd/ 
+/cgroup/systemd/
+├── systemd-1
+│   ├── abrtd.service
+│   ├── accounts-daemon.service
+│   ├── acpid.service
+...
+│   ├── crond.service
+│   ├── cups.service
+│   ├── getty@.service
+│   │   ├── tty1
+│   │   ├── tty3
+│   │   ├── tty4
+│   │   ├── tty5
+│   │   └── tty6
+│   ├── haldaemon.service
+│   ├── mdmonitor.service
+│   ├── messagebus.service
+...
+│   ├── udisks.service
+│   ├── upowerd.service
+│   └── wpa_supplicant.service
+└── user
+    └── lennart
+        ├── 1
+        └── 2
+
+38 directories
+}}}
+
+== ps with cgroups ==
+
+{{{
+$ alias psc='ps xawf -eo pid,user,cgroup,args'
+$ psc
+  PID USER     CGROUP                              COMMAND
+...
+    1 root     name=systemd:/systemd-1             /bin/systemd systemd.log_target=kmsg systemd.log_level=debug selinux=0
+  415 root     name=systemd:/systemd-1/sysinit.service /sbin/udevd -d
+  928 root     name=systemd:/systemd-1/atd.service /usr/sbin/atd -f
+  930 root     name=systemd:/systemd-1/ntpd.service /usr/sbin/ntpd -n
+  932 root     name=systemd:/systemd-1/crond.service /usr/sbin/crond -n
+  935 root     name=systemd:/systemd-1/auditd.service /sbin/auditd -n
+  943 root     name=systemd:/systemd-1/auditd.service  \_ /sbin/audispd
+  964 root     name=systemd:/systemd-1/auditd.service      \_ /usr/sbin/sedispatch
+  937 root     name=systemd:/systemd-1/acpid.service /usr/sbin/acpid -f
+  941 rpc      name=systemd:/systemd-1/rpcbind.service /sbin/rpcbind -f
+  944 root     name=systemd:/systemd-1/rsyslog.service /sbin/rsyslogd -n -c 4
+  947 root     name=systemd:/systemd-1/systemd-logger.service /lib/systemd/systemd-logger
+  950 root     name=systemd:/systemd-1/cups.service /usr/sbin/cupsd -f
+  955 dbus     name=systemd:/systemd-1/messagebus.service /bin/dbus-daemon --system --address=systemd: --nofork --systemd-activation
+  969 root     name=systemd:/systemd-1/getty@.service/tty6 /sbin/mingetty tty6
+  970 root     name=systemd:/systemd-1/getty@.service/tty5 /sbin/mingetty tty5
+  971 root     name=systemd:/systemd-1/getty@.service/tty1 /sbin/mingetty tty1
+  973 root     name=systemd:/systemd-1/getty@.service/tty4 /sbin/mingetty tty4
+  974 root     name=systemd:/user/lennart/2        login -- lennart     
+ 1824 lennart  name=systemd:/user/lennart/2         \_ -bash
+  975 root     name=systemd:/systemd-1/getty@.service/tty3 /sbin/mingetty tty3
+  988 root     name=systemd:/systemd-1/polkitd.service /usr/libexec/polkit-1/polkitd
+  994 rtkit    name=systemd:/systemd-1/rtkit-daemon.service /usr/libexec/rtkit-daemon
+...
+}}}
