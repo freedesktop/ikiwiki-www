@@ -308,6 +308,16 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Thursday the 8th of July ==
+Having spent a lot of time trying to figure out how to handle selections in a formula it finally came through today. I went forward with the idea I presented in the log yesterday (see below), and this turned out to be doable without any nasty hacks.
+This means that I've implemented the {{{SetSelectionVisitor}}} which sets a boolean property {{{IsSelected}}} on all nodes of the formula tree. As previously mentioned, a selection is two {{{SmCaretPos}}} ''start'' and ''end''. The visitor works by maintaining a state {{{IsSelecting}}} (initially false), which is set to true when it encounters ''start'' and false again when it encounters ''end''. When visiting a node, the {{{IsSelected}}} property of that node is set to {{{IsSelecting}}}.
+
+This might seem like an easy thing to do, and it indeed it is. However, there's some nasty corner cases to work around, for example consider the formula {{{sqrt{A + B} + C}}}, no imagine that {{{[}}} denotes the ''start'' caret position of the selection, and {{{]}}} denotes the ''end'' caret position of the selection. Then if ''start'' and ''end'' are placed as {{{sqrt{A + [ B} + ] C}}} the selected part of the formula should be {{{sqrt{A + B} +}}}. I.e if I put the caret under the square root sign, press shift and click infront of {{{C}}} (outside the square root) the entire square root should be selected.
+
+Nevertheless, I managed to find a solution to the corner case describe above. I also managed to draw the selection in the {{{DrawingVisitor}}} I implemented yesterday. Currently selections doesn't work perfectly, I still need to place some caret positions, and selections can only be created using mouse click and shift (not movement using arrows on the keyboard). So there's still a lot work to be done before this works nicely, but the nasty corner case is now out of the way... And when you click the right places, and hold the shift-button, this is what it looks like:
+
+{{http://jopsen.dk/downloads/GSoC2010/initial-selections.png}}
+
 == Wednesday the 7th of July ==
 Today I've moved all the drawing code into a visitor, this makes it a lot easier to locate the code and modify a section of it. Which will be needed when I'm going to draw selections. Anyway, the drawing visitor works, it still ugly because I didn't clean up the drawing code... It would be nice to do this... And move all the arrange methods etc. into visitors as well, however, for the moment being I don't need to modify these. So I'll take them when/if I get around to it.
 
