@@ -217,7 +217,7 @@ You can adjust the volume in alsamixer from 0 to 90% in 1/9 increments with the 
 
 Check that no users are part of the "audio" [http://en.wikipedia.org/wiki/Group_identifier_%28Unix%29 group].
 
-In simple setups, users must be a member of the "audio" group to access sound devices (/dev/snd/*) that have "audio" group write permissions, but switching users does release the sound devices in use by the previous user.
+In simple setups (e.g. singe user, without !PulseAudio), users must be a member of the "audio" group to access the sound devices (/dev/snd/* (which have group "audio" write permissions)).  Switching users will not automatically stop programs using those sound devices though, so those sound devices will not be accessible to a new (faster user switched) user's programs.
 
 By removing all users from the "audio" group (the !PulseAudio server still runs in the "audio" group), !PulseAudio is able manage access to sound devices (/dev/snd/*) amongst multiple users with the help of [http://www.freedesktop.org/wiki/Software/ConsoleKit ConsoleKit].
 
