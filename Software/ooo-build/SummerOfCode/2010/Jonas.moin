@@ -308,6 +308,9 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Monday the 12th of July ==
+Friday I started becoming increasingly unhappy with how caret movement and positing is currently done. Mainly some due to some serious pixel of issues. But also to the fact that movement, and additional caret positions becomes increasingly important when working with selections. So I've been working out a new caret movement approach, I'm currently in the process of testing it. If it works reasonably I'll write an outline in the above discussion on caret movement. Anyway, that's what I've been up to this weekend.
+
 == Thursday the 8th of July ==
 Having spent a lot of time trying to figure out how to handle selections in a formula it finally came through today. I went forward with the idea I presented in the log yesterday (see below), and this turned out to be doable without any nasty hacks.
 This means that I've implemented the {{{SetSelectionVisitor}}} which sets a boolean property {{{IsSelected}}} on all nodes of the formula tree. As previously mentioned, a selection is two {{{SmCaretPos}}} ''start'' and ''end''. The visitor works by maintaining a state {{{IsSelecting}}} (initially false), which is set to true when it encounters ''start'' and false again when it encounters ''end''. When visiting a node, the {{{IsSelected}}} property of that node is set to {{{IsSelecting}}}.
