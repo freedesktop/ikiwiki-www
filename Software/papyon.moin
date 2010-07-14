@@ -1,0 +1,68 @@
+papyon is an MSN library purely written in Python. It is the library behind the Telepathy MSN connection manager, telepathy-butterfly. papyon is a fork of the unmaintained [[http://telepathy.freedesktop.org/wiki/Pymsn|pymsn]] MSN library. The GLib mainloop is used to process the network events in an asynchronous manner.
+
+== Get papyon ==
+Papyon releases are here:
+ * http://www.freedesktop.org/software/papyon/releases/
+
+To get the latest development branch:
+ * `git clone git://anongit.freedesktop.org/papyon`
+
+== Features ==
+Here is a quick features list :
+
+ * MSNP15
+ * Best MSNP2P implementation : avatars and custom emoticons
+ * Yahoo messenger contacts support : chat and presence
+ * Live Address Book support : full contact and group management
+ * Server side contacts aliasing
+ * Offline messages support
+ * MSN Spaces
+ * Content Roaming support : avatar, display name and personal message storage
+ * Full support for HTTP and HTTPS proxies
+ * Support HTTP Polling transport
+ * No threads, fully asynchronous   
+ * Caching system (only used for storing the SSO tickets for now, but will be used to support deltas in the AddressBook later)
+ * Very solid and extensible architecture
+ * Solid networking through a new sublibrary : gnet
+
+== Dependencies ==
+papyon depends on:
+
+ * python >= 2.5
+ * python gobject >= 2.10.1
+ * ElementTree >= 1.2.0 or cElementTree >= 1.0.5 or python >= 2.5
+ * pyOpenSSL >= 0.6
+ * pyCrypto >= 2.0.0
+
+== Try it ==
+to give papyon a try, run the test.py python code, this will connect to the MSN IM service, and try to fetch the first online contact's display picture:
+
+ * `python test.py`
+
+== Report bugs ==
+To report bugs, use the [[http://www.freedesktop.org|freedesktop.org]] bugzilla [[https://bugs.freedesktop.org/enter_bug.cgi?product=papyon|here]].
+
+== Help out ==
+The things that are still to be done in papyon can be found in the [[PapyonTODO|TODO]] page.
+
+== Documentation ==
+
+ * Generate the documentation with `python setup.py doc` (you need ''epydoc'')
+ * Doc is generated in `doc/user-api/` directory
+ * This link can help : [[http://jprieur.wordpress.com/2007/08/24/pymsn-article-the-crack-powered-address-book/|pymsn article : the crack-powered address book]]
+
+== Troubleshooting ==
+=== OverflowError: long too big to convert ===
+If you get something like that:
+
+  ''Overflow Error: long too big to convert (while registering property 'bytes-transferred' for GType 'papyon+msnp2p+P2PMessage')''
+you probably would need to update your python gobject binding. This is a known bug of python gobject that was fixed in python gobject 2.10.1.
+
+== Contact ==
+You can contact developers using IRC: #papyon on irc.freenode.net
+
+== Mailing lists ==
+There are two mailing lists:
+
+ * [[http://lists.freedesktop.org/mailman/listinfo/papyon|papyon]] for general discussion about papyon;
+ * [[http://lists.freedesktop.org/mailman/listinfo/papyon-bugs|papyon-bugs]] where bugzilla will automatically send bugmail to.
