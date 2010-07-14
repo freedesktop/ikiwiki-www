@@ -95,3 +95,17 @@ $ psc
   994 rtkit    name=systemd:/systemd-1/rtkit-daemon.service /usr/libexec/rtkit-daemon
 ...
 }}}
+
+== Changing the Default Boot Target ==
+
+{{{
+$ ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
+}}}
+
+This line makes the multi user target (i.e. full system, but no graphical UI) the default target to boot into. This is kinda equivalent to setting runlevel 3 as the default runlevel on Fedora/sysvinit systems.
+
+{{{
+$ ln -sf /lib/systemd/system/graphical.target /etc/systemd/system/default.target
+}}}
+
+This line makes the graphical target (i.e. full system, including graphical UI) the default target to boot into. Kinda equivalent to runlevel 5 on fedora/sysvinit systems. This is how things are shipped by default.
