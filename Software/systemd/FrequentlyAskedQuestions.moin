@@ -1,0 +1,23 @@
+'''Q: How do I change a runlevel?'''
+
+A: In systemd runlevels are exposed via "target units". You can change them like this:
+
+{{{
+systemctl isolate runlevel5.target
+}}}
+
+Note however, that the concept if runlevels is a bit out of date, and it is usually nicer to use modern names for this. e.g.:
+
+{{{
+systemctl isolate graphical.target
+}}}
+
+'''Q: How do I figure out the current runlevel?'''
+
+A: Note that there might be more than one target active at the same time. So the question regarding ''the'' runlevel might not always make sense. Here's how you would figure out all targets that are currently active:
+
+{{{
+systemctl list-units --type=target
+}}}
+
+If you are just interested in a single number, you can use the venerable ''runlevel'' command, but again, its output might be misleading.
