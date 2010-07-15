@@ -6,7 +6,7 @@ A: In systemd runlevels are exposed via "target units". You can change them like
 systemctl isolate runlevel5.target
 }}}
 
-Note however, that the concept if runlevels is a bit out of date, and it is usually nicer to use modern names for this. e.g.:
+Note however, that the concept of runlevels is a bit out of date, and it is usually nicer to use modern names for this. e.g.:
 
 {{{
 systemctl isolate graphical.target
@@ -21,3 +21,7 @@ systemctl list-units --type=target
 }}}
 
 If you are just interested in a single number, you can use the venerable ''runlevel'' command, but again, its output might be misleading.
+
+'''Q: I want to change a service file, but rpm keep overwriting it in /lib/systemd/system all the time, how should I handle this?'''
+
+The recommended way is top copy the service file form /lib/systemd/system to /etc/systemd/system and edit it there. The latter directory takes precedence over the former, and rpm will never override it. If you want to use the distributed service file again you can simply delete (or rename) the service file in /etc/systemd/system again.
