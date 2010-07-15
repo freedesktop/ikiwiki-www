@@ -53,3 +53,15 @@ A: Simply remove the getty symlinks you want to get rid of in the getty.target.w
 # rm /etc/systemd/system/getty.target.wants/getty@tty6.service
 # systemctl daemon-reload
 }}}
+
+'''Q: How to I figure out which service a process belongs to?'''
+
+A: You may either use ps for that:
+
+{{{
+$ alias psc='ps xawf -eo pid,user,cgroup,args'
+$ psc
+...
+}}}
+
+Or you can even check /proc/$PID/cgroup directly.
