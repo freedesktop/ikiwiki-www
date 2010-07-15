@@ -3,13 +3,13 @@
 A: In systemd runlevels are exposed via "target units". You can change them like this:
 
 {{{
-systemctl isolate runlevel5.target
+# systemctl isolate runlevel5.target
 }}}
 
 Note however, that the concept of runlevels is a bit out of date, and it is usually nicer to use modern names for this. e.g.:
 
 {{{
-systemctl isolate graphical.target
+# systemctl isolate graphical.target
 }}}
 
 '''Q: How do I figure out the current runlevel?'''
@@ -17,11 +17,39 @@ systemctl isolate graphical.target
 A: Note that there might be more than one target active at the same time. So the question regarding ''the'' runlevel might not always make sense. Here's how you would figure out all targets that are currently active:
 
 {{{
-systemctl list-units --type=target
+$ systemctl list-units --type=target
 }}}
 
 If you are just interested in a single number, you can use the venerable ''runlevel'' command, but again, its output might be misleading.
 
 '''Q: I want to change a service file, but rpm keep overwriting it in /lib/systemd/system all the time, how should I handle this?'''
 
-The recommended way is top copy the service file form /lib/systemd/system to /etc/systemd/system and edit it there. The latter directory takes precedence over the former, and rpm will never override it. If you want to use the distributed service file again you can simply delete (or rename) the service file in /etc/systemd/system again.
+A: The recommended way is top copy the service file form /lib/systemd/system to /etc/systemd/system and edit it there. The latter directory takes precedence over the former, and rpm will never override it. If you want to use the distributed service file again you can simply delete (or rename) the service file in /etc/systemd/system again.
+
+'''Q: My service foo.service as distributed by my operating system vendor is only started when (a connection comes in | some hardware is plugged in). I want to have it started always on boot, too. What should I do?'''
+
+A: Simply place a symlink from that service file in the multi-user.target.wants/ directory (which is where you should symlink everything you want to run in the old runlevel 3, i.e. the normal boot-up without graphical UI. It is pulled in by graphical.target too, so will be started for graphical boot-ups, too):
+
+{{{
+# ln -sf /lib/systemd/system/foobar.service /etc/systemd/system/multi-user.target.wants/foobar.service
+# systemctl daemon-reload
+}}}
+
+'''Q: I want to enable another getty, how would I do that?'''
+
+A: Simply place another symlink for instantiating another getty in the getty.target.wants/ directory:
+
+{{{
+# ln -sf /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty9.service
+# systemctl daemon-reload
+}}}
+
+'''Q: I want to remove on or more gettys, how would I do that?'''
+
+A: Simply remove the getty symlinks you want to get rid of in the getty.target.wants/ directory:
+
+{{{
+# rm /etc/systemd/system/getty.target.wants/getty@tty5.service
+# rm /etc/systemd/system/getty.target.wants/getty@tty6.service
+# systemctl daemon-reload
+}}}
