@@ -42,6 +42,7 @@ A: Simply place another symlink for instantiating another getty in the getty.tar
 {{{
 # ln -sf /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty9.service
 # systemctl daemon-reload
+# systemctl start getty@tty9.service
 }}}
 
 '''Q: I want to remove one or more gettys, how would I do that?'''
@@ -49,6 +50,7 @@ A: Simply place another symlink for instantiating another getty in the getty.tar
 A: Simply remove the getty symlinks you want to get rid of in the getty.target.wants/ directory:
 
 {{{
+# systemctl stop getty@tty5.service getty@tty6.service
 # rm /etc/systemd/system/getty.target.wants/getty@tty5.service
 # rm /etc/systemd/system/getty.target.wants/getty@tty6.service
 # systemctl daemon-reload
