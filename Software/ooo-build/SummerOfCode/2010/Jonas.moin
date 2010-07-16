@@ -308,6 +308,11 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Friday the 16th of July ==
+Hard work and lots of thinking finally started to payoff. As a wrote a few days ago I decided to build a graph over all caret positions. Creating a visitor for building such graph turned out to be quite complex, but now it's finally happening. I haven't handled all nodes yet, and there's a few context dependent corner cases for some of the nodes (e.g. !SmSubSupNode when used in a !SmOperNode in an equation like "SUM FROM a TO b A_i").
+
+The good news is that left and right movement is now consistent, this means that it doesn't depend on coordinates which may change depending on font size. Up and down movement will continue to use the old approach, but that is also the best solution for these kinds of movement. There's still a little work to do, before I can start working on editing. But once movement and selection is finally playing nice together, editing is simply a matter of adding and removing nodes to the tree.
+
 == Tuesday the 13th of July ==
 As mentioned yesterday, I've become unhappy with the somewhat randomness of caret movement. So I've decided to address this, so that my invariant about caret positions is clear before I start working on editing... The solution I've come up with is to make a graph over the caret positions and use this to navigate left and right movement, whilst I'd still be able to search the graph for handling mouse clicks.
 
