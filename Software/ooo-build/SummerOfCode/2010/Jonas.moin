@@ -308,6 +308,13 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Thursday the 22th of July ==
+Today, I fixed deletion of selections. That means that it is now possible to move the caret around, select stuff and delete it. I continued with the approach I discussed yesterday, breaking down the subtree that constitutes a line and parsing it again. Tomorrow I'll start working on inserting new nodes in an existing tree, using the same approach. Most of the hard work, e.g. the parser, should be done.
+
+I also found a little time to remove old code, refactor and just clean up in general. So I figured this would be a good time to dump a diff. I recall somebody asking for some code to look at... So here it is:
+
+  * http://jopsen.dk/downloads/GSoC2010/vEdit-22-july.diff
+
 == Wednesday the 21th of July ==
 I almost managed to delete selections today, well, it does delete something, just not the right things :) But it doesn't crash, so that's pretty good. I've decided to take a pretty hardcore approach to modifying an existing formula tree. Instead of removing nodes and then try to repair the tree, I remove all the !SmBinHorNodes and !SmExpressionNode and similar nodes of the line that contains the selection, convert the line into a list, removed what I wanted to delete, then parse it adding the !SmBinHorNodes and !SmExpressionNode and put these back into the tree where it was taken from.
 
