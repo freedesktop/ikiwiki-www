@@ -309,9 +309,9 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
 == Sunday the 25th of July ==
-Today I've fixed a lot of minor issues, stuff like working out a hacked synchronization between visual editor and traditional (text based) editor formula. I also finally managed to track down and fix the few pixels I'm always off, when drawing caret. It turned out I ignored an offset, and this offset was constant and very small, so that's why I didn't really notice it before. I've also enabled insertion of different types of nodes. And fixed a lot of small bugs, such as crash when starting on a clean formula.
+Today I've fixed a lot of minor issues, stuff like working out a hacked synchronization between visual editor and traditional (text based) formula editor. I also finally managed to track down and fix the few pixels I'm always off when drawing caret. It turned out I had ignored an offset, and this offset was constant and very small, so that's why I didn't really notice it before. I've also enabled insertion of more nodes. And fixed a lot of small bugs, such as crash when starting on a clean formula.
 
-To fix all these bugs, and track down issues when altering the formula tree I've used the dump to dot method, for dumping the formula tree to graphviz. My current patch does this dump, when you hit the enter-key, however, running graphviz and opening the image in an image viewer quickly becase rather boring. So I wrote a script that monitors the file system and detects changes to {{{/tmp/smath-dump.gv}}}, once a change is detected it runs graphviz and opens the image for viewing, while closing any previous opened images.
+To fix all these bugs, and track down issues when altering the formula tree, I've used the dump to dot method, for dumping the formula tree to graphviz. My current patch does this dump when you hit the enter-key, however, running graphviz and opening the image in an image viewer quickly became rather boring. So I wrote a script that monitors the file system and detects changes to {{{/tmp/smath-dump.gv}}}, once a change is detected it runs graphviz and opens the image for viewing, while closing any previous opened images.
 
 {{{
 while inotifywait -q -e close_write /tmp/smath-dump.gv;
@@ -324,7 +324,7 @@ done
 
 DISCLAIMER: I don't do much bash scripting, so don't blame me if this starts to randomly kill processes, or causes an angry raptor to appear...
 
-And, not to forget I reach a somewhat stable place today, so there's a new patch below... It's already outdated so I'll probably post another tomorrow...
+And, not to forget I reached a somewhat stable place today, so there's a new patch below... It's already outdated so I'll probably post another tomorrow...
   * http://jopsen.dk/downloads/GSoC2010/vEdit-25-july.diff
 
 == Saturday the 24th of July ==
