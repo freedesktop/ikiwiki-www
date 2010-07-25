@@ -308,6 +308,13 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Saturday the 24th of July ==
+I worked a bit on insertion yesterday, however, it wasn't until today that it actually reached a state where it was remotely useful. Insertion sort of works, that is I can insert something, but it doesn't create the right tree... And some of the corner cases doesn't work very well. And there's a lot of corner cases with textnodes. The approach is basically to make a list of nodes that constitute the current line, insert the new node and parse the list into a subtree and put it back into the formula tree.
+
+While, this approach works fairly well, it's rather nasty when the caret is inside a text node, then I'll have to split the text node in two. And if I'm inserting a text node, inside or next to existing text node these nodes should merge. It's also rather unpleasant to creates nodes because their constructor takes an !SmToken. Before the constructor was only used in the parser, so this made sense, but now it's just really annoying and complicated. Especially with text nodes that might change parsing information when I change the text from a number to a char and number making it an identifier.
+
+Anyway, status insertion is close, I guess another day or two... And also to conclude my complains about node constructors, maybe I should introduce new constructors or simplify existing ones :) .
+
 == Thursday the 22th of July ==
 Today, I fixed deletion of selections. That means that it is now possible to move the caret around, select stuff and delete it. I continued with the approach I discussed yesterday, breaking down the subtree that constitutes a line and parsing it again. Tomorrow I'll start working on inserting new nodes in an existing tree, using the same approach. Most of the hard work, e.g. the parser, should be done.
 
