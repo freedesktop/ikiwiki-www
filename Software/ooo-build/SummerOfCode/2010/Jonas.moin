@@ -308,6 +308,25 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Sunday the 25th of July ==
+Today I've fixed a lot of minor issues, stuff like working out a hacked synchronization between visual editor and traditional (text based) editor formula. I also finally managed to track down and fix the few pixels I'm always off, when drawing caret. It turned out I ignored an offset, and this offset was constant and very small, so that's why I didn't really notice it before. I've also enabled insertion of different types of nodes. And fixed a lot of small bugs, such as crash when starting on a clean formula.
+
+To fix all these bugs, and track down issues when altering the formula tree I've used the dump to dot method, for dumping the formula tree to graphviz. My current patch does this dump, when you hit the enter-key, however, running graphviz and opening the image in an image viewer quickly becase rather boring. So I wrote a script that monitors the file system and detects changes to {{{/tmp/smath-dump.gv}}}, once a change is detected it runs graphviz and opens the image for viewing, while closing any previous opened images.
+
+{{{
+while inotifywait -q -e close_write /tmp/smath-dump.gv;
+do
+	dot -Tpng < /tmp/smath-dump.gv > /tmp/img.png;
+	kill `jobs -p`;
+	feh /tmp/img.png &
+done
+}}}
+
+DISCLAIMER: I don't do much bash scripting, so don't blame me if this starts to randomly kill processes, or causes an angry raptor to appear...
+
+And, not to forget I reach a somewhat stable place today, so there's a new patch below... It's already outdated so I'll probably post another tomorrow...
+  * http://jopsen.dk/downloads/GSoC2010/vEdit-25-july.diff
+
 == Saturday the 24th of July ==
 I worked a bit on insertion yesterday, however, it wasn't until today that it actually reached a state where it was remotely useful. Insertion sort of works, that is I can insert something, but it doesn't create the right tree... And some of the corner cases doesn't work very well. And there's a lot of corner cases with textnodes. The approach is basically to make a list of nodes that constitute the current line, insert the new node and parse the list into a subtree and put it back into the formula tree.
 
