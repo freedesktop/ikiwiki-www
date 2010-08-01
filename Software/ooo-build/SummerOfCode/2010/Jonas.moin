@@ -308,6 +308,15 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Sunday the 1st of August ==
+The past three days I've been working out how !SmDocShell, !SmGraphicWindow and !SmEditWindow works together, inorder to implement synchronization better. And today this paid off, that is I managed to make synchronization work better. And enabled size updates, so that the visual formula editor can also be used on embedded formulas, and not only in standalone mode.
+
+I must admit that even though it works now and I have an idea about what I'm doing, it's very frustrating that sfx2, svx, etc. are more or less completely undocumented. If I try to read the source I might be lucky and get something that resembles an idea of what a method does, or I might end up 10 open tabs and no idea how I'm going to determine the side effects of setting some particular field. So I can't say I am totally certain what all the code snippets I've reused does... I fell like most of what I'm doing is best guesses, and this is not nice.
+
+In particular the dynamic messages feels like magic, especially when it's handled by a custom class who uses it's base class from sfx2 to catch the dynamic message (sound confusing? - don't worry I lost myself too).
+
+Also someday I should consider to figure out how to do undo/redo integration, {{{EditEngine::SetText}}} clears the undo history and can't be undone. Integration with global clipboard would also be nice, but for the moment, my current hack works.
+
 == Thursday the 29th of July ==
 Today I finished support for copy, cut and paste in the visual formula editor. This is done by cloning a list of nodes, and inserting the cloned list... For creating clones I introduced a new visitor, which might also be reusable later...
 This still needs to be integrated with the global clipboard... And before I can do that I'll have to find the global clipboard.
