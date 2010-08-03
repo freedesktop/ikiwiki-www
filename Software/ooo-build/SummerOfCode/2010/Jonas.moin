@@ -308,6 +308,13 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Tuesday the 3rd of August ==
+I've spendt some time getting the "symbols catalog" and "formula elements" dialogs to work correctly when working in visual editor. For the "symbols catalog" dialog I programmatically created an instance of {{{SmSpecialNode}}} and inserted it appropriately.
+
+For the "formula elements" dialog I took another approach, instead of making a long switch with hundreds of lines to create nodes for stuff like "<?> subset <?>", I extended {{{SmParser}}} with a method for parsing an expression from a string. This approach was quite simple, it won't support commands such as "newline", "from {<?>}" or other context dependent commands.
+
+So some the available elements in the "formula elements" dialog needs to be supported explicitly. And some of the available elements from "formula elements" dialog may be very difficult to support. However, in the long run it might be a good idea to implement a better "formula elements" dialog, perhaps as toolbar, but at the very least users should selected the number of limits ("from", "to" or both) when they are inserting a "sum" command, and not at a random time afterwards. That would be very difficult to support properly.
+
 == Sunday the 1st of August ==
 The past three days I've been working out how !SmDocShell, !SmGraphicWindow and !SmEditWindow works together, inorder to implement synchronization better. And today this paid off, that is I managed to make synchronization work better. And enabled size updates, so that the visual formula editor can also be used on embedded formulas, and not only in standalone mode.
 
