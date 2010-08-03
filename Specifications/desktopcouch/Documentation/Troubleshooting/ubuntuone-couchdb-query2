@@ -1,0 +1,160 @@
+#!/usr/bin/python
+"""ubuntuone-couchdb-query: Command line query tool for Ubuntu One CouchDBs"""
+
+# sil@kryogenix.org, 2010-02-13
+
+from optparse import OptionParser
+from oauth import oauth
+import gnomekeyring, gobject, httplib2, simplejson, urlparse, cgi, urllib
+import socket
+socket.setdefaulttimeout(5)
+
+def get_prod_oauth_token():
+    """Get the token from the keyring"""
+    gobject.set_application_name("Ubuntu One Web API Tool")
+
+    consumer = oauth.OAuthConsumer("ubuntuone", "hammertime")
+    items = []
+    items = gnomekeyring.find_items_sync(
+        gnomekeyring.ITEM_GENERIC_SECRET,
+        {'ubuntuone-realm': "https://ubuntuone.com",
+         'oauth-consumer-key': consumer.key})
+    return oauth.OAuthToken.from_string(items[0].secret)
+
+def get_oauth_request_header(consumer, access_token, http_url, signature_method):
+    """Get an oauth request header given the token and the url"""
+    assert http_url.startswith("https")
+    oauth_request = oauth.OAuthRequest.from_consumer_and_token(
+        http_url=http_url,
+        http_method="GET",
+        oauth_consumer=consumer,
+        token=access_token)
+    oauth_request.sign_request(signature_method, consumer, access_token)
+    return oauth_request.to_header()
+
+def request(urlpath, sigmeth, http_method, request_body, show_tokens):
+    """Make a request to couchdb.one.ubuntu.com for the user's data.
+    
+       The user supplies a urlpath (for example, dbname). We need to actually
+       request https://couchdb.one.ubuntu.com/PREFIX/dbname, and sign it with
+       the user's OAuth token, which must be in the keyring.
+       
+       We find the prefix by querying https://one.ubuntu.com/api/account/
+       (see desktopcouch.replication_services.ubuntuone, which does this).
+    """
+    
+    # First check that there's a token in the keyring.
+    try:
+        access_token = get_prod_oauth_token()
+    except: # bare except, norty
+        raise Exception("Unable to retrieve your Ubuntu One access details "
+            "from the keyring. Try connecting your machine to Ubuntu One.")
+    
+    # Set the signature method. This should be HMAC unless you have a jolly
+    # good reason for it to not be.
+    if sigmeth == "PLAINTEXT":
+        signature_method = oauth.OAuthSignatureMethod_PLAINTEXT()
+    elif sigmeth == "HMAC_SHA1":
+        signature_method = oauth.OAuthSignatureMethod_HMAC_SHA1()
+    else:
+        signature_method = oauth.OAuthSignatureMethod_PLAINTEXT()
+    
+    # Create the Ubuntu One OAuth consumer for all requests
+    consumer = oauth.OAuthConsumer("ubuntuone", "hammertime")
+    
+    if show_tokens:
+        print "Using OAuth data:"
+        print "consumer: %s : %s\ntoken: %s" % (
+            consumer.key, consumer.secret, access_token)
+    
+    # Look up the user's prefix
+    infourl = "https://one.ubuntu.com/api/account/"
+    oauth_header = get_oauth_request_header(consumer, access_token, infourl, signature_method)
+    client = httplib2.Http()
+    resp, content = client.request(infourl, "GET", headers=oauth_header)
+    if resp['status'] == "200":
+        try:
+            document = simplejson.loads(content)
+        except ValueError:
+            raise Exception("Got unexpected content:\n%s" % content)
+        if "couchdb_root" not in document:
+            raise ValueError("couchdb_root not found in %s" % (document,))
+        COUCH_ROOT = document["couchdb_root"]
+    else:
+        raise ValueError("Error retrieving user data (%s)" % (resp['status'], 
+            url))
+
+    # COUCH_ROOT must have all internal slashes escaped
+    schema, netloc, path, params, query, fragment = urlparse.urlparse(COUCH_ROOT)
+    path = "/" + urllib.quote(path[1:], safe="") # don't escape the first /
+    COUCH_ROOT = urlparse.urlunparse((schema, netloc, path, params, query, fragment))
+    
+    # Now use COUCH_ROOT and the specified user urlpath to get data
+    if urlpath == "_all_dbs":
+        couch_url = "%s%s" % (COUCH_ROOT, urlpath)
+    else:
+        couch_url = "%s%%2F%s" % (COUCH_ROOT, urlpath)
+    schema, netloc, path, params, query, fragment = urlparse.urlparse(couch_url)
+    querystr_as_dict = dict(cgi.parse_qsl(query))
+    oauth_request = oauth.OAuthRequest.from_consumer_and_token(
+        http_url=couch_url,
+        http_method=http_method,
+        oauth_consumer=consumer,
+        token=access_token,
+        parameters=querystr_as_dict)
+    oauth_request.sign_request(signature_method, consumer, access_token)
+    failed = 0
+    while 1:
+        try:
+            resp, content = client.request(couch_url, http_method, 
+                headers=oauth_request.to_header(), body=request_body)
+            break
+        except IOError:
+            failed += 1
+    if failed > 0:
+        if failed == 1:
+            s = ""
+        else:
+            s = "s"
+        print "(request failed %s time%s)" % (failed, s)
+    if resp['status'] == "200":
+        try:
+            return simplejson.loads(content)
+        except:
+            print "(data returned from CouchDB was invalid JSON)"
+            return content
+    elif resp['status'] == "400":
+        print "The server could not parse the oauth token:\n%s" % content
+    elif resp['status'] == "401":
+        print "Access Denied"
+        print "Content:"
+        return content
+    else:
+        return (
+            "There was a problem processing the request:\nstatus:%s, response:"
+            " %r" % (resp['status'], content))
+
+
+if __name__ == "__main__":
+    parser = OptionParser(usage="prog [options] urlpath")
+    parser.add_option("--oauth-signature-method", dest="sigmeth",
+                      default="HMAC_SHA1",
+                      help="OAuth signature method to use (PLAINTEXT or "
+                      "HMAC_SHA1)")
+    parser.add_option("--http-method", dest="http_method",
+                      default="GET",
+                      help="HTTP method to use")
+    parser.add_option("--body", dest="body",
+                      default=None,
+                      help="HTTP request body")
+    parser.add_option("--show-tokens", dest="show_tokens",
+                      default=False,
+                      help="Show the OAuth tokens we're using")
+
+    (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.error("You must specify a urlpath (e.g., a dbname)")
+    print request(
+        urlpath=args[0], sigmeth=options.sigmeth,
+        http_method=options.http_method, request_body=options.body,
+        show_tokens=options.show_tokens)
