@@ -308,6 +308,16 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Sunday the 8th of August ==
+Yesterday I noticed some unexpected behaviour in {{{SmNode::CreateTextFromNode}}}, I've used this method for synchronizing between visual formula editor and command text formula editor. As far as I can see {{{SmNode::CreateTextFromNode}}} is not implemented for all nodes, and not even implemented correctly everywhere. However, I haven't found any documentation for the method, so I can't tell if usage of {{{MathType::LookupChar}}} in {{{SmMathSymbolNode::CreateTextFromNode}}} is a bug, inconsistency or simply what it's supposed to do.
+
+Anyway, I've always thought {{{CreateTextFromNode}}} used too many curly brackets, that weren't needed. So I decided implement {{{SmNodeToTextVisitor}}} for creating text from nodes. I finished this visitor today, and as it turns out I needed to use even more curly brackets than {{{SmNode::CreateTextFromNode}}} did... :)
+Nevertheless, this visitor can generate the command text for a formula, given its root node, and it should be able to handle all commands.
+
+Today I also fixed a few small annoying issues... And implemented support for inserting brackets using "[", "{" and "(". That is if you select something in the visual editor and type "[", scalable square brackets will occur around the selection. This is really nice and easy to use...
+
+I still have a lot of minor issues I'd like to address, stuff like sub-/superscription shortcut doesn't work for SUM and INT commands, fonts of {{{SmtextNode}}}'s, shortcuts for line breaks, new rows/cols in matrices and so on. But I've promised my mentor a patch against ooo4Kids next Saturday. And there's probably a lot of issues with a patch of this size, so untill this is done there's no more new features... I don't hope it takes all week, but just downloading, configuring and building ooo4Kids is probably going to take small day.
+
 == Friday the 6th of August ==
 Yesterday I refactored a little more, mainly moving generic code into auxiliary methods. Today I finished my work on a shortcut for sub-/superscription in the visual editor. I still need to give it a little love, so that it'll work with SUM and INT commands, but for now it creates normals sub- and superscriptions nicely.
 
