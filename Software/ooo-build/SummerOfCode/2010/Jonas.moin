@@ -308,6 +308,15 @@ Also coding conventions are not followed strictly in these hacks nor is it docum
 = Log/progress report =
 ''On request of my mentor, I'll be posting progress reports here as often as possible.''
 
+== Monday the 9th of August ==
+Today, I downloaded !OOo4Kids and with a little help Spiso I managed to my svn checkout working. At first I tried to create a patch an apply it to !OOo4Kids. But with over 5k new lines and modifications to a lot files, I quickly realized that this would take forever... So instead I tried kdiff3 to merge my code with !OOo4Kids, this went pretty easy, especially after I discovered shortcuts, and found the menu item "Choose A for all whitespace conflicts". Believe it or not, a file like {{{node.hxx}}} have over 200 whitespace related conflicts.
+
+Anyway, after merging my code using kdiff3, I tested and used {{{svn diff --diff-cmd diff -x "-u"}}} to make the patch... So here it is patch against !OOo4Kids r790, and a patch against go-oo (ooo320-m17).
+  * [[http://jopsen.dk/downloads/GSoC2010/vEdit-OOo4Kids-9-August.diff|Visual Formula Editor for OOo4Kids r790]].
+  * [[http://jopsen.dk/downloads/GSoC2010/vEdit-9-August.diff|Visual Formula Editor for Go-OO (ooo320-m17)]].
+
+This is a testable version, it still not completely done... But it should be fairly stable, and possible to get a pretty good idea of how the visual formula editor works. I'll work some more on additional features/improvements of the editor and will port them again at the end of this week. Where I'll also be writing instructions, and probably another youtube screencast.
+
 == Sunday the 8th of August ==
 Yesterday I noticed some unexpected behaviour in {{{SmNode::CreateTextFromNode}}}, I've used this method for synchronizing between visual formula editor and command text formula editor. As far as I can see {{{SmNode::CreateTextFromNode}}} is not implemented for all nodes, and not even implemented correctly everywhere. However, I haven't found any documentation for the method, so I can't tell if usage of {{{MathType::LookupChar}}} in {{{SmMathSymbolNode::CreateTextFromNode}}} is a bug, inconsistency or simply what it's supposed to do.
 
