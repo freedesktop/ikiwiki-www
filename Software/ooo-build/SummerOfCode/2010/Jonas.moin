@@ -32,6 +32,72 @@ I'm Jonas Finnemann Jensen, student at AAU in Denmark. I'm working on Go Open``O
 ''A draft of a specification for specs.openoffice.org can be found here:''
   * http://jopsen.dk/downloads/GSoC2010/VisualEquationEditingSpec.odt
 
+= Visual Formula Editor patch for OpenOffice Math =
+
+This patch turns !OpenOffice Math into a visual formula editor as known from !MathType, LyX, !MathCad, kFormula, Microsoft Office, etc. Users can freely use this visual formula editor in combination with the old command text interface for entering formulas. The goal is to make !OpenOffice Math usable to non-power users who doesn't wish to learn the command language for !OpenOffice Math. If you're by any chance in doubt about the awesomeness of this patch take a look at the demonstration video.
+
+== Demo videos ==
+As I've implemented a lot of features explaining all of them in details would take a lot of time and be really boring to read... So I've done some screencasts of the patch in action demonstrating some of the most interesting features. For a list of all shortcuts, see the usage instructions section. And if you want to know even more, feel free to contact me or read my log below.
+
+Anyway, the videos are available on youtube here:
+  * [[http://www.youtube.com/watch?v=3foNqKYAlYY|Development Preview 3 (13th of August)]]
+  * [[http://www.youtube.com/watch?v=tELPgJIC1sg|Development Preview 2 (26th of July)]]
+  * [[http://www.youtube.com/watch?v=W8yXyDiIQPc|Development Preview 1 (21th of July)]]
+
+For those how don't like youtube, or prefer a higher quality the videos are also available at:
+  * http://jopsen.dk/downloads/GSoC2010/Videos/
+
+== Status ==
+The patch is currently fairly stable and testable, however, it is not recommended for production release in its current state.
+The patch will need rather extensive testing prior to a production release, and there's a few corner cases that haven't been worked out yet. For instance the visual editor will ignore and discard alignment and fonts in formulas edited. There's copy of my todo list below, note that not every item of this list needs to be adressed prior to a production release.
+
+== Todo List ==
+This is a list of improvements that could be added to this patch, some of them are probably trivial and some of them should be implemented before this patched is merged into production code. Whilst others would just be nice improvements to do in some distant future.
+
+  * Global clipboard integration
+  * Support undo/redo with !UndoManager integration
+  * More documentation
+  * Put {{{#ifdef DEBUG}}} around {{{DumpAsDot}}} related code.
+  * Replace {{{j_assert}}} with {{{DBG_ASSERT}}}
+  * Code style (missing spaces, linebreaks and a few renames)
+  * parse.cxx merges multiple blanks into one {{{SmBlankNode}}}, the visual editor doesn't, and treats one {{{SmBlankNode}}} as one character.
+  * Font of {{{SmTextNode}}} needs to be determined on {{{SmTextNode::ChangeText}}} and in {{{SmCursor::InsertText}}}, currently FNT_VARIABLE is always used.
+  * {{{SmAlignNode}}} and {{{SmFontNode}}} are ignored (and deleted upon modification) by visual editor, figure out how these should work.
+  * {{{SmGraphicWindow::KeyInput}}} relies on comparison of {{{sal_Char}}}, a more generic way must be available for CTRL+c, etc.
+  * When modifying with visual editor the body of {{{SmSubSupNode}}} shouldn't be more than one node.
+  * Subnodes of {{{SmBracebodyNode}}} should constitute independent lines, {{{SetSelectionVisitor}}} and {{{SmCaretPosGraphBuildingVisitor}}} might not reflect this.
+  * {{{SetSelectionVisitor}}} and {{{DrawingVisitor}}} should be prefixed with "Sm"
+  * {{{SmCursor::InsertSubSup()}}} should wrap the body in a {{{SmBraceNode}}} if the body is an {{{SmOperNode}}}, {{{SmBinVerNode}}}, etc.
+  * {{{SmCursor::InsertCol()}}} method for added columns to matrices should be implemented.
+  * {{{SmCursor}}} should support deletion of lines, rows, cols and sub-/superscripts.
+  * Make " a shortcut for creating an {{{SmTextNode}}} with FNT_TEXT, also check that {{{SmNodeToTextVisitor}}} supports this.
+  * Consider improving GUI for "Formula Elements"-dialog, most buttons work with visual editor, but usability is not good.
+  * Consider allowing users to enter commands in visual editor, by prefixing the command by \ (also provide !IntelliSense-like autocompletion).
+  * Solve the flickering issue when drawing formulas (See http://gsl.openoffice.org/servlets/ReadMsg?list=dev&msgNo=2369).
+  * Optimize things, for instance {{{SmCursor::AnnotateSelection()}}} is called way too many places...
+  * Improve handling of {{{MoveUp}}} and {{{MoveDown}}} in {{{SmCursor::Move}}}, {{{SmCaretPos2LineVisitor}}} might need improvement.
+  * Draw a non-blinking line under the the visual line that the caret is in, in {{{SmCaretDrawingVisitor}}}.
+  * Make caret in visual editor blink.
+  * Don't draw visual editor caret, when {{{SmGraphicWindow}}} doesn't have focus.
+  * When !OpenOffice Math runs in standalone mode it centers the current formula, this is not nice for visual editing.
+
+(Don't worry, I'll likely continue working on this patch).
+
+== Usage Instructions ==
+Start writer and insert a formula or open !OpenOffice Math directly, either way, you just click where you would expect the formula to appear and start typing. Entering text will write text in the formula, if you type +, -, *, < or >  the corresponding operator will be inserted. If you type / a fraction will be inserted, if you have a selection it will be used as numerator. If you type (, [ or { scalable round, square or curly brackets will be inserted, if you have a selection it will be place between the brackets. If you type ^ you'll create a superscript, if you have a current selection it will be used a superscript. If you type _ you will create a subscription the same way. Typing ! will insert a factorial. If you press the enter-key a new line will be inserted if you're in the toplevel line or in a stack/binom, notice elements placed after the caret will be moved to the new line. If you press the enter-key in a matrix, you'll insert a new row. If you hit shift-enter the current formula tree will be dumped to a dot graph written to /tmp/smath-dump.gv (this is a debug feature that should disabled later).
+
+Notice you case use the "Formula Elements"-dialog and "Catalog"-dialog to insert stuff in the visual formula editor, without loosing focus and caret position. Also you as might have expected the caret is moved using arrow keys (up and down movement may be improved) or by clicking with the mouse. If you hold shift down while moving the caret, either using arrow keys or mouse, you will create a selection. If you hit backspace or delete you will delete the current selection, if there's no selection you'll delete the next or previous element, however, if it is a complex element you will only select it (thus you won't accidentally delete a fraction).
+
+You can use CTRL+c, CTRL+x and CTRL+v to copy, cut and paste respectively, notice there currently no global clipboard integration. 
+
+== Download ==
+The patch is available against Go-OO (ooo320-m17) and OOo4Kids (r790). 
+
+  * [[http://jopsen.dk/downloads/GSoC2010/vEdit-13-August.diff|Visual formula editor patch for Go-OO (ooo320-m17)]]
+  * [[http://jopsen.dk/downloads/GSoC2010/vEdit-OOo4Kids-13-August.diff|Visual formula editor patch for OOo4Kids (r790)]]
+
+(If you're interested in getting this patch against another OpenOffice version, feel free to contact me).
+
 = Notes =
 ''I'll notes on anything useful I discover as a part of this project here, some of it may be useful to others hacking on StarMath later.''
 
