@@ -109,3 +109,110 @@ $ ln -sf /lib/systemd/system/graphical.target /etc/systemd/system/default.target
 }}}
 
 This line makes the graphical target (i.e. full system, including graphical UI) the default target to boot into. Kinda equivalent to runlevel 5 on fedora/sysvinit systems. This is how things are shipped by default.
+
+== cgroup tree = 
+
+{{{
+1 [lennart@lambda] ~$ systemd-cgls 
+├     2 [kthreadd]
+[...]
+├ 29167 [flush-253:0]
+├ user
+│ └ lennart
+│   ├ 39
+│   │ ├ 29075 sshd: lennart [priv]
+│   │ ├ 29079 sshd: lennart@pts/0
+│   │ ├ 29080 -bash
+│   │ └ 29168 systemd-cgls
+│   └ 1
+│     ├ 1141 login -- lennart
+│     ├ 1532 -bash
+│     ├ 1615 ssh-agent
+│     └ 1641 gpg-agent --daemon --write-env-file
+└ systemd-1
+  ├ 1 /bin/systemd systemd.log_target=kmsg systemd.log_level=debug selinux=0
+  ├ sshd@.service
+  │ └ 4
+  ├ prefdm.service
+  │ └ 1272 /usr/sbin/gdm-binary -nodaemon
+  ├ systemd-logger.service
+  │ └ 1162 /lib/systemd/systemd-logger
+  ├ getty@.service
+  │ ├ tty3
+  │ │ └ 1148 /sbin/mingetty tty3
+  │ ├ tty2
+  │ ├ tty4
+  │ │ └ 1136 /sbin/mingetty tty4
+  │ ├ tty5
+  │ │ └ 1132 /sbin/mingetty tty5
+  │ └ tty6
+  │   └ 1125 /sbin/mingetty tty6
+  ├ mdmonitor.service
+  │ └ 1194 mdadm --monitor --scan -f --pid-file=/var/run/mdadm/mdadm.pid
+  ├ irqbalance.service
+  │ └ 1171 irqbalance
+  ├ sendmail.service
+  │ ├ 1430 sendmail: Queue runner@01:00:00 for /var/spool/clientmqueue
+  │ └ 1434 sendmail: accepting connections
+  ├ accounts-daemon.service
+  │ └ 994 /usr/libexec/accounts-daemon
+  ├ polkitd.service
+  │ └ 986 /usr/libexec/polkit-1/polkitd
+  ├ wpa_supplicant.service
+  │ └ 981 /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -u
+  ├ bluetooth.service
+  │ └ 980 /usr/sbin/bluetoothd -n
+  ├ udisks.service
+  │ ├ 978 /usr/libexec/udisks-daemon
+  │ └ 993 udisks-daemon: polling /dev/sr0
+  ├ dbus.service
+  │ └ 1010 /bin/dbus-daemon --system --address=systemd: --nofork --systemd-activation
+  ├ auditd.service
+  │ ├ 975 /sbin/auditd -n
+  │ ├ 988 /sbin/audispd
+  │ └ 997 /usr/sbin/sedispatch
+  ├ console-kit-daemon.service
+  │ └ 971 /usr/sbin/console-kit-daemon --no-daemon
+  ├ rsyslog.service
+  │ └ 969 /sbin/rsyslogd -n -c 4
+  ├ rtkit-daemon.service
+  │ └ 968 /usr/libexec/rtkit-daemon
+  ├ haldaemon.service
+  │ ├  967 /usr/sbin/hald --daemon=no --use-syslog
+  │ ├ 1014 hald-runner
+  │ ├ 1275 hald-addon-input: Listening on /dev/input/event3 /dev/input/event7 /dev/input/event6 /dev/input/event1 /dev/input/event4 /dev/input/event2 /dev/input/event0 /dev/input/event9
+  │ ├ 1281 /usr/libexec/hald-addon-rfkill-killswitch
+  │ ├ 1299 /usr/libexec/hald-addon-leds
+  │ ├ 1301 /usr/libexec/hald-addon-generic-backlight
+  │ └ 1308 /usr/libexec/hald-addon-acpi
+  ├ upowerd.service
+  │ └ 966 /usr/libexec/upowerd
+  ├ abrtd.service
+  │ └ 963 /usr/sbin/abrtd -d -s
+  ├ rpcbind.service
+  │ └ 961 /sbin/rpcbind -f
+  ├ cups.service
+  │ └ 1005 /usr/sbin/cupsd -f
+  ├ modem-manager.service
+  │ └ 955 /usr/sbin/modem-manager
+  ├ crond.service
+  │ └ 951 /usr/sbin/crond -n
+  ├ atd.service
+  │ └ 950 /usr/sbin/atd -f
+  ├ acpid.service
+  │ └ 949 /usr/sbin/acpid -f
+  ├ NetworkManager.service
+  │ ├  946 /usr/sbin/NetworkManager --no-daemon
+  │ └ 1319 /sbin/dhclient -d -4 -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-eth0.pid -lf /var/lib/dhclient/dhclient-5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03-eth0.lease -cf /var/run/nm-dhclient-eth0.conf eth0
+  ├ avahi-daemon.service
+  │ ├ 944 avahi-daemon: running [lambda.local]
+  │ └ 957 avahi-daemon: chroot helper
+  ├ hdapsd@.service
+  │ └ sda
+  │   └ 940 /usr/sbin/hdapsd -d sda
+  ├ dev-mqueue.mount
+  ├ dev-hugepages.mount
+  └ sysinit.service
+    ├ 414 /sbin/udevd -d
+    ├ 468 /sbin/udevd -d
+    └ 469 /sbin/udevd -d
