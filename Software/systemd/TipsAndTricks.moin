@@ -228,3 +228,13 @@ Wants=rc-local.service avahi-daemon.service rpcbind.service NetworkManager.servi
 }}}
 
 Instead of "Wants" you might also try "WantedBy", "Requires", "RequiredBy", "Conflicts", "ConflictedBy", "Before", "After" for the respective types of dependencies and their inverse.
+
+== What would get started if I booted into a specific target? ==
+
+If you want systemd to calculate the "initial" transaction it would execute on boot, try something like this:
+
+{{{
+$ systemd --test --system --unit=foobar.target
+}}}
+
+for a boot target foobar.target. Note that this is mostly a debugging tool that actually does a lot more than just calculate the initial transaction, so don't build scripts based on this.
