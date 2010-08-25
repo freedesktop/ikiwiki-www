@@ -1,4 +1,4 @@
-'''Q: How do I change a runlevel?'''
+'''Q: How do I change the current runlevel?'''
 
 A: In systemd runlevels are exposed via "target units". You can change them like this:
 
@@ -12,6 +12,22 @@ Note however, that the concept of runlevels is a bit out of date, and it is usua
 # systemctl isolate graphical.target
 }}}
 
+This will only change the current runlevel, and has no effect on the next boot.
+
+'''Q: How do I change the default runlevel to boot into?'''
+
+A: The symlink /etc/systemd/system/default.target controls where we boot into by default. Link it to the target unit of your choice. For example, like this:
+
+{{{
+# ln -sf /lib/systemd/systemd/multi-user.target /etc/systemd/system/default.target
+}}}
+
+or 
+
+{{{
+# ln -sf /lib/systemd/systemd/graphical.target /etc/systemd/system/default.target
+}}}
+
 '''Q: How do I figure out the current runlevel?'''
 
 A: Note that there might be more than one target active at the same time. So the question regarding ''the'' runlevel might not always make sense. Here's how you would figure out all targets that are currently active:
@@ -22,9 +38,9 @@ $ systemctl list-units --type=target
 
 If you are just interested in a single number, you can use the venerable ''runlevel'' command, but again, its output might be misleading.
 
-'''Q: I want to change a service file, but rpm keep overwriting it in /lib/systemd/system all the time, how should I handle this?'''
+'''Q: I want to change a service file, but rpm keeps overwriting it in /lib/systemd/system all the time, how should I handle this?'''
 
-A: The recommended way is to copy the service file form /lib/systemd/system to /etc/systemd/system and edit it there. The latter directory takes precedence over the former, and rpm will never overwrite it. If you want to use the distributed service file again you can simply delete (or rename) the service file in /etc/systemd/system again.
+A: The recommended way is to copy the service file from /lib/systemd/system to /etc/systemd/system and edit it there. The latter directory takes precedence over the former, and rpm will never overwrite it. If you want to use the distributed service file again you can simply delete (or rename) the service file in /etc/systemd/system again.
 
 '''Q: My service foo.service as distributed by my operating system vendor is only started when (a connection comes in | some hardware is plugged in). I want to have it started always on boot, too. What should I do?'''
 
@@ -50,9 +66,9 @@ A: Simply place another symlink for instantiating another getty in the getty.tar
 A: Simply remove the getty symlinks you want to get rid of in the getty.target.wants/ directory:
 
 {{{
-# systemctl stop getty@tty5.service getty@tty6.service
 # rm /etc/systemd/system/getty.target.wants/getty@tty5.service /etc/systemd/system/getty.target.wants/getty@tty6.service
 # systemctl daemon-reload
+# systemctl stop getty@tty5.service getty@tty6.service
 }}}
 
 '''Q: How to I figure out which service a process belongs to?'''
