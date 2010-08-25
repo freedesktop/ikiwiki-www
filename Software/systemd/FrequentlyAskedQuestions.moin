@@ -86,3 +86,7 @@ Or you can even check /proc/$PID/cgroup directly.
 '''Q: Why don't you use inotify to reload the unit files automatically on change?'''
 
 A: Unfortunately that would be a racy operation. For an explanation why and how we tried to improve the situation, see https://bugzilla.redhat.com/show_bug.cgi?id=615527
+
+'''Q: I have a native systemd service file and a SysV init script installed which share the same basename, e.g. /lib/systemd/system/foobar.service vs. /etc/init.d/foobar -- which one wins?'''
+
+A: If both files are available the native unit file always takes precedence and the SysV init script is ignored. Note that a SysV service that is enabled but overriden by a native service does not have the effect that the native service would be enabled, too. Enabling of native and SysV services is completely independent.
