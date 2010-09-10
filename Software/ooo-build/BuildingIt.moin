@@ -17,6 +17,68 @@ Picking a distro determines what patches get applied when the build process star
 
 When your build successfully finished, continue with the [[Software/ooo-build/HackingIt|HackingIt]] pages.
 
+== Building for different purposes ==
+
+There are some tricks that help people do build for different purposes.
+
+=== Development ===
+
+Developers usually want to start with the last state of the sources and contribute their changes back. The best way is to use the cloned git repos and either mail or commit/push their modifications.
+
+Active developers often use the last active branch (master or branch-in-rc-phase). Newbies should rather always use a branch because the build in master is sometimes broken on different distros.
+
+The proposed workflow is:
+
+ 1. get ooo-build master or branch; either annonymous or with write access
+ 1. '''./autogen.sh --with-distro=<distro name>'''
+ 1. '''./download'''
+ 1. '''make'''
+
+When they want to merge their changes with the last state they do:
+
+ a. '''git pull -r'''        #update ooo-build
+ a. '''bin/g pull -r'''   #update ooo source repositories
+
+
+=== Packaging Test Builds  ===
+
+Packagers need to get source tarballs. They must create them from the cloned repos if they want test something not-yet-released.
+
+The proposed workflow is:
+
+ 1. Do the step 1.-3. as normal developers
+ 1. '''cd /path-to-package-sources'''
+ 1. '''ooo-pack-sources --inc-version /path-to-ooo-build-clone'''
+ 1. update '''--with-tag=''' configure switch to the new ooo-build tarball version
+ 1. do not forget to use '''--without-git''' configure switch in the package sources
+ 1. build packages
+
+When they want to test the very last commits, they need to do:
+
+ a. '''git pull -r'''        #update ooo-build
+ a. '''bin/g pull -r'''   #update ooo source repositories
+ a. repeat from the 2nd step as described above
+
+Tips:
+
+ * if there are no changes in the ooo source repos; you might use '''ooo-pack-sources --no-ooo-pieces''' and force the old ooo source tarballs using '''--with-source-version''' configure switch
+ * you might unpack the non-patched sources into single directory using the script '''ooo-unpack-sources'''
+
+=== Packaging Released Version ===
+
+The released packages should be based on released tarballs. The git clone is not needed in this case.
+
+The proposed workflow is:
+
+ 1. download ''ooo-build-<version>.tar.gz''
+ 1. '''tar -xzf ooo-build-<version>.tar.gz'''
+ 1. '''cd ooo-build-<version>'''
+ 1. '''./autogen --with-distro --without-git'''
+ 1. '''./download'''
+ 1. copy new files into package sources
+ 1. udpate the package meta data (spec file...)
+ 1. build packages
+
 == Building on specific platforms ==
 
 === openSUSE ===
