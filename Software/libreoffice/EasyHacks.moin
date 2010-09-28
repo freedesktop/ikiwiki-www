@@ -1,67 +1,76 @@
 = Easy Hacks =
 
-==== find / remove all the German comments / [ translate if possible ] ====
+== find and remove German comments, translate if possible ==
 
 '''Background''': The code is littered with German comments of little value eg:
+{{{
     //    Beschreibung:	textuelle Beschreibung ermitteln
     String  SwDocStyleSheet::GetDescription(SfxMapUnit eUnit)
+}}}
+'''Skills''': grep, code reading, optional English translation, diff etc.
 
-'''Skills''': grep, code reading, [optional German translation], diff etc.
-
-==== remove all the bogus comments lying around ====
+== remove all the bogus comments lying around ==
 '''Background:''' almost no-one believed that revision control works,
-	    so we see things like:
+   so we see things like:
+{{{
     /* -----------------------------04.12.00 16:26--------------------------------
+}}}
 and
+{{{
     #include <svx/svxdlg.hxx> //CHINA001
+}}}
 and
+{{{
     // --> OD 2008-01-08 #newlistlevelattrs#
+}}}
 '''Skills:''' identifying bogus comments, and removing them.
 
 
-==== remove non-compiled / dead code ====
+== remove non-compiled / dead code ==
 	+ tons of this is lying around in the code-base
 '''Background:''' There is tons of this lying around in the code. Apparently
 	    some developers don't believe in revision control. In calc,
 	    much un-used code is just commented out like this:
+{{{
 //UNUSED2008-05          if (nCount==1)
 //UNUSED2008-05              return 0;                               // leer
+}}}
 	    all of this needs removing.
 '''Skills:''' ability to identify and remove large sections of commented out /
 	compiled out code
 
-==== find / fix all German spellings in internal APIs ====
-'''Background:''' There are a good number of mis-spelled methods eg. 'childs' should be children
+== find / fix all German spellings in internal APIs ==
+'''Background:''' There are a good number of mis-spelled methods eg. 'childs' should be children and 'menues' menus
 '''Skills:''' grep, code reading, full compilation
 
-==== remove VOS library ====
-'''Background:''' the Vos library has been obsolete for many years, but still
+== remove VOS library ==
+'''Background:''' the VOS library has been obsolete for many years, but still
 	    lingers on in the codebase. Patches exist to remove it
 	    altogether, splifying the code and speeding startup up.
 	    These need re-applying, building to test.
 '''Skills:''' build, C++
 
 
-==== cleanup obsolete types ====
+== cleanup obsolete types ==
 '''Background:''' There are a number of obsolete types in use in the code-base.
 	    The most egregious is 'BOOL' which should be replaced for a
 	    'bool' type.
 '''Skills:''' build, search & replace.
 
-==== valgrind cleanliness ====
+== valgrind cleanliness ==
 '''Background:''' There are a large number of memory mismanagement bugs around
 	    that leak memory, or leave threads around at exit. These need
 	    fixing, a good start has been made by Caolan in issue 112782
 '''Skills:''' build, C++, valgrind trace reading [ help available ], fix UMRs etc.
 
-==== cppcheck cleanliness ====
+== cppcheck cleanliness ==
 '''Background:''' there is a great tool: http://sourceforge.net/projects/cppcheck/ 
 	    that can help identify bad looking pieces of code. We should run
 	    the latest version on the codebase, identify false positives, and
 	    clean the code to fix bugs, and avoid warnings.
 '''Skills:''' build, simple C++
 
-==== un-screw-up accessible icon code-paths & shrink theme files ====
+== un-screw-up accessible icon code-paths & shrink theme files ==
 '''Background:''' whomever added the accessibility icon theming code created
 	    a limited solution of un-necessary complexity. Then real
 	    theming was introduced. We should remove the un-necessary
@@ -70,49 +79,49 @@ and
 	    discrete high-contrast theme itself of course).
 '''Skills:''' build, C++
 
-==== unit test writing ====
+== unit test writing ==
 '''Background:''' many parts of OO.o have no unit tests, creating these gives far
 	    greater confidence around re-factoring. Some great places for
 	    these would be against the spreadsheet.
 '''Skills:''' simple C++ programming
 
-==== leak detection ====
+== leak detection ==
 '''Background:''' when closing documents, routinely lots of memory is leaked.
 	    Identifying and fixing these areas should help improve
 	    robustness
-'''Skills:''' linux / valgrind
+'''Skills:''' Linux / Valgrind
 
-==== call-catcher / bloat removal ====
+== call-catcher / bloat removal ==
 '''Background:''' a certain amount of code is simply not used in OO.o we have
 	    a tool to identify this called 'callcatcher' yet its results
 	    need some investigation and patches creating to remove truly
 	    unused methods.
 '''Skills:''' building, simple C++ programming
 
-==== change make test to make check all over the place ====
-'''Background:''' Align FooOffice makefile targets with FLOSS conventions
+== change make test to make check all over the place ==
+'''Background:''' Align LibreOffice makefile targets with FLOSS conventions
 '''Skills:''' grep, Makefile reading
 
-==== add coverage analysis to unit tests ====
+== add coverage analysis to unit tests ==
 '''Background:''' Feedback loop in testing is missing, we need to add
             that. Example is here:
             http://developer.digitalstrom.org/redmine/wiki/dss/Generate_coverage_report
 '''Skills:''' shell scripting, Makefile reading
 
-==== warning free code ====
+== warning free code ==
 '''Background:''' Making code compile without warnings is a prerequisite
             for noticing errors in _new_ code
 '''Skills:''' building the beast, basic c++ skills (and the attitude to
         ask when in doubt)
 
-==== remove remaining external header guards ====
+== remove remaining external header guards ==
 '''Background:''' much of the bad habit of having external header guards
             around each and every #include statement is gone, but
             there are still remnants in the code
 '''Skills:''' grep, building the beast
 
-==== Removal/Replacement of the String/UniString/ByteString with OUString/OString once and for all. ====
-'''Background:''' OpenOffice uses duplicate string classes, and should not.
+== Removal/Replacement of the String/UniString/ByteString with OUString/OString once and for all. ==
+'''Background:''' OO.o uses duplicate string classes, and should not.
 	    The 'old' UniString class is limited to 64k, yet has many
 	    more helpful helper methods. We need to create similar
 	    helper methods for OUString and port the existing code to
@@ -120,7 +129,7 @@ and
 	    parallel to ensure that nothing breaks.
 '''Skills:''' building, coding, writing unit tests, etc.
 
-==== Reduce power consumption: timers must end eventually. ====
+== Reduce power consumption: timers must end eventually. ==
 '''Background:''' We have a lot of timers, which constantly fire endlessly
 	once started (calc has a particularly nasty one). So we chew up
 	battery life on laptops when we're idling. When we're idle we
@@ -131,7 +140,7 @@ and
 	to help with this would be good too. eg. issue 106485.
 '''Skills:''' building, C++
 
-==== build with strict-aliasing ====
+== build with strict-aliasing ==
 '''Background:''' GCC compiler developers believe we can get performance
 	    benefits from gcc's -fstrict-aliasing flag. Finishing
 	    the work already started on this and merging it would
@@ -139,7 +148,7 @@ and
 	    and fixing sites that generate related warnings.
 '''Skills:''' building, C++
 
-==== strip out non-trivial globals before main ====
+== strip out non-trivial globals before main ==
 '''Background:''' ordering and running constructors at startup consumes
 	    CPU time. Anything larger than a simple string should
 	    be switched to use the singleton pattern in 'sal' for
@@ -147,7 +156,7 @@ and
 	    a problem.
 '''Skills:''' build, simple C++ 
 
-==== 16bit unicode string literals ====
+== 16bit unicode string literals ==
 '''Background:''' Our ASCII string handling is slow and inefficient.
 	    C++0x introduces u"UTF-16 string literals"
 	    http://en.wikipedia.org/wiki/C%2B%2B0x#New_string_literals
@@ -160,19 +169,19 @@ and
 	    rtl_uString_assign - to deep copy these when necessary.
 '''Skills:''' build, C++
 
-==== hunt and destroy obsolete macros ====
+== hunt and destroy obsolete macros ==
 '''Background:''' it is hard to find macros that are no longer used, so they
 	    can pile up, cluttering the code, and scaring people. Things
 	    like SAL_SWAP need identifying and removing.
 '''Skills:''' build, patience, code search
 
-==== Get rid of useless Win9x support ====
+== get rid of useless Win9x support ==
 '''Background:''' We have some code to support Windows 9x by providing
 emulated wide-character Win32 APIs etc. That is not needed, we should
 just use the wide-character APIs directly.
 '''Skills:''' Win32, building
 
-==== Get rid of obsolete manual templates eg. DECLARE_LIST ====
+== get rid of obsolete manual templates eg. DECLARE_LIST ==
 '''Background:''' before the wonderful world of templates and STL (all
 	    those years ago), standard pre-processor based generics were
 	    created. These still litter the code, and need replacing
