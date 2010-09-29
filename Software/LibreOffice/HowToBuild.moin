@@ -1,3 +1,4 @@
+= Compiling =
 == Ubuntu (Lucid) ==
 I had to:
 {{{
@@ -11,12 +12,6 @@ apt-get install junit4 libgnomevfs2-dev kdelibs4-dev
 make
 }}}
 and I (had to) run the ./autogen command with --disable-kde --disable-kde4 because I am not interested in the qt frontend (and would get some errors about missing qt headers when I actually had them installed).
-
-To update your checkout do:
-{{{
-git pull -r && bin/g pull -r
-}}}
-
 
 == On openSUSE (11.3 for me) try ==
 {{{
@@ -32,5 +27,17 @@ git clone git://anongit.freedesktop.org/git/libreoffice/
 
 ./download
 }}}
+
+== Updating your Checkout ==
+To update your checkout do:
+{{{
+git pull -r && bin/g pull -r
+}}}
+
+= Troubleshooting =
+== Building a specific module fails ==
+If some modules don't compile, and you have not redirected the standard output to a file, you might want to just build a certain module to see the specific errors. In this case, you have to first source the build environment vars.
+
+In {{{build/libreoffice-3.2.99.1}}} do {{{source LinuxX86-64Env.Set.sh}}} (adapt to whatever environment you are in), go into the module subdirectory and issue {{{build}}} which will build just this module.
 
 [[ http://www.freedesktop.org/wiki/Software/LibreOffice | Back to Initial Wiki Page]]
