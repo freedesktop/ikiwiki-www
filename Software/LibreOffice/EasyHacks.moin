@@ -2,7 +2,7 @@
 
 == find and remove German comments, translate if possible ==
 
-'''Background''': The code is littered with German comments of little value e.g.:
+'''Background''': The code is littered with German comments of little value such as:
 {{{
     //    Beschreibung:	textuelle Beschreibung ermitteln
     String  SwDocStyleSheet::GetDescription(SfxMapUnit eUnit)
@@ -38,7 +38,7 @@ and
 '''Skills:''' ability to identify and remove large sections of commented out /	compiled out code
 
 == find / fix all German spellings in internal APIs ==
-'''Background:''' There are a good number of misspelled methods e.g. 'childs' should be children and 'menues' menus
+'''Background:''' There are a good number of misspelled methods.  For instance 'childs' should be children and 'menues' menus
 
 '''Skills:''' grep, code reading, full compilation
 
@@ -54,7 +54,7 @@ and
 '''Skills:''' build, search & replace.
 
 == valgrind cleanliness ==
-'''Background:''' There are a large number of memory mismanagement bugs around that leak memory, or leave threads around at exit. These need fixing. A good start has been made by Caolan in issue 112782.
+'''Background:''' There are a large number of memory mismanagement bugs around that leak memory, or leave threads around at exit. These need fixing. A good start has been made by Caolan in [[http://qa.openoffice.org/issues/show_bug.cgi?id=112782 | issue 112782]].
 
 '''Skills:''' build, C++, valgrind trace reading [ help available ], fix UMRs etc.
 
@@ -110,12 +110,12 @@ and
 '''Skills:''' building, coding, writing unit tests, etc.
 
 == Reduce power consumption: timers must end eventually. ==
-'''Background:''' We have a lot of timers, which constantly fire endlessly once started (calc has a particularly nasty one). So we chew up battery life on laptops when we're idling. When we're idle we should, after a short enough time, actually go idle and not wake up the laptop constantly. That means removing any leaked timers properly. This is a matter of tracking pending timers, and verifying that they are sensible, adding some infrastructure to help with this would be good too. e.g. issue 106485.
+'''Background:''' We have a lot of timers, which constantly fire endlessly once started (calc has a particularly nasty one). So we chew up battery life on laptops when we're idling. When we're idle we should, after a short enough time, actually go idle and not wake up the laptop constantly. That means removing any leaked timers properly. This is a matter of tracking pending timers, and verifying that they are sensible, adding some infrastructure to help with this would be good too.  See [[http://qa.openoffice.org/issues/show_bug.cgi?id=106485 | issue 106485]].
 
 '''Skills:''' building, C++
 
 == build with strict-aliasing ==
-'''Background:''' GCC compiler developers believe we can get performance benefits from gcc's -fstrict-aliasing flag. Finishing the work already started on this and merging it would be useful (cf. issue 101100). This entails identifying and fixing sites that generate related warnings.
+'''Background:''' GCC compiler developers believe we can get performance benefits from gcc's -fstrict-aliasing flag. Finishing the work already started on this and merging it would be useful (see [[http://qa.openoffice.org/issues/show_bug.cgi?id=101100 | issue 101100]]). This entails identifying and fixing sites that generate related warnings.
 
 '''Skills:''' building, C++
 
@@ -125,7 +125,7 @@ and
 '''Skills:''' build, simple C++
 
 == 16-bit unicode string literals ==
-'''Background:''' Our ASCII string handling is slow and inefficient. C++0x introduces u"UTF-16 string literals" http://en.wikipedia.org/wiki/C%2B%2B0x#New_string_literals and see icu/source/common/unicode/unistr.h and icu/source/common/unicode/platform.h for hackery for other platforms. mozilla even uses -wshort-wchar and L"string literals", though the standard approach is better. To implement this, we should add a SAL_STRING_STATIC_FLAG to create rtl_uStrings with, and instrument rtl_uString_assign - to deep copy these when necessary.
+'''Background:''' Our ASCII string handling is slow and inefficient. C++0x introduces [[http://en.wikipedia.org/wiki/C++0x#New_string_literals|u"UTF-16 string literals" (Wikipedia)]] and see icu/source/common/unicode/unistr.h and icu/source/common/unicode/platform.h for hackery for other platforms. mozilla even uses -wshort-wchar and L"string literals", though the standard approach is better. To implement this, we should add a SAL_STRING_STATIC_FLAG to create rtl_uStrings with, and instrument rtl_uString_assign - to deep copy these when necessary.
 
 '''Skills:''' build, C++
 
@@ -139,13 +139,14 @@ and
 
 '''Skills:''' Win32, building
 
-== get rid of obsolete manual templates e.g. DECLARE_LIST ==
+== get rid of obsolete manual templates such as DECLARE_LIST ==
 '''Background:''' before the wonderful world of templates and STL (all those years ago), standard pre-processor based generics were created. These still litter the code, and need replacing with STL equivalents. see tools/inc/tools/list.hxx etc.
 
 '''Skills:''' building, simple C++, care in re-factoring
 
 == default to sqlite not hsqldb ==
-'''Background:''' currently when creating a local database we default to this Java database engine. That is somewhat unfortunate. It would be better to default to a sqlite provider - unfortunately we don't have one. So - it needs writing (cf. connectivity/source/drivers/*) - and then the default changing.
+'''Background:''' currently when creating a local database we default to this Java database engine. That is somewhat unfortunate. It would be better to default to a sqlite provider - unfortunately we don't have one. So - it needs writing (see connectivity/source/drivers/*) - and then the default changing.
+
 '''Skills:''' building, C++ hacking
 
 
