@@ -35,7 +35,13 @@ git pull -r && bin/g pull -r
 }}}
 
 = Troubleshooting =
+
 == Building a specific module fails ==
+
+There was a bug in the dependency generation (making .dpslo files) - which we avoid for straight through builds. The result of this was that API changes were not triggering re-builds '''so''' - please update the checkout, and re-run make (and perhaps re-run it again - it should advance further each time - until all the dependencies are in place). There seems to be some parallelism problem around dependency generation too, sadly.
+
+== Building a specific module fails (take 2) ==
+
 If some modules don't compile, and you have not redirected the standard output to a file, you might want to just build a certain module to see the specific errors. In this case, you have to first source the build environment vars.
 
 In {{{build/libreoffice-3.2.99.1}}} do {{{source LinuxX86-64Env.Set.sh}}} (adapt to whatever environment you are in), go into the module subdirectory and issue {{{build}}} which will build just this module.
