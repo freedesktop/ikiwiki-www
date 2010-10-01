@@ -21,12 +21,14 @@ zypper in junit4 gnome-vfs2-devel
 instead of apt-get
 
 == Fedora (13) ==
-I got errors in make until I searched for instructions on building Open Office.org in Fedora and found these options to add
-to the autogen.sh command. I didn't experiment to find out if any of them can be left out.
+I got errors in make until I searched for instructions on building Open Office.org in Fedora and found options to add
+to the autogen.sh command. Most of the options produced a "configure: WARNING: unrecognized options:" buried in the output that scrolled by my screen, but --disable-kde appears to be the key to getting a successful make, even with kde4-devel and kde3-devel RPMs having been installed.
 
 {{{
-./autogen.sh --with-distro=LibreOfficeLinux --with-git --with-num-cpus=2 --disable-Xaw --disable-kde --disable-neon --enable-opengl --enable-ogltrans
+./autogen.sh --with-distro=LibreOfficeLinux --with-git --with-num-cpus=2 --disable-kde
 }}}
+
+I still get an error during the bin/ooinstall step after doing the make, "Could not register all components for file service.rdb" with the log file showing the error "No module named pythonloader". I did try to yum install openoffice.org-pyuno but that didn't help.
 
 == On MacOSX 10.5.8 (with git and wget) : ==
 {{{
