@@ -21,26 +21,12 @@ zypper in junit4 gnome-vfs2-devel
 instead of apt-get
 
 == Fedora (13) ==
-I got some errors in make regarding missing .h files during compile that led me to installing packages such as libXaw-devel which are not brought in by yum-builddep openoffice.org. Looking up the source for the openoffice.org rpm I can see that it uses some options such as --disable-Xaw that would probably have solved the problem too.
-
-If you want the complete set of extra options used in the Fedora rpm for openoffice.org is --disable-Xaw --disable-kde --disable-neon --enable-opengl --enable-ogltrans
-The only one I had to use after I installed the apparently missing packages such as libXaw-devel was --disable-kde, without which I got errors even after installing kdelibs-devel and kdelibs3-devel.
-
-The final bin/ooinstall step then produced "Could not register all components for file service.rdb" with the log file showing the error "No module named pythonloader". Someone on IRC suggested using the --with-system-python option. That causes a warning in the screen output that it is not a recognized configure option, which can be ignored. There is a second layer of configure in ./rawbuild/configure.in that is called after the top level one puts out that warning message.
-
-The next set of errors in bin/ooinstall came from some oxt files that appear twice, and was fixed by deleting them before running the install.
-
-The build steps that worked were
-
+After pulling the latest patches I was able to build with the --disable-kde option and no other changes to the recommended procedures for building under GNU/Linux. I do have Xaw-devel and some other devel packages in my environment that are not part of the Fedora openoffice.org builddeps. Without those you may need some other options such as --disable-Xaw that you can see used in Fedora's openoffice.org rpm spec file.
 {{{
-./autogen.sh --with-distro=LibreOfficeLinux --with-git --with-num-cpus=2 --disable-kde --with-system-python
+./autogen.sh --with-distro=LibreOfficeLinux --with-git --with-num-cpus=2 --disable-kde
 ./download
 make
-rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/swext/wiki-publisher.oxt
-rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/minimizer/presentation-minimizer.oxt
-rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/pdfimport/pdfimport.oxt
-rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/presenter/presenter-screen.oxt
-bin/ooinstall -l [installpath]
+bin/ooinstall -l [path to target directory]
 }}}
 
 == On MacOSX 10.5.8 (with git and wget) : ==
