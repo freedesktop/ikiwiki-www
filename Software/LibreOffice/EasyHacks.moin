@@ -43,18 +43,19 @@ and
 '''Skills:''' grep, code reading, full compilation
 
 == remove VOS library ==
-'''Background:''' The VOS library has been obsolete for many years, but still lingers on in the codebase. Patches exist to remove it altogether, simplifying the code and speeding start-up. These need re-applying, building to test.
+'''Background:''' The VOS library has been obsolete for many years, but still lingers on in the codebase. Patches are in patches/dev300/vosremoval-* to remove it altogether, simplifying the code and speeding start-up. These need re-applying and building and some QA doing to test them. One fewer library means less seeking / reading at startup, and less obsolete code lying around.
 
 '''Skills:''' build, C++
 
+== celebrate build completion ==
+'''Background:''' It is quite difficult to build OO.o - we should have some suitable celebratory graphic at the end of the churning build output if a build succeeds. See bin/build-ooo for the script to hack.
+
+'''Skills:''' ascii-art, shell, make
 
 == cleanup obsolete types ==
-'''Background:''' There are a number of obsolete types in use in the code-base. 
+'''Background:''' There are a number of obsolete types in use in the code-base.
 
-* The most egregious is 'BOOL' which should be replaced with a 'bool' type.
-
-* Another one is FASTBOOL (defined in [[http://opengrok.go-oo.org/xref/libs-gui/tools/inc/tools/solar.h#61|libs-gui/tools/inc/tools/solar.h]] which is deprecated and currently defined as int), which should be replaced with a 'bool' type. (But careful: sizeof(bool) = 1 sizeof(FASTBOOL) = 4.  So replacing one with the other may not always be trivial and the variable usage should be checked.)
-
+* One is FASTBOOL (defined in [[http://opengrok.go-oo.org/xref/libs-gui/tools/inc/tools/solar.h#61|libs-gui/tools/inc/tools/solar.h]] which is deprecated and currently defined as int), which should be replaced with a 'bool' type. (But careful: sizeof(bool) = 1 sizeof(FASTBOOL) = 4.  So replacing one with the other may not always be trivial and the variable usage should be checked.)
 
 '''Skills:''' build, search & replace.
 
