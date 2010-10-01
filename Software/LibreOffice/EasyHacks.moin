@@ -42,18 +42,31 @@ and
 
 '''Skills:''' grep, code reading, full compilation
 
-== remove VOS library ==
-'''Background:''' The VOS library has been obsolete for many years, but still lingers on in the codebase. Patches are in patches/dev300/vosremoval-* to remove it altogether, simplifying the code and speeding start-up. These need re-applying and building and some QA doing to test them. One fewer library means less seeking / reading at startup, and less obsolete code lying around.
-
-'''Skills:''' build, C++
-
 == celebrate build completion ==
 '''Background:''' It is quite difficult to build OO.o - we should have some suitable celebratory graphic at the end of the churning build output if a build succeeds. See bin/build-ooo for the script to hack.
 
 '''Skills:''' ascii-art, shell, make
 
-== cleanup obsolete types ==
-'''Background:''' There are a number of obsolete types in use in the code-base.
+== remove remaining external header guards ==
+'''Background:''' Much of the bad habit of having external header guards around each and every #include statement is gone, but there are still remnants in the code.
+
+'''Skills:''' grep, building the beast
+
+
+= Slightly more interesting hacks =
+
+== remove VOS library ==
+'''Background:''' The VOS library has been obsolete for many years, but still lingers on in the codebase. Patches are in patches/dev300/vosremoval-* to remove it altogether, simplifying the code and speeding start-up. These need re-applying and building and some QA doing to test them. One fewer library means less seeking / reading at startup, and less obsolete code lying around.
+
+'''Skills:''' build, C++
+
+== remove PAM dependency ==
+'''Background:''' The System Abstraction Layer (sal) library - has a PAM dependency to implement a method that is never used (except by VOS, which in turn is never used). We should keep that method around - but stripped of content (in theory sal has a stable ABI), and remove that pam dependency, and configure / makefile.mk code associated with it, see: http://lists.freedesktop.org/archives/libreoffice/2010-September/000130.html
+
+'''Skills:''' build, grep, shell, perhaps dmake
+
+== cleanup (very) obsolete types ==
+'''Background:''' There are a number of very obsolete types in use in the code-base.
 
 * One is FASTBOOL (defined in [[http://opengrok.go-oo.org/xref/libs-gui/tools/inc/tools/solar.h#61|libs-gui/tools/inc/tools/solar.h]] which is deprecated and currently defined as int), which should be replaced with a 'bool' type. (But careful: sizeof(bool) = 1 sizeof(FASTBOOL) = 4.  So replacing one with the other may not always be trivial and the variable usage should be checked.)
 
@@ -99,11 +112,6 @@ and
 '''Background:''' Making code compile without warnings is a prerequisite for noticing errors in _new_ code.
 
 '''Skills:''' building the beast, basic C++ skills (and the attitude to ask when in doubt)
-
-== remove remaining external header guards ==
-'''Background:''' Much of the bad habit of having external header guards around each and every #include statement is gone, but there are still remnants in the code.
-
-'''Skills:''' grep, building the beast
 
 == Removal/Replacement of the String/UniString/ByteString with OUString/OString once and for all. ==
 '''Background:''' OO.o uses duplicate string classes, and should not. The 'old' !UniString class is limited to 64k, yet has many more helpful helper methods. We need to create similar helper methods for OUString and port the existing code to use the basic string class. We should write unit tests in parallel to ensure that nothing breaks.
