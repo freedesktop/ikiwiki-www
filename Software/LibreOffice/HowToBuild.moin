@@ -21,14 +21,27 @@ zypper in junit4 gnome-vfs2-devel
 instead of apt-get
 
 == Fedora (13) ==
-I got errors in make until I searched for instructions on building Open Office.org in Fedora and found options to add
-to the autogen.sh command. Most of the options produced a "configure: WARNING: unrecognized options:" buried in the output that scrolled by my screen, but --disable-kde appears to be the key to getting a successful make, even with kde4-devel and kde3-devel RPMs having been installed.
+I got some errors in make regarding missing .h files during compile that led me to installing packages such as libXaw-devel which are not brought in by yum-builddep openoffice.org. Looking up the source for the openoffice.org rpm I can see that it uses some options such as --disable-Xaw that would probably have solved the problem too.
+
+If you want the complete set of extra options used in the Fedora rpm for openoffice.org is --disable-Xaw --disable-kde --disable-neon --enable-opengl --enable-ogltrans
+The only one I had to use after I installed the apparently missing packages such as libXaw-devel was --disable-kde, without which I got errors even after installing kdelibs-devel and kdelibs3-devel.
+
+The final bin/ooinstall step then produced "Could not register all components for file service.rdb" with the log file showing the error "No module named pythonloader". Someone on IRC suggested using the --with-system-python option. That causes a warning in the screen output that it is not a recognized configure option, which can be ignored. There is a second layer of configure in ./rawbuild/configure.in that is called after the top level one puts out that warning message.
+
+The next set of errors in bin/ooinstall came from some oxt files that appear twice, and was fixed by deleting them before running the install.
+
+The build steps that worked were
 
 {{{
-./autogen.sh --with-distro=LibreOfficeLinux --with-git --with-num-cpus=2 --disable-kde
+./autogen.sh --with-distro=LibreOfficeLinux --with-git --with-num-cpus=2 --disable-kde --with-system-python
+./download
+make
+rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/swext/wiki-publisher.oxt
+rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/minimizer/presentation-minimizer.oxt
+rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/pdfimport/pdfimport.oxt
+rm ./build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/presenter/presenter-screen.oxt
+bin/ooinstall -l /home/sidney/Opensource/libreoffice/install
 }}}
-
-I still get an error during the bin/ooinstall step after doing the make, "Could not register all components for file service.rdb" with the log file showing the error "No module named pythonloader". I did try to yum install openoffice.org-pyuno but that didn't help. I just got a suggestion on #libreoffice IRC to use --with-system-python option. I'll update this page after trying that.
 
 == On MacOSX 10.5.8 (with git and wget) : ==
 {{{
