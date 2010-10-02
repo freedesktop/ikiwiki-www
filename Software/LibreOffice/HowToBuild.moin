@@ -13,6 +13,13 @@ make
 }}}
 If you do not want to install kdelibs4-dev (which pulls in a lot of additional dependencies if you are not running Kubuntu), you can add to ./autogen.sh the arguments '''--disable-kde --disable-kde4'''. KDE3 and KDE4 support will then not be built, but this does not affect functionality if you are not using the KDE desktop.
 
+If your home folder is encrypted, you may run into build problems with the module '''libxmlsec'''. To check if your home folder is encrypted under Lucid, run '''df''', and check to see if '''/home/%homefolder%/.Private''' is mounted as '''/home/%homefolder%''', where '%homefolder% is typically your username; if it is, then your home folder is encrypted. There is an encryption bug that is causing the permissions on '''xml2-config''' to be incorrectly set. To fix this problem use the following command:
+{{{
+sudo chmod +x %buildfolder%/build/libreoffice-3.2.99.1/solver/330/unxlngx6.pro/bin/xml2-config
+}}}
+
+Where '%buildfolder%' is directory in which you are building libreoffice. You may then continue with your build as before.
+
 == On openSUSE (11.3 for me) try ==
 {{{
 zypper source-install OpenOffice_org
@@ -44,6 +51,8 @@ git pull -r && bin/g pull -r
 }}}
 
 = Troubleshooting =
+
+Sometimes you can fix your build issues by updating your repository, with the update commands given above. Remember to run '''autogen.sh''', and optionally '''make clean''' before executing '''make''' again.
 
 == Building a specific module fails ==
 
