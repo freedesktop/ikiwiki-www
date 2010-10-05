@@ -136,6 +136,12 @@ git diff
 
 '''Skills:''' grep, Makefile reading
 
+== audit / remove SvStream long operators ==
+'''Background:''' the SvStream class has many operators used for creating binary streams, some of these are not particularly helpful - using 'long' for example, is confusing, as long can have a different size on different platforms, and the stream will serialize only the 4 bytes of it. We should remove these SvStream methods, find and replace callers with an explicit sal_uInt32 cast, call.
+
+'''Skills:''' building, simple C++ programming
+
+
 = Easy Programming tasks =
 
 == re-work build system to build out of git repos ==
