@@ -51,6 +51,11 @@ and
 
 '''Skills:''' grep, code reading, full compilation
 
+== hunt and destroy obsolete macros ==
+'''Background:''' It is hard to find macros that are no longer used, so they can pile up, cluttering the code, and scaring people. Things like SAL_SWAP need identifying and removing.
+
+'''Skills:''' build, patience, code search
+
 = Slightly more interesting hacks =
 
 == remove VOS library ==
@@ -62,6 +67,11 @@ and
 '''Background:''' The System Abstraction Layer (sal) library - has a PAM dependency to implement a method that is never used (except by VOS, which in turn is never used). We should keep that method around - but stripped of content (in theory sal has a stable ABI), and remove that pam dependency, and configure / makefile.mk code associated with it, see: http://lists.freedesktop.org/archives/libreoffice/2010-September/000130.html
 
 '''Skills:''' build, grep, shell, perhaps dmake
+
+== warning-free code ==
+'''Background:''' Making code compile without warnings is a prerequisite for noticing errors in _new_ code.
+
+'''Skills:''' building the beast, basic C++ skills (and the attitude to ask when in doubt)
 
 == systray build progress tracker ==
 '''Background:''' Building LibreOffice takes a long time - it would be nice (under Linux) to have a systray helper like jhbuild that can show you how far through we are. The code in jhbuild to do this is [[http://git.gnome.org/browse/jhbuild/tree/jhbuild/utils/trayicon.py here]] - it essentially spawns and talks to '''zenity'''. We should hack something similar into solenv/bin/build.pl - which should be able to tell us a rough guess: how many modules (of how many) are built thus far.
@@ -128,11 +138,6 @@ and
 
 '''Skills:''' shell scripting, Makefile reading
 
-== warning-free code ==
-'''Background:''' Making code compile without warnings is a prerequisite for noticing errors in _new_ code.
-
-'''Skills:''' building the beast, basic C++ skills (and the attitude to ask when in doubt)
-
 == Removal/Replacement of the String/UniString/ByteString with OUString/OString once and for all. ==
 '''Background:''' OO.o uses duplicate string classes, and should not. The 'old' !UniString class is limited to 64k, yet has many more helpful helper methods. We need to create similar helper methods for OUString and port the existing code to use the basic string class. We should write unit tests in parallel to ensure that nothing breaks.
 
@@ -157,11 +162,6 @@ and
 '''Background:''' Our ASCII string handling is slow and inefficient. C++0x introduces [[http://en.wikipedia.org/wiki/C++0x#New_string_literals|u"UTF-16 string literals" (Wikipedia)]] and see icu/source/common/unicode/unistr.h and icu/source/common/unicode/platform.h for hackery for other platforms. mozilla even uses -wshort-wchar and L"string literals", though the standard approach is better. To implement this, we should add a SAL_STRING_STATIC_FLAG to create rtl_uStrings with, and instrument rtl_uString_assign - to deep copy these when necessary.
 
 '''Skills:''' build, C++
-
-== hunt and destroy obsolete macros ==
-'''Background:''' It is hard to find macros that are no longer used, so they can pile up, cluttering the code, and scaring people. Things like SAL_SWAP need identifying and removing.
-
-'''Skills:''' build, patience, code search
 
 == get rid of useless Win9x support ==
 '''Background:''' We have some code to support Windows 9x by providing emulated wide-character Win32 APIs etc. That is not needed, we should just use the wide-character APIs directly.
