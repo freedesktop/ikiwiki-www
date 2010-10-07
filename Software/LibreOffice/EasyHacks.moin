@@ -51,37 +51,6 @@ and
 
 '''Skills:''' grep, code reading, full compilation
 
-== remove remaining external header guards ==
-'''Background:''' Much of the bad habit of having external header guards around each and every #include statement is gone, but there are still remnants in the code. An external header guard looks like this:
-{{{
-#ifndef _COM_SUN_STAR_FOO_H_
-#include <com/sun/star/foo.h>
-#endif
-}}}
-That should turn into just:
-{{{
-#include <com/sun/star/foo.h>
-}}}
-There are a lot of these in the binfilter and others scattered around the place.
-
-'''Utilities:''' bin/fixguard.py should help to remove the guards.
-
-{{{
-python fixguard.py somefile.cxx
-}}}
-
-Or recursively:
-
-{{{
-# Go to the clone/writer directory.
-find . -name '*.cxx' -exec grep python $HOME/fixguard.py {} \;
-git diff
-# verify that the diffs are sane and check them in.
-}}}
-
-'''Skills:''' grep, building the beast
-
-
 = Slightly more interesting hacks =
 
 == remove VOS library ==
