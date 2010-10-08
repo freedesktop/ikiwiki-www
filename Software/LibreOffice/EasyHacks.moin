@@ -144,6 +144,11 @@ We should grep for all uses of 'sizeof' - and replace suitable 'old style' ones 
 
 = Easy Programming tasks =
 
+== Fuzz XML file filters ==
+'''Background:''' The XML file filters are protected from casual binary fuzzing by the zip de-compression, and the XML parser - thus they get little real, hard-core testing. Morten Welinder (of gnumeric fame) has written a nice, simple perl XML fuzzer - which you can find here: http://git.gnome.org/browse/gnumeric/tree/test/fuzzxml - the idea is to get a complex, existing XML document - and to swap it about randomly into a new one, then load that inside LibreOffice, and see if it crashes - if it does; file a bug report with the file (or fix the crash). You will need to unzip, fuzz, and re-zip up an ODF file (which requires the mimetype as the first entry, and no compression ie zip -0).
+
+'''Skills:''' shell, basic XML experience, optionally bit of debugger
+
 == re-work build system to build out of git repos ==
 '''Background:''' Currently we have a mess - whereby we have to rsync the contents of the git repositories into build/ in a different order to build from them. This should not be incredibly difficult - it is mostly a matter of tweaking solenv/bin/build.pl - so it knows where to find the directories, and in particular the solver - and putting the solver at the top-level (of course there is probably more detail than that). Some macros in solenv/inc/ will need tweaking too.
 
