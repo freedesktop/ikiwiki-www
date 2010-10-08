@@ -49,10 +49,22 @@ and
 == find / fix all German spellings in internal APIs ==
 '''Background:''' There are a good number of misspelled methods.  For instance 'childs' should be children and 'menues' menus
 
-'''Skills:''' grep, code reading, full compilation
+'''Skills:''' grep, German, code reading
+
+== Use new SAL_N_ELEMENTS macro ==
+'''Background:''' In many places in the code a fixed array size is hard-coded. This is both buggy and un-necessary - it is easy to calculate this at compiletime with a macro: eg.
+{{{
+char *string_array[] = { "hello", "world" };
+for (int i = 0; i < 2; i++) // broken style
+for (int i = 0; i < sizeof(string_array)/sizeof(string_array[0]); i++) // old style
+for (int i = 0; i < SAL_N_ELEMENTS(string_array); i++) // best style
+}}}
+We should grep for all uses of 'sizeof' - and replace suitable 'old style' ones with the new macro to clean them up.
+
+'''Skills:''' grep 'sizeof.*\[' simple code editing, compilation
 
 == hunt and destroy obsolete macros ==
-'''Background:''' It is hard to find macros that are no longer used, so they can pile up, cluttering the code, and scaring people. Things like SAL_SWAP need identifying and removing.
+'''Background:''' It is hard to know that a macro is no longer used, so they can pile up, cluttering the code, and scaring people. We need to use code search to look for obsolete ones, and remove them.
 
 '''Skills:''' build, patience, code search
 
