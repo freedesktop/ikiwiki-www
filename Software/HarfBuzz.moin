@@ -1,31 +1,30 @@
 == HarfBuzz ==
 {{attachment:HarfBuzz.png}}
 
-HarfBuzz is an [[http://www.microsoft.com/OpenType/OTSpec/|OpenType]] Layout engine.  The current code was originally derived from the [[http://freetype.org/|FreeType]] project, developed separately in [[http://pango.org/|Pango]] and [[http://www.trolltech.com/|Qt]], and finally merged back into a common repository as part of this project.
+HarfBuzz is an [[http://www.microsoft.com/OpenType/OTSpec/|OpenType]] text shaping engine.
 
-The code has evolved from its original form, has got various improvements and bugs fixed, and has got a glyph-buffer data structure that can be used as a highlevel interface to the layout engine.
+There are two HarfBuzz code trees in existence today:
 
-=== News ===
+The new HarfBuzz tree, also known as harfbuzz-ng, is under active development and is what is used in Firefox 4.  It is available [[http://cgit.freedesktop.org/harfbuzz/|here]].
 
-The HarfBuzz rewrite is still ongoing, but close to being usable.  A good read about where HarfBuzz stands in the text stack, see [[http://behdad.org/text/|State of Text Rendering]].  For an intro to the ongoing API design issues with the new HarfBuzz see [[http://lists.freedesktop.org/archives/harfbuzz/2009-August/000359.html|this thread]].
+The old HarfBuzz tree, derived from [[http://freetype.org/|FreeType]], [[http://pango.org/|Pango]], and [[http://www.trolltech.com/|Qt]], is available [[http://cgit.freedesktop.org/harfbuzz.old/|here]].  It is in maintenance mode and not actively developed.  We expect users of this code base to start moving to harfbuzz-ng soon.
+
+
+=== Background ===
+
+To get a better idea of where HarfBuzz stands in the text rendering stack you may want to read [[http://behdad.org/text/|State of Text Rendering]].  For an intro to the ongoing API design issues with the new HarfBuzz see [[http://lists.freedesktop.org/archives/harfbuzz/2009-August/000359.html|this thread]], although note that the thread is from August 2009, and most of the issues raised there have been resolved already.
+
 
 === Mailinglist ===
-HarfBuzz discussion is currently on [[http://freedesktop.org/mailman/listinfo/harfbuzz/|harfbuzz at lists freedesktop org]].
 
-=== Git ===
-We are using the freedesktop.org Git repository.  The [[http://freedesktop.org/wiki/UsingGit|Git]] repository is  git://anongit.freedesktop.org/git/harfbuzz. You can browse it [[http://gitweb.freedesktop.org/?p=harfbuzz.git;a=summary|here]].
+HarfBuzz discussion happens on [[http://freedesktop.org/mailman/listinfo/harfbuzz/|harfbuzz at lists freedesktop org]].
 
-=== Bugs & Patches ===
+
+=== Bugs and Patches ===
+
 Please report bugs (and submit patches) through the [[https://bugs.freedesktop.org/enter_bug.cgi?product=HarfBuzz|Bugzilla]].
 
-=== History of the Project ===
-When the FTLayout code was orphaned by FreeType, both Pango and Qt made internal copies on it.  Then a couple years ago Behdad Esfahbod worked with Qt developers Lars Knoll and Simon Hausmann and merged the code back together and dumped it in a shared repository for the sake of sharing and not diverging again.  For a long while, there was just a piece of code that was not really useful on its own.  Then Qt added their shaper code to it and the project became what we now call HarfBuzz.
-
-=== Examples ===
-Both QT and Pango use HarfBuzz, so feel free to examine the code of these projects.  Currently, a simple 100-line sample does not exist.  You will need at least a couple of hundred lines of glue code to drive HarfBuzz directly with FreeType.
-
-=== Our Goal ===
-We want to make HarfBuzz the single shaping solution on Free Software systems.  That's why we are rewriting it from top to bottom with sane APIs.  This takes time, so please be patient and stay tuned as the project develops further.
 
 === Download ===
-There are no releases available for download yet, and currently there are no releases scheduled, as the main audience of the code is developers of text rendering engines and currently the recommended way to use the code is to copy it into your project.  Use git to check out the latest version instead, but please keep a note of your checkout date in your project, that will help with tracking bugs later.
+
+There are no releases available for download yet, but we expect to start 0.x release soon and aim for a 1.0 release with stable API around March 2011.
