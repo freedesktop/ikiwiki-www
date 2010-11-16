@@ -6,11 +6,17 @@ DeviceKit was the original name of the projects that [[http://lists.freedesktop.
 
 Other parts of the stack should replace other things that HAL used to provide:
 
- * [[http://projects.gnome.org/NetworkManager|NetworkManager]], [[http://wicd.sourceforge.net/|Wicd]], etc. for network information; [[https://launchpad.net/ntrack|NTrack]] should be sufficient for most applications' needs.
- * For audio, hardware enumeration should generally be done through the same interface that is used to interact with audio devices, whether that is [[http://freedesktop.org/wiki/PulseAudio|PulseAudio]], [[http://www.alsa-project.org/|ALSA]], [[http://www.gstreamer.net/|GStreamer]] or other libraries or platform-specific interfaces.
- * Some stuff can be done through X: [[http://www.x.org/wiki/Projects/XRandR|XRandR]] provides control over LCD backlights, for example, and input devices through [[http://www.x.org/wiki/XI2|XI2]] (which uses udev itself).
- * On Linux, other hardware enumeration should be done directly through [[http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html|udev]], generally via [[http://www.kernel.org/pub/linux/utils/kernel/hotplug/libudev/|libudev]].  Work is under way to provide most of the "extra" information that HAL provided ''(except quirks?)'' via udev rules; [[Software/media-player-info|media-player-info]] does this, and [[http://upower.freedesktop.org|UPower]] provides battery recall information via udev, for example.
- * On other platforms, native hardware enumeration systems should be used.
+ * Network:
+   * [[http://projects.gnome.org/NetworkManager|NetworkManager]], [[http://wicd.sourceforge.net/|Wicd]], etc. for network information and control.
+   * [[https://launchpad.net/ntrack|NTrack]] should be sufficient for most applications' needs.
+   * There have been [[http://lists.freedesktop.org/archives/devkit-devel/2010-August/000889.html|suggestions]] for developing a D-Bus service for dealing with [[http://www.mjmwired.net/kernel/Documentation/rfkill.txt|RFKill]].
+ * Audio: hardware enumeration should generally be done through the same interface that is used to interact with audio devices, whether that is [[http://freedesktop.org/wiki/PulseAudio|PulseAudio]], [[http://www.alsa-project.org/|ALSA]], [[http://www.gstreamer.net/|GStreamer]] or other libraries or platform-specific interfaces.
+ * Input: use [[http://www.x.org/wiki/XI2|XI2]] (which uses udev itself).
+ * Display: use X: [[http://www.x.org/wiki/Projects/XRandR|XRandR]] provides control over LCD backlights, for example.
+ * Processors: (??? - HAL used to parse /proc/cpuinfo on Linux and use sysctl on FreeBSD, seems to be no replacement other than doing own parsing)
+ * Other:
+   * On Linux, other hardware enumeration should be done directly through [[http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html|udev]], generally via [[http://www.kernel.org/pub/linux/utils/kernel/hotplug/libudev/|libudev]].  Work is under way to provide most of the "extra" information that HAL provided ''(except quirks?)'' via udev rules; [[Software/media-player-info|media-player-info]] does this, and [[http://upower.freedesktop.org|UPower]] provides battery recall information via udev, for example.
+   * On other platforms, native hardware enumeration systems should be used.
  * Qt/KDE applications can make use of the [[http://solid.kde.org/|Solid]] library, which aims to provide a unified API for hardware enumeration across platforms and backends (Solid is Qt-only, but is distributed as part of kdelibs).
 
 == Mailing List ==
