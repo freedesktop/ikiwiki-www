@@ -119,6 +119,10 @@ The problem of clipboard "volatility" is a little worse than is described above.
 
 -- Main.BartMassey - 10 Feb 2005
 
+The obvious way to standardize the X clipboard is to use standard internet MIME types, which seems to be the direction it is going. Most people agree that we need some sort of standardized clipboard manager. In order to hold data from closed applications, it will have to decide what data types to negotiate. Therefore, it makes sense for the clipboard manager specs to include management of the preferred clipboard data types.
+
+-- Main.JoeKrahn - 09 Dec 2010
+
 ------
 ------
 
@@ -128,6 +132,12 @@ Extend default X copy paste functionality to include paste over highlight withou
 
 Practical use for the atom SECONDARY. If mouse-highlight (HL) data is different from contents of atom PRIMARY, duplicate atom PRIMARY into atom SECONDARY and put content of (HL) in atom PRIMARY. Then on (HL) middle-click if (HL) is same as atom PRIMARY contents paste data from atom SECONDARY.
 
-This keeps the existing behavior, impliments additional features and is not difficult to implement. Since atom SECONDARY is mostly unused this would be a good use for it - IMO. 
+This keeps the existing behavior, implements additional features and is not difficult to implement. Since atom SECONDARY is mostly unused this would be a good use for it - IMO. 
 
 -- FriscoRose - 10 Nov 2005
+
+I completely agree here. Middle-clicking into highlighted text only makes sense if it can automatically paste the previously highlighted text. However, it seems that many developers want to move away from the middle-click paste and just use the MS-Win/Mac-OSX approach of requiring keyboard input to copy/paste.
+
+IMHO, it makes sense to continue supporting middle-click pasting for those who find it useful, but it may also be useful to update the cut/paste standards such that those who don't want it can disable it. Perhaps there could be a formal Paste event, or just a WM-protocol hint that tells applications which mouse button represents a paste.
+
+-- Main.JoeKrahn - 09 Dec 2010
