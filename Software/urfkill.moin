@@ -1,0 +1,54 @@
+= urfkill =
+
+The urfkill project provides:
+ * a rfkill daemon that implements well-defined D-Bus interfaces that can be usedfor dealing with RFKill.
+
+The actions that a user can perform using urfkill are restricted using [[Software/PolicyKit|PolicyKit]].
+
+There have some situation need access rfkill interface from userland applications, e.g. Function Key support, sometimes [[Software/hal|HAL]] taked the middleware job to provide D-Bus interfaces, but HAL is now [[http://lists.freedesktop.org/archives/hal/2008-May/011560.html|deprecated]], so the information is being provided as a separate package.
+
+== Download ==
+
+The latest release can be downloaded from the TO BE SETUP.
+
+Development happens in [[GettingInvolved|git]].  There is a [[https://github.com/lcp/urfkill/|web interface]] to the repository.
+
+== Documentation ==
+
+Unavailable, TO BE WRITE
+
+=== Features ===
+
+Urfkill have the following features:
+ * Broadcast rfkill state changed event to DBus for registered userland applications.
+ * Provide DBus interface for userland applications to block/unblock rfkill.
+ * Use PolicyKit for system-wide privileges.
+ * Send RFKILL_IOCTL_NOINPUT by ioctl to disable rfkill-input function:
+
+=== D-Bus methods ===
+
+Gary Lin:
+
+It currently provides a few D-Bus method:
+ * Block/Unblock: The methods to block or unblock a specific type of killswitches.
+ * GetAll: It returns the list of killswitches
+ * GetKillswitch: It returns the information of a killswitch.
+
+There are also some signals which are useful to monitor the status of killswitches:
+ * RfkillAdded()
+ * RfkillChanged()
+ * RfkillRemoved()
+
+I also implemented a glib binding to make it easier to use.
+
+== Bugs ==
+
+Currently, you can direct mail to Gary Lin (glin@novell.com) or Joey Lee (jlee@novell.com).
+
+== TODO ==
+
+ * Replace rfkill-input module in kernel, provide user to setup rfkill control rules when grab WLAN/BT/3G keycode.
+ * Integrate with GUI to provide power consumption function to user.
+
+----
+CategoryHalReplacement
