@@ -23,7 +23,9 @@ Urfkill have the following features:
  * Broadcast rfkill state changed event to DBus for registered userland applications.
  * Provide DBus interface for userland applications to block/unblock rfkill.
  * Use PolicyKit for system-wide privileges.
- * Send RFKILL_IOCTL_NOINPUT by ioctl to disable rfkill-input function:
+ * Send RFKILL_IOCTL_NOINPUT by ioctl to disable rfkill-input function. Please also reference rfkill interface patch in kernel: [[http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c64fb01627e24725d1f9d535e4426475a4415753|rfkill: create useful userspace interface]]. Sometimes, you will want to disable rfkill-input function in kernel because:
+   * The rfkill-input conflict with BIOS/EC default action for wlan/bluetooth/wwan.
+   * You want to implement a userland solution to control rfkill state when user press wlan/bluetooth/wwan Fn+F? hotkey, and you need disable the rfkill-input function but don't want re-build kernel.
 
 === D-Bus methods ===
 
