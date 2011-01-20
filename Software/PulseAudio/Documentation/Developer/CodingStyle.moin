@@ -3,7 +3,7 @@
 
 = Coding Style =
 
-Please follow the following rough rules when submitting code for inclusion in PA or commiting code into GIT. Although this list might appear massive I am still quite liberal in accepting patches that do not follow these rules. OTOH I am not your reindenting monkey, so please follow them, especially if your submissions are non-trivial!
+Please follow the following rough rules when submitting code for inclusion in PA or committing code into GIT. Although this list might appear massive I am still quite liberal in accepting patches that do not follow these rules. OTOH I am not your reindenting monkey, so please follow them, especially if your submissions are non-trivial!
 
  1. No tabs please! Please indent exclusively with spaces.
  1. Indentation is 4 characters. (We might increase this to 8 characters eventually. But this is not going to happen any time soon, because it would break almost every patch.)
@@ -28,7 +28,18 @@ void bad_function(void)
     }
 }
 }}}
- 1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code. Please add a seperate `pa_assert()` for each argument. Do not use a single check for all parameters using `&&`. This would make debugging more difficult. Good code:
+ 1. Avoid unnecessary curly braces. Good code:
+{{{
+if (!braces_needed)
+    printf("This is compact and neat.\n");
+}}}
+ Bad code:
+{{{
+if (!braces_needed) {
+    printf("This is superfluous and noisy.\n");
+}
+}}}
+ 1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code. Please add a separate `pa_assert()` for each argument. Do not use a single check for all parameters using `&&`. This would make debugging more difficult. Good code:
 {{{
 void good_code(int a, int b) {
     pa_assert(a > 47);
@@ -67,8 +78,8 @@ typedef enum pa_resample_method {
 // This is a bad comment
 }}}
  Yes, the newest C iterations allow those comments. But they are ugly.
- 1. Comments are good. Excessive comments are bad. i.e. comment complicated code, don't comment trivial code. For hackers it's usually easier to understand well written code  than prosa. Use doxygen only for exported APIs, not for internal code.
- 1. Don't put the return type of a function on a seperate line. This is good:
+ 1. Comments are good. Excessive comments are bad. i.e. comment complicated code, don't comment trivial code. For hackers it's usually easier to understand well written code than prose. Use doxygen only for exported APIs, not for internal code.
+ 1. Don't put the return type of a function on a separate line. This is good:
 {{{
 int good_function(void) {
 }
@@ -87,7 +98,7 @@ double sin(double x);
 {{{
 double sin (double x);
 }}}
- 1. Please submit code only under LGPL2+, BSD/MIT or GPL2+. Please don't make GPL code a hard dependency. Since PA is pluggable this would make it it imposible to load less-free-than-GPL code into the PA daemon.
+ 1. Please submit code only under LGPL2+, BSD/MIT or GPL2+. Please don't make GPL code a hard dependency. Since PA is pluggable this would make it it impossible to load less-free-than-GPL code into the PA daemon.
  1. Code is about aesthetics. So please, format you code cleanly.
  1. Please do ''not'' wrap your lines at 80 characters. Given that most screens are now considerably wider than they used to be please make use of it. Wrap them at 128 characters.
  1. Every .c file should have a matching .h file (exceptions allowed)
