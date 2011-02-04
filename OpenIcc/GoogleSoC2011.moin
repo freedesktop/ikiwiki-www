@@ -6,6 +6,8 @@ OpenICC is a group of people dedicated to organise how applications, libraries, 
 
 Oyranos is a example implementation of mentioned conventions to cover ICC profile handling and colour conversions. The newBSD licensed code base is plain C. Its core requires very few dependencies, namely libxml2. Device support and colour conversions involve according APIs. Goal is to use existing standard technology like XML, XFORMS and GLSL. Oyranos features a (almost) data independent framework to plug-in data manipulators, for colour conversions, tonemapping, image I/O and other operators into a data processing graph.
 
+GNOME Color Manager is another CMS framework, similar to oyranos. The heavy use of GTK, GLib and DBus means that GCM can integrate deeplying into the GNOME desktop. GCM provides a user-accessable interface to the low level colord system daemon, and also provides a application-accessable DBusi interface for user preferences and session policy. GNOME Color Manager is included by default on the GNOME desktop and is already installed on several millions of computers worldwide.
+
 = About the Group =
 OpenIcc consist of the participants of the OpenICC email list. It was started by Scribus members to better support introduction of colour management into applications and discuss general issues. List contributors are application and CMS developers as well as colour management specialists and users, no matter whether commercial, open source and both. The main focus of this group is to expand the level of support for color management on open source software systems.
 
@@ -151,6 +153,120 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
 === Optional ===
  * port the compiz plugin to v0.9 from C to C++
  * add grid and image based correction textures
+
+
+
+
+== Native display profiling ==
+
+ . GNOME Color Manager provides a easy to use front-end to the colord management layer. As such it is responsible for creating and applying ICC profiles in the running user session. GNOME Color Manager is part of GNOME, and such is shipped by default in several large distros and is already installed on millions of computers all over the world. At the moment GCM is using argyllcms to control the colorimeter devices and again using argyllcms to create the display profile from the gathered results.
+
+ . Users want a quicker and more streamlined profiling experience, with things like ambient light adjustment and a profile that takes 30 seconds to generate, not 5 minutes. Users don't want to be dealing with constant popups and odd questioms just to profile the screen.
+
+ . By using the GCM native colorimeter drivers (only pantone huey supported at the moment) we can provide a GNOME-specific integrated experience that can create good profiles in tens of seconds. In doing so, we can also remove the various VTE windows, pop-up dialogs and the twisted and complicated argyll spawned interface code. This also means we can ship a calibration solution in enterprise-class distros without legal worries.
+
+=== Expectations ===
+
+ * Use the existing native driver to create some native data interchange format (IT8?). Use the native data format to create a simple ICC profile containing elements such as VCGT to change the display temperature. There is some proof of concept code based on lprof in existance, but nothing that's even comparable in quality to the argyll generated profiles.
+ * The code should be tested and merged to git master before the project is complete.
+
+=== Skills ===
+
+ * C coding, hopefully with GTK and GLib knowledge.
+ * Good solid mathematic grounding.
+ * Knowledge of the internal structure of ICC profiles, and in particular understanding of elements like AtoB tables and VCGT data.
+ * Access to IRC and being able to speak good English.
+
+=== Contact ===
+
+ * Mentor: Richard Hughes
+
+=== Optional ===
+
+ * Improve the design and workflow of the calibration process for other devices, such as printers, scanners and cameras.
+ * Device driver work on other colorimeters.
+
+
+
+
+
+== GNOME desktop color management integration ==
+
+ . At the moment, typical applications ignore color settings completely. Some provide a preferences dialog allowing the user to enter the path to the screen ICC profile, or by showing the user a file selector and asking them to choose an icc file from the filesystem. Typically, the application will also default to color management being turned off.
+
+ . By adding code to these applications we can either use the high level DBus interfaces provided by GNOME Color Manager, or use the X atom called _ICC_PROFILE if the application does not use (or is unwilling to use) DBus.
+
+ . In the same way, we should patch applications such as the GIMP to get the default colorspace information from gnome-color-manager (for instance, if I do File->New in GIMP, do i get a sRGB or an AdobeRGB embedded profile).
+
+ . Applications like GIMP and Inkscape need to be patched to get this kinda of data from the session preferences, rather than asking the user to do it manually.
+
+=== Expectations ===
+
+ * At least GIMP, darktable and inkscape should be ported to using the dbus interface by default, although obviously with compile-time and run-time fallbacks.
+ * Patches for up to 2 other applications to be decided at a later time.
+
+=== Skills ===
+
+ * C coding, hopefully with GTK, GLib and DBus knowledge.
+ * Access to IRC and being able to speak good English.
+ * Experience filing bugs with patches for upstream projects
+
+=== Contact ===
+
+ * Mentor: Richard Hughes
+
+=== Optional ===
+
+ * Improve the DBus interface of GCM, and perhaps help on a standardised interface to share between session CMS solutions.
+
+
+
+
+
+== A Color Managed Mutter ==
+
+ . Mutter is the new window manager for GNOME3. Mutter is a fully composting manager, which means it has access to the GPU 3D engine. This allows us to do full screen color managed correction using a hardware GLSL shader to do the correction in near-real time for selected widgets.
+ . I have already written proof of concept code adding this functionality into mutter, but it requires bug fixing, interfacing with the DBUS interface of GNOME Color Manager and also with the lower parts of the stack like GTK.
+
+=== Expectations ===
+
+ * A patch suitable for upstream for mutter than can color manage displays similar to compiz colour correction plugin designed by Kai-Uwe Behrmann, but letting applications opt-in, rather than declare regions to be opted out.
+
+=== Skills ===
+
+ * C coding, hopefully with GL, GTK, GLib and DBus knowledge.
+ * Access to IRC and being able to speak good English.
+ * Experience filing bugs with patches for upstream projects.
+
+=== Contact ===
+
+ * Mentor: Richard Hughes
+
+=== Optional ===
+
+ * Integration with GTK, to be able to turn on color management for specific widgets in a window. This would require some kind of marshalling between GTK and mutter, possibly using the net-color-spec.
+
+
+
+
+
+== Better gamut graphs ==
+
+ . At the moment, GCM shows a CIE1931 graph for each profile in the profile viewer. This was state of the art in 1931, but not it's universally agreed it's not a good way to show a 3D hull to the user in this decade.
+ . Ideally, GCM should have a widget much like the OSX gamut widget (or a super-simple version of iccexamin) that can be rotated and shown to the user in place of the CIE1931 graph.
+
+=== Skills ===
+
+ * C coding, hopefully with GL, GTK and GLib knowledge.
+ * Access to IRC and being able to speak good English.
+
+=== Contact ===
+
+ * Mentor: Richard Hughes
+
+=== Optional ===
+
+ * Showing the gamut differences of two profiles on the same graph.
 
 
 
