@@ -1,0 +1,105 @@
+'''This is an RFC and does not necessarily represent the final implementation'''
+----
+
+= Goal =
+
+Get all the passthrough support to the point where things work automagically
+or with minimal user input, for AC3/DTS over S/PDIF or MP3 over Bluetooth. This
+develops on Pierre-Louis Bossart's patches on the mailing list and subsequent
+discussion between Pierre and Tanu Kaskinen.
+
+
+= Broad idea =
+
+When a client wishes to play a compressed format without decoding, it will
+(before connecting a stream) perform a query using basic stream data to
+determine what sink would be used and what formats it supports. It iterates
+over these formats, picks the one of the source data if available, and then
+connects as usual with the specified format.
+
+If the user switches to a different sink, one of 3 scenarios can occur:
+
+ a. Switch from raw to compressed format: e.g. a switch to BT headset
+ b. Switch from compressed to raw format e.g. switch back to sound card
+ c. Stay on raw format
+
+Switching from one compressed format to another (e.g. MP3 -> AC3) does not
+make sense, so need not be supported. It is assumed that all sinks support
+playing some raw format (and that PA will convert as appropriate).
+
+When switching to a new format, the client must close its current stream and
+open a fresh stream in order to set things up for the new format.
+
+
+= API changes =
+
+== Formats ==
+
+For each supported format, we add a new define. For now, we do not worry about
+VBR streams since all the use cases we're working with are IEC61937
+formatted and have a fixed bytes-to-us conversion. The formats we add for
+now are:
+
+{{{
+PA_SAMPLE_AC3_IEC61937
+PA_SAMPLE_DTS_IEC61937
+PA_SAMPLE_MPEG1_L3_IEC61937
+PA_SAMPLE_MPEG2_L3_IEC61937
+}}}
+
+This isn't exhaustive, and more formats can be added as they are actually
+tested. If we want to support more codec parameters for negotiating whether
+the sink can really handle the format we have, we might need to extend
+pa_sample_spec to include parameters we care about. This might make more sense
+to do in proplist form for extensibility (for MP3 we might only care about
+bitrate, but for AAC we might care about profile/level). We can deal with this
+problem if/when we get to it, though.
+
+
+== Query API ==
+
+{{{
+/* Routing can be influenced by anything we pass to pa_stream_new() or
+ * pa_stream_connect_playback().
+ *
+ * A device index is returned and can be used to query sink information using
+ * pa_context_get_sink_info_by_index() */
+int pa_context_get_actual_sink (pa_context       *context,
+				const char 	 *dev,
+		 		pa_sample_spec   *spec,
+				pa_channel_map   *map,
+                                pa_buffer_attr   *attr,
+				pa_stream_flags_t flags,
+				pa_proplist      *props);
+}}}
+{{{
+/* Add a new field - array of pa_format_info */
+typedef struct pa_sink_info {
+    ...
+    pa_format_info **formats;
+} pa_sink_info;
+}}}
+{{{
+typedef struct pa_format_info {
+    pa_sample_spec *spec;
+    pa_proplist    *plist;
+    /* `-- allow attaching arbitrary info, such as a priority, bitrate, ... */
+} pa_format_info; 
+}}}
+{{{
+/* This is implicit in the format, but still convenient to have, and
+ * effectively deprecates the PA_SINK_INPUT_PASSTHROUGH flag */
+const pa_bool_t pa_sample_format_is_passthrough(pa_sample_format_t *format);
+}}}
+
+== Others ==
+
+We need to make a volume/mute disabled notification for sinks and sink inputs
+when they are operating in passthrough mode. Probably also best to disable the
+monitor, but an override might be useful for debugging purposes.
+
+For S/PDIF (and HDMI?) we should add a way for users to check off the formats
+supported by their hardware in the UI (and probably attach this to the sink as
+a property). The sink query can then use this to determine the list of
+supported formats. For Bluetooth sinks, we can get this data from A2DP
+capabilities, so no user intervention is required.
