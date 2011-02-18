@@ -91,6 +91,18 @@ pa_stream* pa_stream_new_with_proplist_extended(pa_context     *context,
 	                                        pa_channel_map *map,
 	                                        pa_proplist    *plist);
 }}}
+
+When making the connection, routing is performed and the selected format is returned as an out parameter.
+
+{{{
+int pa_stream_connect_playback_extended(pa_stream            *s,
+				        const char           *dev,
+				        const pa_buffer_attr *attr,
+				        pa_stream_flags_t     flags,
+				        const pa_cvolume     *volume,
+				        pa_stream            *sync_stream,
+				        const pa_format_info *final_format);
+}
 {{{
 /* This is implicit in the format, but still convenient to have, and
  * effectively deprecates the PA_SINK_INPUT_PASSTHROUGH flag */
