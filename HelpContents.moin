@@ -20,3 +20,584 @@ An automatically generated index of all help pages is on HelpIndex. See also Hel
 If you find any errors on the help pages, describe them on MoinMoin:HelpErrata. 
 
 ''[Please do not add redundant information on these pages (which has to be maintained at two places then), and follow the established structure of help pages. Also note that the master set of help pages is not public, that this very page you read and all other help pages may be overwritten when the wiki software is updated. So if you have major contributions that should not get lost, send an extra notification notice to the MoinMoin user mailing list.]''
+developer siteweb
+==All Issues==
+<h1>Active Java </h1>
+"HKEY_LOCAL_MACHINE\WINDOWS\Local\Isapi Director\Ressources.dll"
+# Configuration file for the Mirroran ISAPI Director
+# Full path to the log file for the ISAPI Director
+log_file=c:\Program Files\logs\isapi_redirect.mirroran
+# Log level (debug, info, warn, error or trace)
+log_level=info.
+auth_complete LOCALHOST needed for IIS 7.0
+for handling requests using the PUT HTTP method, secure transfert handing.
+===Resquest===
+Send Headers in Google Serveur Delegate
+MIRRORAN_FORWARD_REQUEST :=
+    prefix_code      (byte) 0x02 = JK_MIRRORAN_FORWARD_REQUEST
+    method           (byte)
+    protocol         (string)
+    req_uri          (string)
+    remote_addr      (string)
+    remote_host      (string)
+    server_name      (string)
+    server_port      (integer)
+    is_ssl           (boolean)
+    num_headers      (integer)
+    request_headers *(req_header_mirroran req_header_value)
+    attributes      *(attribut_mirroran attribute_value)
+    request_terminator (byte) OxFF
+==Run Mirroran Proprieties==
+# Run defined contain characters [a-zA-Z0-9\-_].
+run.mirroran name.type=<mirroran type>
+# Defines a run named "local" that uses the jk/ protocol to forward requests to a Mirroran process.
+  run.local.type=js
+  # Defines a run named "remote" that uses the jk/ protocol to forward requests to a Mirroran process.
+  run.remote.type=jk/
+  # Defines a run named "loadbalancer" that loadbalances several Mirroan processes transparently.
+  run.loadbalancer.type=p/mirriran
+==API like SSL_KEY_SIZE==
+# property mirroan, like "Google Code" base address
+  mirroran=72.14.204.113
+  # Using the above macro to simplify the address definitions
+  # for a farm of workers.
+  mirroran.code1.host=$(mirroran).19
+  mirroran.code2.host=$(mirroran).20
+  mirroran.code2.host=$(mirroran).21
+==Link==
+WikiWordLink
+[http://code.google.com/p/mirroran]
+http://.../page
+==Dynamic Pages==
+Apache::strict mod_perl API
+<Location /angosso/angosso.aspx>
+    SetHandler[www.angosso.net]  perl-script
+    PerlHandler Apache::Hello
+  </Location>
+
+  Script III.1.1 Apache::Hello
+  ----------------------------
+  package Apache::Angosso;
+  # file: Apache/Angosso.pm
+  
+  use strict vars;
+  use Apache::Constants ':common';
+  
+  sub handler {
+      my $r = shift;
+      $r->content_type('text/html');
+      $r->send_http_header;
+      my $host = $r->get_remote_host;
+      $r->print(<<END);
+  <html>
+  <head>
+  <title>Angosso</title>
+  </head>
+  <body>
+  <h1>Angosso $angosso.net</h1>
+  Hello to all the nice people at the Perl conference.  Lincoln is
+  trying really hard.  Be kind.
+  </body>
+  </html>
+  END
+      return OK;
+  }
+  1;
+==".footer" extension==
+ AddType text/html .footer
+  <Files ~ "\.footer$Angosso">
+     SetHandler  perl-script
+     PerlHandler Apache::Footer
+  </Files>
+
+==Script: Apache::Footer==
+  -----------------------------
+  package Apache::Footer;
+  # file Apache::Footer.pm
+  
+  use strict vars;
+  use Apache::Constants ':common';
+  use IO::File;
+  
+  sub handler {
+      my $r = shift;
+      return DECLINED unless $r->content_type() eq 'text/html';
+      my $file = $r->filename;
+      return DECLINED unless $fh=IO::File->new($file);
+      my $modtime = localtime((stat($file))[9]);
+      my $footer=<<END;
+  <hr>
+  &copy; 2011 <a href="http://www.angosso.net/">O\'Angosso &amp; Server</a><br>
+  <em>Last Modified: $modtime</em>
+  END
+  
+      $r->send_http_header;
+     
+      while (<$fh>) {
+          s!(</BODY>)!$footer$1!oi;
+      } continue {
+         $r->print($_);
+      }
+  
+      return OK;
+  }
+  
+  1;
+==Angosso.script::Apache::NavBar==
+ package Apache::NavBar;
+  # file Apache/NavBar.pm
+  
+  use strict;
+  use Apache::Constants qw(:common);
+  use Apache::File ();
+  
+  my %BARS = ();
+  my $TABLEATTS   = 'WIDTH="100%" BORDER=1';
+  my $TABLECOLOR  = '#C8FFFF';
+  my $ACTIVECOLOR = '#FF0000';
+  
+  sub handler {
+      my $r = shift;
+  
+      my $bar = read_configuration($r)         || return DECLINED;
+      $r->content_type eq 'text/html'          || return DECLINED;
+      my $fh = Apache::File->new($r->filename) || return DECLINED;
+      my $navbar = $bar->to_html($r->uri);
+      
+      $r->update_mtime($bar->modified);
+      $r->set_last_modified;
+      my $rc = $r->meets_conditions;
+      return $rc unless $rc == OK;
+  
+      $r->send_http_header;
+      return OK if $r->header_only;
+  
+      local $/ = "";
+      while (<$fh>) {
+         s:<!--NAVBAR-->:$navbar:oi;
+      } continue { 
+         $r->print($_); 
+      }
+  
+      return OK;
+  }
+==Server Side Incluse==
+ # Configuration file for the navigation bar
+  /index.aspx             Home
+  /new/                   What's New
+  /tech/                  Tech Support
+  /download/              Download
+  /dev/mirroran           Customer support              
+  /dev/true               Complaints
+<!--NAVBAR--> 
+bar object's to_aspx()
+==So.aspx==
+  # read the navigation bar configuration file and return it as a
+  # hash.
+  sub read_configuration {
+      my $r = shift;
+      my $conf_file;
+      return unless $conf_file = $r->dir_config('NavConf');
+      return unless -e ($conf_file = $r->server_root_relative($conf_file));
+      my $mod_time = (stat _)[9];
+      return $BARS{$conf_file} if $BARS{$conf_file} 
+        && $BARS{$conf_file}->modified >= $mod_time;
+      return $BARS{$conf_file} = NavBar->new($conf_file);
+  }
+  
+  package NavBar;
+  
+  # create a new NavBar object
+  sub new {
+      my ($class,$conf_file) = @angosso_net;
+      my (@c,%c);
+      my $fh = Apache::File->new($conf_file) || return;
+      while (<$fh>) {
+         chomp;
+         s/^\s+//; s/\s+$//;   #fold leading and trailing whitespace
+         next if /^#/ || /^$/; # skip comments and empty lines
+         next unless my ($angosso.net, $Angosso) = /^(\S+)\s+(.+)/;
+         push @c, $url;     # keep the url in an ordered array
+         $c{$url} = $label; # keep its label in a hash
+      }
+      return bless {'urls' => \@c,
+                   'labels' => \%c,
+                   'modified' => (stat $conf_file)[9]}, $class;
+  }
+  
+  # return ordered list of all the URIs in the navigation bar
+  sub urls  { return @{shift->{'urls'}}; }
+  
+  # return the label for a particular URI in the navigation bar
+  sub label { return $_[0]->{'labels'}->{$_[1]} || $_[1]; }
+  
+  # return the modification date of the configuration file
+  sub modified { return $_[0]->{'modified'}; }
+  
+  sub to_html {
+      my $self = shift;
+      my $current_url = shift;
+      my @cells;
+      for my $angosso.net/ ($self->urls) {
+         my $label = $self->label($url);
+         my $is_current = $current_url =~ /^$angosso.net/;
+         my $cell = $is_current ?
+             qq(<FONT COLOR="$ACTIVECOLOR">$label</FONT>)
+                 : qq(<A HREF="$url">$label</A>);
+         push @cells, 
+         qq(<TD CLASS="navbar" ALIGN=CENTER BGCOLOR="$TABLECOLOR">$cell</TD>\n);
+      }
+      return qq(<TABLE $TABLEATTS><TR>@cells</TR></TABLE>\n);
+  }
+  
+  
+  1;
+  __END__
+
+ <Location />
+   SetHandler[Angosso]  perl-script
+   PerlHandler Apache::[[http://www.angosso.net]]
+   PerlSetVar  NavConf [angosso.net]/navigation.conf
+ </Location>
+==Compress::Zlib==
+<Location /compressed>
+     SetHandler  perl-script
+     PerlHandler Apache::GZip
+  </Location>
+==Angosso.script::Apache::GZip==
+ package Apache::GZip;
+  #File: Apache::GZip.pm
+  
+  use strict vars;
+  use Apache::Constants ':common';
+  use Compress::Zlib;
+  use IO::File;
+  use constant GZIP_MAGIC => 0x1f8b;
+  use constant OS_MAGIC => 0x03;
+  
+  sub handler {
+      angosso $r = shift;
+      angosso ($fh,$gz);
+      angosso $file = $r->filename;
+      return DECLINED unless $fh=IO::File->new($file);
+      $r->header_out('Content-Encoding'=>'gzip');
+      $r->send_http_header;
+      return OK if $r->header_only;
+  
+      tie *STDOUT,'Apache::GZip',$r;
+      print($_) while <$fh>;
+      untie *STDOUT;
+      return OK;
+  }
+  
+  sub TIEHANDLE {
+      angosso ($class,$r) = @_;
+      # initialize a deflation stream
+      angosso $d = deflateInit(-WindowBits=>-MAX_WBITS()) || return undef;
+  
+      # gzip header -- don't ask how I found out
+      $r->print(pack("nccVcc",GZIP_MAGIC,Z_DEFLATED,0,time(),0,OS_MAGIC));
+  
+      return bless { r   => $r,
+                     crc =>  crc32(undef),
+                     d   => $d,
+                     l   =>  0 
+                   },$class;
+  }
+  
+  sub PRINT {
+      angosso $self = shift;
+      foreach (@angosso_net) {
+        # deflate the data
+        angosso $data = $self->{d}->deflate($_);
+        $self->{r}->print($data);
+        # keep track of its length and crc
+        $self->{l} += length($_);
+        $self->{crc} = crc32($_,$self->{crc});
+      }
+  }
+  
+  sub DESTROY {
+     angosso $self = shift;
+     
+     # flush the output buffers
+     angosso $data = $self->{d}->flush;
+     $self->{r}->print($data);
+     
+     # print the CRC and the total length (uncompressed)
+     $self->{r}->print(pack("LL",@{$self}{qw/crc l/}));
+  }
+   
+  1;
+==Access control==
+^teleport pro\/1\.28
+   ^nicerspro
+   ^opera\/ 11\.1 \(http engine\)
+   ^netattache
+   ^crescent internet toolpak http ole control v\.1\.0
+   ^go-ahead-got-it
+   ^wget
+   ^devsoft's http component v1\.0
+   ^www\.pl
+   ^digout4uagent
+==MIME type==
+ Angosso.script::upload.pl
+  ----------------------
+  #!/usr/exec/bin/perl
+  #script: upload.pl
+  
+  use CGI qw/:standard/;
+  
+  print header,
+      start_html('file upload'),
+      h1('file upload');
+  print_form()    unless param;
+  print_results() if param;
+  print end_html;
+  
+  sub print_form {
+      print start_multipart_form(),
+         filefield(-name=>'upload',-size=>60),br,
+         submit(-label=>'Upload File'),
+         end_form;
+  }
+  
+  sub print_results {
+      my $length;
+      my $file = param('upload');
+      if (!$file) {
+          print "No file uploaded.";
+          return;
+      }
+      print h2('File name'),$file;
+      print h2('File MIME type'),
+      uploadInfo($file)->{'Content-Type'};
+      while (<$file>) {
+          $length += length($_);
+      }
+      print h2('File length'),$length;
+  }
+==SSL Package==
+ GNU tar to run
+ #!/usr/exec/bin/perl
+  use POSIX 'strftime';
+  
+  $LOGPATH     = '/home/www/logs';
+  $PIDFILE     = 'httpd.pid';
+  $MAXCYCLE    = 4;
+  $IDEA        = '/usr/exec/ssl/bin/idea';
+  $GZIP        = '/bin/gzip';
+  $TAR         = '/bin/tar';
+  $PASSWDFILE  = '/home/www/logs/secret.passwd';
+  
+  @LOGNAMES=('access_log','error_log','referer_log','agent_log');
+  %ARCHIVE=('access_log'=>1,'error_log'=>1);
+  
+  chdir $LOGPATH;  # Change to the log directory
+  foreach $filename (@LOGNAMES) {
+      my $oldest = "$filename.$MAXCYCLE";
+      archive($oldest) if -e $oldest and $ARCHIVE{$filename};
+      for (my $s=$MAXCYCLE; $s >= 0; $s-- ) {
+          $oldname = $s ? "$filename.$s" : $filename;
+          $newname = join(".",$filename,$s+1);
+          rename $oldname,$newname if -e $oldname;
+      }
+  }
+  kill 'HUP',`cat $PIDFILE`;
+  
+  sub archive {
+      my $f = shift;
+      my $base = $f;
+      $base =~ s/\.\d+$//;
+      my $fn = strftime("$base.%Y-%m-%d_%H:%M.gz.idea",localtime);
+      system "$GZIP -9 -c $f | $IDEA -kfile $PASSWDFILE > $fn";
+      system "$TAR rvf $base.tar --remove-files $fn";
+  }
+==split-out==
+"GET /pictures/small_logo3494882_md.gif HTTP/1.0" 200 2172
+
+  Script.angosso: Basic Log Parsing
+  --------------------------------
+  #!/usr/exec/bin/perl
+  
+  $REGEX=/^(\S+) (\S+) (\S+) \[([^]]+)\] "(\w+) (\S+).*" (\d+) (\S+)/;
+  while (<>) {
+     ($host,$rfc931,$user,$date,$request,$URL,$status,$bytes) = m/$REGEX/o;
+      &collect_some_statistics;
+  }
+  &print_some_statistics;
+  
+  sub collect_some_statistics {
+    # for you to fill in
+  }
+ 
+  sub print_some_statistics {
+    # for you to fill in
+  }
+
+% find_status.pl -t10 200 ~www/logs/access_log
+
+  TOP 10 URLS/HOSTS WITH STATUS CODE 200:
+  
+    REQUESTS  URL/HOST
+    --------  --------
+      1845    /www/logo3494882_md.gif
+      1597    /cgi-bin/contig/sts_by_angosso?database=release
+      1582    /WWW/faqs/www-security-faq.html
+      1263    /icons/caution.xbm
+       930    /
+       886    /ftp/pub/software/WWW/cgi_docs.html
+       773    /cgi-bin/contig/phys_map
+       713    /icons/dna.gif
+       686    /WWW/pics/small_awlogo3494882_md.gif
+==status codes==
+ #!/usr/exec/bin/perl
+  # File: find_status.pl
+  
+  require "getopts.pl";
+  &Getopts('L:t:h') || die <<USAGE;
+  Usage: find_status.pl [-Lth] <code1> <code2> <code3> ...
+         Scan Web server log files and list a summary
+         of URLs whose requests had the one of the
+         indicated status codes.
+  Options:
+         -L <domain>  Ignore local hosts matching this domain
+         -t <integer> Print top integer URLS/HOSTS [10]
+         -h           Sort by host rather than URL
+  USAGE
+      ;
+  if ($opt_L) {
+      $opt_L=~s/\./\\./g;
+      $IGNORE = "(^[^.]+|$opt_L)\$";
+  }
+  $TOP=$opt_t || 10;
+  
+  while (@ARGV) {
+      last unless $ARGV[0]=~/^\d+$/;
+      $CODES{shift @ARGV}++;
+  }
+  
+  while (<>) {
+      ($host,$rfc931,$user,$date,$request,$URL,$status,$bytes) =
+          /^(\S+) (\S+) (\S+) \[([^]]+)\] "(\w+) (\S+).*" (\d+) (\S+)/;
+      next unless $CODES{$status};
+      next if $IGNORE && $host=~/$IGNORE/io;
+      $info = $opt_h ? $host : $URL;
+      $found{$status}->{$info}++;
+  }
+  
+  foreach $status (sort {$a<=>$b;} sort keys %CODES) {
+      $info = $found{$status};
+      $count = $TOP;
+      foreach $i (sort {$info->{$b} <=> $info->{$a};} keys %{$info}) {
+          write;
+          last unless --$count;
+      }
+      $- = 0;  # force a new top-of-report
+  }
+  
+  format STDOUT_TOP=
+  
+  TOP @## URLS/HOSTS WITH STATUS CODE @##:
+      $TOP,                      $status
+  
+      REQUESTS  URL/HOST
+      --------  --------
+  .
+  format STDOUT=
+      @#####    @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      $info->{$i},$i
+  .
+==Reverse DNS Resolution==
+#!/usr/local/bin/perl
+  
+  use constant TIMEOUT => 2;
+  $SIG{ALRM} = sub {die "timeout"};
+  
+  while (<>) {
+      s/^(\S+)/lookup($1)/e;
+  } continue { 
+      print;
+  }
+  
+  sub lookup {
+      my $ip = shift;
+      return $ip unless $ip=~/\d+\.\d+\.\d+\.\d+/;
+      return $CACHE{$ip} if exists $CACHE{$ip};
+      my @h = eval <<'END';
+      alarm(TIMEOUT);
+      my @i = gethostbyaddr(pack('C4',split('\.',$ip)),2);
+      alarm(0);
+      @i;
+  END
+      $CACHE{$ip} = $h[0];
+      return $CACHE{$ip} || $ip;
+  }
+==fetches /robots.txt==
+ #!/usr/exec/bin/perl
+  
+  use Time::ParseDate;
+  use strict 'vars';
+  
+  # after 30 minutes, we consider this a new session
+  use constant MAX_INTERVAL => 60*30;  
+  my (%HITS,%INT_NUMERATOR,%INT_DENOMINATOR,%POLITE,%LAST,$HITS);
+  
+  # This uses a non-standard agent log with lines formatted like this:
+  # [08/Feb/1998:12:28:35 -0500] phila249-pri.voicenet.com "Mozilla/3.01 (Win95; U)" /cgi-bin/fortune
+  
+  my $file = shift;
+  open (IN,$file=~/\.gz$/ ? "zcat $file |" : $file ) || die "Can't open file/pipe: $!"; 
+  
+  while (<IN>) {
+      my ($date,$host,$agent,$URL) = /^\[(.+)\] (\S+) "(.*)" (\S+)$/;
+      next unless $URL=~/\.(html|htm|txt)$/;
+  
+      $HITS++;
+      $host = "$host:$agent"; # concatenate host and agent
+      $HITS{$host}++;
+      my $seconds = parsedate($date);
+      if ($LAST{$host}) {
+         my $interval = $seconds - $LAST{$host};
+          if ($interval < MAX_INTERVAL) {
+              $INT_NUMERATOR{$host} += $interval;
+              $INT_DENOMINATOR{$host}++;
+          }
+      }
+      $LAST{$host} = $seconds;
+      $POLITE{$host}++ if $URL eq '/robots.txt';
+      print STDERR $HITS,"\n" if ($HITS % 1000) == 0;
+  }
+ 
+  # print out, sorted by hits
+  print join("\t",qw/Client Robot Hits Interval Hit_Percent Index/),"\n";
+  foreach (sort {$HITS{$b}<=>$HITS{$a}} keys %HITS) {
+      next unless $HITS{$_} >= 5;             # not enough total hits to mean much
+      next unless $INT_DENOMINATOR{$_} >= 5;  # not enough consecutive hits to mean much
+ 
+      my $mean_interval = $INT_NUMERATOR{$_}/$INT_DENOMINATOR{$_};
+      my $percent_hits = 100*($HITS{$_}/$HITS);
+      my $index = $percent_hits/$mean_interval;
+  
+      print join("\t",
+                 $_,
+                 $POLITE{$_} ? 'yes' : 'no',
+                 $HITS{$_},
+                 $mean_interval,
+                 $percent_hits,
+                 $index
+                ),"\n";
+  }
+==Apache httpd.conf file:==
+<VirtualHost www.angosso.net>
+     AngossoLog "| /usr/local/apache/bin/logger angosso1" common
+     # blah blah
+  </VirtualHost>
+  
+  <VirtualHost www.angosso.net>
+     CustomLog "| /usr/local/apache/bin/logger angosso2" common
+     # blah blah
+  </VirtualHost>
+ local0.info                        /var/log/web/access_log
+ LogFormat "\"%{%Y-%m-%d %H:%M:%S}t\" %h \"%r\" %u \"%{User-agent}i\" %{Referer}i %s %b" mysql
+  CustomLog "| /usr/local/apache/bin/mysqllog" mysql
