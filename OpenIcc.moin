@@ -187,11 +187,11 @@ The goal of the HdrRenderingDescription is to provide a way of, how to render an
 === PPD colouring ===
 End user applications want to assign ICC profiles to a combination of printer device, a driver and a set of colour related driver options. Thus for PPD to support this scheme, it is necessary to know, which PPD option is colour related. The proposal suggests a enumerated list of PPD key words named !ColorKeyWords, containing a semicolon ';' separated list of PPD key words. The listed keys relate to colour and thus with their values to the ICC profile selection at application level.
 
-OpenIcc/LinuxCmProposal
+
 
 = LINUX color management a proposal for implementation =
 
-This proposal describes a roadmap for color management under LINUX with the interaction of
+OpenIcc/LinuxCmProposal describes a roadmap for color management under LINUX with the interaction of
 
 - A profile repository connecting devices, documents and profiles
 - Engine for ICC color transformations of Image maps
@@ -202,85 +202,6 @@ This proposal describes a roadmap for color management under LINUX with the inte
 - CUPS / PPDs
 - File export
 - application interface
-
-
-== 1) The role of a profile repository ==
-The profile repository connects ICC profiles to input and output devices and documents. t is the central point for applications, libraries and services to get the information which profiles are valid for transforming an document for output on the monitor, on a printer with a specific printer driver setting and media or a file export. 
-Available profile repositories for windows are 
-- Oyranos
-- Gnome Color Manager
-
-== 2) Engine for ICC color transformation of Image maps ==
-A Image map is a pixel array with 8 or 16 bit colordepth per channel. Monitors are displaying RGB Image maps. Colorprinter drivers a mainly out putting CMYK Image maps, which are may converted inside the printerdriver in CMYK+X Image maps. 
-An well known engine for ICC based colortransformations of Image maps is littleCMS. If a e.g. littleCMS is combined with the profile repository, the color transformation of Image maps for output on monitor and printerdriver can be made systemwide available for applications, graphic libraries and printer drivers.
-
-== 3) Printer driver and ICC profiles ==
-If the printerdriver is should be integrated into an ICC based colormanagement workflow, an ICC profile for printing always represent a combination of printerdriver settings, inks / toner and the media. There are several advantages, if ICC-profiles for printer setups are configured inside the printerdriver and the printer driver communicates with the "ICC profile repository, which ICC-profile is valid for a printer setup.
-Furthermore, it would also be helpful, if the printerdriver has the possibility for export and import of color relevant setups with an attached ICC-profile for the setup. 
-This allows e.g. following workflows:
-- Driver vendor providing setups for different media / print-modes with attached ICC-profiles
-- Media vendor providing setups for different printers / media with attached ICC profiles
-- profiling service delivers driver setups incl. the profile
-In all this variants, the user imports the setups for the media he is using, and the correct ICC-profile is automatically configured. If the printerdriver communicates with "ICC profile repository" all applications and graphic libraries creating print data can detect (if necessary), which ICC-profile is valid for an active printer setup.
-
-Another option for connecting ICC-profiles and printer setups is the integration of all color relevant print setup data (screening parameters, per channel ink limits, per channel LUT, etc..) as metadata into the ICC-profile. If the printing data is already converted to the printer profile, the driver extracts the metadata from the ICC-profile and setups the driver automatically.
-
-== 4) Document types and ICC-Profiles for devices, objects and documents ==
-For implementing colormanagement on system level, it makes sense to differentiate between following types of documents:
-
-=== 4a) images ===
-with embedded ICC-profiles or EXIF-data referencing to standard-profile like sRGB or Adobe RGB
-
-=== 4b) flat color documents ===
-containing text, vectorgraphics and images with one valid document ICC profile for all objects
-Typical standard profiles and document types are e.g. sRGB for Office documents or FOGRA39_coated for documents prepared for commercial printing. The PDF equivalent for such document types is PDF/X-1a where (in general) all PDF objects are either DeviceRGB with outputIntent sRGB or DeviceCMYK with Output Intent e.g. FOGRA39_coated.
-Flat color document can be easily rendered to a Image map. For displaying such document on the monitor or the printout, the color transformation can be applied after rendering the document to a Image map.
-
-=== 4c) Mixed color documents, ===
- where every object (texts, images, vectorgraphics can have their own ICC-embedded profiles and rendering intents. These objects can also interact through transparencies and blending color spaces.
-Rendering for such kind of elements is quite complex. The only available engine to deliver such functionality in the !OpenSource Environment is currently !GhostScript, which is currently too slow for realtime rendering to the monitor.
-
-== 5) Step by step colormanagement implementation in the LINUX environment ==
-A lot of developers think, that colormanagement must be implemented in one step with the approach to handle mixed color documents. This is a very complex beast, with a lot of traps, which e.g. also APPLE is still learning.
-In this concept the colormanagement implementation under LINUX concentrates first only of images and flat color documents. The goal for this implementation step is to reach a robust workflow both for output on monitor and printers with shared libraries and services between applications, graphic libraries and printer drivers.
-The steps could be e.g.
-
-=== 5a) Adding Colormanagement of Image maps to Oyranos and Gnome Color Manager (g-c-m) ===
-Oraynos and g-c-m get added functionality to colormanage Image maps with currently active profiles and send the Image maps to the display or a printerdriver with the associated setting
-
-=== 5b) Adding "per document profile" to Oyranos and g-c-m ===
-If documents are exchanged between computers, it is necessary, that the document colorspace from the creator of the document is remembered at the receivers side. This makes it necessary to specify a mechanism, ho the document colorspace can be embedded into an document and communicated from an application to Oyranos or g-c-m
-
-=== 5c) Adding CMYK colorspace and Oyranos g-c-m support for cairo ===
-In the first implementation, it is not needed, that ICC based color transformations are part of Cairo. Cairo gets the following added functionalities:
-- assigned Cairo document/window colorspace (This ICC profile describes all colors of an actual Cairo document / window
-- embed Cairo document during file export (The Cairo document profile is embedded as PDF output Intent during text export or during TIFF / JPEG export
-- communicate Cairo document profile to Oyranos / g-c-m image map color processing ((Cairo renders output to an Image map and Oyranos / g-c-m transform the image map from the embedded Cairo document profile to either the monitor or print setting profile 
-- introduce CMYK elements in Cairo (they will rendered through described mechanism to the monitor or printer setting
-
-
-=== 5d) Handling of ICC-profiles in the print pipeline ===
-In the first implementation, the printerdriver do NOT needs an internal engine for doing color transformations. It needs only the possibility to assign an ICC profile to named setting and communicate the the setting to oyranos or g-c-m.
-The colortransformation from document colorspace to the ICC-profile of the driver print setting will be done in the Image map color engine from Oyranos / g-c-m. The driver should also have the possibility to export and import a complete setting incl. the assigned ICC-profile.
-In the LINUX environment CUPS is the leading service to manage printing queues. The options of a printer driver are described in PPDs, from which the User Interface is generated.
-
-Handling of driver settings, ICC-profiles, CUPD queues and PPDs could be e.g. organized as follows:
-
-=== 5d-1) Virtual printers with static PPD ===
-The PPD for a printer is reduced from all color relevant option like e.g. quality modes, media-presets, color corrections...
-The user first creates in the printer driver all the necessary settings incl. an ICC profile for each setting. For every setting, a virtual CUPS printer is created and the assigned ICC profile for the setting is communicated to Oyranos / g-c-m. If the user prints through the virtual printer, the CUPS output is converted from the document profile to the printer setting profile in the Oyranos / g-c-m Image map engine.
-This solution has the advantage to work with static PPDs. But the number of virtual printers is increasing.
-
-=== 5d-2) Dynamic PPD creation ===
-The user creates in the printer driver all necessary setting with assigned ICC-profiles for every setting. If he has finished the setup the PPD of the printer will be automatically updated, including all the named settings, the user has created. Only one CUPS queue is needed for the printer. In the printing UI - concerning color -  the user only sees, the settings created in the driver. Depending on the setting choosed in the print UI, the Oyranos / g-c-m Image map engine will configure the correct profile for the color transformation to the printer setting.
-
-
-== 6) Entering the area of mixed color documents ==
-If we have robust workflow for images and flat color documents, the implemented workflows can be migrated to workflows for mixed color documents. Here we have currently two !OpenSource engines: !GhostScript and Poppler. !GhostScript is standard for rendering complex document for print output, but is currently too slow for doing realtime rendering to the monitor. Poppler as a PDF renderer is not such a "big beast" like !GhostScript, but probably will have difficulties with very complex documents. If somebody expects for complex documents the same rendering on the monitor and the print out, he should use the same rendering engine for both ways. 
-
-
-
-
 
 
 = Google SoC =
