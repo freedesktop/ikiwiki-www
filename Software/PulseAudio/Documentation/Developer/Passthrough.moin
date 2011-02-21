@@ -57,6 +57,7 @@ typedef enum pa_encoding_t {
     PA_ENCODING_DTS_IEC61937,
     PA_ENCODING_MPEG1_L3_IEC61937,
     PA_ENCODING_MPEG2_L3_IEC61937,
+    PA_ENCODING_ANY,
 } pa_encoding_t;
 }}}
 
@@ -82,25 +83,17 @@ of pa_sample_spec:
 pa_stream* pa_stream_new_extended(pa_context     *context,
 	                	  const char     *name,
 	                	  pa_format_info *format,
-                                  pa_channel_map *map);
+                                  pa_proplist    *plist);
 
-pa_stream* pa_stream_new_with_proplist_extended(pa_context     *context,
-		                	        const char     *name,
-		                	        pa_format_info *format,
-	                                        pa_channel_map *map,
-	                                        pa_proplist    *plist);
 }}}
 
-When making the connection, routing is performed and the selected format is returned as an out parameter.
+When making the connection, routing is performed and the selected format can
+be queried when the stream goes to the PA_STREAM_READY state
 
 {{{
-int pa_stream_connect_playback_extended(pa_stream            *s,
-				        const char           *dev,
-				        const pa_buffer_attr *attr,
-				        pa_stream_flags_t     flags,
-				        const pa_cvolume     *volume,
-				        pa_stream            *sync_stream,
-				        const pa_format_info *final_format);
+/* Returns a NULL-terminated list of formats (for now, containing only one item
+ * - the negotiated format */
+const pa_format_info * const *pa_stream_get_format_info(pa_stream *s);
 }
 }}}
 {{{
@@ -108,6 +101,8 @@ int pa_stream_connect_playback_extended(pa_stream            *s,
  * effectively deprecates the PA_SINK_INPUT_PASSTHROUGH flag */
 const pa_bool_t pa_encoding_is_passthrough(pa_encoding_t enc);
 }}}
+
+
 == Others ==
 
 We need to make a volume/mute disabled notification for sinks and sink inputs
