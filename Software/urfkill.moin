@@ -45,6 +45,46 @@ There are also some signals which are useful to monitor the status of killswitch
 
 I also implemented a glib binding to make it easier to use.
 
+== Released ==
+
+=== urfkill 0.1.0 ===
+Hi all,
+
+I am pleased to release urfkill 0.1.0 and it's available in:
+https://github.com/downloads/lcp/urfkill/urfkill-0.1.0.tar.bz2
+
+urfkill implements a daemon, urfkilld, to monitor and control
+the radio killswitches of WLAN/BLUETOOTH/WWAN/UWB/WIMAX.
+It also provides DBus methods to monitor and control the killswitches,
+so the userspace applications can interact with them without
+getting root privilege.
+
+Since the kernel rfkill input handler is going to be deprecated,
+urfkilld catches the rfkill keys and does a flip-flop state update
+for the killswitches (the same behavior as rfkill-input). In the
+future, we are planning to extend the key policy and make it
+more flexible and the further customization possible.
+
+I've tested urfkill in 5 laptops [1], and it works fine except one [2]
+that needs an extra configuration.
+
+Although it is still far from perfect, I think it's usable now. Any
+suggestion or bug report are welcome and appreciated :-)
+
+Thanks,
+
+Gary Lin
+
+[1] Acer aspire one, MSI U160, eeepc (unknown model),
+Acer Travelmate 372, Lenovo X200
+
+[2] I ran into a funky situation while testing urfkilld in X200.
+The bluetooth killswitch (hci0) sometimes was soft-blocked
+when I unblocked the killswitch (tpacpi_bluetooth_sw) provided
+by thinkpad-acpi. It can be worked around by set force_sync
+to true in /etc/urfkill.conf, but I still wonder what is the root
+cause.
+
 == Bugs ==
 
 Currently, you can direct mail to Gary Lin (glin@novell.com) and Joey Lee (jlee@novell.com).
