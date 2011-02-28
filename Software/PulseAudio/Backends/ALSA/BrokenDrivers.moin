@@ -6,7 +6,7 @@ At this point in time it is known that the following ALSA sound drivers are brok
  - Some snd-ice1712 supported chips #334
  - snd-ens1371 http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014929.html
  - snd_es1938
- - snd_azt3328 (hardware period size is half of buffer size, yet struct snd_pcm_hardware pretended full buffer size, patch soon as of 2010-11-11; this now means that tsched works yet tsched=0 does NOT! - for some weird reason)
+ - snd_azt3328 (hardware period size is half of buffer size, yet its struct snd_pcm_hardware pretended full buffer size, azt3328 patch has since been committed as of 2011-02-28; this now means that tsched works yet tsched=0 does NOT! - for some weird reason)
 
 Regarding snd-emu*: Creative doesn't like Open Source -- there are no docs available. If you buy Creative it is hence a bit your own fault.
 
@@ -44,7 +44,7 @@ Now run it:
 
 (Before running this make sure that nothing blocks the audio device, i.e. kill a running pulseaudio! Also, make sure to pass the correct device string. i.e. if the card in question is not hw:0 change this in the command line! Also, while you run this make sure NOT to run any other program that might cause this tool to get less CPU time than it wants. I.e. the CPU must be ''completely idle'' otherwise. alsa-time-test needs all available CPU time.)
 
-This will run forever, unless an assertion is hit. This will generate a *lot* of data. So make sure you have enough disk space before you run this. If after a while an assertion is hit, please send me an email containing the exact message of the assert as well as the beginning and the end of 'log' (You can generate that with 'head -n 50 log' resp. 'tail -n 50 log'). If after 30mins still no assertion is hit then contact me. You might need to send me the entire log (compress it first with gzip) -- but please do that only ''after'' contacting me since this is a '''lot''' of data. Also, I am not interested in duplicates. If you write me an email like this, please also include the lspci line for your card (i.e. 'lspci  | grep Multimedia audio controller') as well as the driver name ('lsmod | grep snd_'), and finally the contents of /proc/asound/pcm for the card in question. Please understand that I want to keep my signal-to-noise ratio high, so please DO NOT SEND ME more than this unless I ask for it. My address is lennart poettering net. If the logged data gets too large that is generated this might cause some considereable IO load in which case the tool might get temporarily stopped to finish IO. Hence it might be a good idea to simply pipe the output directly to tail, to make sure no data needs to be written to disk during the run.
+This will run forever, unless an assertion is hit. This will generate a *lot* of data. So make sure you have enough disk space before you run this (a limited-space alternative is to create a fifo/pipe, probably via 'mknod', redirect output to it and then 'cat' out of it into a separate _newly startable_ log file as needed). If after a while an assertion is hit, please send me an email containing the exact message of the assert as well as the beginning and the end of 'log' (You can generate that with 'head -n 50 log' resp. 'tail -n 50 log'). If after 30mins still no assertion is hit then contact me. You might need to send me the entire log (compress it first with gzip) -- but please do that only ''after'' contacting me since this is a '''lot''' of data. Also, I am not interested in duplicates. If you write me an email like this, please also include the lspci line for your card (i.e. 'lspci  | grep Multimedia audio controller') as well as the driver name ('lsmod | grep snd_'), and finally the contents of /proc/asound/pcm for the card in question. Please understand that I want to keep my signal-to-noise ratio high, so please DO NOT SEND ME more than this unless I ask for it. My address is lennart poettering net. If the logged data gets too large that is generated this might cause some considereable IO load in which case the tool might get temporarily stopped to finish IO. Hence it might be a good idea to simply pipe the output directly to tail, to make sure no data needs to be written to disk during the run.
 
 And don't forget, unless you sent me the requested output you have no right to complain!
 
@@ -56,7 +56,7 @@ Thank you!
 
 If you want to understand the ouput of this tool, here's what it does: It enters a busy loop, writing one sample to the device at a time (unless the card's buffer is already filled up), then querying the various timing parameters of the card. And then the next iteration happens, and so on, and so on. The values printed contain the following information:
 
-The first column is clock_gettime(CLOCK_MONOTONIC) in us. Second column in the timestamp stored in the snd_pcm_state_t. The third is the calculated playback time (i.e. write count - delay).  The fourth column is avail, the fifth is delay.
+The first column is clock_gettime(CLOCK_MONOTONIC) in us. Second column in the timestamp stored in the snd_pcm_state_t. The third is the calculated playback time (i.e. write count - delay).  The fourth column is sample count, the fifth column is avail, the sixth is delay. But better have a look at the .c source file (the printf at the end), since the information on this page was outdated.
 
 
 
