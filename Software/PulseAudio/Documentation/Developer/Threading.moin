@@ -1,19 +1,19 @@
 [[TracNav(TOC)]]
 [[TracNav(DevelopingModulesTOC)]]
 
-== A quick description of the threading model ==
+== A quick description of the threading model == 
 
 PA now supports a new RT threading model. That means that access to the audio drivers is now seperated from the main event loop. Originally, doing all stuff in the single event loop seemed to be a good idea but as we started to hook up more and more stuff (including X11 now) to the event loop this turned out to be a bad idea.
 
 In the new model, each driver should run its I/O code in a seperate thread. Usually this means that each sink and each source are handled in a thread of their own. In some cases (like OSS) a single thread is shared for a pair for sink and source. Communication between the (non-realtime) main thread (that still exists and where a lot of code remains) and the real-time I/O threads is intended to be done entirely lock-free (at least on the RT side). For this we have added couple of lock-free APIs. Most importantly this is pa_asyncmsgq which is a message queue object where pushing and popping is most of the time a lock-free operation, unless we have to sleep an event in which case a unix pipe is used internally.
 
-A good example for a driver that uses this new model is the OSS driver: [source:/branches/lennart/src/modules/module-oss.c module-oss.c] (this driver is quite complete but also relatively complicated due to support for both mmap and non-mmap access to the audio driver) Simpler drivers are the NULL and the pipe drivers: [source:/branches/lennart/src/modules/module-pipe-sink.c module-pipe-sink.c], [source:/branches/lennart/src/modules/module-null-sink.c module-null-sink.c] (since they do not support the full set of features they might also not be the best example, so please take this with a grain of salt)
+A good example for a driver that uses this new model is the OSS driver: [source:src/modules/module-oss.c module-oss.c] (this driver is quite complete but also relatively complicated due to support for both mmap and non-mmap access to the audio driver) Simpler drivers are the NULL and the pipe drivers: [source:src/modules/module-pipe-sink.c module-pipe-sink.c], [source:src/modules/module-null-sink.c module-null-sink.c] (since they do not support the full set of features they might also not be the best example, so please take this with a grain of salt)
 
 The driver modules are responsible for starting up/shutting down the real-time threads. Where possible the PA internal thread API should be used. The module is also responsible for allocating two pa_asyncmsgq objects. One for communicating from the io thread to the main event loop, and another for the other direction. Then, every time a sink or source object is created the pa_asyncmsgq objects need to be attached to it (using pa_sink_set_asyncmsgq()). Since usually communication between the IO thread and the main thread needs to be both ways it makes a lot of sense to use the pa_thread_mq object which combines two pa_asyncmsgq objects into one: one for each direction. Even if the your driver code does not make direct use of the pa_asyncmsgq objects, you need to allocate them, because some code in PA relies on having them around.
 
 Event handling inside the thread should be done through a pa_rtpoll object which is an event loop abstraction that supports high resolution timers. The implementing module should usually have a pa_rtpoll for each thread and should attach it to the pa_sink/pa_source objects with pa_sink_set_rtpoll().
 
-PA now supports a very basic glib-inspired object model. See [source:/branches/lennart/src/pulsecore/object.h object.h] and [source:/branches/lennart/src/pulsecore/msgobject.h msgobject.h] for details. Every object that is a child of pa_msgobject can received messages from a pa_asyncmsgq. 
+PA now supports a very basic glib-inspired object model. See [source:src/pulsecore/object.h object.h] and [source:src/pulsecore/msgobject.h msgobject.h] for details. Every object that is a child of pa_msgobject can received messages from a pa_asyncmsgq. 
 
 Most of the methods of pa_sink/pa_source are intended to be called only from the main thread, not from the real-time threads. Notable exceptions are pa_sink_render() and friends and pa_source_post(). Many of the operations that can be done on a pa_sink object require some work in the RT threads. Due to that the default implementations will notify the RT thread via a pa_asyncmsgq. To make sure that no locking is necessary for accessing the data attached to a pa_sink the threads maintain their own copy of a couple of variables in pa_sink::thread_info.
 
@@ -30,13 +30,14 @@ for (;;) {
        continue;
     }
 
+    /* TODO: update this section */
     /* Give the inputs connected to this sink some extra time, if they need it */
-    if (pa_sink_process_inputs(u->sink) > 0)
-       continue;
+    //if (pa_sink_process_inputs(u->sink) > 0)
+    //   continue;
   
     /* Process the incoming pa_asyncmsgq */
-    if (pa_thread_mq_process(&thread_mq) > 0)
-       continue;
+    //if (pa_thread_mq_process(&thread_mq) > 0)
+    //   continue;
 
     /* Hmm, there's no message for us, really nothing to do, than I guess we have to sleep on the device */
     pa_rtpoll_run(rtpoll);
@@ -75,13 +76,13 @@ A few rules for reference counting:
  * Increasing the refcounter should be done by a _ref() function, decreasing with _unref()
  * Refcount only the pointers that point from the longer-living object to the shorter-living object - NOT the other way round!
  * Provide an _unlink() method on the short-living object that deregisters the object from the longer-living object and also unlinks every attached shorter-living object. This should not be confused with _unref()
- * Only use refcounting as defined in [source:/branches/lennart/src/pulsecore/refcnt.h refcnt.h] or by pa_object, because this one is guaranteed to be atomic.
+ * Only use refcounting as defined in [source:src/pulsecore/refcnt.h refcnt.h] or by pa_object, because this one is guaranteed to be atomic.
 
 Yes, not all code currently in PA abides to these rules, but this is being worked on. e.g. a couple of functions that should be called _unlink() are called _disconnect() right now.
 
 == Atomicity and Memory Barriers ==
 
-Since PA now uses a (mostly) lock-free core, we provide a set of atomic integer and pointer routines in form of pa_atomic_xxx() (defined in [source:/branches/lennart/src/pulsecore/atomic.h atomic.h]). They include full implicit memory barriers, which allows you to forget about memory access ordering issues on SMP -- as long as you do use pa_atomic_xxx().
+Since PA now uses a (mostly) lock-free core, we provide a set of atomic integer and pointer routines in form of pa_atomic_xxx() (defined in [source:src/pulsecore/atomic.h atomic.h]). They include full implicit memory barriers, which allows you to forget about memory access ordering issues on SMP -- as long as you do use pa_atomic_xxx().
 
 Besides that, the pa_thread_xxx thread creation/termination APIs, pa_semaphore_xxx and pa_mutex_xxx provide implicit full memory barriers. Everything that is built on top of these building blocks, such as pa_asyncmsgq thus also includes implicit memory barriers.
 
