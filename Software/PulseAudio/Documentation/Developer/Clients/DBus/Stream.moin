@@ -92,10 +92,12 @@ The channel map of the stream. The channel count can be inferred from this. The 
  * Type: [Uint32]
  * Access: read/write
 
-The volume of the stream. The volume elements in the array must match the channel positions in the Channels property array. Record streams don't currently have volume associated with them, so this property exists for playback streams only for now.
+The volume of the stream. The array is matched against the Channels property: the first array element is the volume of the first channel in the Channels property, and so on.
+
+There are two ways to adjust the volume. You can either adjust the overall volume by giving a single-value array, or you can precisely control the individual channels by passing an array containing a value for each channel.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if this is a record stream and the server doesn't implement volume for record streams.
+   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the stream doesn't have volume.
 
 
 ==== Mute ====
