@@ -2,15 +2,22 @@
 
 [[PageOutline(2-3,Contents,inline)]]
 
-== How do I use !PulseAudio over the network? ==
-
-   Just set the environment variable {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. Alternatively you can modify {{{~/.pulse/client.conf}}} or {{{/etc/pulse/client.conf}}} and set {{{default-server=}}} (See ServerStrings for an explanation of the format, see FAQ# 18 for all locations you can specify the server to use) For authentication you need the same auth cookies on all sides. For that copy {{{~/.pulse-cookie}}} to all clients that shall be allowed to connect.
-   Alternatively the authorization cookies can be stored in the X11 server. The server must have {{{module-native-protocol-tcp}}} loaded, with the argument {{{loopback=0}}} set.
-   Note that this can use pretty much network bandwidth (around 1.3Mbps for 44100Hz sound). If you get choppy sound, try downsampling it.
+There are several different ways to connect to another !PulseAudio server (direct connection, tunnel, RTP) or some other network audio device (RTP, RAOP, Rygel).
 
 == Direct connection ==
 
-With {{{$PULSE_SERVER}}}.
+Just set the environment variable {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. Alternatively you can modify {{{~/.pulse/client.conf}}} or {{{/etc/pulse/client.conf}}} and set {{{default-server=}}} (See ServerStrings for an explanation of the format, see FAQ# 18 for all locations you can specify the server to use)
+
+==== Authorization ====
+For authentication you need the same auth cookies on all sides. For that copy {{{~/.pulse-cookie}}} to all clients that shall be allowed to connect.
+Alternatively the authorization cookies can be stored in the X11 server. The server must have {{{module-native-protocol-tcp}}} loaded, with the argument {{{loopback=0}}} set. To enable all audio from all over the network, set the {{auth-anonymous=1}}} argument.
+{{{
+load-module module-esound-protocol-tcp auth-anonymous=1
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
+}}}
+These two modules are not loaded in the default configuration because they might open !PulseAudio for remote attackers.
+
+Note that this can use pretty much network bandwidth (around 1.3Mbps for 44100Hz sound). If you get choppy sound, try downsampling it.
 
 
 == Using a tunnel ==
@@ -25,69 +32,59 @@ Check box in paprefs.
 You can connect to other sound servers running on the LAN by using Zeroconf/[http://avahi.org/ Avahi] technolgy. Therefore make sure to compile !PulseAudio with Avahi support and load the Zeroconf module on all machines on the LAN. In addition make sure to load the {{{module-native-protocol-tcp}}} and {{{module-esound-protocol-tcp}}} modules to allow remote access to the sound servers. Consider managing access to these servers with an IP ACL. This can look like this in your {{{/etc/pulse/default.pa}}} or {{{~/.pulse/default.pa}}} startup script for !PulseAudio:
 
 {{{
-load-module module-esound-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
-load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
 load-module module-zeroconf-publish
 }}}
-
-These three modules are not loaded in the default configuration because they might open !PulseAudio for remote attackers.
+This module is not loaded in the default configuration because they might open !PulseAudio for remote attackers.
 
 
 == RTP ==
 
-
-=== How can I use !PulseAudio as an RTP based N:N multicast conferencing solution for the LAN? ===
-
-   After loading all the necessary audio drivers for recording and playback, just load the RTP reciever and sender modules with default parameters:
-{{{
-load-module module-rtp-send
-load-module module-rtp-recv
-}}}
-   As long as the !PulseAudio daemon runs, the microphone data will be streamed to the network and the data from other hosts is played back locally. Please note that this may cause quite a lot of traffic. Hence consider passing {{{rate=8000 format=ulaw channels=1}}} to the sender module to save bandwith while still maintaining good quality for speech transmission.
-
+RTP is the ''Realtime Transfer Protocol''. It is a well-known protocol for transferring audio and video data over IP. Two related protocols are SDP and SAP. SDP is the ''Session Description Protocol'' and can be used to describe RTP sessions. SAP is the ''Session Announcement Protocol'' and can be used to announce RTP sessions that are described with SDP. (Modern SIP based VoIP phones use RTP/SDP for their sessions, too)[[BR]]
+All three protocols are defined in IETF RFCs (RFC3550, RFC3551, RFC2327, RFC2327). They can be used in both multicast and unicast fashions. !PulseAudio exclusively uses multicast RTP/SDP/SAP containing audio data.[[BR]]
+For more information about using these technologies with !PulseAudio have a look on the [wiki:Modules respective module's documentation].
 
 === How can I use !PulseAudio to stream music from my main PC to my LAN with multiple PCs with speakers? ===
 
-   On the sender side create an RTP sink:
+On the sender side create an RTP sink:
 {{{
 load-module module-null-sink sink_name=rtp
 load-module module-rtp-send source=rtp.monitor
 set-default-sink rtp
 }}}
-   This will make rtp the default sink, i.e. all applications will write to this virtual RTP device by default.[[BR]]
-   On the client sides just load the reciever module:
+This will make rtp the default sink, i.e. all applications will write to this virtual RTP device by default.[[BR]]
+On the client sides just load the reciever module:
 {{{
 load-module module-rtp-recv
 }}}
-   Now you can play your favourite music on the sender side and all clients will output it simultaneously.[[BR]]
-   BTW: You can have more than one sender machine set up like this. The audio data will be mixed on the client side.
-
+Now you can play your favourite music on the sender side and all clients will output it simultaneously.[[BR]]
+BTW: You can have more than one sender machine set up like this. The audio data will be mixed on the client side.
 
 === How can I use !PulseAudio to share a single LINE-IN/MIC jack on the entire LAN? ===
 
-   On the sender side simply load the RTP sender module:
+On the sender side simply load the RTP sender module:
 {{{
 load-module module-rtp-send
 }}}
-   On the reciever sides, create an RTP source:
+On the reciever sides, create an RTP source:
 {{{
 load-module module-null-sink sink_name=rtp
 load-module module-rtp-recv sink=rtp
 set-default-source rtp_monitor
 }}}
-   Now the audio data will be available from the default source {{{rtp_monitor}}}.
+Now the audio data will be available from the default source {{{rtp_monitor}}}.
 
+=== How can I use !PulseAudio as an RTP based N:N multicast conferencing solution for the LAN? ===
+
+After loading all the necessary audio drivers for recording and playback, just load the RTP reciever and sender modules with default parameters:
+{{{
+load-module module-rtp-send
+load-module module-rtp-recv
+}}}
+As long as the !PulseAudio daemon runs, the microphone data will be streamed to the network and the data from other hosts is played back locally. Please note that this may cause quite a lot of traffic. Hence consider passing {{{rate=8000 format=ulaw channels=1}}} to the sender module to save bandwith while still maintaining good quality for speech transmission.
 
 === Can I have more than one multicast RTP group? ===
 
-   Yes! Simply use a new multicast group address. Use the {{{destination}}}/{{{sap_address}}} arguments of the RTP modules to select them. Choose your group addresses from the range 225.0.0.x to make sure the audio data never leaves the LAN.
-
-
-=== What is this RTP/SDP/SAP thing all about? ===
-
-   RTP is the ''Realtime Transfer Protocol''. It is a well-known protocol for transferring audio and video data over IP. SDP is the ''Session Description Protocol'' and can be used to describe RTP sessions. SAP is the ''Session Announcement Protocol'' and can be used to announce RTP sessions that are described with SDP. (Modern SIP based VoIP phones use RTP/SDP for their sessions, too)[[BR]]
-   All three protocols are defined in IETF RFCs (RFC3550, RFC3551, RFC2327, RFC2327). They can be used in both multicast and unicast fashions. !PulseAudio exclusively uses multicast RTP/SDP/SAP containing audio data.[[BR]]
-   For more information about using these technologies with !PulseAudio have a look on the [wiki:Modules respective module's documentation].
+Yes! Simply use a new multicast group address. Use the {{{destination}}}/{{{sap_address}}} arguments of the RTP modules to select them. Choose your group addresses from the range 225.0.0.x to make sure the audio data never leaves the LAN.
 
 
 == !AirPort RAOP streaming ==
