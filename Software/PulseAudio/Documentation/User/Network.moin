@@ -22,6 +22,16 @@ With {{{$PULSE_SERVER}}}.
 With {{{module-zeroconf-publish}}} and {{{module-zeroconf-discover}}}.
 Check box in paprefs.
 
+You can connect to other sound servers running on the LAN by using Zeroconf/[http://avahi.org/ Avahi] technolgy. Therefore make sure to compile !PulseAudio with Avahi support and load the Zeroconf module on all machines on the LAN. In addition make sure to load the {{{module-native-protocol-tcp}}} and {{{module-esound-protocol-tcp}}} modules to allow remote access to the sound servers. Consider managing access to these servers with an IP ACL. This can look like this in your {{{/etc/pulse/default.pa}}} or {{{~/.pulse/default.pa}}} startup script for !PulseAudio:
+
+{{{
+load-module module-esound-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
+load-module module-zeroconf-publish
+}}}
+
+These three modules are not loaded in the default configuration because they might open !PulseAudio for remote attackers.
+
 
 == RTP ==
 
@@ -80,7 +90,7 @@ set-default-source rtp_monitor
    For more information about using these technologies with !PulseAudio have a look on the [wiki:Modules respective module's documentation].
 
 
-== AirPort RAOP streaming ==
+== !AirPort RAOP streaming ==
 
 With {{{module-raop-sink}}}.
 
