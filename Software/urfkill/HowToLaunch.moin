@@ -1,13 +1,13 @@
 = Why want to launch urfkill when system boot ? =
 
-By default, urfkill daemon was designed for service DBus method call, it will launched by DBus when there have any process call the DBus method that are provided by urfkill daemon.
+By default, urfkill daemon is designed for service DBus method call, it will be launched by DBus when there is any process that calls the DBus method provided by urfkill daemon.
 
-But, for some situation, you want to use urfkill daemon for response the wifi function key to control killswitch states like the rfkill-input module in kernel. Actually, urfkill daemon can replace rfkill-input kernel module if you want.
-For the above use case, you will need to launch urfkill daemon when system boot, so, here have some different ways for you reference:
+But, in some situations, you may want to use urfkill daemon to respond the wifi function key to control killswitch states like the rfkill-input module in kernel. Actually, urfkill daemon can replace rfkill-input kernel module if you want.
+For the above use case, you will need to launch urfkill daemon when system boot, so, here are some different ways for your reference:
 
 == Launch urfkill by init.d ==
 
-You can download this following urfkilldaemon file, it's a [[http://www.linuxbase.org/spec/|LSB compliant service control script]] :
+You can download the following urfkilldaemon file, it's a [[http://www.linuxbase.org/spec/|LSB compliant service control script]] :
  * [[attachment:urfkilldaemon]]
 
 Put this file to /etc/init.d, then you can use your distro's System Services (Runlevel) control tool to enable/disable ufkill daemon like a system service.
@@ -16,7 +16,7 @@ Tested on openSUSE 11.3
 
 == Launch urfkill by startup desktop ==
 
-Another way is use startup desktop file to launch urfkill daemon when window environment (e.g. Gnome) startup. The following is a example :
+Another way is to use startup desktop file to launch urfkill daemon when window environment (e.g. Gnome) startup. The following is a example :
 
 Download ping-urfkilld then copy it to /usr/bin
  * [[attachment:ping-urfkilld]]
@@ -24,6 +24,6 @@ Download ping-urfkilld then copy it to /usr/bin
 Download urfkill-startup.desktop then copy it to /usr/share/gnome/autostart :
  * [[attachment:urfkill-startup.desktop]]
 
-When system boot and Gnome environment startup, desktop file will send out DBus method call to request urfkill service, then Dbus will auto launch urfkill daemon.
+When system boots and Gnome environment starts up, desktop file will send out DBus method call to request urfkill service, then DBus will launch urfkill daemon automatically.
 
 Tested on openSUSE 11.3
