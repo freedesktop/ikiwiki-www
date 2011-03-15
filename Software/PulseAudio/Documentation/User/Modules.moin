@@ -112,17 +112,16 @@ Supported parameters:
 === module-oss ===
 
 Provides both a sink and a source for playback, resp. recording on Open Sound System (OSS) compatible devices.
+This module supports the following options:
 
-This module supports device= (which defaults to /dev/dsp), fragments= and fragment_size= arguments the same way as module-alsa-sink.
-
-In addition this module supports the following options:
-
-  record
-    Accepts a binary numerical value for enabling (resp. disabling) the recording on this device. (defaults: to 1)
-  playback
-    Accepts a binary numerical value for enabling (resp. disabling) the playback on this device. (defaults: to 1)
+  record, playback
+    Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1)
+  device
+    The OSS device to use. (defaults to /dev/dsp),
   mmap
     Accepts a boolean value for enabling (resp. disabling) memory mapped (mmap()) access to the input/output buffers of the audio device. This provides better latency behaviour but is less compatible. (defaults: to 1).
+  fragments, fragment_size
+    As in module-alsa-sink.
 
 The sink name (resp. source name) defaults to oss_output (resp. oss_input).
 
@@ -132,18 +131,28 @@ Provides a sink and source for the Solaris audio device.
 
 In addition to the general device driver options described above this module supports:
 
-  record
-    Accepts a binary numerical value for enabling (resp. disabling) the recording on this device. (defaults: to 1)
-  playback
-    Accepts a binary numerical value for enabling (resp. disabling) the playback on this device. (defaults: to 1)
-  buffer_size
-    Record buffer size
+  record, playback
+    Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1)
+  device
+    Audio device filename
+  buffer_length
+    Record buffer length in ms.
+
 
 === module-waveout ===
 
-Provides a sink and source for the Win32 audio device.
+Provides both a sink and source for the Win32 audio device.
+This module supports the following options:
 
-This module supports all arguments that module-oss supports except device=.
+  record, playback
+    Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1)
+  device
+    Accepts an integer specifying the Windows audio device to be opened. If not set the WaveMapper service is used.
+  fragments, fragment_size
+    As in module-alsa-sink.
+
+The sink name (resp. source name) defaults to wave_output (resp. wave_input).
+
 
 === module-combine ===
 
@@ -215,25 +224,15 @@ Create a playback sink using an ESOUND server as backend. Whenever you can, try 
   cookie
     The authentication cookie file to use.
 
+
 == Protocols ==
 
 === module-cli ===
 
 Provides the user with a simple [wiki:CLI command line interface] on the controlling TTY of the daemon. This module may not be loaded more than once.
 
-
-
   exit_on_eof
     Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0)
-
-
-
-
-
-
-
-
-
 
 
 === module-cli-protocol-{unix,tcp} ===
@@ -339,6 +338,11 @@ A proof-of-concept HTTP module, which can be used to introspect the current stat
     Restore volume (default to true)
   restore_muted
     Restore mute state (default to true)
+
+'''Since ???'''
+
+  restore_port
+    Restore port (default to ???)
 
 === module-stream-restore ===
 
@@ -490,6 +494,8 @@ In combination with the monitor source of module-null-sink you can use this modu
     Maximum payload size for RTP packets. If omitted defaults to 1280
   loop
     Takes a boolean value, specifying whether locally generated RTP traffic should be looped back to the local host. Disabled by default.
+  ttl
+    TTL
 
 === module-rtp-recv ===
 
@@ -505,6 +511,10 @@ In combination with module-null-sink you can use this module to create an RTP so
 == RAOP Sink (Wireless Network Sound aka Apple Airtunes) ==
 
 !PulseAudio can stream audio data to products that support the RAOP protocol.
+
+=== module-raop-discover ===
+
+mDNS/DNS-SD Service Discovery of RAOP devices
 
 === module-raop-sink ===
 
@@ -531,6 +541,7 @@ This module implements a !PulseAudio sink that connects to JACK and registers as
     The JACK server to connect to. If omitted defaults to the default server.
   client_name
     The client name to tell the JACK server. If omitted defaults to !PulseAudio.
+  channel_map
   channels
     Number of channels to register. If omitted defaults to the number of physical playback ports of the JACK server.
   connect
@@ -548,6 +559,17 @@ Creates a sink input and generates a sine waveform stream.
 
   sink
     The sink to connect to. If omitted defaults to the default sink.
+  frequency
+    The frequency to generate in Hertz. Defaults to 440.
+
+=== module-sine-source ===
+
+Creates a source and generates a sine waveform stream.
+
+  source_name
+    Name for the source. (defaults to sine_input)
+  rate
+    Sample rate for the source.
   frequency
     The frequency to generate in Hertz. Defaults to 440.
 
