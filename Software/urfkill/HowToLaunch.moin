@@ -1,0 +1,15 @@
+= Why want to launch urfkill when system boot ? =
+
+By default, urfkill daemon was designed for service DBus method call, it will launched by DBus when there have any process call the DBus method that are provided by urfkill daemon.
+
+But, for some situation, you want to use urfkill daemon for response the wifi function key to control killswitch states like the rfkill-input module in kernel. Actually, urfkill daemon can replace rfkill-input kernel module if you want.
+For the above use case, you will need to launch urfkill daemon when system boot, so, here have some different ways for you reference:
+
+== Launch urfkill by init.d ==
+
+You can download this following urfkilldaemon file, it's a [[http://www.linuxbase.org/spec/|LSB compliant service control script]] :
+ * [[attachment:urfkilldaemon]]
+
+Put this file to /etc/init.d, then you can use your distro's System Services (Runlevel) control tool to enable/disable ufkill daemon like a system service.
+
+== Launch urfkill by startup desktop ==
