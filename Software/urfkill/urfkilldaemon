@@ -1,0 +1,102 @@
+#! /bin/bash
+# Copyright (c) 2002-2010 SuSE Linux AG, Nuernberg, Germany.
+# All rights reserved.
+#
+# Authors: Lee, Chun-Yi <jlee@novell.com>
+#
+# LSB compliant service control script; see http://www.linuxbase.org/spec/
+# 
+### BEGIN INIT INFO
+# Provides:          urfkilldaemon
+# Required-Start:    dbus 
+# Required-Stop:     $null
+# Should-Stop:       $null
+# Default-Start:     2 3 5
+# Default-Stop:      
+# Short-Description: Urfkill is a daemon to control radio killswitches through /dev/rfkill.
+# Description:       Urfkill is a daemon to control radio killswitches through /dev/rfkill and supports PolicyKit
+#		     authorization mechanism.
+#		     urfkill is a project to handle rfkill events in userspace and aimed to replace the rfkill
+#		     input handler in kernel, i.e. rfkill-input, and provide a flexible policy for rfkill keys.
+#                    
+### END INIT INFO
+
+# Check for missing binaries (stale symlinks should not happen)
+URFKILLD_BIN=/usr/lib/urfkill/urfkilld
+test -x $URFKILLD_BIN || exit 5
+
+# Shell functions sourced from /etc/rc.status:
+#      rc_check         check and set local and overall rc status
+#      rc_status        check and set local and overall rc status
+#      rc_status -v     ditto but be verbose in local rc status
+#      rc_status -v -r  ditto and clear the local rc status
+#      rc_status -s     display "skipped" and exit with status 3
+#      rc_status -u     display "unused" and exit with status 3
+#      rc_failed        set local and overall rc status to failed
+#      rc_failed <num>  set local and overall rc status to <num>
+#      rc_reset         clear local rc status (overall remains)
+#      rc_exit          exit appropriate to overall rc status
+#      rc_active        checks whether a service is activated by symlinks
+#      rc_splash arg    sets the boot splash screen to arg (if active)
+. /etc/rc.status
+
+# Reset status of this service
+rc_reset
+
+case "$1" in
+	start)
+		if [ ! -d /sys/class/rfkill ] ; then
+			echo -n "urfkilldaemon: didn't detect any killswitch"
+			rc_status -s
+			rc_exit
+		fi
+
+		echo -n "Starting urfkilld "
+		startproc $URFKILLD_BIN
+		rc_status -v
+		;;
+	stop)
+		echo -n "Shutting down urfkilld "
+		killproc -TERM $URFKILLD_BIN
+		rc_status -v
+		;;
+	try-restart)
+	        $0 status
+		if test $? = 0; then
+			$0 restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		rc_status
+		;;
+	restart)
+		$0 stop
+		$0 start
+		rc_status
+		;;
+	force-reload|reload)
+		echo -n "Reload service urfkilld "
+		killproc -HUP $URFKILLD_BIN
+		rc_status -v
+		;;
+	status)
+		echo -n "Checking for service urfkilld "
+		PID=`checkproc -v $URFKILLD_BIN`
+		if rc_status ; then
+			case `cat /proc/$PID/cmdline` in *events.ignore) rc_failed 3 ;; esac
+		fi
+		rc_status -v
+		;;
+	probe)
+		## Optional: Probe for the necessity of a reload, print out the
+		## argument to this init script which is required for a reload.
+		## Note: probe is not (yet) part of LSB (as of 1.2)
+		# test /etc/FOO/FOO.conf -nt /var/run/FOO.pid && echo reload
+		;;
+	*)
+		echo "Usage: $0" \
+		     "{start|stop|status|try-restart|restart|force-reload|reload|probe}"
+		exit 1
+		;;
+esac
+rc_exit
