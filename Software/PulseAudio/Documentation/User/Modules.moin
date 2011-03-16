@@ -83,30 +83,72 @@ In addition to the general device driver options described above this module sup
   tsched
     Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
 
+'''Since ???'''
+
+  mmap
+
+  name
+    String to prefix to the automatically determined sink name.
+
+  device_id
+
+  tsched_buffer_size, tsched_watermark
+
+  ignore_dB
+    Ignore dB information from the device
+
+  control
+    Name of mixer control
+
+  namereg_fail
+    Boolean
+
+  sync_volume
+    Syncronize sw and hw voluchanges in IO-thread
 
 === module-alsa-source ===
 
 Provides a recording source for devices supported by the Advanced Linux Sound Architecture (ALSA). The source name defaults to alsa_input.
 
 This module supports device=, fragments=, fragment_size= and tsched= arguments the same way as module-alsa-sink.
+Also mmap, name, device, control, tsched_buffer_size, tsched_watermark, ignore_dB, namereg_fail
 
 === module-alsa-card ===
 
 Provides an interface for configuring how the card functions (2.0, 4.0, 5.1, 7.1, ...)
 
+Of the default sample spec arguments, only format and rate are supported.
+
 Supported parameters:
+
+  card_name
+
+  card_properties
+
+  namereg_fail
+
+  profile, profile_set
 
   device_id
 
   name
 
-  card_name
-
   tsched
 
   ignore_dB
 
-  card_properties
+  fragments
+
+  fragment_size
+
+  mmap
+
+  name
+
+  tsched_buffer_size, tsched_watermark
+
+  sync_volume
+
 
 === module-oss ===
 
