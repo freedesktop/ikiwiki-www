@@ -4,32 +4,36 @@
 
 There are several different ways to connect to another !PulseAudio server (direct connection, tunnel, RTP) or some other network audio device (RTP, RAOP, Rygel).
 
+Note all methods described here stream raw PCM audio over the network. This can use pretty much network bandwidth (around 1.4 Mb/s for CD-quality sound). If you get choppy sound, try setting a lower sample rate for the network stream.
+
+
 == Direct connection ==
 
 Just set the environment variable {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. Alternatively you can modify {{{~/.pulse/client.conf}}} or {{{/etc/pulse/client.conf}}} and set {{{default-server=}}} (See ServerStrings for an explanation of the format, see FAQ# 18 for all locations you can specify the server to use)
 
 ==== Authorization ====
 For authentication you need the same auth cookies on all sides. For that copy {{{~/.pulse-cookie}}} to all clients that shall be allowed to connect.
-Alternatively the authorization cookies can be stored in the X11 server. The server must have {{{module-native-protocol-tcp}}} loaded, with the argument {{{loopback=0}}} set. To enable all audio from all over the network, set the {{auth-anonymous=1}}} argument.
+Alternatively the authorization cookies can be stored in the X11 server. The server must have [wiki:Modules#module-native-protocol-unixtcp module-native-protocol-tcp] loaded. To enable all audio from all over the network, set the {{auth-anonymous=1}}} argument. A more secure options is to manage access to these servers with an IP ACL. This can look like this in your {{{/etc/pulse/default.pa}}} or {{{~/.pulse/default.pa}}} startup script for !PulseAudio:
 {{{
 load-module module-esound-protocol-tcp auth-anonymous=1
 load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
 }}}
 These two modules are not loaded in the default configuration because they might open !PulseAudio for remote attackers.
 
-Note that this can use pretty much network bandwidth (around 1.3Mbps for 44100Hz sound). If you get choppy sound, try downsampling it.
-
 
 == Using a tunnel ==
 
-{{{module-tunnel}}}
+With a tunnel you can create a new sink that forwards all audio over the network to another server. For the sink at the remote server the tunnel looks like just another stream connecting over the network. The same holds for sources. See the documentation on [wiki:Modules#module-tunnel module-tunnel] for details on the module arguments.
+
+Setting up a tunnel requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded, just like with the direct connection. After the tunnel is set up, client applications connect to the tunnel sink on the local !PulseAudio daemon. This has the advantage that you can switch the stream seamlessly between a local hardware sink and the tunnel sink. With a direct connection the client generally has to be restarted in order to switch servers. A direct connection has the advantage that the client has more control over buffering parameters.
 
 === mDNS ===
 
-With {{{module-zeroconf-publish}}} and {{{module-zeroconf-discover}}}.
-Check box in paprefs.
+In order to avoid having to setup tunnel manually between computers on a network, Zeroconf can be used.
 
-You can connect to other sound servers running on the LAN by using Zeroconf/[http://avahi.org/ Avahi] technolgy. Therefore make sure to compile !PulseAudio with Avahi support and load the Zeroconf module on all machines on the LAN. In addition make sure to load the {{{module-native-protocol-tcp}}} and {{{module-esound-protocol-tcp}}} modules to allow remote access to the sound servers. Consider managing access to these servers with an IP ACL. This can look like this in your {{{/etc/pulse/default.pa}}} or {{{~/.pulse/default.pa}}} startup script for !PulseAudio:
+Setup {{{module-zeroconf-publish}}} and {{{module-zeroconf-discover}}} manually or use the check box in paprefs.
+
+You can connect to other sound servers running on the LAN by using Zeroconf/[http://avahi.org/ Avahi] technolgy. Therefore make sure to compile !PulseAudio with Avahi support and load the Zeroconf module on all machines on the LAN. In addition make sure to load the {{{module-native-protocol-tcp}}} and that it allows connections from other hosts, see [#Authorization] above.
 
 {{{
 load-module module-zeroconf-publish
@@ -39,9 +43,9 @@ This module is not loaded in the default configuration because they might open !
 
 == RTP ==
 
-RTP is the ''Realtime Transfer Protocol''. It is a well-known protocol for transferring audio and video data over IP. Two related protocols are SDP and SAP. SDP is the ''Session Description Protocol'' and can be used to describe RTP sessions. SAP is the ''Session Announcement Protocol'' and can be used to announce RTP sessions that are described with SDP. (Modern SIP based VoIP phones use RTP/SDP for their sessions, too)[[BR]]
-All three protocols are defined in IETF RFCs (RFC3550, RFC3551, RFC2327, RFC2327). They can be used in both multicast and unicast fashions. !PulseAudio exclusively uses multicast RTP/SDP/SAP containing audio data.[[BR]]
-For more information about using these technologies with !PulseAudio have a look on the [wiki:Modules respective module's documentation].
+RTP is the ''Realtime Transfer Protocol''. It is a well-known protocol for transferring audio and video data over IP. Two related protocols are SDP and SAP. SDP is the ''Session Description Protocol'' and can be used to describe RTP sessions. SAP is the ''Session Announcement Protocol'' and can be used to announce RTP sessions that are described with SDP. (Modern SIP based VoIP phones use RTP/SDP for their sessions, too) All three protocols are defined in IETF RFCs (RFC3550, RFC3551, RFC2327, RFC2327). They can be used in both multicast and unicast fashions. !PulseAudio exclusively uses multicast RTP/SDP/SAP containing audio data.
+
+For more information about using these technologies with !PulseAudio have a look on the [wiki:Modules#RTPSDPSAPTransport modules documentation].
 
 === How can I use !PulseAudio to stream music from my main PC to my LAN with multiple PCs with speakers? ===
 
@@ -91,6 +95,8 @@ Yes! Simply use a new multicast group address. Use the {{{destination}}}/{{{sap_
 
 With {{{module-raop-sink}}}.
 
+
 == Rygel ==
 
+With {{{module-rygel-media-server}}}
 
