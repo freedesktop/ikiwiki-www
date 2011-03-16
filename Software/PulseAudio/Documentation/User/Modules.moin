@@ -9,14 +9,14 @@ The following loadable modules are provided with the !PulseAudio distribution:
 
 All device driver modules support the following parameters:
 
-  format
+  sink_name, source_name
+    Name for the sink (resp. source). Allowed characters in the name are a-z, A-Z, numbers, period (.) and underscore (_). The length must be 1-128 characters.
+format
     The sample format (one of u8, s16, s16be, s16le, float32, float32be, float32le, alaw, ulaw) (defaults to s16)
   rate
     The sample rate (defaults to 44100)
   channels
     Audio channels (defaults to 2)
-  sink_name, source_name
-    Name for the sink (resp. source). Allowed characters in the name are a-z, A-Z, numbers, period (.) and underscore (_). The length must be 1-128 characters.
   channel_map
     Channel map. A list of comma-separated channel names. The currently defined channel names are: left, right, mono, center, front-left, front-right, front-center, rear-center, rear-left, rear-right, lfe, subwoofer, front-left-of-center, front-right-of-center, side-left, side-right, aux0, aux1 to aux15, top-center, top-front-left, top-front-right, top-front-center, top-rear-left, top-rear-right, top-rear-center, (Default depends on the number of channels and the driver)
 
@@ -28,19 +28,18 @@ All device driver modules support the following parameters:
   format
     The sample format can be signed 24 bit, packed in 3 or 4 bytes (s24, s24le, s24be, s24-32, s24-32le, s24-32be)
 
-== Sinks ==
+'''Since 0.9.16'''
 
-All sinks accept the command 'update-sink-proplist' which changes the name in PA Volume Control for example. Just replace SINKNAME NEWNAME and use this either with 'pacmd' or put it in 'default.pa'.:
-
-{{{
-update-sink-proplist SINKNAME device.description="NEWNAME"
-}}}
-
-Alternatively you can set device.description directly when the module is loaded by setting the module parameter sink_properties, i.e.:
-
+  sink_properties, source_properties
+    Set additional properties of the sink/source. For example, you can set the description directly when the module is loaded by setting this parameter.
 {{{
 load-module module-alsa-sink sink_name=headphones sink_properties=device.description=Headphones
 }}}
+    This is the same as using the update-sink-proplist command after the sink is setup, either with {{{pacmd}}} or in {{{default.pa}}}.
+{{{
+update-sink-proplist SINKNAME device.description="DESCRIPTION"
+}}}
+
 
 === module-pipe-sink ===
 
