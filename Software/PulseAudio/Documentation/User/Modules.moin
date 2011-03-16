@@ -171,6 +171,7 @@ This combines two or more sinks into one. A new virtual sink is allocated. All d
     List all sinks under slaves.
     The name of the first sink to link into the combined think. The sample rate/type is taken from this sink.
 
+
 === module-remap-sink ===
 
 '''Since 0.9.7.''' This allows one to route streams' channels to arbitrary channels in a sink, for example to route stereo streams to rear channels. One common use case is to use one surround sound card as multiple virtual stereo cards.
@@ -201,10 +202,9 @@ load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels
 }}}
 
 
+=== module-tunnel-{sink,source} === #module-tunnel
 
-=== module-tunnel-{sink,source} ===
-
-Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. It's probably a better idea to connect to the remote sink/source directly since some buffer control is lost through this tunneling.
+Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. See NetworkSetup for reasons on whether to use a tunnel or direct connection to the remote server.
 
   server
     The server to connect to
@@ -214,6 +214,7 @@ Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !
     The sink on the remote server. Only available for module-tunnel-sink.
   cookie
     The authentication cookie file to use.
+
 
 === module-esound-sink ===
 
@@ -629,7 +630,7 @@ Do not use this together with module-detect!
 
 === module-zeroconf-publish ===
 
-Publish all local sinks/sources using mDNS Zeroconf.
+Publish all local sinks/sources using mDNS Zeroconf. For more information, see NetworkSetup.
 
 === module-zeroconf-discover ===
 
