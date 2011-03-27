@@ -1,0 +1,103 @@
+= Cross Compiling With pkg-config =
+
+This document summarises the proposal for adding cross compilation support to `pkg-config`.  Some people currently cross compile with `pkg-config`, but it requires knowledge of extra `pkg-config` specific environment variables.
+
+Related to cross compiling, it would also be nice if `pkg-config` supported bi-arch and multi-arch systems better.
+
+
+== Current Support ==
+
+The `pkg-config` tool works with a collection of `.pc` files that describe available packages for linking.  These files are located using the following rules:
+ * searching directories listed in `$PKG_CONFIG_PATH`
+ * when `$PKG_CONFIG_LIBDIR` is specified, it will override the compiled in default directory (e.g. `/usr/lib/pkgconfig`) and the PKG_CONFIG_PATH. 
+
+Note that when specifying PKG_CONFIG_LIBDIR, pkg-config will completely ignore the content in PKG_CONFIG_PATH, even if the documentation states different things. 
+
+In a cross compile situation, some `.pc` files on the system will be for the build machine and some will be for the target machine.  In order to make sure that the build machine's `.pc` files are not found, both the `$PKG_CONFIG_PATH` and `$PKG_CONFIG_PATH` environment variables must be set to directories containing only target machine `.pc files.
+
+The same is true in a bi-arch/multi-arch setup.
+
+
+== Proposed Changes ==
+
+The following changes are based on discussions with Wolfgang Wieser (most of the ideas are originally his).
+
+
+=== A new --host option ===
+
+In order for `pkg-config` to be smart about picking what `.pc` files to use, it needs to know the what it is targetting.  The proposed solution to this is to add a `--host` option to the program with the following behaviour:
+ * takes a string representation of the target machine as an argument
+ * defaults to a compiled in default determined when `pkg-config` was built.
+
+The `PKG_PROG_PKG_CONFIG` autoconf macro would be modified to pass this argument to `pkg-config`.  The code would be something like this:
+   {{{
+AC_REQUIRE([AC_CANONICAL_HOST])
+... find pkg-config ...
+PKG_CHECK_EXISTS([pkg-config >= 0.XXX],
+                 [pkgconfig_supports_host=true],
+                 [pkgconfig_supports_host=false])
+if $pkgconfig_supports_host; then
+    PKG_CONFIG="$PKG_CONFIG --host $host"
+fi
+}}}
+
+(where `0.XXX` is the first version that supports the `--host` option).
+
+
+==== Host Strings ====
+
+The `$host` string produced by autoconf comes from one of two places:
+ * the result of `config.guess`
+ * if the user passes `--host` to `configure`, then that string is passed through `config.sub` to canonicalise it
+These strings are of the form `CPU-VENDOR-OS` where `OS` is either `SYSTEM` or `KERNEL-SYSTEM`.
+
+Not all of the information in this string is relevant, so we will need to do some canonicalisation too:
+ * On a i686 Linux system, `config.guess` outputs `i686-pc-linux-gnu`.  On an i586, we get `i586-pc-linux-gnu` even if the two systems have an identical set of libraries installed.
+ * Some vendors might insert their name into the host string of some executables they produce.  For instance `config.guess` outputs `x86_64-unknown-linux-gnu` on AMD64 machines, yet some programs on Fedora are configured as `x86_64-redhat-linux-gnu`.
+
+So the canonicalisation would need to be some combination of:
+ * canonicalise compatible architectures
+ * drop vendor
+ * drop `SYSTEM` when `KERNEL` is given?
+
+
+=== Identifying Host Type for .pc Files ===
+
+Two possible ways of identifying what host type a particular `.pc` file is for are:
+ * place `.pc` files in host type specific subdirectories.  `pkg-config` then searches these host-specific subdirectories before the base directories when processing the search path.
+ * add a `Host:` header to `.pc` files giving the host type they are for.
+
+I favour the first solution.
+
+This leaves the question of what to do with `.pc` files for which we can't determine the architecture.  There are a few things to consider here:
+
+ 1. '''Treat them as belonging to the default host type'''.  This is almost definitely the right choice for things in the default search path.  Would break current cross-compile practices to do this for stuff in `$PKG_CONFIG_PATH` (this might be acceptable).
+ 2. '''Files in `/usr/share/pkgconfig`'''.  Newer versions of `pkg-config` add this directory to the default search path.  For the multi-arch case, these files should be used in all cases.  For cross-compile, perhaps these should be ignored.
+
+The most compatible solution seems to be to always include files in the base dirs of `$PKG_CONFIG_PATH`, but use different default search paths for different host types.
+
+
+=== Default Search Path ===
+
+A lot of multi-arch and cross-compile problems can be avoided by being a bit smarter about the default search path.  With the help of the `--host` option, it should finally be possible to do this.  For instance, on an AMD64 bi-arch box, the following would be the appropriate:
+
+    || '''host type''' || '''default path'''                             ||
+    || `x86_64-linux`  || `/usr/lib64/pkgconfig`, `/usr/share/pkgconfig` ||
+    || `i386-linux`    || `/usr/lib/pkgconfig`, `/usr/share/pkgconfig`   ||
+    || ''other''       || ''nothing''                                    ||
+
+This would generally do the right thing when configuring packages for the two architectures the machine supports, and when cross compiling to another system the default search path would not interfere.
+
+This could either be configured as a table compiled into the `pkg-config` executable, or as an external config file (given `pkg-config` doesn't have a config file currently, it might be better to compile it in).
+
+
+=== Package Changes ===
+
+For the most part, packages that only search for installed `pkg-config` packages would not need any major modifications -- they would just need to regenerate their configure script with the updated macros so that `--host` gets passed through to `pkg-config`.
+
+For packages that want to install `.pc` files, they will need to be modified in order to install the `.pc` files in the right host-specific subdirectory.  It should be possible to wrap the logic for determining the subdirectory inside an autoconf macro (it would probably need to ask `pkg-config` what the canonical form of the host string is).
+
+== References ==
+
+ * [[http://www.linuxbase.org/futures/ideas/multiarch/|LSB multi-arch ideas]] (not standardised)
+ * [[http://people.debian.org/~taggart/multiarch/|Debian multi-arch status]]
