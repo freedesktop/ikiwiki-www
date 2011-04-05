@@ -25,9 +25,9 @@
    Support for audio backends is added by writting a new module. Currently, only the client API is documented with doxygen, for module development you have to use the internal API of PulseAudio. Read the source and base your work on a simple module like {{{module-pipe-sink}}}, {{{module-oss}}} or {{{module-virtual-{sink,source}}}}. See [DeveloperDocumentation#DevelopingModules DevelopingModules] for more information.
 
 
-=== The pulseaudio executable is installed SUID root by default. Why this? Isn't this a potential security hole? ===
+=== How does !PulseAudio acquire realtime capabilities? ===
 
-   !PulseAudio activates SCHED_FIFO scheduling if the user passes {{{--high-priority=1}}}. This will only succeed when executed as root, therefore the binary is marked SUID root by default. Yes, this is a potential security hole. However, !PulseAudio tries its best to minimize the security threat: immediately after startup !PulseAudio drops all capabilities except {{{CAP_SYS_NICE}}} (At least on systems that support it, like Linux; see {{{man 7 capabilities}}} for more information). If the calling user is not a member of the group pulse-rt (which is required to have a GID < 1000), root rights are dropped immediately. This means, you can install pulseaudio SUID root, but only a subset of your users (the members of the group pulse-rt) may make use of realtime scheduling. Keep in mind that these users might load their own binary modules into the !PulseAudio daemon which may freeze the machine. The daemon has a minimal protection against CPU hogging (the daemon is killed after hogging more than 70% CPU for 5 seconds), but this may be circumvented easily by evildoers.
+   !PulseAudio activates SCHED_FIFO scheduling if the user passes {{{--high-priority=1}}}. For the root user this will succeed. For normal users {{{rtkit}}} is used to give !PulseAudio realtime priviliges.
 
 
 === What environment variables does !PulseAudio care about? ===
