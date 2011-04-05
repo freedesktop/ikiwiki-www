@@ -9,7 +9,8 @@ Note all methods described here stream raw PCM audio over the network. This can 
 
 == Direct connection ==
 
-Just set the environment variable {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. Alternatively you can modify {{{~/.pulse/client.conf}}} or {{{/etc/pulse/client.conf}}} and set {{{default-server=}}} (See ServerStrings for an explanation of the format, see FAQ# 18 for all locations you can specify the server to use)
+Just set the environment variable {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. Alternatively you can modify {{{~/.pulse/client.conf}}} or {{{/etc/pulse/client.conf}}} and set {{{default-server}}}. See ServerStrings for an explanation of the format.
+In this [wiki:FAQ#HowdothePulseAudiolibrariesdecidewheretoconnectto FAQ entry] all locations you can specify the server to use are listed. All the methods that connect to the daemon over the network using the native protocol need [wiki:Modules#module-native-protocol-unixtcp module-native-protocol-tcp] loaded. This includes tunnels and Zeroconf setups. With this module loaded, the server listens on port 4713 for incoming client connections.
 
 ==== Authorization ====
 For authentication you need the same auth cookies on all sides. For that copy {{{~/.pulse-cookie}}} to all clients that shall be allowed to connect.
