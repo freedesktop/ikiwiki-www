@@ -20,6 +20,13 @@ load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
 }}}
 These two modules are not loaded in the default configuration because they might open !PulseAudio for remote attackers.
 
+==== X forwarding ====
+If the {{{$PULSE_SERVER}}} variable does not exist or is empty, PulseAudio will then check for X11 properties on the root window. These properties are much like environment variables, but will be available remotely if you SSH to another machine with X11 forwarding. You can see a list of PulseAudio related properties by doing:
+{{{
+xprop -root | grep PULSE
+}}}
+The variables names used are the same as those used in the environment, so PulseAudio will look for a property called {{{PULSE_SERVER}}}. Note that only the X11 properties are forwarded over the SSH tunnel, but the pulseaudio client still connects to the server using its own native protocol.
+
 
 == Using a tunnel ==
 
