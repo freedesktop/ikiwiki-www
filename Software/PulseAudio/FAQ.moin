@@ -246,7 +246,7 @@ bidilink unix-client:/tmp/pulse-$USER/cli
 {{{
 load-module module-alsa-sink device="front:Intel" sink_name=output0
 load-module module-alsa-sink device="front:HDA" sink_name=output1
-load-module module-combine sink_name=combined master=output0 slaves=output1
+load-module module-combine sink_name=combined slaves=output0,output1
 set-sink-default combined
 }}}
    This will combine the two sinks {{{output0}}} and {{{output1}}} into a new sink combined. Every sample written to the latter will be forwarded to the former two. !PulseAudio will make sure to adjust the sample rate of the slave device in case it deviates from the master device. You can have more than one slave sink attached to the combined sink, and hence combine even three and more sound cards.
