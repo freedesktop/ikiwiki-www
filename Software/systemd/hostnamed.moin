@@ -1,0 +1,55 @@
+= hostnamed =
+
+systemd 25 and newer include systemd-hostnamed. This is a tiny daemon that can be used to control the host name and related machine meta data from user programs. It currently offers access to four variables:
+
+ * The current host name (Example: dhcp-192-168-47-11)
+ * The static (configured) host name (Example: lennarts-computer)
+ * The pretty host name (Example: Lennart's Computer)
+ * A suitable icon name for the local host (Example: computer-laptop)
+
+The daemon is accessible via D-Bus:
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.hostname1 --object-path /org/freedesktop/hostname1 
+node /org/freedesktop/hostname1 {
+  interface org.freedesktop.hostname1 {
+    methods:
+      SetHostname(in  s name,
+                  in  b user_interaction);
+      SetStaticHostname(in  s name,
+                        in  b user_interaction);
+      SetPrettyHostname(in  s name,
+                        in  b user_interaction);
+      SetIconName(in  s name,
+                  in  b user_interaction);
+    signals:
+    properties:
+      readonly s Hostname = 'dhcp-192-168-47-11';
+      readonly s StaticHostname = 'lennarts-computer';
+      readonly s PrettyHostname = 'Lennart's Computer';
+      readonly s IconName = 'computer-laptop';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+};
+}}}
+
+Whenever the hostname or other meta data is changed via the daemon PropertyChanged signals are sent out to which clients can subscribe. Changing a hostname using this interface is authenticated via PolicyKit.
+
+A couple of notes on the semantics:
+
+The static (configured) host name is the one configured in /etc/hostname or a similar file. It is chosen by the local user. It is not always in sync with the current host name as returned by the gethostname() system call. If no host name is configured this property will be the empty string. Setting this property to the empty string will remove /etc/hostname. This hostname should be an internet-style hostname, 7bit ASCII, no special chars/spaces, lower case.
+
+The transient (dynamic) host name is the one configured via sethostbyname(). It can be different from the static hostname in case DHCP or mDNS have been configured to change the name based on network information. This property is never empty. If no host name is set this will default to "localhost". Setting this property to the empty string will reset the dynamic hostname to the static host name. If no static host name is configured the dynamic host name will be reset to "localhost". This hostname should be an internet-style hostname, 7bit ASCII, no special chars/spaces, lower case.
+
+The pretty host name is a free-form UTF8 host name for presentation to the user. UIs should ensure that the pretty hostname and the static hostname stay in sync. i.e. when the former is "Lennart's Computer" the latter should be "lennarts-computer". If no pretty host name is set this setting will be the empty string. Applications should then find a suitable fallback, such as the dynamic hostname.
+
+The icon name is a name following the XDG icon naming spec. If not set information such as DMI are used to find a suitable fallback icon name (i.e. "computer-laptop" vs. "computer-desktop" is picked based on the chassis information). If no such data is available returns the empty string. In that case an application should fall back to a replacement icon, for example "computer". If this property is set to the empty string this automatic fallback name selection is enabled again.
+
+A client which wants to change the local host name for DHCP/mDNS should invoke SetHostname("newname") as soon as the name is available band afterwards reset it via SetHostname("").
+
+Applications may bypass the daemon to read the hostname data if notifications of host name changes are not necessary. User gethostname(), /etc/hostname (possibly with per-distribution fallbacks), and /etc/machine-data for that. For more information on these files and syscalls see the respective man pages.
