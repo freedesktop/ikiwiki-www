@@ -96,8 +96,19 @@ The volume of the stream. The array is matched against the Channels property: th
 
 There are two ways to adjust the volume. You can either adjust the overall volume by giving a single-value array, or you can precisely control the individual channels by passing an array containing a value for each channel.
 
+The volume can only be written if [#VolumeWritable VolumeWritable] is true.
+
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the stream doesn't have volume.
+   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the stream doesn't have volume (record streams don't currently have volume at all).
+   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.BadStateError org.PulseAudio.Core1.BadStateError] if trying to set a read-only volume.
+
+
+==== !VolumeWritable ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not the [#Volume Volume] property can be set. Note that read-only volumes can still change, clients just can't control them.
 
 
 ==== Mute ====
