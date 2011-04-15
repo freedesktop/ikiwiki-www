@@ -38,7 +38,7 @@ node /org/freedesktop/hostname1 {
 };
 }}}
 
-Whenever the hostname or other meta data is changed via the daemon PropertyChanged signals are sent out to which clients can subscribe. Changing a hostname using this interface is authenticated via PolicyKit.
+Whenever the hostname or other meta data is changed via the daemon !PropertyChanged signals are sent out to which clients can subscribe. Changing a hostname using this interface is authenticated via !PolicyKit.
 
 A couple of notes on the semantics:
 
@@ -50,6 +50,6 @@ The pretty host name is a free-form UTF8 host name for presentation to the user.
 
 The icon name is a name following the XDG icon naming spec. If not set information such as DMI are used to find a suitable fallback icon name (i.e. "computer-laptop" vs. "computer-desktop" is picked based on the chassis information). If no such data is available returns the empty string. In that case an application should fall back to a replacement icon, for example "computer". If this property is set to the empty string this automatic fallback name selection is enabled again.
 
-A client which wants to change the local host name for DHCP/mDNS should invoke SetHostname("newname") as soon as the name is available band afterwards reset it via SetHostname("").
+A client which wants to change the local host name for DHCP/mDNS should invoke !SetHostname("newname") as soon as the name is available band afterwards reset it via !SetHostname("").
 
 Applications may bypass the daemon to read the hostname data if notifications of host name changes are not necessary. User gethostname(), /etc/hostname (possibly with per-distribution fallbacks), and /etc/machine-data for that. For more information on these files and syscalls see the respective man pages.
