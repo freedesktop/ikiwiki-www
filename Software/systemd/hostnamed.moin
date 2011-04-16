@@ -50,8 +50,10 @@ The pretty host name is a free-form UTF8 host name for presentation to the user.
 
 The icon name is a name following the XDG icon naming spec. If not set information such as DMI are used to find a suitable fallback icon name (i.e. "computer-laptop" vs. "computer-desktop" is picked based on the chassis information). If no such data is available returns the empty string. In that case an application should fall back to a replacement icon, for example "computer". If this property is set to the empty string this automatic fallback name selection is enabled again.
 
-A client which wants to change the local host name for DHCP/mDNS should invoke !SetHostname("newname") as soon as the name is available and afterwards reset it via !SetHostname("").
+A client which wants to change the local host name for DHCP/mDNS should invoke !SetHostname("newname", false) as soon as the name is available and afterwards reset it via !SetHostname("").
 
 Applications may bypass the daemon to read the hostname data if notifications of host name changes are not necessary. Use gethostname(), /etc/hostname (possibly with per-distribution fallbacks), and /etc/machine-data for that. For more information on these files and syscalls see the respective man pages.
+
+The user_interaction boolean parameters can be used to control wether PolicyKit should interactively ask the user for authentication credentials if it needs to.
 
 This is inspired by, but not the same as David Zeuthen's xdg-hostname http://people.freedesktop.org/~david/xdg-hostname/
