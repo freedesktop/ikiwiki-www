@@ -48,7 +48,7 @@ The transient (dynamic) host name is the one configured via sethostbyname(). It 
 
 The pretty host name is a free-form UTF8 host name for presentation to the user. UIs should ensure that the pretty hostname and the static hostname stay in sync. i.e. when the former is "Lennart's Computer" the latter should be "lennarts-computer". If no pretty host name is set this setting will be the empty string. Applications should then find a suitable fallback, such as the dynamic hostname.
 
-The icon name is a name following the XDG icon naming spec. If not set information such as DMI are used to find a suitable fallback icon name (i.e. "computer-laptop" vs. "computer-desktop" is picked based on the chassis information). If no such data is available returns the empty string. In that case an application should fall back to a replacement icon, for example "computer". If this property is set to the empty string this automatic fallback name selection is enabled again.
+The icon name is a name following the XDG icon naming spec. If not set information such as SMBIOS/DMI are used to find a suitable fallback icon name (i.e. "computer-laptop" vs. "computer-desktop" is picked based on the chassis information). If no such data is available returns the empty string. In that case an application should fall back to a replacement icon, for example "computer". If this property is set to the empty string this automatic fallback name selection is enabled again.
 
 A client which wants to change the local host name for DHCP/mDNS should invoke !SetHostname("newname", false) as soon as the name is available and afterwards reset it via !SetHostname("").
 
@@ -59,3 +59,5 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 This is inspired by, but not the same as David Zeuthen's xdg-hostname: http://people.freedesktop.org/~david/xdg-hostname/
 
 Also see David's original Fedora feature page about this: http://fedoraproject.org/wiki/Features/BetterHostname
+
+The sources for hostnamed are available in git for review: http://cgit.freedesktop.org/systemd/tree/src/hostnamed.c
