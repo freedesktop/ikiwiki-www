@@ -20,7 +20,7 @@ Development happens in [[GettingInvolved|git]].  There is a [[https://github.com
 === Features ===
 
 Urfkill has the following features:
- * Broadcast rfkill state changed event to DBus for registered userland applications.
+ * Issue rfkill state change signals through DBus
  * Provide DBus interface for userland applications to block/unblock rfkill.
  * Use PolicyKit for system-wide privileges.
  * Send RFKILL_IOCTL_NOINPUT by ioctl to disable rfkill-input function. Please also refer to rfkill interface patch in kernel: [[http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c64fb01627e24725d1f9d535e4426475a4415753|rfkill: create useful userspace interface]]. Sometimes, you will want to disable rfkill-input function in kernel because:
@@ -28,8 +28,6 @@ Urfkill has the following features:
    * You want to implement a userland solution to control rfkill state when user press wlan/bluetooth/wwan Fn+F? hotkey, and you need disable the rfkill-input function without rebuilding kernel.
 
 === D-Bus methods ===
-
-Gary Lin:
 
 It currently provides a few D-Bus method:
  * Block/Unblock: The methods to block or unblock a specific type of killswitches.
@@ -123,15 +121,16 @@ cause.
 
 == Bugs ==
 
-Currently, you can direct mail to Gary Lin (glin@novell.com) and Joey Lee (jlee@novell.com).
+Currently, you can mail to Gary Lin (glin@novell.com) and Joey Lee (jlee@novell.com).
 
 == TODO ==
 
- * Replace rfkill-input module in kernel, provide a policy for user to setup rfkill control rules when catching WLAN/BT/3G keycode.
+ * Replace rfkill-input module in kernel
+ * Provide a policy for user to setup rfkill control rules when catching WLAN/BT/3G keycode.
  * Integrate with GUI to provide power consumption function to user. Plan send patch to:
     * Killswitch-Manager
     * killswitch-applet
     * python-killswitch
- * Will provide a DBus method to userland applications for disable the function key control in urfkill daemon.
+ * Provide a DBus method to enable/disable the function key control in urfkill daemon
 ----
 CategoryHalReplacement
