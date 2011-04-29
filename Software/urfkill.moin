@@ -1,17 +1,10 @@
 = urfkill =
 
-The urfkill project provides:
- * a rfkill daemon that implements well-defined D-Bus interfaces to deal with radio killswitches.
-
-The actions that a user can perform with urfkill are restricted by [[Software/PolicyKit|PolicyKit]].
-
-In some situations, accessing rfkill interface is necessary for userspace applications, e.g. Function Key support. [[Software/hal|HAL]] took the middleware job and provided D-Bus interfaces before, but HAL is [[http://lists.freedesktop.org/archives/hal/2008-May/011560.html|deprecated]].
-
-urfkill is useful to control and monitor the radio killswitches and aimed to provide a flexible function key configuration for killswitches.
+For the laptop and mobile devices users, the management of the radio killswitches is important for the connectivity and power consumption. [[Software/hal|HAL]] took care of this job before, but it is now [[http://lists.freedesktop.org/archives/hal/2008-May/011560.html|deprecated]]. The urfkill project is created to fill the gap and provide more flexible configuration for the rfkill-related function keys.
 
 == Download ==
 
-The latest release can be downloaded from the TO BE SETUP.
+The latest release can be downloaded from [[https://github.com/downloads/lcp/urfkill/urfkill-0.1.1.tar.bz2|github]].
 
 Development happens in [[GettingInvolved|git]].  There is a [[https://github.com/lcp/urfkill/|web interface]] to the repository.
 
@@ -19,13 +12,13 @@ Development happens in [[GettingInvolved|git]].  There is a [[https://github.com
 
 === Features ===
 
-Urfkill has the following features:
- * Issue rfkill state change signals through DBus
- * Provide DBus interface for userland applications to block/unblock rfkill.
- * Use PolicyKit for system-wide privileges.
- * Send RFKILL_IOCTL_NOINPUT by ioctl to disable rfkill-input function. Please also refer to rfkill interface patch in kernel: [[http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c64fb01627e24725d1f9d535e4426475a4415753|rfkill: create useful userspace interface]]. Sometimes, you will want to disable rfkill-input function in kernel because:
-   * The rfkill-input conflicts with the BIOS/EC default action for wlan/bluetooth/wwan.
-   * You want to implement a userland solution to control rfkill state when user press wlan/bluetooth/wwan Fn+F? hotkey, and you need disable the rfkill-input function without rebuilding kernel.
+ * DBus signals for the killswitch state changes
+ * DBus methods to block/unblock killswitches by the type name or the index
+ * [[Software/PolicyKit|PolicyKit]] for the privileges management
+ * rfkill-related function keys handling
+
+Note:
+The kernel module, rfkill-input, will be disabled when the urfkill daemon is running.
 
 === D-Bus methods ===
 
@@ -35,15 +28,15 @@ It currently provides a few D-Bus method:
  * GetKillswitch: It returns the information of a killswitch.
 
 There are also some signals which are useful to monitor the status of killswitches:
- * RfkillAdded()
- * RfkillChanged()
- * RfkillRemoved()
+ * RfkillAdded
+ * RfkillChanged
+ * RfkillRemoved
 
-I also implemented a glib binding to make it easier to use.
+A glib binding is also implemented to make it easier to use.
 
 === HowTo ===
 
-[[Software/urfkill/HowToLaunch|How to launch urfkill when system boot]]
+[[Software/urfkill/HowToLaunch|How to launch urfkill during system boot]]
 
 == Released ==
 
@@ -119,15 +112,17 @@ by thinkpad-acpi. It can be worked around by set force_sync
 to true in /etc/urfkill.conf, but I still wonder what is the root
 cause.
 
+== Known Issues ==
+
 == Bugs ==
 
-Currently, you can mail to Gary Lin (glin@novell.com) and Joey Lee (jlee@novell.com).
+Currently, you can mail to Gary Lin (glin@novell.com) and Joey Lee (jlee@novell.com) or poke me (glin) on #udev/irc.freenode.net
 
 == TODO ==
 
  * Replace rfkill-input module in kernel
  * Provide a policy for user to setup rfkill control rules when catching WLAN/BT/3G keycode.
- * Integrate with GUI to provide power consumption function to user. Plan send patch to:
+ * Integrate with GUI to provide power consumption function to user, e.g.
     * Killswitch-Manager
     * killswitch-applet
     * python-killswitch
