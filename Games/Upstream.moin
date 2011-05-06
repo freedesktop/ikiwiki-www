@@ -1,4 +1,37 @@
+= How to be a good upstream for games =
+
+Note: This is still under heavy discussion. You should not use this as a recommendation yet.
+
+== Centralized highscores ==
+
+A centralized highscore is at least systemwide, so two different users will score on the same highscore list. Ideally, this list may also reside on a network, either locally or the internet. Note that this means that it is impossible to prevent cheating.
+
+=== How to implement a centralized highscore ===
+
+If you want to implement a centralized highscore in your game, you should use the highscore library. At the moment of this writing, it doesn't exist yet. Its proposed interface is described below. If your game already has a server-wide highscore system, it is a good idea to change it to use the library instead. However, it doesn't have to be a priority. Below, a method is described which you can use to make your game more secure. If you don't have the time (yet) to start using the library, please implement this instead.
+
+Interface of the library:
+
+A highscore consists of an integer score plus any number of fields with arbitrary strings in it. The integer is used for sorting; it should not be displayed, so it should be repeated as a text string unless it should not be shown.
+
+Library interface (seen from the game):
+ * Get the current list of highscores.
+ * Register a callback to be notified of changes to a list of highscores.
+ * Unregister the callback.
+ * Free the list.
+ * Send a new score, which is potentially a highscore. Returns: position in the high score list.
+
+==== Method for securing centralized highscore systems ====
+When implementing a centralized highscore system, most games would use the setgid bit on their executable, to be able to write to a central highscore file. This is a security issue. This is avoided when using the highscore shared library. If it is not feasable to use that, you should minimize the rist that this produces. This can be done like this:
+ * At the start of the game, open the highscore file.
+ * Immediately after that, drop the setgid priviledges.
+ * Never close the file, only truncate and rewrite it.
+
+The last part is most of the work. For a code snippet implementing the first part, you can use [[http://fedoraproject.org/wiki/SIGs/Games/Packaging]].
+
 = Upstream =
+
+Links to other pages about upstream on this wiki:
 
  * [[Games/Upstream/Gnome]]
  * [[Games/Upstream/KDE]]
