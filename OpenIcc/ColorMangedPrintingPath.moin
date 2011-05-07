@@ -59,6 +59,9 @@ Printing Testcharts can be simple with predefined driver settings for a given me
 Working with predefined driver settings is necessary for user who don´t want to know the details about printer profiling, but wants to have an individual ICC-profile for his media through an remote profiling service. 
 The advanced options are needed for power users which want to adapt the driver settings to an optimum for the ink-media combination before the testchart is printed.
 
+Doing high-quality printer profiling with control for black generation needs the possibility for sending CMYK testcharts to the printer. This is not possible if the sending application supports only RGB based print spool files.
+
+
 
 == 7) Disclosure of complexity through CPD ==
 The following concept describes three layers in a CPD dialogues:
@@ -71,6 +74,8 @@ The top CPD dialogues presents:
 - papersize
 
 - number of copies
+
+- scaling of print job
 
 - import new media / quality setting (simply import an ICC-driversetting for the printertype)
 
@@ -131,6 +136,9 @@ The source profile for the color transformtion of the print spool file is either
 If a user imports an ICC-driversetting in CPD, it must be available instantly for pdftoraster without any user intervention. pdftoraster must also be able to embedd the target profile of the transformtiion into the rasterfile for rastertodriver (e.g. rastertogutenprint).
 So far as I know, only GhostScript is currently able to convert DeviceRGB and DeviceCMYK PDF-files with ICC-profiles and free choosable rendering intents. poppler applies ICC-based transformations only to ICCbased PDF-objects.
 
+== 7d Different versions / installing options of CPD ? ==
+For users, which are only using software with standard RGB print spool path and not interested in printing testcharts, it may makes sense to offer two versions of CPD. One containing only the top layer and another all three layers.
+It may also makes sense to develop a solution to print CMYK-testcharts directly from CtP to rastertogutenprint (bypassing the normal deviceRGB print spool path and pdftoraster)
 
 == 9) Crowd profiling and registry for Gutenprint ICC-driversettings ==
 If we are talking about ICC-driver settings representing different printers, different media types and quality modes, we are talking about 1000+ Gutenprint ICC-driver settings.
