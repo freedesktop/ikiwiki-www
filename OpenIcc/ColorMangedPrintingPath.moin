@@ -2,19 +2,21 @@
 This page is intended to coordinate the developments and the  usage of ICC profiles in following applications / tools. The first version should act as a starting point for the community active for the colormanaged printing path.
 
 === Print Spool file generation ===
-- QT printing API
-- print spool files created directly from applications 
+* QT printing API
+
+* print spool files created directly from applications 
 
 === PDFtoRaster modules ===
-- GhostScript
-- Poppler
+* GhostScript
+
+* Poppler
 
 === CUPS ===
 
 === CPD - Common Printing Dialogue ===
 
 === Raster Printer driver ===
-- Gutenprint
+* Gutenprint
 
 
 
@@ -36,8 +38,11 @@ A combination of ICC-profile and driver setting is named "ICC-driversetting" in 
 == 4) Importing ICC-driversettings into CPD ==
 Normally, available driver options are represented through static PPD files in the CUPS / CPD workflow. There are several use cases, where it makes a lot of sense, that the user can import ICC-driversettings into CPD without the need to change the PPD for the printer. These are e.g.
 - The driver vendor / community publishes new ICC-driver settings for a given printer
+
 - A media vendor publishes new ICC-driver settings for a given printer
+
 - A remote profiling service delivers ICC-driver settings to the enduser
+
 - The enduser itself creates new ICC-driver settings
 
 The choosable options for the standard user in CPD concerning media and print quality / speed will be generated only from the available ICC-driver settings. For creating a simple CPD-user interface, the ICC-driversettings should contain hierarchical selectors for e.g. printertype, mediatype and resolution
@@ -60,18 +65,25 @@ The following concept describes three layers in a CPD dialogues:
 == 7a) Daily usage ==
 The top CPD dialogues presents:
 - media type selector (extracted from installed ICC-driversettings)
+
 - resolution / quality (extracted from ICC driversettings of the same media type, Standard rendering is set to relative colorimetric with blackpoint compensation and hidden from the user)
 - papersize
+
 - number of copies
+
 - import new media / quality setting (simply import an ICC-driversetting for the printertype)
+
 - advanced settings (open the second layer)
 
 
 == 7b) Advanced settings ==
 - media / quality selector
 (available from different sources:
+
 	-  extracted from ICC-driver settings, 
+
 	- direct import of settings indpendent fromICC-profile, 
+
 	- creation of own media / quality settings in expert mode)
 
 - Choose color rendering options 
@@ -99,15 +111,20 @@ The top CPD dialogues presents:
 All available low level options for the expert to create individual media driver settings
 - media quality selector
 (the same selector as in advanced settings. Selecting a media / quality setting here, will show all the entries for the low level driver settings and makes them available for editing. Also additional media quality settings are available for:
+
 7c-1) printing testcharts for judging and setting inklimits per channel and total ink-limit
+
 7c-2) printing testcharts for judging and optimizing per channel linearization curves
 
 
 == 8) CPD and pdftoraster ==
 The color transformtion of the print spool file happens in pdftoraster. pdftoraster must be able to be remotely configured through CPD, if e.g. the user changes a media / quality setting. Controlled by CPD are at least the target profile for the color transformation of the print spool file, the rendering intent and disabling of the usage of ICC profiles in pdftoraster. 
 The source profile for the color transformtion of the print spool file is either:
+
 - defined from the sending application through its document colorspace
+
 - defined through a colormanagement framework like e.g. Oyranos or g-c-m
+
 - default profile of pdftoraster (sRGB.icc for standard pdf printspool files)
 
 If a user imports an ICC-driversetting in CPD, it must be available instantly for pdftoraster without any user intervention. pdftoraster must also be able to embedd the target profile of the transformtiion into the rasterfile for rastertodriver (e.g. rastertogutenprint).
@@ -118,13 +135,16 @@ So far as I know, only GhostScript is currently able to convert DeviceRGB and De
 If we are talking about ICC-driver settings representing different printers, different media types and quality modes, we are talking about 1000+ Gutenprint ICC-driver settings.
 To organize such Gutenprint ICC-driversettings, it would be helpful, to have a registry which allows upload of ICC-driversettings and download for endusers selectable by printertype.
 1000+ ICC driver settings seems to be a lot of work for a relatively small project like the Gutenprint team. But if we look, which parties could participate in the project, 1000+ Gutenprint ICC-driversettings could be realized between 6 and 12 months. Potential creators of Gutenprint ICC-driversettings are e.g.
+
 - Members of the Gutenprint team
+
 - vendors and resellers for inkjet-media
+
 - open source color enthusiasts, which sponsoring their own made Gutenprint ICC-driversettings
+
 - open source color enthusiasts which are sponsoring the project with monthly measuring some testcharts
+
 - remote profiling services, where the buyer of an individual made Gutenprint ICC-driversetting gets a lower price, if he agrees that a copy of his Gutenprint ICC-driversetting will be uploaded to the registry.
 
 To organize the registry and the crowd-profiling process, it is very important, that printertypes, general mediatypes and resolution/quulity settings are unambiguous defined.
 This could be solved, where the Gutenprint delivers predefined settings, where e.g. the printertypes, general mediatypes and resolution / quality settings are already named. The contributor will ad e.g. additional informations like the precise commercial media name of the setting, before he merges ICC-profile and Gutenprint settings to an Gutenprint ICC-setting, which he than uploads to the registry.
-
-
