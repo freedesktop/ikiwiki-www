@@ -123,6 +123,11 @@ All available low level options for the expert to create individual media driver
 7c-2) printing testcharts for judging and optimizing per channel linearization curves
 
 
+== 7d Different versions / installing options of CPD ? ==
+For users, which are only using software with standard RGB print spool path and not interested in printing testcharts, it may makes sense to offer two versions of CPD. One containing only the top layer and another all three layers.
+It may also makes sense to develop a solution to print CMYK-testcharts directly from CtP to rastertogutenprint (bypassing the normal deviceRGB print spool path and pdftoraster)
+
+
 == 8) CPD and pdftoraster ==
 The color transformtion of the print spool file happens in pdftoraster. pdftoraster must be able to be remotely configured through CPD, if e.g. the user changes a media / quality setting. Controlled by CPD are at least the target profile for the color transformation of the print spool file, the rendering intent and disabling of the usage of ICC profiles in pdftoraster. 
 The source profile for the color transformtion of the print spool file is either:
@@ -136,9 +141,6 @@ The source profile for the color transformtion of the print spool file is either
 If a user imports an ICC-driversetting in CPD, it must be available instantly for pdftoraster without any user intervention. pdftoraster must also be able to embedd the target profile of the transformtiion into the rasterfile for rastertodriver (e.g. rastertogutenprint).
 So far as I know, only GhostScript is currently able to convert DeviceRGB and DeviceCMYK PDF-files with ICC-profiles and free choosable rendering intents. poppler applies ICC-based transformations only to ICCbased PDF-objects.
 
-== 7d Different versions / installing options of CPD ? ==
-For users, which are only using software with standard RGB print spool path and not interested in printing testcharts, it may makes sense to offer two versions of CPD. One containing only the top layer and another all three layers.
-It may also makes sense to develop a solution to print CMYK-testcharts directly from CtP to rastertogutenprint (bypassing the normal deviceRGB print spool path and pdftoraster)
 
 == 9) Crowd profiling and registry for Gutenprint ICC-driversettings ==
 If we are talking about ICC-driver settings representing different printers, different media types and quality modes, we are talking about 1000+ Gutenprint ICC-driver settings.
