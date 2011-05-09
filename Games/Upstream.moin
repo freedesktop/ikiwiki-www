@@ -16,13 +16,14 @@ A highscore consists of an integer score plus any number of fields with arbitrar
 
 Library interface (seen from the game):
  * Get the current list of highscores.
- * Register a callback to be notified of changes to a list of highscores.
- * Unregister the callback.
- * Free the list.
- * Send a new score, which is potentially a highscore. Returns: position in the high score list.
+ * Get an fd which should be selected for read to see if a new highscore event occurs.
+ * Free the list. (Happens in destructor for languages which support them.)
+ * Send a new score, which is potentially a highscore. Returns: position in the high score list. This is the 0-based position, or ~0 if it is not a new highscore.
+
+To be notified of changes, the game should make its main loop check for read on the given fd. When the fd can be read, the current list should be retrieved again.
 
 ==== Method for securing centralized highscore systems ====
-When implementing a centralized highscore system, most games would use the setgid bit on their executable, to be able to write to a central highscore file. This is a security issue. This is avoided when using the highscore shared library. If it is not feasable to use that, you should minimize the rist that this produces. This can be done like this:
+When implementing a centralized highscore system, most games would use the setgid bit on their executable, to be able to write to a central highscore file. This is a security issue. This is avoided when using the highscore shared library. If it is not feasable to use that, you should minimize the risk that this produces. This can be done like this:
  * At the start of the game, open the highscore file.
  * Immediately after that, drop the setgid priviledges.
  * Never close the file, only truncate and rewrite it.
