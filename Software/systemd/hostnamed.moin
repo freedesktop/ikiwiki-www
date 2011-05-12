@@ -69,3 +69,24 @@ Here are three examples how the pretty hostname and the icon name should be used
  * When your file browser has a "Computer" icon, replace the name with the pretty hostname if set, and the icon with the icon name, if it is set.
 
 To properly handle name lookups with changing local hostnames without having to edit /etc/hosts for them we recommend using hostnamed in combination with nss-myhostname: http://0pointer.de/lennart/projects/nss-myhostname/
+
+Here are some recommendations to follow when generating a static (internet) hostname from a pretty name:
+
+ * Generate a single DNS label only, not an FQDN. That means no dots allowed. Strip them, or replace them by "-".
+ * It's probably safer not to use any non-ASCII chars, even if DNS allows this in some way these days. In fact, restrict your charset to a-zA-Z0-9, -. Strip other chars, or try to replace them in some smart way with chars from this set, for example "ä" → "ae" and suchlike, and use "-" as replacement for all kinds of punctuation chars or spaces.
+ * Try to avoid creating repeated "-", as well as "-" as the first or last char.
+ * Limit the hostname to 63 chars, which is the length of a DNS label
+ * If after stripping special chars the empty string is the result, you can pass this as-is to hostnamed in which case it will automatically make "localhost" out of this.
+ * It probably is a good idea to replace uppercase by lowercase chars
+
+Note that while hostnamed applies some checks to the hostname you pass they are much loser than the recommendations above. For example, hostnamed will also accept "_" in the hostname, but I'd recommend not to use this to avoid clashes with DNS-SD service types. Also hostnamed allows you longer hostnames, but because of the DNS label limitations I'd recommend not making use of this.
+
+Here are a couple of example conversions:
+
+ * "Lennart's PC" → lennarts-pc
+ * "Müllers Computer" → muellers-computer
+ * "Voran!" → voran
+ * "Es war einmal ein Männlein" → "es-war-einmal-ein-maennlein"
+ * "Jawoll. Ist doch wahr!" → "jawoll-ist-doch-wahr"
+ * "レナート" → "localhost"
+ * "...zack!!! zack!..." → "zack-zack"
