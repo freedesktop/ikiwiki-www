@@ -1,0 +1,112 @@
+== Introduction ==
+
+As detailed in [[../Project history|project history]], libfprint originated from an earlier project, which aimed solely to make DigitalPersona fingerprint readers on Linux. These are imaging devices, and after successfully managing to retrieve images from such devices, we ran into a larger problem: how can we process images in order to determine "scan A is the same finger as scan B, login authorised"?
+
+While hunting around for potential solutions, I came across NIST's NFIS2, which is now known as [[http://fingerprint.nist.gov/NBIS/index.html|NBIS]]. You can see on their site that parts of their software are export controlled. At the time, the entire project was export controlled and there was not any description of which parts might potentially be under which export classifications. Now it says:
+
+ "It is our understanding that NFSEG and BOZORTH3 fall within ECCN 3D980, which covers software associated with the development, production or use of certain equipment controlled in accordance with U.S concerns about crime control practices in specific countries."
+
+As US export control applies to all exports, such information indicates that ''all'' fingerprint processing code (not just NIST's implementation) is subject to these restrictions. Regardless of whether we were to use NFIS2 or not, if NIST's information was anything to go by, our code would fall under special restrictions when being exported from the US. NIST avoided the issue by limiting distribution to CDROM only -- they used your postal address to ensure you are not located in any country designated as terrorist-supportive. Such distribution control is obviously not suitable for an open source project.
+
+I contacted NIST, and Craig Watson was kind enough to provide some useful responses, even though it is clearly not an area of interest for himself. Craig clarified which export classification that NIST thought they might be bound to, and explained that this was only their "understanding" and they were not 100% sure that this classification applies.
+
+James Vasile of the [[http://www.softwarefreedom.org|Software Freedom Law Center]] kindly spent some time investigating the matter, but no good news emerged.
+
+Some time later, I sat down to really analyse the [[http://www.access.gpo.gov/bis/ear/ear_data.html|Export Administration Regulations]] to look for solutions. It turns out that distributing NBIS in an open source project is not restricted, for reasons explained below.
+
+== Justification for export safety ==
+
+We start with section 732.2 of the EAR, which provides a set of steps for determining the scope of the EAR and whether your export falls below it.
+
+=== Step 1: Items subject to the exclusive jurisdiction of another Federal agency ===
+
+I think that this step basically says "if your export falls under [[http://en.wikipedia.org/wiki/International_Traffic_in_Arms_Regulations|ITAR]], then follow ITAR and ignore the EAR".
+
+Nevertheless, NBIS does not appear to be subject to any exclusive jurisdiction.
+
+=== Step 2: Publicly available technology and software ===
+
+This step says:
+
+ "Determine if your technology or software is publicly available as defined and explained at part 734 of the EAR"
+
+So we now fall into part 734...
+
+==== Part 734 ====
+
+Before we reach the real meat, here are some informative quotes from 734.1:
+ "This part is the first step in determining your obligations under the EAR. If neither your item nor activity is subject to the EAR, then you do not have any obligations under the EAR and you do not need to review other parts of the EAR."
+ "Conversely, items and activities that are not subject to the EAR are outside the regulatory jurisdiction of the EAR and are not affected by these regulations."
+
+So, we're looking for something that makes us "not subject to the EAR".
+
+Some software-related notes in part 734.2 explain that export of software includes release of EAR-subjected software in a foreign country and release of EAR-subjected source code to a foreign national. Similar logic applies to reexports.
+
+734.2(9) starts talking about software again, but specifically about encryption, which does not concern this code.
+
+Moving onto section 734.3, we see:
+ "Except for items excluded in paragraph (b) of this section, the following items are subject to the EAR:"
+
+Skipping over those items, we reach paragraph (b).
+ "(b) The following items are not subject to the EAR:"
+
+Item 3 of that paragraph says:
+
+ "Publicly available technology and software [...] '''that are already published or will be published''' as described in §734.7 of this part;"
+
+Moving down to section 734.7, "PUBLISHED INFORMATION  AND SOFTWARE":
+
+ "(a) '''Information is "published" when it becomes generally accessible to the interested public in any form''', including:"
+
+ "(1)  Publication in periodicals, books, print, '''electronic''', or any '''other media available for general distribution to any member of the public''' or to a community of persons interested in the subject matter, such as those in a scientific or engineering discipline, either '''free''' or at a price that does not exceed the cost of reproduction and distribution"
+
+It is clear that open source software, available as free download to anyone and everyone, would be classified as published information according to the above definition. Going back to 734.3, this indicates that such software is not subject to the EAR. Falling back further to section 734.1, we see that we ''do not have any obligations under the EAR and [...] do not need to review other parts of the EAR''.
+
+=== Back to 732.2 (step 2) ===
+
+ "(1)  If your technology or software is publicly available, and therefore '''outside the scope of the EAR''', you may proceed with the export or reexport if you are not a U.S. person subject to General Prohibition Seven."
+
+General Prohibition Seven is briefly described in section 732.3(j) and applies to all U.S. nationals. I am not included in that group, however I am sure that sourceforge (our files host) have mirrors in the US, so I need to consider this anyway.
+
+==== General Prohibition 7 ====
+
+736.2(b)(7) contains the exact text for GP7. This says:
+ * You may not export certain chemicals (not relevant here)
+ * You may not provide certain assistance to foreign nationals regarding encryption (not relevant here)
+ * You may not do anything mentioned in 744.6(a) or 744.6(b)
+  * 744.6(a) covers contributions to nuclear explosives, missiles, or biological weapons. It also covers knowingly assisting an illegal export, and helping people build chemical weapons factories. (entirely irrelevant)
+  * 744.6(b) says: BIS may decide to impose export license requirements for an export at will, if they feel it may contribute to something in (a) above.
+
+So, it does not seem possible for GP7 to apply to someone regarding the export of libfprint.
+
+We've now completed section 734.2, and have deduced that we are '''not subject to the EAR'''.
+
+== Further justification ==
+
+Supplement 1 to part 734 contains an example which is directly relevant to our situation.
+
+ Question A(1):  I plan to publish in a foreign journal a scientific paper describing the results of my research, which is '''in an area listed in the EAR as requiring a license''' to all countries except Canada.  Do I need a license to send a copy to my publisher abroad? 
+
+ Answer:  No.  '''This export transaction is not subject to the EAR. The EAR do not cover technology that is already publicly available, as well as technology that is made public by the transaction in question''' (§§734.3 and 734.7 of this part).  Your research results would be made public by the planned publication.  You would not need a license.
+
+Later on in the same supplement, we have 2 more related questions:
+
+ Question G(1):  Is the export or reexport of software in machine readable code subject to the EAR when the source code for such software is publicly available? 
+
+ Answer:  If the source code of a software program is publicly available, then the machine readable code compiled from the source code is software that is publicly available and therefore not subject to the EAR.
+
+ Question G(2): Is the export or reexport of software sold at a price that does not exceed the cost of reproduction and distribution subject to the EAR?  
+
+ Answer:  Software in machine readable code is publicly available if it is available to a community at a price that does not exceed the cost of reproduction and distribution.
+
+== Discussion with U.S. Exports office in Washington ==
+
+For further clarification, I contacted the U.S. exports office in Washington and explained the situation. They confirmed that such distribution is not subject to the EAR, and also commented that NIST's current distribution method (sent on CDROM to pretty much anyone who asks for it) would likely also qualify the software as publicly available information, even before the first libfprint export occurs.
+
+== Conclusions ==
+
+As long as libfprint remains open source and freely downloadable, it is exempt from the U.S. Export Administration Regulations. This exemption applies to everyone, so if you're considering redistributing libfprint potentially from the US to another country, ''you have nothing to worry about''.
+
+I can also conclude that NIST's own distribution restrictions are unnecessary.
+
+Disclaimers: Although I fully believe the above is true and correct interpretation of the EAR, and after spending several hours trawling through it I am confident I have a good understanding of the system, I am not a lawyer or exports officer. Also, like any other software, export controls may potentially apply on this project in other parts of the world. I have confirmed that the UK has no such restrictions regarding fingerprinting, but have not looked at other area of UK export restrictions, and have not examined export control policies for other countries.
