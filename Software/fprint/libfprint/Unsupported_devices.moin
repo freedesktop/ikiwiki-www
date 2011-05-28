@@ -1,0 +1,95 @@
+This page lists devices that are currently unsupported by libfprint, which we'd like to support in future.
+
+== Introduction ==
+
+This page tracks devices that are not supported by [[../../libfprint|libfprint]] but would be nice to support in future.
+
+The usual process is for someone who has one of the devices to perform [[../USB sniffing]] and for us then to figure out how we can get one of the devices into the hands of a developer who can write a driver. We have project funds available to buy devices (and are not accepting further donations at this time). This is not a fast process, so please be patient.
+
+== Current status ==
+
+'''There do not appear to be any active driver development efforts happening at the moment.'''
+
+Plenty of users have published USB sniff logs on the mailing list for many of the devices below, the next step is for someone to step up, examine these logs and write driver code. This is a very difficult task if said developer does not have a good level of knowledge of USB and the workings of similar devices, and is impractically time consuming if the developer does not have access to the hardware.
+
+The difficulties here include:
+ * The current generation of devices usually include encryption, of either the procotol, the image data, or both
+ * Even where the image data is unencrypted, the data comes directly from the sensor, so complex reconstruction algorithms are needed to convert it to image form
+
+Another approach is to use chinese-wall reverse engineering, where 1 party disassembles and documents the windows driver for such hardware, and another party writes a libfprint driver. This is also very time consuming and requires a very skilled and patient person to do the disassembly/documentation.
+
+In short: what we need right now is skilled developers who have done this kind of driver-development before, who have access to the hardware, and a lot of time on their hands. You're unlikely to spur progress by posting further sniff logs to the mailing list.
+
+== DigitalPersona U.are.U 4500 ==
+
+DigitalPersona have released a new device. Nobody has reported sniff logs yet, but there does seem to be availability on ebay.
+
+== UPEK TCRD4C (newer Eikon) ==
+
+The latest revision of UPEK's Eikon offering is a 147e:2016 device (as opposed to a 0483:2015 [[../upekts|upekts]] device). Devices with this ID are usually supported by [[../upeksonly|upeksonly]] but this is reported not to work.
+
+== Validity VFS101 ==
+
+A new competitor on the market, Validity have recently got their sensors included in some popular laptops such as the HP Pavilion dv7. The USB for the VFS101 is [[http://www.qbik.ch/usb/devices/showdev.php?id=4476|138a:0001]]. Under Windows, this hardware is driven by DigitalPersona software, leading some people to incorrectly assume that this is a DigitalPersona scanner. 
+
+I can't find much information about this device. Is there encryption? Is imaging done in hardware or software? (presumably software, presumably one of the main reasons to partner with DigitalPersona is to use their image processing code)
+
+I have emailed Validity asking about the possibility of device specifications and/or sample devices. I will also follow up the same way with HP and HP's suppliers. However, these requests usually go nowhere.
+
+Next steps that the community can do:
+ * Try and get one of these devices into the hands of a capable developer
+  * First we need to either source a laptop (unlikely) or a standalone device (do these exist?)
+  * Or can someone rip theirs out of their laptop? also unlikely...
+ * Sniff logs so that some initial protocol analysis can be done
+  * Initial analysis: protocol seems fairly simple, image is unencrypted but is not quite simple greyscale (there is embedded control data, and columns do not come back in normal L-to-R order)
+ * Start writing code (using libusb) that mimics the sniff logs
+  * [[http://www.reactivated.net/weblog-content/20050806-reverse-0.2.txt|this might help you get started]]
+
+== AuthenTec AES2550 & AES2810 ==
+
+There are new scanners in AuthenTec's range, which according to the specifications do fingerprint matching in hardware. We also have reason to suspect the protocol is encrypted, although the question is then: can we disable or break the encryption?
+
+We need help in the following areas:
+ * Sourcing one of each of these devices (this is made difficult because they only seem to be found in laptops)
+ * Capturing USB transfer logs from Windows to allow for protocol analysis (using e.g. [[http://www.pcausa.com/Utilities/UsbSnoop/default.htm|SniffUsb]]).
+  * [[http://lists.reactivated.net/pipermail/fprint/2008-November/000855.html|AES2810 logs posted to the mailing list]] and [[http://lists.reactivated.net/pipermail/fprint/2008-November/000853.html|my first-glance analysis]]
+  * AES2550 logs would be good to have on file, if anyone has one.
+
+== UPEK devices in Sony laptops ==
+
+[[http://gentoo-wiki.com/HARDWARE_Sony_VGN-BX297XP#fingerprint_reader|UPEK confirms]] that even though Sony laptops include a 0483:2016 scanner (which would otherwise be supported by [[../upekts|upekts]]), the Sony version has a custom firmware designed to prevent any non-Sony software interacting with the device. Unfortunately they are successful and fprint, ThinkFinger and UPEK's own Linux drivers do not work with the fingerprint scanners in Sony laptops.
+
+== ZKSoftware ZK-6000 ==
+
+Leonardo Baeta Lopes reports that ZK-6000 doesn't work with libfprint, i.e. is not the same as the DigitalPersona devices which do work. It does look similar though, so I wonder if it is the next generation of the product. I think ZK is the OEM, and DigitalPersona just rebrand their products.
+
+== Sunplus 895 ==
+
+There are a surge of cheap fingerprint readers on ebay, and by tracing a few product names that can be seen on images, I think they are all based on the Sunplus 895 chip. [[http://gkall.hobby.nl/sunplusfps.html|Gerald Klaver has some information]]. In addition to funds and time to reverse engineer this, it appears that some extra work might be needed. It appears that this device sits behind a usb-serial converter, which we first need to write a kernel driver for, and secondly, fprint would need a bit of rearchitecting as it presently makes the assumption that all devices should be accessed using libusb.
+
+== Samsung ID Mouse ==
+
+This was probably one of the first consumer fingerprint scanning devices and is hard to get hold of nowadays. There is a driver present in the Linux kernel for this device. It also presents an interesting challenge, as it does not offer any finger detection whatsoever: it is up to the software to determine when a finger has been placed on the sensor, through image analysis alone.
+
+== Authentec AES3400 ==
+
+[[http://gkall.hobby.nl/authentec.html|Gerald Klaver has some information]]. Need one of these devices to work on. These are available standalone in the APC biopod devices. David Z's udrv driver looks like a good model (GK says its an AES4000 driver, but I don't see anything that suggests that is the case...)
+
+== Authentec AES3500 ==
+
+This is found in the Samsung X30 laptop. Tobias Wolf is working on a driver (see the mailing list).
+
+== Magictec FIN002 ==
+
+The [[http://www.geeks.com/details.asp?invtid=FIN002|FIN002]] appears to be manufactured by magictec.com.tw.
+
+== Futronic FS80/FS82 ==
+
+[[http://www.biomark.org.ru/|Biomark.org.ru]] has a driver for this, mostly closed source. [[http://www.youtube.com/watch?v=gDqDngxp6yU&NR=1|This video]] shows some nice image quality and that their software can do enrollment/verification (but those parts are closed). If their open source part does not contain all the info we need to get images from such devices, it should be quite easy to reverse engineer the device through bus traffic analysis while running their software.
+
+The FS82 is the FS80 with a smart card reader.
+
+== Useful links ==
+
+ * Jean-François Mainguet's site lists [[http://perso.orange.fr/fingerchip/biometrics/types/fingerprint_products_drives_flash.htm|a lot of products]]
+ * [[http://www.wavesys.com/products/esc_listing2.html|List of products incorporating Authentec sensors]]
