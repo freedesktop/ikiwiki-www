@@ -1,0 +1,32 @@
+== Introduction ==
+
+[[../../libfprint|libfprint]] includes a number of drivers which are all compiled and included by default. This will not change, because we want to promote further development of all drivers and ensure they continue to compile OK (even the ones that are not so high quality).
+
+However, if you're distributing libfprint, you may want to selectively disable the drivers which are known not to work so well. This page will guide you on those decisions.
+
+In the context of this page, we refer to "quality" from a user perspective -- how well does the driver accept fingers that match, and reject ones that don't? It does not necessary relate to the code quality of that driver, which may be different!
+
+The quality of most drivers could be improved by the methods described at [[../Imaging performance]].
+
+== Best quality ==
+
+ * [[../upekts|upekts]] - this device does image matching in hardware, and I have never seen any strong complaints about the quality here. It works well for me.
+
+== Good quality ==
+
+These drivers produce large, high quality fingerprint images. For most people, the image processing code performs well on such images. For others, it does not work so well. See [[../Imaging performance]] for discussion.
+
+ * [[../aes2501|aes2501]]
+ * [[../upeksonly|upeksonly]]
+ * [[../uru4000|uru4000]]
+ * [[../vcom5s|vcom5s]] - finger placement is important, but is guided by the mechanics of the device
+
+== Not so usable ==
+
+ * [[../aes1610|aes1610]] - this is a really small sensor and only images a small area of the finger
+ * [[../aes4000|aes4000]] - small image, low DPI, easy to place your finger differently each time
+ * [[../upektc|upektc]] - the driver author reports that matching performance is not brilliant
+
+== Unknown ==
+
+ * [[../fdu2000|fdu2000]] - feedback requested, how well does it match your fingers? I suspect it is not so great, as the matching threshold had to be lowered far below the default.
