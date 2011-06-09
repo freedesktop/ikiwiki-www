@@ -4,7 +4,7 @@ For the laptop and mobile devices users, the management of the radio killswitche
 
 == Download ==
 
-The latest release can be downloaded from [[https://github.com/downloads/lcp/urfkill/urfkill-0.1.1.tar.bz2|github]].
+The latest release is 0.1.1 and can be downloaded from [[https://github.com/downloads/lcp/urfkill/urfkill-0.1.1.tar.bz2|github]].
 
 Development happens in [[GettingInvolved|git]].  There is a [[https://github.com/lcp/urfkill/|web interface]] to the repository.
 
@@ -38,81 +38,16 @@ A glib binding is also implemented to make it easier to use.
 
 [[Software/urfkill/HowToLaunch|How to launch urfkill during system boot]]
 
-== Released ==
-
-=== urfkill 0.1.1 ===
-Hi all,
-
-I'm glad to release urfkill 0.1.1. The tarball is available here:
-https://github.com/downloads/lcp/urfkill/urfkill-0.1.1.tar.bz2
-
-This release adds a few features which includes:
-
-1. Hardware profile parser for urfkill settings
-  The "profile" file is a xml file which includes various matching rules
-  It uses the information from DMI to match laptops to configure urfkill
-  properly. Currently, I chose the following values from /sys/class/dmi/id
-  for machine matching: sys_vendor, bios_date, bios_vendor, bios_version,
-  product_name, and product_version. There are already 2 profiles available
-  now, and any feedback for the settings is always welcome :-)
-  NOTE: The pre-configured settings will be overwritten by
-/etc/urfkill/urfkill.conf.
-
-2. Tentative dbus methods for the key control
-  Two dbus methods are added to query and enable/disable the rfkill key
-  control.
-
-3. KEY_RFKILL handling
-  The keycode ,KEY_RFKILL, is handled by urfkilld now.
-
-There are also some bug fixes. Please check NEWS file for further information.
-
-I'll put more effort for the documents and revise the dbus methods for the next
-release. Any suggestion or bug report are welcome and appreciated :-)
-
-Sincerely Yours,
-
-Gary Lin
-
-=== urfkill 0.1.0 ===
-Hi all,
-
-I am pleased to release urfkill 0.1.0 and it's available in:
-https://github.com/downloads/lcp/urfkill/urfkill-0.1.0.tar.bz2
-
-urfkill implements a daemon, urfkilld, to monitor and control
-the radio killswitches of WLAN/BLUETOOTH/WWAN/UWB/WIMAX.
-It also provides DBus methods to monitor and control the killswitches,
-so the userspace applications can interact with them without
-getting root privilege.
-
-Since the kernel rfkill input handler is going to be deprecated,
-urfkilld catches the rfkill keys and does a flip-flop state update
-for the killswitches (the same behavior as rfkill-input). In the
-future, we are planning to extend the key policy and make it
-more flexible and the further customization possible.
-
-I've tested urfkill in 5 laptops [1], and it works fine except one [2]
-that needs an extra configuration.
-
-Although it is still far from perfect, I think it's usable now. Any
-suggestion or bug report are welcome and appreciated :-)
-
-Thanks,
-
-Gary Lin
-
-[1] Acer aspire one, MSI U160, eeepc (unknown model),
-Acer Travelmate 372, Lenovo X200
-
-[2] I ran into a funky situation while testing urfkilld in X200.
-The bluetooth killswitch (hci0) sometimes was soft-blocked
-when I unblocked the killswitch (tpacpi_bluetooth_sw) provided
-by thinkpad-acpi. It can be worked around by set force_sync
-to true in /etc/urfkill.conf, but I still wonder what is the root
-cause.
-
 == Known Issues ==
+* For Lenovo Thinkpad X200, the bluetooth killswitch (hci0) sometimes was soft-blocked after turning on bluetooth. 
+
+Solution: set "force_sync" to true in /etc/urfkill/urfkill.conf
+
+* The bluetooth killswitches cannot be controlled by urfkilld in Lenovo ThinkPad laptops.
+
+The states of the bluetooth killswitches in ThinkPad are maintained by the kernel platform drivers, i.e. thinkpad_acpi, and urfkilld has no way to change it.
+
+Solution: please leave them alone.
 
 == Bugs ==
 
@@ -120,12 +55,10 @@ Currently, you can mail to Gary Lin (glin@novell.com) and Joey Lee (jlee@novell.
 
 == TODO ==
 
- * Replace rfkill-input module in kernel
- * Provide a policy for user to setup rfkill control rules when catching WLAN/BT/3G keycode.
+ * Provide a policy for the user to setup rfkill control rules when catching WLAN/BT/3G keycodes.
  * Integrate with GUI to provide power consumption function to user, e.g.
     * Killswitch-Manager
     * killswitch-applet
     * python-killswitch
- * Provide a DBus method to enable/disable the function key control in urfkill daemon
 ----
 CategoryHalReplacement
