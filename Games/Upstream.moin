@@ -30,6 +30,24 @@ When implementing a centralized highscore system, most games would use the setgi
 
 The last part is most of the work. For a code snippet implementing the first part, you can use [[http://fedoraproject.org/wiki/SIGs/Games/Packaging]].
 
+== Source ==
+
+The Debian Free Software Guidelines require "source code" also known as the preferred form for modification, for both programs and non-program software such as documentation, artwork and other data assets. Other distributions have similar policies. When in doubt, you should ensure that users have the exact same materials as those who develop the games. It is quite rare for the game development community to think about it significantly. Some guidelines:
+
+Don't put generated files in your version control repository. Don't manually modify generated files after they are generated. If they take a long time to be generated it might be appropriate to include them in the release tarballs though. Make sure everything can be rendered/built with DFSG-free tools and that one of the make targets clean/distclean/maintainer-clean removes any generated files, so that Debian can ensure that the building/rendering still works.
+
+Render text at build time or preferably at runtime (enables i18n). Use the system fonts. If you choose a specific font then use fontconfig to find it rather than bundling it with your project. If you create your own special font, please distribute it in source form (for example FontForge text format) and ensure that it can be built using free tools. When you enable i18n your chosen font probably won't have all the required characters so your text rendering system should be prepared to fall back on other fonts on the system.
+
+Pre-rendered images of layered raster images are not source. Instead include the multi-layer raster images (Gimp/Photoshop/etc).
+
+Pre-rendered images of vector image files are not source. Instead include the SVG or similar and render the images at build time or runtime.
+
+Pre-rendered images of 3D models are not source. Instead include the models, textures etc and render the images at build time or runtime.
+
+Pre-encoded compressed video files are not source. Instead include the models, textures etc and render them at build time or runtime.
+
+Pre-encoded compressed audio files are not source. Instead include the tracker projects, the csound programs or whatever you used to generate the audio. Please ensure that it is possible to automatically generate the in-game audio using DFSG-free tools. With audio, try to keep original recordings (or MIDI input or other recorded input) around and apply any effects at build time to a copy so that the effects are easily tweakable or the recording easily replaceable with the same effects applied.
+
 = Upstream =
 
 Links to other pages about upstream on this wiki:
