@@ -1,6 +1,6 @@
 = Separate /usr is broken =
 
-You probably discovered this page because your shiny new systemd system referred you here during boot time, when it warned you that /usr wasn't supported anymore. And now you wonder what this all is about. Here's an attempt of an explanation:
+You probably discovered this page because your shiny new systemd system referred you here during boot time, when it warned you that a separate /usr wasn't supported anymore. And now you wonder what this all is about. Here's an attempt of an explanation:
 
 One thing in advance: systemd itself is actually completely fine with /usr on a separate file system. However, the common basic set of OS components of modern Linux machines is not, and has not been in quite some time. And it is unlikely that this is going to be fixed any time soon, or even ever.
 
@@ -8,16 +8,21 @@ Most of the failures you will experience with /usr split off are graceful failur
 
 You don't believe us? Well, here's a command line that reveals a few obvious cases of udev rules that will silently fail to work if /usr is split off: `egrep 'usb-db|pci-db|FROM_DATABASE|/usr' /*/udev/rules.d/*` -- and you find a lot more if you actually look for it. On my fresh Fedora 15 install that's 23 obvious cases.
 
-What to do about this? Well, in theory all these programs could be fixed, and major parts of /usr be moved into /. However, the question is for what benefit? The traditional reasons for splitting off /usr do not apply these days anymore. / usually requires a similar amount of disk space as /usr does these days, and by moving all parts over even more (at least on my machine the former requires 2G of disk space right now, the latter 4G). Also, harddisks are substantially bigger these days and /usr mounted from NFS is not useful anymore. Also, making /usr read-only is of little interest these days as in modern distributions / itself can be mounted read-only just as well during normal operation. Due to this many upstream developers have decided to consider the problem of a separate /usr an outdated question, and started to close bugs regarding these issues as WONTFIX, and we certainly cannot blame them, as the benefit of supporting this is questionable and brings a lot of additional work with it. 
-
-You can of course say: I don't need 3G, no Audio, D-Bus is evil anyway, and I don't want to print, and plug'n'play isn't for me anyway, and I just want my 80's style Unix back. Then, sure, a separate /usr will work fine for you. But if that's really you then you probably are not running a shiny new systemd installation, but rather Slackware 1.0. So why are you reading this anyway?
+Due to this many upstream developers have decided to consider the problem of a separate /usr an outdated question, and started to close bugs regarding these issues as WONTFIX, and we certainly cannot blame them, as the benefit of supporting this is questionable and brings a lot of additional work with it. 
 
 And let's clarify a few things:
-
  1. '''It isn't systemd's fault.''' systemd works fine with /usr on a separate file system.
  2. '''systemd is merely the messenger.''' Don't shoot the messenger.
  3. '''There's no news in all of this.''' The message you saw is just a statement of fact, describing the status quo. Things have been this way since a while.
  4. '''The message is merely a warning.''' You can choose to ignore it.
  5. '''Don't blame us''', don't abuse us, it's not our fault, and if you complain to us we'll just ignore you.
 
-Now you probably wonder why we added this warning to systemd, if systemd itself actually is fine with split-off /usr. Well, we have been working on the Linux userspace since quite some time, and simply have enough of the constant bug reports regarding these issues since they are actually very hard to track down because the failures are mostly graceful. Hence we placed this warning into the early boot process of every systemd Linux system with a split off /usr, so that people understand what is going on. 
+We have been working on the Linux userspace since quite some time, and simply have enough of the constant bug reports regarding these issues since they are actually very hard to track down because the failures are mostly graceful. Hence we placed this warning into the early boot process of every systemd Linux system with a split off /usr, so that people understand what is going on. 
+
+/usr on its own filesystem is useful in custom setups. But instead of the Unix way to (almost randomly) split-off tools from /usr and put them in /, and require more and more tools to move to /, we today just expect /usr to be mounted from inside the initramfs, to be available before 'init' starts. '''What / was for Unix is the initramfs for Linux.''' An initramfs that supports to mount /usr on top of /, before it starts 'init', makes all current setups work properly.
+
+There is no way to reliably bring up a modern system with an empty /usr, there are two alternatives to fix it: copy /usr back to the rootfs or use an initramfs which can hide the split-off from the system.
+
+The long-term plan is to clean up the mess and confusion the current split of / vs. /usr has created. All tools will move back to /usr where they belong, and the rootfs will only contain compat-symlinks into /usr. Almost the entire system installed by packages will reside in /usr. Conceptually it can be seen as a /System.
+
+This new /usr could be mounted read-only by default, while the rootfs is read-write and contains only empty mount points, compat-symlinks to /usr and the host-specific data like /etc, /root, /srv. Compared to today's setups, the rootfs will be very small. The new /usr could also easily be shared read-only across several systems, and it would contain almost the entire system. Such setups are more efficient, can optionally provide a lot more security, are more flexible, provide more sane options for custom setups, and are much simpler to setup and maintain.
