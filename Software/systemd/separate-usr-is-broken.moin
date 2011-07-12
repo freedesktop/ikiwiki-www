@@ -25,7 +25,7 @@ We have been working on the Linux userspace since quite some time, and simply ha
 
 /usr on its own filesystem is useful in some custom setups. But instead of expecting the traditional Unix way to (almost randomly) distributing tools between /usr and /, and require more and more tools to move to /, we now just expect /usr to be mounted from inside the initramfs, to be available before 'init' starts. The duty of the minimal boot system that consisted of /bin, /sbin and /lib on traditional Unix has been taken over by the initramfs of modern Linux. An initramfs that supports mounting /usr on top of / before it starts 'init', makes all existing setups work properly.
 
-There is no way to reliably bring up a modern system with an empty /usr, but there are two alternatives to fix it: move /usr to the rootfs or use an initramfs which can hide the split-off from the system.
+There is no way to reliably bring up a modern system with an empty /usr, but there are two alternatives to fix it: move /usr back to the rootfs or use an initramfs which can hide the split-off from the system.
 
 Our long-term plan is to clean up the current situation and the confusion the current split between / and /usr has created. We hope to move all tools that have been moved to / over time back to /usr where they belong, and the rootfs will only contain compat-symlinks into /usr. That means that almost the entire system installed by packages will reside in /usr.
 
