@@ -8,6 +8,8 @@ Most of the failures you will experience with /usr split off are graceful failur
 
 You don't believe us? Well, here's a command line that reveals a few obvious cases of udev rules that will silently fail to work if /usr is split off: `egrep 'usb-db|pci-db|FROM_DATABASE|/usr' /*/udev/rules.d/*` -- and you find a lot more if you actually look for it. On my fresh Fedora 15 install that's 23 obvious cases.
 
+== The Status Quot ==
+
 Due to this many upstream developers have decided to consider the problem of a separate /usr an outdated question, and started to close bugs regarding these issues as WONTFIX, and we certainly cannot blame them, as the benefit of supporting this is questionable and brings a lot of additional work with it. 
 
 And let's clarify a few things:
@@ -18,6 +20,8 @@ And let's clarify a few things:
  5. '''Don't blame us''', don't abuse us, it's not our fault, and if you complain to us we'll just ignore you.
 
 We have been working on the Linux userspace since quite some time, and simply have enough of the constant bug reports regarding these issues since they are actually very hard to track down because the failures are mostly graceful. Hence we placed this warning into the early boot process of every systemd Linux system with a split off /usr, so that people understand what is going on. 
+
+== Going Forward ==
 
 /usr on its own filesystem is useful in some custom setups. But instead of expecting the traditional Unix way to (almost randomly) distributing tools between /usr and /, and require more and more tools to move to /, we now just expect /usr to be mounted from inside the initramfs, to be available before 'init' starts. The duty of the minimal boot system that consisted of /bin, /sbin and /lib on traditional Unix has been taken over by the initramfs of modern Linux. An initramfs that supports mounting /usr on top of / before it starts 'init', makes all existing setups work properly.
 
