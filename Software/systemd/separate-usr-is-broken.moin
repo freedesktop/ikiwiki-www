@@ -19,7 +19,7 @@ And let's clarify a few things:
 
 We have been working on the Linux userspace since quite some time, and simply have enough of the constant bug reports regarding these issues since they are actually very hard to track down because the failures are mostly graceful. Hence we placed this warning into the early boot process of every systemd Linux system with a split off /usr, so that people understand what is going on. 
 
-/usr on its own filesystem is useful in some custom setups. But instead of expecting the traditional Unix way to (almost randomly) distributing tools between /usr and /, and require more and more tools to move to /, we now just expect /usr to be mounted from inside the initramfs, to be available before 'init' starts. '''The minimal boot system that / + /bin and /sbin contained on traditional Unix corresponds with the initramfs of modern Linux.''' An initramfs that supports mounting /usr on top of / before it starts 'init', makes all existing setups work properly.
+/usr on its own filesystem is useful in some custom setups. But instead of expecting the traditional Unix way to (almost randomly) distributing tools between /usr and /, and require more and more tools to move to /, we now just expect /usr to be mounted from inside the initramfs, to be available before 'init' starts. '''The minimal boot system that /bin and /sbin contained on traditional Unix corresponds with the initramfs of modern Linux.''' An initramfs that supports mounting /usr on top of / before it starts 'init', makes all existing setups work properly.
 
 There is no way to reliably bring up a modern system with an empty /usr, but there are two alternatives to fix it: move /usr to the rootfs or use an initramfs which can hide the split-off from the system.
 
