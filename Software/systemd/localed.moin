@@ -22,3 +22,12 @@ node /org/freedesktop/locale1 {
   };
 };
 }}}
+
+Whenever the system locale is changed via the daemon PropertyChanged signals are sent out to which clients can subscribe. Changing the system locale using this interface is authenticated via PolicyKit. 
+
+The system locale consists of an array of environment-variable-assignment-like strings. The following strings are know: LANG=, LC_CTYPE=, LC_NUMERIC=,
+LC_TIME=, LC_COLLATE=, LC_MONETARY=, LC_MESSAGES=, LC_PAPER=, LC_NAME=, LC_ADDRESS=, LC_TELEPHONE=, LC_MEASUREMENT=, LC_IDENTIFICATION=.
+
+If you set a new system locale all old system locale settings will be dropped, and the new settings saved to disk. It will also be passed to the system manager, and subsequently started daemons will inherit the new system local. Note that already running daemons will not learn about the new system local.
+
+The sources for localed are available in git for review: http://cgit.freedesktop.org/systemd/tree/src/localed.c
