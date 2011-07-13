@@ -1,0 +1,24 @@
+= localed =
+
+systemd 30 and newer include systemd-localed. This is a tiny daemon that can be used to control the system locale from user programs.
+
+The daemon is accessible via D-Bus:
+{{{
+$ gdbus introspect --system --dest org.freedesktop.locale1 --object-path /org/freedesktop/locale1
+node /org/freedesktop/locale1 {
+  interface org.freedesktop.locale1 {
+    methods:
+      SetLocale(in  as locale,
+                in  b user_interaction);
+    signals:
+    properties:
+      readonly as Locale = ['LANG=en_US.UTF-8'];
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+};
+}}}
