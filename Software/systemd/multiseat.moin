@@ -32,7 +32,7 @@ Note that logind manages ACLs on a number of device classes, to allow user code 
 
 Uses:
 
- * If you are writing a display server (like X11) and you have not been told a seat to run on, imply that you are running for seat0. Now, to find graphics cards and input devices for your X server enumerate all devices, and filter those out that are not assigned to your seat. For this, use the ID_SEAT property and the seatXXX tag. And don't forget that devices assigned to the special seat0 seat do not have the tag or the property ID_SEAT set.
+ * If you are writing a display server (like X11) and you have not been told a seat to run on, imply that you are running for seat0. Now, to find graphics cards and input devices for your X server enumerate all devices, and filter those out that are not assigned to your seat. For this, use the ID_SEAT property and the seatXXX tag. And don't forget that devices assigned to the special seat0 seat do not have the tag or the property ID_SEAT set. (see below for a code example for this)
 
  * If you are writing a display manager (like gdm), then enumerate all seats via logind's D-Bus interface, and subscribe to new seats being created. Then, spawn an X server and login screen on each seat showing up.
 
@@ -120,3 +120,47 @@ seat-usb-pci-0000_00_1d_0-usb-0_1_2
 }}}
 
 You may use "systemd-loginctl attach" to assign hardware to a specific seat.
+
+Here's a short code example (no error checking, so don't use this as is) for enumerating all input devices on a specific seat. A display server might use something like this:
+
+{{{
+int enum_input_on_seat(const char *seat) {
+        struct udev *udev;
+        struct udev_enumerate *enumerate;
+        struct udev_list_entry *item, *first;
+
+        if (!seat)
+                seat = "seat0";
+        udev = udev_new();
+
+        enumerate = udev_enumerate_new(udev);
+        udev_enumerate_add_match_subsystem(enumerate, "input");
+        if (strcmp(seat, "seat0") != 0) 
+                udev_enumerate_add_match_tag(enumerate, seat);
+
+        udev_enumerate_scan_devices(enumerate);
+        
+        first = udev_enumerate_get_list_entry(e);
+        udev_list_entry_foreach(item, first) {
+                struct udev_device *d;
+                const char *d_seat;
+
+                d = udev_device_new_from_syspath(udev, udev_list_entry_get_name(item)); 
+                d_seat = udev_device_get_property_value(d, "ID_SEAT");
+                if (!d_seat)
+                        d_seat = "seat0";
+
+                if (strcmp(seat, d_seat) == 0) {
+                        /* Found a device, yihaaa! */
+                        printf("Found device %s\n", udev_device_new_from_syspath(d));
+
+                        do_something_with_our_input_device(d); 
+                }
+                
+                udev_device_unref(d); 
+        }
+
+        udev_enumerate_unref(enumerate);
+        udev_unref(udev);
+}
+}}}
