@@ -12,6 +12,8 @@ Definition of terms:
 
 All hardware devices that are eligible to being assigned to a seat, are assigned to one. A device can be assigned to only one seat at a time. If a device is not assigned to any particular other seat it is implicitly assigned to the special default seat called "seat0". 
 
+Note that hardware like printers, hard disks or network cards is generally not assigned to a specific seat. They are available to all seats equally. (Well, with one exception: USB sticks can be assigned to a seat, but this is not fully fledged out yet.)
+
 "seat0" always exists.
 
 Assignment of hardware devices to seats is managed inside the udev database, via settings on the devices:
@@ -25,6 +27,8 @@ Assignment of hardware devices to seats is managed inside the udev database, via
  * Property "ID_FOR_SEAT": when creating additional (manual) seats starting from a graphics device this is a good choice to name the seat after. It is created from the path of the device. This is useful in UIs for configuring seats: as soon as you create a new seat from a graphics device, read this property and prefix it with "seat-" and use it as name for the seat
 
 A seat exists only and exclusively because a properly tagged device with the right ID_SEAT property exists. Besides udev rules there is no persistant data about seats stored on disk.
+
+Note that logind manages ACLs on various devices, to allow user code to access the devices attached to a seat as long as the user is active on it. This is mostly transparent to applications. As mentioned above, for certain user software it might be a good idea to watch whether they can access device nodes instead of thinking about seats.
 
 Uses:
 
