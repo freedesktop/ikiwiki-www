@@ -16,9 +16,9 @@ All hardware devices that are eligible to being assigned to a seat, are assigned
 
 Assignment of hardware devices to seats is managed inside the udev database, via settings on the devices:
 
- * Tag "seat": if set this device is eligible to be assigned to a seat. This tag is set for graphics devices, mice, keyboards, video cards, sound cards and more. Note that some devices like sound cards consist of multiple subdevices (i.e. a PCM for Input and another one for output). This tag will be set only for the originating device, not for the individual subdevices. A UI for configuring assignment of devices to seats should enumerate and subscribe to all devices with this tag set and show them in the UI. Note that USB hubs can be assigned to a seat as well, in which case all (current and future) devices plugged into it will also be assigned to the same seat (unless they are explicitly assigned to another seat).
+ * Tag "seat": if set this device is eligible to be assigned to a seat. This tag is set for graphics devices, mice, keyboards, video cards, sound cards and more. Note that some devices like sound cards consist of multiple subdevices (i.e. a PCM for input and another one for output). This tag will be set only for the originating device, not for the individual subdevices. A UI for configuring assignment of devices to seats should enumerate and subscribe to all devices with this tag set and show them in the UI. Note that USB hubs can be assigned to a seat as well, in which case all (current and future) devices plugged into it will also be assigned to the same seat (unless they are explicitly assigned to another seat).
 
- * Property "ID_SEAT": if set specifies the name of the seat a specific device is assigned to. ''If not set the device is assigned to seat0'' (!). Also, to speed up enumeration of hardware belonging to a specific seat the seat is also set as tag on the device. i.e. if the property "ID_SEAT=seat-waldo" is set for a device the tag "seat-waldo" will be set as well. Note (''and this is important!'') that if a device is assigned to seat0, it will not carry such a tag and you need to enumerate all devices and check the "ID_SEAT" properly manually.
+ * Property "ID_SEAT": if set specifies the name of the seat a specific device is assigned to. ''If not set the device is assigned to seat0'' (!). Also, to speed up enumeration of hardware belonging to a specific seat the seat is also set as tag on the device. i.e. if the property "ID_SEAT=seat-waldo" is set for a device the tag "seat-waldo" will be set as well. Note (''and this is important!'') that if a device is assigned to seat0, it will not carry such a tag and you need to enumerate all devices and check the "ID_SEAT" property manually.
 
  * Property "ID_AUTOSEAT": if set to "1" then this device automatically generates a new seat and independent seat, which is named after the path of the device. This is set for specialized USB hubs like the Plugable devices, which when plugged in should create a hotplug seat without further configuration.
 
@@ -32,7 +32,9 @@ If you are writing an X server and you have not been told a seat to run on, impl
 
 If you are writing a display manager, then enumerate all seats via logind's D-Bus interface, and subscribe to new seats being created. Then, spawn an X server and login screen on each seat showing up.
 
-If you are writing a bootup splash tool, then ignore all seat information and make use of all input devices and graphics cards as they become available. Stop using them as soon as the first X server starts up.
+If you are writing a bootup splash tool, then ignore all seat information completely and make use of all input devices and graphics cards as they become available. Stop using them as soon as the first X server starts up.
+
+If you are writing user-level software interfacing directly with kernel drivers, consider ignoring seat information completely, and make available to the user all devices he can access. A device that a user can not access is a device that is not assigned to any of the seats he is currently active on. In order to track changes when devices come and go consider watching the devices nodes with inotify so that you are notified when the access mode changes.
 
 This is only a very basic introduction, if you have questions ping Lennart. The D-Bus interface is currently not documented, but will be.
 
