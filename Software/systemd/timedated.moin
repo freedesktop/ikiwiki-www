@@ -41,7 +41,9 @@ Use SetTimezone() to set the system timezone. Pass a value like "Europe/Berlin" 
 
 Use SetLocalRTC() to control whether the RTC is in local time or UTC. It is strongly recommended to maintain the RTC in UTC. Some OSes (Windows) however maintain the RTC in local time which might make it necessary to enable this feature. However, this creates various problems as daylight changes might be missed. If fix_system is passed "true" the time from the RTC is read again and the system clock adjusted according to the new setting. If fix_system is passed "false" the system time is written to the RTC taking the new setting into account. Use fix_system=true in installers and livecds where the RTC is probably more reliable than the system time. Use fix_system=false in configuration UIs that are run during normal operation and where the system clock is probably more reliable than the RTC.
 
-Whenever the time settings are changed via the daemon !PropertyChanged signals are sent out to which clients can subscribe. Changing the time settings using this interface is authenticated via !PolicyKit.
+Whenever the timezone and local_rtc settings are changed via the daemon !PropertyChanged signals are sent out to which clients can subscribe. Changing the time settings using this interface is authenticated via !PolicyKit.
+
+Note that this service will not inform you about system time changes. Use timerfd() with CLOCK_REALTIME and TFD_TIMER_CANCEL_ON_SET for that.
 
 The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
 
