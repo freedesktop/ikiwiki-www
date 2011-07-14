@@ -129,14 +129,14 @@ int enum_input_on_seat(const char *seat) {
         struct udev_enumerate *enumerate;
         struct udev_list_entry *item, *first;
 
-        if (!seat)
-                seat = "seat0";
+        if (!seat)                                                        /* ← Here's the beef */
+                seat = "seat0";                                           /* ← Here's the beef */
         udev = udev_new();
 
         enumerate = udev_enumerate_new(udev);
         udev_enumerate_add_match_subsystem(enumerate, "input");
-        if (strcmp(seat, "seat0") != 0) 
-                udev_enumerate_add_match_tag(enumerate, seat);
+        if (strcmp(seat, "seat0") != 0)                                    /* ← Here's the beef */
+                udev_enumerate_add_match_tag(enumerate, seat);             /* ← Here's the beef */
 
         udev_enumerate_scan_devices(enumerate);
         
@@ -146,11 +146,12 @@ int enum_input_on_seat(const char *seat) {
                 const char *d_seat;
 
                 d = udev_device_new_from_syspath(udev, udev_list_entry_get_name(item)); 
-                d_seat = udev_device_get_property_value(d, "ID_SEAT");
-                if (!d_seat)
-                        d_seat = "seat0";
 
-                if (strcmp(seat, d_seat) == 0) {
+                d_seat = udev_device_get_property_value(d, "ID_SEAT");    /* ← Here's the beef */
+                if (!d_seat)                                              /* ← Here's the beef */
+                        d_seat = "seat0";                                 /* ← Here's the beef */
+
+                if (strcmp(seat, d_seat) == 0) {                          /* ← Here's the beef */
                         /* Found a device, yihaaa! */
                         printf("Found device %s\n", udev_device_new_from_syspath(d));
 
