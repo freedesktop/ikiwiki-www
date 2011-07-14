@@ -28,13 +28,13 @@ A seat exists only and exclusively because a properly tagged device with the rea
 
 Uses:
 
-* If you are writing an display server (like X11) and you have not been told a seat to run on, imply that you are running for seat0. Now, to find graphics cards and input devices for your X server enumerate all devices, and filter those out that are not assigned to your seat. For this, use the ID_SEAT property and the seatXXX tag.
+ * If you are writing an display server (like X11) and you have not been told a seat to run on, imply that you are running for seat0. Now, to find graphics cards and input devices for your X server enumerate all devices, and filter those out that are not assigned to your seat. For this, use the ID_SEAT property and the seatXXX tag.
 
-* If you are writing a display manager (like gdm), then enumerate all seats via logind's D-Bus interface, and subscribe to new seats being created. Then, spawn an X server and login screen on each seat showing up.
+ * If you are writing a display manager (like gdm), then enumerate all seats via logind's D-Bus interface, and subscribe to new seats being created. Then, spawn an X server and login screen on each seat showing up.
 
-* If you are writing a bootup splash tool (like Plymouth), then ignore all seat information completely and make use of all input devices and graphics cards as they become available. Stop using them as soon as the first X server starts up.
+ * If you are writing a bootup splash tool (like Plymouth), then ignore all seat information completely and make use of all input devices and graphics cards as they become available. Stop using them as soon as the first X server starts up.
 
-* If you are writing user-level software interfacing directly with kernel drivers (like PulseAudio), consider ignoring seat information completely, and make available to the user all devices he can access. A device that a user cannot access is a device that is not assigned to any of the seats he is currently active on. In order to track changes when devices come and go consider watching the devices nodes with inotify so that you are notified when the access mode changes. This scheme works only if your software runs under the user ID if the user himself!
+ * If you are writing user-level software interfacing directly with kernel drivers (like PulseAudio), consider ignoring seat information completely, and make available to the user all devices he can access. A device that a user cannot access is a device that is not assigned to any of the seats he is currently active on. In order to track changes when devices come and go consider watching the devices nodes with inotify so that you are notified when the access mode changes. This scheme works only if your software runs under the user ID if the user himself!
 
 This is only a very basic introduction, if you have questions ping Lennart. The D-Bus interface is currently not documented, but will be.
 
@@ -112,3 +112,5 @@ seat-usb-pci-0000_00_1d_0-usb-0_1_2
 		    └ /sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/2-1.2.6/2-1.2.6:1.0/input/input14
 		      (input:input14) "Logitech USB-PS/2 Optical Mouse"
 }}}
+
+You may use "systemd-loginctl attach" to assign hardware a specific seat.
