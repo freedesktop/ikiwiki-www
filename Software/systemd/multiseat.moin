@@ -24,7 +24,7 @@ Assignment of hardware devices to seats is managed inside the udev database, via
 
  * Property "ID_FOR_SEAT": when creating additional (manual) seats starting from a graphics device this is a good choice to name the seat after. It is created from the path of the device. This is useful in UIs for configuring seats: as soon as you create a new seat from a graphics device, read this property and prefix it with "seat-" and use it as name for the seat
 
-A seat exists only and exclusively because a properly tagged device with the right ID_SEAT property exists. There is no other data about seats stored.
+A seat exists only and exclusively because a properly tagged device with the right ID_SEAT property exists. Besides udev rules there is no persistant data about seats stored on disk.
 
 Uses:
 
@@ -34,7 +34,9 @@ Uses:
 
  * If you are writing a bootup splash tool (like Plymouth), then ignore all seat information completely and make use of all input devices and graphics cards as they become available. Stop using them as soon as the first X server starts up.
 
- * If you are writing user-level software interfacing directly with kernel drivers (like PulseAudio), consider ignoring seat information completely, and make available to the user all devices he can access. A device that a user cannot access is a device that is not assigned to any of the seats he is currently active on. In order to track changes when devices come and go consider watching the devices nodes with inotify so that you are notified when the access mode changes. This scheme works only if your software runs under the user ID if the user himself!
+ * If you are writing user-level software interfacing directly with kernel drivers (like PulseAudio), consider ignoring seat information completely, and make available to the user all devices he can access. A device that a user cannot access is a device that is not assigned to any of the seats he is currently active on. In order to track changes when devices come and go consider watching the devices nodes with inotify so that you are notified when the access mode changes. This scheme works only if your software runs under the user ID of the user himself!
+
+ * If you are writing a UI to configure seats and assign specific hardware to them, enumerate all hardware with the tag "seat", and read the ID_SEAT property from them to determine seat assignments. When changing assignments, use the AttachDevice() D-Bus call of the logind service which takes a seat name and a number of sysfs paths to the devices. You can also use this call to create a new seat, simply by assigning a graphics device to a previously unused seat name. Use ID_FOR_SEAT as a starting point for a new seat name.
 
 This is only a very basic introduction, if you have questions ping Lennart. The D-Bus interface is currently not documented, but will be.
 
