@@ -1,0 +1,164 @@
+= Writing pulseaudio profiles =
+== Intended audience ==
+
+If you have non-standard sound hardware that is not supported well enough by !PulseAudio out of the box, and it falls under approximately one of the following categories:
+
+ * Your hardware cannot be opened with the front:x string that !PulseAudio uses by default, and you haven't fixed this at the alsa-lib layer (see your /usr/share/alsa/cards/ for examples of how that is done)
+
+ * Your hardware does not expose normal volume control names such as "Master", "PCM", "Headphone" etc but instead e g "Megaphone" and "Leslie speaker". 
+
+ * Your hardware has a "Ultra Disturb-Your-Neighbour Boom Bass" switch, which sounds slightly worse than a normal EQ, but you yet feel you have to expose it in the UI. 
+
+== How PulseAudio processes config files ==
+
+You will have to do this in three steps: 
+ * you need an '''udev rule''' to match your device(s)
+ * you need a '''profile set''' file to specify how to open the device and what paths to be used
+ * you need one or more '''path''' files to specify what input/output is controlled by which volume controls
+
+=== udev rule ===
+Have a look at {{{/lib/udev/rules.d/90-pulseaudio.rules}}} 
+
+Either add to that or make your own to call your custom configuration, for example 91-pulseaudio.rules that could look something like this:
+
+{{{
+SUBSYSTEM!="sound", GOTO="pulseaudio_end"
+ACTION!="change", GOTO="pulseaudio_end"
+KERNEL!="card*", GOTO="pulseaudio_end"
+
+SUBSYSTEMS=="pci", RESULT=="?*", ATTRS{vendor}=="0x8086", ATTRS{device}=="0x1c20", ENV{PULSE_PROFILE_SET}="pulseaudio-conexant.conf"
+
+LABEL="pulseaudio_end"
+
+}}}
+
+During the system start, when the card is detected, the PULSE_PROFILE_SET variable will be set in the udev database, and !PulseAudio will be forced to use pulseaudio-conexant.conf. We will explain later how to fake that event for debugging.
+
+[[http://www.reactivated.net/writing_udev_rules.html|Here's a guide]] for how to write your own udev rules. 
+
+=== pulseaudio profile set ===
+The file mentioned in udev rule, (e g "pulseaudio-conexant.conf") must exist in {{{/usr/share/lib/pulseaudio/alsa-mixer/profile-sets}}}
+
+In the beginning of default.conf, you can see comments describing file format, but not in a great details.
+Here is an example of the statements from the real file:
+{{{
+[Mapping analog-stereo]
+device-strings = front:%f hw:%f
+channel-map = left,right
+paths-output = analog-output analog-output-speaker analog-output-desktop-speaker analog-output-headphones analog-output-headphones-2 analog-output-mono analog-output-lfe-on-mono
+paths-input = analog-input-front-mic-cx analog-input-rear-mic-cx analog-input-mic-cx analog-input-linein-cx
+priority = 10
+}}}
+
+{{{device-strings}}} describes the ALSA device string(s) that !PulseAudio uses to open the device, where "%f" specifies the card number (should always be present in the string). 
+
+{{{paths-output}}} and {{{path-input}}} specify names of different paths with .conf added(See next bullet)
+
+=== pulseaudio paths ===
+
+!PulseAudio path files must be located in {{{/usr/share/lib/pulseaudio/alsa-mixer/paths}}}. 
+
+You need to specify one file per "Use Case", e g "Headphone output" and "Speaker output" would be two different files. 
+
+Here's a quick one to see the inputs and outputs for your HDA card: 
+{{{ls /proc/asound/card*/codec* | xargs grep "\[\(Jack\|Fixed\|Both\)"}}} 
+
+Let's take {{{analog-input-rear-mic-cx.conf}}} as an example
+
+Some explanation can be found in {{{analog-output.conf.common}}}
+
+{{{
+[General]
+priority = 89
+name = Rear Microphone
+
+[Element Rear Mic Boost]
+switch = select
+volume = merge
+override-map.1 = all
+override-map.2 = all-left,all-right
+
+[Option Rear Mic Boost:on]
+name = input-boost-on
+
+[Option Rear Mic Boost:off]
+name = input-boost-off
+
+[Element Rear Mic]
+switch = mute
+volume = merge
+override-map.1 = all
+override-map.2 = all-left,all-right
+required = any
+
+[Element Capture]
+switch = mute
+volume = merge
+override-map.1 = all
+override-map.2 = all-left,all-right
+
+[Element Input Source]
+enumeration = select
+
+[Option Input Source:Rear Mic]
+name = analog-input-microphone-rear
+
+[Element Capture Source]
+enumeration = select
+
+[Option Capture Source:Rear Mic]
+name = Rear Microphone
+
+[Element Mic]
+switch = off
+volume = off
+
+[Element Internal Mic]
+switch = off
+volume = off
+
+[Element Front Mic]
+switch = off
+volume = off
+
+[Element Dock Mic]
+switch = off
+volume = off
+
+.include analog-input-mic-cx.conf.common
+}}}
+Under 
+{{{[General]}}}
+{{{name}}} is the name that will be seen in pulseaudio Input/Output connector 
+
+{{{
+[Option Input Source:Rear Mic]
+name = analog-input-microphone-rear
+}}}
+name here is a name from alsa-mixer.c from pulseaudio sources (makes localization possible)
+
+It is a good idea to switch off unused {{{Element}}}
+TBD: If not done, does it disabled the whole path?
+
+
+== Debugging ==
+Info From http://pulseaudio.org/ticket/624
+
+To test the attached profile without going through udev:
+
+You should be able to place that in a file in {{{/lib/udev/rules.d/90-pulseaudio.rules}}}  or create a new one {{{/lib/udev/rules.d/91-pulseaudio.rules}}}. 
+And then try it out with 
+{{{
+sudo udevadm trigger -ssound
+}}} 
+
+You will see a speaker indicator blinks and pulseaudio GUI is updated. Now restart pulseaudio by
+{{{
+pulseaudio -k
+}}}
+
+ also can check which profile is used by 
+{{{
+udevadm info -qall -p /sys/class/sound/card0/
+}}}
+
