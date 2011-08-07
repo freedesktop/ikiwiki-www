@@ -48,6 +48,25 @@ Pre-encoded compressed video files are not source. Instead include the models, t
 
 Pre-encoded compressed audio files are not source. Instead include the tracker projects, the csound programs or whatever you used to generate the audio. Please ensure that it is possible to automatically generate the in-game audio using DFSG-free tools. With audio, try to keep original recordings (or MIDI input or other recorded input) around and apply any effects at build time to a copy so that the effects are easily tweakable or the recording easily replaceable with the same effects applied.
 
+== Full-screen behavior ==
+
+If your game has a full-screen mode, it is important to implement this properly. Especially if the full-screen mode uses a different resolution than that of the desktop,
+you can potentially disrupt other applications or the user's desktop experience. Make sure you always have a quick way to go back to windowed mode, and ensure the old desktop resolution is restored properly if the game exits (also try to make this happen in case the game exits abnormally).
+
+It is recommended that the first time a game starts, it starts in windowed mode. Subsequent times the game should use the mode the user selected the previous time.
+
+Almost all window managers allow a window to be made full-screen. If possible, respect the window manager events and allow this to manage the full-screen state of your game.
+However, this only works well if you don't have to change the screen resolution, and do not capture all keyboard events.
+If your game does need to change resolution and/or captures all keyboard events, make sure there is a hotkey to quickly change to/from full-screen mode.
+The hotkey should work in all situations. The full-screen hotkey, in order of preference, is:
+
+ * Window manager default
+ * F11 and/or Alt-F11 (since this is the default for most window managers)
+ * Alt-Enter (is used in various games)
+ * Alt-F, Ctrl-F, Command-F and/or F (is used in various games)
+
+Of course, the hotkey should not interfere with gameplay. You can also respond to more than one hotkey.
+
 = Upstream =
 
 Links to other pages about upstream on this wiki:
