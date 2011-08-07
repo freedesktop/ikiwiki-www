@@ -67,6 +67,17 @@ The hotkey should work in all situations. The full-screen hotkey, in order of pr
 
 Of course, the hotkey should not interfere with gameplay. You can also respond to more than one hotkey.
 
+== Full-screen resolution ==
+
+If your game can run in full-screen, ideally it should use the native resolution of the display.
+However, sometimes this is not desirable.
+The list of possible resolutions can be very long, especially for large displays.
+However, integer divisions of the native resolution are usually best, as they do not introduce aliasing artifacts when the graphics card or the display itself scales them up to the native resolution.
+For example, the integer divisions of a 1920×1080 screen are 960×540, 640×360, 480×270, and so on.
+Try to keep the aspect ratio of the native resolution, otherwise the image might be stretched out horizontally or vertically.
+
+If your game is made for a single, fixed resolution, then it might help to implement your own scalers, either by just duplicating pixels, or a suitable OpenGL shader, or an algorithm such as [[http://en.wikipedia.org/wiki/Hqx|hqx]]. This usually produces better results than the naive linear interpolation that most graphics cards and displays implement.
+
 = Upstream =
 
 Links to other pages about upstream on this wiki:
