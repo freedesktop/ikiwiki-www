@@ -12,6 +12,8 @@ You should consider these recommendations if you are you working on one of the f
 
  * You write a web browser and want to place every renderer in a separate cgroup (like Firefox or Chrome)
 
+ * You create a container for some purpose (such as systemd-nspawn)
+
 A few general recommendations:
 
  * If you use one of the kernel controllers, do *not* assume you are the only one. Other programs may manipulate the tree, add cgroups and change group attributes.
@@ -19,3 +21,7 @@ A few general recommendations:
  * If you use a generic named hierarchy with no controller attached, then make sure to name it after your project in order to minimize namespacing conflicts. A hierarchy named "name=web" is a bit generic. A hierarchy named "name=apache" a much better choice.
 
  * Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection.
+
+ * Never create cgroups at the top of the tree, with an absolute path. If possible find the cgroup your own process is running under and create subrgoups only beneath that group
+
+ * Do not play permission games: if your 
