@@ -20,15 +20,15 @@ You should consider these recommendations if you are you working on one of the f
 
 == General Recommandations ==
 
- * If you use one of the kernel controllers, do *not* assume you are the only one who uses them. Other programs may manipulate the tree, add cgroups and change group attributes at any time, and they will not inform you about it.
+ * If you use one of the kernel controllers, do *not* assume you are the only one who uses them. Other programs may manipulate the tree, add cgroups and change group attributes at any time, and they will not inform you about it. The kernel provided controller hierarchies are a shared resource, so be nice.
 
  * If you use a generic named hierarchy with no controller attached, then you may assume it's yours and only yours, and that no other programs interfere with it.
 
  * If you use a generic named hierarchy with no controller attached, then make sure to name it after your project in order to minimize namespacing conflicts. A hierarchy named "name=web" is a bit generic. A hierarchy named "name=apache" a much better choice, if you are an Apache developer and need an entire hierarchy all for yourself.
 
- * Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection (i.e. will use naked system calls)
+ * Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection (i.e. will use naked system calls/shell commands)
 
- * Never create cgroups at the top of the tree (i.e. with an absolute path). If possible find the cgroup your own process was started in and create subgroups only below that group. If that's not applicable, then at least place yourself below the cgroup path of PID 1 (read /proc/1/cgroup to find it). This is important to ensure that containers work properly (the cgroupfs tree is currently not virtualized for containers!), and solves permission problems.
+ * Never create cgroups at the top of the tree (i.e. with an absolute path). If possible find the cgroup your own process was started in and create subgroups only below that group (read /proc/self/cgroup to find it). If that's not applicable, then at least place yourself below the cgroup path of PID 1 (read /proc/1/cgroup to find it). This is important to ensure that containers work properly (the cgroupfs tree is currently not virtualized for containers!), and solves permission problems, and makes the whole system nicely stackable.
 
  * A corollary of this: If you spawn subprocesses expect that they will create subcgroups. That means when terminating there might be subcgroups below the ones you created and you hence need to recursively remove them too. In fact, many of your operations must probably be executed in a recursive fashion.
 
@@ -36,7 +36,7 @@ You should consider these recommendations if you are you working on one of the f
 
  * If you create a cgroup, then you are in charge of removing it too after using it. Do not remove other program's cgroups. Special exception: in some cases it is OK to pre-set attributes on certain cgroups that are primarily managed by another program. (Example: in systemd we are fine if you externally pre-create or manipulate service cgroups, for example to make changes to some attributes you cannot control with systemd natively, see below). In that case: create the cgroup and set the sticky bit (+s) on the tasks file in it. This will then be used as an indication to the primary manager of the group not to remove the cgroup at the end, in order to avoid that your settings are lost. This is of course a bit of a misuse of the sticky bit, but given that it serves no other purpose on Linux for normal files it an OK use, with a fitting meaning given the name of "sticky bit".
 
- * The cgroup mount point for a specific hierarchy is /sys/fs/cgroup/<controller>/. (Example: /sys/fs/cgroup/cpu for the "cpu" controller). In your application you are welcome to rely these standardized mount points, it is not necessary to dynamically determine the current mount point via /proc/self/mountinfo (but if you do, that's of course fine, too). Note that /sys/fs/cgroup/<controller> might actually just be a symlink to some other mount point (see below).
+ * The cgroup mount point for a specific hierarchy is /sys/fs/cgroup/<controller>/. (Example: /sys/fs/cgroup/cpu for the "cpu" controller). In your application you are welcome to rely these standardized mount points, and it is not necessary to dynamically determine the current mount point via /proc/self/mountinfo (but if you do, that's of course fine, too). Note that /sys/fs/cgroup/<controller> might actually just be a symlink to some other mount point (see below).
 
  * If multiple controllers are mounted into the same hierarchy it is guaranteed that symlinks exist to make sure all jointly mounted controllers are still available under /sys/fs/cgroup/<controller>/. Example: if "cpu" and "cpuacct" are mounted together, then symlinks /sys/fs/cgroup/cpu and /sys/fs/cgroup/cpuacct will point to the joint mountpoint (which could be something like /sys/fs/cgroup/cpu+cpuacct).
 
@@ -50,8 +50,12 @@ You should consider these recommendations if you are you working on one of the f
 
 systemd adheres to the recommendations above and guarantees additional behaviour:
 
- * If a service cgroup already exists systemd will make use of it and not recreate it. (If +s is set on the tasks file it will not remove it when stopping a service, otherwise it will, see above). It is hence OK to 
+ * If a service cgroup already exists systemd will make use of it and not recreate it. (If +s is set on the tasks file it will not remove it when stopping a service, otherwise it will, see above). It is hence OK to pre-create cgroups and then tell systemd to use it, without having systemd remove it afterwards.
 
- * If a service cgroup already exists systemd will not override the attributes of the cgroup with the exception of those explicitly configured in the systemd unit files
+ * If a service cgroup already exists systemd will not override the attributes of the cgroup with the exception of those explicitly configured in the systemd unit files. It is hence OK to pre-create cgroups for use in systemd, and pre-apply attributes to it. 
 
- * To avoid that systemd places all services in automatic cgroups in the "cpu" hierarchy change the DefaultControllers= in /etc/systemd/system.conf and set it to the empty string
+ * To avoid that systemd places all services in automatic cgroups in the "cpu" hierarchy change the DefaultControllers= in /etc/systemd/system.conf and set it to the empty string.
+
+ * By default systemd will place services only in automatic cgroups in the "cpu" hierarchy and in its own private tree "name=systemd". If you want it to duplicate these trees in other hierarchies add them to DefaultControllers= in /etc/systemd/system.conf
+
+ * To opt-out or opt-in specific services from the automatic tree generation in the kernel controller hierarchies use ControlGroup= in the unit file. Use "ControlGroup=cpu:/" to opt-out of cgroup assignment for a service or "ControlGroup=cpu:/foo/bar" to manipulate the default directory.
