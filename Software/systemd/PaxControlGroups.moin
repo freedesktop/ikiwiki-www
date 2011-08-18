@@ -2,10 +2,18 @@ You are writing an application interfacing with the cgroups tree? Here are a few
 
 Before you read these recommendations please make sure you understand cgroups, and specifically are aware what a controller is, what a named hierarchy is and so on.
 
+You should consider these recommendations if you are you working on one of the following:
+
+ * You write a system manager based on cgroups (like systemd)
+
+ * You write a VM manager based on cgroups (like libvirt)
+
+ * You write 
+
 A few general recommendations:
 
-- If you use one of the kernel controllers, do *not* assume you are the only one.
+ * If you use one of the kernel controllers, do *not* assume you are the only one. Other programs may manipulate the tree, add cgroups and change group attributes.
 
-- If you use a generic named hierarchy with no controller attached, then make sure to name it after your project in order to minimize namespacing conflicts. A hierarchy named "name=computer" is a bit generic. A hierarchy named "name=apache" a much better choice.
+ * If you use a generic named hierarchy with no controller attached, then make sure to name it after your project in order to minimize namespacing conflicts. A hierarchy named "name=web" is a bit generic. A hierarchy named "name=apache" a much better choice.
 
-- Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection.
+ * Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection.
