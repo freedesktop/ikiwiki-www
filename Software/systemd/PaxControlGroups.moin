@@ -16,7 +16,7 @@ You should consider these recommendations if you are you working on one of the f
 
  * You create a container for some purpose (such as systemd-nspawn)
 
- * Or you use cgroups for any other purpose
+ * Or you use cgroups for any other purpose and want things to work nicely with other applications.
 
 == General Recommandations ==
 
@@ -32,7 +32,7 @@ You should consider these recommendations if you are you working on one of the f
 
  * A corollary of this: If you spawn subprocesses expect that they will create subcgroups. That means when terminating there might be subcgroups below the ones you created and you hence need to recursively remove them too. In fact, many of your operations must probably be executed in a recursive fashion.
 
- * Do not play permission games: if you are an unprivileged user application then it's *not* your business to ensure you have the right permissions (i.e. do not include any setuid code in your app to create groups) Instead your system manager (such as systemd) should provide you with the right set of permissions on the cgroup your are running in to create subgroups.r
+ * Do not play permission games: if you are an unprivileged user application then it's *not* your business to ensure you have the right permissions (i.e. do not include any setuid code in your app to create groups) Instead your system manager (such as systemd) should provide you with the right set of permissions on the cgroup your are running in to create subgroups. Normally that should mean that depending on administrator configuration you will or will not get access to create subgroups under the cgroup you are running in and the ability to add PIDs to it.
 
  * If you create a cgroup, then you are in charge of removing it too after using it. Do not remove other program's cgroups. Special exception: in some cases it is OK to pre-set attributes on certain cgroups that are primarily managed by another program. (Example: in systemd we are fine if you externally pre-create or manipulate service cgroups, for example to make changes to some attributes you cannot control with systemd natively, see below). In that case: create the cgroup and set the sticky bit (+s) on the tasks file in it. This will then be used as an indication to the primary manager of the group not to remove the cgroup at the end, in order to avoid that your settings are lost. This is of course a bit of a misuse of the sticky bit, but given that it serves no other purpose on Linux for normal files it an OK use, with a fitting meaning given the name of "sticky bit".
 
@@ -43,6 +43,8 @@ You should consider these recommendations if you are you working on one of the f
  * Your application should not mount the cgroup controller file systems (unless it is your own private named hierarchy). This is exclusively a job for the system manager or a system-wide init script such as cgconfig. If you work on a system manager or such an init script you must mount the cgroup controllers to /sys/fs/cgroup/<controller>/ or provide compatibility symlinks.
 
  * It's a good idea not to fail if a cgroup already exists when you try to create it. Ignore EEXIST on mkdir.
+
+ * Avoid renaming cgroups or similar fancier file operations.
 
 == Cooperation with systemd ==
 
