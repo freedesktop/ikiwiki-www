@@ -18,10 +18,18 @@ A few general recommendations:
 
  * If you use one of the kernel controllers, do *not* assume you are the only one. Other programs may manipulate the tree, add cgroups and change group attributes.
 
- * If you use a generic named hierarchy with no controller attached, then make sure to name it after your project in order to minimize namespacing conflicts. A hierarchy named "name=web" is a bit generic. A hierarchy named "name=apache" a much better choice.
+ * If you use a generic named hierarchy with no controller attached, then you may assume it's yours and only yours, and that no other programs interfere with it.
 
- * Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection.
+ * If you use a generic named hierarchy with no controller attached, then make sure to name it after your project in order to minimize namespacing conflicts. A hierarchy named "name=web" is a bit generic. A hierarchy named "name=apache" a much better choice, if you are an Apache developer and need an entire hierarchy all for yourself.
 
- * Never create cgroups at the top of the tree, with an absolute path. If possible find the cgroup your own process is running under and create subrgoups only beneath that group
+ * Do *not* assume everybody uses the same library to manipulate the cgroups tree as you are. In fact most likely most applications and the user himself will manipulate the tree without any further indirection (i.e. will use naked system calls)
 
- * Do not play permission games: if you are an unprivileged user application then it's not your business to ensure you have the right permissions.
+ * Never create cgroups at the top of the tree (i.e. with an absolute path). If possible find the cgroup your own process was started in and create subgroups only below that group. If that's not applicable, then at least place yourself below the cgroup path of PID 1. This is important to ensure that containers work properly (the cgroupfs tree is currently not virtualized for containers!).
+
+ * Do not play permission games: if you are an unprivileged user application then it's *not* your business to ensure you have the right permissions. Instead your system manager (such as systemd) should provide you with the right set of permissions on the cgroup your are running in to create subgroups.
+
+ * If you create a cgroup, then you are in charge of removing it too. Do not remove other program's cgroups. Special exception: in some cases it is OK to use pre-set atributes on certain cgroups that are primarily managed by another program. (Example: in systemd we are fine if you manipulate service cgroups, for example to make changes to some attributes you cannot control with systemd). In that case: create the cgroup and set the sticky bit (+s) on the tasks file in it. This will then be used as an indication to the primary manager of the group not to remove the cgroup at the end. 
+
+ * The cgroup mount point is in /sys/fs/cgroup/<controller>/. In your application you are welcome to rely these standardized mount points, it is not necessary to dynamically determine the current mount point via /proc/self/mountinfo (but if you do, that's of course fine, too). Note that /sys/fs/cgroup/<controller> might be a symlink to some other mount point (see below).
+
+ * If multiple controllers are mounted into the same hierarchy it is guaranteed that symlinks exist to make sure all jointly mounted controllers are still available under /sys/fs/cgroup/<controller>/. Example: if "cpu" and "cpuacct" are mounted together, then symlinks /sys/fs/cgroup/cpu and /sys/fs/cgroup/cpuacct will point to the joint mountpoint (which could be something like /sys/fs/cgroup/cpu+cpuacct).
