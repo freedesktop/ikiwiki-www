@@ -55,6 +55,8 @@ You should consider these recommendations if you are you working on one of the f
 
  * /sys/fs/cgroup is a tmpfs. If you create your own private named hierarchy then you are welcome to mount it in a subdirectory of this directory. This minimizes surprises for the user.
 
+ * /sys/fs/cgroup is a tmpfs, but it's only intended use is to act as place where control group hierarchies can be mounted or symlinked to. You should not place any other kind of file in this directory. The same way as /dev/shm is for POSIX shared memory segments only -- and nothing else -- this directory is for cgroup hierarchies only. Just because something is a tmpfs it doesn't mean you can actually use it for "temporary" files, thank you.
+
 == Cooperation with systemd ==
 
 systemd adheres to the recommendations above and guarantees additional behaviour which might be useful for writing applications that cooperate with systemd on cgroup management:
