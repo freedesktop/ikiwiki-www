@@ -19,3 +19,20 @@ Here are a few notes on things to keep in mind when you work on a syslog daemon 
  * Make sure to include WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will spawn systemd-kmsg-syslog.service by default (and this is good that way), hence you cannot rely on being activated by that.
 
 Current rsyslog implements all these recommendations. Other syslog implementations implement them at least partially.
+
+The unit file you install for your service should look something like this:
+
+{{{
+[Unit]
+Description=System Logging Service
+
+[Service]
+ExecStartPre=/bin/systemctl stop systemd-kmsg-syslogd.service
+ExecStart=/sbin/rsyslogd -n
+Sockets=syslog.socket
+
+[Install]
+WantedBy=multi-user.target
+}}}
+
+And remember: don't ship a socket unit for /dev/log! That's already shipped with systemd for you.
