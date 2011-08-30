@@ -22,7 +22,7 @@ And here are the recommendations:
 
  * Use "ExecStartPre=/bin/systemctl stop systemd-kmsg-syslogd.service" in the [Service] block to shut down systemd's internal logger. systemd's internal logger simply forwards all output to kmsg, and is started by default at early boot. As soon as your fully-fledged syslog implementation is started up you want to replace this minimal syslog with yours, hence terminate the internal logger.
 
- * When you start up, immediately and synchronously flush kmsg to disk, so that early boot messages recorded by systemd-kmsg-syslogd are not lost and are not interleaved with later userspace messages.
+ * On start-up, immediately and synchronously flush kmsg to disk, so that early boot messages recorded by systemd-kmsg-syslogd are not lost and are not interleaved with later userspace messages.
 
  * Make sure to include WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will spawn systemd-kmsg-syslog.service on-demand (and this is good that way), hence you cannot rely on being activated by it on-demand too.
 
