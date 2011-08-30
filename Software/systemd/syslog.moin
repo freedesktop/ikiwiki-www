@@ -30,7 +30,7 @@ Here are a few other recommendations, that are not directly related to systemd:
 
  * Make sure to read the priority prefixes of the kmsg log messages the same way like from normal userspace syslog messages. When systemd writes to kmsg it will prefix all messages with valid priorities which include standard syslog facility values. OTOH for kernel messages the facility is always 0. '''If you need to know whether a message originated in the kernel rely on the facility value''', not just on the fact that you read the message from /proc/kmsg! A number of userspace applications write messages to kmsg (systemd, udev, dracut, others), and they'll nowadays all set correct facility values.
 
- * Make sure to read the timestamp prefixes from kmsg messages. Most modern kernels add a monotonic timestamp prefix to all logged kernel messages. It is relatively easy to convert these timestamps back to wallclock time by comparing them with the CLOCK_MONOTONIC and CLOCK_REALTIME clocks.
+ * Make sure to read the timestamp prefixes from kmsg messages. Most modern kernels add a monotonic timestamp prefix to all logged kernel messages. It is relatively easy to convert these timestamps back to wallclock time by comparing them with the CLOCK_MONOTONIC and CLOCK_REALTIME clocks. After you parsed them and turned them into uniform timestamps, consider stripping them from the original kernel log messages before storing them on disk.
 
  * When you read a message from /dev/log use SO_TIMESTAMP to determine its timestamp and drop the one the client sent you. This is nice in order to make chroot() environments work well, which might have different/outdated or no timezone data available.
 
