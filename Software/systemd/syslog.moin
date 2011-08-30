@@ -26,7 +26,7 @@ And here are the recommendations:
 
  * Make sure to include WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will spawn systemd-kmsg-syslog.service on-demand (and this is good that way), hence you cannot rely on being activated by it on-demand too.
 
-Here are a few other recommendations, that are not really related to systemd:
+Here are a few other recommendations, that are not directly related to systemd:
 
  * Make sure to read the priority prefixes of the kmsg messages the same way as from normal userspace syslog messages. When systemd writes to kmsg it will prefix all messages with valid priorities which include standard syslog facility values. OTOH for kernel messages the facility is always 0. '''If you need to know whether a message originated in the kernel rely on the facility value''', not just on the fact that you read the message from /proc/kmsg! A number of userspace applications write messages to kmsg (systemd, udev, dracut, others), and they'll nowadays all set correct facility values.
 
