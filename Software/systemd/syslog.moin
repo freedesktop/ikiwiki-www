@@ -16,4 +16,6 @@ Here are a few notes on things to keep in mind when you work on a syslog daemon 
 
  * Make sure to read the timestamp prefixes from kmsg messages. Most modern kernels add a monotonic timestamp prefix to all logged kernel messages. It is relatively easy to convert these timestamps back to wallclock time by comparing them with the CLOCK_MONOTONIC and CLOCK_REALTIME clocks.
 
-rsyslog currently implements all these recommendations. Other syslog implementations implement them at least partially.
+ * Make sure to include WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will spawn systemd-kmsg-syslog.service by default (and this is good that way), hence you cannot rely on being activated by that.
+
+Current rsyslog implements all these recommendations. Other syslog implementations implement them at least partially.
