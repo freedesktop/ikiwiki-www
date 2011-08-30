@@ -32,7 +32,7 @@ Here are a few other recommendations, that are not really related to systemd:
 
  * Make sure to read the timestamp prefixes from kmsg messages. Most modern kernels add a monotonic timestamp prefix to all logged kernel messages. It is relatively easy to convert these timestamps back to wallclock time by comparing them with the CLOCK_MONOTONIC and CLOCK_REALTIME clocks.
 
- * When you read a message from /dev/log use SO_TIMESTAMP to determine its timestamp and drop the one the client sent you. This is nice in order to make chroot() environments work well, which might have different or no timezone data available.
+ * When you read a message from /dev/log use SO_TIMESTAMP to determine its timestamp and drop the one the client sent you. This is nice in order to make chroot() environments work well, which might have different/outdated or no timezone data available.
 
  * When you read a message from /dev/log use SCM_CREDENTIALS to get information about the client generating it, and possibly patch the message with this data in order to make it impossible for clients to fake identities.
 
