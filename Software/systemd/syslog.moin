@@ -1,6 +1,18 @@
 = Writing syslog Daemons Which Cooperate Nicely With systemd =
 
-Here are a few notes on things to keep in mind when you work on a syslog daemon for Linux, to ensure that your syslog daemon works nicely together with systemd. If your syslog implementation does not follow these rules, then it will not be compatible with systemd v35 and newer. 
+Here are a few notes on things to keep in mind when you work on a syslog daemon for Linux, to ensure that your syslog daemon works nicely together with systemd. If your syslog implementation does not follow these rules, then it will not be compatible with systemd v35 and newer.
+
+First, let's start with a few logging features that systemd provides you with that are otherwise unavailable. Besides the fact that many distributions rely on systemd these days this list  should give you a hint what you gain in the loggin area by using systemd:
+
+ * Early boot logging. From the first point of boot on /dev/log is accessible and can be written to (all output goes to /dev/kmsg where your syslog implementation can read it from later on).
+
+ * All services log to syslog by default. Unless logging was explicitly turned off for a specific service all output written to stderr/stdout of a service goes to syslog. All of it.
+
+ * syslog implementations can be restarted/upgraded at any time without losing a single message
+
+ * syslog implementations can be replaced at any time. If you stop your main syslog implementation a minimal implementation will automatically take over which writes output to kmsg.
+
+And here are the recommendations:
 
  * First of all, make sure your syslog daemon installs a native unit file (SysV scripts are not sufficient!) and is socket activatable via /dev/log. Newer systemd versions (v35+) do not support non-socket-activated syslog daemons anymore and we do no longer recommend people to order their their units after syslog.target. That means that unless your syslog implementation is socket activatable many services will not be able to log to your syslog implementation and early boot messages are lost entirely to your implementation. 
 
@@ -12,11 +24,17 @@ Here are a few notes on things to keep in mind when you work on a syslog daemon 
 
  * When you start up immediately and synchronously flush kmsg to disk, so that early boot messages recorded by systemd-kmsg-syslogd are not lost and are not interleaved with later userspace messages.
 
+ * Make sure to include WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will spawn systemd-kmsg-syslog.service by default (and this is good that way), hence you cannot rely on being activated by that.
+
+Here are a few other recommendations, that are not really related to systemd:
+
  * Make sure to read the priority prefixes of the kmsg messages the same way as from normal userspace syslog messages. When systemd writes to kmsg it will prefix all messages with valid priorities which include standard syslog facility values. OTOH for kernel messages the facility is always 0. If you need to know whether a message originated in the kernel rely on the facility value, not just on the fact that you read the message from /proc/kmsg! A number of userspace applications write messages to kmsg (systemd, udev, dracut, others), and they'll nowadays all set correct facility values.
 
  * Make sure to read the timestamp prefixes from kmsg messages. Most modern kernels add a monotonic timestamp prefix to all logged kernel messages. It is relatively easy to convert these timestamps back to wallclock time by comparing them with the CLOCK_MONOTONIC and CLOCK_REALTIME clocks.
 
- * Make sure to include WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will spawn systemd-kmsg-syslog.service by default (and this is good that way), hence you cannot rely on being activated by that.
+ * When you read a message from /dev/log use SO_TIMESTAMP to determine its timestamp and drop the one the client sent you. This is nice in order to make chroot() environments work well, which might have different or no timezone data available.
+
+ * When you read a message from /dev/log use SCM_CREDENTIALS to get information about the client generating it, and possibly patch the message with this data in order to make it impossible for clients to fake identities.
 
 Current rsyslog implements all these recommendations. Other syslog implementations implement them at least partially.
 
