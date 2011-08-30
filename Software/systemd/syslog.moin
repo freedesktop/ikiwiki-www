@@ -24,7 +24,7 @@ And here are the recommendations:
 
  * On start-up, immediately and synchronously flush kmsg to disk, so that early boot messages recorded by systemd-kmsg-syslogd are not lost and are not interleaved with later userspace messages.
 
- * Make sure to include !WantedBy=multi-user.target.wants in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will only spawn systemd-kmsg-syslog.service on-demand (and this is good that way), hence you cannot rely on being activated by it on-demand too.
+ * Make sure to include !WantedBy=multi-user.target in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will only spawn systemd-kmsg-syslog.service on-demand (and this is good that way), hence you cannot rely on being activated by it on-demand too.
 
 Here are a few other recommendations, that are not directly related to systemd:
 
@@ -48,6 +48,7 @@ Description=System Logging Service
 ExecStartPre=/bin/systemctl stop systemd-kmsg-syslogd.service
 ExecStart=/sbin/rsyslogd -n
 Sockets=syslog.socket
+StandardOutput=null
 
 [Install]
 WantedBy=multi-user.target
