@@ -12,4 +12,6 @@ systemd provides a fair degree of compatibility with the behaviour exposed by th
 
  * Additional verbs for init scripts are not supported. If your init script traditionally supported additional verbs for your init script simply move them to an auxiliary script.
 
- * Additional parameters to the standard verbs are not supported. This was an extension of SysV that never was standardized officially, and is not supported in systemd.
+ * Additional parameters to the standard verbs (i.e. to "start", "stop" and "status") are not supported. This was an extension of SysV that never was standardized officially, and is not supported in systemd.
+
+ * Runlevels are supported in a limited fashion only. SysV runlevels are mapped to systemd target units, however not all systemd target units map back to SysV runlevels. That means that checks for the current runlevel with /sbin/runlevel or so) may well return "N" (i.e. unknown runlevel) during normal operation. Scripts that rely on explicit runlevel checks are incompatible with many setups. Avoid runlevel checks like these.
