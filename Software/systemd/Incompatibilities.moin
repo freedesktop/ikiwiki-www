@@ -6,7 +6,7 @@ systemd provides a fair degree of compatibility with the behaviour exposed by th
 
  * Timeouts apply to all init script operations in systemd. While on SysV systems a hanging init script could freeze the system on systemd all init script operations are subject to a timeout of 5min. 
 
- * Services are executed in completely clean execution contexts, no context of the invoking user session is inherited. Not even $HOME or similar are set.
+ * Services are executed in completely clean execution contexts, no context of the invoking user session is inherited. Not even $HOME or similar are set. Init scripts depending on these will not work correctly.
 
  * Services cannot read from stdin, as this will be connected to /dev/null. That means interactive init scripts are not supported. Thankfully most distributions do not support interaction in init scripts anyway. If you need interaction to ask disk or SSL passphrases please consider using the minimal password querying framework systemd supports. ([[http://www.freedesktop.org/wiki/Software/systemd/PasswordAgents|details]], [[http://0pointer.de/public/systemd-man/systemd-ask-password.html|manual page]])
 
