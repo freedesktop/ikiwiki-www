@@ -44,7 +44,7 @@ A couple of notes on the semantics:
 
 The static (configured) host name is the one configured in /etc/hostname or a similar file. It is chosen by the local user. It is not always in sync with the current host name as returned by the gethostname() system call. If no host name is configured this property will be the empty string. Setting this property to the empty string will remove /etc/hostname. This hostname should be an internet-style hostname, 7bit ASCII, no special chars/spaces, lower case.
 
-The transient (dynamic) host name is the one configured via sethostbyname(). It can be different from the static hostname in case DHCP or mDNS have been configured to change the name based on network information. This property is never empty. If no host name is set this will default to "localhost". Setting this property to the empty string will reset the dynamic hostname to the static host name. If no static host name is configured the dynamic host name will be reset to "localhost". This hostname should be an internet-style hostname, 7bit ASCII, no special chars/spaces, lower case.
+The transient (dynamic) host name is the one configured via the kernel's sethostbyname(). It can be different from the static hostname in case DHCP or mDNS have been configured to change the name based on network information. This property is never empty. If no host name is set this will default to "localhost". Setting this property to the empty string will reset the dynamic hostname to the static host name. If no static host name is configured the dynamic host name will be reset to "localhost". This hostname should be an internet-style hostname, 7bit ASCII, no special chars/spaces, lower case.
 
 The pretty host name is a free-form UTF8 host name for presentation to the user. UIs should ensure that the pretty hostname and the static hostname stay in sync. i.e. when the former is "Lennart's Computer" the latter should be "lennarts-computer". If no pretty host name is set this setting will be the empty string. Applications should then find a suitable fallback, such as the dynamic hostname.
 
@@ -55,6 +55,8 @@ A client which wants to change the local host name for DHCP/mDNS should invoke !
 Applications may bypass the daemon to read the hostname data if notifications of host name changes are not necessary. Use gethostname(), /etc/hostname (possibly with per-distribution fallbacks), and /etc/machine-data for that. For more information on these files and syscalls see the respective man pages.
 
 The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
+
+The !PolicyKit action for !SetHostname() is ''org.freedesktop.hostname1.set-hostname''. For !SetStaticHostname() and !SetPrettyHostname() it is ''org.freedesktop.hostname1.set-static-hostname''. For !SetIconName() it is ''org.freedesktop.hostname1.set-machine-info''.
 
 This is inspired by, but not the same as David Zeuthen's xdg-hostname: http://people.freedesktop.org/~david/xdg-hostname/
 
