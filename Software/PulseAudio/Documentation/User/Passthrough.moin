@@ -1,0 +1,19 @@
+As of !PulseAudio 1.0, we support passthrough output of compressed formats. This allows us to directly support passing compressed audio to hardware that supports it. Currently, the only hardware for which we support this is A/V receivers plugged in over S/PDIF or HDMI, but this can include hardware decoders on !SoCs and streaming MP3/AAC/.. to Bluetooth headsets that support it in the future.
+
+=== For users ===
+
+Currently, the only client to support passthrough output is the GStreamer !PulseAudio plugin. This will be available in the next release (0.10.31) of gst-plugins-good. Once this is installed, you should be able to have passthrough output just work with Totem and most other players that uses playbin2.
+
+To configure passthrough output, you need to do the following:
+
+ 1. Make sure no clients (other than your video player) are connected for playback (you can see the list of connected clients in pavucontrol under the Playback tab)
+ 1. In the Configuration tab, select the appropriate digital output profile
+ 1. (You only need to do this once unless you change the receiver.) In the Recording tab, select the formats that your receiver supports (your receiver documentation may refer to Dolby Digital (which is AC3), Dolby Digital+ (which is EAC3)
+
+That's it!
+
+=== For developers ===
+
+Clients need to be aware of two changes to the API -- you need to use the {{{pa_stream_new_extended()}}} function for setting up a stream, and the {{{struct pa_format_info}}} instead of {{{struct pa_sample_spec}}} to specify what type of data you're providing. More information on the API design can be found at [wiki:PassthroughSupport].
+
+If you're adapting your sink to expose this capability, look at the documentation for {{{pa_sink->get_formats()}}} and {{{pa_sink->set_formats()}}}.
