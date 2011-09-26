@@ -36,8 +36,9 @@ Switching from one compressed format to another (e.g. MP3 -> AC3) does not
 make sense, so need not be supported. It is assumed that all sinks support
 playing some PCM format (and that PA will convert as appropriate).
 
-When switching to a new format, the client must close its current stream and
-open a fresh stream in order to set things up for the new format.
+When switching to a new format a format lost event is emitted and the client
+must close its current stream and open a fresh stream in order to set things
+up for the new format.
 
 
 = API changes =
@@ -93,26 +94,20 @@ be queried when the stream goes to the PA_STREAM_READY state
 {{{
 /* Returns a NULL-terminated list of formats (for now, containing only one item
  * - the negotiated format */
-const pa_format_info * const *pa_stream_get_format_info(pa_stream *s);
+const pa_format_info* pa_stream_get_format_info(pa_stream *s);
 }}}
 {{{
 /* This is implicit in the format, but still convenient to have, and
  * effectively deprecates the PA_SINK_INPUT_PASSTHROUGH flag */
-const pa_bool_t pa_encoding_is_passthrough(pa_encoding_t enc);
+int pa_format_info_is_pcm(const pa_format_info *f);
 }}}
 
 
 == Others ==
 
-We need to make a volume/mute disabled notification for sinks and sink inputs
-when they are operating in passthrough mode. Probably also best to disable the
-monitor, but an override might be useful for debugging purposes.
-
-For S/PDIF (and HDMI?) we should add a way for users to check off the formats
-supported by their hardware in the UI (and probably attach this to the sink as
-a property). The sink query can then use this to determine the list of
-supported formats. For Bluetooth sinks, we can get this data from A2DP
-capabilities, so no user intervention is required.
+We still need to make a volume/mute disabled notification for sinks and sink inputs
+when they are operating in passthrough mode. Currently, volume changes are ignored
+in passthrough mode.
 
 = Credit =
 
