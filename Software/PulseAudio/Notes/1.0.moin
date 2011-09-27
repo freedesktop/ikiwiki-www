@@ -1,0 +1,1077 @@
+== Release Notes ==
+
+The first thing you need to know is that 1.0 is just a number. We do not attach specific significance to the 1.0 moniker. It's really just a way to clean up version numbers - it's an eternal debate as to what constitutes "1.0 quality" and in the end we could easily go on forever with the previous numbering scheme. But with such a long time in development and the general state of PulseAudio adoption in the major distros and integration into the major Desktop Environments, we felt that this was as good a time as any to try and clean up the version numbers and call it 1.0! In time, we may even drop the minor number and just have one version number, but we'll see how things go first before making that decision. Certainly most releases will be based on the major number (so expect to see v2.0 next!) with the minor number reserved for bugfix updates should there be demand for us to do so keeping in mind that such bugfix updates will have to be supported mostly by the community.
+
+!PulseAudio 1.0 has been a long time in the making. The git branch is actually from based several releases back (around the 0.9.19 release) but for various reasons the subsequent releases have been made from the stable tree as git master was home to too many experimental features. This wasn't ideal from a management perspective and has caused more than a little confusion (not to mention it makes the git changelogs look weird), so we're going to try not to let this happen again.
+
+But with some diligent work, and diligent use of git cherry, git master contains all the fixes that were pushed into the releases that have been made along the way, and adds some significant features too. 
+
+== Key Features of 1.0 ==
+
+ * D-Bus based control protocol (beta)
+ * Source Output Volumes
+ * Passthrough Support
+ * Windows support restored
+ * Improved sample rate adaptation in module-rtp-receive
+ * Volume Change Sync for flat volumes
+ * Enhanced Port Volume controls
+ * New, future proof format for metadata files
+ * New equalizer and acoustic echo cancellation modules
+ * If [[http://jackaudio.org/|Jack]] is running, !PulseAudio will connect to it automatically by default (previously this required editing a configuration file) 
+
+=== Features in more detail ===
+
+ * '''D-Bus based control protocol (beta)'''
+    Everything except audio streaming (and source output volumes) can now be done also via D-Bus. We are not completely certain about the API (due in part to internal code structure and upcoming planned changes), so we make no API stability guarantees. If you can live with the API changing in the next PulseAudio release, feel free to experiment with the D-Bus interface. Any feedback is very welcome - good ideas for improving the API will likely be implemented. Here's the documentation. 
+
+ * '''Source Output Volumes'''
+    Previously you could alter the volume of sinks (playback devices), sources (capture devices), sink-inputs (playback streams) but not of the source-outputs (capture streams). Now it is possible to adjust the volume or mute the stream of each recording application separately, just like it always has been for playback. This brings symmetry to the API which is certainly a bonus for e.g. VoIP apps which typically integrate volume controls. It was originally left unimplemented due to the fact that the case for multiple capture streams is very rare and you certainly didn't want to include software volumes into your only capture stream if at all possible. However, with the introduction of "flat volumes", any volume set on a capture stream will be "flattened" through to the underlying hardware volume if at all possible, thus avoiding problems with integrating additional artefacts or clipping the data with a standard software volume adjustment. 
+
+ * '''Passthrough Support'''
+    PulseAudio now supports passthrough audio natively. This means that applications can now send compressed audio directly to hardware that supports it (for now, high-end A/V receivers, but this can include embedded SoCs with decoder blocks and Bluetooth headsets that support formats other than SBC). For more details, see Passthrough. 
+
+ * '''Echo Cancellation'''
+    A new module (module-echo-cancel) for acoustic echo cancellation (AEC) has been added. If you are using Empathy 3.2, echo cancellation should work out of the box. For other clients which set the "phone" media role, you can just load module-echo-cancel manually or in your configuration to take advantage of this. More details on Arun's blog post. 
+
+ * '''Windows Support Restored'''
+    The old Windows port dated back to PulseAudio 0.9.6. Since then a lot of features had been added which broke the building of PA on Windows. Thanks primarily to the work of Maarten Bossmans, the 1.0 release restores Windows support for PulseAudio. Additionally, the WaveOut driver received some minor improvements. 
+
+ * '''Improved sample rate adaptation in module-rtp-receive'''
+    A new algorithm is used to determine the resampling rate, in order to more reliably match the rate to the clock of the RTP-stream sender. This will eliminate some bugs related to the sound becoming distorted due to a wildly varying sample rate. 
+
+== Removed Stuff ==
+
+ * '''pabrowse and libpulse-browse'''
+    pabrowse and libpulse-browse have been removed after a long time of deprecation. The functionality is now directly provided by avahi-browse and libavahi. This also means that padevchooser will no longer build. This is fully intended as that tool itself has also been deprecated for many years and operates in a manner that generally breaks your setup for several corner cases. 
+
+== Management Changes ==
+
+As most people following the Linux community any depth will know, Lennart is now primarily engaged in the development of [[http://www.freedesktop.org/wiki/Software/systemd|systemd]]. While he has not abandoned PulseAudio, his development focus has certainly changed for now and as such, Colin Guthrie will manage future releases and generally head up the community. Colin really assumed this role some time ago, herding the cats on the mailing lists and IRC channels, building bridges to various interested parties and trying to review patches and develop new code himself, so this transition is rather smooth. Colin has yet to develop skin quite as thick as Lennart, so please be kind.
+
+== Infrastructure Changes ==
+
+Along with Lennart's management departure, most of the PulseAudio infrastructure has also moved. We would like to extend our thanks to the good folks over at [[http://freedesktop.org/wiki/|freedesktop.org]] for hosting our [[http://cgit.freedesktop.org/pulseaudio/|git repositories]], [[http://lists.freedesktop.org/mailman/listinfo/pulseaudio-discuss|mailing lists]] and [[https://bugs.freedesktop.org/buglist.cgi?query_format=specific&order=relevance+desc&bug_status=__all__&product=PulseAudio&content=|bug tracking]]. In due course we will also migrate our wiki content from Trac to the FDO wiki, but we want to plan this out carefully as the current wiki isn't as organised as it could be.
+
+== What's Next? ==
+
+Several developments are now lined up for the future. Upcoming features will likely include:
+
+ * '''UCM: Use Case Manager Support'''
+    Support for UCM will be included in the near future. The people behind UCM (namely Liam Girdwood @ TI and Mark Brown @ Wolfson with support from many others) have already developed some PA patches that go some way to implementing the necessary logic, and we hope the get these patches cleaned up and included quickly. 
+
+ * '''Headphone/Mic Jack Detection'''
+    David Henningsson from Canonical has been working on the various different bits required to ensure that PA responds properly when a set of (3.5mm) headphones are inserted - i.e. switching over to using them and ensuring the correct underlying ALSA kcontrols are used for volume adjustments. The same is true when an external mic is inserted - i.e. taking over from the internal mic. While the kernel interfaces are perhaps subject to change, we will be integrating the core changes needed to support this infrastructure as soon as the 1.0 release is out of the door. 
+
+ * '''Module Loading Improvements'''
+    Colin Guthrie has plans to deprecate module-gconf (which is just a module loader) in favour of a slightly more intelligent and contextually aware module loader. This loader module would be able to load modules based on "trigger" conditions such as a certain sink, source or a combination of sinks and sources existing. This will allow for the configuration of loopback, combine or effect modules that are only activated when certain devices are present. 
+
+ * '''Routing Infrastructure'''
+    As has been known for a long time, the current infrastructure for dealing with stream routing is insufficient. Colin Guthrie hopes to expand on his earlier work with module-device-manager (which is used under KDE and implements a priority-list based routing policy) to integrate support for a much more flexible routing system into the PA core, although still retaining the ability for fine-grained policy to be specified (such as using headsets on voip calls and using never-seen-before devices as the default). 
+
+ * '''Adoption of WebRTC code for Echo Cancellation'''
+    Arun Raghavan's work on the echo cancellation code will be augmented using various systems developed by Google and released as the WebRTC system. 
+
+ * '''More use of Orc for CPU-intensive tasks'''
+    The OIL Runtime Compiler allows SIMD code to be written in a CPU-agnostic way, which is later, at runtime, compiled into code optimized for the specific CPU. Currently PulseAudio uses Orc at a couple of places. Future releases will make more use of Orc, resulting in less CPU-time used by PulseAudio. 
+
+== Git Shortlog ==
+
+{{{
+Antonio Ospite (2):
+      alsa-mixer: Add support for the Microsoft Kinect Sensor device
+      doc: Add info about running pulseaudio from the build dir
+
+Antti-Ville Jansson (1):
+      core: Drop empty gaps in the memblockq when playing data from it.
+
+Arun Raghavan (149):
+      build: Fix make distcheck
+      cpu: Add CPU information to pa_core
+      echo-cancel: Add SSE optimisation to the adrian module
+      echo-cancel: orc-ify some bits for optimisation
+      build: Copy orc dist files to the correct directory
+      volume: Use a macro to check if a volume is valid
+      volume: Clamp volume to PA_VOLUME_MAX
+      cli: Validate volume before setting
+      pactl: Validate volume before setting
+      volume: Decrease PA_VOLUME_MAX to be < 2^31
+      volume: Fix incorrect usage of PA_VOLUME_IS_VALID
+      alsa: Sprinkle some PA_UNLIKELYs around error checks
+      build-sys: Fix a warning during distcheck
+      build: Move orc.mak out of build/
+      build: Simplify Orc-related make rules
+      echo-cancel: Make Orc file names less silly
+      Revert "core: volume ramping fix"
+      Revert "ramping: minor cleanups"
+      Revert "Add volume ramping feature - sink modification"
+      Revert "Add volume ramping feature - sink-input modification"
+      Revert "Add volume ramping feature - envelop fix"
+      Revert "Add new subsystem for applying envelopes (such as volume ramps) to audio signals"
+      Remove remaining ramping/envelope references
+      introspect: Client-side implementation for has_volume/read_only_volume
+      volume: Make tests use only valid volumes
+      volume: Fix sample array size for tests
+      volume: Add Orc-based optimised volume scaling
+      daemon: Fix missing include - cpu-orc.h
+      build: Bump Orc dependency to 0.4.11
+      cork-on-phone: Handle sink-inputs with NULL sinks
+      bluetooth: Pull a2dp-codecs.h from BlueZ
+      stream-restore: Check for readability before reading volume
+      volume: Get more data from volume tests
+      filter-apply: Make housekeeping optional
+      filter-heuristics: Only apply AEC if we're not already on a phone sink
+      filters: Handle stream moves properly
+      filters: Handle filters on sources as well
+      echo-cancel: Play nice with module-filter-*
+      filter-heuristics: Match roles correctly
+      filter-apply: Mark modules as being autoloaded
+      sink: Trivial typo fix
+      sample: Use PA_SAMPLE_INVALID instead of numeric value
+      core: Add a pa_format_info structure
+      format: Add some properties and internal API
+      sink: Extend API for compressed formats support
+      core: Add extended stream API to support compressed formats
+      format: Add convenience API to check if a format is PCM or not
+      sink: Remove PASSTHROUGH flag
+      tests: Add a trivial test for the extended API
+      sink-input: Minor cleanups
+      sink-input: Return NOTSUPPORTED if format negotiation fails
+      sink-input: Don't assert on bad formats
+      format: Avoid some code duplication
+      sink: Fix leak in pa_sink_check_formats()
+      sink-input: Kill passthrough streams if moving to an unsupported sink
+      core: Fix some FIXMEs for the extended API
+      alsa-mixer: Remove passthrough profiles
+      sink: Trivial typo fix in comment
+      core: Suspend monitor when a sink enters passthrough mode
+      alsa: Reconfigure sink sample rate for passthrough inputs
+      format: Const-ify some parameters
+      format: Add some convenience functions for printing
+      stream: Add API to get a stream's pa_format_info
+      introspect: Get formats for sinks
+      introspect: Get format of sink input
+      format: Add a type for DTS
+      core: Factor out passthrough checks into their own functions
+      filter-apply: Mark modules as being autoloaded
+      echo-cancel: Handle alignment requirement manually
+      echo-cancel: Remove unnecessary noalign attribute
+      sink-input: Don't print an error if a passthrough connection fails
+      sink-input: Don't restore volume for passthrough streams
+      sink-input: Add a format-lost event
+      format: Export pa_format_info_is_compatible in API
+      format: Add correct sample spec conversion for E-AC3
+      sink-input: Provide more information to client when format is lost
+      format: Extend properties to handle lists/ranges
+      format: Add some convenience API for setting properties
+      doxygen: generate documentation for format.h
+      module-tunnel: Update for recent protocol changes
+      echo-cancel: Don't overpad variable
+      echo-cancel: Remove extraneous debug message
+      format: Fix channel map handling
+      echo-cancel: Add speex preprocessing
+      echo-cancel: Fix a crash is speex cleanup
+      tests: Update extended API test
+      echo-cancel: Fix preprocessor initialisation
+      echo-cancel: More preprocessing fixes
+      protocol-native: Use original requested latency on stream moves
+      protocol-native: Don't leak formats
+      stream: Fix a couple of format_info leaks
+      stream: Simplify passing of formats in extended API
+      source-output: Trivial code move
+      pactl: Add a set-source-output-volume command
+      echo-cancel: Set sane defaults for module initialisation
+      protocol-native: Fix backward compatibility break
+      protocol-native: Fix invalid assert
+      padsp: Handle eol in info callbacks correctly
+      protocol-native: Trivial fix for a compiler warning
+      doc: Document subscription events better
+      log: Add missing pulsecore/thread.h include
+      sink: Add a set_formats() API
+      alsa: Implement get/set_formats()
+      device-restore: Make bools not be bit fields
+      device-restore: Set sink format when possible
+      format: Make pa_format_info_snprint() more parseable
+      format: Add string to pa_format_info conversion function
+      pactl: Add a set-sink-formats command
+      sink: Fix lazy commenting
+      device-restore: Log invalid sink index while setting formats
+      Remind people not to break module-tunnel
+      proplist: Make filter properties line up prettily
+      filter-heuristics: Don't force AEC on all phone streams
+      conf: Load module-filter-* by default
+      build-sys: Bump JACK dependency to 0.117.0
+      sink: Add a SET_FORMATS flag
+      alsa: Set SET_FORMATS flag when appropriate
+      format: Remove stupid copy-paste-o
+      source: Remove the PA_SOURCE_PASSTHROUGH flag
+      alsa: Don't always suspend/unsuspend on sink-input removal
+      formats: Use correct API to check for passthrough streams
+      alsa: Open iec958 device with NONAUDIO bit set in passthrough mode
+      formats: Fix bad passsthrough check
+      alsa: Fix bad function name
+      daemon: Fix compiler warning about missing function prototype
+      passthrough: We must not plug in a resampler on stream move
+      sink-input: Ensure no volumes are applied for passthrough streams
+      source-output: Ensure no volumes are applied for passthrough streams
+      Revert "device-restore: Make bools not be bit fields"
+      sample-util: Fix off-by-one in error check
+      sink: Add PA_SINK_SET_FORMATS macro
+      build-sys: Fix some LDFLAGS vs. LDADD usage
+      echo-cancel: Add multiple include protection for header
+      echo-cancel: Use pa_streq instead of strcmp
+      echo-cancel: Move speex preprocessing out of the main module
+      passthrough: Fix what volume we set sinks/sources to
+      passthrough: Fix setting volume to unamplified again
+      echo-cancel: Make save_aec modarg a bool instead of an int
+      echo-cancel: Don't allow streams to attach while unloading
+      echo-cancel: Get rid of annoying compiler warnings
+      equalizer: Comment out unused function
+      vala: Add has_type_id=false to all enums, structs and classes
+      stream: Relax assert for extended API
+      def: Hide server-side sink/source flags
+      volume: Handle varying channel count for shared volumes
+      virtual: Make volume sharing on by default
+      equalizer: Use volume sharing by default
+      echo-cancel: Use volume sharing by default
+      sink,source: Handle missing in the shared volume case
+
+Bart Cerneels (2):
+      echo-cancel: Speex preprocessor has to run *after* the AEC.
+      echo-cancel: Fix echo suppression, add some knobs
+
+Bryan Gleeson (1):
+      raop: Change socket buffer size handling to avoid playback underruns
+
+Cai Yuanqing (2):
+      coreaudio: Make coreaudio-detect safer by adding asserts before dereferencing
+      loopback: Add new arguments to disable stream move
+
+Cheng-Chia Tseng (4):
+      l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+      l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+      l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+      l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+
+Colin Guthrie (100):
+      stream-restore: Preventative initialistion to NULL
+      pacat: Don't use any buffer attr if we don't set any latency/process time params
+      cli: Allow .include on directories as well as files.
+      introspect: Include whether a stream is corked in the info callback.
+      log: Totally trivial spelling 'correction' (for en-US)
+      dbus: Fix log message after volume changes.
+      version: Drop the micro version number
+      doxygen: Fix version numbers for new features
+      build-sys: Add some smarts to version extraction from git tags.
+      volume: Trivial cosmetics (remove a space)
+      Revert "core: make use of dbus_message_iter_append_fixed_array"
+      core: Add a new hook PA_CORE_HOOK_CARD_PROFILE_CHANGED
+      x11: Make pax11publish -r remove PULSE_SESSION_ID
+      alsa-mixer: Fix a git-am cockup in b0f72311
+      cork-on-phone: Only cork (and subsequently uncork) streams that are not already corked.
+      build-sys: No need to create folder for echo-cancel module.
+      bluetooth: Fix build errors relating to SBC
+      build-sys: Whitespace changes
+      build-sys: Fix bluetooth update-sbc now that it's in a subfolder.
+      build-sys: Make update-sbc, update-reserve and update-rtkit work in OOT builds
+      bluetooth: Run 'make update-sbc'
+      tunnel: Fix tunnel streams with recent servers
+      echo-cancel: Fix warning/typo
+      daemon: Fix regression with --start introduced with the double fork in 8e94f653
+      po: Remove files no longer in the tree (and which didn't have any translations anyway).
+      daemon: Fix some more error paths in the double forking.
+      daemon: Fix regression introduced in f1d1447e.
+      dbus: Do not refcnt the core.
+      bluetooth: Fix a double-free-esque error introduced in 8f3ef04b
+      doc: Fix typo
+      equalizer: Use sink_master as the module argument rather than just master.
+      filter-apply: New module to automatically load filter sinks (and move streams) based on sink-input property hints.
+      filter-heuristics: New module that applies some basic heuristics regarding filters.
+      filter: Move the proplist defines into the central place and document them.
+      test: Make the connect-stress less likely to bail out due to >32 streams.
+      combine: Rename module-combine to module-combine-sink.
+      tests: Fix resampler-test.
+      i18n: Fix POTFILES
+      bluetooth: Fix early return styling and add missing return value
+      sink-input: Fix memory leak of proplist when sending format-changed events
+      protocol-native: Fix memory leaks introduced in protocol 21 (passthrough support)
+      pulsecore: Add a couple pa_asserts() on pa_tagstruct* calls.
+      combine: Fix a crash on shutdown if the module is loaded outside of our control.
+      build-sys: module-equalizer-sink needs dbus.
+      alsa-sink: Some trivial tidyups
+      introspect: Clear out memory properly on error.
+      def: Add some flags for source outputs.
+      capture: Add the passthrough format negotiation to capture streams.
+      introspect: Get formats for sources
+      capture: Implement per-stream volume control for capture streams.
+      introspect: Get format of source output
+      alsa: Remove unneeded include
+      streams: Tidy up includes
+      alsa-mixer: When setting hw volume, always round up with playback and down with capture.
+      capture: Remove support for synchronised capture streams.
+      esound,streams: Fix some crashes.
+      database: Convert our use of database files to save in tagstruct format.
+      device-restore: Add a new protocol extension for device-restore.
+      database: Support legacy format database entries.
+      alsa-mixer: Add an mixer profile exception for a BT Agile handset
+      alsa-mixer: Add UAC1.0 Sennheiser Dongle to the usb-headset profile.
+      alsa-mixer: Whoops, forgot to git-add this in a previous.
+      build-sys: equalizer-sink needs DBus aswell as FFTW
+      devices: Use wrapper functions to set the *_volume and *_mute callbacks.
+      devices: Set certain sink/source flags automatically.
+      alsa: Reinitialise the mixer on port change.
+      alsa-mixer: Do not 'unify' mixer paths.
+      alsa-mixer: Detect and then drop pointless paths in the path set.
+      alsa: No need to go via sink/source to get the core.
+      alsa-mixer: Remove workaround for USB head/handsets
+      reserve: Fix compile warning when compiling without dbus
+      source-output: Fix resampling.
+      stream-restore: Save/restore source output volume/mute
+      device-restore: Various fixes for the protocol extension.
+      pactl: Make stat backwards compatible with previous versions.
+      alsa-mixer: Fix rounding direction on mixer initialisation
+      alsa: Ensure that volumes are written to the h/w at startup.
+      ext-device-restore: Include format.h
+      sink-input: Drop redundant assert (PA_SINK_INPUT_IS_LINKED() checked already)
+      core: Unload the modules and cached samples before unref'ing the core.
+      def: Add a new enum to allow differntiation between sinks and sources.
+      dbus: Use pa_device_type_t rather than an internal equivalent
+      device-restore: Change the API to include type information (sink vs. source)
+      device-restore: Split device restore database into two parts.
+      device-restore: Restore volumes on port change.
+      device-restore: Simplify the migration of data to per-port keys.
+      stream-restore: Add in some variable sets that were missing from 9ffa93.
+      stream-restore: Add proper data validity checks to the legacy database entry read.
+      formats: The format code should be in libpulse, not libpulsecommon
+      formats: Export more functions needed for a clean build.
+      device-restore: Fix use-after-free error.
+      raop: Use the port supplied by avahi when connecting to RAOP devices.
+      bluetooth: Bump DBus version to 1.3.0 and drop conditional code.
+      alsa: Tidy up argument descriptions
+      modargs: Ensure modargs can be accessed in their raw form.
+      raop: Properly deal with the name coming from the device.
+      build-sys: Oops forgot to add the Kinect profile to the build system.
+      volume: Rename 'sync volume' to 'deferred volume'.
+      doc: Update README with fresh links.
+      build-sys: Switch to the tar-ustar format (as per a lot of GNOME stuff for 3.2) and distribute .xz files.
+
+Daniel Mack (34):
+      make bootstrap.sh aware of Darwin environment
+      Revert "make bootstrap.sh aware of Darwin environment"
+      buil-sys: fix build w/o DBus
+      Wrap clock_gettime and friends
+      Mac OS X: add semaphore implementation
+      configure.ac: enable check for CoreAudio
+      core-rtclock.c: tweak OS_IS_DARWIN constraints
+      poll() is totally broken on Mac OS X
+      hack around another OS X bug: recv() with MSG_PEEK does not work
+      CoreAudio: add device detection module
+      CoreAudio: add audio device module
+      osx: add native zeroconf implementation via Bonjour
+      fix a number of warnings
+      fix a number of warnings
+      osx: don't build the once-test binary on OS X
+      modules/coreaudio: replace deprecated functions
+      module-bonjour-publish: don't include avahi headers
+      alsa: Add two more ALSA audio card profiles
+      module-coreaudio-detect: fix variable assignment in pa__done()
+      osx: re-order module locations
+      osx: add -headerpad_max_install_names to LDFLAGS
+      configure.ac: add --mac-universal directive for OS X
+      osx: add routines for real-time thread scheduling
+      tests: add a connection stress test
+      pa_poll(): Simplify detection of invalid fds in select() emulation mode
+      module-coreaudio-detect: Add 'ioproc_frames' parameter
+      util: Implement pa_get_binary_name() for Mac OS X
+      pulsecore:: Define _POSIX_C_SOURCE locally for rtclock on OSX
+      thread-posix: Use pthread_(get|set)name_np() if available
+      module-coreaudio-device: Dispatch sink/source state messages from main loop
+      module-coreaudio-device: Set the thread name to device name
+      module-coreaudio-device: Fix two build warnings
+      build-sys: Make -isysroot and -mmacosx-version-min configurable
+      osx: pass -headerpad_max_install_names to the linker, too
+
+Daniel Schaal (1):
+      man: add manpage for start-pulseaudio-kde and start-pulseaudio-x11
+
+Daniel T Chen (2):
+      build-sys: Add missing profile and alsa-mixer/paths to src/Makefile.am
+      alsa: Handle 'Digital Mic' as an 'Input Source'
+
+David Henningsson (25):
+      alsa-mixer: Add a few well-known descriptions
+      alsa-mixer: add required-any and required-* for enum options
+      alsa-mixer: always round towards 0 dB
+      alsa-mixer: Add new paths for Internal Mic, Front Mic, Rear Mic and Dock Mic
+      alsa-mixer: Fixup "Mic"/"Line"/"analog-input" paths to work with the new paths
+      alsa-mixer: Make sure capture source and input source use right path
+      alsa-mixer: Add support for "Line Boost" element
+      alsa-mixer: Add workaround for some USB headsets
+      protocol-native: Allow clients to know at what index underrun occurred
+      Fix crash in path subset elimination
+      Document PA_COMMAND_UNDERFLOW protocol change
+      alsa-mixer: Mute IEC958 optical raw for several Audigy models
+      alsa-mixer: Add "Line HP Swap" element
+      JACK: Load module-jackdbus-detect in default.pa
+      Remove offensive part of error message
+      switch-on-connect: Don't switch to a monitor source
+      Fix spelling sucess -> success
+      Set better priorities on input paths
+      module-switch-on-connect: Don't switch unlinked sink input and source outputs
+      alsa-mixer: Set "Front" control to 0 dB on headphone path
+      raop: Don't crash if fd is not open when trying to close it
+      sink,source: Avoid crash by not updating volume on shutdown
+      conf: Make sure module-dbus-protocol is loaded after module-default-device-restore
+      dbus: Don't crash if the module does not load
+      Fix crash in threaded message queues
+
+Diego Elio Pettenò (12):
+      Fix out-of-tree builds when dbus module is enabled.
+      Add check for FFTW, and add option to disable it at build-time.
+      Move the platform-specific defines after the compiler has been found.
+      Fix build on Solaris: pass the third parameter to pa_cloexec_open.
+      Don't declare the variable l if FIONREAD is not defined.
+      Include sys/filio.h if present; this makes use of FIONREAD on Solaris.
+      Check for stow using AC_CHECK_PROG rather than type -p.
+      Simplify handling of NetBSD atomic ops discovery.
+      Since now we have FreeBSD atomic operations, don't require libatomic_ops.
+      Rename all the signal parameters and variables to something more explicit.
+      Avoid using devname as a variable name.
+      Simplify Makefile.am handling of ALSA-related files.
+
+Dimitris Glezos (1):
+      l10n: Updates to Greek (el) translation
+
+Edward Rudd (3):
+      coreaudio: Fix call to pa_thread_new
+      solaris: update call of pa_thread_new to new prototype
+      sconv_sse: Exclude SSE optimizations for Mac OS X
+
+Fritz Elfert (1):
+      Disable check for pthreads on win32
+
+Gustavo F. Padovan (1):
+      sbc: Fix redundant null check on calling free()
+
+Harri Mähönen (1):
+      stream-restore: add version to new entry.
+
+Henning Heinold (2):
+      src/Makefile.am: add missing space to fix build using uClibc
+      build-sys: look for function 'backtrace' also in library 'ubacktrace'
+
+Jason Newton (48):
+      module-equalizer-sink added     src/Makefile.am: added module-equalizer-sink
+      module-equalizer-sink:         added temporary debugging output to track filter output         removed dead code         only a small amount of crackling remains
+      module-equalizer-sink: added more assertions to aid in debugging
+      module-equalizer-sink: attempt different buffering strategy
+      module-equalizer-sink: trying new buffering strategies
+      module-equalizer-sink: simplified sink_input pop callback and introduced new variables that simplify different strategies.
+      module-equalizer-sink:         first commit of a working state (cpu speed dependant)         added noop processing for filter debugability
+      module-equalizer-sink:         removed liboil         added sse2 optimized dsp logic implementation         cleaned up a bit
+      module-equalizer-sink:         added dbus support         removed cruft from inherited from ladspa module and improved clarity         switched dsp processing to reference implementation until project is more mature         tsched=0 seems to help with the micro-dropouts/crackling! oh my!         reformatting/spaces
+      module-equalizer-sink:         added support for suspend/resume of filter coefficients         unregister the correct dbus interface.         made equalizer state file sink index dependent         expanded dbus properties         whitespace
+      module-equalizer-sink:         dbus properties and manager so that multiple sinks can be loaded and mixers can be equalizer-sink aware         functionality to seed new filters quickly (rteq guis)         profile support         extra checking in client->server dbus messages
+      module-equalizer-sink:         add lennard's fix for piggy-back sinks in pop_cb         fixed some tsched issues
+      module-equalizer-sink: reverted buffering logic back to how the ladspa sink did it
+      module-equalizer-sink:         dbus:             eliminated some redundant code in dbus handlers/getall             switched filter back to being a property             signals for changed profiles, added/removed sinks, filter updates and sink reconfigurations         fixed timing routines
+      module-equalizer-sink:         proper fix for pa_xmalloc(0) given that 0 is illegal         fix coefficients in case there's no resume state         loadprofile now signals filterchanged
+      module-equalizer-sink:         fix for peek returning a null memblock         pa_log -> pa_log_debug for fft size         updated module description         fixed a comment in dbus error for incorrect x positions
+      module-equalizer-sink:         reworked processing so we don't have input->output delay of R samples
+      module-equalizer-sink:         merging in upstream changes         whitespace fix and fix for first iteration un-windowing
+      module-equalizer-sink         exchanged improper usage of memblockq_peek'd memchunk for silence block         dropped unneeded function prototypes         changed mround to be slightly more elegant         __restrict__ -> restrict for c99         removed unneeded pa_aupdate_swap calls         first_iteration -> pa_bool_t         cleaned up some usage of pa_malloc0 where pa_new0 was more appropriate         cruft removal, whitespace fixes and reordering of variables
+      module-equalizer-sink.c         i->sink -> i in pa_get_sink_max_request*
+      module-equalizer-sink.c: swapped order of attach_within_thread and set_max_request within sink_input_attach_cb
+      module-equalizer-sink: fixed timeval initialization
+      module-equalizer-sink: drop old macros for new library based ones
+      module-equalizer-sink: added support for preamp
+      module-equalizer-sink: fixed a bug w/ new zero-latency input scheme (that was an interesting/cool bug!)
+      module-equalizer-sink: per-channel filtering support + profiles, easier default configuration
+      module-equalizer-sink: added server side persistance of profile names
+      module-equalizer-sink: fix improper usage of pa_modargs_get_value_boolean for u->set_default
+      module-equalizer-sink: resync with ladspa parent sink
+      module-equalizer-sink: resyncing with head and fix invalid writes         * pa_log->debug for default equalizer notification         * partially fixed infinite rewind bug         * set max_request to window_size first iteration         * swap order inside ROUND_UP calls         * resync pa_sink_input_new changes         * change pa_sample_clamp parameters to be correct to fix invalid writes         * reenable proper reset logic + proper request size
+      module-equalizer-sink: *added client initiated sync support for filter state *added note of possible unstable behavior with next-power-of-2 sample rate calculation
+      module-equalizer-sink: disable active profile name restoration as something in pack/unpack is funky and I don't have time for a     proper fix
+      module-equalizer-sink: fixed equalizer state save/restore
+      module-equalizer-sink:         *fixed SSE2 optimized dsp logic (default if available)         *cleaned up whitespace formatting (again)
+      module-equalizer-sink: drop source executable permissions configure.ac: add enable/disable + summary line for fftw
+      module-equalizer-sink: fixed equalizer state save/restore
+      module-equalizer-sink:         *fixed SSE2 optimized dsp logic (default if available)         *cleaned up whitespace formatting (again)
+      module-equalizer-sink: drop source executable permissions configure.ac: add enable/disable + summary line for fftw
+      drop redundant alloc call
+      module-equalizer-sink: try to limit buffering to mempool's max_block_size and disable debug output
+      module-equalizer-sink:         add premultipliar to sse2 dsp_logic implementation
+      module-equalizer-sink: (re)added output memblockq commented out timing debug statements
+      module-equalizer-sink: switch back to reference dsp implementation - cpu usage doesn't really change and there may be     a bug in the vectorized version
+      module-equalizer-sink: add latency of output_q and input_q to get latency calculation
+      added qpaeq script for GUI equalizer control to src/util
+      remove .py extension from qpaeq
+      Makefile.am: added qpaeq to installed scripts
+      src/utils/qpaeq: added more friendly error messages to common errors
+
+Jens Georg (2):
+      rygel: Properly close {sv} iters for GetAll
+      rygel: Fix introspection XML for MediaItem2
+
+Joe Marcus Clarke (2):
+      freebsd: fix atomic ops implementations
+      freebsd: implement pa_get_binary_name
+
+Jonny Lamb (2):
+      introspect: fix source output and sink input docs mix-up
+      introspect: fix typo in default sink/source docs
+
+João Paulo Rechi Vita (2):
+      bluetooth: improve dbus logging
+      bluetooth: add HFP Gateway support
+
+Juho Hämäläinen (3):
+      alsa-sink: take base volume into account when applying hw volume
+      bluetooth-device: fix rounding errors caused by few bt volume steps
+      alsa-mixer: select nearest alsa volume step in sync-volume mode
+
+Jyri Sarha (15):
+      core: Add infrastructure for synchronizing HW and SW volume changes
+      alsa: Take syncronized HW volume infra into use for alsa-sink
+      udev-detect: Add sync_volume parameter
+      daemon-conf: Add sync volume parameters to daemon-conf
+      man: sync_volume parameters to manual page
+      core: New LIFO style flist implementation v2.2
+      core: Lower "flist is full" log message level to debug and ratelimit it
+      core: Add name to flist struct for more informative log messages
+      core: Change sematics of pa_flist_new_with_name() (v1.1)
+      core: Use volume_change_safety_margin when rewinding sync-volume events
+      core: Use pa_sink_get_latency_within_thread() in sync-volume code
+      alsa-sink: Fix double use of string
+      alsa-sink: Don't assume we were able to enable hw-volume or sync-volume (v1.1)
+      protocol-native: Stop auto timing updates if connected to suspended sink or source
+      suspend-on-idle: Trigger mempool vacuuming
+
+Kim Lester (2):
+      configure.ac: add DARWIN_OS variable
+      src/Makefile.am: add specific OS_IS_DARWIN files
+
+Kim Therkelsen (2):
+      Support for multichannel DSP processing in module-ladspa-sink
+      core: Added new hooks: PA_CORE_HOOK_SOURCE_PORT_CHANGED and PA_CORE_HOOK_SINK_PORT_CHANGED
+
+Kurt Taylor (1):
+      PulseAudio: added IT block to fix thumb conditional instruction build error messages
+
+Lennart Poettering (41):
+      memblock: decrease tile size to 64k again
+      libpulse: introduce pa_context_get_tile_size() call
+      clients: drop definition of BUFSIZE which is unused
+      pactl: include information about client context in pactl stat output
+      pactl: format cookie a little bit nicer
+      libpulse: introduce PA_STREAM_RELATIVE_VOLUME
+      smoother: add comments about optimization recommendations from Jason Newton
+      simd: update test cases
+      core-util: introduce FD_CLOEXEC wrappers for open/socket/pipe/accept
+      use cloexec wrappers wherever applicable
+      core-util: make sure to enable FD_CLOEXEC unconditionally to cope with kernels that silently accept but ignore O_CLOEXEC
+      core-util: introduce pa_fopen_cloexec()
+      tdb: use O_CLOEXEC if available
+      use pa_fopen_cloexec() where applicable
+      socket-util: allocate at least sizeof(sockaddr_storage) space
+      socket-util: drop redundant casts
+      git: ignore kde related files
+      daemon: make sure pa has its own session and process group, but is not its leader so that we cannot acquire a tty ever
+      ramping: minor cleanups
+      pulse: ask for timing updates both *before* and *after* triggering a stream state change so that in the STARTED/UNDERFLOW callbacks we accurate transport latency information
+      tests: add pa_once_xxx() test
+      client: introduce auto-connect-localhost= option in client.conf
+      client: introduce auto-connect-display= following the scheme of auto-connect-localhost=
+      native: fallback to another port if the default port is taken
+      native: when run in system mode, do not look for fallback port
+      start: we don't need to check for $PULSE_SERVER anymore
+      shm: explicitly mark shm seg for MAP_NORESERVE to request overcommiting no matter what
+      pactl: implement pactl subscribe
+      Revert "pacat: Don't use any buffer attr if we don't set any latency/process time params"
+      build-sys: fix check for pthread_setaffinity_np()
+      i18n: update LINGUAS
+      i18n: run make update-po
+      conf-parser: make use of pa_strip() wherever applicable
+      iochannel: remove fd from poll() when we don't care from events
+      various modernizations
+      equalizer: various smaller cleanups for m-e-s
+      virtual: minor simplifications for the virtual sink
+      virtual: document how to implement fixed block size filters
+      virtual: when fixed block sizes are used the memblockq must have a silence block
+      tests: fix once test
+      memblockq: decode unset chunks as NULL chunks again
+
+Leonid Kurbatov (13):
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+      l10n: Updates to Russian (ru) translation
+
+Leszek Koltunski (1):
+      X11: attach X11 properties to Screen, not Display
+
+Lu Guanqun (7):
+      alsa-mixer: Fix the assumption that volume is always positive
+      log: add thread name
+      sample-util: use built-in function
+      i18n: po file fixes
+      memblock: fix memory leak when pa_shm_create_rw fails
+      memblock: use built-in function
+      pacat: make pacat respond to cork/uncork events
+
+Luiz Augusto von Dentz (14):
+      bluetooth: Add support for Media API
+      bluetooth: make use of dbus-util helper functions
+      core: make use of dbus_message_iter_append_fixed_array
+      bluetooth: fix case of profile UUIDs to match what BlueZ uses
+      bluetooth: fix build for libdbus < 1.3
+      bluetooth: detect when bitpool has changed on sbc codec
+      bluetooth: handle Acquire API change
+      bluetooth: reduce bitpool if audio start skipping
+      bluetooth: fix a2dp_process_push
+      bluetooth: add proper handling for bluetooth.nrec property
+      build: move sbc related files to its own directory
+      bluetooth: Fix not updating sample spec when using Media API
+      bluetooth: Fix using pointer-pointer when appending an array as variant
+      bluetooth: Only close SCO if status has changed
+
+Maarten Bosmans (119):
+      module-rtp-recv: Request proper rewind after underrun
+      build: Use MODULE_LIBADD in Makefile.am
+      build: Generate module symdefs in src/modules directory
+      build: Don't include empty Makefile.am in subdirs
+      build: Remove unnecessary flags in AM_CFLAGS
+      Use setenv instead of putenv
+      Clean up <poll.h> includes
+      Use <pulsecore/socket.h> instead of <sys/socket.h>
+      Adapt win32 specific code to current API
+      Apply #ifdefs around functionality not available on win32
+      Use PCRE if POSIX regex.h is not available
+      Fix dependencies and include necessary headers
+      Add AM_LDFLAGS more consistently to all commands
+      Repair some typos
+      Implement some functions for win32
+      win32: flush stderr after log output
+      win32: Implement rtclock based on QueryPerformanceCounter
+      win32: Implement pa_random
+      module-waveout: Adapted to updated API
+      Give module-waveout a configure switch
+      Use pa_* instead of generic functions to improve portability
+      tests/rtstutter: Use pa_rtclock
+      Use pa_read, pa_write and pa_poll instead of system functions
+      Include <time.h> where necessary
+      Get rid of some unused-function compiler warnings
+      Various fixes for build warnings
+      configure: Drop some warnings
+      Fix up according to Coding Style
+      Fixup #include directives according to Coding Style
+      build: Use silent rules for generating files
+      module-waveout: Add device_name parameter
+      build-sys: Flip default to no git pull on make dist
+      Fix up some double spaces
+      Make pulse compile with clang
+      Update PA_MODULE_USAGE to be in line with actual implementation
+      Find modules and config files relative to the installed libraries.
+      build: copy instead of link pacat to other utils on win32
+      build: Protect some more variables by ifdefs
+      Use pulsecore/arpa-inet.h to make arpa/inet.h functionality available
+      Fix pa_rtclock_from_wallclock
+      module-waveout: Query device for supported samplerate
+      module-waveout: Move thread creation
+      module-waveout: Fix record/playback args
+      Get rid of some warnings: -Wunused-result
+      Get rid of some warnings: -Wunsafe-loop-optimizations
+      Get rid of some warnings
+      win32: Simplify dl_search_path code
+      Move compile-time checks around pa_run_from_build_tree to core-util
+      pactl: Accept more volume specification formats
+      pactl: Add subcommands to the list command
+      pactl: Separate stat and info actions
+      pactl: Add short output format for list action
+      build-system: Simplify AC_ARG_ENABLE usage
+      build-system: Use AS_IF macro for configure output
+      build-system: Move AC_DEFINE to separate line with AS_IF
+      build-system: Move dependency error messages to outer scope
+      build-system: Replace some more conditionals with AS_IF
+      build-system: Rearrange database selection
+      build-system: Small fixes
+      Make connect-stress test compile for win32
+      win32: define WIN32_LEAN_AND_MEAN
+      build-sys: Remove unnecessary AC_SUBST calls
+      build-sys: Consolidate host_os handling
+      build-sys: Reset CFLAGS after DBUS check
+      build-sys: Define PA_CFLAGS at right time
+      build-sys: Clean up configure.ac
+      build-sys: Move some stuff around in configure.ac
+      build-sys: Move acx_lirc.m4 contents to configure.ac
+      build-sys: Use AX_TLS macro from autoconf archive
+      build-sys: Use AX_CHECK_DEFINE macro from autoconf archive
+      build-sys: Use AX_PTHREAD macro from autoconf archive
+      Remove unnecessary #includes
+      Remove obsolete description property from modules
+      Add sys/time.h include to rtclock.c
+      build-sys: Cleanup Makefile.am
+      win32: Make once-test work
+      win32: Make some unused-variable warnings go away
+      Update todo
+      Remove libpulse-browse and pabrowse
+      build-sys: Update orc.m4 to latest upstream version
+      build-sys: Use ax_check_flag macros from autoconf archive
+      build-sys: Use AX_DEFINE_DIR macro instead of setting AM_CFLAGS
+      build-sys: Move some more defines from CFLAGS to config.h
+      parecord: Automatically detect file format from extension
+      build-sys: Move some more defines to configure.ac
+      build-sys: Use configure AC_OUTPUT to process config files
+      build-sys: Process configuration files with m4
+      build-sys: Add more build-time conditionals to config files
+      build-sys: Fix handling of Bluez, Hal dependency on D-Bus
+      module-waveout: Correctly handle mono volume controls on waveout device
+      build-sys: Check for necessary programs in bootstrap.sh
+      Fix default.pa on non udev systems
+      pactl: Update manpage
+      pactl: Short --help output a bit by consolidating sink/source commands
+      pactl: Split help string up in shorter pieces for easier translation
+      Include config.h consistently in source files and not in headers
+      Add some missing format.h includes
+      Move i18n.[ch] to src/pulsecore
+      Plug some memory leaks and an invalid read
+      module-tunnel: Fix for new protocol versions
+      Plug some memory leaks
+      Initialise variables
+      Avoid read from freed memory
+      Initialise write_volume
+      default.pa: Update rtp null sink line
+      pactl: Add set-source-output-mute command
+      Spelling fixes in public headers
+      More spelling fixes
+      gitignore: Add Orc autogenerated files
+      echo-cancel: Use stream index in debug message
+      Remove extra ; s where they are not allowed in strict C99
+      sndfile-util: Check return value of sf_command for errors
+      module-equalizer-sink: Use %z for printf of size_t variables
+      module-equalizer-sink: Use = in initialising variables
+      bluetooth/sbc: Use __asm__ keyword
+      module-equalizer-sink: Use correct limit in loop
+      Squash the last gcc warnings
+      Make gcc --std=c99 happy
+      module-suspend-on-idle: Move vacuum code to core
+
+Maarten Lankhorst (1):
+      bluetooth: Fix a2dp processing
+
+Mads Kiilerich (1):
+      headers: Some trivial fixes for some documentation typos
+
+Marc-André Lureau (9):
+      bluetooth: use sco_sink/source to start with right state
+      bluetooth: fix set_volume_cb on sco over pcm
+      bluetooth: restore original sco_{sink, src}->set_volume when unloading
+      bluetooth: drop data every 500ms on oor condition
+      interpol-test: remove unused include getopt.h
+      tests: improve resampler test
+      match: Don't double free in case of missing table file
+      match: Match rule earlier, in SINK_INPUT_NEW
+      module-null-source: New null-source module
+
+Michael Terry (1):
+      switch-on-connect: Add a new module to allow for hotplugged devices to be used by default.
+
+Pascal Terjan (2):
+      l10n: Updates to French (fr) translation
+      l10n: Updates to French (fr) translation
+
+Paul Menzel (9):
+      Typo. s/a/are/
+      man pages: correct formatting/markup of options
+      client.conf.in: Typo. s/a/are/
+      man: Clarify wording in volume sync documentation.
+      man: Reference correct `--use-pid-file` and fix typo (`s/Of/If/`).
+      build-sys: Correct typos in configure
+      tunnel: Remove bogus `{`
+      bluetooth: run `make update-sbc` to pull in build fix for thumb mode
+      .gitignore: add `.tarball-version`
+
+Pierre-Louis Bossart (9):
+      rtpoll: better support for DEBUG_TIMING logs
+      virutal-sink: boilerplate virtual sink to add PCM processing
+      virtual-source: boilerplate virtual source for PCM processing on inputs
+      virtual-sink,source: enable virtual-source and virtual-sink
+      alsa: fix mixer profiles, add passthrough config
+      alsa: add missing iec958 files from previous commit
+      AC3 passthrough support
+      alsa: disable period wakeups in tsched mode if possible
+      sink-input: Don't resample passthrough inputs
+
+Ralph Giles (1):
+      Fix two comment typos.
+
+Siarhei Siamashka (13):
+      sbc: ensure 16-byte buffer position alignment for 4 subbands encoding
+      sbc: added saturated clipping of decoder output to 16-bit
+      sbc: new 'sbc_calc_scalefactors_j' function added to sbc primitives
+      sbc: MMX optimization for scale factors calculation
+      sbc: ARM NEON optimization for scale factors calculation
+      sbc: fix signedness of parameters
+      sbc: ARM NEON optimized joint stereo processing in SBC encoder
+      sbc: ARM NEON optimizations for input permutation in SBC encoder
+      sbc: slightly faster 'sbc_calc_scalefactors_neon'
+      sbc: faster 'sbc_calculate_bits' function
+      sbc: added "cc" to the clobber list of mmx inline assembly
+      sbc: ARMv6 optimized version of analysis filter for SBC encoder
+      sbc: add iwmmxt optimization for sbc for pxa series cpu
+
+Sjoerd Simons (1):
+      build-sys: Link libpulse directly to libdbus-1 if needed
+
+Tanu Kaskinen (154):
+      Create module-dbus-protocol with "Hello, world!" functionality.
+      daemon: Implement the DBus server lookup service.
+      dbus-protocol: Connection handling for local connections.
+      dbus-common: Implement infrastructure for registering D-Bus objects on all     client connections and for receiving method calls from clients.
+      dbus-protocol: Implement TCP server startup.
+      module-dbus-protocol: Allow anyone to connect the daemon in system mode.
+      module-cli: Fix compilation by adding libpulsecommon to module_cli_la_LIBADD.
+      server-lookup: Update the D-Bus identifiers to be versioned.
+      dbus: Implement the Name property of the core object.
+      Finish the Core dbus interface.
+      Add the forgotten src/modules/dbus directory to git.
+      Bug fixing and minor cleanups.
+      dbus/iface-core.c: Make sure D-Bus objects are created only once.
+      dbus-protocol: Implement extension registration.
+      dbusiface-core: Send signals whenever extensions are registered and unregistered.
+      dbusiface-core: Don't die if we get a default sink/source change event before the new default device is actually created.
+      dbus-protocol: Add debugging output (temporary change).
+      dbus-util: Fix broken proplist reading logic.
+      stream-restore: Expose module to D-Bus.
+      dbusiface-core: Make the interface string a public constant.
+      dbus-protocol, dbusiface-core: Take a reference when storing the core pointer.
+      dbus-protocol: Make debug logging saner.
+      dbus-protocol: Remove erroneous protocol object unref.
+      dbusiface-memstats: Implement the Memstats D-Bus interface.
+      proplist: New function: pa_proplist_equal()
+      dbus: Three entangled changes:
+      dbus: Take advantage of the PA_HASHMAP_FOREACH macro.
+      dbusiface-core: Generate more informative error messages.
+      dbusiface-core: Add functions for getting various object paths.
+      dbus-util: Add helpers for proplist handling.
+      dbus-util: Trivial comment punctuation fix.
+      dbus-protocol: Split some overly long lines.
+      dbus-protocol: Take advantage of the helpers in dbus-util.
+      dbusiface-card: Implement the Card D-Bus interface.
+      dbusiface-card-profile: Implement the CardProfile D-Bus interface.
+      dbus-protocol: Add a note for _send_signal that by default the signal isn't     actually sent.
+      dbus-protocol: Fix signal sending for the case when the client doesn't listen     for all signals.
+      dbusiface-card: Split some overly long lines.
+      dbusiface-card-profile: Assert the core argument isn't NULL.
+      dbusiface-card: Use the ++ operator like it's meant to be used.
+      dbusiface-card: Assert that the profiles list is empty if there's no active     profile.
+      dbusiface-card: Fix the OwnerModule property type in handle_get_all().
+      dbusiface-core: New function: pa_dbusiface_core_get_card_path().
+      dbus-protocol: Use pa_hashmap_remove() instead of _get().
+      dbusiface-device: Implement the Device and DevicePort D-Bus interfaces.
+      dbusiface-core: Two new functions: pa_dbusiface_core_get_playback/record_stream_path().
+      dbusiface-client: Implement the properties of the Client D-Bus interface.
+      dbusiface-client: Fix the interface name.
+      dbusiface-client: Fix indentation.
+      dbusiface-device: Free the copied proplist.
+      dbusiface-stream: Implement about a half of the Stream D-Bus interface.
+      namereg: Revert default device handling back to the upstream version.
+      dbusiface-core: New function: pa_dbusiface_core_get_client_path().
+      dbusiface-core: Two new functions: pa_dbusiface_core_get_sink/source().
+      dbusiface-device: Split some overly long lines.
+      dbusiface-device: Use a single if-else section instead of ternary operator overuse.
+      dbusiface-device: Fix argument reading in handle_suspend().
+      dbusiface-device: Save one level of identation by returning early.
+      dbusiface-stream: Finish the Stream D-Bus interface.
+      dbusiface-core: Split some overly long lines.
+      dbusiface-core: Use the PA_IDXSET_FOREACH macro.
+      dbusiface-core: Assert that _add/remove_interface calls succeed.
+      dbusiface-sample: Implement the Sample D-Bus interface.
+      dbusifaca-device: Adapt to the changed pa_sink_get/set_volume() interface.
+      proplist: Return early from pa_proplist_equal() if the pointers are equal.
+      proplist: A couple of documentation fixes.
+      modargs: New function: pa_modargs_iterate().
+      dbus-protocol: Print a debug line whenever interfaces are unregistered.
+      dbusiface-module: Implement the Module D-Bus interface.
+      dbus: Save one level of identation by returning early.
+      dbus: Make sure that subscription callbacks don't try to access removed objects.
+      dbusiface-stream: Only send stream event signals from the right D-Bus objects.
+      dbus: Finish the Client D-Bus interface.
+      dbus: Do message argument type checking early, centrally.
+      dbusiface-core: Add signals FallbackSinkUnset and FallbackSourceUnset.
+      dbus: Change IsMuted property names to Mute.
+      dbus-protocol: Implement argument type checking for normal methods.
+      dbusiface-client: Fix the destructor (stop leaking stuff).
+      dbus: Handle the cases when a non-existing interface is detected in an incoming message.
+      dbus: Add a missing break statement in handle_message_cb().
+      stream-restore: Fix a few assertion misuses with the D-Bus code.
+      stream-restore: Add a missing pa_xnew0() call in handle_add_entry().
+      stream-restore: At startup, create dbus entries only for valid database entries.
+      idxset: Fix _get_by_data() comment.
+      sink-input: Replace a tab indentation with spaces.
+      daemon: Don't autospawn if a server address is explicitly configured.
+      alsa-mixer: Use pa_xfree() instead of pa_xstrdup() for freeing a string.
+      alsa-mixer: Replace erroneous PA_ALSA_VOLUME_IGNORE with PA_ALSA_ENUMERATION_IGNORE.
+      alsa: Fix log output to inform about positive base volumes correctly.
+      cli: Increase the command maximum length from 1024 to 2048.
+      dbus: Make it possible to allow remote connections from outside localhost.
+      dbus: Initialize properly the type field of new server structs.
+      dbus: Fix segfault when receiving a property access call that isn't permitted.
+      stream-restore: Fix segfaulting. The dbus entry callbacks expect a dbus_entry pointer instead of a userdata pointer.
+      dbus: Use a struct as the hashmap items for listening_signals.
+      dbus: Fix slightly messed up assertions.
+      stream-restore: When changing restore entries with D-Bus, apply the changes immediately.
+      dbus: Stop polling every 10 seconds to check whether all clients are still alive.
+      dbusiface-core: Track sinks and sources using synchronous hooks instead of asynchronous subscription events.
+      loopback: Make stream names and roles configurable.
+      core: New function: pa_module_update_proplist().
+      module-alsa-card: New argument: namereg_fail.
+      module-udev-detect: When loading module-alsa-card, use namereg_fail=false.
+      alsa-sink/source: Use the "namereg_fail" module argument.
+      alsa: Print dB values in addition to percentages in debug messages.
+      core: Link virtual sinks and sources to their streams.
+      dbusiface-stream: Send the Device property in the GetAll handler.
+      Allow read-only or non-existing sink input volume.
+      alsa-mixer: Fix path set building when using the element-output or element-input mapping options in profile set configuration.
+      alsa-card: Add a new modarg "profile_set" for giving the card a custom profile set configuration file.
+      Implement the "volume sharing" feature.
+      virtual-sink: Add a modarg for enabling volume sharing.
+      virtual-sink: Add a modarg for forcing flat volume.
+      virtual-sink/source: Use a more descriptive stream name.
+      virtual-sink/source: Remove an unused variable.
+      virtual-sink: Fix a crash when moving the sink to a new master right after setup.
+      sink: Don't send unnecessary PA_SINK_MESSAGE_SET_SHARED_VOLUME messages.
+      sink: Add casts to some printf arguments to get rid of compiler warnings.
+      Add src/*-symdef.h to .gitignore.
+      alsa-mixer: Add DecibelFix section to the profile set config file format.
+      alsa-mixer: Use decibel fixes when getting and setting decibel volumes.
+      pacat: Fix memory leak when draining the context.
+      alsa-mixer: Add a default case for a switch, so that the compiler won't complain about unhandled cases.
+      alsa-card: Print the profile set configuration when loading the card.
+      dbusiface-stream: Fix crash when there's no resampling used.
+      dbus: Always accept mono volumes when setting device or stream volume.
+      alsa-mixer: Implement support for setting element specific upper limits for volume.
+      alsa-mixer: When figuring out the max_dB of a path, use only channels that are used by the path elements.
+      alsa-mixer: Implement constant volume.
+      alsa-mixer: Refactoring: merge element_mute_volume(), element_zero_volume() and element_apply_constant_volume() into a single function.
+      bluetooth: Don't log an error if an endpoint type is disabled.
+      bluetooth: Get rid of warnings about unused stuff when building against a D-Bus version that doesn't have fd-passing support.
+      .gitignore: Add ChangeLog to the ignore list.
+      alsa-mixer: Get rid of a compiler warning.
+      sink-input: Add volume_writable to pa_sink_input.
+      alsa-mixer: Make probing elements with more than two volume channels fail.
+      alsa-mixer: Make sure that SND_MIXER_SCHN_UNKNOWN isn't used when indexing e->masks.
+      alsa-mixer: Check that the kernel driver returns consistent limits with both snd_mixer_selem_get_*_dB_range() and _ask_*_vol_dB().
+      bluetooth: Drop all "#ifdef NOKIA" directives.
+      bluetooth: Fix HSP volume handling.
+      alsa: Fix log output to inform about positive base volumes correctly.
+      sink-input: Check flat volume with pa_sink_flat_volume_enabled().
+      protocol-dbus: Fix some memory management bugs.
+      stream-restore: Enable database dumping if DEBUG_VOLUME is defined.
+      match: Support for both merging and replacing proplist updates.
+      dbus: Fix connection idxset freeing when unloading the module.
+      dbus: Fix the order of freeing stuff when unloading module-dbus-protocol.
+      loopback: Add a modarg for disabling remixing.
+      gitignore: Add connect-stress, extended-test and format-test.
+      bluetooth-discover: Remove remaining ifdef NOKIAs.
+      virtual: Fix volume callback setting.
+      daemon-conf: Don't make log files executable.
+      svolume: Make log messages more precise.
+      loopback: New modargs: sink_input_properties and source_output_properties.
+
+Vincent Becker (3):
+      Correct wav file creation for 24/32 and 24 bits sample formats HSD=3669357
+      log: Add a new log target to a file descriptor
+      log: Correct bad function implementation
+
+Vladimir Kokarev (2):
+      volume: add pa_cvolume_inc_clamp function
+      lirc,mmkvd: added module parameters volume_limit, volume_step
+
+Wang Xingchao (3):
+      alsa: Update process_usec before going to sleep
+      alsa: resets POLLOUT event
+      sink-input: Avoid fake rewind in corked state
+
+Wu Fengguang (1):
+      alsa-sink: fix mmap_write() work_done
+
+amitakhya (1):
+      Sending translation for Assamese
+
+anipeter (1):
+      Sending translation for Malayalam
+
+chocolateboy (1):
+      Fix typo in log message: s/may no be/may not be/
+
+elad (1):
+      Sending translation for po/he.po
+
+hedda (1):
+      Sending translation for German
+
+huan zheng (1):
+      core: volume ramping fix
+
+ifelix (1):
+      Sending translation for Tamil
+
+jassy (1):
+      Sending translation for Punjabi
+
+khasida (3):
+      Sending translation for Japanese
+      Sending translation for Japanese
+      Sending translation for Japanese
+
+kkrothap (1):
+      Sending translation for Telugu
+
+leahliu (1):
+      Sending translation for Chinese (Simplified)
+
+mgiri (1):
+      Sending translation for Oriya
+
+mrtom (1):
+      Sending translation for French
+
+rajesh (1):
+      Sending translation for Hindi
+
+runab (1):
+      Sending translation for Bengali (India)
+
+sandeeps (1):
+      Sending translation for Marathi
+
+shanky (1):
+      Sending translation for Kannada
+
+snowlet (1):
+      Sending translation for po/zh_TW.po
+
+swkothar (1):
+      Sending translation for Gujarati
+
+ypoyarko (1):
+      Sending translation for Russian
+
+zbt (3):
+      Add volume ramping feature - envelop fix
+      Add volume ramping feature - sink-input modification
+      Add volume ramping feature - sink modification
+
+zerng07 (1):
+      l10n: Updates to Chinese (Taiwan) (zh_TW) translation
+}}}
