@@ -1,6 +1,6 @@
 == Release Notes ==
 
-The first thing you need to know is that 1.0 is just a number. We do not attach specific significance to the 1.0 moniker. It's really just a way to clean up version numbers - it's an eternal debate as to what constitutes "1.0 quality" and in the end we could easily go on forever with the previous numbering scheme. But with such a long time in development and the general state of PulseAudio adoption in the major distros and integration into the major Desktop Environments, we felt that this was as good a time as any to try and clean up the version numbers and call it 1.0! In time, we may even drop the minor number and just have one version number, but we'll see how things go first before making that decision. Certainly most releases will be based on the major number (so expect to see v2.0 next!) with the minor number reserved for bugfix updates should there be demand for us to do so keeping in mind that such bugfix updates will have to be supported mostly by the community.
+The first thing you need to know is that 1.0 is just a number. We do not attach specific significance to the 1.0 moniker. It's really just a way to clean up version numbers - it's an eternal debate as to what constitutes "1.0 quality" and in the end we could easily go on forever with the previous numbering scheme. But with such a long time in development and the general state of !PulseAudio adoption in the major distros and integration into the major Desktop Environments, we felt that this was as good a time as any to try and clean up the version numbers and call it 1.0! In time, we may even drop the minor number and just have one version number, but we'll see how things go first before making that decision. Certainly most releases will be based on the major number (so expect to see v2.0 next!) with the minor number reserved for bugfix updates should there be demand for us to do so keeping in mind that such bugfix updates will have to be supported mostly by the community.
 
 !PulseAudio 1.0 has been a long time in the making. The git branch is actually from based several releases back (around the 0.9.19 release) but for various reasons the subsequent releases have been made from the stable tree as git master was home to too many experimental features. This wasn't ideal from a management perspective and has caused more than a little confusion (not to mention it makes the git changelogs look weird), so we're going to try not to let this happen again.
 
@@ -22,19 +22,19 @@ But with some diligent work, and diligent use of git cherry, git master contains
 === Features in more detail ===
 
  * '''D-Bus based control protocol (beta)'''
-    Everything except audio streaming (and source output volumes) can now be done also via D-Bus. We are not completely certain about the API (due in part to internal code structure and upcoming planned changes), so we make no API stability guarantees. If you can live with the API changing in the next PulseAudio release, feel free to experiment with the D-Bus interface. Any feedback is very welcome - good ideas for improving the API will likely be implemented. Here's the documentation. 
+    Everything except audio streaming (and source output volumes) can now be done also via D-Bus. We are not completely certain about the API (due in part to internal code structure and upcoming planned changes), so we make no API stability guarantees. If you can live with the API changing in the next !PulseAudio release, feel free to experiment with the D-Bus interface. Any feedback is very welcome - good ideas for improving the API will likely be implemented. Here's the documentation. 
 
  * '''Source Output Volumes'''
     Previously you could alter the volume of sinks (playback devices), sources (capture devices), sink-inputs (playback streams) but not of the source-outputs (capture streams). Now it is possible to adjust the volume or mute the stream of each recording application separately, just like it always has been for playback. This brings symmetry to the API which is certainly a bonus for e.g. VoIP apps which typically integrate volume controls. It was originally left unimplemented due to the fact that the case for multiple capture streams is very rare and you certainly didn't want to include software volumes into your only capture stream if at all possible. However, with the introduction of "flat volumes", any volume set on a capture stream will be "flattened" through to the underlying hardware volume if at all possible, thus avoiding problems with integrating additional artefacts or clipping the data with a standard software volume adjustment. 
 
  * '''Passthrough Support'''
-    PulseAudio now supports passthrough audio natively. This means that applications can now send compressed audio directly to hardware that supports it (for now, high-end A/V receivers, but this can include embedded SoCs with decoder blocks and Bluetooth headsets that support formats other than SBC). For more details, see Passthrough. 
+    !PulseAudio now supports passthrough audio natively. This means that applications can now send compressed audio directly to hardware that supports it (for now, high-end A/V receivers, but this can include embedded !SoCs with decoder blocks and Bluetooth headsets that support formats other than SBC). For more details, see Passthrough. 
 
  * '''Echo Cancellation'''
     A new module (module-echo-cancel) for acoustic echo cancellation (AEC) has been added. If you are using Empathy 3.2, echo cancellation should work out of the box. For other clients which set the "phone" media role, you can just load module-echo-cancel manually or in your configuration to take advantage of this. More details on Arun's blog post. 
 
  * '''Windows Support Restored'''
-    The old Windows port dated back to PulseAudio 0.9.6. Since then a lot of features had been added which broke the building of PA on Windows. Thanks primarily to the work of Maarten Bossmans, the 1.0 release restores Windows support for PulseAudio. Additionally, the WaveOut driver received some minor improvements. 
+    The old Windows port dated back to !PulseAudio 0.9.6. Since then a lot of features had been added which broke the building of PA on Windows. Thanks primarily to the work of Maarten Bossmans, the 1.0 release restores Windows support for !PulseAudio. Additionally, the !WaveOut driver received some minor improvements. 
 
  * '''Improved sample rate adaptation in module-rtp-receive'''
     A new algorithm is used to determine the resampling rate, in order to more reliably match the rate to the clock of the RTP-stream sender. This will eliminate some bugs related to the sound becoming distorted due to a wildly varying sample rate. 
@@ -46,11 +46,11 @@ But with some diligent work, and diligent use of git cherry, git master contains
 
 == Management Changes ==
 
-As most people following the Linux community any depth will know, Lennart is now primarily engaged in the development of [[http://www.freedesktop.org/wiki/Software/systemd|systemd]]. While he has not abandoned PulseAudio, his development focus has certainly changed for now and as such, Colin Guthrie will manage future releases and generally head up the community. Colin really assumed this role some time ago, herding the cats on the mailing lists and IRC channels, building bridges to various interested parties and trying to review patches and develop new code himself, so this transition is rather smooth. Colin has yet to develop skin quite as thick as Lennart, so please be kind.
+As most people following the Linux community any depth will know, Lennart is now primarily engaged in the development of [[http://www.freedesktop.org/wiki/Software/systemd|systemd]]. While he has not abandoned !PulseAudio, his development focus has certainly changed for now and as such, Colin Guthrie will manage future releases and generally head up the community. Colin really assumed this role some time ago, herding the cats on the mailing lists and IRC channels, building bridges to various interested parties and trying to review patches and develop new code himself, so this transition is rather smooth. Colin has yet to develop skin quite as thick as Lennart, so please be kind.
 
 == Infrastructure Changes ==
 
-Along with Lennart's management departure, most of the PulseAudio infrastructure has also moved. We would like to extend our thanks to the good folks over at [[http://freedesktop.org/wiki/|freedesktop.org]] for hosting our [[http://cgit.freedesktop.org/pulseaudio/|git repositories]], [[http://lists.freedesktop.org/mailman/listinfo/pulseaudio-discuss|mailing lists]] and [[https://bugs.freedesktop.org/buglist.cgi?query_format=specific&order=relevance+desc&bug_status=__all__&product=PulseAudio&content=|bug tracking]]. In due course we will also migrate our wiki content from Trac to the FDO wiki, but we want to plan this out carefully as the current wiki isn't as organised as it could be.
+Along with Lennart's management departure, most of the !PulseAudio infrastructure has also moved. We would like to extend our thanks to the good folks over at [[http://freedesktop.org/wiki/|freedesktop.org]] for hosting our [[http://cgit.freedesktop.org/pulseaudio/|git repositories]], [[http://lists.freedesktop.org/mailman/listinfo/pulseaudio-discuss|mailing lists]] and [[https://bugs.freedesktop.org/buglist.cgi?query_format=specific&order=relevance+desc&bug_status=__all__&product=PulseAudio&content=|bug tracking]]. In due course we will also migrate our wiki content from Trac to the FDO wiki, but we want to plan this out carefully as the current wiki isn't as organised as it could be.
 
 == What's Next? ==
 
@@ -72,7 +72,7 @@ Several developments are now lined up for the future. Upcoming features will lik
     Arun Raghavan's work on the echo cancellation code will be augmented using various systems developed by Google and released as the WebRTC system. 
 
  * '''More use of Orc for CPU-intensive tasks'''
-    The OIL Runtime Compiler allows SIMD code to be written in a CPU-agnostic way, which is later, at runtime, compiled into code optimized for the specific CPU. Currently PulseAudio uses Orc at a couple of places. Future releases will make more use of Orc, resulting in less CPU-time used by PulseAudio. 
+    The OIL Runtime Compiler allows SIMD code to be written in a CPU-agnostic way, which is later, at runtime, compiled into code optimized for the specific CPU. Currently !PulseAudio uses Orc at a couple of places. Future releases will make more use of Orc, resulting in less CPU-time used by !PulseAudio. 
 
 == Git Shortlog ==
 
