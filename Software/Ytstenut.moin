@@ -226,3 +226,22 @@ Here's what the above Gabble environment variables mean:
 || GABBLE_DEBUG  ||  Whether Gabble should log stuff to stdout  ||  any log flag will work, but all is recommended (easiest) ||
 || WOCKY_DEBUG  ||  Whether Wocky should log stuff to stdout  ||  same as above, use all ||
 || GABBLE_PLUGIN_DIR  ||  The directory for Gabble to look in for plugins (like the Ytstenut one) if not /usr/lib/telepathy/gabble-0  ||  we will want to set it to the directory the Ytstenut plugin is in. If you've not installed anything, like above, then the plugin source is in ~/src/ytstenut-plugins/gabble/ but the actual .so file is in the /.libs subdirectory due to libtool, hence the setting in the above example  ||
+
+There are some telepathy-ytstenut-glib tests for gabble. These are exactly the same as the ones for salut but the binaries start with "server-" and they take an account triple as the first argument. For example, instead of:
+
+{{{
+% telepathy-ytstenut-glib/tests/nosey-status
+}}}
+
+you should use:
+
+{{{
+% mc-tool list
+gabble/jabber/test_40gmail_2ecom0
+...
+
+% telepathy-ytstenut-glib/tests/server-nosey-status gabble/jabber/test_40gmail_2ecom0
+...
+}}}
+
+where {{{gabble/jabber/test_40gmail_2ecom0}}} is a gabble jabber account (with jid test@gmail.com) which is already configured.
