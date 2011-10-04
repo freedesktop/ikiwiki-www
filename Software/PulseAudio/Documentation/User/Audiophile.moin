@@ -1,0 +1,27 @@
+Desktop users, or other curious folks, may be interested in configuring PulseAudio to best reproduce sound that they have on their hard drives. In order to do so it requires both the right hardware and right PulseAudio settings.
+
+
+=Hardware=
+The best hardware for desktops for stereo audio is the ASUS Xonar Essense [http://www.asus.com/Multimedia/Audio_Cards/Xonar_Essence_ST/ ST] (PCI) or [http://www.asus.com/Multimedia/Audio_Cards/Xonar_Essence_STX/ STX] (PCI-Express). It provides the best, consumer-level Digital to Analog conversion circuitry and shielding to prevent erroneous noise.
+
+
+=PulseAudio=
+By default, PulseAudio (PA) uses very conservative settings. This will work fine for most audio media as you will most likely have 44,100Hz sample rate files. However, if you have higher sample rate recordings it is recommended that you increase the sample rate that PA uses.
+
+
+In /etc/pulse/daemon.conf add:
+default-sample-format = s32le
+default-sample-rate = 96000
+
+
+Resampling your 44,100Hz media may be an issue with the above settings so you can increase the resampler quality from the PA default.
+
+In /etc/pulse/daemon.conf add:
+resample-method = speex-float-5
+
+For the most geniune resampling at the cost of high CPU usage (even on 2011 CPUs) you can add:
+resample-method = src-sinc-best-quality
+
+
+=Enhancements=
+PulseAudio could be enhanced to make some of this a bit easier. It could open a channel for each sample rate to provide bit-perfect playback of any sample of audio media.
