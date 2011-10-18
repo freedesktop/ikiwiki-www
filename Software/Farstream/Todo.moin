@@ -1,0 +1,75 @@
+See also [[Farstream/ApiProblems]]
+
+=== RTP plugin ===
+
+
+ * Add an "extra-send-codecs" property to FsSession and add it to the "farsight-send-codec-changed" message
+ * RTP/RTCP multiplexing/demultiplexing (to send both on the same UDP port)
+ * Comfort noise (write Free software VAD and CN generator)
+ * Add REDundant audio data (RFC 2198)
+ * Support multiple stun servers in the rawudp plugin and possibly also libnice
+
+ * Document
+  * That you have to be playing for most stuff to happen (like getting stun replies)
+ * Re-write codec discovery
+  * Make it possible to use the missing-element message to ask the user to install extra codecs, so keep list of pay/depay without enc/dec
+  * Make it possible to specify input/output caps so we can send pre-encoded data, etc
+  * Make the codec cleaner and hopefully remove the h263/amr hacks
+ * SRTP: There is a branch of gst-plugins-bad that integrates libsrtp. The farstream integration needs to be done too
+
+==== Tests to write ====
+
+
+ * Two sessions in the same conference
+
+ * Packets with invalid payload types
+
+ * Setting invalid payload types as local or remote codecs (in the 35-96 range).
+
+ * Errors:
+  * New stream with invalid participant (invalid... from another type or from
+    another conf?)
+
+ * Change codec ids while its running...
+ * New codec with the same PT while its running
+
+ * H263-1998 (use h263 or h263+ encoder depending on the properties)
+
+ * 3 way negotiation
+  * success
+  * failed
+
+ * Test codec cache:
+  * empty
+  * save
+  * load
+
+ * Test non-rtcp case (drop rtcp, filter candidate, provide wrong candidate?)
+  * Test lack of rtcp with more than one participant (it should fail)
+
+ * Change the udp port of a stream while it's running (rawudp transmitter, multicast transmitter?)
+
+ * Generate DTMF
+  * Sound (write dtmf detector?)
+ * Receive DTMF
+  * Events (without dtmf detector? only check if GstMessages are received maybe?)
+
+ * Changing a running pipeline
+  * Add a session to a running pipeline
+  * Destroy a session in a running pipeline
+  * Re-add a destroying session in a running pipline
+
+ * Write automated tests for the live adder
+
+ * Set to playing more than once?
+
+=== Other plugins ===
+
+Port msnav, yahoowebcam to the new api
+
+=== Generic GStreamer RTP enhancements ===
+
+ * Make reverse propagation of SDP optional parameters to the encoders
+  * Speex
+  * H263
+  * H264
