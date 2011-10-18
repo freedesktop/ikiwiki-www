@@ -1,0 +1,46 @@
+The goal of this page is to document the design of RTP in GStreamer as of our meeting at Fluendo on 30th March.
+
+The goal of the design was to allow us to cover the wide range of RTP usage, this includes :
+
+ * Basic RTP receiving/sending
+ * RTSP support
+ * RTCP support
+ * Multi-user RTP sessions (This means talking to more than one participant in a conference)
+ * Multi-session RTP conferences (This means receiving A/V from one or more participants in a conference)
+ * A/V Lipsync
+ * Jitterbuffer
+ * Multicast RTP
+
+Implementation can be found on :
+[[http://cgit.freedesktop.org/gstreamer/gst-plugins-good/tree/gst/rtpmanager]]
+
+= rtpbin =
+The idea is to have an element (rtpbin) that ensures all of the above features while offering a simple and flexible inte
+rface to the user. rtpbin is a dynamic element that is used for all RTP sessions. For each RTP session, the user needs t
+o connect to the following request pads :
+
+ * recv_rtp_sink_%d : Incoming RTP stream
+ * recv_rtcp_sink_%d : Incoming RTCP stream (if available)
+ * send_rtp_sink_%d : Outgoing RTP stream (if transmitting an RTP stream)
+rtpbin will ensure that all received streams from the different RTP sessions are synced (i.e. Audio/Video). It will also generate RTCP packets for each RTP Session if you link up to the send_rtcp_src_%d request pad. rtpbin will also eliminate network jitter using internal rtpjitterbuffer elements. The rtpbin element will create dynamic pads, one for each payload type from each participant. These pads are called recv_rtp_src_m_n_PT with :
+
+ * m : The RTP session identifier
+ * n : The participant identifier
+ * PT : The payload type number
+The user needs to provide the dynamic payload type information as a GstCaps when rtpbin requests it via the request_pt_caps() signal. rtpbin has a latency property that is used to set the latency on the jitterbuffer.
+
+Here is a [[http://farsight.freedesktop.org/rtpdesign/rtpbin.png|diagram]] showing the internals of rtpbin. This example has 2 RTP Sessions (A/V) and 2 sources (a 3 way A/V conference).
+
+
+== rtpsession ==
+This is the rtp session manager element. We have 1 of these elements per RTP session. Inside this element resides the RTP session manager library that does all the RTP session management, such as RTCP packet generation, collision detection, etc. Considering that all RTP sources from a same session send to the same RTP/RTCP port, we only need 1 sink pad for RTP and 1 sink pad for RTCP. The third pad (send_rtp_sink) is a request pad used for outgoing streams (if we are transmitting).
+
+Here is a [[http://www.freedesktop.org/software/farstream/rtpdesign/rtpsession.png|diagram]] showing the internals of rtpsession.
+
+== rtpssrcdemuxer ==
+This element is in charge of demuxing the RTP stream based on SSRC information. It does so for both RTP and RTCP separately. We have 1 rtpssrcdemuxer for each RTP session. The rtpbin is in charge of figuring out what different SSRCs (from different RTP session) are from the same physical host using the CNAME information in the RTCP packets. It can therefore connect the appropriate rtpssrcdemuxer src pads to the rtpsource elements.
+
+== rtpsource ==
+This is just a logical grouping that represents a physical source host. We need one of these groupings each physical host participating in the RTP conference. It is used to synchronize the different incoming streams from the same host but from different RTP sessions. The common use-case is to synchronize the Audio and Video streams coming from the same source. This grouping also has a jitterbuffer and a ptdemuxer for each stream. The jitterbuffer reduces network jitter, reorders packets and drops old and duplicate packets. The ptdemuxer demuxes the streams into the multiple payload types (codecs) they can be transmitting.
+
+Here is a [[http://www.freedesktop.org/software/farstream/rtpdesign/rtpsource.png|diagram]] showing the internals of rtpsource.
