@@ -1,0 +1,19 @@
+Steps to make a new release of Farstream:
+
+ * Fill in NEWS file
+ * Bump the libtool revision if the API/ABI has changed
+ * make check
+ * make distcheck
+ * Bump version in configure.ac (and remove nano)
+ * git commit -m "Version $VERSION" -a
+ * make check
+ * make distcheck
+ * gpg --detach-sign -a $TARBALL
+ * git tag -s -m "Farstream $VERSION" $VERSION
+ * Set the nano version to 1
+ * git commit -m "Version $VERSION.1" -a
+ * git push --tags origin master
+ * scp $TARBALL* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/softeware/farstream/releases/farstream
+ * scp -r docs/libs/html/* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/farstream/apidoc/farstream
+ * scp -r docs/plugins/html/* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/farstream/apidoc/farstream
+ * Write release announcement and email to farsight-devel and ftp-release@lists.freedesktop.org
