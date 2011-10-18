@@ -1,0 +1,115 @@
+== Goals ==
+The goals of Farstream (Farsight2) is to do everything that the current Farsight does and:
+
+ * support multi-party conferences in all of the possible different modes supported by RTP
+ * support SRTP and other similar security mechanisms
+ * support the latest drafts of ICE as well as the older ones used by Google Talk and MSN
+ * support full lip-sync between different streams (rtp sessions) in the same conference
+ * make the api for audio and video sources identical as much as possible
+
+== Core design ideas ==
+The cores design ideas of Farstream are the following:
+
+ * it will be a GLib/GStreamer base class FsConference. The different protocols derive fr
+om this base to create protocol specific gstreamer elements (like an RTP element or an MSN webcam element)
+ * The RTP gstreamer element will be on the GStreamer rtpmanager element (currently in gst-plugins-bad and described by 
+[[Software/Farstream/GstRtpDesign]])
+
+There will be four core concepts:
+
+==== Farsight Conference ====
+A conference represents one high-level conference which may include multiple synchronized audio/video/text RTP sessions.
+ It was a Session in Farsight 1.
+
+==== Farsight Session ====
+A Farsight session corresponds to one RTP session (and in Farsight 1 was a stream). It is defined by having one media ty
+pe and and one "sink pad" (one local microphone or camera for example). We can receive data from multiple sources (one p
+er participant).
+
+==== Farsight Participant ====
+A Farsight participant represents one physical person (or something similar like a bot).
+
+==== Farsight Participant ====
+A Farsight participant represents one physical person (or something similar like a bot).
+
+==== Farsight Stream ====
+This is the link between a session and a participant. It is linked to candidates and hold SRTP information and state.
+
+== API ==
+
+The API documentation can be found at http://farsight.freedesktop.org/apidoc/farsight2
+
+The following graph shows are the different objects are to be linked together:
+
+{{attachment:farsight2-references.png}}
+
+=== Transmitters ===
+
+In the previous diagram, we can see transmitter, they abstract the network layer. Different transmitter could be multicast UDP, unicast UDP, ICE UDP, HTTP tunelling, etc. The transmitter is selected by the client when it creates the Stream (so different stream could use different transmitters).
+
+Transmitters implement two objects, the FsTransmitter, which has one instance per FsSession (there could be multiple FsTransmitter objects for a single FsSession, one per type). This object provides a GStreamer source and sink. From this object, the FsSession function that creates the Stream will make a FsStreamTransmitter object, this one is used by the Stream to communicate various per-stream data with the transmitter (mostly candidates).
+
+=== RTP Implementation ===
+The first implementation will be for RTP, as it is the most commonly used protocol and streaming. We will implement a FsRTPConference that is derived from FsBaseConference that is derived from GstBin. The FsBaseConference implements the FsConference Interface.
+
+Transmitters are really RTP specific, they will be implemented as RTP elements, probably implementing another GInterface which should probably resemble the current one, but will also need to be able to understand the concept of multiple participants (since one ICE transmitter may have to actually contain multiple sub-transmitters to initiate ICE sessions with each one).
+
+To do a mixer, you just have to add one adder to all sink ports of the same type, then a tee to that. On the tee, one branch goes to the audio sink and the other is added to the local input... which is sent back into the sink.
+
+The following drawing shows the proposed design for FsRTPConference, This drawing shows only 2 FsSession with 2 SSRCs, more can be added. All pads on the FsConference element are sometimes pads that are created when either data arrives for sources or when they are requested through the Interface for sink pads.
+
+{{attachment:farsight2rtp.png}}
+
+
+== Different types of conferences ==
+There are many different types of conferences that we hope Farsight to support:
+
+=== Distributed media (unicast), focused signaling ===
+{{http://www.freedesktop.org/software/farstream/rtpdesign/conf-type-1.png}}
+ * n-1 duplex media streams per participant
+ * 1 duplex signaling stream per participant
+ * n duplex signaling streams at focus, n-1 if focus is a participant
+ * + Easy to implement
+ * - High bandwidth/CPU required at each participant for large conferences
+ * - Scalability limited by participant with lowest capacity
+
+=== Distributed media (multicast), focused signaling ===
+{{http://www.freedesktop.org/software/farstream/rtpdesign/conf-type-3.png}}
+ * 1 duplex media stream per participant
+ * 1 duplex signaling stream per participant
+ * n duplex signaling streams at focus, n-1 if focus is a participant
+ * + Easy to implement
+ * + Minimal bandwith/CPU usage at each participant
+ * + Scalability limited by multicast network capacity
+ * - Multicast doesn't really work over the net, this would be suitable for local networks though
+
+=== Centralized media (unicast), focused signaling ===
+{{http://www.freedesktop.org/software/farstream/rtpdesign/conf-type-2.png}}
+ * 1 duplex media stream per participant
+ * 1 duplex signaling stream per participant
+ * n duplex signaling streams at focus, n-1 if focus is a participant
+ * n duplex signaling streams at mixer, n-1 if mixer is a participant
+ * - Must implement mixer
+ * + Minimal bandwidth/CPU usage at each participant
+ * - High bandwidth/CPU usage at mixer
+ * - Scalability limited by capacity of mixer
+
+=== Distributed media (unicast), distributed signaling ===
+{{http://www.freedesktop.org/software/farstream/rtpdesign/conf-type-4.png}}
+ * n-1 duplex media streams per participant
+ * n-1 duplex signaling streams per participant
+ * - Distributed signaling difficult to implement (each participant needs to keep a state of the conference)
+ * - High bandwidth/CPU usage at each participant
+ * - Scalability limited by participant with lowest capacity
+=== Distributed-centralized media (unicast), distributed-focused signaling ===
+{{http://www.freedesktop.org/software/farstream/rtpdesign/conf-type-5.png}}
+
+Multiple mixers and signaling focuses distributed along network. Basically mixers and focuses are supernodes in the network.
+
+ * - Very difficult to implement on both media and signaling sides
+  * - Must absolutely avoid loops
+  * - How to deal with supernodes leaving the conferences
+ * - Potentially high media latency at participants
+ * + Scalability nearly unlimited if supernodes are well distributed
+ * + Low bandwith/CPU required at leaves
+ * - High bandwidth/CPU required at supernodes
