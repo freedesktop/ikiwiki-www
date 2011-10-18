@@ -1,0 +1,13 @@
+== Comfort Noise for codecs that don't have it in Farstream ==
+
+Regular encoding pipeline:
+
+{{attachment:original-diagram.png}}
+
+Encoding pipeline with CN:
+
+{{attachment:separated.png}}
+
+In the second case, we have a VAD element that generates CN. If there is voice, nothing is sent out on the CN src pad and the data goes on the regular src pad. If it detects silence, it stops sending data on the regular src pad and instead generates CN buffers onto the CN source pad.
+
+On the Farsight 2 side of things, that means having profiles for encoding/decoding pipelines that will supplement the autodetection so we can support more complex cases like this one. For the reception, we will have a CN depayloader/decoder combo that would generate events and then these would tell the mixer/sink/etc to generate CN until some other audio arrives.
