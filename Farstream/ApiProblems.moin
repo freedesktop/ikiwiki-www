@@ -1,3 +1,17 @@
 This describes the list of problems with the current Farstream API in git.
 
  * Possible race: One has a session with one stream... one creates a new stream.. then packet in the new stream come in (with the new stream's cname) before the "src-pad-added" signal is connected...  ie doesn't link... failure ensues..
+
+Possible other api changes that should happen: ?
+
+ * Need better API for ICE restarts?
+ * Multiple STUNs servers (Using a 0-terminated array of (gchar *, guint)) or use GstNetAddress everywhere?
+ * Set relay info after the discovery has started?
+  * Use a regular array for relays
+  * New api, can be added later
+ * Find a solution for SIP forking:
+  * Idea 1: Add another marker field to the FsCandidate
+  * Idea 2: Expose the transmitter API directly and get rid of FsCandidate
+ * Use regular Gst Error message ? ... they have translated messages.. which is annoying
+ * Add a way to specify a max framerate (for the SDP attribute a=framerate) (maybe just a property on the session like the bitrate?)
+ * rename transmitters to transceivers, put them into $(libdir)/farstream-1.0/transceivers to reduce plugin file name fidgetry, and maybe match up on the Tp.Ch.Type.Call vs Farsight terminology? :)
