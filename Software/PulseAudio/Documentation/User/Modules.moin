@@ -637,13 +637,15 @@ This module automatically adds JACK sinks and sources whenever the JACK server i
 
   connect
     Takes a boolean value. If enabled (the default) !PulseAudio will try to connect its ports to the physical playback ports of the JACK server.
+
+
 == Filters ==
 
 These modules create a virtual sink and/or source on top of a given sink and source and filter the data flowing through.
 
 === module-echo-cancel ===
 
-Used to perform acoustic echo cancellation between a designated sink and source.
+Used to perform acoustic echo cancellation between a designated sink and source. '''Since 1.0'''
 
   source_name
     Name to give the virtual source that is created
@@ -690,9 +692,9 @@ Used to perform acoustic echo cancellation between a designated sink and source.
   save_aec
     If set, saves AEC data in /tmp/aec_*
 
-=== module-equalizer-sink
+=== module-equalizer-sink ===
 
-General purpose equalizer that can be applied over a given sink.
+General purpose equalizer that can be applied over a given sink. '''Since 1.0'''
 
   sink_name
     Name to give the virtual sink that is created
@@ -708,6 +710,7 @@ General purpose equalizer that can be applied over a given sink.
 
   use_volume_sharing
     Whether to use volume sharing with master sink/source
+
 
 == Miscellaneous ==
 
@@ -796,21 +799,6 @@ Discover sinks/sources on other PulseAudio servers using mDNS Zeroconf.
 === module-rescue-streams ===
 
 Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink.
-
-=== module-equalizer-sink ===
-
-'''Since 1.0''' Adds a D-Bus-aware equalizer that uses STFT OLA algorithms (FIXME: document how clipping is handled).
-
-The module shows up as a separate sink.
-
-  sink_name
-    Name for this sink.
-  sink_master
-    The sink where the processed audio is forwarded to.
-  format, channels, rate, channel_map
-    Normal sink parameters. It's best to leave these unspecified, so that the master sink parameters will be used.
-  use_volume_sharing
-    Whether the equalizer will share its volume with its master sink.
 
 === module-ladspa-sink ===
 
