@@ -834,3 +834,51 @@ Disadvantages: When pulseaudio gives up the backend, and the backend is not capa
 
 Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source. Takes no arguments.
 
+== Filters ==
+
+=== module-echo-cancel ===
+
+Used to perform acoustic echo cancellation between a designated sink and source.
+
+  source_name
+    Name to give the virtual source that is created
+
+  source_properties
+
+  source_master
+    Name of the source to filter
+
+  sink_name
+    Name to give the virtual sink that is created
+
+  sink_properties
+
+  sink_master
+    Name of sink to filter
+
+  adjust_time
+    How often to readjust sync between sink and source (in seconds)
+
+  adjust_threshold=
+    How much drift to readjust after (in milliseconds)
+
+  format
+  rate
+  channels
+  channel_map
+    Parameters for the sample format that the filter operates on, and exposes as its default for the virtual sink/source
+
+  aec_method
+    Specific AEC implementation to use (Currently: speex, webrtc, or adrian (last is not effective))
+
+  aec_args
+    Parameters for the AEC engine (to be documented)
+
+  save_aec
+    If set, saves AEC data in /tmp/aec_*
+
+  autoloaded
+    Set if this module is being loaded automatically
+
+  use_volume_sharing
+    Whether to use volume sharing with master sink/source
