@@ -36,6 +36,18 @@ The Desktop-file syntax version, this field must be present.
 }}}
 The mime-type, this field must be present and have the value ''X-Application``Package''.
 
+==== Executable file ====
+{{{
+    Exec=example.bin
+}}}
+This field represents the main executable file of the application. It must be present.
+
+==== Mime-type of executable file ====
+{{{
+    ExecType=application/x-executable
+}}}
+This field represents the mime-type of the main executable file of the application. It must be present.
+
 ==== Maintainer ====
 {{{
     Maintainer=John Doe <john DOT doe AT freedesktop DOT org>
@@ -75,21 +87,44 @@ This field provides a description about the application.
 }}}
 The License under which the application is distributed.
 
+===== Icon =====
+{{{
+    Icon=http://example.com/example_app_icon.svg
+}}}
+Icon to display in the software center, menus, etc. The name of the file should be either an web address or a name according to the [[Specifications/icon-theme-spec|Icon Theme Specification]].
+
+===== Web address for download =====
+{{{
+    DownloadURL=http://example.com/example.app
+}}}
+The web address which allows to download the application again.
+
+===== Update information =====
+{{{
+    UpdateInfo=http://example.com/example.info
+}}}
+An info file according to this spec. This file must content an DownloadURL field. It should provide a never version if available. This specification allows to put information about several versions in one info file.
+
 === info Example ===
 {{{
     [Application]
     Name=Example application
     Version=1.0
     Type=X-ApplicationPackage
+    Exec=example.bin
+    ExecType=application/x-executable
     Maintainer=John Doe <john AT freedesktop DOT org>
     Application-Version=1.0
     Authors=Jane Doe <jane AT freedesktop DOT org>; John Doe <john AT freedesktop DOT org>
     Description=This example application is a great multiplayer game for the whole family. You can use your keyboard and your mouse. For more information see our website: www.greatgame.example.
     License=GPL;Creative-Commons
+    Icon=http://example.com/example_app_icon.svg
+    DownloadURL=http://example.com/example.app
+    UpdateInfo=http://example.com/example.info
 }}}
 
 === app directory ===
-This directory contains the application files. If your set an exec file in the desktop entry file, this directory will be used first to look for that exec file.
+This directory contains the application files. This directory will be used to look for the exec file which is stated in the info file.
 
 === Installation ===
 The user should be able to copy the application to applications:// to register the application. At all you don't need to install the application, just execute the app-file to use the application. The system will may share the application for multiple users.
