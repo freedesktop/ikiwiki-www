@@ -77,41 +77,33 @@ In addition to the general device driver options described above this module sup
     The desired fragments when opening the device. (defaults to 12)
   fragment_size
     The desired fragment size in bytes when opening the device (defaults to 1024)
-
-'''Since 0.9.11'''
-
   tsched
-    Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
-
-'''Since ???'''
-
+    '''Since 0.9.11.''' Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
   mmap
-
+    
   name
     String to prefix to the automatically determined sink name.
-
   device_id
-
+    
   tsched_buffer_size, tsched_watermark
-
+    
   ignore_dB
     Ignore dB information from the device
-
   control
     Name of mixer control
-
   namereg_fail
     Boolean
-
-  sync_volume
-    Syncronize sw and hw voluchanges in IO-thread
+  deferred_volume
+    Syncronize sw and hw volume changes in IO-thread
+  fixed_latency_range
+    '''Since 2.0.''' Boolean. Normally when there's an alsa underrun, and timer based scheduling is used, the alsa sink will raise the minimum latency that applications can get to avoid further underruns. If this option is enabled, the minimum latency will stay constant even if underruns occur.
 
 === module-alsa-source ===
 
 Provides a recording source for devices supported by the Advanced Linux Sound Architecture (ALSA). The source name defaults to alsa_input.
 
 This module supports device=, fragments=, fragment_size= and tsched= arguments the same way as module-alsa-sink.
-Also mmap, name, device, control, tsched_buffer_size, tsched_watermark, ignore_dB, namereg_fail
+Also mmap, name, device, control, tsched_buffer_size, tsched_watermark, ignore_dB, namereg_fail, fixed_latency_range
 
 === module-alsa-card ===
 
