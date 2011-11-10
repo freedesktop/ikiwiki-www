@@ -146,6 +146,8 @@ Supported parameters:
 
   sync_volume
 
+  fixed_latency_range
+    '''Since 2.0.''' Boolean. Normally when there's an alsa underrun or overrun, and timer based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
 
 === module-oss ===
 
@@ -760,10 +762,26 @@ In contrast to module-match this module needs no explicit configuration. Instead
 
 This does not only restores the volume level but also the used sink which is useful if the target server provides more than one.
 
+=== module-udev-detect ===
+
+'''Since 0.9.16.''' Detects ALSA audio devices on the system using [http://en.wikipedia.org/wiki/Udev udev].
+
+  tsched
+    Enable timer based scheduling? Default: yes.
+  ignore_dB
+    Ignore the decibel information that ALSA provides? Default: no.
+  deferred_volume
+    '''Since 1.0.''' Syncronize sw and hw volume changes? Default: yes.
+  fixed_latency_range
+    '''Since 2.0.''' Boolean. Normally when there's an alsa underrun or overrun, and timer based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
+
 === module-detect ===
 
-Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers, and the information is taken directy from them, not through [http://freedesktop.org/wiki/Software/hal HAL].[[BR]]
-Do not use this together with module-hal-detect!
+'''This module is deprecated on systems where udev is available. Please use module-udev-detect instead.'''
+
+Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers, and the information is taken directy from them, not through udev or HAL.
+
+Do not use this together with module-udev-detect or module-hal-detect!
 
 The parameter:
   just-one
@@ -771,9 +789,11 @@ The parameter:
 
 === module-hal-detect ===
 
+'''This module is deprecated on systems where udev is available. Please use module-udev-detect instead.'''
+
 Detects audio devices on the system using [http://freedesktop.org/wiki/Software/hal HAL].
 
-Do not use this together with module-detect!
+Do not use this together with module-udev-detect or module-detect!
 
 '''Since 0.9.11'''
 
