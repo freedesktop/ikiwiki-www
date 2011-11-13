@@ -1,0 +1,171 @@
+= RFC: Priority Routing =
+
+It's been pretty much about 19 months since I clearly spent a very satisfying Valentines day and [http://colin.guthr.ie/2010/02/this-is-the-route-to-hell/ first wrote about this], but here goes at actually getting on with implementing it!
+
+Firstly, while we pretty much all accept that we want to have priority list routing in PA, we also do not want to restrict usage and limit the usefulness of other routing systems.
+
+For this reason the "routing" infrastructure in PA will be split be the initial functionality added. It is a very basic patch that utilises the current HOOK structure within PA which has a built in priority system.
+
+We will then build on this generic routing system to create a priority list routing infrastructure.
+
+I've knocked up [http://colin.guthr.ie/git/pulseaudio/commit/?h=route&id=61d73564c1c2b0b832f14bfd4f2b77c98febb735 a proposed implementation] of this approach.
+ 
+The above patch is untested and is a proof of concept, and opinions are, of course, welcome.
+
+
+== Priority Lists ==
+
+Fundamentally, "priority lists" will be a core concept (unless someone can come up with a way to define objects that can be used in multiple separate modules easily).
+
+Modules will be able to "register" a priority list in much the same way as they register a sink, source or card etc. One thing that is perhaps not immediately obvious is that a "priority list" may actually contain multiple device lists, each with a different "lookup key". This structure allows us to implement "role" based priority within a single object with each role ("music", "event", "voip", etc.) having it's own individual list of devices in priority order.
+
+The API will look something like:
+
+{{{
+  pa_priority_list *pa_priority_list_register(pa_core *core, const char *name, const char *uiname, const char* propname, pa_device_type_t dtype, pa_hook_priority_t weight) {
+    pa_priority_list *priolist;
+
+    pa_assert(core);
+    pa_assert(name);
+    pa_assert(uiname);
+
+    priolist = pa_xnew0(pa_priority_list, 1);
+     /* OR */
+    priolist = pa_msgobject_new(pa_priority_list);
+
+    if (!(name = pa_namereg_register(core, name, PA_NAMEREG_PRIOLIST, s, TRUE))) {
+        pa_log_debug("Failed to register priority list name %s.", name);
+        pa_xfree(priolist);
+        return NULL;
+    }
+
+    priolist->core = core;
+    priolist->name = name;
+    priolist->uiname = uiname;
+    priolist->dtype = dtype
+    priolist->weight = weight;
+    if (propname)
+      priolist->propname = pa_xstrdup(propname);
+
+    priolist->hook = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_ROUTE], weight, (pa_hook_cb_t) priority_list_route, priolist);
+
+    return priolist;
+  }
+}}}
+
+We will implement a generic function that "does priority list routing" which will look something like:
+
+{{{
+  static pa_hook_result_t priority_list_route(pa_core *c, pa_priority_list *priolist, pa_route_decision_t *route) {
+    const char* key = NULL;
+
+    pa_assert(c);
+    pa_assert(priolist);
+    pa_assert(route);
+
+    /* If a device is already set, short-circuit return */
+    if ((priolist->dtype == PA_DEVICE_TYPE_SINK && route->device.sink)
+        || (priolist->dtype == PA_DEVICE_TYPE_SOURCE && route->device.source)
+      return PA_HOOK_OK;
+
+    if (priolist->propname) {
+      /* Find the routing key from the proplist */
+      key = pa_proplist_gets(priolist->proplist, priolist->propname);
+
+      if (!key) {
+        /* This stream has no lookup key but this is a keyed, list therefore
+           it we cannot match anything */
+        return PA_HOOK_OK;
+      }
+    }
+    
+    /* Go through priority list (for key) and attempt to find an appropriate device */
+    pa_sink *sink = NULL;
+    pa_source *source = NULL;
+
+    ...
+
+    if (sink)
+      route.device.sink = sink;
+    else if (source)
+      route.device.source = source;
+
+    return PA_HOOK_OK;
+  }
+}}}
+
+This method will be able to implement the necessary priority based logic within the generic routing framework mentioned earlier.
+
+Lets put this into action a little with some examples. Lets say a module implements a "default" priority list. It therefore calls pa_priority_list_register in the following way:
+
+{{{
+  u->priolist = pa_priority_list_register(core, "default-sink", "Default Playback", NULL, PA_DEVICE_TYPE_SINK, 0);
+}}}
+
+This call creates a non-keyed (i.e. it will not look up anything in the proplist to find which internal priority list to use - thus there is only one internal priority list in this case) priority list to decide the "Default Playback" device. The internal name "default-sink" is given along with a more user friendly name (more about that later). It of course automatically registers the hook and thus the complexity at the module level is minimal. There would be further complexity to HOOK into when the user sets a default sink/source and automatically update the priority list to move that device to the top of the priority list.
+
+
+So lets look at a more complicated example, a module which implements role base routing. Despite being "more complicated" it's actually just as simple.
+
+{{{
+  u->priolist = pa_priority_list_register(core, "role-sink", "Role Playback", "media.role", PA_DEVICE_TYPE_SINK, 0);
+}}}
+
+Now application specific routing can also be done easily via an appropriate module too, but using the "application.name" property. Simple!
+
+If a given module wants to do a more complicated "lookup key", they can simply do something like:
+
+{{{
+  u->priolist = pa_priority_list_register(core, "complex-sink", "Complex Playback", "route.complexkey", PA_DEVICE_TYPE_SINK, 0);
+
+  /* Subscription to new/changed streams */
+
+  /* Subscription callback code to set the route.complexkey property if it's not already set */
+}}}
+
+So the general structure is still pretty useful and flexible should it be needed.
+
+
+== LTBAQ ==
+
+=== What is LTBAQ? ===
+Likely To Be Asked Questions :)
+
+=== Introspection ===
+So much like the sinks/sources etc. There will be an introspection and API calls to update priority lists. If you update a list but do not specify all the device+ports in the list currently, then the all non-specified device+ports will be appended in their current order to the ones supplied. Whenever a user updates a priority list, all streams will be re-routed.
+
+=== What's actually in the lists? ===
+Each entry in the actual priority list is a device (sink or source) + it's port.
+
+=== How will they be saved on disk? ===
+Using the current 'database' support in PA to write them to disk. It not necessarily amazing but there is no need to change this. The internal name given to the priory list will determine it's name on disk.
+
+=== Can I see what's in a priority list easily? ===
+As a core object, I intend to dump the contents of the priority lists via {{{pacmd list-priorities}}} or a similar such command. Whether we add this to the default {{{pacmd ls}}} output is open to debate.
+
+=== Can it switch ports/profiles if a device is higher up the priority list? ===
+The current plan is to add two configuration variables to allow the priority lists to automatically switch profiles and/or ports as needed. This mode of operation would make routing non-deterministic, as it could only switch if no other stream is playing on a device+port that would have to be removed to enable the device+port of the stream we are routing. Thus this mode is both complicated and non-deterministic and as a result may not be enabled by default. As, however, it may be needed for some scenarios we would like to support out of the box (e.g. digital output from media players) we will have to see exactly how well this works in practice and defer the "enable by default" until we have evaluated the side effects.
+
+=== I'm going to make an editor for the priority lists, how can I get nice names for the device+port entries that are not currently available? ===
+This is a problem. At the moment we do not record anything in PA that covers device+ports that are not currently active (e.g. an unplugged USB device). This problem was previously solved with module-device-manager and a protocol extension. It turned into a more generic system for device routing (which is a system that has inspired this expanded proposal). I would therefore propose that we keep module-device-manager but simplify it greatly (keeping the APIs for a while to ensure backwards compatibility but ensuring they are just passes through to the newer system whenever possible) and thus returning m-d-m to it's primary role, which is to collect details of devices seen for use in UIs that need that information. I would propose that for each device+port it would store and make available: the card name+description+icon, the device name+description+icon, the port name+description+icon (at present ports do not have icons, but this should be changed - headphones vs. speaker ports clearly need to be shown differently in GUIs)
+
+=== What if I want to stop routing? ===
+Sometimes, a stream specifies exactly what sink they want. This is especially true for "speaker test" apps where a stream really should not be moved under any circumstances. This is not shown in the above linked patch, but when streams are connected in this way, we simply add a new flag to streams: STREAM_DONT_ROUTE. When this flag is present on the stream, we simply avoid any calls to the routing system and the whole process is totally bypassed. Specifying a (valid) non-null device name in the pa_stream_connect_plaback/record() will add this flag automatically. Thus existing applications (e.g. libcanberra used in a speaker test scenario) will still work correctly.
+
+=== I want to use new devices that I plug in by default. Is that supported? ===
+If you plug in a new USB device that we don't yet know about (i.e. not present in a priority list), then there could, in principle, be a configuration flag that ensures that the new devices are injected at the top of the priority list. This, much like the automatic stuff above, would have to be configurable in some capacity, probably via some form of callback that is used to calculate where to inject a new device in a given priority list.
+
+=== What about automatic stuff, like magically using headsets for phone calls? ===
+This would still be possible. This is currently done by module-intended-roles and it actively moves/sets the device for certain streams. I would propose a change here to make this module "inject" the device into the appropriate priority list system (with the appropriate "lookup key") if the device is not already in that list. We would ensure that any changes made to the priority lists are only written when using the public API calls - e.g. as a result of "user action". Anything that happens automatically will not persist across reboots. Of course as soon as the user take some action (like moving their voip call to their internal USB headset rather than their Bluetooth one), their priority list will be written to disk and used for the future. This system would likely use the same callback mechanism to determine where to inject the item as mentioned above. As there may be multiple callbacks registered in which case we may utilise the HOOK system again, with weights, in the same way as the routing patch linked at the beginning operates. It may however be simpler to just implement a simpler system for multiple, weighted callbacks. Open to suggestions here.
+
+=== What about existing API calls for moving streams? ===
+At present, a stream is tagged with a "stream restore id". When you move the stream to a device, it's device is saved/restored keyed on this id. This stream restore id can be used to set different devices for different roles, or (if a role is not present) for each application itself. I would propose that a similar methodology is used when integrating this with priority list routing. i.e. we find the first priority list (by weight) which this stream would match, then ensure the device it is being moved to is moved to the top of that priority list. This would trigger an automatic "reroute" (as the priority list had changed) and the stream will be moved. So while this is how the code would work, there are essentially two different approaches that could employed to make things work sensibly with the existing APIs.
+ * '''Option 1''' is to simply leave the current APIs working as they do but ensure that some code (modular) somewhere notices the stream moves and then updates the priority lists retro-actively which then triggers a reroute (which we want as there may be other streams also playing that will be affected by the change). This code would have to be able to distinguish a stream move that happens as a result of a reroute and thus ignore it otherwise unnecessary work would be undertaken (although this should, in theory at least) be the only problem if we were to not ignore some stream moves.
+ * '''Option 2''' is to alter existing code for moving streams to allow for priority list routing. Rather than do any direct moving, the code would simply edit the priority lists pro-actively and let the reroute triggered as a result do the actual moving of the streams. Thus our work would end here. Of course if it does not match any priority list (which would certainly be the case if no priority list routing modules are loaded), then the code would operate as now.
+Either approach means that existing applications will continue to operate without any major changes (although full support for manipulating/listing priority lists is obviously possible through direct introspection mentioned above).
+
+=== What about setting default/fall-back devices? ===
+This would likely be solved in a very similar way to the above problem for moving streams.
+
+=== What happens if I have two streams playing that match the same priority list and that list is updated? ===
+Both streams will be moved. If this is done via the existing APIs as mentioned above, the fact that both streams move may come as a surprise, however, a similar problem exists just now with the current streams-restore-id approach with module-stream-restore. While currently only the moved stream will change device immediately, the other stream will only be rerouted when the streams is next created. Depending on the client implementation this could be at track change or it could be when the application is restarted. Either way the change does not happen when the user triggers it and as a result it is arguably confusing to the user when it does eventually kick in. I would argue that the new proposed approach is clearer, even if the user may be confused as to why moving the stream from RhythmBox also affects his Amarok stream. That said, the likelihood of him running both applications at the same time is minimal and thus I do not believe that this is a major problem in practice.
