@@ -92,5 +92,4 @@ pa_semaphore_post() does not require taking a lock. Hence in many cases, it is b
 
 Don't bother with implementing your own lock-free reference counting based directly on pa_atomic_xxx(). Instead, use the refcnt.h API mentioned above, or use pa_object.
 
-Nota bene: all our memory barriers are ''full'' memory barriers. The most important architectures are x86/x86-64 where only this type of barriers exists. Since only very few people fully understand the differences between all the barriers, and we have no access to more exotic architectures the full memory barriers are good enough for our uses. We optimize for x86/x86-64, for all other architectures it is good enough if PA works at all.
-
+Nota bene: all our memory barriers are ''full'' memory barriers. The most important architectures are x86/x86-64 where only this type of barriers exists. Since only very few people fully understand the differences between all the barriers, and we have no access to more exotic architectures the full memory barriers must suffice for our uses.
