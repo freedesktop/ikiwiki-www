@@ -4,7 +4,7 @@
 
 There are several different ways to connect to another !PulseAudio server (direct connection, tunnel, RTP) or some other network audio device (RTP, RAOP, Rygel).
 
-Note all methods described here stream raw PCM audio over the network. This can use pretty much network bandwidth (around 1.4 Mb/s for CD-quality sound). If you get choppy sound, try setting a lower sample rate for the network stream.
+Note all methods described here stream raw PCM audio over the network. This can use pretty much network bandwidth (around 1.4 Mb/s for CD-quality sound). If you get choppy sound, try setting a lower sample rate for the network stream. Furthermore, even while many !WiFi connections can sustain such bitrates, often the jitter in packet latency makes transmitting low-latency audio over a wireless link infeasible in practice.
 
 
 == Direct connection ==
@@ -22,12 +22,13 @@ load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
 These two modules are not loaded in the default configuration because they might open !PulseAudio for remote attackers.
 
 ==== X forwarding ====
-If the {{{$PULSE_SERVER}}} variable does not exist or is empty, PulseAudio will then check for X11 properties on the root window. These properties are much like environment variables, but will be available remotely if you SSH to another machine with X11 forwarding. You can see a list of PulseAudio related properties by doing:
+If the {{{$PULSE_SERVER}}} variable does not exist or is empty, !PulseAudio will then check for X11 properties on the root window. These properties are much like environment variables, but will be available remotely if you SSH to another machine with X11 forwarding. You can see a list of !PulseAudio related properties by doing:
 {{{
 xprop -root | grep PULSE
 }}}
-The variables names used are the same as those used in the environment, so PulseAudio will look for a property called {{{PULSE_SERVER}}}. Note that only the X11 properties are forwarded over the SSH tunnel, but the pulseaudio client still connects to the server using its own native protocol.
+The variables names used are the same as those used in the environment, so !PulseAudio will look for a property called {{{PULSE_SERVER}}}. Note that only the X11 properties are forwarded over the SSH tunnel, but the pulseaudio client still connects to the server using its own native protocol.
 
+If connecting back to the pulse daemon running on the computer that has the X display is not desired, you can either set {{{PULSE_SERVER=localhost}}} from the SSH connection (make sure module-native-protocol-tcp is loaded though) or run {{{pax11publish -r}}} before SSHing to the remote computer to remove the properties on the root window.
 
 == Using a tunnel ==
 
