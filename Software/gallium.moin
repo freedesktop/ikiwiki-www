@@ -72,34 +72,6 @@ modern graphics hardware is translated into a hardware-friendly form.
 Future state trackers will be created for OpenGL 3.0 and OpenGL-ES 2.x.
 
 
-== Softpipe Driver ==
-
-The softpipe driver is a software implementation of the Gallium3D
-interface.  It will be used as a reference implementation and as a
-fallback driver when a hardware driver isn't available.  The softpipe
-driver will make extensive use of run-time code generation to
-efficiently execute vertex, fragment and rasterization operations.
-
-
-== Simple i915 Driver ==
-
-The i915 Gallium3D Driver is an initial hardware driver implementation
-within the Gallium3D driver architecture.  We expect that once complete this
-driver will have equivalent functionality and performance to the current 
-Mesa i915tex driver, but from a much smaller codebase.
-
-
-== Cell Driver ==
-
-Tungsten Graphics developed a Gallium3D driver for the IBM Cell processor (as found in the PS3) in conjunction with Lawrence Berkeley National Lab.  For more information see the
-[[http://www.mesa3d.org/cell.html|Mesa Cell documentation]].
-
-
-== Failover Module ==
-
-The failover module acts as a selector between a hardware driver and the softpipe driver.  When the hardware can't implement a particular rendering operation, the failover module will pass the request to the softpipe driver.  This is a different solution to the "software fallbacks" scheme of previous Mesa drivers.
-
-
 == Ancillary Modules ==
 
 A number of ancillary modules are available to Gallium3D drivers:
@@ -126,19 +98,15 @@ changes can be expensive and we want to avoid them whenever possible.
 math and miscellaneous helper routines.
 
 
-== Status ==
+== Drivers ==
 
-The Gallium3D source code lives in the Mesa git repository under mesa/src/gallium/.
+As of fall 2011 there are approximately 10 gallium drivers in the source tree.  Most are mature and work pretty well.
 
-As of Spring 2009:
 
-The softpipe driver is basically feature complete and runs most OpenGL programs.  There is limited support for SSE and LLVM code generation, but that's still under development.
+== Deprecated Drivers ==
 
-The i915 driver runs most OpenGL programs, though there's still loose ends.
+The Intel i965 driver, the Cell driver and the failover drivers were removed from the Mesa/gallium source tree in November 2011 since they were unmaintained.  If someone is interested in reviving a driver the code can be recovered from git.
 
-The i965 driver is under construction.
-
-The Cell driver is in the Mesa tree and runs many OpenGL demos.
 
 See the [[http://www.x.org/wiki/GalliumStatus|Gallium status page]] for more information.
 
