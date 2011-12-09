@@ -200,20 +200,25 @@ The sink name (resp. source name) defaults to wave_output (resp. wave_input).
 
 === module-combine ===
 
-This combines two or more sinks into one. A new virtual sink is allocated. All data written to it is forwarded to all connected sinks. In equidistant intervals the sample rates of the output sinks is recalculated: i.e. even when the sinks' crystals deviate (which is normally the case) output appears synchronously to the human ear. The resampling required for this may be very CPU intensive.
+Renamed to module-combine-sink in 1.0. See [#module-combine-sink module-combine-sink] for the documentation for this module.
+
+
+=== module-combine-sink ===
+
+'''Since 1.0 (prior to 1.0 this same module was available with name "module-combine").''' This combines two or more sinks into one. A new virtual sink is allocated. All data written to it is forwarded to all connected sinks. In equidistant intervals the sample rates of the output sinks is recalculated: i.e. even when the sinks' crystals deviate (which is normally the case) output appears synchronously to the human ear. The resampling required for this may be very CPU intensive.
 
   sink_name
-    The name for the combined sink. (defaults to combined)
+    The name for the combined sink. (defaults to "combined")
+  sink_properties
+    '''Since 0.9.15.''' Property list for the combined sink.
   slaves
     Name of sinks to link into the combined think, separated by commas.
   adjust_time
-    Time in seconds when to readjust the sample rate of all sinks. (defaults to 20 – 0 will not readjust)
+    Time in seconds when to readjust the sample rate of all sinks. Zero means that readjustment should be disabled. Default: 20.
   resample_method
-    Resampling algorithm to use. See libsamplerate's documentation for more information. Use one of src-sinc-best-quality, src-sinc-medium-quality, src-sinc-fastest, zero-order-hold, linear. If the default happens to be to slow on your machine try using zero-order-hold. This will decrease output quality however. (defaults to sinc-fastest)
-  master
-    Obsolete since 0.9.11[[BR]]
-    List all sinks under slaves.
-    The name of the first sink to link into the combined think. The sample rate/type is taken from this sink.
+    Resampling algorithm to use when adjusting to the sample rate differences between the slave sinks. TODO: Create a page, and add a link to it here, that explains all the different resamplers that are available. While waiting for that to happen, users can refer to `man pulse-daemon.conf`, more specifically the `resample-method` option documentation.
+  format, rate, channels, channel_map
+    Parameters for the combined sink. See the [#DeviceDrivers Device Drivers section] at the top of this page for details.
 
 
 === module-remap-sink ===
