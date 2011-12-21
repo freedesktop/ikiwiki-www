@@ -1,0 +1,126 @@
+=== Abstract ===
+
+This page sketches a proposal for reducing D-Bus latency on local IPC by making D-Bus processes communicate over a peer-to-peer transport, in a transparent way (i.e., without explicitly setting up a D-Bus p2p communication). This is mostly based on the [[http://blog.mardy.it/2011/01/concepting-new-ipc-system.html|T-Bus idea]], with the main difference that the features described there would be part of D-Bus, instead of being a separate project.
+
+== Introduction ==
+
+The main features brought forward by this proposal are the lower latency IPC for clients running in the local machine and the switch to tag-based match rules. We believe that both of these goals are achievable without modifying the client API, though indeed the API would have to be extended to make full use of the possibilities offered by the tag-based match rules. As for clients connecting from remote machines, the D-Bus daemon could continue offering the same protocol and route the messages to and from the local service, in a similar fashion to how it’s done today.
+The main changes to the current D-Bus implementation would then be:
+
+    * match rules are tags lists (see the section [[#matchrules|Tags and match rules]] below)
+    * the D-bus daemon publishes the service names and the match rules on shared memory as well
+    * addition of a C low-level client library, for handling different transport methods (sockets, FIFOs, message queues along with SHM)
+    * the low-level client library would transparently prefer direct p2p connections whenever possible
+
+
+Unlike what was initially proposed with T-Bus, the focus here is not on improving the transport method: UNIX local sockets performance in Linux is very close to that of FIFOs and message queues, while the performance cost of setting up a SHM memory area would make it convenient only in very limited situations. The client library and the protocol we are proposing here still allows for clients to choose the transport method for incoming messages, but we believe that a significant performance and functionality gain would occur even if the selected transport method was plain UNIX sockets.
+
+== The big picture ==
+
+Every client in the local machine is connected to the D-Bus daemon via a UNIX socket. The D-Bus daemon maintains the list of the registered service names, monitors their lifetime, maintains the match rules, and very little more. It doesn't come into the picture when a message is passed between two clients, not even when the message has multiple recipients. All the information about the active services which is needed to route a message, such as the list of services, their address and the match rules, all these things reside in shared memory blocks maintained by the D-Bus daemon. As with the current D-Bus implementation, service names are unique across the net, a client can register any number of them at any time, and their appearing and disappearing from the net is advertised by the D-Bus daemon with messages to all interested clients. Service names are typically used to route method calls. Messages are tagged with a list of labels, specified by the sender. On the other hand, clients register match rules to the D-Bus daemon, specifying what labels they are interested in (or better said, one client can specify multiple sets of labels). A match happens if one set of labels defined in a rule is a subset of the message's labels. When a match occurs, or when the message has a destination service name set, then the message is delivered to all matching clients, using the transport method preferred by each client (the address of the client is a URI whose protocol part defines the transport type).
+
+<<Anchor(matchrules)>>
+== Tags and match rules ==
+
+A tag, or label, is a string. A match rule is an unordered list of tags, plus an optional sender. If all the tags listed in a match rule are also listed in one message, then the message is delivered to the client which registered that rule. Here is how current D-Bus match rules could be converted into a tag-based match rule: `"type='signal',sender='org.freedesktop.DBus',interface='org.freedesktop.DBus',member='Foo',path='/bar/foo',destination=':452345.34',arg2='bar'"` would become a match rule listing these tags (one tag per line):
+{{{
+type='signal'
+interface='org.freedesktop.DBus'
+member='Foo'
+path='/bar/foo'
+destination=':452345.34'
+arg2='bar'
+}}}
+and having `org.freedesktop.DBus` as sender.
+
+This way of handling match rules is simpler and more powerful than the current D-Bus': for instance, currently if you want to send a message to clients listening on interface A or on interface B, you need to send the same message twice, once per interface. But with a tag-based rule, you could just tag your message with both A and B, and get it delivered to both clients at once. This taglist form of match rules would also be able to cover the functionality offered by the argX and argXpath components of the D-Bus matches, which are arguably hackish.
+
+Moreover, the tagged approach would allow for more fine-grained matches than what D-Bus currently provides with its `NameOwnerChanged` signal; more of this in the [[#registeringaname|Registering a service name]] section.
+
+== Messaging protocol ==
+
+Clients in the local network will exchange messages in a p2p way. The original proposal of the T-Bus IPC described a system where p2p messages were created on shared memory areas, with their handles being passed to the message destination via FIFOs, message queues or sockets (you can read more about it in the “Messaging protocol” section in [[http://blog.mardy.it/2011/01/concepting-new-ipc-system.html|the original T-Bus sketch]]). While we wouldn’t like to prevent such a way of implementing the p2p IPC (and therefore, we’ll design the API so that this might be eventually possible), for this initial sketch we’ll stick to a simpler socket stream communication.
+
+When a client needs to send a message, it will first prepare the message header, and then fill in the message contents. This two-phases composition might allow for optimizing the transport: when the headers are ready, the client library could already compute the list of the actual destination process which will be reached, and choose and prepare the best way of sending the message body (for instance, if the message is going to be received by many processes a multicast socket could be setup, or on the contrary directly skip the message composition if no one in interested in this message).
+
+To determine what destinations should be reached by a message, a logic like this might be applied:
+
+   1. if the message has a destination name set on it, the message is delivered to it; all destinations, along with their address, are found on a shared memory block maintained by the D-Bus daemon.
+   2. if the message has a sender name set on it (like in a D-Bus signal), the sending client reads the table of match rules set for this sender name — which resides on a shared memory area named after the service name and maintained by the D-Bus daemon — and computes the list of destination addresses.
+   3. the sending client reads the table of generic match rules: this is another table maintained by the D-Bus daemon, consisting of all match rules which do not have a sender set.
+
+
+So, in a D-Bus net with ''N'' registered service names, we have ''N+1'' shared memory objects holding match rules: one for each service, plus one for the rules which are not bound to a service. When sending a message, the list of the recipients is composed by the union of the recipients found according to the three rules above (so, in the worst case, three tables have to be read).
+
+== Registering to D-Bus ==
+
+A local D-Bus client entering the network can query the daemon for the handles to the following shared memory areas:
+
+    * the table holding the list of the connected clients, with the service names they registered and the IPC address URL where it can be found for p2p communication.
+    * the table holding the match rules which are not bound to a specific service name.
+
+The client is also registered into the connected clients table, with a unique service name assigned to it. The client keeps the socket connection to the D-Bus daemon open as long as it intends to be part of the network<<FootNote(This is still under consideration. The other possibility is that the connection to the deamon would be opened only when needed; clients would connect to it also when logging out, to send a “log-out” message, and misbehaving clients (or clients being killed) would be reported as logged-out as soon as their absence is detected (when any client fails to send a message, it would inform the D-Bus daemon which would verify the situation).)>>. This connection is used to register match rules (only the D-Bus daemon is allowed to write those shared memory tables) and service names.
+
+<<Anchor(matchrules)>>
+=== Registering a service name ===
+
+Clients can register any number of service names, at any time, by issuing a request to the D-Bus daemon. The request will contain the desired service name (which must be unique), the IPC address which will listen to incoming messages, and a list of labels. If the D-Bus daemon accepts the request, it will prepare a message containing all these labels, plus a the predefined labels for the `NameOwnerChanged` signal, and will send it to all the clients which have setup a matching rule<<FootNote(To mention a case where this would be useful, I recall the Telepathy ChannelDispatcher service, which needs to keep track of service names matching `org.freedesktop.Telepathy.Client.*` —since D-Bus currently doesn’t allow for such a match rule, the ChannelDispatcher service process had to wake up whenever `NameOwnerChanged` was emitted (at least until argXprefix becomes available). With this proposal, instead, one could just install a match rules having the labels `"member=NameOwnerChanged"` and `"org.freedesktop.Telepathy.Client"`, which would trigger a wake-up just when the desired events occur.)>>. The same labels will be set on a similar message which will be send when the service is unregistered.
+
+In addition to the above, the D-Bus daemon will tell the client the handle of the shared memory area where the D-Bus daemon will write the match rules that the client must read when emitting signals from that service name.
+
+== Lock-free shared memory handling ==
+
+During its lifetime, a D-Bus shared memory area can have many readers, but only one writer. All the match rule tables and the active clients table are maintained by the D-Bus daemon, which is the only process allowed to modify them. All records are fixed sized, and have one field which tells whether they are empty, filled (valid) or deleted. Records can only be added or marked for deletion, but never reused. When the table needs to be compacted or resized, the D-Bus daemon creates a new shared memory area with a table holding only the valid records from the original table and, once the new table is ready, its handle is written into a special header of the old table, and after this the old table is flagged as no longer valid, and unlinked. So, when clients need to read data from one table, they would follow this logic:
+
+   1. Check if the table is marked for deletion. If it is, get the handle of the new table and repeat this step; if the next one does not exist, get the new address by directly asking the D-Bus daemon
+   2. Find your data, linearly scanning the table and ignoring all records which are marked for deletion. If an empty field is found, then it marks the end of the table data.
+   3. (under consideration — probably not necessary) After reading the data, check if the record and the table are still valid. If not, go back to step 1.
+
+
+To keep this efficient and to reduce the memory waste, string data will be accessed by index, with the actual data residing on another shared memory area. For instance, the labels and the service names will stay in their own tables, consisting of a column with the integer hash, one column with the unique numeric ID of the string (which will remain constant over time) and one column with the actual string (a maximum length for labels and service names will be enforced). So, clients which need to refer to string (to tag a message, for instance) will always use the unique integer ID. The concept is the same as glib quarks, except that it's living in shared memory. Match rules would also have a limit on the number of labels, so that their record can be of a fixed size.
+
+When searching for a specific string, the client library would first calculate its hash, then linearly scan the shared string table(s) by comparing the string hash, and only when the hash matches a string comparison would happen.
+These string tables might also be split into tables of different record size, for instance there could be a table for all strings whose length is 32 chars at most, one for those who are 64 bytes at most, one for 128 and so on till the maximum tag size. This would not only help reducing memory waste, but also speed-up the lookups.
+
+== The client library ==
+
+There will be a low-level client library implementing the protocol which for the time being we’ll call libtbus. This library would:
+
+    * expose a C API, with hooks for integrating to a main loop (like the current libdbus)
+    * offer APIs for composing messages: adding headers, sending message blobs in the most efficient way
+    * automatically read service name specific configuration files, to alter the library’s behaviour (for instance to disable data sniffing for specific security-sensitive services)
+    * be used by all higher level client libraries (`GDBus`, `QtDBus`, etc.)
+
+
+What this library would '''not''':
+
+    * provide message data serialization
+    * be the recommended client library for application developers
+
+
+Message data serialization would remain as currently specified by the D-Bus protocol, but would not be implemented in libtbus itself; instead, higher level client libraries such as GDBus and QtDBus would implement the serialization. Also, higher level client libraries might implement some mechanisms for caching the immutable mapping between string tags and their numeric representation.
+
+libtbus will allow sending messages as blobs, and also composing messages on the wire, with an API similar to write(2). Its API for message composition should not prevent '''zero copy''' implementations, such as the [[http://www.mjmwired.net/kernel/Documentation/networking/packet_mmap.txt|packet mmap TX ring]].
+At least until the library reaches maturity, we should discourage statically linking to it, in order to maintain more freedom in improving the protocol without breaking the functionality.
+
+== Performance considerations ==
+
+Here are a few points I thought worth considering when trying to evaluate the possible performance of this proposal's implementation.
+
+=== Number of open file descriptors ===
+
+One obvious concern is about the number of file descriptors used in the D-Bus network. First of all, we can forget about the descriptors of the shared memory areas, because they can safely be closed as soon as the memory area has been mmap-ed. Secondly, the number of file descriptors in a net consisting of ''N'' clients is a value directly proportional to ''N'' (because every client has a socket connection to the D-Bus daemon), plus all the p2p IPCs. In the typical case, every client will just create one IPC for its incoming channel, and other clients can write to it (though of course the client could open several different incoming channels for different match rules — but it’s debatable whether we’d want to expose this via the client API). In the worst case, at a certain time we might have that the number of open descriptors is ''O(N2)'', which doesn't sound that good. This can be reduced back to ''O(N)'', if clients don't keep their communication channels open after having sent a message. One reasonable compromise would be to always close the descriptor after having sent a message except in the case where the message had a destination name set (that is the analogue of a D-Bus method call); this file descriptor could be kept open until we are sending a message to a different destination. If the client API will offer a concept of “proxy to a remote service”, similar to the glib DBusGProxy, then maybe the descriptor serving the IPC address of the proxy could be kept open as long as the proxy object is alive. Also, the connection between the clients and the D-Bus daemon could be closed, when precisely tracking the client’s lifetime is not essential.
+
+=== Number of match rules ===
+
+Match rules are not all stored in a single table, but for every service name there is a set of rules which other clients have installed for it (and there's one table for the the rules without service name, which would mainly be used by sniffing programs like dbus-monitor); these tables would be read linearly. Moreover, we would add to the client API some flag to allow clients to request that a message be sent to its destination only, ignoring all sniffers. This could also be a configuration option that the client library reads from an environment variable or from a configuration file (named after the service name, so not necessarily known to the process itself).
+
+== Security ==
+
+Exposing all the data, as well as the routing tables, in shared memory is problematic. We shouldn’t be concerned about the risk that buggy clients inadvertently modify the shared memory tables managed by the D-Bus daemon, because the client library will be careful enough to open the shared memory areas in read-only mode. But anyone could write a malicious client which could edit these tables. This issue could be solved by running the D-Bus daemon as a different user, or by deploying a security framework capable of mandatory access control.
+
+Once the above is taken care of, we could say that the system offers more to security than the current D-Bus does: with p2p IPC it would be possible to prevent data sniffing, and the fact that the IPC does not involve a third party (the D-Bus daemon) makes it easier for clients to implement ACL checking.
+
+== Functionality scenarios ==
+
+We’ll list here selected scenarios of how the functionality of the current D-Bus implementation would map to this proposed implementation. Feel free to suggest all the cases that you feel being problematic or just not obvious.
