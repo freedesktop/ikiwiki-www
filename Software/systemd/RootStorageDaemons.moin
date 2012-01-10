@@ -4,21 +4,21 @@ aka. Pax Cellae pro Radix
 
 (or something like that, my Latin is a bit rusty)
 
-A number of modern storage technologies on Linux require user space services to run while the storage is active and mountable. This requirement becomes tricky as soon as the root file system of the Linux operating system is stored on such storage technology. Previously no clear path to make this work was available. This text tries to clear up the resulting confusion, and what is supported and what is not.
+A number of modern storage technologies on Linux (e.g. RAID, volume management, networked storage) require user space services to run while the storage is active and mountable. This requirement becomes tricky as soon as the root file system of the Linux operating system is stored on such storage technology. Previously no clear path to make this work was available. This text tries to clear up the resulting confusion, and what is now supported and what is not.
 
-A bit of background:
+== A Bit of Background ==
 
 When complex storage technologies are used as backing for the root file system this needs to be set up by the init RAM disk, i.e. on Fedora Dracut. In newer systemd versions teardown of the root file system backing is also done by the initrd: after terminating all remaining running processes and unmounting all file systems it can (which means excluding the root fs) systemd will jump back into the initrd code allowing it to unmount the final file system (and its storage backing) that cannot be unmounted as long as the OS is still running from the main root file system. The initrd's job is to detach/unmount the root fs, i.e. inverting the exact commands it used to set them up in the first place. This is not only cleaner, but also allows for the first time arbitrary complex stacks of storage technology.
 
 Previous attempts to handle root file system setups with complex storage as backing usually attempted to maintain the root storage with program code stored on the root storage itself, thus creating a number of dependency loops. Safely detaching such a root file system becomes messy, since the program code on the storage needs to stay around longer than the storage, which is a technically contradicting.
 
-What's new?
+== What's new ==
 
 As a result, we hereby clarify that we do not support storage technology setups where the storage daemons are being run from the storage it maintains itself. In other words: a storage daemon backing the root file system cannot be stored on the root file system itself. 
 
 What we do support instead is that these storage daemons are started from the initrd, stay running all the time during normal operation and are terminated only after we returned control back to the initrd and by the initrd. As such, storage daemons involved with maintaining the root file system storage conceptually are more like kernel threads than to normal system services: from the perspective of the init system (i.e. systemd) these services have been started before systemd got initialized and stay around until after systemd is already gone. These daemons can only be updated by updating the initrd and rebooting, a takeover from initrd-supplied services to replacements from the root file system is supported.
 
-What does this mean?
+== What does this mean ==
 
 On system shutdown, systemd will execute a small tool called systemd-shutdown. This tool (which runs as PID 1, it entirely replace the systemd init process) then iterates through the mounted file systems and running processes (as well as a couple of other resources) and tries to unmount/read-only mount/detach/kill them. It continues to do this in a tight loop as long as this results in any effect. From this killing spree a couple of processes are automatically excluded: PID 1 itself of course, as well as all kernel threads. After the killing/unmounting spree control is passed back to the initrd.
 
