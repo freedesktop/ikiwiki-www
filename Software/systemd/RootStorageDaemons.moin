@@ -43,6 +43,10 @@ Why '@'? Why argv[0][0]? First of all, a technique like this is not without prec
 
 Note that your code should only modify argv[0][0] and leave the comm name (i.e. /proc/self/comm) of your process untouched.
 
+== To which technologies does this apply? ==
+
+These recommendations apply to those storage daemons which need to stay around until after the storage they maintain is unmounted. If your storage daemon is fine with being shutdown before its storage device is unmounted you may ignore the recommendations above.
+
 == What else to keep in mind? ==
 
 If your daemon implements the logic pointed out above it should work nicely from initrd environments. In a many cases it might be necessary to additionally support storage daemons to be started from within the actual OS, for example when complex storage setups are used for auxiliary file systems, i.e. not the root file system, or created by the administrator during runtime. Here are a few additional notes for supporting these setups:
