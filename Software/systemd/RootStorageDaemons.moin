@@ -33,9 +33,9 @@ int main(int argc, char *argv) {
 }
 }}}
 
-And that's already it. Note thtat this functionality is only to be used by programs running from the initrd, and *not* for programs running from the root file system itself. Programs which use this functionality and are running from the root file system are considered buggy since they effectively prohibit clean unmounting/detaching of the root file system and its backing storage.
+And that's already it. Note that this functionality is only to be used by programs running from the initrd, and '''not''' for programs running from the root file system itself. Programs which use this functionality and are running from the root file system are considered buggy since they effectively prohibit clean unmounting/detaching of the root file system and its backing storage.
 
-Again: if your code is being run from the root file system, then this logic suggested above is NOT for you. Sorry. Talk to us, we can probably help you to find a different solution to your problem.
+Again: if your code is being run from the root file system, then this logic suggested above is '''NOT''' for you. Sorry. Talk to us, we can probably help you to find a different solution to your problem.
 
 The recommended way to distuingish between run-from-initrd and run-from-rootfs for a daemon is to introduce a new switch --initrd for your service which when passed results in argv[0][0] being set to '@', and otherwise doesn't. An updated initrd (i.e. Dracut) should then simply pass that switch and everything's jolly.
 
