@@ -1,0 +1,11 @@
+= systemd and Storage Daemons for the Root File System =
+
+aka. Pax Cellae pro Radix
+
+(or something like that, my Latin is a bit rusty)
+
+A number of modern storage technologies on Linux require user space services to run while the storage is active and mountable. This requirement becomes tricky as soon as the root file system of the Linux operating system is stored on such storage technology. Previously no clear path to make this work was available, this text tries to clear up a lot of confusion, and what is supported and what is not.
+
+A bit of background:
+
+When complex storage technologies are used as backing for the root file system this needs to be set up by the init RAM disk, i.e. on Fedora Dracut. In newer systemd versions teardown of the root file system backing is also done by the initrd: after terminating all remaining running processes and unmounting all file systems systemd will jump back into the initrd code allowing it to unmount the final file system (and its storage backing) that cannot be unmounted as long as the OS is still running from the main root file system. The initrd's job is to detach/unmount the root fs, i.e. inverting the exact commands it used to set them up in the first place.
