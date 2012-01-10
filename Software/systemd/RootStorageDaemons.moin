@@ -12,19 +12,19 @@ When complex storage technologies are used as backing for the root file system t
 
 Previous attempts to handle root file system setups with complex storage as backing usually tried to maintain the root storage with program code stored on the root storage itself, thus creating a number of dependency loops. Safely detaching such a root file system becomes messy, since the program code on the storage needs to stay around longer than the storage, which is a technically contradicting.
 
-== What's new ==
+== What's new? ==
 
 As a result, we hereby clarify that we do not support storage technology setups where the storage daemons are being run from the storage it maintains itself. In other words: a storage daemon backing the root file system cannot be stored on the root file system itself. 
 
 What we do support instead is that these storage daemons are started from the initrd, stay running all the time during normal operation and are terminated only after we returned control back to the initrd and by the initrd. As such, storage daemons involved with maintaining the root file system storage conceptually are more like kernel threads than like normal system services: from the perspective of the init system (i.e. systemd) these services have been started before systemd got initialized and stay around until after systemd is already gone. These daemons can only be updated by updating the initrd and rebooting, a takeover from initrd-supplied services to replacements from the root file system is supported.
 
-== What does this mean ==
+== What does this mean? ==
 
 On system shutdown, systemd will execute a small tool called systemd-shutdown. This tool (which runs as PID 1, it entirely replace the systemd init process) then iterates through the mounted file systems and running processes (as well as a couple of other resources) and tries to unmount/read-only mount/detach/kill them. It continues to do this in a tight loop as long as this results in any effect. From this killing spree a couple of processes are automatically excluded: PID 1 itself of course, as well as all kernel threads. After the killing/unmounting spree control is passed back to the initrd.
 
 To implement the supported logic proposed above, where storage daemons needed for the root fs which are started by the initrd stay around during normal operation and are only killed when control is passed back to the initrd we need to exclude these daemons from the shutdown killing spree. To accomplish this the following logic is available starting with systemd 38:
 
-Processes whose first character of the zeroth command line argument is '@' are excluded from the killing spree, much the same way as kernel threads are excluded too. Thus, a daemon which wants to take advantage of this logic needs to place the following at the top of its main() function:
+Processes run by the root user whose first character of the zeroth command line argument is '@' are excluded from the killing spree, much the same way as kernel threads are excluded too. Thus, a daemon which wants to take advantage of this logic needs to place the following at the top of its main() function:
 
 {{{
 int main(int argc, char *argv) {
