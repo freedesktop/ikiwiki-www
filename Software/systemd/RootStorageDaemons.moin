@@ -10,7 +10,7 @@ A number of modern storage technologies on Linux (e.g. RAID, volume management, 
 
 When complex storage technologies are used as backing for the root file system this needs to be set up by the initial RAM file system (initramfs), i.e. on Fedora by Dracut. In newer systemd versions teardown of the root file system backing is also done by the initramfs: after terminating all remaining running processes and unmounting all file systems it can (which means excluding the root fs) systemd will jump back into the initramfs code allowing it to unmount the final file systems (and its storage backing) that could not be unmounted as long as the OS was still running from the main root file system. The initramfs' job is to detach/unmount the root fs, i.e. inverting the exact commands it used to set them up in the first place. This is not only cleaner, but also allows for the first time arbitrary complex stacks of storage technology.
 
-Previous attempts to handle root file system setups with complex storage as backing usually tried to maintain the root storage with program code stored on the root storage itself, thus creating a number of dependency loops. Safely detaching such a root file system becomes messy, since the program code on the storage needs to stay around longer than the storage, which is a technically contradicting.
+Previous attempts to handle root file system setups with complex storage as backing usually tried to maintain the root storage with program code stored on the root storage itself, thus creating a number of dependency loops. Safely detaching such a root file system becomes messy, since the program code on the storage needs to stay around longer than the storage, which is technically contradicting.
 
 == What's new? ==
 
@@ -51,7 +51,7 @@ This all applies to storage technology only, not to daemons with any other (non-
 
 == What else to keep in mind? ==
 
-If your daemon implements the logic pointed out above it should work nicely from initramfs environments. In a many cases it might be necessary to additionally support storage daemons to be started from within the actual OS, for example when complex storage setups are used for auxiliary file systems, i.e. not the root file system, or created by the administrator during runtime. Here are a few additional notes for supporting these setups:
+If your daemon implements the logic pointed out above it should work nicely from initramfs environments. In many cases it might be necessary to additionally support storage daemons to be started from within the actual OS, for example when complex storage setups are used for auxiliary file systems, i.e. not the root file system, or created by the administrator during runtime. Here are a few additional notes for supporting these setups:
 
  * If your storage daemon is run from the main OS (i.e. not the initramfs) it will also be terminated when the OS shuts down (i.e. before we pass control back to the initramfs). Your daemon needs to handle this properly.
 
