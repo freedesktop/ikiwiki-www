@@ -24,7 +24,7 @@ Near the end of system shutdown, systemd executes a small tool called systemd-sh
 
 To implement the supported logic proposed above (i.e. where storage daemons needed for the root fs which are started by the initramfs stay around during normal operation and are only killed after control is passed back to the initramfs) we need to exclude these daemons from the shutdown killing spree. To accomplish this the following logic is available starting with systemd 38:
 
-Processes run by the root user whose first character of the zeroth command line argument is '@' are excluded from the killing spree, much the same way as kernel threads are excluded too. Thus, a daemon which wants to take advantage of this logic needs to place the following at the top of its main() function:
+Processes (run by the root user) whose first character of the zeroth command line argument is '@' are excluded from the killing spree, much the same way as kernel threads are excluded too. Thus, a daemon which wants to take advantage of this logic needs to place the following at the top of its main() function:
 
 {{{
 int main(int argc, char *argv) {
