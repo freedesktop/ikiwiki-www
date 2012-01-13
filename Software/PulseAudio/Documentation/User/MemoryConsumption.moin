@@ -1,13 +1,17 @@
 = !PulseAudio shows up as memory hogger in top! Why? =
 
-When starting up !PulseAudio allocates a 64mb shared memory segment and then for each active client another 64mb segment is added. For the uninitiated this might look as if PA wastes substantial amounts of memory. However this is actually not the case. And here's why:
+When starting up !PulseAudio allocates a 64 MiB shared memory segment and then for each active client another 64 MiB segment is added. For the uninitiated this might look as if PA wastes substantial amounts of memory. However this is actually not the case. And here's why:
 
-What PA does is allocating address space that is not actually backed with real RAM until first use. Most modern operating systems distuingish between allocation of memory and allocation of address space and allocating these segments comes at virtually no cost. Usually only a very small part of these segments is actually ever backed by proper memory because it is actually used. Also note that these shared memory segments are shared between the process that allocates them and the processes that access them (due to their very nature as ''shared memory'' segments). That means that if you just look at the amount of address space that is allocated for each process you will get a value that is substantially higher than the actual memory consumption of PA and the PA clients.
+What PA does is allocating address space that is not actually backed with real memory. Most modern operating systems distinguish between allocation of memory and allocation of address space. Allocating address space comes at virtually no cost. When PA first uses a part of its address space, it gets backed by memory. Usually only a very small part of the address space of PA is actually used. This technique is called "memory overcommiting."
 
-Due to that tools like top/ps are not very useful to determine memory consumption of PA. This LWN article has a few hints how to better measure memory consumption: http://lwn.net/Articles/230975/ 
+Also note that these shared memory segments are shared between the process that allocates them and the processes that access them (due to their very nature as ''shared memory'' segments).
 
-Only on operating systems that do not employ memory overcommiting the distinction between address space allocation and memory allocation is not made. On those systems the fact that PA relies on overcommiting becomes a problem. To my knowledge the only current OS that does not do overcommiting is !OpenSolaris (probably because Solaris is only useful on servers and hence these machines are equipped with substantially more RAM so that this limitation does not become apparent).
+That means that if you just look at the amount of address space that is allocated for each process you will get a value that is substantially higher than the actual memory consumption of PA and the PA clients. Due to that tools like "top"/"ps" are not very useful to determine memory consumption of PA. This LWN article has a few hints how to better measure memory consumption: http://lwn.net/Articles/230975/ 
 
-You may control the size of the shared memory segment by fiddling with the shm-size-bytes= configuration option in daemon.conf.
+Nevertheless, there are special cases when PA does allocate unused amounts of memory:
 
-So again, if you try to track down memory consumptions of processes, top and ps are NOT useful.
+  1. OS does not employ memory overcommiting. To my knowledge the only current OS that does not do overcommiting is !OpenSolaris (probably because Solaris is only useful on servers and hence these machines are equipped with substantially more memory so that this limitation does not become apparent).
+
+  2. You have the option "lock-memory = yes" in "daemon.conf". Then the address space of PA is backed with memory even if it is not used.
+
+You may control the size of the shared memory segment by changing the "shm-size-bytes" configuration option in "daemon.conf".
