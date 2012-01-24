@@ -168,3 +168,5 @@ int enum_input_on_seat(const char *seat) {
         udev_unref(udev);
 }
 }}}
+
+Note that even though XOrg learned a new -seat switch to make use of multi-seat information it does so only for input devices, not for displays. To work around this systemd includes a tiny wrapper binary in /lib/systemd/systemd-multi-seat-x which emulates the right behaviour by creating a throw-away X configuration file which does the right thing. If you are implementing a multi-seat display manager you probably want to use this binary instead of the real X binary for now. As soon as XOrg upstream learnt proper multi-seat support also for displays this binary will be removed from systemd, hence write your DM to fallback to the real X server if systemd's wrapper is not found.
