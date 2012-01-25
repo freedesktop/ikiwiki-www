@@ -2,6 +2,10 @@
 
 systemd provides a number of APIs to applications. Below you'll find a table detailing which APIs are considered stable and how portable they are. 
 
+This list is intended to be useful for distribution and OS developers which are interested to maintain a certain level of compatibility with the new interfaces systemd introduced, without relying on systemd itself.
+
+In general it is our intention to cooperate on interfaces, not with code with other distributions and OSes. That means, that the interfaces where this applies are best reimplemented in a compatible fashion on those other operating systems. To make this easy we provide detailed interface documentation where necessary. That said, it's all Open Source, hence you have the option to a) fork our code and maintain it independently for your OS, or b) build systemd for your distro, but leave out all components but the ones you are interested in and run them without systemd involved. We will try not to make this any more difficult than necessary, but we do not officially support using systemd code this way and will not accept patches for that.
+
 == General Portability of systemd and its Components ==
 
 '''Portability to OSes:''' systemd is not portable to non-Linux systems. It makes use of a large number of Linux-specific interfaces, including many that are used by its very core. We do not consider it feasable to port systemd to other Unixes (let alone non-Unix operating systems) and will not accept patches for systemd implementing any such portability (but hey, it's git, so it's as easy as it can get to maintain your own fork...). APIs that are supposed to be used as drop-in .c files are excepted from this: it is important to us that these compile nicely on non-Linux and even non-Unix platforms, even if they might just become NOPs.
@@ -18,7 +22,7 @@ systemd's APIs are available everywhere where systemd is available. Some of the 
 
 A number of systemd's APIs expose Linux or systemd-specific features that cannot sensibly be implemented elsewhere. Please consult the table below for informations which ones these are.
 
-Note that not all of these interfaces are our invention, we just adopted them in systemd to make them more prominently implemented. For example, we adopted many Debian facilities in systemd to push it into the other distributions as well.
+Note that not all of these interfaces are our invention (but most), we just adopted them in systemd to make them more prominently implemented. For example, we adopted many Debian facilities in systemd to push it into the other distributions as well.
 
 ||'''API''' ||'''Type'''||'''Covered by [[http://www.freedesktop.org/wiki/Software/systemd/InterfaceStabilityPromise|Interface Stability Promise]]'''||'''Fully documented'''||'''Known External Users'''||'''Reimplementable Independently'''||'''Known Other Implementations'''||'''systemd Implementation portable to other OSes||
 ||[[http://www.freedesktop.org/wiki/Software/systemd/hostnamed|hostnamed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||partially||
