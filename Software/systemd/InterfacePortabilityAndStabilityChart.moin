@@ -4,7 +4,7 @@ systemd provides a number of APIs to applications. Below you'll find a table det
 
 == General Portability of systemd and its Components ==
 
-'''Portability to OSes:''' systemd is not portable to non-Linux systems. It makes use of a large number of Linux-specific interfaces, including many that are used by its very core. We do not consider it feasable to port systemd to other Unixes (let alone non-Unix operating systems) and will not accept patches for systemd implementing any such portability (but hey, it's git, so it's as easy as it can get to maintain your own fork...).
+'''Portability to OSes:''' systemd is not portable to non-Linux systems. It makes use of a large number of Linux-specific interfaces, including many that are used by its very core. We do not consider it feasable to port systemd to other Unixes (let alone non-Unix operating systems) and will not accept patches for systemd implementing any such portability (but hey, it's git, so it's as easy as it can get to maintain your own fork...). APIs that are supposed to be used as drop-in .c files are excepted from this: it is important to us that these compiled nicely on non-Linux and even non-Unix platforms, even if they might just become NOPs.
 
 '''Portability to Architectures:''' It is important to us that systemd is portable to little endian as well as big endian systems. We will make sure to provide portability with all important architectures and hardware Linux runs on and are happy to accept patches for this.
 
@@ -22,11 +22,11 @@ A number of systemd's APIs expose Linux or systemd-specific features that cannot
 ||[[http://www.freedesktop.org/wiki/Software/systemd/hostnamed|hostnamed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||
 ||[[http://www.freedesktop.org/wiki/Software/systemd/localed|localed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||
 ||[[http://www.freedesktop.org/wiki/Software/systemd/timedated|timedated]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||
-||initrd data passing ||-||no||no||dracut||yes||-||
+||initrd interface||Environment||no||no||dracut||yes||-||
 ||Service bus API||D-Bus||no||no||system-config-services||no||-||
-||Login bus API||D-Bus||no||GNOME||no||-||
-||sd-login.h API||C Library||yes||GNOME||no||-||
-||sd-daemon.h API||C Library and Drop-in||yes||Numerous||no||-||
-||sd-id128.h API||C Library||none||yes||.||
-||sd-journal.h API||C Library||
-||sd-readahead.h API||C Drop-in||
+||Login bus API||D-Bus||yes||no||GNOME||no||-||
+||sd-login.h API||C Library||yes||yes||GNOME||no||-||
+||sd-daemon.h API||C Library and Drop-in||yes||yes||Numerous||no||-||
+||sd-id128.h API||C Library||no||no||none||yes||-||
+||sd-journal.h API||C Library||no||no||none||no||-||
+||sd-readahead.h API||C Drop-in||yes||yes||none||yes||-||
