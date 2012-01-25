@@ -18,27 +18,28 @@ systemd's APIs are available everywhere where systemd is available. Some of the 
 
 A number of systemd's APIs expose Linux or systemd-specific features that cannot sensibly be implemented elsewhere. Please consult the table below for informations which ones these are.
 
-||'''API''' ||'''Type'''||'''Covered by [[http://www.freedesktop.org/wiki/Software/systemd/InterfaceStabilityPromise|Interface Stability Promise]]'''||'''Fully documented'''||'''Known External Users'''||'''Reimplementable Independently'''||'''Known Other Implementations'''||
-||[[http://www.freedesktop.org/wiki/Software/systemd/hostnamed|hostnamed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||
-||[[http://www.freedesktop.org/wiki/Software/systemd/localed|localed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||
-||[[http://www.freedesktop.org/wiki/Software/systemd/timedated|timedated]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||
-||initrd interface||Environment||no||no||dracut||yes||-||
-||Service bus API||D-Bus||no||no||system-config-services||no||-||
-||Login bus API||D-Bus||yes||no||GNOME||no||-||
-||sd-login.h API||C Library||yes||yes||GNOME||no||-||
-||sd-daemon.h API||C Library or Drop-in||yes||yes||numerous||yes||-||
-||sd-id128.h API||C Library||no||no||-||yes||-||
-||sd-journal.h API||C Library||no||no||-||no||-||
-||sd-readahead.h API||C Drop-in||yes||yes||-||yes||-||
-||$XDG_RUNTIME_DIR||Environment||yes||yes||glib, GNOME||yes||-||
-||$LISTEN_FDS/$LISTEN_PID||Environment||yes||yes||numerous (via sd-daemon.h)||yes||-||
-||$NOTIFY_SOCKET||Environment||yes||yes||a few, including udev||yes||-||
-||argv[0][0]='@' Logic||/proc marking||yes||yes||mdadm||yes||-||
-||Unit file format||File format||yes||yes||numerous||no||-||
-||Journal file format||File format||no||no||-||no||-||
-||tmpfiles file format||File format||yes||yes||numerous||yes||-||
-||Cooperation in cgroup tree||Treaty||yes||yes||libvirt||yes||libvirt||
-||Password Agents||Socket+Files||yes||yes||-||yes||-||
-||udev multi-seat properties||udev Properties||yes||yes||X11, gdm||no||-||
-||/etc/machine-id||File format||yes||yes||D-Bus||yes||-||
-||CLI of systemctl,...||CLI||yes||yes||numerous||no||-||
+||'''API''' ||'''Type'''||'''Covered by [[http://www.freedesktop.org/wiki/Software/systemd/InterfaceStabilityPromise|Interface Stability Promise]]'''||'''Fully documented'''||'''Known External Users'''||'''Reimplementable Independently'''||'''Known Other Implementations'''||'''systemd Implementation portable to other OSes||
+||[[http://www.freedesktop.org/wiki/Software/systemd/hostnamed|hostnamed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||maybe||
+||[[http://www.freedesktop.org/wiki/Software/systemd/localed|localed]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||maybe||
+||[[http://www.freedesktop.org/wiki/Software/systemd/timedated|timedated]]||D-Bus||yes||yes||GNOME||yes||[[https://blueprints.launchpad.net/ubuntu/+spec/desktop-p-systemd-packagekit|Ubuntu]]||maybe||
+||initrd interface||Environment||no||no||dracut||yes||-||no||
+||Service bus API||D-Bus||no||no||system-config-services||no||-||no||
+||Login bus API||D-Bus||yes||no||GNOME||no||-||no||
+||sd-login.h API||C Library||yes||yes||GNOME||no||-||no||
+||sd-daemon.h API||C Library or Drop-in||yes||yes||numerous||yes||-||no||
+||sd-id128.h API||C Library||no||no||-||yes||-||no||
+||sd-journal.h API||C Library||no||no||-||no||-||no||
+||sd-readahead.h API||C Drop-in||yes||yes||-||yes||-||no||
+||$XDG_RUNTIME_DIR||Environment||yes||yes||glib, GNOME||yes||-||no||
+||$LISTEN_FDS/$LISTEN_PID||Environment||yes||yes||numerous (via sd-daemon.h)||yes||-||no||
+||$NOTIFY_SOCKET||Environment||yes||yes||a few, including udev||yes||-||no||
+||argv[0][0]='@' Logic||/proc marking||yes||yes||mdadm||yes||-||no||
+||Unit file format||File format||yes||yes||numerous||no||-||no||
+||Journal file format||File format||no||no||-||no||-||no||
+||tmpfiles file format||File format||yes||yes||numerous||yes||-||no||
+||Cooperation in cgroup tree||Treaty||yes||yes||libvirt||yes||libvirt||no||
+||Password Agents||Socket+Files||yes||yes||-||yes||-||no||
+||udev multi-seat properties||udev Property||yes||yes||X11, gdm||no||-||no||
+||udev session switch ACL properties||udev Property||yes||no||
+||/etc/machine-id||File format||yes||yes||D-Bus||yes||-||no||
+||CLI of systemctl,...||CLI||yes||yes||numerous||no||-||no||
