@@ -28,14 +28,12 @@ already. The /usr-move removes this difference in its entirety, and
 provides full compatibility with the locations of tools of any Unix via
 the symlink from /bin to /usr/bin.
 
-Example:
+==== Example ====
 
 /usr/bin/foo may be called by other tools either via /usr/bin/foo
 or /bin/foo, both paths become fully equivalent through the /usr move.
 The operating system ends up executing exactly the same file, simply
 because the symlink /bin just redirects the invocation to /usr/bin.
-
-########
 
 The historical justification for a split off /bin, /sbin and /lib no
 longer applies today. They were split off to have selected tools on a
@@ -54,8 +52,6 @@ the /usr move.
 
 http://docs.oracle.com/cd/E23824_01/html/E24456/userenv-1.html
 
-########
-
 Not implementing the /usr move in your distribution will isolate it
 from upstream development. It will make porting of
 packages needlessly difficult, because packagers need to split up
@@ -66,8 +62,6 @@ the /usr move and are already in the process to implement the /usr move.
 This means that upstream projects will adapt
 quickly to the change, those making portability your distribution harder.
 
-########
-
 The unified System directory /usr, containing almost the entire
 installed vendor-supplied operating system resources, offers us a number
 of new features regarding OS snapshotting and options for enterprise
@@ -75,7 +69,7 @@ environments for network sharing or running multiple guests on one host.
 Most of this is much harder to accomplish, or even impossible, with the
 current arbitrary split of tools across multiple directories.
 
-== Example: /usr network share ==
+==== Example: /usr network share ====
 
 With the merged /usr directory we can offer a read-only export of the
 vendor supplied OS to the network, which will contain almost the entire
@@ -91,7 +85,7 @@ host-specific rootfs hence is much larger, can not be shared among
 client hosts and needs to be updated individually and regularly. This
 option does not provide any significant benefit.
 
-== Example: multiple guests operating systems on the same host ==
+==== Example: multiple guests operating systems on the same host ====
 
 With the merged /usr directory, we can offer to share /usr read-only
 with various guests, which will shrink down the guest file system to a
@@ -107,7 +101,7 @@ Regarding UNIX compatibility: the unified /usr filesystem, with full compatibili
 
 By sticking to the status quo you provide less compatibility with UNIX and you can’t offer advanced options for future optimized OS resource sharing setups.
 
-== Myth and Fact ==
+== Myths and Facts ==
 
 Myth #1: Fedora is the first OS to implement the /usr move
 
