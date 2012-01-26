@@ -4,7 +4,7 @@ systems supports both initrd and initrd-less boots. If an initrd is used it is a
 
  * The initrd should mount /run as a tmpfs and pass it pre-mounted when executing systemd. The mount options should be mode=755,nodev
  
- * In the $RD_TIMESTAMP environment variable, the initrd shall pass the monotonic and realtime timestamp when the initrd initialized. This is then used by systemd to estimate the time that is spent in the kernel initialization, the initrd initialization and the main system initialization at boot. The monotonic am drealtime timestamps shall be formatted as ASCII values of usecs, separated by a space character.
+ * In the $RD_TIMESTAMP environment variable the initrd shall pass the monotonic and realtime timestamp when execution of the initrd began. This is then used by systemd to estimate the time that is spent in the kernel initialization, the initrd initialization and the main system initialization at boot. The monotonic am drealtime timestamps shall be formatted as ASCII values of usecs, separated by a space character.
 
  * If the file /run/initramfs/root-fsck exists systemd will skip the root file system check. It is recommended that the initrd completes the root fsck before mounting the root file system, using this flag file to inform systemd not to repeat this step.
 
