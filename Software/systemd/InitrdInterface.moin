@@ -1,0 +1,15 @@
+= The initrd Interface of systemd =
+
+systems supports both initrd and initrd-less boots. If an initrd is used it is a good idea to pass a few bits of runtime information from the initrd to systemd in order to avoid duplicate work and to provide performance data to the administrator. In this page we attempt to roughly describe the interfaces that exist between the initrd and systemd. These interfaces are currently used by dracut and the ArchLinux initrds.
+
+ * The initrd should mount /run as a tmpfs and pass it pre-mounted when executed systemd. The mount options should be mode=755,nodev
+ 
+ * In the $RD_TIMESTAMP environment variable, the initrd shall pass the monotonic and realtime timestamp when the initrd initialized. This is then used by systemd to estimate the time that is spent in the kernel initialization, the initrd initialization and the main system initialization at boot. The monotonic am drealtime timestamps shall be formatted as ASCII values of usecs, separated by a space character.
+
+ * If the file /run/initramfs/root-fsck exists systemd will skip the root file system check. It is recommended that the initrd completes the root fsck before mounting the root file system, using this flag file to inform systemd not to repeat this step.
+
+ * If the executable /run/initramfs/shutdown exists systemd will jump back into the initrd on shutdown. /run/initramfs should be a usable initrd environment and "shutdown" should be able to detach all complex storage that for example was needed to mount the root file system. It's the job of the initrd to set up this directory and binary in the right way so that this works correctly.
+
+ * Storage daemons run from the initrd should follow the [[http://www.freedesktop.org/wiki/Software/systemd/RootStorageDaemons|the guide on systemd and Storage Daemons for the Root File System]] to survive properly from the boot initrd all the way to the point where systemd jumps back into the initrd for shutdown.
+
+Oh, and one last question before closing: instead of implementing these features in your own distro's initrd, may I suggest just using Dracut instead? It's all aleady implemented there!
