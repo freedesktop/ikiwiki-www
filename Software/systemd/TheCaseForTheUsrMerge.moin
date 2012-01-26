@@ -15,13 +15,13 @@ Fedora (and other distributions) have begun work on getting rid of the separatio
 /lib64 → /usr/lib64
 }}}
 
-You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective counterparts in /usr makes sense, and why distributions are pushing for it? You are wondering whether your own distribution should adopt the same change? Here are a few answers to these questions, from a compatibility point of view:
+You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective counterparts in /usr makes sense, and why distributions are pushing for it? You are wondering whether your own distribution should adopt the same change? Here are a few answers to these questions, with an emphasis on a compatibility point of view:
 
 === Compatibility: The Gist of It ===
 
- * Improved compatibility with other Unixes/Linuxes in behaviour: After the /usr merge all binaries become available in both /bin and /usr/bin, resp. both /sbin and /usr/sbin (simply because /bin becomes a symlink to /usr/bin, resp. /sbin to /usr/sbin). That means scripts/programs written for other Unixes or other Linuxes and ported to your distribution will no longer need fixing for the file system paths of the binaries called, which is otherwise a major source of frustration. /usr/bin and /bin (resp. /usr/sbin and /sbin) become entirely equivalent.
+ * Improved compatibility with other Unixes/Linuxes in ''behaviour'': After the /usr merge all binaries become available in both /bin and /usr/bin, resp. both /sbin and /usr/sbin (simply because /bin becomes a symlink to /usr/bin, resp. /sbin to /usr/sbin). That means scripts/programs written for other Unixes or other Linuxes and ported to your distribution will no longer need fixing for the file system paths of the binaries called, which is otherwise a major source of frustration. /usr/bin and /bin (resp. /usr/sbin and /sbin) become entirely equivalent.
 
- * Improved compatibility with other Unixes (in particular Solaris) in appearence: The primary Unix competitor of Linux is Oracle Solaris. Solaris has already completed the same /usr merge in Solaris 11. By making the same change in Linux we minimize the difference towards the primary Unix competitor, thus easing portability from Solaris.
+ * Improved compatibility with other Unixes (in particular Solaris) in ''appearence'': The primary Unix competitor of Linux is Oracle Solaris. Solaris has already completed the same /usr merge in Solaris 11. By making the same change in Linux we minimize the difference towards the primary Unix competitor, thus easing portability from Solaris.
 
  * Improved compatibility with GNU build systems: The biggest part of Linux software is built with GNU autoconf/automake (i.e. GNU autotools), which are unaware of the Linux-specific /usr split. Maintaining the /usr split requires non-trivial project-specific handling in the upstream build system, and in your distribution's packages. With the /usr merge, this work becomes unnecessary and porting packages to Linux becomes simpler.
 
@@ -30,7 +30,7 @@ You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective co
 === Compatibility: The Longer Version ===
 
 A unified filesystem layout (as it results from the /usr merge) is more compatible with UNIX than Linux’ traditional split of /bin vs. /usr/bin.
-Unixes differ in where individual tools are installed, the location is in many cases not defined at all and differs in variuos Linux distros already. The /usr merge removes this difference in its entirety, and provides full compatibility with the locations of tools of any Unix via the symlink from /bin to /usr/bin.
+Unixes differ in where individual tools are installed, te location is in many cases not defined at all and differs in variuos Linux distros already. The /usr merge removes this difference in its entirety, and provides full compatibility with the locations of tools of any Unix via the symlink from /bin to /usr/bin.
 
 ==== Example ====
 
