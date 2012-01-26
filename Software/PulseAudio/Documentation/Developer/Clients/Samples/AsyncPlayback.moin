@@ -2,6 +2,11 @@ This code is not made by any pulseaudio developer. It may not be best practice, 
 
 This simple application plays a constant note and uses a low latency setup (20 ms) that should be suitable for games. It also increases the latency when underruns are detected, this makes it possible to get good sounding playback over networks as well.
 
+Save code as e.g. pa-beep.c and build using: 
+{{{
+gcc `pkg-config --cflags --libs libpulse` pa-beep.c -o pa-beep
+}}}
+
 {{{
 #include <stdio.h>
 #include <string.h>
@@ -128,9 +133,9 @@ int main(int argc, char *argv[]) {
                                  |PA_STREAM_AUTO_TIMING_UPDATE, NULL, NULL);
   if (r < 0) {
     // Old pulse audio servers don't like the ADJUST_LATENCY flag, so retry without that
-    r = dyn_pa_stream_connect_playback(playstream, NULL, &bufattr,
-                                       PA_STREAM_INTERPOLATE_TIMING|
-                                       PA_STREAM_AUTO_TIMING_UPDATE, NULL, NULL);
+    r = pa_stream_connect_playback(playstream, NULL, &bufattr,
+                                   PA_STREAM_INTERPOLATE_TIMING|
+                                   PA_STREAM_AUTO_TIMING_UPDATE, NULL, NULL);
   }
   if (r < 0) {
     printf("pa_stream_connect_playback failed\n");
@@ -154,4 +159,3 @@ exit:
 }
 
 }}}
-
