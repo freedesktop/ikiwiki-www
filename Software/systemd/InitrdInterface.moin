@@ -2,7 +2,7 @@
 
 systems supports both initrd and initrd-less boots. If an initrd is used it is a good idea to pass a few bits of runtime information from the initrd to systemd in order to avoid duplicate work and to provide performance data to the administrator. In this page we attempt to roughly describe the interfaces that exist between the initrd and systemd. These interfaces are currently used by dracut and the ArchLinux initrds.
 
- * The initrd should mount /run as a tmpfs and pass it pre-mounted when executing systemd. The mount options should be mode=755,nodev
+ * The initrd should mount /run as a tmpfs and pass it pre-mounted when jumping into the main system when executing systemd. The mount options should be mode=755,nodev
  
  * In the $RD_TIMESTAMP environment variable the initrd shall pass the monotonic and realtime timestamp when execution of the initrd began. This is then used by systemd to estimate the time that is spent in the kernel initialization, the initrd initialization and the main system initialization at boot. The monotonic and realtime timestamps shall be formatted as ASCII values of usecs, separated by a space character. The /lib/systemd/systemd-timestamp will generate a properly formatted timestamp for you, consider adding it to your initrd.
 
