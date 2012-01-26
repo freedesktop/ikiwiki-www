@@ -1,6 +1,6 @@
 = The Case for the /usr Merge =
 
-'''Why the /usr-move Makes Sense for Compatibility Reasons'''
+'''Why the /usr Merge Makes Sense for Compatibility Reasons'''
 
 ''This is based on the [[https://fedoraproject.org/wiki/Features/UsrMove|Fedora feature]] for the same topic, put together by Harald Hoyer and Kay Sievers.''
 
@@ -19,28 +19,28 @@ You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective co
 
 === The Gist of It ===
 
- * Improved compatibility with other Unixes/Linuxes in behaviour: After the /usr-move all binaries become available in both /bin and /usr/bin, resp. both /sbin and /usr/sbin (simply because /bin becomes a symlink to /usr/bin, resp. /sbin to /usr/sbin). That means scripts/programs written for other Unixes or other Linuxes and ported to your distribution will no longer need fixing for the file system paths of the binaries called, which is otherwise a major source of frustration. /usr/bin and /bin (resp. /usr/sbin and /sbin) become entirely equivalent.
+ * Improved compatibility with other Unixes/Linuxes in behaviour: After the /usr merge all binaries become available in both /bin and /usr/bin, resp. both /sbin and /usr/sbin (simply because /bin becomes a symlink to /usr/bin, resp. /sbin to /usr/sbin). That means scripts/programs written for other Unixes or other Linuxes and ported to your distribution will no longer need fixing for the file system paths of the binaries called, which is otherwise a major source of frustration. /usr/bin and /bin (resp. /usr/sbin and /sbin) become entirely equivalent.
 
- * Improved compatibility with other Unixes (in particular Solaris) in appearence: The primary Unix competitor of Linux is Oracle Solaris. Solaris has already completed the same /usr move in Solaris 11. By making the same change in Linux we minimize the difference towards the primary Unix competitor, thus easing portability from Solaris.
+ * Improved compatibility with other Unixes (in particular Solaris) in appearence: The primary Unix competitor of Linux is Oracle Solaris. Solaris has already completed the same /usr merge in Solaris 11. By making the same change in Linux we minimize the difference towards the primary Unix competitor, thus easing portability from Solaris.
 
  * Improved compatibility with GNU build systems: The biggest part of Linux software is built with GNU autoconf/automake (i.e. GNU autotools), which are unaware of the Linux-specific /usr split. Maintaining the /usr split requires non-trivial project-specific handling in the upstream build system, and in the your distribution's packages. With the /usr merge, this work becomes unnecessary and porting packages to Linux becomes simpler.
 
- * Improved compatibility with current upstream development: In order to minimize the delta from your Linux distribution to upstream development the /usr move is key.
+ * Improved compatibility with current upstream development: In order to minimize the delta from your Linux distribution to upstream development the /usr merge is key.
 
 === The Longer Version ===
 
-A unified filesystem layout (as it results from the /usr move) is more
+A unified filesystem layout (as it results from the /usr merge) is more
 compatible with UNIX than Linux’ traditional split of /bin vs. /usr/bin.
 Unixes differ in where individual tools are installed, the location is
 in many cases not defined at all and differs in variuos Linux distros
-already. The /usr-move removes this difference in its entirety, and
+already. The /usr merge removes this difference in its entirety, and
 provides full compatibility with the locations of tools of any Unix via
 the symlink from /bin to /usr/bin.
 
 ==== Example ====
 
 /usr/bin/foo may be called by other tools either via /usr/bin/foo
-or /bin/foo, both paths become fully equivalent through the /usr move.
+or /bin/foo, both paths become fully equivalent through the /usr merge.
 The operating system ends up executing exactly the same file, simply
 because the symlink /bin just redirects the invocation to /usr/bin.
 
@@ -56,20 +56,20 @@ already lost the ability to run without a pre-mounted /usr. There is no
 valid reason anymore to have the operating system spread over multiple
 hierarchies, it serves no longer any purpose.
 
-Solaris implemented the core part of the /usr move 15 years ago already,
+Solaris implemented the core part of the /usr merge 15 years ago already,
 and completed with the introduction of Solaris 11. Solaris only has /bin
 and /sbin symlinks in the rootfs, the same way as we will have after
-the /usr move.
+the /usr merge.
 
 http://docs.oracle.com/cd/E23824_01/html/E24456/userenv-1.html
 
-Not implementing the /usr move in your distribution will isolate it
+Not implementing the /usr merge in your distribution will isolate it
 from upstream development. It will make porting of
 packages needlessly difficult, because packagers need to split up
 installed files into multiple directories and hard code different
 locations for tools; both will cause unnecessary incompatibilities.
 Several Linux distributions are agreeing with the benefits of
-the /usr move and are already in the process to implement the /usr move.
+the /usr merge and are already in the process to implement the /usr merge.
 This means that upstream projects will adapt
 quickly to the change, those making portability your distribution harder.
 
@@ -106,7 +106,7 @@ shared operating system is nearly optimal.
 ----
 
 In the long run the maintenance burden resulting of the split-up tools in your distribution, and hard-coded differing installation locations to distribute
-binaries and other packaged files into multiple hierarchies will very likely cause more trouble than the /usr move itself will cause. 
+binaries and other packaged files into multiple hierarchies will very likely cause more trouble than the /usr merge itself will cause. 
 
 Regarding UNIX compatibility: the unified /usr filesystem, with full compatibility with historic paths via /bin and /sbin symlinks is far more compatible to other commercial UNIXes (most specifically Solaris) than the current arbitrary split of tools between the rootfs vs. /usr.
 
@@ -114,32 +114,31 @@ By sticking to the status quo you provide less compatibility with UNIX and you c
 
 == Myths and Facts ==
 
-'''Myth #1''': Fedora is the first OS to implement the /usr move
+'''Myth #1''': Fedora is the first OS to implement the /usr merge
+'''Fact''': Oracle Solaris has implemented the /usr merge in parts 15 years ago, and completed it in Solaris 11. Fedora is following suit here, it is not the pioneer.
 
-'''Fact''': Oracle Solaris has implemented the /usr move in parts 15 years ago, and completed it in Solaris 11. Fedora is following suit here, it is not the pioneer.
-
-'''Myth #2''': Fedora is the only Linux distribution to implement the /usr move
+'''Myth #2''': Fedora is the only Linux distribution to implement the /usr merge
 
 '''Fact''': Multiple other Linux distributions have been working in a similar direction.
 
-'''Myth #3''': The /usr move decreases compatibility with other Unixes/Linuxes
+'''Myth #3''': The /usr merge decreases compatibility with other Unixes/Linuxes
 
 '''Fact''': By providing all binary tools in /usr/bin as well as in /bin (resp. /usr/sbin + /sbin) compatibility with hard coded binary paths in scripts is increased. When a distro A installs a tool “foo” in /usr/bin, and distro B installs it in /bin, then we’ll provide it in both, thus creating compatibility with both A and B.
 
-'''Myth #4''': The /usr move’s only purpose is to look pretty, and has no other benefits
+'''Myth #4''': The /usr merge’s only purpose is to look pretty, and has no other benefits
 
-'''Fact''': The /usr move makes sharing the vendor-supplied OS resources between a host and networked clients as well as a host and local light-weight containers easier and atomic. Snapshotting the OS becomes a viable option. The /usr move also allows making the entire vendor-supplied OS resources read-only for increased security and robustness.
+'''Fact''': The /usr merge makes sharing the vendor-supplied OS resources between a host and networked clients as well as a host and local light-weight containers easier and atomic. Snapshotting the OS becomes a viable option. The /usr merge also allows making the entire vendor-supplied OS resources read-only for increased security and robustness.
 
-'''Myth #5''': Adopting the /usr move in your distribution means additional work for your distribution's package maintainers
+'''Myth #5''': Adopting the /usr merge in your distribution means additional work for your distribution's package maintainers
 
-'''Fact''': When the move is implemented in other distributions and upstream, not adopting the /usr move in your distribution means more work, adopting it is cheap.
+'''Fact''': When the merge is implemented in other distributions and upstream, not adopting the /usr merge in your distribution means more work, adopting it is cheap.
 
 '''Myth #6''': A split /usr is Unix “standard”, and a merged /usr would be Linux-specific
 
 '''Fact''': On SysV Unix /bin traditionally has been a symlink to /usr/bin. A non-symlinked version of that directory is specific to non-SysV Unix and
 Linux.
 
-'''Myth #7''': After the /usr move one can no longer mount /usr read-only, as it is common usage in many areas.
+'''Myth #7''': After the /usr merge one can no longer mount /usr read-only, as it is common usage in many areas.
 
 '''Fact''': Au contraire! One of the reasons we are actually doing this is to make a read-only /usr more thorough: the entire vendor-supplied OS resources can be made read-only, i.e. all of what traditionally was stored in /bin, /sbin, /lib on top of what is already in /usr.
 
