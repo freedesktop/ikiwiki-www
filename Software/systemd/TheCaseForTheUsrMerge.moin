@@ -125,7 +125,7 @@ By sticking to the status quo you provide less compatibility with UNIX and you c
 
 '''Fact''': When the move is implemented in other distributions and upstream, not adopting the /usr move in your distribution means more work, adopting it is cheap.
 
-'''Myth #6''': A split off /usr is Unix “standard”, and a merged /usr would be Linux-specific
+'''Myth #6''': A split /usr is Unix “standard”, and a merged /usr would be Linux-specific
 
 '''Fact''': On SysV Unix /bin traditionally has been a symlink to /usr/bin. A non-symlinked version of that directory is specific to non-SysV Unix and
 Linux.
@@ -136,8 +136,12 @@ Linux.
 
 '''Myth #8''': The /usr merge will break my old installation which has /usr on a separate partition.
 
-'''Fact''': This is perfectly well supported, and one of the reasons we are actually doing this is to make placing /usr of a separate partition more thorough. What changes is simply that you need to boot with an initrd that mounts /usr before jumping into the root file system. Most distributions rely on initrds anyway, so effectively nothing changes.
+'''Fact''': This is perfectly well supported, and one of the reasons we are actually doing this is to make placing /usr of a separate partition more thorough. What changes is simply that you need to boot with an initrd that mounts /usr before jumping into the root file system. Most distributions rely on initrds anyway, so effectively little changes.
 
 '''Myth #9''': The /usr separation is useful to have a minimal rescue system on the root file system, and the rest of the OS on /usr.
 
 '''Fact''': On Fedora the root directory contains ~450MB already. This hasn't been minimal since a long time, and due to today's complex storage and networking technologies it's unrealistic to every reduce this again.
+
+'''Myth #10''': The status quo of a split /usr with mounting it without initrd is perfectly well supported right now and works. 
+
+'''Fact'''': A split /usr without involvement of an initrd mounting it before jumping into the root file system [[http://freedesktop.org/wiki/Software/systemd/separate-usr-is-broken|hasn't worked correctly since a long time]].
