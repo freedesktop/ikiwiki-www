@@ -17,7 +17,7 @@ Fedora (and other distributions) have begun work on getting rid of the separatio
 
 You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective counterparts in /usr makes sense, and why distributions are pushing for it? You are wondering whether your own distribution should adopt the same change? Here are a few answers to these questions, from a compatibility point of view:
 
-=== The Gist of It ===
+=== Compatibility: The Gist of It ===
 
  * Improved compatibility with other Unixes/Linuxes in behaviour: After the /usr merge all binaries become available in both /bin and /usr/bin, resp. both /sbin and /usr/sbin (simply because /bin becomes a symlink to /usr/bin, resp. /sbin to /usr/sbin). That means scripts/programs written for other Unixes or other Linuxes and ported to your distribution will no longer need fixing for the file system paths of the binaries called, which is otherwise a major source of frustration. /usr/bin and /bin (resp. /usr/sbin and /sbin) become entirely equivalent.
 
@@ -27,24 +27,14 @@ You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective co
 
  * Improved compatibility with current upstream development: In order to minimize the delta from your Linux distribution to upstream development the /usr merge is key.
 
-=== The Longer Version ===
+=== Compatibility: The Longer Version ===
 
-A unified filesystem layout (as it results from the /usr merge) is more
-compatible with UNIX than Linux’ traditional split of /bin vs. /usr/bin.
-Unixes differ in where individual tools are installed, the location is
-in many cases not defined at all and differs in variuos Linux distros
-already. The /usr merge removes this difference in its entirety, and
-provides full compatibility with the locations of tools of any Unix via
-the symlink from /bin to /usr/bin.
+A unified filesystem layout (as it results from the /usr merge) is more compatible with UNIX than Linux’ traditional split of /bin vs. /usr/bin.
+Unixes differ in where individual tools are installed, the location is in many cases not defined at all and differs in variuos Linux distros already. The /usr merge removes this difference in its entirety, and provides full compatibility with the locations of tools of any Unix via the symlink from /bin to /usr/bin.
 
 ==== Example ====
 
-/usr/bin/foo may be called by other tools either via /usr/bin/foo
-or /bin/foo, both paths become fully equivalent through the /usr merge.
-The operating system ends up executing exactly the same file, simply
-because the symlink /bin just redirects the invocation to /usr/bin.
-
-----
+ /usr/bin/foo may be called by other tools either via /usr/bin/foo or /bin/foo, both paths become fully equivalent through the /usr merge. The operating system ends up executing exactly the same file, simply because the symlink /bin just redirects the invocation to /usr/bin.
 
 The historical justification for a split off /bin, /sbin and /lib no
 longer applies today. They were split off to have selected tools on a
@@ -73,37 +63,21 @@ the /usr merge and are already in the process to implement the /usr merge.
 This means that upstream projects will adapt
 quickly to the change, those making portability your distribution harder.
 
-The unified System directory /usr, containing almost the entire
-installed vendor-supplied operating system resources, offers us a number
-of new features regarding OS snapshotting and options for enterprise
-environments for network sharing or running multiple guests on one host.
-Most of this is much harder to accomplish, or even impossible, with the
-current arbitrary split of tools across multiple directories.
+=== Why? ==
+
+The unified system directory /usr, containing almost the entire installed vendor-supplied operating system resources, offers us a number of new features regarding OS snapshotting and options for enterprise environments for network sharing or running multiple guests on one host. Most of this is much harder to accomplish, or even impossible, with the current arbitrary split of tools across multiple directories.
+
+With all vendor-supplied OS resources in a single directory, snapshots of it become atomic, can be shared atomically and can be made read-only as a single unit.
 
 ==== Example: /usr network share ====
 
-With the merged /usr directory we can offer a read-only export of the
-vendor supplied OS to the network, which will contain almost the entire
-operating system resources. The client hosts will then only need a
-minimal host-specific root filesystem with symlinks pointing into the
-shared /usr filesystem. From a maintenance perspective this is the first
-time where sharing the operating system over the network starts to make
-sense.
+ With the merged /usr directory we can offer a read-only export of the vendor supplied OS to the network, which will contain almost the entire operating system resources. The client hosts will then only need a minimal host-specific root filesystem with symlinks pointing into the shared /usr filesystem. From a maintenance perspective this is the first time where sharing the operating system over the network starts to make sense.
 
-Without the merged /usr dir (like in traditional Linux) we can only share parts of
-the OS at a time, but not the important components in the rootfs. The
-host-specific rootfs hence is much larger, can not be shared among
-client hosts and needs to be updated individually and regularly. This
-option does not provide any significant benefit.
+ Without the merged /usr dir (like in traditional Linux) we can only share parts of the OS at a time, but not the important components in the rootfs. The host-specific rootfs hence is much larger, can not be shared among client hosts and needs to be updated individually and regularly. This option does not provide any significant benefit.
 
 ==== Example: multiple guests operating systems on the same host ====
 
-With the merged /usr directory, we can offer to share /usr read-only
-with various guests, which will shrink down the guest file system to a
-couple of megabytes. The ration of the per-guest host-only part vs. the
-shared operating system is nearly optimal.
-
-----
+ With the merged /usr directory, we can offer to share /usr read-only with various guests, which will shrink down the guest file system to a couple of megabytes. The ration of the per-guest host-only part vs. the shared operating system is nearly optimal.
 
 In the long run the maintenance burden resulting of the split-up tools in your distribution, and hard-coded differing installation locations to distribute
 binaries and other packaged files into multiple hierarchies will very likely cause more trouble than the /usr merge itself will cause. 
