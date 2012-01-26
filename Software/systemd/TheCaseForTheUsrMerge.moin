@@ -118,29 +118,25 @@ move
 
 '''Myth #3''': The /usr move decreases compatibility with other Unixes/Linuxes
 
-'''Fact''': by providing all binary tools in /usr/bin as well as in /bin
-(resp. /usr/sbin + /sbin) compatibility with hard coded binary paths in
-scripts is increased. When a distro A installs a tool “foo” in /usr/bin,
-and distro B installs it in /bin, then we’ll provide it in both, thus
-creating compatibility with both A and B.
+'''Fact''': by providing all binary tools in /usr/bin as well as in /bin (resp. /usr/sbin + /sbin) compatibility with hard coded binary paths in scripts is increased. When a distro A installs a tool “foo” in /usr/bin, and distro B installs it in /bin, then we’ll provide it in both, thus creating compatibility with both A and B.
 
-'''Myth #4''': The /usr move’s only purpose is to look pretty, and has no
-other benefits
+'''Myth #4''': The /usr move’s only purpose is to look pretty, and has no other benefits
 
-'''Fact''': The /usr move makes sharing the vendor-supplied OS resources
-between a host and networked clients as well as a host and local
-light-weight containers easier and atomic. Snapshotting the OS becomes a
-viable option.
+'''Fact''': The /usr move makes sharing the vendor-supplied OS resources between a host and networked clients as well as a host and local light-weight containers easier and atomic. Snapshotting the OS becomes a viable option.
 
-'''Myth #5''': Adopting the /usr move in your distribution means additional work for your distribution's
-package maintainers
+'''Myth #5''': Adopting the /usr move in your distribution means additional work for your distribution's package maintainers
 
-'''Fact''': When the move is implemented in other distributions and upstream, not adopting
-the /usr move in your distribution means more work, adopting it is cheap.
+'''Fact''': When the move is implemented in other distributions and upstream, not adopting the /usr move in your distribution means more work, adopting it is cheap.
 
-'''Myth #6''': A split off /usr is Unix “standard”, and a merged /usr would be
-Linux-specific
+'''Myth #6''': A split off /usr is Unix “standard”, and a merged /usr would be Linux-specific
 
-'''Fact''': On SysV Unix /bin traditionally has been a symlink to /usr/bin. A
-non-symlinked version of that directory is specific to non-SysV Unix and
+'''Fact''': On SysV Unix /bin traditionally has been a symlink to /usr/bin. A non-symlinked version of that directory is specific to non-SysV Unix and
 Linux.
+
+'''Myth #7''': After the /usr move one can no longer mount /usr read-only, as it is common usage in many areas.
+
+'''Fact''': One of the reasons we are actually doing this is to make a read-only /usr more thorough: the entire vendor-supplied OS resources can be made read-only, i.e. all of what traditionally was stored in /bin, /sbin, /lib, too.
+
+'''Myth #8''': The /usr merge will break my old installation which has /usr on a separate partition.
+
+'''Fact''': This is perfectly well supported, and one of the reasons we are actually doing this is to make placing /usr of a separate partition more thorough. What changes is simply that you need to boot with an initrd that mounts /usr before jumping into the root file system.
