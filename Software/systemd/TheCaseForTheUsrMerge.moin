@@ -36,32 +36,15 @@ Unixes differ in where individual tools are installed, te location is in many ca
 
  /usr/bin/foo may be called by other tools either via /usr/bin/foo or /bin/foo, both paths become fully equivalent through the /usr merge. The operating system ends up executing exactly the same file, simply because the symlink /bin just redirects the invocation to /usr/bin.
 
-The historical justification for a split off /bin, /sbin and /lib no
-longer applies today. They were split off to have selected tools on a
-faster hard disk (which was small, because it was more expensive) and to
-contain all the tools necessary to mount the slower /usr partition.
-Today, a separate /usr partition already must be mounted by the
-initramfs during early boot, thus making the justification for a split-off moot. In addition a lot of tools in /bin and /sbin in the status quo
-already lost the ability to run without a pre-mounted /usr. There is no
-valid reason anymore to have the operating system spread over multiple
-hierarchies, it serves no longer any purpose.
+The historical justification for a /bin, /sbin and /lib separate from /usr no longer applies today. They were split off to have selected tools on a
+faster hard disk (which was small, because it was more expensive) and to contain all the tools necessary to mount the slower /usr partition.
+Today, a separate /usr partition already must be mounted by the initramfs during early boot, thus making the justification for a split-off moot. In addition a lot of tools in /bin and /sbin in the status quo already lost the ability to run without a pre-mounted /usr. There is no valid reason anymore to have the operating system spread over multiple hierarchies, it lost its purpose.
 
-Solaris implemented the core part of the /usr merge 15 years ago already,
-and completed with the introduction of Solaris 11. Solaris only has /bin
-and /sbin symlinks in the rootfs, the same way as we will have after
-the /usr merge.
+Solaris implemented the core part of the /usr merge 15 years ago already, and completed it with the introduction of Solaris 11. Solaris has /bin and /sbin only as symlinks in the root file system, the same way as you will have after the /usr merge.
 
 http://docs.oracle.com/cd/E23824_01/html/E24456/userenv-1.html
 
-Not implementing the /usr merge in your distribution will isolate it
-from upstream development. It will make porting of
-packages needlessly difficult, because packagers need to split up
-installed files into multiple directories and hard code different
-locations for tools; both will cause unnecessary incompatibilities.
-Several Linux distributions are agreeing with the benefits of
-the /usr merge and are already in the process to implement the /usr merge.
-This means that upstream projects will adapt
-quickly to the change, those making portability your distribution harder.
+Not implementing the /usr merge in your distribution will isolate it from upstream development. It will make porting of packages needlessly difficult, because packagers need to split up installed files into multiple directories and hard code different locations for tools; both will cause unnecessary incompatibilities. Several Linux distributions are agreeing with the benefits of the /usr merge and are already in the process to implement the /usr merge. This means that upstream projects will adapt quickly to the change, those making portability to your distribution harder.
 
 === Why? ===
 
@@ -73,13 +56,13 @@ The merged directory /usr, containing almost the entire vendor-supplied operatin
 
  With the merged /usr directory we can offer a read-only export of the vendor supplied OS to the network, which will contain almost the entire operating system resources. The client hosts will then only need a minimal host-specific root filesystem with symlinks pointing into the shared /usr filesystem. From a maintenance perspective this is the first time where sharing the operating system over the network starts to make sense.
 
- Without the merged /usr dir (like in traditional Linux) we can only share parts of the OS at a time, but not the important components in the root file system. The host-specific rootfs hence is much larger, can not be shared among client hosts and needs to be updated individually and regularly. This option does not provide any significant benefit.
+ Without the merged /usr directory (like in traditional Linux) we can only share parts of the OS at a time, but not the core components of it that are located in the root file system. The host-specific root file systemd hence traditionally needs to be much larger, can not be shared among client hosts and needs to be updated individually and often. Vendor-supplied OS resources traditionally ended up "leaking" into the host-specific root file system.
 
 ==== Example: Multiple Guest Operating Systems on the Same Host ====
 
- With the merged /usr directory, we can offer to share /usr read-only with various guests, which will shrink down the guest file system to a couple of megabytes. The ration of the per-guest host-only part vs. the shared operating system is nearly optimal.
+ With the merged /usr directory, we can offer to share /usr read-only with multiple guest operating systems, which will shrink down the guest file system to a couple of MB. The ratio of the per-guest host-only part vs. the shared operating system becomes nearly optimal.
 
-In the long run the maintenance burden resulting of the split-up tools in your distribution, and hard-coded differing installation locations to distribute
+In the long run the maintenance burden resulting of the split-up tools in your distribution, and hard-coded deviating installation locations to distribute
 binaries and other packaged files into multiple hierarchies will very likely cause more trouble than the /usr merge itself will cause. 
 
 Regarding UNIX compatibility: the unified /usr filesystem, with full compatibility with historic paths via /bin and /sbin symlinks is far more compatible to other commercial UNIXes (most specifically Solaris) than the current arbitrary split of tools between the rootfs vs. /usr.
