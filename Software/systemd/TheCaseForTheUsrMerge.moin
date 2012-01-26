@@ -132,8 +132,12 @@ Linux.
 
 '''Myth #7''': After the /usr move one can no longer mount /usr read-only, as it is common usage in many areas.
 
-'''Fact''': One of the reasons we are actually doing this is to make a read-only /usr more thorough: the entire vendor-supplied OS resources can be made read-only, i.e. all of what traditionally was stored in /bin, /sbin, /lib, too.
+'''Fact''': Au contraire! One of the reasons we are actually doing this is to make a read-only /usr more thorough: the entire vendor-supplied OS resources can be made read-only, i.e. all of what traditionally was stored in /bin, /sbin, /lib on top of what is already in /usr.
 
 '''Myth #8''': The /usr merge will break my old installation which has /usr on a separate partition.
 
-'''Fact''': This is perfectly well supported, and one of the reasons we are actually doing this is to make placing /usr of a separate partition more thorough. What changes is simply that you need to boot with an initrd that mounts /usr before jumping into the root file system.
+'''Fact''': This is perfectly well supported, and one of the reasons we are actually doing this is to make placing /usr of a separate partition more thorough. What changes is simply that you need to boot with an initrd that mounts /usr before jumping into the root file system. Most distributions rely on initrds anyway, so effectively nothing changes.
+
+'''Myth #9''': The /usr separation is useful to have a minimal rescue system on the root file system, and the rest of the OS on /usr.
+
+'''Fact''': On Fedora the root directory contains ~450MB already. This hasn't been minimal since a long time, and due to today's complex storage and networking technologies it's unrealistic to every reduce this again.
