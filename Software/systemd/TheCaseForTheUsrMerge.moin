@@ -1,0 +1,170 @@
+= The Case for the /usr Merge =
+
+'''Or: Why the /usr-move Makes Sense for Compatibility Reasons'''
+
+''This is based on the [[https://fedoraproject.org/wiki/Features/UsrMove|Fedora feature]] for the same topic, put together by Harald Hoyer and Kay Sievers.''
+
+You are wondering why merging /bin, /sbin, /lib, /lib64 into their respective counterparts in /usr makes sense, and why distributions are pushing for it? You are wondering whether your own distribution should adopt the same change? Here are a few answers to these questions, from a compatibility point of view:
+
+The gist of it:
+
+* Improved compatibility with other Unixes/Linuxes in behaviour:
+After the /usr-move all binaries become available in both /bin
+and /usr/bin, resp. both /sbin and /usr/sbin (simply because /bin
+becomes a symlink to /usr/bin, resp. /sbin to /usr/sbin). That means
+scripts/programs written for other Unixes or other Linuxes and ported to
+your distribution will no longer need fixing for the file system paths of the
+binaries called, which is otherwise a major source of
+frustration. /usr/bin and /bin (resp. /usr/sbin and /sbin) become
+entirely equivalent.
+
+* Improved compatibility with other Unixes (in particular Solaris) in
+appearence:
+The primary Unix competitor of Linux is Oracle Solaris. Solaris has
+already completed the same /usr move in Solaris 11. By making the same
+change in Linux we minimize the difference towards the primary Unix
+competitor, thus easing portability from Solaris.
+
+* Improved compatibility with GNU build systems:
+The biggest part of Linux software is built with GNU autoconf/automake
+(i.e. GNU autotools), which are unaware of the Linux-specific /usr
+split. Maintaining the /usr split requires non-trivial project-specific
+handling in the upstream build system, and in the your distribution's packages. With
+the /usr merge, this work becomes unnecessary and porting packages to
+Linux becomes simpler.
+
+* Improved compatibility with current upstream development:
+In order to minimize the delta from your Linux distribution to upstream development the /usr move is key.
+
+--------------------------------
+
+And here’s the longer version:
+
+A unified filesystem layout (as it results from the /usr move) is more
+compatible with UNIX than Linux’ traditional split of /bin vs. /usr/bin.
+Unixes differ in where individual tools are installed, the location is
+in many cases not defined at all and differs in variuos Linux distros
+already. The /usr-move removes this difference in its entirety, and
+provides full compatibility with the locations of tools of any Unix via
+the symlink from /bin to /usr/bin.
+
+Example:
+
+/usr/bin/foo may be called by other tools either via /usr/bin/foo
+or /bin/foo, both paths become fully equivalent through the /usr move.
+The operating system ends up executing exactly the same file, simply
+because the symlink /bin just redirects the invocation to /usr/bin.
+
+########
+
+The historical justification for a split off /bin, /sbin and /lib no
+longer applies today. They were split off to have selected tools on a
+faster hard disk (which was small, because it was more expensive) and to
+contain all the tools necessary to mount the slower /usr partition.
+Today, a separate /usr partition already must be mounted by the
+initramfs during early boot, thus making the justification for a split-off moot. In addition a lot of tools in /bin and /sbin in the status quo
+already lost the ability to run without a pre-mounted /usr. There is no
+valid reason anymore to have the operating system spread over multiple
+hierarchies, it serves no longer any purpose.
+
+Solaris implemented the core part of the /usr move 15 years ago already,
+and completed with the introduction of Solaris 11. Solaris only has /bin
+and /sbin symlinks in the rootfs, the same way as we will have after
+the /usr move.
+
+http://docs.oracle.com/cd/E23824_01/html/E24456/userenv-1.html
+
+########
+
+Not implementing the /usr move in your distribution will isolate it
+from upstream development. It will make porting of
+packages needlessly difficult, because packagers need to split up
+installed files into multiple directories and hard code different
+locations for tools; both will cause unnecessary incompatibilities.
+Several Linux distributions are agreeing with the benefits of
+the /usr move and are already in the process to implement the /usr move.
+This means that upstream projects will adapt
+quickly to the change, those making portability your distribution harder.
+
+########
+
+The unified System directory /usr, containing almost the entire
+installed vendor-supplied operating system resources, offers us a number
+of new features regarding OS snapshotting and options for enterprise
+environments for network sharing or running multiple guests on one host.
+Most of this is much harder to accomplish, or even impossible, with the
+current arbitrary split of tools across multiple directories.
+
+== Example: /usr network share ==
+
+With the merged /usr directory we can offer a read-only export of the
+vendor supplied OS to the network, which will contain almost the entire
+operating system resources. The client hosts will then only need a
+minimal host-specific root filesystem with symlinks pointing into the
+shared /usr filesystem. From a maintenance perspective this is the first
+time where sharing the operating system over the network starts to make
+sense.
+
+Without the merged /usr dir (like in traditional Linux) we can only share parts of
+the OS at a time, but not the important components in the rootfs. The
+host-specific rootfs hence is much larger, can not be shared among
+client hosts and needs to be updated individually and regularly. This
+option does not provide any significant benefit.
+
+== Example: multiple guests operating systems on the same host ==
+
+With the merged /usr directory, we can offer to share /usr read-only
+with various guests, which will shrink down the guest file system to a
+couple of megabytes. The ration of the per-guest host-only part vs. the
+shared operating system is nearly optimal.
+
+----
+
+In the long run the maintenance burden resulting of the split-up tools in your distribution, and hard-coded differing installation locations to distribute
+binaries and other packaged files into multiple hierarchies will very likely cause more trouble than the /usr move itself will cause. 
+
+Regarding UNIX compatibility: the unified /usr filesystem, with full compatibility with historic paths via /bin and /sbin symlinks is far more compatible to other commercial UNIXes (most specifically Solaris) than the current arbitrary split of tools between the rootfs vs. /usr.
+
+By sticking to the status quo you provide less compatibility with UNIX and you can’t offer advanced options for future optimized OS resource sharing setups.
+
+== Myth and Fact ==
+
+Myth #1: Fedora is the first OS to implement the /usr move
+
+Fact: Oracle Solaris has implemented the /usr move in parts 15 years
+ago, and completed it in Solaris 11. Fedora is following suit here, it
+is not the pioneer.
+
+Myth #2: Fedora is the only Linux distribution to implement the /usr
+move
+
+Fact: Multiple other Linux distributionshave been working in a similar direction.
+
+Myth #3: The /usr move decreases compatibility with other Unixes/Linuxes
+
+Fact: by providing all binary tools in /usr/bin as well as in /bin
+(resp. /usr/sbin + /sbin) compatibility with hard coded binary paths in
+scripts is increased. When a distro A installs a tool “foo” in /usr/bin,
+and distro B installs it in /bin, then we’ll provide it in both, thus
+creating compatibility with both A and B.
+
+Myth #4: The /usr move’s only purpose is to look pretty, and has no
+other benefits
+
+Fact: The /usr move makes sharing the vendor-supplied OS resources
+between a host and networked clients as well as a host and local
+light-weight containers easier and atomic. Snapshotting the OS becomes a
+viable option.
+
+Myth #5: Adopting the /usr move in your distribution means additional work for your distribution's
+package maintainers
+
+Fact: When the move is implemented in other distributions and upstream, not adopting
+the /usr move in your distribution means more work, adopting it is cheap.
+
+Myth #6: A split off /usr is Unix “standard”, and a merged /usr would be
+Linux-specific
+
+Fact: On SysV Unix /bin traditionally has been a symlink to /usr/bin. A
+non-symlinked version of that directory is specific to non-SysV Unix and
+Linux.
