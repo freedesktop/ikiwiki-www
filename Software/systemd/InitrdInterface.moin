@@ -4,7 +4,7 @@ systemd supports both initrd and initrd-less boots. If an initrd is used it is a
 
  * The initrd should mount /run as a tmpfs and pass it pre-mounted when jumping into the main system when executing systemd. The mount options should be mode=755,nodev
 
- * It's highly recommended that the initrd also mounts /usr as appropriate and passes it pre-mounted to the main system, to avoid the problems described in [[http://freedesktop.org/wiki/Software/systemd/separate-usr-is-broken|Booting without /usr is Broken]].
+ * It's highly recommended that the initrd also mounts /usr (if split off) as appropriate and passes it pre-mounted to the main system, to avoid the problems described in [[http://freedesktop.org/wiki/Software/systemd/separate-usr-is-broken|Booting without /usr is Broken]].
  
  * In the $RD_TIMESTAMP environment variable the initrd shall pass the monotonic and realtime timestamp when execution of the initrd began. This is then used by systemd to estimate the time that is spent in the kernel initialization, the initrd initialization and the main system initialization at boot. The monotonic and realtime timestamps shall be formatted as ASCII values of usecs, separated by a space character. The /lib/systemd/systemd-timestamp tool will generate a properly formatted timestamp for you, consider adding it to your initrd.
 
