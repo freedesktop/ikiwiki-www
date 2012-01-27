@@ -42,9 +42,7 @@ The historical justification for a /bin, /sbin and /lib separate from /usr no lo
 faster hard disk (which was small, because it was more expensive) and to contain all the tools necessary to mount the slower /usr partition.
 Today, a separate /usr partition already must be mounted by the initramfs during early boot, thus making the justification for a split-off moot. In addition a lot of tools in /bin and /sbin in the status quo already lost the ability to run without a pre-mounted /usr. There is no valid reason anymore to have the operating system spread over multiple hierarchies, it lost its purpose.
 
-Solaris implemented the core part of the /usr merge 15 years ago already, and completed it with the introduction of Solaris 11. Solaris has /bin and /sbin only as symlinks in the root file system, the same way as you will have after the /usr merge.
-
-http://docs.oracle.com/cd/E23824_01/html/E24456/userenv-1.html
+Solaris implemented the core part of the /usr merge 15 years ago already, and completed it with the introduction of Solaris 11. Solaris has /bin and /sbin only as symlinks in the root file system, the same way as you will have after the /usr merge: [[http://docs.oracle.com/cd/E23824_01/html/E24456/userenv-1.html|Transitioning From Oracle Solaris 10 to Oracle Solaris 11 - User Environment Feature Changes]].
 
 Not implementing the /usr merge in your distribution will isolate it from upstream development. It will make porting of packages needlessly difficult, because packagers need to split up installed files into multiple directories and hard code different locations for tools; both will cause unnecessary incompatibilities. Several Linux distributions are agreeing with the benefits of the /usr merge and are already in the process to implement the /usr merge. This means that upstream projects will adapt quickly to the change, those making portability to your distribution harder.
 
