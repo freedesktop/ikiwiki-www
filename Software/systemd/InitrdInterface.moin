@@ -8,7 +8,7 @@ systemd supports both initrd and initrd-less boots. If an initrd is used it is a
  
  * In the $RD_TIMESTAMP environment variable the initrd shall pass the monotonic and realtime timestamp when execution of the initrd began. This is then used by systemd to estimate the time that is spent in the kernel initialization, the initrd initialization and the main system initialization at boot. The monotonic and realtime timestamps shall be formatted as ASCII values of usecs, separated by a space character. The /lib/systemd/systemd-timestamp tool will generate a properly formatted timestamp for you, consider adding it to your initrd.
 
- * If the file /run/initramfs/root-fsck exists systemd will skip the root file system check. It is recommended that the initrd completes the root fsck before mounting the root file system, using this flag file to inform systemd not to repeat the step.
+ * If the file /run/initramfs/root-fsck exists systemd will skip the root file system check. It is recommended that the initrd completes the root fsck before mounting the root file system, using this file to inform systemd not to repeat the step. The initrd should write the exit code of the fsck process into the file, in order to inform the main OS about the result of the file system check.
 
  * If the executable /run/initramfs/shutdown exists systemd will jump back into the initrd on shutdown. /run/initramfs should be a usable initrd environment to which systemd will pivot back and the "shutdown" executable in it should be able to detach all complex storage that for example was needed to mount the root file system. It's the job of the initrd to set up this directory and executable in the right way so that this works correctly.
 
