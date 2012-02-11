@@ -1,0 +1,16 @@
+= Writing Display Managers =
+
+''Or: How to hook up your favourite display manager with systemd''
+
+systemd's logind service obsoletes ConsoleKit which was previously widely used on Linux distributions. The switch to logind requires a minimal amount of porting, however brings a couple of new features: true automatic multi-seat support, proper tracking of session processes, (optional) automatic killing of user processes on logout, a synchronous low-level C API and much simplification.
+
+If required it is possible to implement ConsoleKit and systemd-logind support in the same code, which detects at runtime which interface is needed. The [[http://www.freedesktop.org/software/systemd/man/sd_booted.html|sd_booted()]] call may be used to determine at runtime whether ConsoleKit or systemd are used.
+
+To a certain level CK and systemd-logind may be used side-by-side, but a number of features are not available if CK is used, for example automatic multi-seat support.
+
+Minimal porting (without multi-seat) requires the following:
+
+ 1. Remove/disable all code responsible for registering your service with ConsoleKit.
+ 2. Make sure to register your greeter session via the PAM session stack, and make sure the PAM session modules include pam_systemd.
+ 3. Make sure to register your logged in session via the PAM session stack as well, also including pam_systemd in it.
+ 4. Optionally, use pam_misc_setenv() to set the the environment variables XDG_SEAT and XDG_VTNR. The former should contain "seat0", the latter the VT number your session runs on. pam_systemd can determine these values automatically but it's nice to pass these variables anyway.
