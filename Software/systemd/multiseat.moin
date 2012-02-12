@@ -2,7 +2,7 @@
 
 systemd 30 and newer include support for keeping track of user sessions and seats. This adds full hotplug multi-seat support to Linux. Here's a quick overview on how it works.
 
-Definition of terms:
+== Definition of Terms ==
 
  * A '''seat''' consists of all hardware devices assigned to a specific workplace. It consists of at least one graphics device, and usually also includes keyboard, mouse. In can also include video cameras, sound cards and more. Seats are identified by seat names, which are short strings (<= 64chars), that start with the four characters "seat" followed by at least one more character from the range a-zA-Z0-9, "_" and "-". They are suitable for inclusion in file names. Seat names may or may not be stable and may be reused if a seat becomes available again.
  * A '''session''' is defined by the time a user is logged in until he logs out. A session is bound to one or no seats (the latter for 'virtual' ssh logins). Multiple sessions can be attached to the same seat, but only one of them can be active, the others are in the background. A session is identified by a short string. systemd ensures that audit sessions are identical to systemd sessions, and uses the audit session id as session id in systemd (if auditing is enabled). The session identifier too shall be considered a short string (<= 64chars) consisting only of a-zA-Z0-9, "_" and "-", suitable for inclusion in a file name. Session IDs are unique on the local machine and are never reused as long as the machine is online.
@@ -15,6 +15,8 @@ All hardware devices that are eligible to being assigned to a seat, are assigned
 Note that hardware like printers, hard disks or network cards is generally not assigned to a specific seat. They are available to all seats equally. (Well, with one exception: USB sticks can be assigned to a seat, but this is not fully fledged out yet.)
 
 "seat0" always exists.
+
+== udev Rules ==
 
 Assignment of hardware devices to seats is managed inside the udev database, via settings on the devices:
 
@@ -30,11 +32,11 @@ A seat exists only and exclusively because a properly tagged device with the rig
 
 Note that logind manages ACLs on a number of device classes, to allow user code to access the device nodes attached to a seat as long as the user has an active session on it. This is mostly transparent to applications. As mentioned above, for certain user software it might be a good idea to watch whether they can access device nodes instead of thinking about seats.
 
-Uses:
+== Uses ==
 
  * If you are writing a display server (like X11) and you have not been told a seat to run on, imply that you are running for seat0. Now, to find graphics cards and input devices for your X server enumerate all devices, and filter those out that are not assigned to your seat. For this, use the ID_SEAT property and the seatXXX tag. And don't forget that devices assigned to the special seat0 seat do not have the tag or the property ID_SEAT set. (see below for a code example for this)
 
- * If you are writing a display manager (like gdm), then enumerate all seats via logind's D-Bus interface, and subscribe to new seats being created. Then, spawn an X server and login screen on each seat showing up. (For details, see [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]]
+ * If you are writing a display manager (like gdm), then enumerate all seats via logind's D-Bus interface, and subscribe to new seats being created. Then, spawn an X server and login screen on each seat showing up. (For details, see [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]])
 
  * If you are writing a bootup splash tool (like Plymouth), then ignore all seat information completely and make use of all input devices and graphics cards as they become available. Stop using them as soon as the first X server starts up.
 
@@ -43,6 +45,8 @@ Uses:
  * If you are writing a UI to configure seats and assign specific hardware to them, enumerate all hardware with the tag "seat", and read the ID_SEAT property from them to determine seat assignments. When changing assignments, use the AttachDevice() D-Bus call of the logind service which takes a seat name and a number of sysfs paths to the devices. You can also use this call to create a new seat, simply by assigning a graphics device to a previously unused seat name. Use ID_FOR_SEAT as a starting point for a new seat name.
 
 This is only a very basic introduction, if you have questions ping Lennart. The D-Bus interface is currently not documented, but will be.
+
+== Examples ==
 
 You may use ''systemd-loginctl'' to list and introspect the seats on your system. Here's an example on a system with two seats:
 
@@ -168,5 +172,7 @@ int enum_input_on_seat(const char *seat) {
         udev_unref(udev);
 }
 }}}
+
+== Multi-Seat X ==
 
 Note that even though XOrg learned a new -seat switch to make use of multi-seat information it does so only for input devices, not for displays. To work around this systemd includes a tiny wrapper binary in /lib/systemd/systemd-multi-seat-x which emulates the right behaviour by creating a throw-away X configuration file which does the right thing. If you are implementing a multi-seat display manager you probably want to use this binary instead of the real X binary for now. As soon as XOrg upstream learnt proper multi-seat support also for displays this binary will be removed from systemd, hence write your DM to fallback to the real X server if systemd's wrapper is not found.
