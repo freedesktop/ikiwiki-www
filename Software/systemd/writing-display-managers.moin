@@ -19,7 +19,7 @@ In summary: porting a display manager from !ConsoleKit to systemd primarily mean
 
 Complete porting (with multi-seat) requires the following: (Before you continue, make sure to read up on [[http://www.freedesktop.org/wiki/Software/systemd/multiseat|Multi-Seat on Linux]] first.)
 
- 1. Subscribe to seats showing up and going away, via the systemd-logind D-Bus interface's SeatAdded/SeatRemoved signals. Take posession of each seat by spawning your greeter on it.
+ 1. Subscribe to seats showing up and going away, via the systemd-logind D-Bus interface's !SeatAdded/!SeatRemoved signals. Take posession of each seat by spawning your greeter on it.
  2. Use ListSeats() on the D-Bus interface to acquire a list of already available seats and also take posession of them.
  3. For each seat you spawn a greeter on use the XDG_SEAT and XDG_VTNR PAM environment variables to inform pam_systemd about the seat name, resp. VT number you start them on. Note that only the special seat "seat0" actually knows kernel VTs, so you shouldn't pass the VT number on any but the main seat, since it doesn't make any sense there.
  4. Pass the seat name to the X server you start via the -seat parameter.
