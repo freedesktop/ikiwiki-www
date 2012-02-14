@@ -11,7 +11,7 @@ To a certain level !ConsoleKit and systemd-logind may be used side-by-side, but 
 Minimal porting (without multi-seat) requires the following:
 
  1. Remove/disable all code responsible for registering your service with !ConsoleKit.
- 2. Make sure to register your greeter session via the PAM session stack, and make sure the PAM session modules include pam_systemd.
+ 2. Make sure to register your greeter session via the PAM session stack, and make sure the PAM session modules include pam_systemd. Also, make sure to set the environment variable XDG_SESSION_CLASS to "greeter" with pam_misc_setenv() in order to allow applications to filter out greeter sessions from normal login sessions.
  3. Make sure to register your logged in session via the PAM session stack as well, also including pam_systemd in it.
  4. Optionally, use pam_misc_setenv() to set the the environment variables XDG_SEAT and XDG_VTNR. The former should contain "seat0", the latter the VT number your session runs on. pam_systemd can determine these values automatically but it's nice to pass these variables anyway.
 
