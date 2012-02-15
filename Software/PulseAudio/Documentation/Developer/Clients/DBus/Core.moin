@@ -106,10 +106,10 @@ All currently available sinks.
  * Type: !ObjectPath
  * Access: read/write
 
-When a new playback stream is created and there is no other policy about to which sink the stream should be connected, the fallback sink is selected. This property doesn't exist if there are no sinks.
+When a new playback stream is created and there is no other policy about to which sink the stream should be connected, the fallback sink is selected. This property doesn't exist if there's no sink selected as the fallback sink.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if no sinks exist.
+   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the fallback sink is not set.
 
 
 ==== Sources ====
@@ -125,10 +125,10 @@ All currently available sources.
  * Type: !ObjectPath
  * Access: read/write
 
-When a new record stream is created and there is no other policy about to which source the stream should be connected, the fallback source is selected. This property doesn't exist if there are no sources.
+When a new record stream is created and there is no other policy about to which source the stream should be connected, the fallback source is selected. This property doesn't exist if there's no source selected as the fallback source.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if no sources exist.
+   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the fallback source is not set.
 
 
 ==== !PlaybackStreams ====
@@ -346,12 +346,12 @@ A sink was removed.
  * Parameters: sink : !ObjectPath
    - sink: New fallback sink
 
-The fallback sink was changed. When the last sink is removed, [#FallbackSinkUnset FallbackSinkUnset] is emitted instead of this signal.
+The fallback sink was changed. When the fallback sink becomes unset, [#FallbackSinkUnset FallbackSinkUnset] is emitted instead of this signal.
 
 
 ==== !FallbackSinkUnset ====
 
-The fallback sink became unset (due to the last sink being removed).
+The fallback sink became unset.
 
 
 ==== !NewSource ====
@@ -375,12 +375,12 @@ A source was removed.
  * Parameters: source : !ObjectPath
    - source: New fallback source
 
-The fallback source was changed. When the last source is removed, [#FallbackSourceUnset FallbackSourceUnset] is emitted instead of this signal.
+The fallback source was changed. When the fallback source becomes unset, [#FallbackSourceUnset FallbackSourceUnset] is emitted instead of this signal.
 
 
 ==== !FallbackSourceUnset ====
 
-The fallback source became unset (due to the last source being removed).
+The fallback source became unset.
 
 
 ==== !NewPlaybackStream ====
