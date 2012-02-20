@@ -7,7 +7,7 @@ PA now supports a new RT threading model. That means that access to the audio dr
 
 In the new model, each driver should run its I/O code in a seperate thread. Usually this means that each sink and each source are handled in a thread of their own. In some cases (like OSS) a single thread is shared for a pair for sink and source. Communication between the (non-realtime) main thread (that still exists and where a lot of code remains) and the real-time I/O threads is intended to be done entirely lock-free (at least on the RT side). For this we have added couple of lock-free APIs. Most importantly this is pa_asyncmsgq which is a message queue object where pushing and popping is most of the time a lock-free operation, unless we have to sleep an event in which case a unix pipe is used internally.
 
-[[Image(PulseThreads.png)]]
+[[Image(PulseThreads.png, left)]]
 
 A good example for a driver that uses this new model is the OSS driver: [source:src/modules/module-oss.c module-oss.c] (this driver is quite complete but also relatively complicated due to support for both mmap and non-mmap access to the audio driver) Simpler drivers are the NULL and the pipe drivers: [source:src/modules/module-pipe-sink.c module-pipe-sink.c], [source:src/modules/module-null-sink.c module-null-sink.c] (since they do not support the full set of features they might also not be the best example, so please take this with a grain of salt)
 
