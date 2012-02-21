@@ -6,18 +6,15 @@ OpenICC is a group of people dedicated to organise how applications, libraries, 
 
 Oyranos is a implementation of mentioned conventions to cover ICC profile handling and colour conversions. The newBSD licensed code base is plain C. Its core requires very few dependencies, namely libxml2. Device support and colour conversions involve according APIs. Goal is to use existing standard technology like XML, XFORMS and GLSL. Oyranos features a (almost) data independent framework to plug-in data manipulators, for colour conversions, tonemapping, image I/O and other operators into a data processing graph.
 
-
 = About the Group =
 OpenIcc consist of the participants of the OpenICC email list. It was started by Scribus members to better support introduction of colour management into applications and discuss general issues. List contributors are application and CMS developers as well as colour management specialists and users, no matter whether commercial, open source and both. The main focus of this group is to expand the level of support for color management on open source software systems.
 
 <<TableOfContents(2)>>
 
-
 = Project Suggestions =
-
-
 == Colour Managed Window ==
  . 3D games, graphics applications and web browsers want their content to utilise the whole monitor colour space. With colour managed compositing managers under Linux the requirement comes to colour convert the whole window inclusive GUI at once. A colour management widget can help clients to improve their appearance, provide fallbacks on non colour managed platforms and bundle some common code into one powerful widget per toolkit. Most code for GPU computing, multi monitor colour correction and related stuff exists. This projects shall create very easy to use widgets for easy and wide spread integration into applications.
+
 === Expectations ===
  * create a root widget for offscreen rendering of windows
  * integrate existing code demo snippets for colour correction on GPU
@@ -29,61 +26,68 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
  * detect sub widgets and their colour space for normalisation prior blending
  * support three toolkits
  * small demo application
+
 === Skills ===
  * OpenGL knowledge
  * good API design
  * readable, extendable and clean code
  * inline documentation
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann
+
 === Optional ===
  * support multiple monitor colour correction
 
-
-
 == Advanced GPU Colour Management ==
  . 3D and advanced graphics applications want to deploy fast colour correction in several corner cases. The project will help them to use effective stored HDR texture buffers and do blending in linear space for multiple monitors. The goal is to provide working code, which runs fast even on low level devices to increase portability. The project results target at integration into applications, toolkits, compositing window managers and CMM's.
+
 === Expectations ===
  * create a root widget for offscreen rendering of windows (preferred Qt)
  * integrate existing code demo snippets for colour correction on GPU using 3Dtexture lookups
- * integrate shaders for LogLuv compression and decompression
+ * integrate shaders for !LogLuv compression and decompression (shader snippets exist)
  * integrate post linearisation LUT's to convert from linear space to monitor gamma
  * render to GL texture using a widely available and portable API or library
  * support multi monitor output (e,g, glScissor)
  * provide sensible clipping of HDR values as optional shader (algorithm exists)
  * demonstrate blending in linear space and final conversion to monitor spaces
+
 === Skills ===
  * good OpenGL knowledge
  * good API design
  * readable, extendable and clean code
  * inline documentation
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann
 
 
-
 == Colour Management for Printing Dialogs ==
  . Artists and Pro Users want to configure custom ICC profiles. This should be simple and easy. The CPD is the ideal place to let user interact in a intuitive way. Oyranos will ensure a very robust configuration of ICC device profiles. !OpenUsability, !OpenPrinting and OpenICC outlined a concept on how to best integrate colour management into the Common Printing Dialog (CPD). Use the code resulting from last year and enable colour management inside a print dialog of a graphics application.
+
 === Expectations ===
  * use libCmpx/Oyranos inside a print dialog
  * allow for custom input colour spaces
  * test the whole print stack and
  * provide if necessary patches upstream
  * end user documentation
+
 === Skills ===
  * medium difficult
  * good communication
  * C++, C, shell
  * git
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann
+
 === Links ===
  * www: http://www.oyranos.org/wiki/index.php?title=Device_Settings#Solutions_for_Color-Managed_Printing
 
 
-
 == OpenICC Colour Configuration Data Base ==
  . Users, who configure their colour management system (CMS) behaviour and devices, want to share these settings on one host without any intervention among installed CMSes. The project will introduce the OpenICC data base into CMSes like ArgyllCMS, Oyranos and colord and replaces existing own DB access code.
+
 === Expectations ===
  * small, readable and clean code
  * existing code might be reused
@@ -94,14 +98,17 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
  * provide patches for existing CMM'es like ArgyllCMS, Oyranos, colord
  * add end user documentation (inline API docu and man pages)
  * MIT license
+
 === Skills ===
  * rather simple programming tasks
  * good communication
  * C, JSON, make
  * git
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann
  * Further Advisors: OpenICC email list
+
 === Links ===
  * device DB example: http://www.freedesktop.org/wiki/Specifications/icc_meta_tag_for_monitor_profiles
  * existing code: http://openicc.git.sourceforge.net/git/gitweb.cgi?p=openicc/openicc;a=tree
@@ -109,19 +116,23 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
 
 == Simple Toolkit Abstraction ==
  . The Oyranos colour management system is in parts only a thin layer between imaging applications and advanced moduls or plug-ins. To deploy these plug-ins flexible and maintain toolkit independency the plug-ins must present their UI in a own language. Goal is to create a simple and highly flexible GUI system, which allows easy creation of dialogs including callback meachanisms. This project lets you explore concepts like W3C XForms/DOM, and how to adapt it to traditional event driven programming. The result should be something simple and powerful enough to use for a wide range of applications not limited to Oyranos. Possibly this will result in a stand alone project.
+
 === Expectations ===
  * design and implement a minimalistic widget set, which allows easy implementation, exchange and processing (create a XForms profile, interact with DOM)
  * write a interpreter for console applications as proof of concept
  * write a HTML backend for documentation
  * simple examples showing what is intented to work
+
 === Skills ===
  * clear and highly modular API design
  * design of interactive applications
  * good abstraction
  * C, (C++), XML, DOM
  * good communication
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann , Advisor: Jon A. Cruz
+
 === Optional ===
  * allow some basic events and C callbacks
  * write one or more toolkit dependent interpreter(s) (Gtk, Qt, Fltk ...)
@@ -131,53 +142,61 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
 
 == OpenGTL-/+OpenCL meta backend for Oyranos ==
  . In order to build fast filters in Oyranos a meta backend is to be programmed. It should allow for fast manipulation of image data like colour conversions, tonemapping, blending or geometric transformations.
+
 === Expectations ===
  * study basic concepts of OpenCL shaders, their implementation in Mesa and the Oyranos CMM framework
  * decide for a implementation concept (OpenGTL/OpenCL)
  * work on existing code and integrate your implementation using most of the already available functionality, extent where needed
  * documentation for users - should be very few
+
 === Skills ===
  * basic communication
  * portable C and C++ programming
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann < ku.b@gmx.de >
  * OpenIcc email list
+
 === Optional ===
  * convert the available small ICC colour transformation application for demonstration with colour table lookup into a shader plug-in
 
 
-
 == CMM's for Oyranos ==
  . SampleICC is the official implementation of the ICC colour profile standard from members of the [[http://www.color.org|ICC]]. A module of this engine to plug into Oyranos would be cool. An other candidate is ArgyllCMS, which features very sophisticated colour transformations.
+
 === Expectations ===
-  * wrap the [[http://sourceforge.net/projects/sampleicc/|SampleICC]] API into the Oyranos Colour Matching Module (CMM) API
-  * wrap the [[http://www.argyllcms.com]] into the Oyranos Colour Matching Module (CMM) API
-  * create a catalog of plug-in options supported by the CMM
-  * work out test and quality assurance strategies
+ * wrap the [[http://sourceforge.net/projects/sampleicc/|SampleICC]] API into the Oyranos Colour Matching Module (CMM) API
+ * wrap the http://www.argyllcms.com into the Oyranos Colour Matching Module (CMM) API
+ * create a catalog of plug-in options supported by the CMM
+ * work out test and quality assurance strategies
+
 === Skills ===
  * good communication
  * basic mathematical skills
  * portable C++ and C
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann < ku.b@gmx.de >
 
 
-
-
 == AICC Library ==
  . ICC Examin is a profile analysing tool and colour visualiser. Many widgets are interesting to other applications and would be needed in other toolkits in a modular fashion. The AICC project started to implement parts of ICC Examin in C. This project aims at effectively presenting various data as text, graphics and in part in 3D.
+
 === Expectations ===
  * continue the AICC project http://gitorious.org/gsoc10_openicc
  * create a 3D view of gamut
  * support 2D output of ICC tag informations
  * example application
  * user documentation inline
+
 === Skills ===
  * POSIX C
  * OpenGL
  * (Java/Python/?)
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann
+
 === Optional ===
  * create one wrapper in a scripting language for basic widgets, Python
  * support profile editing
@@ -185,11 +204,11 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
  * support spectral data
 
 
-
 == Extending the Oyranos Colour Conversion Framework ==
  . The colour management system Oyranos provides high level means to render colours in a generic way. The advantage is, application developers can rely on Oyranos services without understanding the often complicated details. This project lets you create and optimise various underpinnings of system level to advanced graphic tools. This project is a collection of many small and very versatile tasks. You can freely   create a own plan what to do or will be guided according to your level of expertise.
+
 === Expectations ===
- Possible targets:
+ . Possible targets:
  * implement efficient pixel conversion between arbitrary buffer types (low level C)
  * implement object observation to automatically update to data changes (object oriented C)
  * adapt Oyranos devices to catch outside events (X, dbus, ...)
@@ -200,6 +219,7 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
  * extent the Oyranos command line tools set to access device and other settings (build upon Unix/Posix)
  * build a small shiny graphical sample application (didactical GUI)
  * agreed upon parts shall be finalised, substitution is possible
+
 === Skills ===
  * depends on what we agree to work on
  * code organisation
@@ -208,32 +228,32 @@ OpenIcc consist of the participants of the OpenICC email list. It was started by
  * work under different OSes (possibly)
  * basic to good C
  * understanding object oriented designs is helpful
+
 === Contact ===
  . Mentor: Kai-Uwe Behrmann < ku.b@gmx.de >
 
 
+== KWin Colour Correction ==
+ . GPUs allow economic and fast colour correction including movies with minimal overhead. A consistent colour corrected desktop increases it's usability.
 
-
-== Kwin colour correction plugin ==
- . The compiz colour correction plugin is very useful for instant colour corrections including movies with minimal overhead. Port this idea to KDE's kwin. It will be almost a write from scratch. Due to a controversial discussion on the OpenICC email list the project is unlikely to be chosen until a reasonable consense is found.
 === Expectations ===
- * create a scheme before you implement and discuss it
- * write a OpenGL shader based plugin
- * work with kwin, Oyranos, OpenGL/Shaders
+ * implement the baseline [[http://www.freedesktop.org/wiki/OpenIcc#XColor_Management_spec|X Color Management]] spec + XcolorOutput
+ * modify KWin's OpenGL shader
+ * support multi monitor setups
+ * create colour transforms with Oyranos
  * inline documentation
+
 === Skills ===
  * C++
  * good communication
- * Shader language
+ * shader language
+
 === Contact ===
  * Mentor: Kai-Uwe Behrmann < ku.b@gmx.de >, Advisors: KWin project
+
 === Optional ===
  * port the compiz plugin to v0.9 from C to C++
- * add grid and image based correction textures
-
-
-
-
+ * add grid and image based correction textures ;-)
 
 = Alternative Ideas =
 Feel free to propose and discuss your ideas. We highly appreciate your initiative. It is possible to give multiple proposals. Be warned each proposal needs typical time to prepare. The quality of the proposals counts for us to become able to decide.
