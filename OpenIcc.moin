@@ -35,7 +35,9 @@ Currently, OpenICC is an informal group of developers exchanging ideas and conce
 
 = Profiles for standard print condition and their licences =
 For the creation and exchange of images, vector graphics and documents (e.g. PDF) ist makes sense, when applications can use a standard set of ICC-profiles which are preinstalled in an known directoty like eg. share/color/profile on every computer. Currently, different organisations, projects and vendors are offering such standard profile packages with different licenses. Not all licenses are compatible to integrate these profile packages into LINUX distributions. 
+
 Furthermore in the graphic arts, there are so called "reference printing conditions" which represent color measurement-data (also called characterization-data) representing a printing standard. Such characterization-data are a basis for calculating ICC-profiles representing a printing standard. 
+
 Several packages for standard ICC profiles are containing CMYK-profiles with different names and calculated with different profiling packages but representing the same reference printing condition.
 The International Color Consortium ICC hosts a [[http://www.color.org/registry2.xalter|registry]] for worldwide used reference printing conditions.
 
@@ -50,11 +52,15 @@ The ICC itself has began an open source project:
 SampleICC provides an open source platform independent C++ library for reading, writing, manipulating, and applying ICC profiles along with applications that make use of this library.
 
 = Legal issues =
-In the middle of the 90's, there were some patent wars concerning colormanagement. Specifically the company EFI sued a lot of other companies that had implemented a RGB to CMYK conversion in their applications. Actually, it is important to be aware of which colormanagement-functionalities are part of the ICC-specs, and which are going beyond the ICC specs. Implementing colormanagement according ICC-specs is very safe. Implementing extended functions that are not part of the ICC specification could may be dangerous.  This concerns especially littleCMS, which is the standard CMM for more or less all open source applications dealing with colormanagement. (Of course, argyllCMS also contains a CMM...)
-Some of this extended functionality can be very helpful for some usecases. So from the point of view of the user, it makes a lot of sense to implement and use them. One example is enhanced options for CMYK to CMYK conversions. Such functions are useful for the colormanagement of documents for the graphic arts.
-It can be implemented as special function for the CMM, or it can be solved by precalculating a devicelink-profile, which is used with a ICC-conforming CMM.
-If it is, for example, implemented as special function in littleCMS, a legal issue concerning littleCMS could touch all applications, which make use of littleCMS.
-If it is implemented in a standalone software, which generates and delivers a devicelink-profile, the legal issue covers only the standalone software. The usage of devicelink-profiles in other software is a standard functionality of the ICC-specs.
+In the middle of the 90's, there were some patent wars concerning color management. Specifically the company EFI sued a lot of other companies that had implemented an RGB to CMYK conversion in their applications. Actually, it is important to be aware of which color management features are part of the ICC specs, and which are going beyond the ICC specs.
+
+Implementing color management according to ICC specs is very safe. Implementing extended functions that are not part of the ICC specification could may be dangerous.  This concerns especially LittleCMS, which is the standard CMM for more or less all open source applications dealing with color management. (Of course, ArgyllCMS also contains a CMM...)
+
+Some of this extended functionality can be very helpful for some use cases. So from the point of view of the user, it makes a lot of sense to implement and use them. One example is enhanced options for CMYK to CMYK conversions. Such functions are useful for the colormanagement of documents for the graphic arts.
+
+It can be implemented as special function for the CMM, or it can be solved by precalculating a devicelink-profile, which is used with a ICC-conforming CMM. If it is, for example, implemented as special function in LittleCMS, a legal issue concerning littleCMS could touch all applications which make use of LittleCMS.
+
+If it is implemented in a standalone software, which generates and delivers a devicelink-profile, the legal issue covers only the standalone software. The use of devicelink-profiles in other software is a standard feature of the ICC specs.
 
 = Specifications =
 
@@ -66,7 +72,8 @@ If it is implemented in a standalone software, which generates and delivers a de
 = Proposals =
 == White papers for enhancing the ICC-specs ==
 Observing real world colormanagement-workflows with ICC-profiles, it is clear that some problems should be solved with better and more clear defined ICC-specs. Actually, some of such enhancements can be done through "white papers". Such a white paper could e.g. describe extended functions of the CMM. One example of such enhancement is the description of Blackpoint Compensation in Adobe Products at *[[http://www.color.org/Adobe1bpc.pdf]]
-If developers or colormanagement-consultants think, that the ICC-specs need some enhancements, the OpenICC wiki could be used as collaborative platform to produce such whitepapers.
+
+If developers or color management consultants think, that the ICC-specs need some enhancements, the OpenICC wiki could be used as collaborative platform to produce such whitepapers.
 
 Every proposal for an ICC Whitepaper should be a Subpage in the OpenICC wiki and should be structured as following:
 
