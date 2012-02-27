@@ -58,7 +58,28 @@ Several stages, the more gets done, the better:
  * Ability to somehow configure volume limits for devices in Pulseaudio, and enforce those limits.
  * Make the volume limit configuration persistent so that when Pulseaudio is restarted, the configuration is restored automatically.
  * A GUI for configuring the volume limits.
-   * Preferably implemented by modifying the volume configuration tool of the desktop environment of your choice, or by modifying pavucontrol.
+   * Preferably implemented by modifying the audio configuration tool of the desktop environment of your choice, or by modifying pavucontrol.
+
+'''Contact(s):''' Tanu
+
+'''Necessary background:''' For the GUI part some experience from writing graphical applications would be useful.
+
+'''Mentor:''' Tanu
+
+=== Configurable latency for Bluetooth devices ===
+
+'''Brief description:'''
+
+Bluetooth's A2DP profile (the "high quality stereo mode") doesn't support latency information to be provided by the Bluetooth device to Pulseaudio. That's a limitation of the spec; we can't fix that. The effect of this limitation is that the audio-video synchronization ("lip-sync") is usually not very good. Pulseaudio currently uses the same hard-coded latency value for all Bluetooth devices. Assuming that the actual latency stays pretty much constant for any given device, but varies between different devices (how to verify this assumption?), it would make sense to make it possible to configure per-device latencies. This would potentially be useful for non-Bluetooth devices too, but I can't name any other concrete use cases right now. Anyway, the feature is general enough to not require any Bluetooth knowledge or hardware.
+
+'''Expected results:'''
+
+Several stages, the more gets done, the better:
+
+ * Ability to somehow configure the "fixed latency" of devices. (This is easier than it probably sounds. Most of the work will be in the configuration part; applying the configured latency should be trivial.)
+ * Make the latency configuration persistent so that when Pulseaudio is restarted, the configuration is restored automatically.
+ * A GUI for configuring the volume limits.
+   * Preferably implemented by modifying the audio configuration tool of the desktop environment of your choice if the tool maintainers want such feature (this feature is quite rarely needed, so they might not want it), or by modifying pavucontrol. Since this feature is quite rarely needed, a custom configuration tool probably wouldn't be too bad either, though, if you don't like the prospect of modifying pavucontrol.
 
 '''Contact(s):''' Tanu
 
