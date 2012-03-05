@@ -27,7 +27,6 @@ These are some ideas that the community would like to see pursued, Feel free to 
 
  * Improve RTP performance (Maarten?) [needs to be more concrete]
  * ROAP improvements (Colin?) [is this feasible? require hardware?]
- * Proper HDMI support (Arun) [build on Pierre's work, possibly not enough for a whole project]
  * Add "high priority" events (Arun) [these would preempt passthrough streams, possible notify on all outputs, ...]
  * Efficient resampling (Peter) [esp. on embedded CPUs; maybe fixed ratio sample rate conversion]
 
@@ -88,3 +87,29 @@ Several stages, the more gets done, the better:
 '''Necessary background:''' For the GUI part some experience from writing graphical applications would be useful.
 
 '''Mentor:''' Tanu
+
+=== Logging and testing overhaul ===
+
+'''Brief description:'''
+PulseAudio provides pretty extensive logging on the server-side, and some amount of the same on the client side. However, this could undergo significant improvement. We also have a fairly rudimentary set of tests, but these cover a very small part of the actual code.
+
+'''Expected results:'''
+
+Improvements to the logging infrastructure, including:
+
+ * The ability to modify the log level at runtime
+ * Support for log "categories" (see GStreamer logging for an example)
+ * Filtering of what log categories turn up based on, for example, a regex
+ * A log buffer to allow querying the last X lines of log
+
+Revamp the testing infrastructure
+
+ * Add the ability to run tests and assert on various conditions on a PA instance running from the build
+ * Run gcov and figure out how abysmal our coverage is
+ * Add some useful tests, develop a framework for writing tests rapidly
+
+'''Contact(s):''' Arun
+
+'''Necessary background:''' Mostly C, some bash for testing, hacking other systems with advanced logging/testing/CI a bonus
+
+'''Mentor:''' Arun
