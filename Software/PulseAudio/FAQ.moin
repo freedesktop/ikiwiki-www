@@ -1,11 +1,11 @@
-[[TracNav(TOC)]]
+<<Include(Software/PulseAudio/TOC)>>
 
 = Frequently Asked Questions =
 
 '''Some of the answers need updating! ''' Also, some questions are too long for the outline, and they get truncated.
 
 ----
-[[PageOutline(2-3,,inline)]]
+<<TableOfContents(3)>>
 ----
 
 == Uncategorized questions ==
@@ -22,7 +22,7 @@
 
 === I want to write a new driver for !PulseAudio, are there any docs? ===
 
-   Support for audio backends is added by writting a new module. Currently, only the client API is documented with doxygen, for module development you have to use the internal API of PulseAudio. Read the source and base your work on a simple module like {{{module-pipe-sink}}}, {{{module-oss}}} or {{{module-virtual-{sink,source}}}}. See [DeveloperDocumentation#DevelopingModules DevelopingModules] for more information.
+   Support for audio backends is added by writting a new module. Currently, only the client API is documented with doxygen, for module development you have to use the internal API of PulseAudio. Read the source and base your work on a simple module like {{{module-pipe-sink}}}, {{{module-oss}}} or {{{module-virtual-{sink,source}}}}. See [Software/PulseAudio/Documentation/Developer#DevelopingModules DevelopingModules] for more information.
 
 
 === How does !PulseAudio acquire realtime capabilities? ===
@@ -35,7 +35,7 @@
    * The client honors:
      * {{{$PULSE_SINK}}} (default sink to connect to)
      * {{{$PULSE_SOURCE}}} (default source to connect to)
-     * {{{$PULSE_SERVER}}} (default server to connect to, like {{{ESPEAKER}}}, see ServerStrings for an explanation of the format)
+     * {{{$PULSE_SERVER}}} (default server to connect to, like {{{ESPEAKER}}}, see [[Software/PulseAudio/Documentation/User/ServerStrings|Server Strings]] for an explanation of the format)
      * {{{$PULSE_BINARY}}} (the binary to start when autospawning a daemon)
      * {{{$PULSE_CLIENTCONFIG}}} (path to the client configuration file).
      * {{{$PULSE_PROP}}} (A space seperated list of properties of the form 'media.role=event' to set for all streams)
@@ -49,7 +49,7 @@
 
 === How do the !PulseAudio libraries decide where to connect to? ===
 
-   The following rule applies: (see ServerStrings for an explanation of the format of server specifications)
+   The following rule applies: (see [[Software/PulseAudio/Documentation/User/ServerStrings|Server Strings]] for an explanation of the format of server specifications)
    1. If the the application using the library specifies a server to connect to it is used. If the connection fails, the library fails too.
    2. If the environment variable {{{$PULSE_SERVER}}} is defined the library connects to that server. If the connection fails, the library fails too.
    3. If {{{$DISPLAY}}} is set, the library tries to connect to that server and looks for the root window property {{{PULSE_SERVER}}} for the host to connect to. If {{{PULSE_COOKIE}}} is set it is used as authentication cookie.
@@ -67,7 +67,7 @@
 
 === Why did you rename Polypaudio to !PulseAudio? ===
 
-   Please read this [http://0pointer.de/blog/projects/pulse.html blog story] for an explanation.
+   Please read this [[http://0pointer.de/blog/projects/pulse.html|blog story]] for an explanation.
 
 
 
@@ -109,11 +109,11 @@ padsp myapp <arguments to myapp>
 
 === Is there a Win32/Windows driver that act like a PulseAudio client? ===
 
-   Not exactly, but there use to be a ESoundD driver like that, and PulseAudio can connect to a ESoundD client.[[BR]]
-   This project is [http://www.clingman.org/winesd/ WinESD] at [http://www.clingman.org/winesd/ WinESD]. This software was developped for NT4 and Windows 2000. It has been reported to work under Windows XP connected to a PulseAudio server (One computer under Microsoft Windows XP using WinESD, connected to another computer under Microsoft Windows XP using PulseAudio). This project looks unmaintained and last version was "pre-alpha". It still works, but with restrictions : 
+   Not exactly, but there use to be a ESoundD driver like that, and PulseAudio can connect to a ESoundD client.<<BR>>
+   This project is [[http://www.clingman.org/winesd/|WinESD]] at [[http://www.clingman.org/winesd/|WinESD]]. This software was developped for NT4 and Windows 2000. It has been reported to work under Windows XP connected to a PulseAudio server (One computer under Microsoft Windows XP using WinESD, connected to another computer under Microsoft Windows XP using PulseAudio). This project looks unmaintained and last version was "pre-alpha". It still works, but with restrictions : 
    * Sometimes, the sound is "broken". It look like it's when two processes try to emit sounds in the same time. Perhaps it's different from one computer to another.
    * There is no easy installers as for July 2007, neither for WinESD nor PulseAudio for Win32/Windows. It's a "Let's play with configuration by hands" installation.
-   * You need to unactivate your sound card if you already have one on the computer running WinESD. This will need a reboot. This is undocumented on the [http://www.clingman.org/winesd/ WinESD site].
+   * You need to unactivate your sound card if you already have one on the computer running WinESD. This will need a reboot. This is undocumented on the [[http://www.clingman.org/winesd/|WinESD site]].
    * Switching from one driver to another will need to play with Activate/Unactivate drivers, which will cause reboot.
 
 
@@ -127,7 +127,7 @@ padsp myapp <arguments to myapp>
 
 === I get this error message: "Invalid argument" ===
 
-   A likely reason for this is that no devices have been loaded. Stop pulseaudio (run "pulseaudio -k"), and start it again with "pulseaudio -vv". That will print verbose output of the daemon startup. If you can't figure out what might go wrong yourself, send a link to the whole output of the command to the irc channel (see [wiki:Community#IRC]). (Help is not guaranteed. Patience is a virtue.)
+   A likely reason for this is that no devices have been loaded. Stop pulseaudio (run "pulseaudio -k"), and start it again with "pulseaudio -vv". That will print verbose output of the daemon startup. If you can't figure out what might go wrong yourself, send a link to the whole output of the command to the irc channel (see [[Software/PulseAudio/Documentation/User/Community#IRC|Community]]). (Help is not guaranteed. Patience is a virtue.)
 
 
 === I often hear noises when playing back with !PulseAudio, what can I do? ===
@@ -172,7 +172,7 @@ Sending a stream to a remote server is done through control apps such as pavucon
 {{{
 $ PULSE_SERVER=<hostname> <command>
 }}}
-If your host does not start playing you need to fix the network protocols supported by your server. Refer to protocol sections in the [wiki:Modules] page, refer to ServerStrings page, refer to FAQ item [wiki:FAQ#HowdoIusePulseAudiooverthenetwork How do I use PulseAudio over the network?].
+If your host does not start playing you need to fix the network protocols supported by your server. Refer to protocol sections in the [[Software/PulseAudio/Documentation/User/Modules|Modules]] page, refer to [[Software/PulseAudio/Documentation/User/ServerStrings|Server Strings]] page, refer to FAQ item [[Software/PulseAudio/FAQ#HowdoIusePulseAudiooverthenetwork|How do I use PulseAudio over the network?]].
 
 Assuming that your host started playing we can probably limit the problem to zeroconf.
 
@@ -193,7 +193,7 @@ If in this step the remote end does not show the !PulseAudio services locally th
 
 === alsmamixer doesn't work since making the pulse plugin the alsa default ===
 
-Normally, volume can be adjusted in alsamixer using the Up/Down Arrow keys.  After [wiki:PerfectSetup#ALSAApplications making ALSA use PulseAudio by default], the mixer/control/slider presented as !PulseAudio in alsamixer doesn't respond to the up/down arrow keys.
+Normally, volume can be adjusted in alsamixer using the Up/Down Arrow keys.  After [[Software/PulseAudio/Documentation/User/PerfectSetup#ALSAApplications|making ALSA use PulseAudio by default]], the mixer/control/slider presented as !PulseAudio in alsamixer doesn't respond to the up/down arrow keys.
 
 The up/down are actually working, incrementing or decrementing the volume by 1 unit, but the pulse alsa plugin provides about 65k (16 bits of) volume levels, so you won't notice a 1/65,536 adjustment.  Remember this too when passing hardware values to amixer.
 
@@ -201,13 +201,13 @@ You can adjust the volume in alsamixer from 0 to 90% in 1/9 increments with the 
 
 === Sound doesn't work when switching users ===
 
-!PulseAudio works with a single user, but when an additional user logs in ([http://en.wikipedia.org/wiki/Fast_user_switching fast user switching]), sound/audio does not work for the additional user.
+!PulseAudio works with a single user, but when an additional user logs in ([[http://en.wikipedia.org/wiki/Fast_user_switching|fast user switching]]), sound/audio does not work for the additional user.
 
-Check that no users are part of the "audio" [http://en.wikipedia.org/wiki/Group_identifier_%28Unix%29 group].
+Check that no users are part of the "audio" [[http://en.wikipedia.org/wiki/Group_identifier_%28Unix%29|group]].
 
 In simple setups (e.g. singe user, without !PulseAudio), users must be a member of the "audio" group to access the sound devices (/dev/snd/* (which have group "audio" write permissions)).  Switching users will not automatically stop programs using those sound devices though, so those sound devices will not be accessible to a new (faster user switched) user's programs.
 
-By removing all users from the "audio" group (the !PulseAudio server still runs in the "audio" group), !PulseAudio is able manage access to sound devices (/dev/snd/*) amongst multiple users with the help of [http://www.freedesktop.org/wiki/Software/ConsoleKit ConsoleKit].
+By removing all users from the "audio" group (the !PulseAudio server still runs in the "audio" group), !PulseAudio is able manage access to sound devices (/dev/snd/*) amongst multiple users with the help of [[http://www.freedesktop.org/wiki/Software/ConsoleKit|ConsoleKit]].
 
 == I want to do this specific thing... ==
 
@@ -226,17 +226,17 @@ pulseaudio --dump-modules
 
 === How do I use !PulseAudio over the network? ===
 
-See the wiki page about [wiki:NetworkSetup Network Setup].
+See the wiki page about [[Software/PulseAudio/Documentation/User/Network|Network Setup]].
 
 
 === I saw that {{{SIGUSR2}}} provokes loading of the module {{{module-cli-protocol-unix}}}. But how do I make use of that? ===
 
-   A brilliant guy named Lennart Poettering once wrote a nifty tool for that purpose: [http://0pointer.de/lennart/projects/bidilink/ bidilink]. To connect to a running !PulseAudio daemon try using the following commands:
+   A brilliant guy named Lennart Poettering once wrote a nifty tool for that purpose: [[http://0pointer.de/lennart/projects/bidilink/|bidilink]]. To connect to a running !PulseAudio daemon try using the following commands:
 {{{
 killall -USR2 pulseaudio
 bidilink unix-client:/tmp/pulse-$USER/cli
 }}}
-   ''BTW: Someone should package this great tool for Debian! '' [[BR]]
+   ''BTW: Someone should package this great tool for Debian! '' <<BR>>
    '''New:''' There's now a tool {{{pacmd}}} that automates sending {{{SIGUSR2}}} to the daemon and running a bidilink like tool for you.
 
 
@@ -261,7 +261,7 @@ load-module module-oss-mmap device="/dev/dsp" sink_name=output0 channel_map=left
 load-module module-oss-mmap device="/dev/dsp1" sink_name=output1 channel_map=rear-left,rear-right channels=2
 load-module module-combine sink_name=combined master=output0 slaves=output1 channel_map=left,right,rear-left,rear-right channels=4
 }}}
-   This is mostly identical to the previous example. However, this time we manually specify the channel mappings for the sinks to make sure everything is routed correctly.[[BR]]
+   This is mostly identical to the previous example. However, this time we manually specify the channel mappings for the sinks to make sure everything is routed correctly.<<BR>>
    Please keep in mind that !PulseAudio will constantly adjust the sample rate to compensate for the deviating quartzes of the sound devices. This is not perfect, however. Deviations in a range of 1/44100s (or 1/48000s depending on the sampling frequency) can not be compensated. The human ear will decode these deviations as minor movements (less than 1cm) of the positions of the sound sources you hear.
 
 
@@ -314,7 +314,7 @@ The names can be rather cryptic, but hopefully you can figure out which name ide
 
 ==== Which program to use for recording ====
 
-I don't do any recording myself, so I'm not an expert on what is available, but here is some information anyway. If you know more, please edit this! The situation for !PulseAudio support in GUI programs doesn't look too good. Audacity is quite nice, but getting it to work can currently be a hassle. See PerfectSetup#Audacity for more information. I gave Jokosher 0.9 a quick try recently, but didn't get it to work properly. In my experience, command line programs work much better (you can of course edit the file with any program you want after recording it). The two programs I have tested are arecord (comes with ALSA) and parec (comes with !PulseAudio). I'll give an example command for both:
+I don't do any recording myself, so I'm not an expert on what is available, but here is some information anyway. If you know more, please edit this! The situation for !PulseAudio support in GUI programs doesn't look too good. Audacity is quite nice, but getting it to work can currently be a hassle. See [[Software/PulseAudio/Documentation/User/PerfectSetup|Perfect Setup]]#Audacity for more information. I gave Jokosher 0.9 a quick try recently, but didn't get it to work properly. In my experience, command line programs work much better (you can of course edit the file with any program you want after recording it). The two programs I have tested are arecord (comes with ALSA) and parec (comes with !PulseAudio). I'll give an example command for both:
 
 parec:
 
@@ -395,7 +395,7 @@ If you use a helper app for your chroot, such as schroot, you will need to chang
 
 (Question added 2009-11-14)
 
-This is answered on a separate page: DefaultDevice.
+This is answered on a separate page: [[Software/PulseAudio/Documentation/User/DefaultDevice|Default Device]].
 
 === How do I connect an input source to an output sink? ===
 
