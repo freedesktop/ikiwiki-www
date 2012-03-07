@@ -1,6 +1,6 @@
 = D-Bus Interface: General Server Functionality =
 
-[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus|(Back to the toplevel D-Bus Interface page)]]
 
 Objects and their interfaces:
  * /org/pulseaudio/core1
@@ -66,7 +66,7 @@ The hostname of the machine the server is running on.
  * Type: [Uint32]
  * Access: read/write
 
-The default channel map that is used when initializing a device and the configuration information doesn't specify the desired channel map. The default channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
+The default channel map that is used when initializing a device and the configuration information doesn't specify the desired channel map. The default channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Channelpositions|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]] for the list of possible channel position values.
 
 
 ==== !DefaultSampleFormat ====
@@ -74,7 +74,7 @@ The default channel map that is used when initializing a device and the configur
  * Type: Uint32
  * Access: read/write
 
-The default sample format that is used when initializing a device and the configuration information doesn't specify the desired sample format. See [wiki:DBusInterface/Enumerations#Sampleformats] for the list of possible values.
+The default sample format that is used when initializing a device and the configuration information doesn't specify the desired sample format. See [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Sampleformats|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]] for the list of possible values.
 
 
 ==== !DefaultSampleRate ====
@@ -109,7 +109,7 @@ All currently available sinks.
 When a new playback stream is created and there is no other policy about to which sink the stream should be connected, the fallback sink is selected. This property doesn't exist if there's no sink selected as the fallback sink.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the fallback sink is not set.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if the fallback sink is not set.
 
 
 ==== Sources ====
@@ -128,7 +128,7 @@ All currently available sources.
 When a new record stream is created and there is no other policy about to which source the stream should be connected, the fallback source is selected. This property doesn't exist if there's no source selected as the fallback source.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the fallback source is not set.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if the fallback source is not set.
 
 
 ==== !PlaybackStreams ====
@@ -204,7 +204,7 @@ The strings are intended to follow the structure and restrictions of D-Bus inter
 Find the card with the given name.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NotFoundError org.PulseAudio.Core1.NotFoundError] if no such card is available.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NotFoundError|org.PulseAudio.Core1.NotFoundError]] if no such card is available.
 
 
 ==== !GetSinkByName ====
@@ -217,7 +217,7 @@ Find the card with the given name.
 Find the sink with the given name.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NotFoundError org.PulseAudio.Core1.NotFoundError] if no such sink is available.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NotFoundError|org.PulseAudio.Core1.NotFoundError]] if no such sink is available.
 
 
 ==== !GetSourceByName ====
@@ -230,7 +230,7 @@ Find the sink with the given name.
 Find the source with the given name.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NotFoundError org.PulseAudio.Core1.NotFoundError] if no such source is available.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NotFoundError|org.PulseAudio.Core1.NotFoundError]] if no such source is available.
 
 
 ==== !GetSampleByName ====
@@ -243,15 +243,15 @@ Find the source with the given name.
 Find the sample with the given name.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NotFoundError org.PulseAudio.Core1.NotFoundError] if no such sample is loaded.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NotFoundError|org.PulseAudio.Core1.NotFoundError]] if no such sample is loaded.
 
 
 ==== !UploadSample ====
 
  * Arguments: name : String, sample_format : Uint32, sample_rate : Uint32, channels : [Uint32], default_volume : [Uint32], property_list : {String -> [Byte]}, Data : [Byte]
    - name: Sample name
-   - sample_format: Sample format, see [wiki:DBusInterface/Enumerations#Sampleformats]
-   - channels: Channel map as an array of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions]
+   - sample_format: Sample format, see [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Sampleformats|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]]
+   - channels: Channel map as an array of channel positions, see [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Channelpositions|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]]
    - default_volume: The volume at which the sample should be played if the volume isn't given at the time of playing. The volume elements in the array must match the channel positions in the channels array, or alternatively an empty array may be given, in which case the server decides the default volume (this is often a good choice). Volume elements should normally be between 0 (muted) and 65536 (normal). Any bigger values amplify the signal digitally, which very often causes clipping.
    - property_list: Proplist for the sample
    - data: Audio data
@@ -346,7 +346,7 @@ A sink was removed.
  * Parameters: sink : !ObjectPath
    - sink: New fallback sink
 
-The fallback sink was changed. When the fallback sink becomes unset, [#FallbackSinkUnset FallbackSinkUnset] is emitted instead of this signal.
+The fallback sink was changed. When the fallback sink becomes unset, [[#FallbackSinkUnset|FallbackSinkUnset]] is emitted instead of this signal.
 
 
 ==== !FallbackSinkUnset ====
@@ -375,7 +375,7 @@ A source was removed.
  * Parameters: source : !ObjectPath
    - source: New fallback source
 
-The fallback source was changed. When the fallback source becomes unset, [#FallbackSourceUnset FallbackSourceUnset] is emitted instead of this signal.
+The fallback source was changed. When the fallback source becomes unset, [[#FallbackSourceUnset|FallbackSourceUnset]] is emitted instead of this signal.
 
 
 ==== !FallbackSourceUnset ====
