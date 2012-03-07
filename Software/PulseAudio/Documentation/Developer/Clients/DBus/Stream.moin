@@ -1,6 +1,6 @@
 = D-Bus Interface: Streams =
 
-[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus|(Back to the toplevel D-Bus Interface page)]]
 
 Objects and their interfaces:
  * /org/pulseaudio/core1/playback_streamX
@@ -41,7 +41,7 @@ The driver that implements the stream object. This is usually expressed as a sou
 The module that owns this stream. It's not guaranteed that any module claims ownership; in such case this property does not exist.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if this stream is not owned by any module.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if this stream is not owned by any module.
 
 
 ==== Client ====
@@ -52,7 +52,7 @@ The module that owns this stream. It's not guaranteed that any module claims own
 The client whose stream this is. Not all streams are created by clients, in those cases this property does not exist.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if this stream is not created by a client.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if this stream is not created by a client.
 
 
 ==== Device ====
@@ -68,7 +68,7 @@ The device this stream is connected to.
  * Type: Uint32
  * Access: read
 
-The sample format of the stream. See [wiki:DBusInterface/Enumerations#Sampleformats] for the list of possible values.
+The sample format of the stream. See [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Sampleformats|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]] for the list of possible values.
 
 
 ==== !SampleRate ====
@@ -84,7 +84,7 @@ The sample rate of the stream.
  * Type: [Uint32]
  * Access: read
 
-The channel map of the stream. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [wiki:DBusInterface/Enumerations#Channelpositions] for the list of possible channel position values.
+The channel map of the stream. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Channelpositions|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]] for the list of possible channel position values.
 
 
 ==== Volume ====
@@ -96,11 +96,11 @@ The volume of the stream. The array is matched against the Channels property: th
 
 There are two ways to adjust the volume. You can either adjust the overall volume by giving a single-value array, or you can precisely control the individual channels by passing an array containing a value for each channel.
 
-The volume can only be written if [#VolumeWritable VolumeWritable] is true.
+The volume can only be written if [[#VolumeWritable|VolumeWritable]] is true.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if the stream doesn't have volume (record streams don't currently have volume at all).
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.BadStateError org.PulseAudio.Core1.BadStateError] if trying to set a read-only volume.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if the stream doesn't have volume (record streams don't currently have volume at all).
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.BadStateError|org.PulseAudio.Core1.BadStateError]] if trying to set a read-only volume.
 
 
 ==== !VolumeWritable ====
@@ -108,7 +108,7 @@ The volume can only be written if [#VolumeWritable VolumeWritable] is true.
  * Type: Boolean
  * Access: read
 
-Whether or not the [#Volume Volume] property can be set. Note that read-only volumes can still change, clients just can't control them.
+Whether or not the [[#Volume|Volume]] property can be set. Note that read-only volumes can still change, clients just can't control them.
 
 
 ==== Mute ====
@@ -119,7 +119,7 @@ Whether or not the [#Volume Volume] property can be set. Note that read-only vol
 Whether or not the stream is currently muted. Record streams don't currently support muting, so this property exists for playback streams only for now.
 
  * Errors:
-   - [wiki:DBusInterface/Errors#org.PulseAudio.Core1.NoSuchPropertyError org.PulseAudio.Core1.NoSuchPropertyError] if this is a record stream and the server doesn't implement volume for record streams.
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if this is a record stream and the server doesn't implement volume for record streams.
 
 
 ==== !BufferLatency ====
