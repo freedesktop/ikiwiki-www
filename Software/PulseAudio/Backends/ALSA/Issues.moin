@@ -12,7 +12,7 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
  * It is not possible to enumerate the ctl/hctl elements that make up a smixer element.
 
- * It is possible to query the dB range of a smixer element. And it is possible to query and set the current dB level. However, it is not possible to have a dB value converted to an integer level or vice versa, without touching the actual setting. i.e. a question like "What is the integer level 0 dB corresponds to?" can not be answered by ALSA. Which happens to be a serious limitation. '''Update:''' [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007322.html This seems fixed now]
+ * It is possible to query the dB range of a smixer element. And it is possible to query and set the current dB level. However, it is not possible to have a dB value converted to an integer level or vice versa, without touching the actual setting. i.e. a question like "What is the integer level 0 dB corresponds to?" can not be answered by ALSA. Which happens to be a serious limitation. '''Update:''' [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007322.html|This seems fixed now]]
 
  * the dB scale is is almost useless. dB is a relative scale and ALSA didn't define what the reference level is. All mixer controls on all sound drivers use different reference levels. Hence the dB scale is not any more useful than that they are pretty to look at and make you feel like oh-i-am-such-a-guru-i-look-at-dB-levels.
 
@@ -26,15 +26,15 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
 == PCM ==
 
- * Timestamps such as state->tstmp are in CLOCK_REALTIME, there's no way to use CLOCK_MONOTONIC instead, which makes them kind of impractical to use. '''Update:''' Since 1.0.16 they are supposed to be CLOCK_MONOTONIC, [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007044.html but actually they are still useless]. '''Update 2:''' There is now [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007067.html snd_pcm_hw_params_is_monotonic() in alsa-lib HG]. '''Update 3:''' Unfortunately that call doesn't work: http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014839.html
+ * Timestamps such as state->tstmp are in CLOCK_REALTIME, there's no way to use CLOCK_MONOTONIC instead, which makes them kind of impractical to use. '''Update:''' Since 1.0.16 they are supposed to be CLOCK_MONOTONIC, [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007044.html|but actually they are still useless]]. '''Update 2:''' There is now [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007067.html|snd_pcm_hw_params_is_monotonic() in alsa-lib HG]]. '''Update 3:''' Unfortunately that call doesn't work: http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014839.html
 
- * There is no way to detect in advance (i.e. when setting up the hw parameters) if _rewind() would ever work on a device, thus making this functionality pretty much useless. '''Update:''' There is now [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007067.html snd_pcm_hw_params_can_forward in alsa-lib HG]. I am happy!
+ * There is no way to detect in advance (i.e. when setting up the hw parameters) if _rewind() would ever work on a device, thus making this functionality pretty much useless. '''Update:''' There is now [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007067.html|snd_pcm_hw_params_can_forward in alsa-lib HG]]. I am happy!
 
  * There's no way to disable implicit sample type, channel map conversion in plughw:. You either get a fancy-we-do-it-all device (plughw:), or a completely raw device (hw:), there's no way to selectively disable/enable any of the additional features of plughw, except for resampling. That includes the previously mentioned sample type conversion or channel map, and softvol. '''Update:''' This is fixed now, the SND_PCM_NOAUTO_xxx flags in 1.0.16 offer exactly what I need.
  
  * There's no way to query the active channel map for a device
 
- * [https://bugtrack.alsa-project.org/alsa-bug/view.php?id=3570 Device enumeration is completely broken and useless], and not useful for hotplug
+ * [[https://bugtrack.alsa-project.org/alsa-bug/view.php?id=3570|Device enumeration is completely broken and useless]], and not useful for hotplug
 
  * There's no way to detect whether spdif: can be used at the same time as any of the ther other PCM devices  (i.e. front: or suchlike) of the same card or if they are exclusive. There is no API to query if opening a certain PCM device with a specific configuration will make a related PCM device return EBUSY. (i.e. there seem to be some devices where opening a 6ch output stream will cause opening the device for capturing to return EBUSY)
 
@@ -42,19 +42,19 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
  * The is no device string for mono-only devices in style of "front:", "surround50:" and suchlike.
 
- * There is no way to disable fragment interrupts for a device entirely, which would be useful in [http://0pointer.de/blog/projects/pulse-glitch-free.html timer-based scheduling]. '''Update:'''' This apparently has been fixed at least partially, there is now snd_pcm_sw_params_set_period_event().
+ * There is no way to disable fragment interrupts for a device entirely, which would be useful in [[http://0pointer.de/blog/projects/pulse-glitch-free.html|timer-based scheduling]]. '''Update:'''' This apparently has been fixed at least partially, there is now snd_pcm_sw_params_set_period_event().
 
  * There is no API to query the granularity of snd_pcm_delay()
 
  * The devices with an explicit channel mapping (i.e. "surround41:", ...) cannot be used for 10ch and 12ch sound cards. There is also no definition for surround91: and surround111.
 
- * [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007354.html The buffering model has major issues.] [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-June/008381.html Another iteration of the story.] Different drivers implement completely different logic for snd_pcm_delay(), e.g. for USB hw snd_pcm_delay() is way off what should really be returned. "Fast" buffer emptying after playback start is not communicated to the application.
+ * [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-April/007354.html|The buffering model has major issues.]] [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-June/008381.html|Another iteration of the story.]] Different drivers implement completely different logic for snd_pcm_delay(), e.g. for USB hw snd_pcm_delay() is way off what should really be returned. "Fast" buffer emptying after playback start is not communicated to the application.
 
  * An application which wants to use surround sound has no chance to do so in any sensible way unless it goes directly to the hw devices "surround41:0" and so on. This kicks virtual drivers like PA out of the game however. This boils down to: no practical surround sound for ioplug based plugins. For ioplug based plugins only stereo and mono can be implemented sensibly.
 
  * Currently there is no point in opening "default" in anything but 1ch or 2ch, since otherwise the channel mapping is unknown.
 
- * Async PCM is evil. [http://mailman.alsa-project.org/pipermail/alsa-devel/2008-May/008030.html Signals suck].
+ * Async PCM is evil. [[http://mailman.alsa-project.org/pipermail/alsa-devel/2008-May/008030.html|Signals suck]].
 
  * The maximum buffer size on HDA is a too small for real good glitch-free: http://mailman.alsa-project.org/pipermail/alsa-devel/2008-June/008550.html
 
@@ -68,7 +68,7 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
 == ioplug ==
 
- * [https://bugtrack.alsa-project.org/alsa-bug/view.php?id=2601 ioplug is in a really bad state]. 
+ * [[https://bugtrack.alsa-project.org/alsa-bug/view.php?id=2601|ioplug is in a really bad state]]. 
 
  * There is no way to reflect back XRUN states to the application
 
@@ -82,8 +82,8 @@ Here's my list of issues I found with the current ALSA API while developing PA:
 
  * The library spams to stderr. On my mono usb soundcard (a webcam) opening the PCM device via "front:" (which rightfully fails) produces a lot of noise on stderr, which apparently cannot be disabled. And there are lots of similar cases. '''Update:''' There's snd_lib_error_set_handler() which can be used to stop this. 
 
- * Nobody cares about the [https://bugtrack.alsa-project.org/alsa-bug/ ALSA BTS]. Bugs are posted there and forgotten.
+ * Nobody cares about the [[https://bugtrack.alsa-project.org/alsa-bug/|ALSA BTS]]. Bugs are posted there and forgotten.
 
 == Individual drivers ==
 
-(semi-off-topic) For a list of various ALSA drivers with PA-related bugs, see BrokenSoundDrivers.
+(semi-off-topic) For a list of various ALSA drivers with PA-related bugs, see [[Software/PulseAudio/Backends/ALSA/BrokenDrivers|Broken Sound Drivers]].
