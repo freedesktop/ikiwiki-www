@@ -1,13 +1,13 @@
 = D-Bus Interface: Connecting to a Server =
 
-[wiki:DBusInterface (Back to the toplevel D-Bus Interface page)]
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus|(Back to the toplevel D-Bus Interface page)]]
 
 '''NB:''' This scheme will very likely be changed, details about this are in this mailing list message: [https://tango.0pointer.de/pipermail/pulseaudio-discuss/2009-July/004437.html]. At the time of writing, there are no responses so it's not certain yet what the final server discovery scheme will exactly look like. The following description applies to the current development version.
 
 
 == Procedure ==
 
-When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a server address or a list of addresses, as specified in the [http://dbus.freedesktop.org/doc/dbus-specification.html#addresses D-Bus Specification, section Server Addresses]. The client should be able to use the string directly as the address parameter of the underlying D-Bus library's connect function.
+When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a server address or a list of addresses, as specified in the [[http://dbus.freedesktop.org/doc/dbus-specification.html#addresses|D-Bus Specification, section Server Addresses]]. The client should be able to use the string directly as the address parameter of the underlying D-Bus library's connect function.
 
 If $PULSE_DBUS_SERVER is not set, the client reads the Address property (part of the org.!PulseAudio.!ServerLookup1 interface) of object /org/pulseaudio/server_lookup1. The destination of the call is org.!PulseAudio1. The property contains a string similar to the $PULSE_DBUS_SERVER environment variable. The returned string is empty if client.conf doesn't set any address (which is the default) and the daemon is configured to not run local servers. Reading the property may autostart pulseaudio. Due to the fact that pulseaudio may exit automatically after a while, the client shouldn't wait long between reading the address and connecting to the server (the default timeout is 20 seconds).
 
