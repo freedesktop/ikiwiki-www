@@ -1,8 +1,8 @@
-[[TracNav(TOC)]]
-[[TracNav(ModulesTOC)]]
+<<Include(Software/PulseAudio/TOC)>>
+<<Include(ModulesTOC)>>
 
 = Loadable Modules =
-To show all currently loaded modules with their arguments, run {{{pacmd}}} and enter the [wiki:CLI] command `list-modules` .
+To show all currently loaded modules with their arguments, run {{{pacmd}}} and enter the [[Software/PulseAudio/Documentation/User/CLI|CLI]] command `list-modules` .
 The following loadable modules are provided with the !PulseAudio distribution:
 
 == Device Drivers ==
@@ -200,7 +200,7 @@ The sink name (resp. source name) defaults to wave_output (resp. wave_input).
 
 === module-combine ===
 
-Renamed to module-combine-sink in 1.0. See [#module-combine-sink module-combine-sink] for the documentation for this module.
+Renamed to module-combine-sink in 1.0. See [[#module-combine-sink|module-combine-sink]] for the documentation for this module.
 
 
 === module-combine-sink ===
@@ -218,7 +218,7 @@ Renamed to module-combine-sink in 1.0. See [#module-combine-sink module-combine-
   resample_method
     Resampling algorithm to use when adjusting to the sample rate differences between the slave sinks. TODO: Create a page, and add a link to it here, that explains all the different resamplers that are available. While waiting for that to happen, users can refer to `man pulse-daemon.conf`, more specifically the `resample-method` option documentation.
   format, rate, channels, channel_map
-    Parameters for the combined sink. See the [#DeviceDrivers Device Drivers section] at the top of this page for details.
+    Parameters for the combined sink. See the [[#DeviceDrivers|Device Drivers section]] at the top of this page for details.
 
 
 === module-remap-sink ===
@@ -253,7 +253,7 @@ load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels
 
 === module-tunnel-{sink,source} === #module-tunnel
 
-Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. See NetworkSetup for reasons on whether to use a tunnel or direct connection to the remote server.
+Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. See [[Software/PulseAudio/Documentation/User/Network|Network Setup]] for reasons on whether to use a tunnel or direct connection to the remote server.
 
   server
     The server to connect to
@@ -281,7 +281,7 @@ This module lacks the channel_map argument.
 
 === module-cli ===
 
-Provides the user with a simple [wiki:CLI command line interface] on the controlling TTY of the daemon. This module may not be loaded more than once.
+Provides the user with a simple [[Software/PulseAudio/Documentation/User/CLI|command line interface]] on the controlling TTY of the daemon. This module may not be loaded more than once.
 
   exit_on_eof
     Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0)
@@ -289,7 +289,7 @@ Provides the user with a simple [wiki:CLI command line interface] on the control
 
 === module-cli-protocol-{unix,tcp} ===
 
-An implementation of a simple [wiki:CLI command line based protocol] for controlling the !PulseAudio daemon. If loaded, the user may connect with tools like {{{netcat}}}, {{{telnet}}} or {{{bidilink}}} to the listening sockets and execute commands the same way as with module-cli.
+An implementation of a simple [[Software/PulseAudio/Documentation/User/CLI|command line based protocol]] for controlling the !PulseAudio daemon. If loaded, the user may connect with tools like {{{netcat}}}, {{{telnet}}} or {{{bidilink}}} to the listening sockets and execute commands the same way as with module-cli.
 
 '''Beware:''' Users are not authenticated when connecting to this service.
 
@@ -415,7 +415,7 @@ Automatically restore profile of cards.
   on_rescue
     '''Since 0.9.16.''' Recheck streams when device becomes unavailable. (default to true)
   fallback_table
-    '''Since 2.0.''' File name for a fallback table, containing stream-restore entries (with volume only). The file name can be absolute or relative to the configuration directory. When module-stream-restore is loaded, each fallback entry is saved to the database if that entry didn't already exist. The original purpose was to have a way to configure initial volumes for streams already before the first boot. If this argument is not specified, "stream-restore.table" will be loaded if it happens to exist (by default it doesn't). The file format is explained in the [http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/doc/stream_restore_fallback_table_example.table example file].
+    '''Since 2.0.''' File name for a fallback table, containing stream-restore entries (with volume only). The file name can be absolute or relative to the configuration directory. When module-stream-restore is loaded, each fallback entry is saved to the database if that entry didn't already exist. The original purpose was to have a way to configure initial volumes for streams already before the first boot. If this argument is not specified, "stream-restore.table" will be loaded if it happens to exist (by default it doesn't). The file format is explained in the [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/doc/stream_restore_fallback_table_example.table|example file]].
 
 
 == X Window System ==
@@ -540,7 +540,7 @@ Available ''config''s include: ''volume-up'', ''volume-down'', ''mute'', ''mute-
 
   auto_connect
 
-'''NOTE''': '''hsp''' profile doesn't work on some devices. Refer to [http://comments.gmane.org/gmane.linux.bluez.kernel/10584 this thread].
+'''NOTE''': '''hsp''' profile doesn't work on some devices. Refer to [[http://comments.gmane.org/gmane.linux.bluez.kernel/10584|this thread]].
 
 === module-bluetooth-proximity ===
 
@@ -558,7 +558,7 @@ Available ''config''s include: ''volume-up'', ''volume-down'', ''mute'', ''mute-
 
 The current implementation is designed to be used exclusively in local area networks, though Internet multicasting is theoretically supported. Only uncompressed audio is supported, hence you won't be able to multicast more than a few streams at the same time over a standard LAN.
 
-!PulseAudio implements both a sender and a receiver for RTP traffic. The sender announces itself via SAP/SDP on the same multicast group as it sends the RTP data to. The receiver picks up the SAP/SDP announcements and creates a playback stream for each session. Alternatively you can use any RTP capable client to receive and play back the RTP data (such as mplayer, see HowToListenToTheRtpStream).
+!PulseAudio implements both a sender and a receiver for RTP traffic. The sender announces itself via SAP/SDP on the same multicast group as it sends the RTP data to. The receiver picks up the SAP/SDP announcements and creates a playback stream for each session. Alternatively you can use any RTP capable client to receive and play back the RTP data (such as mplayer, see [[Software/PulseAudio/Documentation/User/Network/RTP|How To Listen To The Rtp Stream]]).
 
 === module-rtp-send ===
 
@@ -604,11 +604,11 @@ mDNS/DNS-SD Service Discovery of RAOP devices
 The main module used to create a virtual output device which pipes all audio to the RAOP device.
 
   sink_name
-    The name of the sink (see [wiki:Modules#DeviceDrivers])
+    The name of the sink (see [[Software/PulseAudio/Documentation/User/Modules#DeviceDrivers|Modules]])
   server
     The server to connect to
   sink_properties, format, rate, channels
-    All supported as per [wiki:Modules#DeviceDrivers]
+    All supported as per [[Software/PulseAudio/Documentation/User/Modules#DeviceDrivers|Modules]]
 
 == JACK Connectivity ==
 
@@ -773,7 +773,7 @@ This does not only restores the volume level but also the used sink which is use
 
 === module-udev-detect ===
 
-'''Since 0.9.16.''' Detects ALSA audio devices on the system using [http://en.wikipedia.org/wiki/Udev udev].
+'''Since 0.9.16.''' Detects ALSA audio devices on the system using [[http://en.wikipedia.org/wiki/Udev|udev]].
 
   tsched
     Enable timer based scheduling? Default: yes.
@@ -800,7 +800,7 @@ The parameter:
 
 '''This module is deprecated on systems where udev is available. Please use module-udev-detect instead.'''
 
-Detects audio devices on the system using [http://freedesktop.org/wiki/Software/hal HAL].
+Detects audio devices on the system using [[http://freedesktop.org/wiki/Software/hal|HAL]].
 
 Do not use this together with module-udev-detect or module-detect!
 
@@ -811,7 +811,7 @@ Do not use this together with module-udev-detect or module-detect!
 
 === module-zeroconf-publish ===
 
-Publish all local sinks/sources using mDNS Zeroconf. For more information, see NetworkSetup.
+Publish all local sinks/sources using mDNS Zeroconf. For more information, see [[Software/PulseAudio/Documentation/User/Network|Network Setup]].
 
 === module-zeroconf-discover ===
 
@@ -823,7 +823,7 @@ Automatically route a stream whose sink has become unavailable (e.g. USB hw plug
 
 === module-ladspa-sink ===
 
-'''Since 0.9.7.''' Adds signal processing (for example equalizing) to a sink with a [http://www.ladspa.org/ LADSPA] plugin.
+'''Since 0.9.7.''' Adds signal processing (for example equalizing) to a sink with a [[http://www.ladspa.org/|LADSPA]] plugin.
 
 The module shows up as a separate sink.
 
@@ -838,7 +838,7 @@ The module shows up as a separate sink.
   label
     One plugin file may contain multiple plugins, which are identified by a label. Specify it here.
   control
-    If the plugin has control input ports, you have to specify their values here. That is done by simply listing the numeric values using comma as the separator. Default values can be used by leaving the number out. If you're running !PulseAudio version less than 0.9.10 and you want the last control port to use the default value, you have to add an extra comma to the end (bug #204). Examples: Plugin with five control ports, leaving the third to the default value:[[BR]]`control=0.34,-2.3,,0.00346,5`[[BR]]Plugin with three control ports, leaving all to the default values:[[BR]]`control=,,`
+    If the plugin has control input ports, you have to specify their values here. That is done by simply listing the numeric values using comma as the separator. Default values can be used by leaving the number out. If you're running !PulseAudio version less than 0.9.10 and you want the last control port to use the default value, you have to add an extra comma to the end (bug #204). Examples: Plugin with five control ports, leaving the third to the default value:<<BR>>`control=0.34,-2.3,,0.00346,5`<<BR>>Plugin with three control ports, leaving all to the default values:<<BR>>`control=,,`
 
 An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin is in the `swh-plugins` package). '''Note:''' This particular plugin only works on !PulseAudio 0.9.8 and newer.
 {{{
@@ -847,7 +847,7 @@ load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_
 
 
 
-The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [http://jack-rack.sourceforge.net/ JACK Rack] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
+The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [[http://jack-rack.sourceforge.net/|JACK Rack]] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
 
 Currently this module only works with plugins that have one audio input port named "Input" and one output with name "Output". Patches welcome!
 
