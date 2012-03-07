@@ -10,27 +10,27 @@
 
 == Uncategorized questions ==
 
-=== How does !PulseAudio compare with ESOUND/aRts/NAS? ===
+=== How does PulseAudio compare with ESOUND/aRts/NAS? ===
 
    !PulseAudio is sound daemon similar to ESOUND and NAS, but much more powerful. aRts is a realtime-synthesizer-cum-sound-server, i.e. it does much more than !PulseAudio. However, I believe that !PulseAudio does what it does much better than any other free sound server.
 
 
-=== Is !PulseAudio a GNOME program? ===
+=== Is PulseAudio a GNOME program? ===
 
    No, !PulseAudio has no dependency on GNOME/GTK/GLIB. All it requires is a UNIX-like operating system and very few dependency libraries. However, the accompanying GUI tools are written with gtkmm, i.e. require both GLIB and GTK.
 
 
-=== I want to write a new driver for !PulseAudio, are there any docs? ===
+=== I want to write a new driver for PulseAudio, are there any docs? ===
 
    Support for audio backends is added by writting a new module. Currently, only the client API is documented with doxygen, for module development you have to use the internal API of PulseAudio. Read the source and base your work on a simple module like {{{module-pipe-sink}}}, {{{module-oss}}} or {{{module-virtual-{sink,source}}}}. See [Software/PulseAudio/Documentation/Developer#DevelopingModules DevelopingModules] for more information.
 
 
-=== How does !PulseAudio acquire realtime capabilities? ===
+=== How does PulseAudio acquire realtime capabilities? ===
 
    !PulseAudio activates SCHED_FIFO scheduling if the user passes {{{--high-priority=1}}}. For the root user this will succeed. For normal users {{{rtkit}}} is used to give !PulseAudio realtime priviliges.
 
 
-=== What environment variables does !PulseAudio care about? ===
+=== What environment variables does PulseAudio care about? ===
 
    * The client honors:
      * {{{$PULSE_SINK}}} (default sink to connect to)
@@ -47,7 +47,7 @@
      * {{{$PULSE_NO_SIMD}}} (disable SIMD optimizations. i.e. MMX, SSE, NEON)
 
 
-=== How do the !PulseAudio libraries decide where to connect to? ===
+=== How do the PulseAudio libraries decide where to connect to? ===
 
    The following rule applies: (see [[Software/PulseAudio/Documentation/User/ServerStrings|Server Strings]] for an explanation of the format of server specifications)
    1. If the the application using the library specifies a server to connect to it is used. If the connection fails, the library fails too.
@@ -65,7 +65,7 @@
    The !PulseAudio client libraries look for some X11 root window properties for the credentials of the !PulseAudio server to access. You may compile !PulseAudio without X11 for disabling this feature.
 
 
-=== Why did you rename Polypaudio to !PulseAudio? ===
+=== Why did you rename Polypaudio to PulseAudio? ===
 
    Please read this [[http://0pointer.de/blog/projects/pulse.html|blog story]] for an explanation.
 
@@ -78,12 +78,12 @@
    !PulseAudio is a drop in replacement for ESOUND. That means: you can load a esound compatibility module which implements an ESOUND compatible protocol which allows you to use most of the classic ESOUND compatible programs (including the command line programs like {{{esdcat}}}).
 
 
-=== Can I integrate !PulseAudio in my GLIB/GTK/GNOME application? ===
+=== Can I integrate PulseAudio in my GLIB/GTK/GNOME application? ===
 
    Yes! !PulseAudio comes with a GLIB main loop adapter. You can embed both the client library and the daemon (!) into your GLIB based application.
 
 
-=== Can I integrate !PulseAudio in my Qt/KDE application? ===
+=== Can I integrate PulseAudio in my Qt/KDE application? ===
 
    Yes! !PulseAudio uses a main loop abstraction layer that allows you to integrate !PulseAudio in any program that supports main loops. Unfortunately there is no adapter for Qt publicly available yet.
 
@@ -98,7 +98,7 @@
    Is not available. Since aRts is as synthesizer application you'd have to reimplement very much code for !PulseAudio. It should be easy to implement limited support for libartsc based applications. Noone has done this yet. It is probably a better idea to run arts on top of !PulseAudio (through a !PulseAudio driver for aRts, which nobody has written yet). Another solution would be to embed !PulseAudio in the aRts process.
 
 
-=== Can I get OSS and ALSA applications to work with !PulseAudio? ===
+=== Can I get OSS and ALSA applications to work with PulseAudio? ===
 
    Yes, you can! OSS applications are handled using the {{{padsp}}} utility shipped with !PulseAudio:
 {{{
@@ -130,12 +130,12 @@ padsp myapp <arguments to myapp>
    A likely reason for this is that no devices have been loaded. Stop pulseaudio (run "pulseaudio -k"), and start it again with "pulseaudio -vv". That will print verbose output of the daemon startup. If you can't figure out what might go wrong yourself, send a link to the whole output of the command to the irc channel (see [[Software/PulseAudio/Documentation/User/Community#IRC|Community]]). (Help is not guaranteed. Patience is a virtue.)
 
 
-=== I often hear noises when playing back with !PulseAudio, what can I do? ===
+=== I often hear noises when playing back with PulseAudio, what can I do? ===
 
    There are two possible solutions: run !PulseAudio with argument {{{--high-priority=1}}} and make yourself member of the group `pulse-rt`, or increase the fragment sizes of the audio drivers. The former will allow !PulseAudio to activate {{{SCHED_FIFO}}} high priority scheduling (root rights are dropped immediately after this). Keep in mind that this is a potential security hole!
 
 
-=== I have a surround sound card, but !PulseAudio uses just the front speakers! ===
+=== I have a surround sound card, but PulseAudio uses just the front speakers! ===
 
    Many people have a surround card, but have speakers for just two channels, so !PulseAudio can't really default to a surround setup. To enable all the channels, edit `/etc/pulse/daemon.conf`: uncomment the `default-sample-channels` line (i.e. remove the semicolon from the beginning of the line) and set the value to 6 if you have a 5.1 setup, or 8 if you have 7.1 setup etc. After doing the edit, restart pulseaudio.
 
@@ -211,12 +211,12 @@ By removing all users from the "audio" group (the !PulseAudio server still runs 
 
 == I want to do this specific thing... ==
 
-=== I want to run !PulseAudio only when it is needed, how do I do this? ===
+=== I want to run PulseAudio only when it is needed, how do I do this? ===
 
    Set {{{autospawn = yes}}} in {{{client.conf}}}. That configuration file may be found either in {{{/etc/pulse/}}} or in {{{~/.pulse/}}}.
 
 
-=== How do I list all !PulseAudio modules installed? ===
+=== How do I list all PulseAudio modules installed? ===
 
 {{{
 pulseaudio --dump-modules
@@ -224,7 +224,7 @@ pulseaudio --dump-modules
    Add {{{-v}}} for terse usage instructions.
 
 
-=== How do I use !PulseAudio over the network? ===
+=== How do I use PulseAudio over the network? ===
 
 See the wiki page about [[Software/PulseAudio/Documentation/User/Network|Network Setup]].
 
@@ -240,7 +240,7 @@ bidilink unix-client:/tmp/pulse-$USER/cli
    '''New:''' There's now a tool {{{pacmd}}} that automates sending {{{SIGUSR2}}} to the daemon and running a bidilink like tool for you.
 
 
-=== Can I use !PulseAudio to playback music on two sound cards simultaneously? ===
+=== Can I use PulseAudio to playback music on two sound cards simultaneously? ===
 
    Yes! Use {{{module-combine}}} for that.
 {{{
@@ -253,7 +253,7 @@ set-sink-default combined
 
 Much fancier is to use the automatic mode. To make use of that simply check the "Simultaneous Output" checkbox in paprefs.
 
-=== Can I use !PulseAudio to combine two stereo soundcards into a virtual surround sound card? ===
+=== Can I use PulseAudio to combine two stereo soundcards into a virtual surround sound card? ===
 
    Yes! You can use use {{{module-combine}}} for that.
 {{{
