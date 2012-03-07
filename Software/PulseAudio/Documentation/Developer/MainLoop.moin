@@ -1,5 +1,5 @@
-[[TracNav(TOC)]]
-[[TracNav(DevelopingModulesTOC)]]
+<<Include(Software/PulseAudio/TOC)>>
+<<Include(DevelopingModulesTOC)>>
 
 = The daemon mainloop =
 
@@ -13,7 +13,7 @@ Another event type is the "timed event". It happens after a fixed amount of time
 
 The third event type is the "IO event". It's the only one that can be fired outside the mainloop thread. Creating an IO event registers a file descriptor in the mainloop, and then the mainloop polls that descriptor. So you can construct a pipe and give the reading end to the mainloop, and then you can from some other thread write to the pipe, and that will fire the event, i.e make the mainloop execute the function you gave it on the event creation.
 
-The functions mentioned here are from the [http://0pointer.de/lennart/projects/pulseaudio/doxygen/structpa__mainloop__api.html mainloop API]. For example, if you happen to have nothing but a pointer to your module's `pa_module` structure, and you want to create a deferred event with `defer_new()`, you could say
+The functions mentioned here are from the [[http://0pointer.de/lennart/projects/pulseaudio/doxygen/structpa__mainloop__api.html|mainloop API]]. For example, if you happen to have nothing but a pointer to your module's `pa_module` structure, and you want to create a deferred event with `defer_new()`, you could say
 
 {{{
 pa_defer_event* e = module->core->mainloop->defer_new(module->core->mainloop, defer_cb, userdata);
