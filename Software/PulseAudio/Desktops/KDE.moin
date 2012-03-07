@@ -1,4 +1,4 @@
-[[PageOutline]]
+<<TableOfContents>>
 
 = KDE PulseAudio Integration =
 
@@ -6,47 +6,47 @@ This document describes how the PulseAudio integration in KDE works and some tho
 
 I'll describe things first at a high level (i.e. what you should expect to see) and then go on to describe how things work in the lower levels for those that are interested in such things!
 
-Firstly there are two primary areas of KDE in which PulseAudio support is needed: Phonon (the media playback system used by most KDE applications) and KMix (the mixer application used to control device volumes). [http://colin.guthr.ie/ Colin Guthrie] has contributed code to integrate PulseAudio into both these components.
+Firstly there are two primary areas of KDE in which PulseAudio support is needed: Phonon (the media playback system used by most KDE applications) and KMix (the mixer application used to control device volumes). [[http://colin.guthr.ie/|Colin Guthrie]] has contributed code to integrate PulseAudio into both these components.
 
 == Phonon ==
 
 With regards to a properly integrated Phonon, you can verify that your build supports PulseAudio by going to "System Settings" → "Multimedia" (on some distros the "Multimedia" tab is labelled as "Audio and Video Settings"). If all is well, you should see a screen similar to the following:
 
-[[Image(phonon-pulse-working-full.png)]]
+{{attachment:phonon-pulse-working-full.png}}
 
-''NB, the "Speaker Setup" tab in the above screen shot will be/is part of KDE 4.6: See [http://colin.guthr.ie/2010/07/speaker-setup-now-or-forever-hold-your-peace/ Speak(er Setup) now, or Forever hold your Peace]''.
+''NB, the "Speaker Setup" tab in the above screen shot will be/is part of KDE 4.6: See [[http://colin.guthr.ie/2010/07/speaker-setup-now-or-forever-hold-your-peace/|Speak(er Setup) now, or Forever hold your Peace]]''.
 
 The devices shown will obviously be different on your system, however 99% of systems will have an "Internal Audio Analog Stereo" listing (or an "Internal Audio Digital Stereo" entry). To cross reference, the command {{{pacmd list-sinks | grep device.description}}} should list the same device names as the active (i.e. non-greyed out) outputs.
 
 If you do not see this full list, you may see simply a single PulseAudio entry like this:
 
-[[Image(phonon-pulse-working-half.png)]]
+{{attachment:phonon-pulse-working-half.png}}
 
 This generally implies that Phonon has been compiled correctly with PulseAudio support but that the KDE-specific support module for PulseAudio has not been loaded. This module (called module-device-manager) can be started manually by running the script "start-pulseaudio-kde" which should be shipped with PulseAudio since 0.9.21. This file is launched on startup via an XDG compliant .desktop file ({{{/etc/xdg/autostart/pulseaudio-kde.desktop}}}).
 
 
 Finally you may see a list that looks more like this:
 
-[[Image(phonon-pulse-broken.png)]]
+{{attachment:phonon-pulse-broken.png}}
 
 This indicates that PulseAudio support is NOT enabled in your Phonon build, or that PulseAudio itself is not running when the config dialog was launched. On most systems where PulseAudio is deployed, it is configured to auto-spawn, so this is an unlikely scenario in which to find yourself.
 
 
-If you find yourself in the last state, you should contact your distro (i.e. via their bug reporting tool) and request that they include PulseAudio support in their Phonon package and refer them to the [#PhononBuildInstructions Phonon Build Instructions].
+If you find yourself in the last state, you should contact your distro (i.e. via their bug reporting tool) and request that they include PulseAudio support in their Phonon package and refer them to the [[#PhononBuildInstructions|Phonon Build Instructions]].
 
 == KMix ==
 
 KMix provides a general purpose mixer to adjust device volumes under KDE. With properly integrated PulseAudio support, it is also possible to control individual application volumes too as well as move specific applications to different devices (although using the Category-based device preferences in Phonon configuration above is generally preferred).
 
-If you KMix installation is properly compiled with PA support (full support is included in KDE 4.5 and patches against 4.4 can be found via Colin Guthrie's [http://colin.guthr.ie/git/ GIT repository] - simply clone the repo and run {{{git diff master..pulse}}} to get a patch that should apply to your KDE Multimedia 4.4 source), you should see the following UI:
+If you KMix installation is properly compiled with PA support (full support is included in KDE 4.5 and patches against 4.4 can be found via Colin Guthrie's [[http://colin.guthr.ie/git/|GIT repository]] - simply clone the repo and run {{{git diff master..pulse}}} to get a patch that should apply to your KDE Multimedia 4.4 source), you should see the following UI:
 
-[[Image(kmix-pulse-working.png)]]
+{{attachment:kmix-pulse-working.png}}
 
 The primary UI will always consist of four fixed tabs - in contrast to the traditional KMix which shows one tab per device. The tabs should be self explanatory, but the first tab will automatically show any new devices when they become available. If you wish to control individual channels, simply right click on the slider and choose the "Split Channels" option.
 
 If you see a more traditional KMix interface like this:
 
-[[Image(kmix-pulse-broken.png)]]
+{{attachment:kmix-pulse-broken.png}}
 
 Then chances are that if you see this interface, your KDE Multimedia package was not compiled with support for PulseAudio (as above, PA is generally configured to auto-spawn when needed, so it should be running when KMix starts). If this is the case, you should again contact your distro and ask them to integrate support.
 
@@ -82,7 +82,7 @@ The following Distributions are known to provide fully integrated support:
 
 == Phonon Build Instructions ==
 
-Building Phonon is non-trivial due to the fact that there are actually two competing versions: one shipped with Qt itself and one maintained by KDE developers which is hosted on [http://gitorious.org/phonon/phonon Gitorious] The latter version is needed for full PulseAudio support. Currently version 4.4.1 + two [http://gitorious.org/phonon/phonon/commit/b44f19d7038f7e6182db4d29aee39dab5 additional] [http://gitorious.org/phonon/phonon/commit/1eb324f60f8df6bc7a866679919d79f1a patches] is recommended. Version 4.4.2 will be released shortly.
+Building Phonon is non-trivial due to the fact that there are actually two competing versions: one shipped with Qt itself and one maintained by KDE developers which is hosted on [[http://gitorious.org/phonon/phonon|Gitorious]] The latter version is needed for full PulseAudio support. Currently version 4.4.1 + two [[http://gitorious.org/phonon/phonon/commit/b44f19d7038f7e6182db4d29aee39dab5|additional]] [[http://gitorious.org/phonon/phonon/commit/1eb324f60f8df6bc7a866679919d79f1a|patches]] is recommended. Version 4.4.2 will be released shortly.
 
 In order to have full support, it is generally recommended that you build Qt with Phonon support, but simply do not package/distribute the libraries and headers for phonon, then build a separate package from the Gitorious version to provide the actual libraries and headers. This is how it is done on Mandriva and it seems to work very well.
 
@@ -90,7 +90,7 @@ Qt 4.7 should support building Phonon externally to deal more elegantly with thi
 
 == More Details ==
 
-Colin Guthrie outlined the work he did with the Phonon Support in a [http://colin.guthr.ie/2009/10/so-how-does-the-kde-pulseaudio-support-work-anyway/ rather detailed post]. It is not necessarily for the feint hearted, and not targeted at general user consumption!
+Colin Guthrie outlined the work he did with the Phonon Support in a [[http://colin.guthr.ie/2009/10/so-how-does-the-kde-pulseaudio-support-work-anyway/|rather detailed post]]. It is not necessarily for the feint hearted, and not targeted at general user consumption!
 
 
 
