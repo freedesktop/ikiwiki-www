@@ -1,10 +1,10 @@
-[[TracNav(TOC)]]
+<<Include(Software/PulseAudio/TOC)>>
 
 = Running !PulseAudio as System-Wide Daemon =
 
 Starting with !PulseAudio 0.9.3 the daemon can be run as a system-wide instance which than can be shared by multiple local users. We recommend running the !PulseAudio daemon per-user, just like the traditional ESD sound daemon. In some situations however, such as embedded systems where no real notion of a user exists, it makes sense to use the system-wide mode. 
 
-Before you now go ahead and use it please read about [WhatIsWrongWithSystemMode what is wrong with system mode].
+Before you now go ahead and use it please read about [Software/PulseAudio/Documentation/User/WhatIsWrongWithSystemWide what is wrong with system mode].
 
 To run !PulseAudio in system-wide mode, start it as {{{root}}} and pass the {{{--system}}} argument to it. It will then drop priviliges and change to the {{{pulse}}} UNIX user and group. The directory {{{/var/run/pulse/}}} is used as home directory. In this mode the module {{{module-native-protocol-unix}}} will automatically allow access to all members of the group {{{pulse-access}}}. All user/group names and paths can be changed by passing compile-time arguments to {{{configure}}}. The system user {{{pulse}}} and the groups {{{pulse}}} and {{{pulse-access}}} need to be created manually. On Debian this works like this:
 
@@ -36,6 +36,6 @@ It has some disadvantages:
  * Worse security, because the user can now command a server app running under another user name. He could even load/unload modules from that sound server
  * Settings like the stored volume levels managed by {{{module-volume-restore}}} are no longer per-user but system-wide
 
-Read more about [WhatIsWrongWithSystemMode what is wrong with system mode].
+Read more about [Software/PulseAudio/Documentation/User/WhatIsWrongWithSystemWide what is wrong with system mode].
 
 If the system-wide mode is enabled it is advisable to disable module loading during runtime by passing {{{--disallow-module-loading}}} to the daemon, to inhibit the user from loading arbitrary modules with potentially vulnerable code into the daemon. However, this might break some modules like {{{module-hal-detect}}} which will load a sound driver module each time HAL signals that a new sound card became available in the system.
