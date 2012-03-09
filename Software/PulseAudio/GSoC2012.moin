@@ -34,6 +34,7 @@ These are some ideas that the community would like to see pursued, Feel free to 
  * Add "high priority" events (Arun) [these would preempt passthrough streams, possible notify on all outputs, ...]
  * Efficient resampling (Peter) [esp. on embedded CPUs; maybe fixed ratio sample rate conversion]
 
+
 === Project Title (template) ===
 
 '''Brief description:'''
@@ -45,6 +46,7 @@ These are some ideas that the community would like to see pursued, Feel free to 
 '''Necessary background:''' <if any, such as networking, assembly, ...>
 
 '''Mentor:'''
+
 
 === Configurable maximum volume for sinks and sources ===
 
@@ -70,6 +72,7 @@ Several stages, the more gets done, the better:
 
 '''Mentor:''' Tanu
 
+
 === Configurable latency for Bluetooth devices ===
 
 '''Brief description:'''
@@ -91,6 +94,7 @@ Several stages, the more gets done, the better:
 '''Necessary background:''' For the GUI part some experience from writing graphical applications would be useful.
 
 '''Mentor:''' Tanu
+
 
 === Logging and testing overhaul ===
 
@@ -118,6 +122,7 @@ Revamp the testing infrastructure
 
 '''Mentor:''' Arun
 
+
 === Better HDMI support ===
 
 '''Brief description:'''
@@ -134,3 +139,58 @@ HDMI provides a number of nice features that we can use to make a better experie
 '''Necessary background:''' C, access to a device with HDMI output and an HDMI receiver (TV, etc.)
 
 '''Mentor:''' Arun
+
+
+=== Improved RAOP Support (Airtunes™) ===
+
+'''Brief description:'''
+Colin introduced initial RAOP support some time ago but the implementation still needs work to make it universally useful. This project would see an upgrade to the newer Airtunes2 protocol, a new timing and buffering model and support for additional hardware including newer models of the Airport Express, AppleTV and e.g. Denon 4311 or Phillips SoundCurve. Some initial work has been done by Christophe Fergeau (author/maintainer of libgpod) to investigate and update to Airtunes2 protocol. This work is far from complete, but could form a starting point. Analysis of existing solutions, including protocol analysis, will likely be needed as the protocol is mostly undocumented.
+
+'''Expected results:'''
+ * Analysis of the Airtunes2 protocol on existing implementations and creation of protocol documentation
+ * Convert code to use Airtunes2 protocol
+ * Implement a robust timing and buffering model for reduced latency.
+ * Ensure timing information is accurately relayed to applications such that GUIs showing song timing information, lyrics etc. are all in sync even if there is a higher overall latency.
+ * Become completely sick of the student's chosen test song that will no doubt be played repeatedly ad infinitum during testing.
+
+'''Contact(s):''' Colin
+
+'''Necessary background:''' C, Wireshark/Protocol Analysis, Access to Airtunes h/w - preferably several different models.
+
+'''Mentor:''' Colin
+
+
+=== Improved GUI Interaction/User Feedback ===
+
+'''Brief description:'''
+!PulseAudio is a daemon and thus GUI interaction is normally left for other people to integrate as they see fit. However, support for specific forms of GUI interaction could be facilitated more easily via a !PulseAudio module. Most Linux desktop environments now support the Desktop Notification specification which provides and infrastructure for showing passive/unobtrusive notifications to the user and for collecting simple feedback (i.e. answering basic questions).
+
+'''Expected results:'''
+ * Provide a mechanism to let the user know a new (never seen before device) has been plugged in and ask if they want to use it by default.
+ * Ensure that remote-sink detection modules (using zeroconf) are converted to offer an interactive mode (i.e. show the user they have found something but ask if they want to connect and, if necessary, prompt for authentication).
+ * Adjust volume control GUIs to know when Pass-through-mode is active for a given sink and thus volume controls are disabled.
+ * Integrate work appropriately into the Desktop Environments of GNOME and KDE
+ * ''Note'': Ubuntu uses a fork of the Desktop Notifications specification and uses a different feedback specification: Indicators. While it would be nice to support this variation, emphasis should be first placed on official upstream implementations. It would be nice if the final implementation was sufficiently flexible to work with both systems.
+
+'''Contact(s):''' Colin
+
+'''Necessary background:''' C, D-Bus, GTK, Qt, GUI/HCI
+
+'''Mentor:''' Colin
+
+
+=== Improved HTTP Protocol ===
+
+'''Brief description:'''
+Web-centric desktops are more common place these days, as are home media solutions where control and command is performed via smart phones. Since Pass-through support was merged in !PulseAudio 1.0, we have used json-c which facilitates the used of JSON formatted data in some selective places. The HTTP protocol is currently quite simplistic, primary designed to push out audio for e.g. UPnP. It would be nice if the HTTP protocol could be updated to include a simpler level of "command and control" introspection as the native protocol (i.e. listing sinks, sources etc. with notification of changes and the ability to make changes to volume, move sinks etc.)
+
+'''Expected results:'''
+ * Review native protocol and design introspection parts of HTTP protocol and document.
+ * Implementation of HTTP protocol.
+ * Create a web based interface to control PA devices and volumes.
+
+'''Contact(s):''' Colin
+
+'''Necessary background:''' C, JSON, HTML/CSS/JavaScript, JQuery (JQuery Mobile) or similar and perhaps Web Sockets.
+
+'''Mentor:''' Colin
