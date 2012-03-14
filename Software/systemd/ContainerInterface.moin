@@ -12,7 +12,7 @@ systemd has a number of interfaces for interaction with container managers when 
 
  * Consider (read-only) bind mounting /etc/localtime and /etc/timezone from the host file system into the container, if they exist
 
- * Pre-mount /dev as tmpfs for the container and bind mount some suitable TTY to /dev/console. Also, make sure to create device nodes for /dev/null, /dev/zero, /dev/full, /dev/random, /dev/urandom, /dev/tty, /dev/ptmx, /dev/kmsg, /dev/rtc0 in /dev.
+ * Pre-mount /dev as (container private) tmpfs for the container and bind mount some suitable TTY to /dev/console. Also, make sure to create device nodes for /dev/null, /dev/zero, /dev/full, /dev/random, /dev/urandom, /dev/tty, /dev/ptmx, /dev/kmsg, /dev/rtc0 in /dev. It is not necessary to create /dev/fd or /dev/stdout, as systemd will do that on its own.
 
  * systemd assumes that udev is not available in the container, and hence device dependencies are unavailable
 
@@ -20,4 +20,4 @@ systemd has a number of interfaces for interaction with container managers when 
 
 If you write software that wants to detect whether it is run in a container, please check /proc/1/environ and look for the container= environment variable. Do not assume the environment variable is inherited down the process tree. It generally is not. Hence check the environment block of PID 1, not your own.
 
-Note that it is our intention to make systemd systems work flawless without changes in containers. In fact we are interested to ensure that the same OS image can be booted on a bare system, in a VM and in a container, and behave correctly. If you notice that some componet in systemd does not work in a container as it should please contact us.
+Note that it is our intention to make systemd systems work flawlessly and out-of-the-box in containers. In fact we are interested to ensure that the same OS image can be booted on a bare system, in a VM and in a container, and behave correctly each time. If you notice that some component in systemd does not work in a container as it should please contact us.
