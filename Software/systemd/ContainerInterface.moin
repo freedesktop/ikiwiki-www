@@ -2,7 +2,7 @@
 
 systemd has a number of interfaces for interaction with container managers when systemd is used within the container. If you write a container solution, please consider supporting the following interfaces:
 
- * To allow systemd (and other code) to identify that it is executed within a container, please set the "container=" environment variable for PID 1 in the container. With this in place the ConditionVirtualization= setting in unit files will work properly. Example: "container=lxc-libvirt"
+ * To allow systemd (and other code) to identify that it is executed within a container, please set the "container=" environment variable for PID 1 in the container. With this in place the !ConditionVirtualization= setting in unit files will work properly. Example: "container=lxc-libvirt"
 
  * systemd has special support for allowing container managers to initialize the UUID for /etc/machine-id to some manager supplied value. This is only enabled if /etc/machine-id is empty (i.e. not yet set) at boot time of the container. The container manager should set "container_uuid=" to the container UUID it wants to set. (This is similar to the effect of qemu's -uuid switch). Note that you should pass only a UUID here that is actually unique (i.e. only one running container should have a specific UUID), and gets changed when a container gets duplicated. Also note that systemd will try to persistently store the UUID in /etc/machine-id (if writable) when this option is used, hence you should always pass the same UUID here. Keeping the externally used UUID for a container and the internal one in sync is hopefully useful to minimize surprise for the administrator.
 
