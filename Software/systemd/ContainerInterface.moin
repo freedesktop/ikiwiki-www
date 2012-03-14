@@ -19,3 +19,5 @@ systemd has a number of interfaces for interaction with container managers when 
  * If systemd detects it is run in a container it will spawn a single shell on /dev/console, and not care about VTs or multiple gettys on VTs
 
 If you write software that wants to detect whether it is run in a container, please check /proc/1/environ and look for the container= environment variable. Do not assume the environment variable is inherited down the process tree. It generally is not. Hence check the environment block of PID 1, not your own.
+
+Note that it is our intention to make systemd systems work flawless without changes in containers. In fact we are interested to ensure that the same OS image can be booted on a bare system, in a VM and in a container, and behave correctly. If you notice that some componet in systemd does not work in a container as it should please contact us.
