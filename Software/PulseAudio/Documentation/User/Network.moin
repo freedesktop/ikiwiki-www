@@ -10,11 +10,11 @@ Note all methods described here stream raw PCM audio over the network. This can 
 == Direct connection ==
 
 Just set the environment variable {{{$PULSE_SERVER}}} to the host name of the !PulseAudio server. Alternatively you can modify {{{~/.pulse/client.conf}}} or {{{/etc/pulse/client.conf}}} and set {{{default-server}}}. See [[Software/PulseAudio/Documentation/User/ServerStrings|Server Strings]] for an explanation of the format.
-In this [[Software/PulseAudio/FAQ#HowdothePulseAudiolibrariesdecidewheretoconnectto|FAQ entry]] all locations you can specify the server to use are listed. All the methods that connect to the daemon over the network using the native protocol need [[Modules#module-native-protocol-unixtcp|module-native-protocol-tcp]] loaded. This includes tunnels and Zeroconf setups. With this module loaded, the server listens on port 4713 for incoming client connections.
+In this [[Software/PulseAudio/FAQ#HowdothePulseAudiolibrariesdecidewheretoconnectto|FAQ entry]] all locations you can specify the server to use are listed. All the methods that connect to the daemon over the network using the native protocol need [[Software/PulseAudio/Documentation/User/Modules#module-native-protocol|module-native-protocol-tcp]] loaded. This includes tunnels and Zeroconf setups. With this module loaded, the server listens on port 4713 for incoming client connections.
 
 ==== Authorization ====
 For authentication you need the same auth cookies on all sides. For that copy {{{~/.pulse-cookie}}} to all clients that shall be allowed to connect.
-Alternatively the authorization cookies can be stored in the X11 server. The server must have [[Modules#module-native-protocol-unixtcp|module-native-protocol-tcp]] loaded. To enable all audio from all over the network, set the {{{auth-anonymous=1}}} argument. A more secure options is to manage access to these servers with an IP ACL. This can look like this in your {{{/etc/pulse/default.pa}}} or {{{~/.pulse/default.pa}}} startup script for !PulseAudio:
+Alternatively the authorization cookies can be stored in the X11 server. The server must have [[Software/PulseAudio/Documentation/User/Modules#module-native-protocol|module-native-protocol-tcp]] loaded. To enable all audio from all over the network, set the {{{auth-anonymous=1}}} argument. A more secure options is to manage access to these servers with an IP ACL. This can look like this in your {{{/etc/pulse/default.pa}}} or {{{~/.pulse/default.pa}}} startup script for !PulseAudio:
 {{{
 load-module module-esound-protocol-tcp auth-anonymous=1
 load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
@@ -32,7 +32,7 @@ If connecting back to the pulse daemon running on the computer that has the X di
 
 == Using a tunnel ==
 
-With a tunnel you can create a new sink that forwards all audio over the network to another server. For the sink at the remote server the tunnel looks like just another stream connecting over the network. The same holds for sources. See the documentation on [[Modules#module-tunnel|module-tunnel]] for details on the module arguments.
+With a tunnel you can create a new sink that forwards all audio over the network to another server. For the sink at the remote server the tunnel looks like just another stream connecting over the network. The same holds for sources. See the documentation on [[Software/PulseAudio/Documentation/User/Modules#module-tunnel|module-tunnel]] for details on the module arguments.
 
 Setting up a tunnel requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded, just like with the direct connection. After the tunnel is set up, client applications connect to the tunnel sink on the local !PulseAudio daemon. This has the advantage that you can switch the stream seamlessly between a local hardware sink and the tunnel sink. With a direct connection the client generally has to be restarted in order to switch servers. A direct connection has the advantage that the client has more control over buffering parameters.
 
@@ -42,7 +42,7 @@ In order to avoid having to setup tunnel manually between computers on a network
 
 Setup {{{module-zeroconf-publish}}} and {{{module-zeroconf-discover}}} manually or use the check box in paprefs.
 
-You can connect to other sound servers running on the LAN by using Zeroconf/[[http://avahi.org/|Avahi]] technolgy. Therefore make sure to compile !PulseAudio with Avahi support and load the Zeroconf module on all machines on the LAN. In addition make sure to load the {{{module-native-protocol-tcp}}} and that it allows connections from other hosts, see [#Authorization] above.
+You can connect to other sound servers running on the LAN by using Zeroconf/[[http://avahi.org/|Avahi]] technolgy. Therefore make sure to compile !PulseAudio with Avahi support and load the Zeroconf module on all machines on the LAN. In addition make sure to load the {{{module-native-protocol-tcp}}} and that it allows connections from other hosts, see [[#Authorization|Authorization]] above.
 
 {{{
 load-module module-zeroconf-publish
