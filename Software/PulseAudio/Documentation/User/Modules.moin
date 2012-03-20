@@ -250,8 +250,8 @@ load-module module-alsa-sink sink_name=front_stereo device=hw:0 channels=4 chann
 load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels=2 master_channel_map=aux0,aux1 channel_map=front-left,front-right
 }}}
 
-
-=== module-tunnel-{sink,source} === #module-tunnel
+<<Anchor(module-tunnel)>>
+=== module-tunnel-{sink,source} ===
 
 Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running !PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. See [[Software/PulseAudio/Documentation/User/Network|Network Setup]] for reasons on whether to use a tunnel or direct connection to the remote server.
 
@@ -287,6 +287,7 @@ Provides the user with a simple [[Software/PulseAudio/Documentation/User/CLI|com
     Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0)
 
 
+<<Anchor(module-cli-protocol)>>
 === module-cli-protocol-{unix,tcp} ===
 
 An implementation of a simple [[Software/PulseAudio/Documentation/User/CLI|command line based protocol]] for controlling the !PulseAudio daemon. If loaded, the user may connect with tools like {{{netcat}}}, {{{telnet}}} or {{{bidilink}}} to the listening sockets and execute commands the same way as with module-cli.
@@ -306,6 +307,8 @@ This module supports the following options:
   socket (only for -unix)
     The UNIX socket name (defaults to /tmp/pulse/cli)
 
+
+<<Anchor(module-simple-protocol)>>
 === module-simple-protocol-{unix,tcp} ===
 
 An implementation of a simple protocol which allows playback by using simple tools like netcat. Just connect to the listening socket of this module and write the audio data to it, or read it from it for playback, resp. recording.
@@ -323,6 +326,7 @@ In addition to the options supported by module-cli-protocol-*, this module suppo
   sink, source
     Specify the sink/source this service connects to
 
+<<Anchor(module-esound-protocol)>>
 === module-esound-protocol-{unix,tcp} ===
 
 An implementation of a protocol compatible with the Enlightened Sound Daemon (ESOUND, esd). When you load this module you may access the !PulseAudio daemon with tools like esdcat, esdrec or even esdctl. Many applications, such as XMMS, include support for this protocol.
@@ -343,6 +347,7 @@ In addition to the options supported by module-cli-protocol-*, this module suppo
   auth-ip-acl (only for -tcp}
     '''New in 0.9.3:''' A semicolon separated list of IP address range to which anonymous access is allowed. Example: ''auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8''
 
+<<Anchor(module-native-protocol)>>
 === module-native-protocol-{unix,tcp} ===
 
 The native protocol of !PulseAudio.
