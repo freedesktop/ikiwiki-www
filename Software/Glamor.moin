@@ -1,1 +1,21 @@
-Software/Glamor。
+= What is Glamor? =
+The glamor module is an open-source 2D graphics common driver for the X Window System as implemented by X.org. It supports a variety of graphics chipsets which have OpenGL/EGL/GBM supports.
+
+It’s a GL-based rendering acceleration library for X server:
+
+ * It uses GL functions and shader to complete the 2D graphics operations.
+ * It uses normal texture to represent a drawable pixmap if possible.
+ * It calls GL functions to render to the texture directly.
+
+It’s somehow hardware independently. And could be a building block of any X server’s DDX driver:
+
+ * Xephyr or any other X-in-X server could use glamor to acclerate the rendering if the hostX has glx support.
+ * Xorg’s DDX driver could leverage glamor-egl package to create a egl context without any native X system.
+
+This package can support every platform which has OpenGL and gbm and drm libraries.
+
+= Why Glamor? =
+Basiclly, the biggest two advantages of Glamor is:
+
+ 1. Graphic device has powerful 3D capability. To use 3D function to accelerate 2D rendering is possible and many drivers already do so.  OpenGL provides a more convenient and standard interface to leverage GFX device’s 3D power. It would be better to call OpenGL directly rather than manually write 3D pipeline control code for each different GFX device.
+ 1. We have heard of complains about why we need to develop two version drivers for a single graphic device for a long time. One is for mesa’s DRI driver and the other is for 2D DDX driver. One of glamor’s purpose is to eliminate the latter one.
