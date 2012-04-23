@@ -25,4 +25,6 @@ In Xorg, upper layer should always use low level DDX functions to handle renderi
 
 The Glamor has similar logic, but replace the 2D or 3D pipeline setup with GL's pipeline. In most caese, pixmap and window have a normal texture object. When doing the render or draw process, the texture object will be binded to a frame buffer object, so all the subsequent draw and render operations can use GL functions or use the according shader. We do not need to setup pipeline and write the control code for each different GFX device, the GL will handle it. If that GL kind render can not complete because of failure or not support, the Glamor will fallback to software rendering, which will use FB functions and upload it then if needs. This process needs memory copy several times and is relative slower, so the fallback cases should be decrease to the minimum.
 
+The Glamor now is implemented to be embedded in other DDX driver(By now, just xf86-video-intel support) to complete the draw and render functions. In the feature, Glamor will also be implemented as a seperated DDX driver.
+
 = How to Enable Glamor? =
