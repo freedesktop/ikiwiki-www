@@ -28,3 +28,8 @@ The Glamor has similar logic, but replace the 2D or 3D pipeline setup with GL's 
 The Glamor now is implemented to be embedded in other DDX driver(By now, just xf86-video-intel support) to complete the draw and render functions. In the feature, Glamor will also be implemented as a seperated DDX driver.
 
 = How to Enable Glamor? =
+To enable the Glamor, the following steps is needed:
+
+ 1. Rebuild the mesa using the parameter: --with-egl-platforms=x11,drm --with-gallium-drivers=  --enable-gbm --enable-shared-glapi --enable-glx-tls.  If --enable-glx-tls is not added, you should disable glx in XServer.
+ 1. Rebuild the xf86-video-intel driver, add parameter --enable-glamor to enable glamor module which is embedded in intel driver.
+ 1. Build and install glamor source. The Glamor source can be get at [[http://cgit.freedesktop.org/xorg/driver/glamor/|git://anongit.freedesktop.org/git/xorg/driver/glamor]]
