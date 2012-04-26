@@ -1,0 +1,125 @@
+= Configuration System =
+
+Status: '''draft'''. This is the initial proposal by Tanu, so there may be many opinions that are only held by him. The idea is to keep this page as a reference while discussing the configuration system, and record the results of the discussion here.
+
+
+== Introduction ==
+
+One of the [[Software/PulseAudio/GSoC2012|Google Summer of Code project ideas for 2012]] was a "configuration system". The configuration system was not among the selected projects, but the system was seen as a priority, so the plan now is to design and implement the important bits (the client API and the server-side infrastructure) ourselves within May 2012 or so (the reason for the tight schedule is that we'd like the GSoC students to benefit from this new system). Porting the existing configuration to the new system is not a matter of urgency. All the existing stuff has to be kept in mind while doing the design, though, so that the porting work is possible to do when that time comes.
+
+The configuration system should make it easy to implement runtime-modifiable persistent configuration options in the core and modules. Currently that involves writing protocol extensions (for multiple protocols, if you aim for completeness) and managing the data storage yourself. The goal is to reduce that work, and also to make life easier for applications.
+
+There are some notes from previous discussion at [[http://piratepad.net/BLGxYG2lf3]].
+
+
+== Goals ==
+
+ * The client API should be easy to use.
+ * The set of supported configuration options should be easy to extend.
+   * No protocol extensions.
+   * Make it as easy as possible to add a new option.
+ * Support also other things than statically named global options.
+   * For example, options for ports requires dynamic keys to identify the port.
+   * We want (or do we?) to support also persistent data that is less configuration-like, like the stream-restore database or the equalizer data.
+ * Support change notifications both at client side and at server side.
+ * Support reading and modifying client.conf. (?)
+
+
+== Design ==
+
+The configuration system stores "options". Options have a value and a (multi-part) identifier. The options need at least two pieces of identification information: the object id and the option name. For example, the maximum volume of a port could have object id "foocard:barport" and option id "max-volume". Objects have also a type (e.g. card, port, stream-restore entry). The object ids could have the type information encoded into them, or the type could be a separate identifier. A separate identifier is better, because otherwise you need to store the known options for each object, while it would be easier and more efficient to store the known options for the type of the objects. So, option values can be referenced by giving three identifiers: object type, object id and option name. These can be encoded in a single key string (e.g. "core.Port/cardname:portname/max-volume") if so desired, but the configuration system has to have concepts for these three things. We might want to also have a type namespace concept, for example to split the configuration into one file per namespace (core could have its own namespace and each module could have theirs). In the client API it's probably best to encode the namespace into the object type.
+
+From the configuration system's point of view, all option values are strings. Adding type information would add a lot of complexity and not have very big benefits (is it so?). The options will of course have an implicit type to be useful. The actual users of the options (applications and code in the server) have to validate the values themselves. This means that we should provide parsing functions for clients, at least for any complex types, but preferably also for simple stuff like integers. At server side, values are validated when they are read from the disk and when they are set by clients or by some other code in the server than the "option owner".
+
+Since validation is done by the option owner code, and since modules can implement options, some of the options can be only validated when a specific module is loaded. The way to handle the case, where an application sets an option for a module that is not loaded, is to refuse to set any such options. If the module isn't loaded, from the configuration system's point of view the option doesn't exist.
+
+
+== Client API ==
+
+This is how the client API will look like:
+
+{{{
+typedef void (*pa_server_configuration_cb_t)(
+                pa_context *c,
+                const char *object_type,
+                const char *object_id,
+                const char *option,
+                const char *value,
+                int eol,
+                void *userdata);
+
+pa_operation *pa_server_configuration_set(
+                pa_context *c,
+                const char *object_type,
+                const char *object_id,
+                const char *option,
+                const char *value,
+                pa_context_success_cb_t cb,
+                void *userdata);
+
+/* object_type, object_id and option can be NULL for wildcard selection. If
+ * object_type is NULL, then all other identifiers have to be NULL also. In
+ * case of wildcards, the callback may get called multiple times. The last call
+ * has the object_type, object_id, option and value parameters of
+ * pa_server_configuration_cb_t set to NULL and eol set to 1. */
+pa_operation *pa_server_configuration_get(
+                pa_context *c,
+                const char *object_type,
+                const char *object_id,
+                const char *option,
+                pa_server_configuration_cb_t cb,
+                void *userdata);
+
+/* The wildcard rules described with pa_server_configuration_get apply with
+ * the subscribe items too. */
+typedef struct pa_server_configuration_subscribe_item {
+        const char *object_type;
+        const char *object_id;
+        const char *option;
+} pa_server_configuration_subscribe_item;
+
+/* The items parameter is an array with n_items elements. If there are multiple
+ * subscribe items given, then the subscribe callback is called when any of the
+ * items match the event. If called multiple times, the subscribe items of the
+ * last call will replace all the previous items. */
+pa_operation *pa_server_configuration_subscribe(
+                pa_context *c,
+                const pa_server_configuration_subscribe_item *items,
+                unsigned n_items,
+                pa_context_success_cb_t cb,
+                void *userdata);
+
+/* When there are configuration changes that match the subscription, the
+ * callback that is set here will be called multiple times. The last call has
+ * the object_type, object_id, option and value parameters of
+ * pa_server_configuration_cb_t set to NULL and eol set to 1. */
+void pa_server_configuration_set_subscribe_callback(
+                pa_context *c,
+                pa_server_configuration_cb_t cb,
+                void *userdata);
+}}}
+
+There has been some discussion about supporting also reading and modifying client.conf. client.conf is not centrally managed, it stores simple key-value pairs with static keys, it doesn't support change notifications and working with it probably doesn't require an asynchronous API. Therefore, the API is quite different, and maybe it doesn't need to be a part of this configuration system effort. The main point is that we '''might''' want such API now or in the future, so we should think how the configuration system API can co-exist with the client.conf API. That means basically that we probably don't want to use "pa_configuration_" as the server configuration prefix, because it's too generic.
+
+
+=== Parsing functions ===
+
+TODO
+
+
+== Storage format ==
+
+TODO
+
+        I like ini files as described here: http://article.gmane.org/gmane.comp.audio.pulseaudio.general/12845 --Tanu
+
+
+== Open issues ==
+
+The namespace concept might need some refinement. The idea of splitting the storage into one file per module sounds nice, but it might not sense to dedicate each object type to one module. Modules may want add options to their own object types and to core object types, and possibly also to other modules' types. Let's say there's an object type "Card" in namespace "core", i.e. "core.Card". The alsa modules might want to add an option to core.Cards for enabling and disabling timer-based scheduling. Maybe the options should have namespacing too, i.e. the new option would be "core.Card/foocard/alsa.tsched"? Would every option name have a namespace part? That would be very ugly. How would this example be handled in storage? Is splitting the storage into many files a bad idea anyway?
+
+Is there need for adding an API for clients for querying whether a specific option is supported? Such API could be added also later, if we are not certain yet.
+
+One limitation with this proposal is that the client API supports only modifying existing objects. For example, adding a new entry to stream-restore is not possible in a nice way. You could set an option of a non-existent object, but that would leave the other fields of the entry uninitialized. Maybe that's tolerable, but if we want to support object creation, it should probably be done in a better way.
+
+        I'm a bit against supporting object creation through the configuration API. Protocol extensions are still needed for that then. And maybe exposing the stream-restore database to clients through the configuration API isn't so good idea in the first place. The storage part of the system could still be useful also for stream-restore. --Tanu
