@@ -27,11 +27,19 @@ There are some notes from previous discussion at [[http://piratepad.net/BLGxYG2l
 
 == Design ==
 
-The configuration system stores "options". Options have a value and a (multi-part) identifier. The options need at least two pieces of identification information: the object id and the option name. For example, the maximum volume of a port could have object id "foocard:barport" and option id "max-volume". Objects have also a type (e.g. card, port, stream-restore entry). The object ids could have the type information encoded into them, or the type could be a separate identifier. A separate identifier is better, because otherwise you need to store the known options for each object, while it would be easier and more efficient to store the known options for the type of the objects. So, option values can be referenced by giving three identifiers: object type, object id and option name. These can be encoded in a single key string (e.g. "core.Port/cardname:portname/max-volume") if so desired, but the configuration system has to have concepts for these three things. We might want to also have a type namespace concept, for example to split the configuration into one file per namespace (core could have its own namespace and each module could have theirs). In the client API it's probably best to encode the namespace into the object type.
+The configuration system stores "options". Options have a value and a (multi-part) identifier ("option id"). The option id has three parts: "object type", "object id" and "option name". For example, the maximum volume of a port could be stored in an option with the following id parts: "core.Port", "foocard:barport", "max-volume". The object that the object type and id describe is one of the objects in Pulseaudio: it could be a card, sink, source, port or stream-restore entry etc. The object id is whatever property identifies the object in question: in case of ports it would be the card name + port name (the card name is needed, because port names are not globally unique), and in case of stream-restore entries it would be the entry key. The object type has a namespace part, for example "core" in "core.Port" or "stream-restore" in "stream-restore.Entry". This can be used to divide the option storage into multiple files, one per namespace (one namespace for core and one namespace for each module would be the suggested way to group the options).
 
-From the configuration system's point of view, all option values are strings. Adding type information would add a lot of complexity and not have very big benefits (is it so?). The options will of course have an implicit type to be useful. The actual users of the options (applications and code in the server) have to validate the values themselves. This means that we should provide parsing functions for clients, at least for all complex types, but preferably also for simple stuff like integers. At server side, values are validated when they are read from the disk and when they are set by clients or by some other code in the server than the "option owner".
+The client API doesn't have a concept of namespaces. The applications only need to know that if they want to access port options, they have use "core.Port" as the object_type string.
 
-Since validation is done by the option owner code, and since modules can implement options, some of the options can be only validated when a specific module is loaded. The way to handle the case, where an application sets an option for a module that is not loaded, is to refuse to set any such options. If the module isn't loaded, from the configuration system's point of view the option doesn't exist.
+It may be sometimes useful to refer to an option by using just one string instead of three. That can be done by just concatenating the three identifiers. The suggested separator is slash. Example: "core.Port/foocard:barport/max-volume".
+
+The configuration system knows which object types support which options. This is achieved by each "object type owner" (i.e. the code that implements the objects of that type) registering the object type to the configuration system. The registration includes the information about which options the object type supports, i.e. which option names are valid. The configuration system doesn't have any hardcoded knowledge about which object types exist.
+
+The set of options that an object type supports can not be changed at runtime (except by unloading the object type owner module and then loading another module that registers the same object type with different options, but that should never happen). There may be situations where a module would like to extend a core object type. For example, module-alsa-card might want to have a "tsched" option for core.Card. The way to handle this is to make module-alsa-card register its own object type for cards, e.g. "alsa.Card", and specify in the documentation that the "alsa.Card" type is a subtype of "core.Card". Being a subtype means it's guaranteed that any "alsa.Card" object also has a corresponding "core.Card" object. The association between the two objects is made by using the same object id for both.
+
+From the configuration system's point of view, all option values are strings. Adding type information would add a lot of complexity and not have very big benefits (is it so?). The options will of course have an implicit type to be useful. The actual users of the options (applications and object type owners in the server) have to validate the values themselves. This means that we should provide parsing functions for clients, at least for all complex types, but preferably also for simple stuff like integers. At server side, values are validated when they are read from the disk and when they are set by clients or by some code in the server other than the object type owner.
+
+Since validation is done by the object type owner code, and since modules can implement object types, some of the options can be only validated when a specific module is loaded. The way to handle the case, where an application sets an option for a module that is not loaded, is to refuse to set the option. If the module required isn't loaded, from the configuration system's point of view the option doesn't exist.
 
 
 == Client API ==
@@ -43,7 +51,7 @@ typedef void (*pa_server_configuration_cb_t)(
                 pa_context *c,
                 const char *object_type,
                 const char *object_id,
-                const char *option,
+                const char *option_name,
                 const char *value,
                 int eol,
                 void *userdata);
@@ -52,21 +60,21 @@ pa_operation *pa_server_configuration_set(
                 pa_context *c,
                 const char *object_type,
                 const char *object_id,
-                const char *option,
+                const char *option_name,
                 const char *value,
                 pa_context_success_cb_t cb,
                 void *userdata);
 
-/* object_type, object_id and option can be NULL for wildcard selection. If
- * object_type is NULL, then all other identifiers have to be NULL also. In
+/* object_type, object_id and option_name can be NULL for wildcard selection.
+ * If object_type is NULL, then all other identifiers have to be NULL also. In
  * case of wildcards, the callback may get called multiple times. The last call
- * has the object_type, object_id, option and value parameters of
+ * has the object_type, object_id, option_name and value parameters of
  * pa_server_configuration_cb_t set to NULL and eol set to 1. */
 pa_operation *pa_server_configuration_get(
                 pa_context *c,
                 const char *object_type,
                 const char *object_id,
-                const char *option,
+                const char *option_name,
                 pa_server_configuration_cb_t cb,
                 void *userdata);
 
@@ -75,7 +83,7 @@ pa_operation *pa_server_configuration_get(
 typedef struct pa_server_configuration_subscribe_item {
         const char *object_type;
         const char *object_id;
-        const char *option;
+        const char *option_name;
 } pa_server_configuration_subscribe_item;
 
 /* The items parameter is an array with n_items elements. If there are multiple
@@ -91,7 +99,7 @@ pa_operation *pa_server_configuration_subscribe(
 
 /* When there are configuration changes that match the subscription, the
  * callback that is set here will be called multiple times. The last call has
- * the object_type, object_id, option and value parameters of
+ * the object_type, object_id, option_name and value parameters of
  * pa_server_configuration_cb_t set to NULL and eol set to 1. */
 void pa_server_configuration_set_subscribe_callback(
                 pa_context *c,
@@ -118,8 +126,10 @@ TODO
 
 The namespace concept might need some refinement. The idea of splitting the storage into one file per module sounds nice, but it might not make sense to dedicate each object type to one module. Modules may want to add options to their own object types and to core object types, and possibly also to other modules' types. Let's say there's an object type "Card" in namespace "core", i.e. "core.Card". The alsa modules might want to add an option to core.Cards for enabling and disabling timer-based scheduling. Maybe the options should have namespacing too, i.e. the new option would be "core.Card/foocard/alsa.tsched"? Would every option name have a namespace part? That would be very ugly. How would this example be handled in storage? Is splitting the storage into many files a bad idea anyway?
 
+        This is solved by not allowing modules to add options to existing object types. If everybody is happy, this issue can be deleted from here. --Tanu
+
 Is there need for adding an API for clients for querying whether a specific option is supported? Such API could be added also later, if we are not certain yet.
 
-One limitation with this proposal is that the client API supports only modifying existing objects. For example, adding a new entry to stream-restore is not possible in a nice way. You could set an option of a non-existent object, but that would leave the other fields of the entry uninitialized. Maybe that's tolerable, but if we want to support object creation, it should probably be done in a better way.
+One limitation with this proposal is that the client API supports only modifying existing objects. For example, adding a new entry to stream-restore is not possible in a nice way. You could set an option of a non-existent object, but that would leave the other fields of the entry uninitialized. Maybe that's tolerable, but if we want to support object creation, it should probably be done in a better way. And object deletion is not possible at all with the current API.
 
-        I'm a bit against supporting object creation through the configuration API. Protocol extensions are still needed for that then. And maybe exposing the stream-restore database to clients through the configuration API isn't so good idea in the first place. The storage part of the system could still be useful also for stream-restore. --Tanu
+        I'm a bit against supporting object creation/deletion through the configuration API. Protocol extensions are still needed for that then. Maybe exposing the stream-restore database to clients through the configuration API isn't so good idea after all. The storage part of the system could still be useful also for stream-restore. --Tanu
