@@ -47,12 +47,19 @@ Since validation is done by the object type owner code, and since modules can im
 This is how the client API will look like:
 
 {{{
-typedef void (*pa_server_configuration_cb_t)(
+typedef void (*pa_server_configuration_value_change_cb_t)(
                 pa_context *c,
                 const char *object_type,
                 const char *object_id,
                 const char *option_name,
                 const char *value,
+                int eol,
+                void *userdata);
+
+typedef void (*pa_server_configuration_object_type_event_cb_t)(
+                pa_context *c,
+                const char *object_type,
+                int added, /* 1 for added, 0 for removed */
                 int eol,
                 void *userdata);
 
@@ -79,31 +86,55 @@ pa_operation *pa_server_configuration_get(
                 void *userdata);
 
 /* The wildcard rules described with pa_server_configuration_get apply with
- * the subscribe items too. */
-typedef struct pa_server_configuration_subscribe_item {
-        const char *object_type;
-        const char *object_id;
-        const char *option_name;
-} pa_server_configuration_subscribe_item;
+ * the value change items too. */
+typedef struct pa_server_configuration_value_change_item {
+        char *object_type;
+        char *object_id;
+        char *option_name;
+} pa_server_configuration_value_change_item;
 
 /* The items parameter is an array with n_items elements. If there are multiple
- * subscribe items given, then the subscribe callback is called when any of the
- * items match the event. If called multiple times, the subscribe items of the
- * last call will replace all the previous items. */
+ * value change items given, then the value change callback is called when any
+ * of the items match the event. If you want to end the subscription, or you
+ * want to get updates only about added and removed object types, you can set
+ * items to NULL and n_items to 0.
+ *
+ * The object_types parameter is an array with n_object_types elements. If an
+ * object type is added or removed in the server, and it's one of the types
+ * you have listed in the object_types array here, the server will send
+ * a notification. For getting notifications for all object types, set
+ * object_types to a pointer to a NULL pointer and set n_object_types to 1. If
+ * you don't want any object type event notifications, set object_types to NULL
+ * and n_object_types to 0.
+ *
+ * If called multiple times, the value change items and object types of the
+ * last call will replace all the previous items and object types. */
 pa_operation *pa_server_configuration_subscribe(
                 pa_context *c,
-                const pa_server_configuration_subscribe_item *items,
+                const pa_server_configuration_value_change_item *items,
                 unsigned n_items,
+                const char *const *object_types,
+                unsigned n_object_types,
                 pa_context_success_cb_t cb,
                 void *userdata);
 
-/* When there are configuration changes that match the subscription, the
+/* When there are option value changes that match the subscription, the
  * callback that is set here will be called multiple times. The last call has
  * the object_type, object_id, option_name and value parameters of
- * pa_server_configuration_cb_t set to NULL and eol set to 1. */
-void pa_server_configuration_set_subscribe_callback(
+ * pa_server_configuration_value_change_cb_t set to NULL and eol set to 1. */
+void pa_server_configuration_set_value_change_callback(
                 pa_context *c,
-                pa_server_configuration_cb_t cb,
+                pa_server_configuration_value_change_cb_t cb,
+                void *userdata);
+
+/* When there are object type add/remove events that match the subscription,
+ * the callback that is set here will be called multiple times. The last call
+ * has the object_type parameter of
+ * pa_server_configuration_object_type_event_cb_t set to NULL and eol set to
+ * 1. */
+void pa_server_configuration_set_object_type_event_callback(
+                pa_context *c,
+                pa_server_configuration_object_type_event_cb_t cb,
                 void *userdata);
 }}}
 
