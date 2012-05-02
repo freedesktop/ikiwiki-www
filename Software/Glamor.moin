@@ -34,17 +34,17 @@ To enable the Glamor, the following steps is needed:
  1. Build and install glamor source. The Glamor source can be get at [[http://cgit.freedesktop.org/xorg/driver/glamor/|git://anongit.freedesktop.org/git/xorg/driver/glamor]]
  1. Make sure you have the xorg configure file named glamor.conf at conf/glamor.conf under the directory /usr/share/X11/xorg.conf.d or /etc/X11/xorg.conf.d/. Although make install will try to install that file to the correct directory. But it may failed, as if you are installing the xserver to a local directory, then the "make install" will install glamor.conf to your local directory rather than the two system directories. So you may need to manually copy the file to the system's configuration directory. Otherwise, you will encounter segfault when start the xserver. Here is teh content of the glamor.conf.
   . Section "Module"
-  . Load "dri2" 
-  . Load "glamoregl"
-  . EndSection
+   . Load "dri2"
+   . Load "glamoregl"
+  . !EndSection
 
 The reason why we need to load dri2/glamoregl earlier is both glx-xserver and glamor are a dri2 loader. And glx-xserver side has a own glapi/dispatch table implementation which is a subset of the standard mesa's implementation. So if the glx module is loaded earlier than dri2/glamoregl, then we will get an incomplete dispatch table and everything is broken in glamor then. This is also why we need to add --enable-glx-tls parameters when build mesa, as we need to keep mesa align with Xserver's behavious, xserver will enable-glx-tls by default, but mesa will not.
 
-After yuo finish all the above steps, then you can try to start x with glamor enabled DDX. To make sure it's the glamor running, you can refer to Xorg.0.log, and check that the Glamor is enabled if you can find the log like:<<BR>> ''__intel(0): Use GLAMOR acceleration.__''
+After yuo finish all the above steps, then you can try to start x with glamor enabled DDX. To make sure it's the glamor running, you can refer to Xorg.0.log, and check that the Glamor is enabled if you can find the log like: ''__intel(0): Use GLAMOR acceleration.__''
 
 = What's New =
-
 The latest version is 0.4. Here is the new features in this releae:
+
  1. DRI2 now works well, and texture-from-pixmap also works well.
  1. Fully support glx including AIGLX, indirect glx's GL context coexists with glamor's GL context safely. Thanks for Chris Wilson's help to refine this function.
  1. Optimize most of the fallback path and avoid whole pixmap downloading/uploading as much as possible.
@@ -54,8 +54,8 @@ The latest version is 0.4. Here is the new features in this releae:
  1. Implemented a fbo/texture cache pool mechanism which will reduce the over head of texture/fbo destruction and creation, and bring overall 15-20% performance imprvoement. On PVR545 platform, we even get about 10x performance improvement with this feature.
 
 = Plan =
-
 We plan to release next version 0.5 at early of June. And the following major features will be added:
+
  1. Fully gradient optimization including linear and radial. Actually, the code is already in this release, but as it has some bugs and we disable it currently. Will fix those bug and enable it at next release.
  1. Large pixmap support. Currently, mesa only support 8Kx8K texture size, if a pixmap has larger size, we have to store it in main memory and is not efficient. This feature will tile a large pixmap to a texture array.
  1. Fully trapezoid optimization. Currently, the trapezoid rendering is not optimized, and it will call pixman to do the rasterization and then call glamor_composite to do the following composition, and then many texture uploading overhead is triggered there.
@@ -73,6 +73,4 @@ For general information about using git, visit
 [[http://book.git-scm.com/|http://book.git-scm.com]]
 
 = Mailing List =
-All Glamor discussion is currently on     [[http://lists.freedesktop.org/mailman/listinfo/glamor|glamor@lists.freedesktop.org]].
-You can join the mail list at http://lists.freedesktop.org/mailman/listinfo/glamor.
-If you met any problem with using this driver, please feel free to send email to this list, and I will help you to solve them.
+All Glamor discussion is currently on     [[http://lists.freedesktop.org/mailman/listinfo/glamor|glamor@lists.freedesktop.org]]. You can join the mail list at http://lists.freedesktop.org/mailman/listinfo/glamor. If you met any problem with using this driver, please feel free to send email to this list, and I will help you to solve them.
