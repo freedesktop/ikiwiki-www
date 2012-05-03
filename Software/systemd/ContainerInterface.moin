@@ -12,7 +12,7 @@ systemd has a number of interfaces for interaction with container managers when 
 
  * Consider (read-only) bind mounting /etc/localtime and /etc/timezone from the host file system into the container, if they exist
 
- * Pre-mount /dev as (container private) tmpfs for the container and bind mount some suitable TTY to /dev/console. Also, make sure to create device nodes for /dev/null, /dev/zero, /dev/full, /dev/random, /dev/urandom, /dev/tty, /dev/ptmx, /dev/kmsg, /dev/rtc0 in /dev. It is not necessary to create /dev/fd or /dev/stdout, as systemd will do that on its own. Make sure to drop CAP_MKNOD from the capability bounding set to ensure that the container is not able to get access to any other device.
+ * Pre-mount /dev as (container private) tmpfs for the container and bind mount some suitable TTY to /dev/console. Also, make sure to create device nodes for /dev/null, /dev/zero, /dev/full, /dev/random, /dev/urandom, /dev/tty, /dev/ptmx, /dev/rtc0 in /dev. It is not necessary to create /dev/fd or /dev/stdout, as systemd will do that on its own. Make sure to drop CAP_MKNOD from the capability bounding set to ensure that the container is not able to get access to any other device.
 
  * udev is not available in containers (and refuses to start), and hence device dependencies are unavailable
 
