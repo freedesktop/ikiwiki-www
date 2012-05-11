@@ -1,7 +1,7 @@
 <<Include(Software/PulseAudio/TOC)>>
 
 = Release Notes =
-Just a little over 6 months after our last release, we're back with another one! While a little later than promised, this release contains a lot of awesome new features. We also welcome aboard our 2 new committers David Henningsson and Tanu Kaskinen (who squashed the last of the 2.0 blockers).
+Just a little over 6 months after our last release, we're back with another one! While a little later than promised, this release contains a lot of awesome new features. Also, a big welcome to our 2 new committers, David Henningsson and Tanu Kaskinen (who squashed the last of the 2.0 blockers).
 
 == Key Features ==
  * Alternate sample rates
@@ -19,10 +19,10 @@ Just a little over 6 months after our last release, we're back with another one!
 
 == Features in more detail ==
 === Alternate sample rates ===
-A lot of common (desktop) hardware supports multiple sample rates. Interesting, among these, are 44100 Hz and 48000 Hz, since all common sample rates can be expressed as a simple multiple of one of these, which implies cheaper resampling, when it is required. Previous versions of PulseAudio only supported opening the device at a single sample rate, requiring all streams that did not match this rate to be resampled. We now support switching the device's sample rate dynamically at run time, allowing us to avoid resampling, or reduce resampling overhead. This should result in CPU and power savings on hardware that supports such switching (most Intel HDA-based devices at least).
+A lot of common (desktop) hardware supports multiple sample rates. Interesting, among these, are 44100 Hz and 48000 Hz, since all common sample rates can be expressed as a simple multiple of one of these, which implies cheaper resampling, when it is required. Previous versions of !PulseAudio only supported opening the device at a single sample rate, requiring all streams that did not match this rate to be resampled. We now support switching the device's sample rate dynamically at run time, allowing us to avoid resampling, or reduce resampling overhead. This should result in CPU and power savings on hardware that supports such switching (most Intel HDA-based devices at least).
 
 === Jack detection ===
-With PulseAudio 1.0, we added infrastructure to loosely support the concept of "ports", which are meant to be mapped to actual supported audio paths (read: physical outputs like your speaker or 3.5mm jack). These needed to be dealt with manually, and thus were not too interesting to users. With PulseAudio 2.0 and a recent Linux kernel (3.3.0 or higher), we now automatically detect whether a jack is plugged in to your device or not, and act accordingly. Currently, this buys us the ability to manage volumes for different outputs separately, and future work will allow more advanced features like easing the set up of multichannel output, etc.
+With !PulseAudio 1.0, we added infrastructure to loosely support the concept of "ports", which are meant to be mapped to actual supported audio paths (read: physical outputs like your speaker or 3.5mm jack). These needed to be dealt with manually, and thus were not too interesting to users. With !PulseAudio 2.0 and a recent Linux kernel (3.3.0 or higher), we now automatically detect whether a jack is plugged in to your device or not, and act accordingly. Currently, this buys us the ability to manage volumes for different outputs separately, and future work will allow more advanced features like easing the set up of multichannel output, etc.
 
 === VOIP improvements ===
 The echo cancellation module got significant improvements with the addition of support for a new echo canceller based on the code from the [[http://www.webrtc.org|WebRTC.org]] project. This canceller has a much shorter learning time, and is generally of higher quality than the previous default Speex canceller (which is still available). The module also uses the WebRTC.org code to add automatic gain control (AGC) which the microphone volume automatically adjust to the input sound level, and drift compensation to allow echo cancellation between different devices (such as speakers on your laptop and the microphone on your USB webcam).
