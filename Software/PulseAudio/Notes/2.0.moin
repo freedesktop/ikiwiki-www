@@ -11,7 +11,6 @@ Just a little over 6 months after our last release, we're back with another one!
  * A2DP decoder quality improvements
 
 == Features in more detail ==
-
 === Alternate sample rates ===
 A lot of common (desktop) hardware supports multiple sample rates. Interesting, among these, are 44100 Hz and 48000 Hz, since all common sample rates can be expressed as a simple multiple of one of these, which implies cheaper resampling, when it is required. Previous versions of PulseAudio only supported opening the device at a single sample rate, requiring all streams that did not match this rate to be resampled. We now support switching the device's sample rate dynamically at run time, allowing us to avoid resampling, or reduce resampling overhead. This should result in CPU and power savings on hardware that supports such switching (most Intel HDA-based devices at least).
 
@@ -21,8 +20,12 @@ With PulseAudio 1.0, we added infrastructure to loosely support the concept of "
 === VOIP improvements ===
 The echo cancellation module got significant improvements with the addition of support for a new echo canceller based on the code from the [[http://www.webrtc.org|WebRTC.org]] project. This canceller has a much shorter learning time, and is generally of higher quality than the previous default Speex canceller (which is still available). The module also uses the WebRTC.org code to add automatic gain control (AGC) which the microphone volume automatically adjust to the input sound level, and drift compensation to allow echo cancellation between different devices (such as speakers on your laptop and the microphone on your USB webcam).
 
-== Next Steps ==
+== Packaging ==
+ * The {{{webrtc}}} echo canceller depends on a new library: [[http://www.freedesktop.org/software/pulseaudio/webrtc-audio-processing/|webrtc-audio-processing]]. The {{{adrian}}} canceller is optional and will likely be dropped in a future release
+ * The Speex library is now optional (but highly recommeded -- don't drop this unless you really know what you're doing)
+ * Xen support has been added and will be of interest while building gest images
 
+== Next Steps ==
 While this release was delayed by ~1.5 months, we are continuing to work towards a shorter release schedule of 4 months in order to get new features out early and often. There will, be intermediate point releases for major fix and regressions (but that could never happen, right? ;)).
 
 == git shortlog ==
