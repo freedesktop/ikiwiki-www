@@ -1,0 +1,428 @@
+= Release Notes =
+Just a little over 6 months after our last release, we're back with another one! While a little later than promised, this release contains a lot of awesome new features. We also welcome aboard our 2 new committers David Henningsson and Tanu Kaskinen (who squashed the last of the 2.0 blockers).
+
+== Key Features ==
+ * Alternate sample rates
+ * Jack detection
+ * Echo cancellation: WebRTC canceller, AGC
+ * Virtual Surround module
+ * Xen Paravirtualised audio sink
+ * Fixed HURD support
+ * A2DP decoder quality improvements
+
+== Features in more detail ==
+
+=== Alternate sample rates ===
+A lot of common (desktop) hardware supports multiple sample rates. Interesting, among these, are 44100 Hz and 48000 Hz, since all common sample rates can be expressed as a simple multiple of one of these, which implies cheaper resampling, when it is required. Previous versions of PulseAudio only supported opening the device at a single sample rate, requiring all streams that did not match this rate to be resampled. We now support switching the device's sample rate dynamically at run time, allowing us to avoid resampling, or reduce resampling overhead. This should result in CPU and power savings on hardware that supports such switching (most Intel HDA-based devices at least).
+
+=== Jack detection ===
+With PulseAudio 1.0, we added infrastructure to loosely support the concept of "ports", which are meant to be mapped to actual supported audio paths (read: physical outputs like your speaker or 3.5mm jack). These needed to be dealt with manually, and thus were not too interesting to users. With PulseAudio 2.0 and a recent Linux kernel (3.3.0 or higher), we now automatically detect whether a jack is plugged in to your device or not, and act accordingly. Currently, this buys us the ability to manage volumes for different outputs separately, and future work will allow more advanced features like easing the set up of multichannel output, etc.
+
+=== VOIP improvements ===
+The echo cancellation module got significant improvements with the addition of support for a new echo canceller based on the code from the [[http://www.webrtc.org|WebRTC.org]] project. This canceller has a much shorter learning time, and is generally of higher quality than the previous default Speex canceller (which is still available). The module also uses the WebRTC.org code to add automatic gain control (AGC) which the microphone volume automatically adjust to the input sound level, and drift compensation to allow echo cancellation between different devices (such as speakers on your laptop and the microphone on your USB webcam).
+
+== Next Steps ==
+
+While this release was delayed by ~1.5 months, we are continuing to work towards a shorter release schedule of 4 months in order to get new features out early and often. There will, be intermediate point releases for major fix and regressions (but that could never happen, right? ;)).
+
+== git shortlog ==
+{{{
+Alexander E. Patrakov (1):
+      alsa: add DTS profile
+
+Antti-Ville Jansson (1):
+      stream: Fix upload samples' cleanup
+
+Arun Raghavan (97):
+      extended: Fix doxygen comment style typos
+      sink,source: Avoid unnecessary call to pa_rtclock_now()
+      alsa: Give compressed formats preference over PCM
+      alsa: Better error handling in mixer rtpoll callback
+      echo-cancel: Fail if loaded between a sink and its monitor
+      alsa: Make mixer error handling more robust still
+      echo-cancel: Add a standalone test program
+      echo-cancel: Remove redundant variable
+      echo-cancel: Don't crash if adjust_time = 0
+      echo-cancel: Increase threshold for resyncing, make it configurable
+      echo-cancel: Skip canceller when no source outputs are connected
+      echo-cancel: Skip processing till there's enough data
+      echo-cancel: Drop sink/source samples before processing begins
+      namereg: Don't set default sink/source on get()
+      echo-cancel: Close debug files on module unload
+      echo-cancel: Don't process if sink is unconnected
+      filter-apply: Move sink/source unlink callbacks before m-s-r
+      build-sys: Drop libsamplerate from pulsecommon deps
+      echo-cancel: Simplify checking if AEC is active
+      macro: typedef pa_bool_t to bool instead of _Bool
+      echo-cancel: Add the WebRTC echo canceller
+      build-sys: Minor CXXFLAGS fix
+      source: Bring rate update code in sync with sink code
+      sink,source: Add the ability to disable alternat sample rate switching
+      sink,source: Handle equal default and alternate sample rates
+      alsa: Remove unused variable
+      alsa: Probe sink/source sample rates
+      sink,source: Account for corked streams in update_rate()
+      native: Fix Solaris build
+      solaris: Use real_volume for set/get volume
+      gitignore: Update for recent additions
+      doc: Correct intended roles property documentation
+      core: Add a string list membership check function
+      echo-cancel: Plug in WebRTC drift compensation
+      echo-cancel: Adapt test code for drift compensation
+      doc: Fix some old 0pointer.de references
+      echo-cancel: Fix webrtc gain control initialisation
+      cli: Add a dump-volumes command
+      sink,source: Fix corked stream handling in update_rate()
+      sink-input,source-output: Add an update_rate() function
+      sink,source: Allow sample rate switching with corked streams
+      sink,source: Update sample rate if possible on stream uncork
+      echo-cancel: Add infrastructure for cancellers to do AGC
+      echo-cancel: Hook up WebRTC analog gain control
+      echo-cancel: Turn WebRTC analog gain control on by default
+      echo-cancel: Make WebRTC the default canceller
+      core: Make debugging a bit simpler
+      tests: Add playback tests to check-daemon
+      alsa: Minor debug code cleanup
+      core: Look up /etc/machine-id if D-Bus machine-id is not found
+      echo-cancel: Use speex by default if webrtc isn't available
+      echo-cancel: Use more human-friendly descriptions
+      filters: Fix the master source/sink when autoloaded
+      filters: Allow a filter to have both sink and source
+      proplist: Add internal API to get stream group
+      filters: Handle echo-cancel streams better
+      echo-cancel: Fix warning for undefined HAVE_WEBRTC
+      build-sys: Fix building without NLS
+      build-sys: Use absolute path for map-file while linking
+      mime: Move assert to correct position
+      iochannel: Handle missing un.h correctly
+      utils: Fixes for building without NLS
+      utils: Typo fixes in qpaeq
+      resampler: Remove invalid channel asserts in peak and trivial
+      resampler: Move some peak resampler asserts around
+      protocol-native: Fix 'auth-group-enabled' modarg
+      x11: Fix build without NLS support
+      build-sys: Fix map-file check
+      build-sys: Fix po/ build with --disable-nls
+      build-sys: Make esound bits optional
+      doc: Clarify pa_stream_get_latency() return value
+      daemon: Fix *-idle-time arguments
+      daemon: Drop --module-idle-time from docs
+      orc: Trivial documentation typo fix
+      orc: Another trivial documentation fix
+      alsa-mixer: Turn off the IEC958 element for analog outputs
+      stream: Clarify the sign of error return codes
+      alsa-mixer: Fix mixer path for AC3 profiles
+      format: Add "since 1.0" documentation tags where they were missing
+      loopback: Trivial whitespace fix
+      sink-input,source-output: Handle devices going away in unlink hooks
+      pacmd: Fix compiler warning
+      build: Fix out-of-tree build
+      format: Export pa_format_info int and string property getters
+      format: Don't assert on errors in getters
+      format: Expose pa_format_info<->pa_sample_spec conversion functions
+      format: Add more property getters
+      format: Update map-file
+      format: Trivial reorganisation
+      format: Add API to query a property's type
+      format: Allow format->sample spec conversion for compressed formats
+      build-sys: Bump soname
+      protocol-native: Reinstate assert that was incorrectly removed
+      protocol-native: Remove redundant asserts
+      stream: Fix sample spec initialisation for extended API
+      bluetooth: Fix crash due to usage of pa_bool_t instead of dbus_bool_t
+      build-sys: Bump soname
+
+Colin Guthrie (20):
+      libpulse: Always return a three part version number in API calls.
+      build-sys: Provide a simple CMake Config setup (similar to pkgconfig)
+      Update LICENSE.
+      conf: Use .nofail when loading module-jackdbus-detect
+      role-cork: Rename module-cork-music-on-phone to module-role-cork.
+      role-cork: Make module-role-cork more generic.
+      role-cork: Allow module-role-cork to act globally.
+      pulsecore: Fix issue with circuilar definitions.
+      x11: Drop unneeded 'struct' and use the typedef directly.
+      device-port: Remove redundant include after the better circular dep fix.
+      i18n: Fudge translations after previous commit to avoid mixing English/localized phrases.
+      i18n: Do not translate strings that cannot have any sensible translations.
+      i18n: Run make update-po
+      cli: Ensure source output volumes are printed via cli interface (pacmd ls)
+      bluetooth: Run update-sbc
+      core-util: Attempt to make runtime paths smaller to avoid 108 char limit.
+      Revert "resamplers: Optimize trivial resampler"
+      man: Document the cli inteface a little.
+      cli: Allow source-output volumes/mute to be set via CLI
+      alsa: Add the DTS/DCA mapping to extra-hdmi.conf too.
+
+Daniel Mack (2):
+      osx: don't build the once-test binary on OS X
+      osx: module_bonjour_publish needs to be linked against libprotocol-native.la
+
+David Henningsson (46):
+      module-jackdbus-detect: Avoid double-free of modargs
+      source-output: Do not use unset channel map in pa_source_output_new
+      Fix deferred volume not being applied if sink is closed
+      Introduce "available" concept for ports, and communicate that to clients. Bump protocol version to 24.
+      Turn device ports into reference counted objects
+      Cards now has ports directly, and device port has list of profiles
+      Notify port available status changes, and update protocol version
+      cli: Show card ports and jack detection status
+      alsa: Ignore the virtual "thinkpad-acpi" card
+      alsa: add card ports and path probe cache
+      Fixup a few things in the new path probing
+      pactl: Show port availability
+      device-port: Add a property list to ports.
+      alsa-mixer: When selecting an input, turn off boosts of other inputs
+      alsa-mixer: Refactor pa_alsa_profile_set_probe().
+      alsa: Fix log message "synchronous volume" -> "deferred volume"
+      alsa-mixer: Allow speaker port to control "Front Speaker"
+      alsa: Improve "well known descriptions" for ports
+      alsa-mixer: Make sure unsupported paths are removed after probing
+      alsa-mixer: Take override-maps into account in subset elimination
+      sample-util: Fix "Darth Vader" panning bug
+      alsa-mixer: Don't use dangling pointers as port hashmap keys
+      PROTOCOL: Fix documentation for version 22
+      tunnel: fixup create_record_stream
+      flist: Avoid the ABA problem
+      alsa: Jack detection kcontrol implementation
+      alsa: Add port information to HDMI profiles
+      Add a new module switch-on-port-available that acts on port changes
+      conf: Load switch-on-port-available module by default
+      introspect: Expose port info per card to clients
+      alsa-mixer: Make speaker get available=no when headphones are plugged in
+      alsa-mixer: Don't remove paths if jacks state.(un)plugged differ
+      daemon: Initialize dbus to use thread-safe mode by default
+      protocol-native: Protect against clients trying to set a NULL port
+      module-loopback: Never call adjust_rates after teardown
+      module-switch-on-port-available: Do not switch profile if current port is available
+      pactl: show availability information for "list cards"
+      build-sys: padsp target should not be phony
+      alsa-mixer: Show HDMI ports for older Nvidia cards
+      alsa-mixer: Fix a small issue when detecting required-any
+      Fix input device for M-audio fasttrack pro
+      sink-input/source-output: Prevent filter sink/source cycles
+      module-loopback: Reset process_msg callbacks in teardown
+      alsa-sink/source: Really set volumes on port change
+      alsa-sink/source: Make sure volumes are synchronised after fast user switching
+      sink/source.h: Clarify set_port comment
+
+Deng Zhenrong (1):
+      fix compilation warning via PRI prefix
+
+Dylan Reid (1):
+      alsa: Set return code before printing it.
+
+Frédéric Dalleau (9):
+      bluetooth: Fix Media Endpoint for HandsfreeGateway
+      bluetooth: Do not unload module-bluetooth-device on ERR or HUP
+      bluetooth: Release MediaEnpoint if card profile is set to Off
+      bluetooth: Set off profile on SCO disconnect
+      bluetooth: Set hfgw profile when HandsfreeGateway is playing
+      bluetooth: Use static string in DBUS signal handler description
+      bluetooth: Remove match for org.bluez.MediaTransport.PropertyChanged
+      loopback: Fix crash when moving sink-input fails
+      loopback: Fix crash on error during init
+
+Giorgos Boutsioukis (1):
+      xen: Add Xen paravirtualized sink support.
+
+Johan Hedberg (1):
+      bluetooth: sbc: Reduce for-loop induced indentation in sbc_unpack_frame
+
+Lars R. Damerow (3):
+      alsa: support fixed latency range in alsa modules
+      alsa: fixed latency range handling for udev-detect
+      alsa: fixed_latency_range modarg for module-alsa-card
+
+Lennart Poettering (1):
+      systemd: complement module-console-kit with module-systemd-login
+
+Luiz Augusto von Dentz (1):
+      bluetooth: Fix calling many times Audio.GetProperties for the same device
+
+Maarten Bosmans (32):
+      Make pulse build with clang again
+      doc: Add some more doxygen tags to existing comments
+      Do something sensible when compiled without iconv support
+      pacat: Fail early if the media name cannot be set
+      tests: Fix calculation of memblock size in resampler-test
+      qpaeq: Make it python3 and python2 compatible
+      tests: refactor ipacl-test
+      tests: Make sure tests assert on failures and return error status
+      tests: More useful output of make check
+      tests: Rename voltest to volume-test
+      tests: Revisit which tests to run with make check
+      tests: Add a target for running manual tests
+      rtpoll: Update comment
+      build-sys: Remove time-smoother and shm from libpulsecore
+      Remove vector.h and vector-test
+      Squash unused variable compiler warning
+      oss: Use log2 function from core-util instead of own implementation
+      Update LICENSE
+      pulsecore: Hardcode FRAME_SIZE_MAX_ALLOW
+      resamplers: Use fastpath assert in trivial resampler
+      build-sys: Disable fastpath asserts by default
+      resamplers: Use better variable name in trivial resampler
+      resamplers: Optimize trivial resampler
+      Use simple free function in pa_dynarray_free
+      Use simple free function in pa_queue_free
+      win32: Avoid some compiler warnings when cross-compiling for mingw32
+      shm: Use a goto rather than early return for consistency.
+      resamplers: Rework the peaks resampler
+      resamplers: Improve performance of peaks resampler
+      tests: Don't link tests that only use public api to libpulsecommon
+      resampler: Some minor tweaks
+      Remove pa_prioq priority queue implementation
+
+Maarten Lankhorst (3):
+      loopback: Fix crashes
+      pulse: Fix old bug in stream_free
+      module-jack-sink/source: Set fixed latency correctly on creation
+
+Marc-André Lureau (1):
+      stream-restore: Support a simple fallback volume table
+
+Marcel Holtmann (1):
+      bluetooth: audio: Update license for shared header files
+
+Michael Biebl (2):
+      build: Move libpulsecommon into $pkglib
+      padsp: Move the padsp helper lib into a private library
+
+Mikel Astiz (1):
+      bluetooth: Fix property reply handling for hfgw
+
+Niels Ole Salscheider (1):
+      Add module-virtual-surround-sink.
+
+Paul Menzel (3):
+      svolume_{mmx, sse}, sconv_sse: Fix compilation errors with X32 toolchain
+      doc: Add entry for correct spelling
+      Correct spelling of PulseAudio
+
+Peter Meerwald (45):
+      echo-cancel: Fix memory leak in test program
+      pstream: Fix spelling of 'receive'.
+      stream: Fix comments
+      def: Document that pa_buffer_attr.maxlength is in bytes.
+      format: Fix unknown doxygen command \second
+      format: Add periods to fix brief documentation for pa_format_info_is_pcm()
+      format: Add description for format.h
+      introspect: Fix unresolved doxygen link pa_port_available_t
+      proplist: Add doxygen file description for proplist.h
+      proplist: Fix typos in doxygen documentation
+      utf8: Fix doxygen file description for utf8.h
+      proplist: Consistently use parameter name p for a pa_proplist* in prototype
+      error: Fix spelling of 'initialization' in errortab for PA_ERR_MODINITFAILED
+      stream: Fix 'e g' as 'e.g.\ '
+      simple: Fix typos in simple.h doxygen documentation
+      mainloop: Fix typos and rewording of thread-mainloop.h doxygen documentation
+      stream: Fix typos and formatting in stream.h doxygen documentation
+      build-sys: Make speex library optional
+      echo-cance: Make Adrian canceller optional
+      echo-cancel: Set file mode to binary in test code
+      echo-cancel: Begin log message with uppercase letter
+      echo-cancel: Better handling of error conditions in test
+      tests: Fix resampler-test compilation without NLS support
+      core: fix potential memory leak
+      core: sample_spec.rate is in Hz, not kHz; change logging output
+      core: fix typo in logging
+      core: comment typo
+      alsa: Mention correct ALSA function in debug log
+      core: Fix return of pa_cpu_init_arm()
+      core: Fix log message about ARM feature detection
+      sconv: Fix generation of floats in SSE test code
+      pulse: Turn the anonymous error code enum into pa_error_code_t.
+      pulse: Document general error handling.
+      manpage: document --log-target=file:PATH
+      manpage: document --log-meta, --log-time, log-backtrace
+      fix the ever-popular 'the the' typo
+      alsa: fix comment
+      core: whitespace typo
+      core: svolume tests should generate realistic random volume data
+      dbus: Fix dbus argument type in iface-stream.c handle_move().
+      build: Fix spelling in src/Makefile.am.
+      echo-cancel: Upper/lowercase in comment.
+      core: Fix comments.
+      pulse: Clarify proplist doxygen documentation.
+      pulse: Fix warning in introspect.h; minor rewording and punctuation.
+
+Pierre-Louis Bossart (5):
+      alsa: reset watermark to initial values on resume
+      core: infrastructure for alternate sampling rate
+      sink,source: support for rate update
+      alsa: support for alternate sampling rate
+      alsa: fix list of sampling rates
+
+Pino Toscano (6):
+      pipe: use pa_pipe_buf instead of the macro PIPE_BUF
+      rtp: use the right type when checking cmsg_type
+      module-rtp-recv: fail when SO_TIMESTAMP is not defined
+      mutex: handle gracefully if a PTHREAD_PRIO_INHERIT protocol cannot be set
+      pacmd: dynamically allocate ibuf and obuf
+      libpulse: Cope with systems not implementing SA_NOCLDWAIT
+
+Piotr Drąg (1):
+      i18n: Update Polish translation
+
+Siarhei Siamashka (1):
+      bluetooth: sbc: overflow bugfix and audio decoding quality improvement
+
+Sjoerd Simons (2):
+      build: Force order of library installation
+      .gitignore: Add padsp to gitignore
+
+Sudarshan Bisht (1):
+      null-sink: Set latency range at the time of initialization of module.
+
+Tanu Kaskinen (43):
+      sink: Move updating the requested latency after the rewind request when finishing a stream move.
+      sink: Add some comments about the rewind handling during stream moves.
+      memblockq: Improve debuggability by storing a name and a sample spec.
+      doc: Add an example stream-restore fallback table file.
+      daemon: Don't treat it as a fatal error if we can't connect to the session bus
+      alsa: New modarg "paths_dir" for module-alsa-card
+      alsa: Handle the "profile" modarg in module-alsa-card
+      sink, source: Join two ifs with the same condition.
+      device-port: Fix the circular dependency problem more cleanly.
+      alsa-mixer: Remove unused pa_alsa_path_set_probe() declaration.
+      dbus: New helper function: pa_dbus_get_error_message().
+      bluetooth: When receiving D-Bus errors, print also the error message.
+      dbus: Give NULL as the error parameter to dbus_bus_remove_match().
+      bluetooth: Remove the right match in the proximity module.
+      bluetooth: Change function name add_matches to update_matches.
+      stream-restore: Clean up the database at startup.
+      stream-restore: Don't verify entry validity needlessly.
+      virtual-sink: Remove irrelevant comment.
+      man: Document the local-server-type daemon.conf option.
+      dbus: Use correct free function.
+      flist: Make name non-const to avoid casting with pa_xfree().
+      proplist: Constify the pa_proplist_copy and _update input pointers.
+      proplist: Match pa_proplist_copy argument name between header and implementation.
+      build-sys: Remove the public API stuff from libpulsecommon.
+      i18n: Fix POTFILES.
+      Revert "build-sys: Remove the public API stuff from libpulsecommon."
+      bluetooth: Remove unused variable.
+      dbus: Check method call signatures.
+      dbus: Fix device latency querying.
+      padsp: Fix a double-free bug.
+      sample-util: Remove redundant check from pa_volume_memchunk.
+      device-manager: Fix a memory leak.
+      alsa: Fix SND_MIXER_SCHN_LAST related stuff.
+      dbus: Add an assertion to get rid of a warning from Coverity.
+      device-manager: Add an assertion to get rid of a warning from Coverity.
+      dbus: Add assertions to get rid of warnings from Coverity.
+      echo-cancel: Drop the correct amount of samples when skipping.
+      echo-cancel: Fix memblockq length check.
+      echo-cancel: Clarify function call contexts.
+      resampler: Use pa_xnew0() to avoid manual zeroing.
+      resampler: Use more descriptive buffer names.
+      resampler: Add support for resamplers that consume less data than asked.
+      alsa: Add support for sound cards with 4-channel input.
+
+Yuri Chornoivan (1):
+      Update Ukrainian translation.
+
+poljar (1):
+      pacmd: Added --help and --version options.
+}}}
