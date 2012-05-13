@@ -44,6 +44,8 @@ What you can optimize (locally) without writing any code:
 
  14. If you build an appliance, don't forget that various components of systemd are optional and may be disabled during build time, see "./configure --help" for details. For example, get rid of of the virtual console setup if you never have local console users (this is a major source of slowness, actually). In addition, if you never have local users at all, consider disabling logind. And there are more components that are frequently unnecessary on appliances.
 
+ 15. This goes without saying: the boot-up gets faster if you started less stuff at boot. So run "systemctl" and check if there's stuff you don't need and disable it, or even remove its package.
+
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long:
 
  1. Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should mak especially  shutdown much faster. This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on the cgroupfs
