@@ -28,10 +28,16 @@ What you should do:
 
  8. Consider removing cron from your system and use systemd timer units instead. Timer units currently have no support for calendar times (i.e. cannot be used to spawn things "at 6 mondays", but can do "run this every 7 days"), but for the usualy /etc/cron.daily/, /etc/cron.weekly should be good enough, if the time of day doesn't matter.
 
+ 9. If you work on an appliance, consider disabling readahead collection in the shipped devices, but leave readahead replay enabled.
+
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long:
 
  1. Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should mak especially  shutdown much faster. This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on the cgroupfs
 
  2. Make use of EXT4_IOC_MOVE_EXT in systemd's readahead implementation. This allows reordering/defragmentation of the files needed for boot. According to the data from http://e4rat.sourceforge.net/ this might shorten the boot time to 40%. Implementation is not trivial, but given that we already support btrfs defragmentation should be fairly easy.
 
- 3. Improve a couple of algorithms in the graph calculations logic, and unit file loading. For example, right now when loading units we match them up with a subset of the other loaded units in order to add automatic dependencies between them where appropriate. Usually the set of units matched up is small, but the complexity is currently O(n^2), and this could be optimized.
+ 3. Compress readahead pack files with XZ or so. Since boot these days tends to be clearly IO bound, not CPU bound it might make sense to reduce the IO load for the pack file by compressing it. Since we already have a dependency on XZ we'd recommend using XZ for this.
+
+ 4. Update the readahead logic to also precache directories (in addition to files).
+
+ 5. Improve a couple of algorithms in the graph calculations logic, and unit file loading. For example, right now when loading units we match them up with a subset of the other loaded units in order to add automatic dependencies between them where appropriate. Usually the set of units matched up is small, but the complexity is currently O(n^2), and this could be optimized.
