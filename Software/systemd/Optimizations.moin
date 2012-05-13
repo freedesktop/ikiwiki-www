@@ -12,7 +12,7 @@ We are very interested in merging optimization work into systemd upstream. Note 
 
 The distributions have adopted systemd to varying levels. While there are many compatibility scripts in the boot process on Debian for example, Fedora has much less (but still too many). For better performance consider disabling these scripts, or using a different distribution.
 
-What you should do:
+What you can optimize (locally) without writing any code:
 
  1. Make sure not to use any fake block device storage technology such as LVM (as installed by default by various distributions, including Fedora) they result in the systemd-udev-settle.service unit to be pulled in. Settling device enumeration is slow, racy and mostly obsolete. Since LVM (still) hasn't been updated to handle Linux' event based design properly, settling device enumeration is still required for it, but it will slow down boot substantially. On Fedora, use "systemctl mask fedora-wait-storage.service fedora-storage-init-late.service fedora-storage-init.service" to get rid of all those storage technologies. Of course, don't try this if you actually installed your system with LVM.
 
