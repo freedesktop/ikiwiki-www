@@ -24,6 +24,8 @@ What you should do:
 
  7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable system debug logging if you enabled it before.
 
+ 8. Consider removing cron from your system and use systemd timer units instead. Timer units currently have no support for calendar times (i.e. cannot be used to spawn things "at 6 mondays", but can do "run this every 7 days"), but for the usualy /etc/cron.daily/, /etc/cron.weekly should be good enough, if the time of day doesn't matter.
+
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long:
 
  1. Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should mak especially  shutdown much faster. This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on the cgroupfs
