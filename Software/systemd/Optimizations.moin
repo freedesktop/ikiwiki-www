@@ -50,7 +50,7 @@ What you can optimize (locally) without writing any code:
 
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long and need a bit of hacking (sometimes more, and sometimes less):
 
- 1. Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should make things faster (especially  shutdown). This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on the cgroupfs.
+ 1. Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should make things faster (especially  shutdown). This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on cgroupfs.
 
  2. Make use of EXT4_IOC_MOVE_EXT in systemd's readahead implementation. This allows reordering/defragmentation of the files needed for boot. According to the data from http://e4rat.sourceforge.net/ this might shorten the boot time to 40%. Implementation is not trivial, but given that we already support btrfs defragmentation and example code for this exists (e4rat as linked) should be fairly straightforward.
 
