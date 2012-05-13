@@ -28,7 +28,7 @@ What you can optimize (locally) without writing any code:
 
  6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages which slow down the boot substantially even if no storage of the specific kind is used. 
 
- 7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable system debug logging if you enabled it before.
+ 7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable systemd debug logging (if you enabled it before).
 
  8. Consider removing cron from your system and use systemd timer units instead. Timer units currently have no support for calendar times (i.e. cannot be used to spawn things "at 6 am every monday", but can do "run this every 7 days"), but for the usual /etc/cron.daily/, /etc/cron.weekly/, ... should be good enough, if the time of day of the execution doesn't matter (just add four small service and timer units for supporting these dirs. Eventually we might support these out of the box, but until then, just write your own scriplets for this).
 
