@@ -38,6 +38,8 @@ What you should do:
 
  13. Get rid of a local MTA, if you are building a desktop or appliance. i.e. on Fedora remove the sendmail RPMs.
 
+ 14. If you build an appliance, don't forget that various components of systemd are optional and may be disabled during build time, see "./configure --help" for details. For example, get rid of of the virtual console setup if you never have local console users (this is a major source of slowness, actually). In fact, if you never have local users at all, consider disabling logind.
+
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long:
 
  1. Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should mak especially  shutdown much faster. This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on the cgroupfs
@@ -55,5 +57,7 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
  7. The usual house keeping: get rid of shell-based services (i.e. SysV init scripts), replace them with unit files. Don't make use of Type=forking and ordering dependencies if possible, use socket activation with Type=simple instead. This allows drastically better parallized start-up for your services. Also, if you cannot use socket activation, at leas consider patching your services to support Type=notify instead of Type=forking.
 
  8. Implement calendar based timers in .timer units, so that cron becomes fully unnecessary.
+
+ 9. Improve the setfont logic from the kbd package/kernel not to upload into the kernel every single font character with an ioctl() invocation of its own.
 
 Again the list above contains things we'd like to see in systemd anyway. We didn't do much profiling for these features, but we have enough indication to assume that these bits will bring some improvements. But yeah, if you work on this, keep your profiling tools ready at all times.
