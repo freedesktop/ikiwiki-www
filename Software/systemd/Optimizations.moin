@@ -22,7 +22,7 @@ What you should do:
 
  5. Consider disabling syslog. The journal is used anyway on newer systemd systems, and is usually more than sufficient for desktops, and embedded, and even many servers. Just uninstall all syslog implementations and remember that "journalctl" will get you a pixel perfect copy of the classic /var/log/messages message log.
 
- 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service.
+ 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages. 
 
  7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable system debug logging if you enabled it before.
 
@@ -31,6 +31,10 @@ What you should do:
  9. If you work on an appliance, consider disabling readahead collection in the shipped devices, but leave readahead replay enabled.
 
  10. If you work on an appliance, make sure to built all drivers you need into the kernel, since module loading is slow. If you build a distribution at least built all the stuff 90% of all people need into your kernel, i.e. at least AHCI and HDA!
+
+ 11. If it works, use libahci.ignore_sss=1 when booting.
+
+ 12. Use a modern desktop that doesn't pull in ConsoleKit anymore. For example GNOME 3.4.
 
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long:
 
