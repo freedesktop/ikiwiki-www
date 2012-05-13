@@ -1,0 +1,33 @@
+= systemd optimizations =
+
+So you are working on a Linux distribution and appliances and need very fast boot-ups. systemd right now can alreaddy offer boot times of < 2s (userspace only, i.e. only the bits controlled by system) for complete desktop environments on simpler but modern laptops (i.e. SSD) if configured properly. In this page we want give a couple of ideas how to achieve that, and if the resulting boot times do not suffice where we believe room for improvements are that we'd like to see implemented sooner or later. If you are interested in investing engineering manpower in systemd to get to even shorter boot itmes, this list hopefully includes a few good suggestion to start from.
+
+Of course, before optimizing you should instrument the boot to generate profiling data, so make sure you know your way around with bootchart, systemd-analyze and pytimerchart!
+
+Note that systemd's fast performance is a side effect of its design but wasn't the primary design goal. As it stands now systemd has been optimized very little and still has a lot of room for improvements.
+
+We are very interested in merging optimization work into systemd upstream. Note however that we are careful not to merge work that would drastically limit the general purpose usefulness or reliability of our code, or that woud make systemd harder to maintain. So in case you work on optimization work, try to keep your stuff mainlineable. If in doubt, ask us. 
+
+What you should do:
+
+ - Make sure not to use any fake block device storage technology such as LVM (as installed by default by various distributions, including Fedora) they result in the udev-settle.service unit to be pulled in. Settling device enumeration is slow, racy and mostly obsolete. Since LVM (still) hasn't been updated to handle Linux' event based design properly, settling device enumeration is still required for it, but it will slow down boot substantially. On Fedora, use "systemctl mask fedora-wait-storage.service fedora-storage-init-late.service fedora-storage-init.service" to get rid of all those storage technologies. Of course, don't try this if you actually installed your system with LVM.
+
+ - Consider bypassing the initrd, if you use one. On Fedora, make sure to install the OS on a plain disk without encryption, and without LVM (encrypted /home is fine) when doing this. Then, simply edit grub.conf and remove the initrd from your configuration, and change the root= kernel command line parameter so that it uses kernel device names instead of UUIDs, i.e. "root=sda5" or what is appropriate for your system. Note that using kernel devices names is not really that nice if you have many harddisks, but if you are doing this for a laptop, this should be fine.
+
+ - Consider disabling SELinux. We recommend to leave SELinux on, for security reasons, but truth be told you can save 100ms of your boot if you disable it. Use selinux=0 on the kernel cmdline.
+
+ - Consider disabling Plymouth. If userspace boots in less than 2s, a boot splash is hardly useful, hence consider passing plymouth.enable=0 on the kernel command line. Plymouth is generally quite fast, but currently still forces settling device enumerations for graphics cards, which is slow. Disabling plymouth removes this bit of the boot.
+
+ - Consider disabling syslog. The journal is used anyway on newer systemd systems, and is usually more than sufficient for desktops, and embedded, and even many servers. Just uninstall all syslog implementations and remember that "journalctl" will get you a pixel perfect copy of the classic /var/log/messages message log.
+
+ - Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service.
+
+ - Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable system debug logging if you enabled it before.
+
+So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd over short or long:
+
+ - Get rid of systemd-cgroups-agent. Currently, whenever a systemd cgroup runs empty a tool "systemd-cgroups-agent" is invoked by the kernel which then notifies systemd about it. The need for this tool should really go away, which will save a number of forked processes at boot, and should mak especially  shutdown much faster. This requires introduction of a new kernel interface to get notifications for cgroups running empty, for example via fanotify() on the cgroupfs
+
+ - Make use of EXT4_IOC_MOVE_EXT in systemd's readahead implementation. This allows reordering/defragmentation of the files needed for boot. According to the data from http://e4rat.sourceforge.net/ this might shorten the boot time to 40%. Implementation is not trivial, but given that we already support btrfs defragmentation should be fairly easy.
+
+ - Improve a couple of algorithms in the graph calculations logic, and unit file loading. For example, right now when loading units we match them up with a subset of the other loaded units in order to add automatic dependencies between them where appropriate. Usually the set of units matched up is small, but the complexity is currently O(n^2), and this could be optimized.
