@@ -12,6 +12,8 @@ We are very interested in merging optimization work into systemd upstream. Note 
 
 The distributions have adopted systemd to varying levels. While there are many compatibility scripts in the boot process on Debian for example, Fedora has much less (but still too many). For better performance consider disabling these scripts, or using a different distribution.
 
+It is our intention to optimize the upstream distributions by default (in particular Fedora) so that these optimizations won't be necessary. However, this will take some time, especially since making these changes is often not trivial when the general purpose usefulness cannot be compromised.
+
 What you can optimize (locally) without writing any code:
 
  1. Make sure not to use any fake block device storage technology such as LVM (as installed by default by various distributions, including Fedora) they result in the systemd-udev-settle.service unit to be pulled in. Settling device enumeration is slow, racy and mostly obsolete. Since LVM (still) hasn't been updated to handle Linux' event based design properly, settling device enumeration is still required for it, but it will slow down boot substantially. On Fedora, use "systemctl mask fedora-wait-storage.service fedora-storage-init-late.service fedora-storage-init.service" to get rid of all those storage technologies. Of course, don't try this if you actually installed your system with LVM.
@@ -22,9 +24,9 @@ What you can optimize (locally) without writing any code:
 
  4. Consider disabling Plymouth. If userspace boots in less than 2s, a boot splash is hardly useful, hence consider passing plymouth.enable=0 on the kernel command line. Plymouth is generally quite fast, but currently still forces settling device enumerations for graphics cards, which is slow. Disabling plymouth removes this bit of the boot.
 
- 5. Consider disabling syslog. The journal is used anyway on newer systemd systems, and is usually more than sufficient for desktops, and embedded, and even many servers. Just uninstall all syslog implementations and remember that "journalctl" will get you a pixel perfect copy of the classic /var/log/messages message log.
+ 5. Consider disabling syslog. The journal is used anyway on newer systemd systems, and is usually more than sufficient for desktops, and embedded, and even many servers. Just uninstall all syslog implementations and remember that "journalctl" will get you a pixel perfect copy of the classic /var/log/messages message log. To make journal logs persistent (i.e. so that they aren't lost at boot) make sure to run "mkdir -p /var/log/journal".
 
- 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages. 
+ 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages which slow down the boot substantially even if no storage of the specific kind is used. 
 
  7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable system debug logging if you enabled it before.
 
