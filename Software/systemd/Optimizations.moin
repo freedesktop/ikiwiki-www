@@ -58,7 +58,7 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
 
  4. Update the readahead logic to also precache directories (in addition to files).
 
- 5. Improve a couple of algorithms in the graph calculations logic, and unit file loading. For example, right now when loading units we match them up with a subset of the other loaded units in order to add automatic dependencies between them where appropriate. Usually the set of units matched up is small, but the complexity is currently O(n^2), and this could be optimized. Since unit file loading and calculations in the dependency graphs is the only major synchronous computation intensive bit of PID 1, and is executed before any services are started this should bring relevant improvements, especially on systems with big dependency graphs.
+ 5. Improve a couple of algorithms in the unit dependency graph calculation logic, as well as unit file loading. For example, right now when loading units we match them up with a subset of the other loaded units in order to add automatic dependencies between them where appropriate. Usually the set of units matched up is small, but the complexity is currently O(n^2), and this could be optimized. Since unit file loading and calculations in the dependency graphs is the only major, synchronous, computation-intensive bit of PID 1, and is executed before any services are started this should bring relevant improvements, especially on systems with big dependency graphs.
 
  6. Add socket activation to X. Due to the special socket allocation semantics of X this is useful only for display :0. This should allow parallelization of X startup with its clients.
 
