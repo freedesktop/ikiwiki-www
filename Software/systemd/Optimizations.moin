@@ -53,3 +53,5 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
  6. Add socket activation to X. Due to the special socket allocation semantics of X this is useful only for display :0. This should allow parallelization of X startup with its clients.
 
  7. The usual house keeping: get rid of shell-based services (i.e. SysV init scripts), replace them with unit files. Don't make use of Type=forking and ordering dependencies if possible, use socket activation with Type=simple instead. This allows drastically better parallized start-up for your services. Also, if you cannot use socket activation, at leas consider patching your services to support Type=notify instead of Type=forking.
+
+ 8. Implement calendar based timers in .timer units, so that cron becomes fully unnecessary.
