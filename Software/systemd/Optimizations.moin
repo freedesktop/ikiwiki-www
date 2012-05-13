@@ -4,7 +4,7 @@
 
 systemd can already offer boot times of < 2s (userspace only, i.e. only the bits controlled by systemd) for complete desktop environments on simpler but modern laptops (with SSD) if configured properly. In this page we want give a couple of ideas how to achieve that, and if the resulting boot times do not suffice where we believe room for improvements are that we'd like to see implemented sooner or later. If you are interested in investing engineering manpower in systemd to get to even shorter boot itmes, this list hopefully includes a few good suggestions to start with.
 
-Of course, before optimizing you should instrument the boot to generate profiling data, so make sure you know your way around with bootchart, systemd-analyze and pytimechart!
+Of course, before optimizing you should instrument the boot to generate profiling data, so make sure you know your way around with bootchart, systemd-analyze and pytimechart! Optimizing without profiling is premature!
 
 Note that systemd's fast performance is a side effect of its design but wasn't the primary design goal. As it stands now systemd has been optimized very little and still has a lot of room for improvements.
 
@@ -55,3 +55,5 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
  7. The usual house keeping: get rid of shell-based services (i.e. SysV init scripts), replace them with unit files. Don't make use of Type=forking and ordering dependencies if possible, use socket activation with Type=simple instead. This allows drastically better parallized start-up for your services. Also, if you cannot use socket activation, at leas consider patching your services to support Type=notify instead of Type=forking.
 
  8. Implement calendar based timers in .timer units, so that cron becomes fully unnecessary.
+
+Again the list above contains things we'd like to see in systemd anyway. We didn't do much profiling for these features, but we have enough indication to assume that these bits will bring some improvements. But yeah, if you work on this, keep your profiling tools ready at all times.
