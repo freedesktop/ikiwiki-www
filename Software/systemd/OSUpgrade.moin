@@ -1,0 +1,29 @@
+= Implementing Offline OS Upgrades =
+
+Here's a suggestion how to implement "offline" OS upgrades with systemd. By "offline" OS upgrades we mean package installations/upgrades that are run with the system booted into a special upgrade mode, in order to avoid problems with the upgrading of libraries and services that are currently running. This document is inspired [[https://live.gnome.org/GnomeOS/Design/Whiteboards/SoftwareUpdates|by this GNOME design whiteboard]].
+
+Suggested implementation:
+
+ 1. The package manager prepares package upgrades by downloading all (RPM or DEB or whatever) packages to update off-line in a special directory /upgrade.prepare (or another directory on the root file system. /var is OK too, but only if it is on the same disk as /).
+ 2. When the user OK'ed the upgrade a symlink /upgrade is created that points to /upgrade.prepare (or wherever the upgrade package directory is called).
+ 3. A systemd generator checks whether /upgrade exists, and is accessible. If so, it redirects (i.e. symlinks) default.target to upgrade.target, a new target that is intended to pull in the base system (i.e. sysinit.target and local-fs.target, so that all file systems are mounted but little else) and the upgrade script.
+ 4. The system now continues to boot into default.target, and thus into upgrade.target. This target pulls in the upgrade script, which is executed after all file systems are mounted.
+ 5. The upgrade script now creates a btrfs snapshot (if possible), then installs all RPMs. After completion (regardless whether the upgrade succeeded or failed) the /upgrade symlink is removed. On failure it reverts to the old btrfs state, ob success it leaves the newly made changes in place.
+ 6. The system is now rebooted. Since the /upgrade symlink is gone, the generator won't redirect default.target and  we now boot into the full system again.
+
+Advantages of this approach over in-system upgrades:
+
+ 1. Only the components of the OS that are required to access the file systems are started and initialized. No other daemons/services are running, this minimizing problems with conflicting versions of libraries/daemons/other files on disk and in memory.
+ 2. The btrfs snapshot of the OS is reliable and atomic
+
+Disadvantages of this approach over in-system upgrades:
+
+ 1. The user has to reboot twice.
+
+Advantages of this approach over rescue partition based upgrades:
+ 
+ 1. The exact same storage initialization configuration is used for the upgrade process as for the main OS, thus avoiding problems in finding the OS hierarchy and mounting it properly.
+
+Disadvantages of this appraoch over rescue partition based upgrades:
+
+ 1. The basic mounts are done with code that might be subject to the upgrading process. This means that while the problem of conflicts between processes/libraries in memory on disk are minimized they are not zero.
