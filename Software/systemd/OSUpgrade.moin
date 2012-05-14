@@ -5,7 +5,7 @@ Here's a suggestion how to implement "offline" OS upgrades with systemd. By "off
 Suggested implementation:
 
  1. The package manager prepares package upgrades by downloading all (RPM or DEB or whatever) packages to update off-line in a special directory /upgrade.prepare (or another directory on the root file system. /var is OK too, but only if it is on the same disk as /).
- 2. When the user OK'ed the upgrade a symlink /upgrade is created that points to /upgrade.prepare (or wherever the upgrade package directory is called).
+ 2. When the user OK'ed the upgrade a symlink /upgrade is created that points to /upgrade.prepare (or wherever the upgrade package directory is called) and the system is rebooted.
  3. A systemd generator checks whether /upgrade exists, and is accessible. If so, it redirects (i.e. symlinks) default.target to upgrade.target, a new target that is intended to pull in the base system (i.e. sysinit.target and local-fs.target, so that all file systems are mounted but little else) and the upgrade script.
  4. The system now continues to boot into default.target, and thus into upgrade.target. This target pulls in the upgrade script, which is executed after all file systems are mounted.
  5. The upgrade script now creates a btrfs snapshot (if possible), then installs all RPMs. After completion (regardless whether the upgrade succeeded or failed) the /upgrade symlink is removed. In addition, on failure it reverts to the old btrfs state (modulo the aforementioned symlink), on success it leaves the newly made changes in place.
