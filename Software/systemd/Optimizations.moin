@@ -74,4 +74,6 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
 
  12. Same as the previous item, but temporarily lower the CPU/IO priority of the startups part of unimportant leaf services. This is probably more useful than 11 as it is easier to determine which processes don't matter.
 
+ 13. Add a kernel sockopt for AF_UNIX to increase the maximum datagram queue length for SOCK_DGRAM sockets. This would allow us to queue substantially more logging datagrams in the syslog and journal sockets, and thus move the point where syslog/journal clients have to block before their message writes finish much later in the boot process. (As a temporary hack it is possible to increase /proc/sys/net/unix/max_dgram_qlen globally, but this has implications beyond systemd, and should probably be avoided.) The kernel patch to make this work is most likely trivial. In general, this should allows us to improve the level of parallelization between clients and servers for AF_UNIX sockets of type SOCK_DGRAM or SOCK_SEQPACKET.
+
 Again: the list above contains things we'd like to see in systemd anyway. We didn't do much profiling for these features, but we have enough indication to assume that these bits will bring some improvements. But yeah, if you work on this, keep your profiling tools ready at all times.
