@@ -26,7 +26,7 @@ What you can optimize (locally) without writing any code:
 
  5. Consider disabling syslog. The journal is used anyway on newer systemd systems, and is usually more than sufficient for desktops, and embedded, and even many servers. Just uninstall all syslog implementations and remember that "journalctl" will get you a pixel perfect copy of the classic /var/log/messages message log. To make journal logs persistent (i.e. so that they aren't lost at boot) make sure to run "mkdir -p /var/log/journal".
 
- 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages which slow down the boot substantially even if no storage of the specific kind is used. 
+ 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages which slow down the boot substantially even if no storage of the specific kind is used (and if these RPMs can't be removed because some important packages require them, at least mask the respective services). 
 
  7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable systemd debug logging (if you enabled it before).
 
