@@ -28,3 +28,7 @@ Advantages of this approach over rescue partition based upgrades:
 Disadvantages of this approach over rescue partition based upgrades:
 
  1. The basic mounts are done with code that might be subject to the upgrading process. This means that while the problem of conflicts between processes/libraries in memory on disk are minimized they are not zero.
+
+To clear up some confusion: generators are small binaries that live in /lib/systemd/system-generators. systemd will execute those binaries very early at bootup (and at configuration reload time), before the unit files are loaded. The generators can dynamically generate unit files in /run, and override existing definitions freely. 
+
+We suggest that the generator code and the basic definition of upgrade.target should probably live withing systemd itself. The upgrade script and creation of /upgrade should live in the distribution's package manager or packages such as PackageKit.
