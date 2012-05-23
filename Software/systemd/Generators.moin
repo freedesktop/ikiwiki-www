@@ -29,6 +29,7 @@ A couple of notes:
  5. Since syslog is not available (see above) write log messages to /dev/kmsg instead.
  6. It is a good idea to use the SourcePath= directive in generated unit files to specify the source configuration file you are generating the unit from. This makes things more easily understood by the user and also has the benefit that systemd can warn the user about configuration files that changed on disk but have not been read yet by systemd.
  7. Generators may write out dynamic unit files or just hook unit files into other units with the usual .wants/ or .requires/ symlinks. Often it is nicer to simply instantiate a template unit file from /usr with a generator instead of writing out entirely dynamic unit files. Of course this works only if a single parameter is to be used.
+ 8. If you are carefuly you can implement generators in shell scripts. We do recommend C code however, since generators delay are executed synchronously and hence delay the entire boot if they are slow.
 
 Or in short:
 
