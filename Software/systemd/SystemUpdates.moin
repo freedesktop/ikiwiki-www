@@ -4,7 +4,7 @@
 
 Here are some guidelines how to implement "offline" OS updates with systemd. By "offline" OS updates we mean package installations and updates that are run with the system booted into a special system update mode, in order to avoid problems related to conflicts of libraries and services that are currently running with those on disk. This document is inspired [[https://live.gnome.org/GnomeOS/Design/Whiteboards/SoftwareUpdates|by this GNOME design whiteboard]].
 
-Suggested implementation:
+The logic:
 
  1. The package manager prepares package upgrades by downloading all (RPM or DEB or whatever) packages to update off-line in a special directory /var/lib/system-update (or another directory of the package/upgrade manager's choice).
  2. When the user OK'ed the upgrade a symlink /system-update is created that points to /var/lib/system-update (or wherever the upgrade package directory is called) and the system is rebooted. This symlink is in the root directory, since we need to check for it very early at boot, at a a time where /var is not available yet.
