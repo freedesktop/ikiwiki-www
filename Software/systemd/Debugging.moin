@@ -1,51 +1,43 @@
-<!--{{header|Systemd}}-->
-
-'''Foreword'''
-
-If you are experiencing a problem with system boot up due to [[Systemd]], please see the [[Bugs/Common|common bugs]] document before filing a bug.  Some easy configuration tweaks that fix a wide range of issues may be listed there.  If the problem you are seeing is not listed there or none of the workarounds seem to help, please consider filing a bug to help us make Fedora run better on your hardware.
+<<TableOfContents>>
 
 = Diagnosing boot problems =
 If your machine gets stuck during boot, first check if the hang happens before or after control passes to systemd.
 
-Try to boot without <code>rhgb</code> and <code>quiet</code> on the kernel command line.
+Try to boot without {{{rhgb}}} and {{{quiet}}} on the kernel command line.
 If you see some messages like these:
-* Welcome to <span style="color:blue">Fedora ''VERSION'' (''codename'')</span>!"
-* Starting ''name''...
-* Started ''name''. [  <span style="color:green">OK</span>  ]
+  * Welcome to Fedora ''VERSION'' (''codename'')!"
+  * Starting ''name''...
+  * [  OK  ] Started ''name''.
 then systemd is running.
-
-{{admon/note|Problems booting this far?|If you experience bootup difficulties before systemd starts running, see [[How_to_debug_Dracut_problems|Debugging Dracut]] to diagnose that further. }}
-
-{{admon/note|Problems running udev?|If you're system hangs while starting or running udev, see [[How_to_debug_Udev_problems|Debugging Udev]] to diagnose that further. }}
 
 Debugging always gets easier when you can get a shell. If you do not get a login prompt, try switching to a different virtual terminal using CTRL+ALT+F''<number>''. Problems with X server startup may manifest themselves as a missing login on tty1, but other VTs working.
 
-If the boot stops without presenting you with a login on any virtual console, give it '''up to 5 minutes''' before declaring it definitely stuck. There is a chance that a service that has trouble starting will be killed after this timeout and the boot will continue normally. Another possibility is that a device for an important mountpoint will fail to appear and you will be presented with '''emergency mode'''.
+If the boot stops without presenting you with a login on any virtual console, let it try for '''up to 5 minutes''' before declaring it definitely stuck. There is a chance that a service that has trouble starting will be killed after this timeout and the boot will continue normally. Another possibility is that a device for an important mountpoint will fail to appear and you will be presented with '''emergency mode'''.
 
 == If you get no shell ==
 If you get neither a normal login nor the emergency mode shell, you will need to do additional steps to get debugging information out of the machine.
-* Try CTRL+ALT+DEL to reboot.
-** If it does not reboot, mention it in your bugreport. Meanwhile force the reboot with [[QA/Sysrq|SysRq]] or hard reset.
-* When booting the next time, you will have to add some kernel command line arguments depending on what debugging strategy you choose from the following options.
+  * Try CTRL+ALT+DEL to reboot.
+    * If it does not reboot, mention it in your bugreport. Meanwhile force the reboot with SysRq or hard reset.
+  * When booting the next time, you will have to add some kernel command line arguments depending on what debugging strategy you choose from the following options.
 
 === strategy: debug logging to a serial console ===
 If you have a hardware serial console available or if you are debugging in a virtual machine (e.g. using virt-manager you can switch your view to a serial console in the menu View -> Text Consoles), you can ask systemd to log lots of useful debugging information to it by booting with:
-<pre>
+{{{
 systemd.log_level=debug systemd.log_target=console console=ttyS0,38400
-</pre>
+}}}
 
 === strategy: booting into rescue or emergency targets ===
-To boot directly into rescue target add <code>systemd.unit=rescue.target</code> or <code>1</code> to the kernel command line. This target is useful if the problem occurs somewhere after the basic system is brought up, during the starting of "normal" services. If this is the case, you should be able to disable the bad service from here. If the rescue target will not boot either, the more minimal emergency target might.
+To boot directly into rescue target add {{{systemd.unit=rescue.target}}} or just {{{1}}} to the kernel command line. This target is useful if the problem occurs somewhere after the basic system is brought up, during the starting of "normal" services. If this is the case, you should be able to disable the bad service from here. If the rescue target will not boot either, the more minimal emergency target might.
 
-To boot directly into emergency shell add <code>systemd.unit=emergency.target</code> or <code>emergency</code> to the kernel command line. Note that in the emergency shell you will have to remount the root filesystem read-write by yourself before editing any files:
-<pre>
+To boot directly into emergency shell add {{{systemd.unit=emergency.target}}} or {{{emergency}}} to the kernel command line. Note that in the emergency shell you will have to remount the root filesystem read-write by yourself before editing any files:
+{{{
 mount -o remount,rw /
-</pre>
-Common issues that can be resolved in the emergency shell are bad lines in <code>/etc/fstab</code>. After fixing <code>/etc/fstab</code>, run <code>systemctl daemon-reload</code> to let systemd refresh its view of it.
+}}}
+Common issues that can be resolved in the emergency shell are bad lines in {{{/etc/fstab}}}. After fixing {{{/etc/fstab}}}, run {{{systemctl daemon-reload}}} to let systemd refresh its view of it.
 
-If not even the emergency target works, you can boot directly into a shell with <code>init=/bin/sh</code>. This may be necessary in case systemd itself or some libraries it depends on are damaged by filesystem corruption. You may need to reinstall working versions of the affected packages.
+If not even the emergency target works, you can boot directly into a shell with {{{init=/bin/sh}}}. This may be necessary in case systemd itself or some libraries it depends on are damaged by filesystem corruption. You may need to reinstall working versions of the affected packages.
 
-If <code>/bin/sh</code> does not work, you must boot from another medium.
+If {{{/bin/sh}}} does not work, you must boot from another medium.
 
 === strategy: early debug shell ===
 You can enable shell access to be available very early in the startup process to fall back on and diagnose systemd related boot up issues with various systemctl commands.
@@ -54,42 +46,46 @@ You can enable shell access to be available very early in the startup process to
 
 == When you can get a shell ==
 When you have systemd running to the extent that it can provide you with a shell, please use it to extract useful information for debugging. Boot with these parameters on the kernel command line:
-<pre>systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M</pre>
+{{{
+systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M
+}}}
 in order to increase the verbosity of systemd, to let systemd write its logs to the kernel log buffer, and to increase the size of the kernel log buffer. After reaching the shell, save the log:
-<pre>
+{{{
 dmesg > dmesg.txt
-</pre>
+}}}
 
-When reporting a bug, attach the <code>dmesg.txt</code> file.
+When reporting a bug, attach the {{{dmesg.txt}}} file.
 
 To check for possibly stuck jobs use:
-<pre>
+{{{
 systemctl list-jobs
-</pre>
+}}}
 The jobs that are listed as "running" are the ones that must complete before the "waiting" ones will be allowed to start executing.
 
 = Diagnosing shutdown problems =
 If reboot or poweroff take suspiciously long time,
-* boot with the debug options:
-<pre>systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M enforcing=0</pre>
-* save the following script as '''/lib/systemd/system-shutdown/debugshutdown.sh''' and make it executable:
-<pre>
+  * boot with the debug options:
+{{{
+systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M enforcing=0
+}}}
+  * save the following script as '''/lib/systemd/system-shutdown/debugshutdown.sh''' and make it executable:
+{{{
 #!/bin/sh
 mount -o remount,rw /
 dmesg > /shutdown-log.txt
 mount -o remount,ro /
-</pre>
-* reboot
-Look for timeouts logged in the resulting file <code>/shutdown-log.txt</code> and/or attach it to a bugreport.
+}}}
+  * reboot
+Look for timeouts logged in the resulting file {{{/shutdown-log.txt}}} and/or attach it to a bugreport.
 
 = Status and logs of services =
 When the start of a service fails, systemctl will give you a generic error message:
-<pre>
+{{{
 # systemctl start foo.service
 Job failed. See system journal and 'systemctl status' for details.
-</pre>
-The service may have printed its own error message, but you do not see it, because services run by systemd are not related to your login session and their outputs are not connected to your terminal. That does not mean the output is lost though. By default the stdout, stderr of services are directed to the systemd '''journal''' and the logs that services produce via <code>syslog(3)</code> go there too. systemd also stores the exit code of failed services. Let's check:
-<pre>
+}}}
+The service may have printed its own error message, but you do not see it, because services run by systemd are not related to your login session and their outputs are not connected to your terminal. That does not mean the output is lost though. By default the stdout, stderr of services are directed to the systemd '''journal''' and the logs that services produce via {{{syslog(3)}}} go there too. systemd also stores the exit code of failed services. Let's check:
+{{{
 # systemctl status foo.service
 foo.service - mmm service
 	  Loaded: loaded (/etc/systemd/system/foo.service; static)
@@ -98,19 +94,17 @@ foo.service - mmm service
 	  CGroup: name=systemd:/system/foo.service
 
 May 11 20:26:23 scratch foo[1329]: Failed to parse config
-</pre>
+}}}
 
-In this example the service ran as a process with PID 1329 and exited with error code 1. If you run systemctl status as root or as a user from the <code>adm</code> group, you will get a few lines from the journal that the service wrote. In the example the service produced just one error message.
+In this example the service ran as a process with PID 1329 and exited with error code 1. If you run systemctl status as root or as a user from the {{{adm}}} group, you will get a few lines from the journal that the service wrote. In the example the service produced just one error message.
 
-To list the journal, use the <code>journalctl</code> command.
+To list the journal, use the {{{journalctl}}} command.
 
-If you have a syslog service (such as rsyslog) running, the journal will also forward the messages to it, so you'll find them in <code>/var/log/messages</code> (depending on rsyslog's configuration).
+If you have a syslog service (such as rsyslog) running, the journal will also forward the messages to it, so you'll find them in {{{/var/log/messages}}} (depending on rsyslog's configuration).
 
 = Reporting systemd bugs =
 
 Be prepared to include some information (logs) about your system as well. These should be complete (no snippets please), not in an archive, uncompressed, with MIME type set as text/plain.
-
-{{Anchor|AllInfo}}
 
 == Information to attach to a bug report ==
 
