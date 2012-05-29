@@ -197,28 +197,6 @@ load-sample-dir-lazy
 
 Load all entries in the specified directory into the sample cache as lazy entries. A shell globbing expression (e.g. {{{*.wav}}}) may be appended to the path of the directory to add.
 
-== Module Autoloading ==
-
-{{{
-list-autoload
-}}}
-
-Lists all currently defined autoloading entries.
-
-{{{
-add-autoload-sink
-add-autoload-source
-}}}
-
-Adds an autoloading entry for a sink (resp. source). Expects the sink name (resp. source name), the module name and the module arguments as arguments.
-
-{{{
-remove-autoload-sink
-remove-autoload-source
-}}}
-
-Remove an autoloading entry. Expects the sink name (resp. source name) as argument.
-
 == Miscellaneous Commands ==
 
 {{{
@@ -271,39 +249,3 @@ Enable (resp. disable) that following failing commands will cancel the execution
 }}}
 
 Enable (resp. disable) extra verbosity.
-
-== Example Configuration Script ==
-
-Mark the following script as executable ({{{chmod +x}}}) and run it for a sensible !PulseAudio configuration.
-
-{{{
-#!/usr/bin/pulseaudio -nF
-
-# Create autoload entries for the device drivers
-add-autoload-sink output module-alsa-sink device=plughw:0,0 rate=48000 sink_name=output
-add-autoload-sink output2 module-oss device=/dev/dsp1 record=0 sink_name=output2
-add-autoload-sink combined module-combine master=output slaves=output2 sink_name=combined
-
-add-autoload-source input module-alsa-source device=hw:1,0 source_name=input
-
-# Load several protocols
-load-module module-esound-protocol-unix
-load-module module-simple-protocol-tcp
-load-module module-native-protocol-unix
-load-module module-cli-protocol-unix
-
-# Make some devices default
-set-default-sink combined
-set-default-source input
-
-# Don't fail if the audio files referred to below don't exist
-.nofail
-
-# Load an audio to the sample cache for usage with module-x11-bell
-load-sample-lazy  /usr/share/sounds/KDE_Notify.wav x11-bell
-load-module module-x11-bell sample=x11-bell
-
-# Play a welcome sound
-play-file /usr/share/sounds/startup3.wav combined
-}}}
-
