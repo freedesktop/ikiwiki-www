@@ -1,0 +1,155 @@
+= The D-Bus API of systemd/PID 1 =
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1
+node /org/freedesktop/systemd1 {
+  interface org.freedesktop.systemd1.Manager {
+    methods:
+      GetUnit(in  s name,
+              out o unit);
+      GetUnitByPID(in  u pid,
+                   out o unit);
+      LoadUnit(in  s name,
+               out o unit);
+      StartUnit(in  s name,
+                in  s mode,
+                out o job);
+      StartUnitReplace(in  s old_unit,
+                       in  s new_unit,
+                       in  s mode,
+                       out o job);
+      StopUnit(in  s name,
+               in  s mode,
+               out o job);
+      ReloadUnit(in  s name,
+                 in  s mode,
+                 out o job);
+      RestartUnit(in  s name,
+                  in  s mode,
+                  out o job);
+      TryRestartUnit(in  s name,
+                     in  s mode,
+                     out o job);
+      ReloadOrRestartUnit(in  s name,
+                          in  s mode,
+                          out o job);
+      ReloadOrTryRestartUnit(in  s name,
+                             in  s mode,
+                             out o job);
+      KillUnit(in  s name,
+               in  s who,
+               in  s mode,
+               in  i signal);
+      ResetFailedUnit(in  s name);
+      GetJob(in  u id,
+             out o job);
+      ClearJobs();
+      ResetFailed();
+      ListUnits(out a(ssssssouso) units);
+      ListJobs(out a(usssoo) jobs);
+      Subscribe();
+      Unsubscribe();
+      CreateSnapshot(in  s name,
+                     in  b cleanup,
+                     out o unit);
+      Reload();
+      Reexecute();
+      Exit();
+      Reboot();
+      PowerOff();
+      Halt();
+      KExec();
+      SwitchRoot(in  s new_root,
+                 in  s init);
+      SetEnvironment(in  as names);
+      UnsetEnvironment(in  as names);
+      UnsetAndSetEnvironment(in  as unset,
+                             in  as set);
+      ListUnitFiles(out a(ss) changes);
+      GetUnitFileState(in  s file,
+                       out s state);
+      EnableUnitFiles(in  as files,
+                      in  b runtime,
+                      in  b force,
+                      out b carries_install_info,
+                      out a(sss) changes);
+      DisableUnitFiles(in  as files,
+                       in  b runtime,
+                       out a(sss) changes);
+      ReenableUnitFiles(in  as files,
+                        in  b runtime,
+                        in  b force,
+                        out b carries_install_info,
+                        out a(sss) changes);
+      LinkUnitFiles(in  as files,
+                    in  b runtime,
+                    in  b force,
+                    out a(sss) changes);
+      PresetUnitFiles(in  as files,
+                      in  b runtime,
+                      in  b force,
+                      out b carries_install_info,
+                      out a(sss) changes);
+      MaskUnitFiles(in  as files,
+                    in  b runtime,
+                    in  b force,
+                    out a(sss) changes);
+      UnmaskUnitFiles(in  as files,
+                      in  b runtime,
+                      out a(sss) changes);
+    signals:
+      UnitNew(s id,
+              o unit);
+      UnitRemoved(s id,
+                  o unit);
+      JobNew(u id,
+             o job,
+             s unit);
+      JobRemoved(u id,
+                 o job,
+                 s unit,
+                 s result);
+      StartupFinished(t kernel,
+                      t initrd,
+                      t userspace,
+                      t total);
+      UnitFilesChanged();
+    properties:
+      readonly s Version = 'systemd 183';
+      readonly s Distribution = 'fedora';
+      readonly s Features = '+PAM +LIBWRAP +AUDIT +SELINUX +IMA +SYSVINIT +LIBCRYPTSETUP';
+      readonly s Tainted = '';
+      readonly s RunningAs = 'system';
+      readonly t InitRDTimestamp = 1338384454947799;
+      readonly t InitRDTimestampMonotonic = 2198884;
+      readonly t StartupTimestamp = 1338384457940337;
+      readonly t StartupTimestampMonotonic = 5191422;
+      readonly t FinishTimestamp = 1338384470615576;
+      readonly t FinishTimestampMonotonic = 17866661;
+      readwrite s LogLevel = 'debug';
+      readwrite s LogTarget = 'kmsg';
+      readonly u NNames = 240;
+      readonly u NJobs = 0;
+      readonly u NInstalledJobs = 113;
+      readonly u NFailedJobs = 0;
+      readonly d Progress = 1.0;
+      readonly as Environment = ['SYSFONT=latarcyrheb-sun16', 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin', 'LANG=en_US.UTF-8', 'KEYTABLE=de-latin1'];
+      readonly b ConfirmSpawn = false;
+      readonly b ShowStatus = false;
+      readonly as UnitPath = ['/etc/systemd/system', '/run/systemd/generator', '/usr/lib/systemd/system'];
+      readonly s ControlGroupHierarchy = '/system';
+      readonly as DefaultControllers = ['cpu'];
+      readonly s DefaultStandardOutput = 'journal';
+      readonly s DefaultStandardError = 'inherit';
+      readwrite s RuntimeWatchdogUSec = 0;
+      readwrite s ShutdownWatchdogUSec = 600000000;
+      readonly b HaveWatchdog = true;
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
