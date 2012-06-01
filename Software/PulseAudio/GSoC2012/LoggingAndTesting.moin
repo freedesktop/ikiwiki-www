@@ -3,11 +3,11 @@ This is Deng Zhengrong to track the status of GSoC 2012.
 = Logging =
 
 == change log's output on the fly via pacmd command ==
- This is done by adding a new command ''set-log-target'' in file ''cli-command.c''. and this patch is already accepted.
+This is done by adding a new command ''set-log-target'' in file ''cli-command.c''. and this patch is already accepted.
 
 == add log category support ==
 
- The original proposal is to have a mechanism that's similar to ''gstreamer'' 's category support, therefore we can give it a category's name and a log level to decide whether we want to turn some logs on or off.
+The original proposal is to have a mechanism that's similar to ''gstreamer'' 's category support, therefore we can give it a category's name and a log level to decide whether we want to turn some logs on or off.
 
   * The first version of this category support:
 
@@ -34,6 +34,10 @@ This is Deng Zhengrong to track the status of GSoC 2012.
 
 == circular buffer support ==
 
+The purpose of this support is to have a buffer to hold the last few lines of the log and then users can query about these logs, e.g. filtering about the messages etc.
+
+ * A demo is done and I've sent it out to mailing list for review.
+ * But the problem is that it incorporates the usage of a mutex and in pulseaudio, we'd prefer to remove that lock. So the next step is to see how we can overcome this shortcoming.
      
 = Testing =
 
