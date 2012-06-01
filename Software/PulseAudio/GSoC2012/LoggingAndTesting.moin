@@ -3,6 +3,22 @@ This is Deng Zhengrong to track the status of GSoC 2012.
 = Logging =
 
  * add log category support
+
+  * The first version of this category support:
+
+    * add a pa_log_category_t type and in this type, we have log level, its category name, its category description and its output color.
+    * when a log message comes in, it has a function called 'init_defaults' in log.c and I need to register some pre-defined categories before I can use it.
+    * and in every file when we want to use the category, we need to a line "#define PA_LOG_CATEGORY_DEFAULT PA_LOG_CATEGORY_CORE".
+    * for modules' usage, it's a little different, we need to register the category in 'pa__init()' and therefore we can use this category.
+
+  * I've discussed with Arun on IRC and it seems that the first version is not good enough. We'd better have a on-the-go interface. So thanks to Arun's advice, we've second proposal:
+
+    * Whenever we want to use a specific category, we only need to add one line 'PA_SET_CATEGORY("sink-input")' at the top of the c file.
+    * Then when a log message comes in, it checks whether the requested category exists or not, if it's not, then it creates it dynamically,
+    * For users to take advantage of the category support, we have to add some 'category' related commands, (just like what we've done with the modules), something just come out of my mind is:
+      * list all avaiable categories
+      * set categories to different log level
+
  * look into systemd journal support
 
 = Testing =
