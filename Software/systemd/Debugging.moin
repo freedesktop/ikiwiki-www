@@ -63,7 +63,16 @@ systemctl list-jobs
 The jobs that are listed as "running" are the ones that must complete before the "waiting" ones will be allowed to start executing.
 
 = Diagnosing shutdown problems =
-If reboot or poweroff take suspiciously long time,
+If shutdown (whether it be to reboot or power-off) of your system gets stuck, first test if the kernel itself is able to reboot or power-off the machine forcedly using one of these commands:
+{{{
+sync && reboot -f
+sync && poweroff -f
+}}}
+
+If either one of the commands does not work, it is a kernel bug, not systemd.
+
+== Shutdown completes eventually ==
+If normal reboot or poweroff work, but take a suspiciously long time, then
   * boot with the debug options:
 {{{
 systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M enforcing=0
@@ -77,6 +86,11 @@ mount -o remount,ro /
 }}}
   * reboot
 Look for timeouts logged in the resulting file '''shutdown-log.txt''' and/or attach it to a bugreport.
+
+== Shutdown never finishes ==
+If normal reboot or poweroff never finish even after waiting a few minutes, the above method to create the shutdown log will not help and the log must be obtained using other methods. Two options that are useful for debugging boot problems can be used also for shutdown problems:
+  * use a [[#debug_logging_to_a_serial_console|serial console]]
+  * use a [[#early_debug_shell|debug shell]]
 
 = Status and logs of services =
 When the start of a service fails, systemctl will give you a generic error message:
