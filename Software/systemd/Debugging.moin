@@ -41,8 +41,23 @@ If {{{/bin/sh}}} does not work, you must boot from another medium.
 
 === early debug shell ===
 You can enable shell access to be available very early in the startup process to fall back on and diagnose systemd related boot up issues with various systemctl commands.
+Enable it using:
+{{{
+systemctl enable systemd-debug-shell.service
+}}}
+'''Tip''': If your version of systemd is not new enough to have systemd-debug-shell.service, you can download the unit file from [[http://cgit.freedesktop.org/systemd/systemd/plain/units/systemd-debug-shell.service.in|systemd git]]. Substitute {{{/bin/bash}}} for {{{@sushell@}}} in the file.
 
-  * Follow the instructions for [[http://fedoraproject.org/wiki/Systemd_early_debug_shell|enabling an early debug shell]].
+'''Tip''': If you find yourself in a situation where you cannot use systemctl (e.g. when setting this up from a different booted system), you can enable the service manually:
+{{{
+cd $PATH_TO_YOUR_ROOT_FS/etc/systemd/system
+mkdir sysinit.target.wants
+ln -s /lib/systemd/system/systemd-debug-shell.service sysinit.target.wants/
+}}}
+
+Once enabled, the next time you boot you will be able to switch to tty9 using CTRL+ALT+F9 and have a root shell there available from an early point in the booting process.
+You can use the shell for checking the status of services, reading logs, looking for stuck jobs with {{{systemctl list-jobs}}}, etc.
+
+'''Warning:''' Use this shell only for debugging! Do not forget to disable systemd-debug-shell.service after you've finished debugging your boot problems. Leaving the root shell always available would be a security risk.
 
 == When you can get a shell ==
 When you have systemd running to the extent that it can provide you with a shell, please use it to extract useful information for debugging. Boot with these parameters on the kernel command line:
