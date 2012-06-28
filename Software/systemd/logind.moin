@@ -8,6 +8,8 @@ The daemon provides both a C library interface as well as a D-Bus interface. The
 
 If you are interested in writing a display manager that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].
 
+The inhibitation logic is documented in [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibition Logic]].
+
 == The Manager Object ==
 
 The service exposes the following interfaces on the Manager object on the bus:
@@ -138,7 +140,7 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 '''!SetUserLinger()''' enables or disables user lingering. If enabled the runtime directory of a user is kept around and he may continue to run processes while he is logged out. If disabled the runtime directory goes away as soon as he logs out. Expects three arguments: the UID, a boolean whether to enable/disable and a boolean controlling the !PolicyKit authorization interactivity (see above). Note that the user linger state is persistantly stored on disk.
 
-'''!AttachDevice()''' may be used to assign a specific a device to a specific seat. The device is identified by its /sys path, and must be eligible for seat assignments. Takes three arguments: the seat id, the sysfs path, and a boolean for controlling !PolicyKit interactivity (see above). Device assignments are persistantly stored to disk. To create a new seat, simply specify a previously unused seat id. For more information about the seat assignment logic see: http://www.freedesktop.org/wiki/Software/systemd/multiseat
+'''!AttachDevice()''' may be used to assign a specific a device to a specific seat. The device is identified by its /sys path, and must be eligible for seat assignments. Takes three arguments: the seat id, the sysfs path, and a boolean for controlling !PolicyKit interactivity (see above). Device assignments are persistantly stored to disk. To create a new seat, simply specify a previously unused seat id. For more information about the seat assignment logic see [[http://www.freedesktop.org/wiki/Software/systemd/multiseat|Multi-Seat for Linux]].
 
 '''!FlushDevices()''' removes all explicit seat assignments for devices, resetting all assignments to the automatic defaults. The only argument this takes is the !PolicyKit interactivity boolean (see above).
 
@@ -146,7 +148,7 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 '''!CanPowerOff()''', '''!CanReboot()''', '''!CanSuspend()''', '''!CanHibernate()''' tests whether the system supports the respective operation and whether calling user is eligible for the desired operation. Returns one of "yes", "no" or "challenge". If "challenge" is returned the operation is available, but only after authorization.
 
-'''Inhibit()''' creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep" and "idle", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, or the automatic idle logic. "Who" should be short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all is duplicates) is closed. For more information on the inhibition logic see: http://www.freedesktop.org/wiki/Software/systemd/inhibit
+'''Inhibit()''' creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep" and "idle", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, or the automatic idle logic. "Who" should be short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all is duplicates) is closed. For more information on the inhibition logic see [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibition Logic]].
 
 '''!ListInhibitors()''' lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
