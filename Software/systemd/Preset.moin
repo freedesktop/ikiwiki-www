@@ -9,13 +9,15 @@ Different '''sites''' might also have different policies what to turn on by defa
 
 == The Logic ==
 
-Traditionally, policy about what services shall be enabled and what services shall not have been decided globally by the distributions, and were enforced in each package individually. This made it cumbersome to implement different policies per spin or per site, or to create software packages that do the right thing on more than one distribution.
+Traditionally, policy about what services shall be enabled and what services shall not have been decided globally by the distributions, and were enforced in each package individually. This made it cumbersome to implement different policies per spin or per site, or to create software packages that do the right thing on more than one distribution. The enablement ''mechanism'' was also encoding the enablement ''policy''.
 
-systemd 32 and newer support package "preset" policies. These encode which units shall be enabled by default when they are installed, and which units shall not be enabled. Preset files may be written for specific distributions, for specific spins or for specific sites, in order to enforce different policies as needed.
+systemd 32 and newer support package "preset" policies. These encode which units shall be enabled by default when they are installed, and which units shall not be enabled. 
 
-Preset policies are stored in .preset files in /usr/lib/systemd/system-preset/. If no policy exists the default implied policy of "enable everything" is enforced, i.e. in Debian style.
+Preset files may be written for specific distributions, for specific spins or for specific sites, in order to enforce different policies as needed. Preset policies are stored in .preset files in /usr/lib/systemd/system-preset/. If no policy exists the default implied policy of "enable everything" is enforced, i.e. in Debian style.
 
 The policy encoded in preset files is applied to a unit by invoking "systemctl preset <unit>". It is recommended to use this command in all package post installation scriptlets. "systemctl preset <unit>" is identical to "systemctl enable <unit>" resp. "systemctl disable <unit>" depending on the policy.
+
+Preset files allow clean separation of enablement ''mechanism'' (inside the package scriptlets, by invoking "systemctl preset"), and enablement ''policy'' (centralized in the preset files).
 
 == Documentation ==
 
@@ -29,7 +31,7 @@ Documentation for the recommended package scriptlets you find here: http://www.f
 
 For the preset logic to be useful, distributions need to implement a couple of steps:
 
- * The default distribution policy needs to be encoded in a preset file /usr/lib/systemd/system-preset/99-default.preset or suchlike, unless the implied policy of "enable everything" is the right choice. For a Fedora-like policy of "enable nothing" it is sufficient to include the sinle line "disable *" into that file. The default preset file should be installed as part of one the core packages of the distribution.
+ * The default distribution policy needs to be encoded in a preset file /usr/lib/systemd/system-preset/99-default.preset or suchlike, unless the implied policy of "enable everything" is the right choice. For a Fedora-like policy of "enable nothing" it is sufficient to include the single line "disable *" into that file. The default preset file should be installed as part of one the core packages of the distribution.
 
  * All packages need to be updated to use "systemctl preset" in the post install scriptlets.
 
