@@ -20,4 +20,32 @@ Three distinct inhibitor lock types may be taken, or a combination of them:
 Two different modes of locks are supported:
 
  1. ''block'' inhibits operations entirely until the lock is released. If such a lock is taken the operation will fail (but still may be overriden if the user possesses the necessary privileges).
- 2. ''delay'' inhibits operations only temporarily, either until the lock is released or up to a certain amount of time. The InhibitDelayMaxSec= setting in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]] controls the timeout for this. This is intended to be used by applications which need a synchronous way to execute actions before system suspend but shall not be allowed to block suspend indefinitely.
+ 2. ''delay'' inhibits operations only temporarily, either until the lock is released or up to a certain amount of time. The !InhibitDelayMaxSec= setting in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]] controls the timeout for this. This is intended to be used by applications which need a synchronous way to execute actions before system suspend but shall not be allowed to block suspend indefinitely.
+
+Inhibitor locks are taken via the Inhibit() D-Bus call on the logind Manager object:
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1
+node /org/freedesktop/login1 {
+  interface org.freedesktop.login1.Manager {
+    methods:
+      Inhibit(in  s what,
+              in  s who,
+              in  s why,
+              in  s mode,
+              out h fd);
+      ListInhibitors(out a(ssssuu) inhibitors);
+      ...
+    signals:
+      PrepareForShutdown(b active);
+      PrepareForSleep(b active);
+      ...
+    properties:
+      readonly s BlockInhibited = '';
+      readonly s DelayInhibited = '';
+      readonly t InhibitDelayMaxUSec = 5000000;
+      ...
+  };
+  ...
+};
+}}
