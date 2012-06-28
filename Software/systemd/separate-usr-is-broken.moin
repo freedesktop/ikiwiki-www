@@ -29,7 +29,7 @@ We have been working on the Linux userspace since quite some time, and simply ha
 
 There is no way to reliably bring up a modern system with an empty /usr. There are two alternatives to fix it: move /usr back to the rootfs or use an initramfs which can hide the split-off from the system.
 
-On the Fedora distribution we have succeeded to clean-up the situation and the confusion the current split between / and /usr has created. We have moved all tools that have been moved to / over time back to /usr where they belong, and the rootfs only contains compatibility symlinks into /usr.
+On the Fedora distribution we have succeeded to clean up the situation and the confusion the current split between / and /usr has created. We have moved all tools that over time have been moved to / back to /usr (where they belong), and the root file system only contains compatibility symlinks for /bin and /sbin into /usr. All binaries of the system are exclusively located within the /usr hierarchy.
 
 In this new definition of /usr, the directory can be mounted read-only by default, while the rootfs may be either read-write or read-only (for stateless systems) and contains only the empty mount point directories, compat-symlinks to /usr and the host-specific data like /etc, /root, /srv. In comparison to today's setups, the rootfs will be very small. The host-specific data will be properly separated from the installed operating system. The new /usr could also easily be shared read-only across several systems. Such a setup would be more efficient, can provide additional security, is more flexible to use, provides saner options for custom setups, and is much simpler to setup and maintain.
 
