@@ -1,0 +1,119 @@
+= localed =
+
+systemd 28 and newer include systemd-logind. This is a tiny daemon that can manages user logins in various ways.
+
+See http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html for more information.
+
+The daemon is accessible via D-Bus: 
+
+{{{$ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1
+node /org/freedesktop/login1 {
+  interface org.freedesktop.login1.Manager {
+    methods:
+      GetSession(in  s id,
+                 out o session);
+      GetSessionByPID(in  u pid,
+                      out o session);
+      GetUser(in  u uid,
+              out o user);
+      GetSeat(in  s id,
+              out o seat);
+      ListSessions(out a(susso) sessions);
+      ListUsers(out a(uso) users);
+      ListSeats(out a(so) seats);
+      CreateSession(in  u uid,
+                    in  u leader,
+                    in  s sevice,
+                    in  s type,
+                    in  s class,
+                    in  s seat,
+                    in  u vtnr,
+                    in  s tty,
+                    in  s display,
+                    in  b remote,
+                    in  s remote_user,
+                    in  s remote_host,
+                    in  as controllers,
+                    in  as reset_controllers,
+                    in  b kill_processes,
+                    out s id,
+                    out o path,
+                    out o runtime_path,
+                    out h fd,
+                    out s seat,
+                    out u vtnr);
+      ReleaseSession(in  s id);
+      ActivateSession(in  s id);
+      ActivateSessionOnSeat(in  s id,
+                            in  s seat);
+      LockSession(in  s id);
+      UnlockSession(in  s id);
+      KillSession(in  s id,
+                  in  s who,
+                  in  s signal);
+      KillUser(in  u uid,
+               in  s signal);
+      TerminateSession(in  s id);
+      TerminateUser(in  u uid);
+      TerminateSeat(in  s id);
+      SetUserLinger(in  u uid,
+                    in  b b,
+                    in  b interactive);
+      AttachDevice(in  s seat,
+                   in  s sysfs,
+                   in  b interactive);
+      FlushDevices(in  b interactive);
+      PowerOff(in  b interactive);
+      Reboot(in  b interactive);
+      Suspend(in  b interactive);
+      Hibernate(in  b interactive);
+      CanPowerOff(out s result);
+      CanReboot(out s result);
+      CanSuspend(out s result);
+      CanHibernate(out s result);
+      Inhibit(in  s what,
+              in  s who,
+              in  s why,
+              in  s mode,
+              out h fd);
+      ListInhibitors(out a(ssssuu) inhibitors);
+    signals:
+      SessionNew(s id,
+                 o path);
+      SessionRemoved(s id,
+                     o path);
+      UserNew(u uid,
+              o path);
+      UserRemoved(u uid,
+                  o path);
+      SeatNew(s id,
+              o path);
+      SeatRemoved(s id,
+                  o path);
+      PrepareForShutdown(b active);
+      PrepareForSleep(b active);
+    properties:
+      readonly s ControlGroupHierarchy = '/user';
+      readonly as Controllers = [];
+      readonly as ResetControllers = ['cpu'];
+      readonly u NAutoVTs = 6;
+      readonly as KillOnlyUsers = [];
+      readonly as KillExcludeUsers = ['root'];
+      readonly b KillUserProcesses = false;
+      readonly b IdleHint = false;
+      readonly t IdleSinceHint = 1340873864854884;
+      readonly t IdleSinceHintMonotonic = 14409495315;
+      readonly s BlockInhibited = '';
+      readonly s DelayInhibited = '';
+      readonly t InhibitDelayMaxUSec = 5000000;
+      readonly s HandlePowerKey = 'no-session';
+      readonly s HandleSleepKey = 'tty-session';
+      readonly s HandleLidSwitch = 'off';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};}}}
