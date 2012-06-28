@@ -6,6 +6,8 @@ See http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html 
 
 The daemon provides both a C library interface as well as a D-Bus interface. The library interface may be used to introspect and watch the state of user logins or seat. The bus interface provides the same but in addition may also be used to make changes to system state. For more more information please consult the man pages: http://www.freedesktop.org/software/systemd/man/sd-login.html
 
+== The Manager Object ==
+
 The service exposes the following interfaces on the Manager object on the bus:
 
 {{{
@@ -153,5 +155,49 @@ Most properties simply reflect the configuration stored in logind.conf. For more
 The !IdleHint property reflects the idle hint state of the system. !IdleSinceHint and !IdleSinceHintMonotonic encode the timestamps of the last change of the idle int boolean, in CLOCK_REALTIME resp. CLOCK_MONOTONIC timestamps in usec since the epoch.
 
 The !BlockInhibited and !DelayInhibited properties encode the currently active locks of the respective modes. They are colon separated lists of "shutdown", "sleep", "idle" (see above).
+
+== Seat Objects ==
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/seat/seat0
+node /org/freedesktop/login1/seat/seat0 {
+  interface org.freedesktop.login1.Seat {
+    methods:
+      Terminate();
+      ActivateSession(in  s id);
+    signals:
+    properties:
+      readonly s Id = 'seat0';
+      readonly so ActiveSession = ('2', '/org/freedesktop/login1/session/2');
+      readonly b CanMultiSession = true;
+      readonly b CanTTY = true;
+      readonly b CanGraphical = true;
+      readonly a(so) Sessions = [('2', '/org/freedesktop/login1/session/2')];
+      readonly b IdleHint = false;
+      readonly t IdleSinceHint = 1340873864854884;
+      readonly t IdleSinceHintMonotonic = 14409495315;
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
+
+Terminate() and !ActivateSession() work similar to !TerminateSeat(), ActivationSessionOnSeat() on the Manager object.
+
+The Id property encodes the Id of the seat.
+
+!ActiveSession encodes the currently active session if there is one. It is a structure consisting of session id and object path.
+
+!CanMultiSession encodes whether the session is multi-session capable, !CanTTY whether it is suitable for text logins, !CanGraphical whether it is suitable for graphical sessions. 
+
+The Sessions array is an array of all current sessions of this seat, each encoded in a structure consisting of the ID and the object path. 
+
+The IdleHint, IdleSinceHint, IdleSinceHint properties encode the idle state, similar to the one exposed on the Manager object, but specific for this seat.
+
+== User Objects ==
 
 This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
