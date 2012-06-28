@@ -6,7 +6,7 @@ See http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html 
 
 The daemon provides both a C library interface as well as a D-Bus interface. The library interface may be used to introspect and watch the state of user logins or seat. The bus interface provides the same but in addition may also be used to make changes to system state. For more more information please consult the man pages: http://www.freedesktop.org/software/systemd/man/sd-login.html
 
-The service exposes the following interfaces on the bus:
+The service exposes the following interfaces on the Manager object on the bus:
 
 {{{
 $ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1
@@ -121,3 +121,7 @@ node /org/freedesktop/login1 {
   };
 };
 }}}
+
+A number of operations are protected via the PolicyKit privilege system. !SetUserLinger() requires the org.freedesktop.login1.set-user-linger privilege. !AttachDevice() requires org.freedesktop.login1.attach-device and !FlushDevices org.freedesktop.login1.flush-devices.
+
+The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to. 
