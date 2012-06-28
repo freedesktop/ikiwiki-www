@@ -24,28 +24,8 @@ node /org/freedesktop/login1 {
       ListSessions(out a(susso) sessions);
       ListUsers(out a(uso) users);
       ListSeats(out a(so) seats);
-      CreateSession(in  u uid,
-                    in  u leader,
-                    in  s sevice,
-                    in  s type,
-                    in  s class,
-                    in  s seat,
-                    in  u vtnr,
-                    in  s tty,
-                    in  s display,
-                    in  b remote,
-                    in  s remote_user,
-                    in  s remote_host,
-                    in  as controllers,
-                    in  as reset_controllers,
-                    in  b kill_processes,
-                    out s id,
-                    out o path,
-                    out o runtime_path,
-                    out h fd,
-                    out s seat,
-                    out u vtnr);
-      ReleaseSession(in  s id);
+      CreateSession(...);
+      ReleaseSession(...);
       ActivateSession(in  s id);
       ActivateSessionOnSeat(in  s id,
                             in  s seat);
@@ -172,6 +152,6 @@ Most properties simply reflect the configuration stored in logind.conf. For more
 
 The !IdleHint property reflects the idle hint state of the system. !IdleSinceHint and !IdleSinceHintMonotonic encode the timestamps of the last change of the idle int boolean, in CLOCK_REALTIME resp. CLOCK_MONOTONIC timestamps in usec since the epoch.
 
-The !BlockInhibited and !DelayInhibited encode the currently active locks of the respective modes. They are colon separated lists of "shutdown", "sleep", "idle" (see above).
+The !BlockInhibited and !DelayInhibited properties encode the currently active locks of the respective modes. They are colon separated lists of "shutdown", "sleep", "idle" (see above).
 
 This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
