@@ -192,7 +192,7 @@ The Id property encodes the Id of the seat.
 
 !ActiveSession encodes the currently active session if there is one. It is a structure consisting of session id and object path.
 
-!CanMultiSession encodes whether the session is multi-session capable, !CanTTY whether it is suitable for text logins, !CanGraphical whether it is suitable for graphical sessions. 
+!CanMultiSession encodes whether the session is multi-session capable, CanTTY whether it is suitable for text logins, !CanGraphical whether it is suitable for graphical sessions. 
 
 The Sessions array is an array of all current sessions of this seat, each encoded in a structure consisting of the ID and the object path. 
 
@@ -216,7 +216,6 @@ node /org/freedesktop/login1/user/500 {
       readonly t TimestampMonotonic = 22320963;
       readonly s RuntimePath = '/run/user/500';
       readonly s DefaultControlGroup = 'name=systemd:/user/lennart';
-      readonly s Service = '';
       readonly (so) Display = ('2', '/org/freedesktop/login1/session/2');
       readonly s State = 'active';
       readonly a(so) Sessions = [('2', '/org/freedesktop/login1/session/2')];
@@ -232,5 +231,25 @@ node /org/freedesktop/login1/user/500 {
   };
 };
 }}}
+
+Terminate() and Kill() work similar to the TerminateUser() resp. KillUser() calls on the manager object.
+
+The UID and GID properties encode the Unix UID and primary GID of the user.
+
+The Name property encodes the user name.
+
+Timestamp and !TimestampMonotonic encode the login time of the user in usec since the epoch, in the CLOCK_REALTIME resp. CLOCK_MONOTONIC clocks.
+
+!RuntimePath encodes the runtime path of the user, i.e. !XDG_RUNTIME_DIR.
+
+!DefaultControlGroup encodes the default control group of the user within the system hierarchy.
+
+Display encodes which graphical session should be used as primary UI display for the use. It is a structure encoding session ID and object path of the session to use.
+
+State encodes the user state, one of "offline", "lingering", "online", "active", "closing". See http://www.freedesktop.org/software/systemd/man/sd_uid_get_state.html for more information about the states.
+
+Sessions is an array of structures encoding all current sessions of the user. Each structure consists of ID and object path.
+
+The !IdleHint, !IdleSinceHint, !IdleSinceHintMonotonic properties encode the idle hint state of the user, similar to the Manager's properties, but specific for this user.
 
 This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
