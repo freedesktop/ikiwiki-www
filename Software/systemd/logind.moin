@@ -186,7 +186,7 @@ node /org/freedesktop/login1/seat/seat0 {
 };
 }}}
 
-Terminate() and !ActivateSession() work similar to !TerminateSeat(), ActivationSessionOnSeat() on the Manager object.
+Terminate() and !ActivateSession() work similar to !TerminateSeat(), !ActivationSessionOnSeat() on the Manager object.
 
 The Id property encodes the Id of the seat.
 
@@ -196,8 +196,41 @@ The Id property encodes the Id of the seat.
 
 The Sessions array is an array of all current sessions of this seat, each encoded in a structure consisting of the ID and the object path. 
 
-The IdleHint, IdleSinceHint, IdleSinceHint properties encode the idle state, similar to the one exposed on the Manager object, but specific for this seat.
+The !IdleHint, !IdleSinceHint, !IdleSinceHint properties encode the idle state, similar to the one exposed on the Manager object, but specific for this seat.
 
 == User Objects ==
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/user/500 
+node /org/freedesktop/login1/user/500 {
+  interface org.freedesktop.login1.User {
+    methods:
+      Terminate();
+      Kill(in  s signal);
+    signals:
+    properties:
+      readonly u UID = 500;
+      readonly u GID = 500;
+      readonly s Name = 'lennart';
+      readonly t Timestamp = 1340822974613785;
+      readonly t TimestampMonotonic = 22320963;
+      readonly s RuntimePath = '/run/user/500';
+      readonly s DefaultControlGroup = 'name=systemd:/user/lennart';
+      readonly s Service = '';
+      readonly (so) Display = ('2', '/org/freedesktop/login1/session/2');
+      readonly s State = 'active';
+      readonly a(so) Sessions = [('2', '/org/freedesktop/login1/session/2')];
+      readonly b IdleHint = false;
+      readonly t IdleSinceHint = 1340873864854884;
+      readonly t IdleSinceHintMonotonic = 14409495315;
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
 
 This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
