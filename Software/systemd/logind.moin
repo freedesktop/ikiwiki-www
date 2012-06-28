@@ -252,4 +252,102 @@ Sessions is an array of structures encoding all current sessions of the user. Ea
 
 The !IdleHint, !IdleSinceHint, !IdleSinceHintMonotonic properties encode the idle hint state of the user, similar to the Manager's properties, but specific for this user.
 
-This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
+== Session Objects ==
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/session/2 
+node /org/freedesktop/login1/session/2 {
+  interface org.freedesktop.login1.Session {
+    methods:
+      Terminate();
+      Activate();
+      Lock();
+      Unlock();
+      SetIdleHint(in  b b);
+      Kill(in  s who,
+           in  s signal);
+    signals:
+    properties:
+      readonly s Id = '2';
+      readonly (uo) User = (500, '/org/freedesktop/login1/user/500');
+      readonly s Name = 'lennart';
+      readonly t Timestamp = 1340822974628160;
+      readonly t TimestampMonotonic = 22335339;
+      readonly s DefaultControlGroup = 'name=systemd:/user/lennart/2';
+      readonly u VTNr = 2;
+      readonly (so) Seat = ('seat0', '/org/freedesktop/login1/seat/seat0');
+      readonly s TTY = '';
+      readonly s Display = ':0';
+      readonly b Remote = false;
+      readonly s RemoteHost = '';
+      readonly s RemoteUser = '';
+      readonly s Service = 'gdm-password';
+      readonly u Leader = 905;
+      readonly u Audit = 2;
+      readonly s Type = 'x11';
+      readonly s Class = 'user';
+      readonly b Active = true;
+      readonly s State = 'active';
+      readonly as Controllers = [];
+      readonly as ResetControllers = [];
+      readonly b KillProcesses = false;
+      readonly b IdleHint = false;
+      readonly t IdleSinceHint = 1340873864854884;
+      readonly t IdleSinceHintMonotonic = 14409495315;
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
+
+Terminate(), Activate(), Lock(), Unlock(), Kill() work similar to the respective calls on the Manager object. SetIdleHint() shall be called by the session object to update the idle state of the session, whenever it changes.
+
+Id encodes the session ID.
+
+User encodes the user ID of the user this session belongs to. This is a structure encoding the Unix UID and the object path.
+
+Name encodes the user name.
+
+Timestamp and !TimestampMonotonic encode the usec timestamp since the epoch when the session was created, in CLOCK_REALTIME resp. CLOCK_MONOTONIC.
+
+DefaultControlGroup encodes the default control group of the session, in systemd's own cgroup hierarchy.
+
+VTNr encodes the virtual terminal number of the session if there is any, 0 otherwise.
+
+Seat encodes the seat this session belongs to, if there is any. This is a structure consisting of the ID and the seat object path.
+
+TTY encodes the kernel TTY path of the session if this is a text login. If not this is the empty string.
+
+Display encodes the X11 display name if this is a graphical login. If not this is the empty string.
+
+Remote encodes whether the session is local or remote.
+
+!RemoteHost and !RemoteUser encode the remote host and user if this is a remote session, or the empty string otherwise.
+
+Service encodes the PAM service name that registered the session.
+
+Leader encodes the PID of the proces that registered the session.
+
+Audit encodes the Kernel Audit session ID of the session, if auditing is available.
+
+Type encodes the session type. It's one of "unspecified" (for cron PAM sessions and suchlike), "tty" (for text logins) or "x11" (for graphical logins).
+
+Class encodes the session class. It's one of "user" (for normal user sessions), "greeter" (for display manager pseudo-sessions), "lock-screen" (for display lock screens).
+
+Active is a boolean that is true if the session is active, i.e. currently in the foreground. This field is semi-redundant due to State.
+
+State encodes the session state and one of "online", "active", "closing". See http://www.freedesktop.org/software/systemd/man/sd_session_get_state.html for more information about the states.
+
+Controllers and !ResetControllers encode the cgroup controllers this session has been explicitly added to/remove from, using pam_systemd's command line.
+
+!KillProcesses encodes whether the processes of this session shall be killed if the session ends. It's also controllable on pam_systemd's command line.
+
+!IdleHint, !IdleSinceHint, !IdleSinceHintMonotonic encapsulate the idle hint state of this session, similar how the respective properties on the manager object to it for the whole system.
+
+----
+
+These D-Bus interfaces follow [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
