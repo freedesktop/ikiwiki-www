@@ -50,12 +50,12 @@ node /org/freedesktop/login1 {
 };
 }}}
 
-'''Inhibit()''' is the only API necessary to take a lock. Takes four arguments:
+'''Inhibit()''' is the only API necessary to take a lock. It takes four arguments:
 
  * ''What'' is a colon-separated list of lock types, i.e. {{{shutdown}}}, {{{sleep}}}, {{{idle}}}. Example: "shutdown:idle"
  * ''Who'' is a human-readable, descriptive string of who is taking the lock. Example: "PackageKit"
  * ''Why'' is a human-readable, descriptive string of why the lock is taken. Example: "Package Update in Progress"
- * ''Mode' is one of {{{block}}} or {{{delay}}}, see above. Example: "block"
+ * ''Mode'' is one of {{{block}}} or {{{delay}}}, see above. Example: "block"
 
 '''Inhibit()''' returns a single value, a file descriptor that encapsulates the lock. As soon as the file descriptor is closed (and all its duplicates) the lock is automatically released. If the client dies while the lock is taken the kernel automatically closes the file descriptors so that the lock is automatically released.
 
@@ -66,3 +66,5 @@ The '''!PrepareForShutdown()''' and '''!PrepareForSleep()''' signals are emitted
 The '''!BlockInhibited''' and '''!DelayInhibited''' properties encode what types of locks are currently taken. These fields are a colon separated list of {{{shutdown}}}, {{{sleep}}}, {{{idle}}}. The list is basically the union of the What fields of all currently active locks of the specific mode.
 
 '''InhibitDelayMaxUSec''' contains the delay timeout values as configured in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]].
+
+The tool [[http://www.freedesktop.org/software/systemd/man/systemd-inhibit.html|systemd-inhibit(1)]] may be used to take locks or list active locks from the command line.
