@@ -156,14 +156,22 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 !FlushDevices() removes all explicit seat assignments for devices, resetting all assignments to the automatic defaults. The only argument this takes is the !PolicyKit interactivity boolean (see above).
 
-!PowerOff(), !Reboot(), !Suspend(), !Hibernate() results in the system being powered off, rebooted, suspend or hibernated. The only argument is the !PolicyKit interactivity boolean (see above). The main purpose of these calls is that they enforce PolicyKit policy and hence allow powering off/rebooting/suspending/hibernating even by unprivileged users. They also enforce inhibition locks. UIs should expose these calls as primary mechanism to poweroff/reboot/suspend/hibernate the machine.
+!PowerOff(), Reboot(), Suspend(), Hibernate() results in the system being powered off, rebooted, suspend or hibernated. The only argument is the !PolicyKit interactivity boolean (see above). The main purpose of these calls is that they enforce PolicyKit policy and hence allow powering off/rebooting/suspending/hibernating even by unprivileged users. They also enforce inhibition locks. UIs should expose these calls as primary mechanism to poweroff/reboot/suspend/hibernate the machine.
 
 !CanPowerOff(), !CanReboot(), !CanSuspend(), !CanHibernate() tests whether the system supports the respective operation and whether calling user is eligible for the desired operation. Returns one of "yes", "no" or "challenge". If "challenge" is returned the operation is available, but only after authorization.
 
-!Inhibit() creates an inhibition lock.
+Inhibit() creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep" and "idle", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, or the automatic idle logic. "Who" should be short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all is duplicates) is closed. For more information on the inhibition logic see: http://www.freedesktop.org/wiki/Software/systemd/inhibit
 
+!ListInhibitors() lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
+The !SessionNew(), !SessionRemoved(), !UserNew(), !UserRemoved(), !SeatNew(), !SeatRemoved() signals are sent each time a session is created or removed, a user logs in or out, or a seat added or removed. They each contain the ID of the object plus the object path.
 
+The !PrepareForShutdown() resp. !PrepareForSleep() signals are sent immediately before the system goes down for reboot/poweroff, resp. suspend/hibernate, if at least one inhibition lock is taken. This may be used by applications for saving data on disk, releasing memory or doing other jobs that shall be done shortly before shutdown/sleep. After completation they should release their inhibition locks in order not to delay the operation any further.
 
+Most properties simply reflect the configuration stored in logind.conf. For more information, see: http://www.freedesktop.org/software/systemd/man/logind.conf.html
+
+The !IdleHint property reflects the idle hint state of the system. !IdleSinceHint and !IdleSinceHintMonotonic encode the timestamps of the last change of the idle int boolean, in CLOCK_REALTIME resp. CLOCK_MONOTONIC timestamps in usec since the epoch.
+
+The !BlockInhibited and !DelayInhibited encode the currently active locks of the respective modes. They are colon separated lists of "shutdown", "sleep", "idle" (see above).
 
 This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
