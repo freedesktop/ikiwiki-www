@@ -15,7 +15,7 @@ Three distinct inhibitor lock types may be taken, or a combination of them:
 
  1. ''sleep'' inhibits '''user-requested''' system suspend and hibernation
  2. ''shutdown'' inhibits '''user-requested''' system power-off and reboot
- 3. ''idle'' inhibits that the system goes into idle mode, possibly result in '''automatic''' system suspend or shutdown depending on configuration.
+ 3. ''idle'' inhibits that the system goes into idle mode, possibly resultin in '''automatic''' system suspend or shutdown depending on configuration.
 
 Two different modes of locks are supported:
 
@@ -48,4 +48,21 @@ node /org/freedesktop/login1 {
   };
   ...
 };
-}}
+}}}
+
+'''Inhibit()''' is the only API necessary to take a lock. Takes four arguments:
+
+ * ''What'' is a colon-separated list of lock types, i.e. {{{shutdown}}}, {{{sleep}}}, {{{idle}}}. Example: "shutdown:idle"
+ * ''Who'' is a human-readable, descriptive string of who is taking the lock. Example: "PackageKit"
+ * ''Why'' is a human-readable, descriptive string of why the lock is taken. Example: "Package Update in Progress"
+ * ''Mode' is one of {{{block}}} or {{{delay}}}, see above. Example: "block"
+
+'''Inhibit()''' returns a single value, a file descriptor that encapsulates the lock. As soon as the file descriptor is closed (and all its duplicates) the lock is automatically released. If the client dies while the lock is taken the kernel automatically closes the file descriptors so that the lock is automatically released.
+
+'''ListInhibitors()''' lists all currently active inhibitor locks. It returns an array of structs, each consisting of What, Who, Why, Mode as above, plus the PID and UID of the process that requested the lock.
+
+The '''!PrepareForShutdown()''' and '''!PrepareForSleep()''' signals are emitted if a system suspend or shutdown has been requested but a delay inhibitor lock has been taken and when all locks are released or the timeout reached. The signals carry a boolean argument. If true the shutdown/sleep preperation should begin, if false it ends.  If true, this should be used as indication to quickly execute the operations the applications wanted to execute before suspend and then release the delay lock. If false the preparation time for shutdown/sleep is over, either because all delay locks have have been released or because the timeout is reached. The signals with 'false' might get delivered only after the system comes back from system suspend. It is usually the signal on which applications request a new delay lock in order to be synchronously notified about the next suspend/shutdown. Note that !PrepareForShutdown()/!PrepareForSleep() are ''not'' send out if no delay lock is taken, and more specifically not send out if only block locks are taken.
+
+The '''!BlockInhibited''' and '''!DelayInhibited''' properties encode what types of locks are currently taken. These fields are a colon separated list of {{{shutdown}}}, {{{sleep}}}, {{{idle}}}. The list is basically the union of the What fields of all currently active locks of the specific mode.
+
+'''InhibitDelayMaxUSec''' contains the delay timeout values as configured in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]].
