@@ -104,23 +104,25 @@ node /org/freedesktop/login1 {
 };
 }}}
 
-Whenever the inhibition state or idle hint changes daemon !PropertyChanged signals are sent out to which clients can subscribe. 
+Whenever the inhibition state or idle hint changes daemon '''!PropertyChanged''' signals are sent out to which clients can subscribe. 
 
 A number of operations are protected via the !PolicyKit privilege system. !SetUserLinger() requires the org.freedesktop.login1.set-user-linger privilege. !AttachDevice() requires org.freedesktop.login1.attach-device and !FlushDevices org.freedesktop.login1.flush-devices. !PowerOff(), !Reboot(), !Hibernate(), !Suspend() require org.freedesktop.login1.power-off, org.freedesktop.login1.power-off-multiple-sessions, org.freedesktop.login1.power-off-ignore-inhibit, org.freedesktop.login1.reboot, org.freedesktop.login1.reboot-multiple-sessions, org.freedesktop.login1.reboot-ignore-inhibit, org.freedesktop.login1.suspend, org.freedesktop.login1.suspend-multiple-sessions, org.freedesktop.login1.suspend-ignore-inhibit, org.freedesktop.login1.hibernate, org.freedesktop.login1.hibernate-multiple-sessions resp. org.freedesktop.login1.hibernate-ignore-inhibit, depending whether there are other sessions around or active inhibits.
 
 The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to. 
 
-!GetSession() may be used to get the session object path for the session with the specified ID. Similar, !GetUser() and !GetSeat() get the user resp. seat objects. !GetSessionByPID() gets the session object of the session the specified PID belongs to if there is any.
+=== Methods ===
 
-!ListSessions() returns an array with all current sessions. The structures in the array consist of the following fields: session id, user id, user name, seat id, session object path. If a session does not have a seat attached the seat id field will be the empty string.
+'''!GetSession()''' may be used to get the session object path for the session with the specified ID. Similar, '''!GetUser()''' and '''!GetSeat()''' get the user resp. seat objects. '''!GetSessionByPID()''' gets the session object of the session the specified PID belongs to if there is any.
 
-!ListUsers() returns an array with all currently logged in users. The structures in the array consists of the following fields: user id, user name, user object path.
+'''!ListSessions()''' returns an array with all current sessions. The structures in the array consist of the following fields: session id, user id, user name, seat id, session object path. If a session does not have a seat attached the seat id field will be the empty string.
 
-!ListSeats() returns an arry with all currently available seats. The structure in the array consists of the following fields: seat id, seat object path.
+'''!ListUsers()''' returns an array with all currently logged in users. The structures in the array consists of the following fields: user id, user name, user object path.
 
-!CreateSession() and !ReleaseSession() may be used to open or close login sessions. These calls should ''never'' be invoked directly by clients. Creating/closing sessions is exclusively the job PAM and it's pam_systemd module. 
+'''!ListSeats()''' returns an arry with all currently available seats. The structure in the array consists of the following fields: seat id, seat object path.
 
-!ActivateSession() brings the session with the specified ID into the foreground. !ActivateSessionOnSeat() does the same, but only if the seat id matches.
+'''!CreateSession()''' and '''!ReleaseSession()''' may be used to open or close login sessions. These calls should ''never'' be invoked directly by clients. Creating/closing sessions is exclusively the job PAM and it's pam_systemd module. 
+
+'''!ActivateSession()''' brings the session with the specified ID into the foreground. '''!ActivateSessionOnSeat()''' does the same, but only if the seat id matches.
 
 !LockSession() asks the session with the specified ID to activate the screen lock.
 
@@ -146,9 +148,13 @@ Inhibit() creates an inhibition lock. It takes four parameters: What, Who, Why a
 
 !ListInhibitors() lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
+=== Signals ===
+
 The !SessionNew(), !SessionRemoved(), !UserNew(), !UserRemoved(), !SeatNew(), !SeatRemoved() signals are sent each time a session is created or removed, a user logs in or out, or a seat added or removed. They each contain the ID of the object plus the object path.
 
 The !PrepareForShutdown() resp. !PrepareForSleep() signals are sent immediately before the system goes down for reboot/poweroff, resp. suspend/hibernate, if at least one inhibition lock is taken. This may be used by applications for saving data on disk, releasing memory or doing other jobs that shall be done shortly before shutdown/sleep. After completation they should release their inhibition locks in order not to delay the operation any further.
+
+=== Properties ===
 
 Most properties simply reflect the configuration stored in logind.conf. For more information, see: [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]]
 
