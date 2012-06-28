@@ -53,7 +53,7 @@ node /org/freedesktop/login1 {
 '''Inhibit()''' is the only API necessary to take a lock. It takes four arguments:
 
  * ''What'' is a colon-separated list of lock types, i.e. {{{shutdown}}}, {{{sleep}}}, {{{idle}}}. Example: "shutdown:idle"
- * ''Who'' is a human-readable, descriptive string of who is taking the lock. Example: "PackageKit"
+ * ''Who'' is a human-readable, descriptive string of who is taking the lock. Example: "!Package Updater"
  * ''Why'' is a human-readable, descriptive string of why the lock is taken. Example: "Package Update in Progress"
  * ''Mode'' is one of {{{block}}} or {{{delay}}}, see above. Example: "block"
 
@@ -67,4 +67,51 @@ The '''!BlockInhibited''' and '''!DelayInhibited''' properties encode what types
 
 '''InhibitDelayMaxUSec''' contains the delay timeout values as configured in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]].
 
+Here's the basic scheme for applications which need blocking locks such as a package manager or CD burning application:
+
+ 1. Take the lock
+ 2. Do your work you don't want to see interrupted by system sleep or shutdown
+ 3. Release the lock
+
+Example pseudo code:
+{{{
+fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
+/* ...
+      do you work
+                 ... */
+close(fd);
+}}}
+
+Here's the basic scheme for applications which need delay locks such as a web browser or office suite:
+
+ 1. If your documents are dirty/cache is filled, take the delay lock
+ 2. As soon as you see PrepareForSleep(true), save your data, then release the lock
+ 3. As soon as you see PrepareForSleep(false) and your documents are dirty/cache is filled, take the delay lock again, continue as above:
+
+Example pseudo code:
+{{{
+int fd = -1;
+
+onDocumentIsDirty(void) {
+        if (fd >= 0)
+                return;
+
+        fd = Inhibit("sleep", "Word Processor", "Data needs to be saved...", "delay");
+}
+
+onPrepareForSleep(bool b) {
+        if (b) {
+                save_data();
+                if (fd >= 0) {
+                        close(fd);
+                        fd = -1;
+                }
+         }
+}       
+}}}
+
+Security...
+
 The tool [[http://www.freedesktop.org/software/systemd/man/systemd-inhibit.html|systemd-inhibit(1)]] may be used to take locks or list active locks from the command line.
+
+Note that gnome-session also provides an [[[http://people.gnome.org/~mccann/gnome-session/docs/gnome-session.html#org.gnome.SessionManager.Inhibit|inhibitor API]]], which is very similar to the one of systemd. Internally, locks taken on gnome-session's interface will be forwarded to logind, hence both APIs are supported. While both offer similar functionality they do differ in some regards. For obvious reasons gnome-session can offer logout locks which logind lacks. logind's API OTOH supports delay locks in addition to block locks like GNOME. Also, logind is available to system components, and centralizes locks from all users, not just the one of a one specific. In general: if in doubt it is probably advisable to stick to the GNOME locks, unless there is a good reason to use the logind APIs directly. When locks are to be enumerated it is better to use the logind APIs however, since they also include locks taken by system services and other users.
