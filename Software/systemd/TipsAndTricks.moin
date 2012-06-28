@@ -1,3 +1,5 @@
+[[http://www.freedesktop.org/wiki/Software/systemd/|Back to systemd]]
+
 = Tips & Tricks =
 
 Also check out the [[http://www.freedesktop.org/wiki/Software/systemd/FrequentlyAskedQuestions|Frequently Asked Questions]]!
@@ -6,63 +8,108 @@ Also check out the [[http://www.freedesktop.org/wiki/Software/systemd/Frequently
 
 {{{
 $ systemctl
-UNIT                                          LOAD   ACTIVE       SUB          JOB             DESCRIPTION
-messagebus.service                            loaded active       running                      messagebus.service
-basic.target                                  loaded active       active                       Basic System
-sysinit.target                                loaded active       active                       Systemd Initialization
-local-fs.target                               loaded active       active                       Local File Systems
-swap.target                                   loaded active       active                       Swap
-sockets.target                                loaded active       active                       Sockets
+UNIT                       LOAD   ACTIVE SUB     JOB DESCRIPTION
+accounts-daemon.service    loaded active running     Accounts Service
+atd.service                loaded active running     Job spooling tools
+avahi-daemon.service       loaded active running     Avahi mDNS/DNS-SD Stack
+bluetooth.service          loaded active running     Bluetooth Manager
+colord-sane.service        loaded active running     Daemon for monitoring attached scanners and registering them with colord
+colord.service             loaded active running     Manage, Install and Generate Color Profiles
+crond.service              loaded active running     Command Scheduler
+cups.service               loaded active running     CUPS Printing Service
+dbus.service               loaded active running     D-Bus System Message Bus
 ...
 }}}
 
 == Showing runtime status ==
+
 {{{
-$ systemctl status udisks.service
-udisks.service - udisks Disk Manager
-	  Loaded: loaded (/etc/systemd/system/multi-user.target.wants/../udisks.service)
-	  Active: active (running)
-	 Process: 999 (udisks-daemon)
-	  CGroup: name=systemd:/systemd-1/udisks.service
-		  │
-		  ├ 999 /usr/libexec/udisks-daemon
-		  ├ 1018 udisks-daemon: polling /dev/sr0
-		  └ 1132 /usr/libexec/udisks-daemon
+$ systemctl status udisks2.service
+udisks2.service - Storage Daemon
+	  Loaded: loaded (/usr/lib/systemd/system/udisks2.service; static)
+	  Active: active (running) since Wed, 27 Jun 2012 20:49:25 +0200; 1 day and 1h ago
+	Main PID: 615 (udisksd)
+	  CGroup: name=systemd:/system/udisks2.service
+		  └ 615 /usr/lib/udisks2/udisksd --no-debug
+
+Jun 27 20:49:25 epsilon udisksd[615]: udisks daemon version 1.94.0 starting
+Jun 27 20:49:25 epsilon udisksd[615]: Acquired the name org.freedesktop.UDisks2 on the system message bus
 }}}
 
 == cgroup tree ==
 
-The tree tool is very handy to list the tree of control groups:
-
 {{{
-$ tree -d /cgroup/systemd/ 
-/cgroup/systemd/
-├── systemd-1
-│   ├── abrtd.service
-│   ├── accounts-daemon.service
-│   ├── acpid.service
-...
-│   ├── crond.service
-│   ├── cups.service
-│   ├── getty@.service
-│   │   ├── tty1
-│   │   ├── tty3
-│   │   ├── tty4
-│   │   ├── tty5
-│   │   └── tty6
-│   ├── haldaemon.service
-│   ├── mdmonitor.service
-│   ├── messagebus.service
-...
-│   ├── udisks.service
-│   ├── upowerd.service
-│   └── wpa_supplicant.service
-└── user
-    └── lennart
-        ├── 1
-        └── 2
+$ systemd-cgls
+└ system
+  ├ 1 /usr/lib/systemd/systemd --system --deserialize 18
+  ├ ntpd.service
+  │ └ 8471 /usr/sbin/ntpd -u ntp:ntp -g
+  ├ upower.service
+  │ └ 798 /usr/libexec/upowerd
+  ├ wpa_supplicant.service
+  │ └ 751 /usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+  ├ nfs-idmap.service
+  │ └ 731 /usr/sbin/rpc.idmapd
+  ├ nfs-rquotad.service
+  │ └ 753 /usr/sbin/rpc.rquotad
+  ├ nfs-mountd.service
+  │ └ 732 /usr/sbin/rpc.mountd
+  ├ nfs-lock.service
+  │ └ 704 /sbin/rpc.statd
+  ├ rpcbind.service
+  │ └ 680 /sbin/rpcbind -w
+  ├ postfix.service
+  │ ├   859 /usr/libexec/postfix/master
+  │ ├   877 qmgr -l -t fifo -u
+  │ └ 32271 pickup -l -t fifo -u
+  ├ colord-sane.service
+  │ └ 647 /usr/libexec/colord-sane
+  ├ udisks2.service
+  │ └ 615 /usr/lib/udisks2/udisksd --no-debug
+  ├ colord.service
+  │ └ 607 /usr/libexec/colord
+  ├ prefdm.service
+  │ ├ 567 /usr/sbin/gdm-binary -nodaemon
+  │ ├ 602 /usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Display1
+  │ ├ 612 /usr/bin/Xorg :0 -br -verbose -auth /var/run/gdm/auth-for-gdm-O00GPA/database -seat seat0 -nolisten tcp
+  │ └ 905 gdm-session-worker [pam/gdm-password]
+  ├ systemd-ask-password-wall.service
+  │ └ 645 /usr/bin/systemd-tty-ask-password-agent --wall
+  ├ atd.service
+  │ └ 544 /usr/sbin/atd -f
+  ├ ksmtuned.service
+  │ ├  548 /bin/bash /usr/sbin/ksmtuned
+  │ └ 1092 sleep 60
+  ├ dbus.service
+  │ ├ 586 /bin/dbus-daemon --system --address=systemd: --nofork --systemd-activation
+  │ ├ 601 /usr/libexec/polkit-1/polkitd --no-debug
+  │ └ 657 /usr/sbin/modem-manager
+  ├ cups.service
+  │ └ 508 /usr/sbin/cupsd -f
+  ├ avahi-daemon.service
+  │ ├ 506 avahi-daemon: running [epsilon.local]
+  │ └ 516 avahi-daemon: chroot helper
+  ├ system-setup-keyboard.service
+  │ └ 504 /usr/bin/system-setup-keyboard
+  ├ accounts-daemon.service
+  │ └ 502 /usr/libexec/accounts-daemon
+  ├ systemd-logind.service
+  │ └ 498 /usr/lib/systemd/systemd-logind
+  ├ crond.service
+  │ └ 486 /usr/sbin/crond -n
+  ├ NetworkManager.service
+  │ ├  484 /usr/sbin/NetworkManager --no-daemon
+  │ └ 8437 /sbin/dhclient -d -4 -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-wlan0.pid -lf /var/lib/dhclient/dhclient-903b6f6a-a7a1-46c8-82a9-7f637dfbb3e4-wlan0.lease -cf /var/run/nm-d...
+  ├ libvirtd.service
+  │ ├ 480 /usr/sbin/libvirtd
+  │ └ 571 /sbin/dnsmasq --strict-order --bind-interfaces --pid-file=/var/run/libvirt/network/default.pid --conf-file= --except-interface lo --listen-address 192.168.122.1 --dhcp-range 192.168.122.2,1...
+  ├ bluetooth.service
+  │ └ 479 /usr/sbin/bluetoothd -n
+  ├ systemd-udev.service
+  │ └ 287 /usr/lib/systemd/systemd-udevd
+  └ systemd-journald.service
+    └ 280 /usr/lib/systemd/systemd-journald
 
-38 directories
 }}}
 
 == ps with cgroups ==
@@ -101,124 +148,16 @@ $ psc
 == Changing the Default Boot Target ==
 
 {{{
-$ ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
+$ ln -sf /usr/lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 }}}
 
 This line makes the multi user target (i.e. full system, but no graphical UI) the default target to boot into. This is kinda equivalent to setting runlevel 3 as the default runlevel on Fedora/sysvinit systems.
 
 {{{
-$ ln -sf /lib/systemd/system/graphical.target /etc/systemd/system/default.target
+$ ln -sf /usr/lib/systemd/system/graphical.target /etc/systemd/system/default.target
 }}}
 
 This line makes the graphical target (i.e. full system, including graphical UI) the default target to boot into. Kinda equivalent to runlevel 5 on fedora/sysvinit systems. This is how things are shipped by default.
-
-== cgroup tree ==
-
-{{{
-$ systemd-cgls 
-├     2 [kthreadd]
-[...]
-├ 29167 [flush-253:0]
-├ user
-│ └ lennart
-│   ├ 39
-│   │ ├ 29075 sshd: lennart [priv]
-│   │ ├ 29079 sshd: lennart@pts/0
-│   │ ├ 29080 -bash
-│   │ └ 29168 systemd-cgls
-│   └ 1
-│     ├ 1141 login -- lennart
-│     ├ 1532 -bash
-│     ├ 1615 ssh-agent
-│     └ 1641 gpg-agent --daemon --write-env-file
-└ systemd-1
-  ├ 1 /bin/systemd systemd.log_target=kmsg systemd.log_level=debug selinux=0
-  ├ sshd@.service
-  │ └ 4
-  ├ prefdm.service
-  │ └ 1272 /usr/sbin/gdm-binary -nodaemon
-  ├ systemd-logger.service
-  │ └ 1162 /lib/systemd/systemd-logger
-  ├ getty@.service
-  │ ├ tty3
-  │ │ └ 1148 /sbin/mingetty tty3
-  │ ├ tty2
-  │ ├ tty4
-  │ │ └ 1136 /sbin/mingetty tty4
-  │ ├ tty5
-  │ │ └ 1132 /sbin/mingetty tty5
-  │ └ tty6
-  │   └ 1125 /sbin/mingetty tty6
-  ├ mdmonitor.service
-  │ └ 1194 mdadm --monitor --scan -f --pid-file=/var/run/mdadm/mdadm.pid
-  ├ irqbalance.service
-  │ └ 1171 irqbalance
-  ├ sendmail.service
-  │ ├ 1430 sendmail: Queue runner@01:00:00 for /var/spool/clientmqueue
-  │ └ 1434 sendmail: accepting connections
-  ├ accounts-daemon.service
-  │ └ 994 /usr/libexec/accounts-daemon
-  ├ polkitd.service
-  │ └ 986 /usr/libexec/polkit-1/polkitd
-  ├ wpa_supplicant.service
-  │ └ 981 /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -u
-  ├ bluetooth.service
-  │ └ 980 /usr/sbin/bluetoothd -n
-  ├ udisks.service
-  │ ├ 978 /usr/libexec/udisks-daemon
-  │ └ 993 udisks-daemon: polling /dev/sr0
-  ├ dbus.service
-  │ └ 1010 /bin/dbus-daemon --system --address=systemd: --nofork --systemd-activation
-  ├ auditd.service
-  │ ├ 975 /sbin/auditd -n
-  │ ├ 988 /sbin/audispd
-  │ └ 997 /usr/sbin/sedispatch
-  ├ console-kit-daemon.service
-  │ └ 971 /usr/sbin/console-kit-daemon --no-daemon
-  ├ rsyslog.service
-  │ └ 969 /sbin/rsyslogd -n -c 4
-  ├ rtkit-daemon.service
-  │ └ 968 /usr/libexec/rtkit-daemon
-  ├ haldaemon.service
-  │ ├  967 /usr/sbin/hald --daemon=no --use-syslog
-  │ ├ 1014 hald-runner
-  │ ├ 1275 hald-addon-input: Listening on /dev/input/event3 /dev/input/event7 /dev/input/event6 /dev/input/event1 /dev/input/event4 /dev/input/event2 /dev/input/event0 /dev/input/event9
-  │ ├ 1281 /usr/libexec/hald-addon-rfkill-killswitch
-  │ ├ 1299 /usr/libexec/hald-addon-leds
-  │ ├ 1301 /usr/libexec/hald-addon-generic-backlight
-  │ └ 1308 /usr/libexec/hald-addon-acpi
-  ├ upowerd.service
-  │ └ 966 /usr/libexec/upowerd
-  ├ abrtd.service
-  │ └ 963 /usr/sbin/abrtd -d -s
-  ├ rpcbind.service
-  │ └ 961 /sbin/rpcbind -f
-  ├ cups.service
-  │ └ 1005 /usr/sbin/cupsd -f
-  ├ modem-manager.service
-  │ └ 955 /usr/sbin/modem-manager
-  ├ crond.service
-  │ └ 951 /usr/sbin/crond -n
-  ├ atd.service
-  │ └ 950 /usr/sbin/atd -f
-  ├ acpid.service
-  │ └ 949 /usr/sbin/acpid -f
-  ├ NetworkManager.service
-  │ ├  946 /usr/sbin/NetworkManager --no-daemon
-  │ └ 1319 /sbin/dhclient -d -4 -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-eth0.pid -lf /var/lib/dhclient/dhclient-5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03-eth0.lease -cf /var/run/nm-dhclient-eth0.conf eth0
-  ├ avahi-daemon.service
-  │ ├ 944 avahi-daemon: running [lambda.local]
-  │ └ 957 avahi-daemon: chroot helper
-  ├ hdapsd@.service
-  │ └ sda
-  │   └ 940 /usr/sbin/hdapsd -d sda
-  ├ dev-mqueue.mount
-  ├ dev-hugepages.mount
-  └ sysinit.service
-    ├ 414 /sbin/udevd -d
-    ├ 468 /sbin/udevd -d
-    └ 469 /sbin/udevd -d
-}}}
 
 == What other units does a unit depend on? ==
 
