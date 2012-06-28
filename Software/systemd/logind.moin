@@ -104,7 +104,7 @@ node /org/freedesktop/login1 {
 };
 }}}
 
-Whenever the inhibition state or idle hint changes daemon '''!PropertyChanged''' signals are sent out to which clients can subscribe. 
+=== Security ===
 
 A number of operations are protected via the !PolicyKit privilege system. !SetUserLinger() requires the org.freedesktop.login1.set-user-linger privilege. !AttachDevice() requires org.freedesktop.login1.attach-device and !FlushDevices org.freedesktop.login1.flush-devices. !PowerOff(), !Reboot(), !Hibernate(), !Suspend() require org.freedesktop.login1.power-off, org.freedesktop.login1.power-off-multiple-sessions, org.freedesktop.login1.power-off-ignore-inhibit, org.freedesktop.login1.reboot, org.freedesktop.login1.reboot-multiple-sessions, org.freedesktop.login1.reboot-ignore-inhibit, org.freedesktop.login1.suspend, org.freedesktop.login1.suspend-multiple-sessions, org.freedesktop.login1.suspend-ignore-inhibit, org.freedesktop.login1.hibernate, org.freedesktop.login1.hibernate-multiple-sessions resp. org.freedesktop.login1.hibernate-ignore-inhibit, depending whether there are other sessions around or active inhibits.
 
@@ -124,23 +124,23 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 '''!ActivateSession()''' brings the session with the specified ID into the foreground. '''!ActivateSessionOnSeat()''' does the same, but only if the seat id matches.
 
-!LockSession() asks the session with the specified ID to activate the screen lock.
+'''!LockSession()''' asks the session with the specified ID to activate the screen lock.
 
-!UnlockSession() asks the session with the specified ID to remove the screen lock.
+'''!UnlockSession()''' asks the session with the specified ID to remove the screen lock.
 
-!KillSession() may be used to send a Unix signal to one or all processes of a session. As arguments it takes the session id, either the string "leader" or "all" and a signal number. If "leader" is passed only the session "leader" is killed. If "all" is passed all processes of the session are killed.
+'''!KillSession()''' may be used to send a Unix signal to one or all processes of a session. As arguments it takes the session id, either the string "leader" or "all" and a signal number. If "leader" is passed only the session "leader" is killed. If "all" is passed all processes of the session are killed.
 
-!KillUser() may be used to send a Unix signal to all processes of a user. As arugment it takes the user id and a signal number.
+'''!KillUser()''' may be used to send a Unix signal to all processes of a user. As arugment it takes the user id and a signal number.
 
-!TerminateSession(), !TerminateUser(), !TerminateSeat may be used to forcibly terminate one specific session, all processes of a user, resp. all sessions attached to a specific seat. The session, user, seat is identified by their respective IDs.
+'''!TerminateSession()''', '''!TerminateUser()''', '''!TerminateSeat()''' may be used to forcibly terminate one specific session, all processes of a user, resp. all sessions attached to a specific seat. The session, user, seat is identified by their respective IDs.
 
-!SetUserLinger() enables or disables user lingering. If enabled the runtime directory of a user is kept around and he may continue to run processes while he is logged out. If disabled the runtime directory goes away as soon as he logs out. Expects three arguments: the UID, a boolean whether to enable/disable and a boolean controlling the !PolicyKit authorization interactivity (see above). Note that the user linger state is persistantly stored on disk.
+'''!SetUserLinger()''' enables or disables user lingering. If enabled the runtime directory of a user is kept around and he may continue to run processes while he is logged out. If disabled the runtime directory goes away as soon as he logs out. Expects three arguments: the UID, a boolean whether to enable/disable and a boolean controlling the !PolicyKit authorization interactivity (see above). Note that the user linger state is persistantly stored on disk.
 
-!AttachDevice() may be used to assign a specific a device to a specific seat. The device is identified by its /sys path, and must be eligible for seat assignments. Takes three arguments: the seat id, the sysfs path, and a boolean for controlling !PolicyKit interactivity (see above). Device assignments are persistantly stored to disk. To create a new seat, simply specify a previously unused seat id. For more information about the seat assignment logic see: http://www.freedesktop.org/wiki/Software/systemd/multiseat
+'''!AttachDevice()''' may be used to assign a specific a device to a specific seat. The device is identified by its /sys path, and must be eligible for seat assignments. Takes three arguments: the seat id, the sysfs path, and a boolean for controlling !PolicyKit interactivity (see above). Device assignments are persistantly stored to disk. To create a new seat, simply specify a previously unused seat id. For more information about the seat assignment logic see: http://www.freedesktop.org/wiki/Software/systemd/multiseat
 
-!FlushDevices() removes all explicit seat assignments for devices, resetting all assignments to the automatic defaults. The only argument this takes is the !PolicyKit interactivity boolean (see above).
+'''!FlushDevices()''' removes all explicit seat assignments for devices, resetting all assignments to the automatic defaults. The only argument this takes is the !PolicyKit interactivity boolean (see above).
 
-!PowerOff(), Reboot(), Suspend(), Hibernate() results in the system being powered off, rebooted, suspend or hibernated. The only argument is the !PolicyKit interactivity boolean (see above). The main purpose of these calls is that they enforce PolicyKit policy and hence allow powering off/rebooting/suspending/hibernating even by unprivileged users. They also enforce inhibition locks. UIs should expose these calls as primary mechanism to poweroff/reboot/suspend/hibernate the machine.
+'''!PowerOff()''', '''Reboot()''', '''Suspend()''', '''Hibernate()''' results in the system being powered off, rebooted, suspend or hibernated. The only argument is the !PolicyKit interactivity boolean (see above). The main purpose of these calls is that they enforce PolicyKit policy and hence allow powering off/rebooting/suspending/hibernating even by unprivileged users. They also enforce inhibition locks. UIs should expose these calls as primary mechanism to poweroff/reboot/suspend/hibernate the machine.
 
 '''!CanPowerOff()''', '''!CanReboot()''', '''!CanSuspend()''', '''!CanHibernate()''' tests whether the system supports the respective operation and whether calling user is eligible for the desired operation. Returns one of "yes", "no" or "challenge". If "challenge" is returned the operation is available, but only after authorization.
 
@@ -149,6 +149,8 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 '''!ListInhibitors()''' lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
 === Signals ===
+
+Whenever the inhibition state or idle hint changes daemon '''!PropertyChanged''' signals are sent out to which clients can subscribe. 
 
 The '''!SessionNew()''', '''!SessionRemoved()''', '''!UserNew()''', '''!UserRemoved()''', '''!SeatNew()''', '''!SeatRemoved()''' signals are sent each time a session is created or removed, a user logs in or out, or a seat added or removed. They each contain the ID of the object plus the object path.
 
