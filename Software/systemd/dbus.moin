@@ -1,7 +1,6 @@
 = The D-Bus API of systemd/PID 1 =
 
 == The Manager Object ==
-
 {{{
 $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1
 node /org/freedesktop/systemd1 {
@@ -51,6 +50,7 @@ node /org/freedesktop/systemd1 {
       ListJobs(out a(usssoo) jobs);
       Subscribe();
       Unsubscribe();
+      Dump();
       CreateSnapshot(in  s name,
                      in  b cleanup,
                      out o unit);
@@ -117,27 +117,26 @@ node /org/freedesktop/systemd1 {
                       t total);
       UnitFilesChanged();
     properties:
-      readonly s Version = 'systemd 183';
+      readonly s Version = 'systemd 185';
       readonly s Distribution = 'fedora';
       readonly s Features = '+PAM +LIBWRAP +AUDIT +SELINUX +IMA +SYSVINIT +LIBCRYPTSETUP';
       readonly s Tainted = '';
-      readonly s RunningAs = 'system';
-      readonly t InitRDTimestamp = 1338384454947799;
-      readonly t InitRDTimestampMonotonic = 2198884;
-      readonly t StartupTimestamp = 1338384457940337;
-      readonly t StartupTimestampMonotonic = 5191422;
-      readonly t FinishTimestamp = 1338384470615576;
-      readonly t FinishTimestampMonotonic = 17866661;
+      readonly t InitRDTimestamp = 1340822954724393;
+      readonly t InitRDTimestampMonotonic = 2431571;
+      readonly t StartupTimestamp = 1340822956472674;
+      readonly t StartupTimestampMonotonic = 4179853;
+      readonly t FinishTimestamp = 1340822966825952;
+      readonly t FinishTimestampMonotonic = 14533131;
       readwrite s LogLevel = 'debug';
       readwrite s LogTarget = 'kmsg';
-      readonly u NNames = 240;
+      readonly u NNames = 249;
       readonly u NJobs = 0;
-      readonly u NInstalledJobs = 113;
+      readonly u NInstalledJobs = 4;
       readonly u NFailedJobs = 0;
       readonly d Progress = 1.0;
-      readonly as Environment = ['SYSFONT=latarcyrheb-sun16', 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin', 'LANG=en_US.UTF-8', 'KEYTABLE=de-latin1'];
+      readonly as Environment = ['SYSFONT=latarcyrheb-sun16', 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin', 'DRACUT_QUIET=yes', 'LANG=en_US.UTF-8', 'KEYTABLE=de-latin1'];
       readonly b ConfirmSpawn = false;
-      readonly b ShowStatus = false;
+      readonly b ShowStatus = true;
       readonly as UnitPath = ['/etc/systemd/system', '/run/systemd/generator', '/usr/lib/systemd/system'];
       readonly s ControlGroupHierarchy = '/system';
       readonly as DefaultControllers = ['cpu'];
@@ -145,7 +144,6 @@ node /org/freedesktop/systemd1 {
       readonly s DefaultStandardError = 'inherit';
       readwrite s RuntimeWatchdogUSec = 0;
       readwrite s ShutdownWatchdogUSec = 600000000;
-      readonly b HaveWatchdog = true;
   };
   interface org.freedesktop.DBus.Properties {
   };
@@ -154,198 +152,46 @@ node /org/freedesktop/systemd1 {
   interface org.freedesktop.DBus.Introspectable {
   };
 };
+
 }}}
 
-== Srevice Objects ==
+== Job Objects ==
+{{{
+}}}
+
+== Service Unit Objects ==
 
 {{{
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/sshd_400_2eservice
-node /org/freedesktop/systemd1/unit/sshd_400_2eservice {
-  interface org.freedesktop.systemd1.Unit {
-    methods:
-      Start(in  s mode,
-            out o job);
-      Stop(in  s mode,
-           out o job);
-      Reload(in  s mode,
-             out o job);
-      Restart(in  s mode,
-              out o job);
-      TryRestart(in  s mode,
-                 out o job);
-      ReloadOrRestart(in  s mode,
-                      out o job);
-      ReloadOrTryRestart(in  s mode,
-                         out o job);
-      Kill(in  s who,
-           in  s mode,
-           in  i signal);
-      ResetFailed();
-    signals:
-    properties:
-      readonly s Id = 'sshd@0.service';
-      readonly as Names = ['sshd@0.service'];
-      readonly s Following = '';
-      readonly as Requires = ['basic.target'];
-      readonly as Requisite = [];
-      readonly as Wants = [];
-      readonly as BindTo = [];
-      readonly as RequiredBy = [];
-      readonly as WantedBy = [];
-      readonly as BoundBy = [];
-      readonly as Conflicts = ['shutdown.target'];
-      readonly as ConflictedBy = [];
-      readonly as Before = ['shutdown.target'];
-      readonly as After = ['basic.target', 'sshd.socket'];
-      readonly as OnFailure = [];
-      readonly as Triggers = [];
-      readonly as TriggeredBy = ['sshd.socket'];
-      readonly as PropagateReloadTo = [];
-      readonly as PropagateReloadFrom = [];
-      readonly as RequiresMountsFor = [];
-      readonly s Description = 'SSH Per-Connection Server for 0';
-      readonly s SourcePath = '';
-      readonly as Documentation = [];
-      readonly s LoadState = 'loaded';
-      readonly s ActiveState = 'inactive';
-      readonly s SubState = 'dead';
-      readonly s FragmentPath = '/etc/systemd/system/sshd@.service';
-      readonly s UnitFileState = 'static';
-      readonly t InactiveExitTimestamp = 0;
-      readonly t InactiveExitTimestampMonotonic = 0;
-      readonly t ActiveEnterTimestamp = 0;
-      readonly t ActiveEnterTimestampMonotonic = 0;
-      readonly t ActiveExitTimestamp = 0;
-      readonly t ActiveExitTimestampMonotonic = 0;
-      readonly t InactiveEnterTimestamp = 0;
-      readonly t InactiveEnterTimestampMonotonic = 0;
-      readonly b CanStart = true;
-      readonly b CanStop = true;
-      readonly b CanReload = false;
-      readonly b CanIsolate = false;
-      readonly (uo) Job = (0, '/org/freedesktop/systemd1/unit/sshd_400_2eservice');
-      readonly b StopWhenUnneeded = false;
-      readonly b RefuseManualStart = false;
-      readonly b RefuseManualStop = false;
-      readonly b AllowIsolate = false;
-      readonly b DefaultDependencies = true;
-      readonly b OnFailureIsolate = false;
-      readonly b IgnoreOnIsolate = false;
-      readonly b IgnoreOnSnapshot = false;
-      readonly s DefaultControlGroup = 'name=systemd:/system/sshd@.service/0';
-      readonly as ControlGroup = ['cpu:/system/sshd@.service/0', 'name=systemd:/system/sshd@.service/0'];
-      readonly a(sss) ControlGroupAttributes = [];
-      readonly b NeedDaemonReload = false;
-      readonly t JobTimeoutUSec = 0;
-      readonly t ConditionTimestamp = 0;
-      readonly t ConditionTimestampMonotonic = 0;
-      readonly b ConditionResult = false;
-      readonly (ss) LoadError = ('', '');
-  };
-  interface org.freedesktop.systemd1.Service {
-    methods:
-    signals:
-    properties:
-      readonly s Type = 'simple';
-      readonly s Restart = 'no';
-      readonly s PIDFile = '';
-      readonly s NotifyAccess = 'none';
-      readonly t RestartUSec = 100000;
-      readonly t TimeoutUSec = 90000000;
-      readonly t WatchdogUSec = 0;
-      readonly t WatchdogTimestamp = 0;
-      readonly t WatchdogTimestampMonotonic = 0;
-      readonly t StartLimitInterval = 10000000;
-      readonly u StartLimitBurst = 5;
-      readwrite s StartLimitAction = 'none';
-      readonly a(sasbttuii) ExecStartPre = [];
-      readonly a(sasbttuii) ExecStart = [('/usr/sbin/sshd', ['/usr/sbin/sshd', '-i'], true, 0, 0, 0, 0, 0, 0, 0)];
-      readonly a(sasbttuii) ExecStartPost = [];
-      readonly a(sasbttuii) ExecReload = [];
-      readonly a(sasbttuii) ExecStop = [];
-      readonly a(sasbttuii) ExecStopPost = [];
-      readonly as Environment = [];
-      readonly u UMask = 18;
-      readonly t LimitCPU = 18446744073709551615;
-      readonly t LimitFSIZE = 18446744073709551615;
-      readonly t LimitDATA = 18446744073709551615;
-      readonly t LimitSTACK = 18446744073709551615;
-      readonly t LimitCORE = 18446744073709551615;
-      readonly t LimitRSS = 18446744073709551615;
-      readonly t LimitNOFILE = 4096;
-      readonly t LimitAS = 18446744073709551615;
-      readonly t LimitNPROC = 29762;
-      readonly t LimitMEMLOCK = 65536;
-      readonly t LimitLOCKS = 18446744073709551615;
-      readonly t LimitSIGPENDING = 29762;
-      readonly t LimitMSGQUEUE = 819200;
-      readonly t LimitNICE = 0;
-      readonly t LimitRTPRIO = 0;
-      readonly t LimitRTTIME = 18446744073709551615;
-      readonly s WorkingDirectory = '';
-      readonly s RootDirectory = '';
-      readonly i OOMScoreAdjust = 0;
-      readonly i Nice = 0;
-      readonly i IOScheduling = 0;
-      readonly i CPUSchedulingPolicy = 0;
-      readonly i CPUSchedulingPriority = 0;
-      readonly ay CPUAffinity = [];
-      readonly t TimerSlackNS;
-      readonly b CPUSchedulingResetOnFork = false;
-      readonly b NonBlocking = false;
-      readonly s StandardInput = 'socket';
-      readonly s StandardOutput = 'inherit';
-      readonly s StandardError = 'inherit';
-      readonly s TTYPath = '';
-      readonly b TTYReset = false;
-      readonly b TTYVHangup = false;
-      readonly b TTYVTDisallocate = false;
-      readonly i SyslogPriority = 30;
-      readonly s SyslogIdentifier = '';
-      readonly b SyslogLevelPrefix = true;
-      readonly s Capabilities = '';
-      readonly i SecureBits = 0;
-      readonly t CapabilityBoundingSet = 18446744073709551615;
-      readonly s User = '';
-      readonly s Group = '';
-      readonly as SupplementaryGroups = [];
-      readonly s TCPWrapName = '';
-      readonly s PAMName = '';
-      readonly as ReadWriteDirectories = [];
-      readonly as ReadOnlyDirectories = [];
-      readonly as InaccessibleDirectories = [];
-      readonly t MountFlags = 1048576;
-      readonly b PrivateTmp = false;
-      readonly b SameProcessGroup = false;
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly s UtmpIdentifier = '';
-      readonly b ControlGroupModify = false;
-      readonly b ControlGroupPersistent = false;
-      readonly b PrivateNetwork = false;
-      readonly b IgnoreSIGPIPE = true;
-      readonly b PermissionsStartOnly = false;
-      readonly b RootDirectoryStartOnly = false;
-      readonly b RemainAfterExit = false;
-      readonly t ExecMainStartTimestamp = 0;
-      readonly t ExecMainStartTimestampMonotonic = 0;
-      readonly t ExecMainExitTimestamp = 0;
-      readonly t ExecMainExitTimestampMonotonic = 0;
-      readonly u ExecMainPID = 0;
-      readonly i ExecMainCode = 0;
-      readonly i ExecMainStatus = 0;
-      readonly u MainPID = 0;
-      readonly u ControlPID = 0;
-      readonly s BusName = '';
-      readonly s StatusText = '';
-      readonly i FsckPassNo = 0;
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
+}}}
+
+== Socket Unit Objects ==
+{{{
+}}}
+
+== Device Unit Objects ==
+{{{
+}}}
+
+== Mount Unit Objects ==
+{{{
+}}}
+
+== Automount Unit Objects ==
+{{{
+}}}
+
+== Snapshot Unit Objects ==
+{{{
+}}}
+
+== Timer Unit Objects ==
+{{{
+}}}
+
+== Swap Unit Objects ==
+{{{
+}}}
+
+== Path Unit Objects ==
+{{{
 }}}
