@@ -10,7 +10,7 @@ The daemon provides both a C library interface as well as a D-Bus interface. The
 
 If you are interested in writing a display manager that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].
 
-The inhibition logic is documented in [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibition Logic]].
+The inhibition logic is documented in [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]].
 
 == The Manager Object ==
 
@@ -150,7 +150,7 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 '''!CanPowerOff()''', '''!CanReboot()''', '''!CanSuspend()''', '''!CanHibernate()''' tests whether the system supports the respective operation and whether calling user is eligible for the desired operation. Returns one of "yes", "no" or "challenge". If "challenge" is returned the operation is available, but only after authorization.
 
-'''Inhibit()''' creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep" and "idle", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, or the automatic idle logic. "Who" should be short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all is duplicates) is closed. For more information on the inhibition logic see [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibition Logic]].
+'''Inhibit()''' creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep" and "idle", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, or the automatic idle logic. "Who" should be short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all is duplicates) is closed. For more information on the inhibition logic see [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]].
 
 '''!ListInhibitors()''' lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
