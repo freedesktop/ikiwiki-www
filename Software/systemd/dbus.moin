@@ -152,8 +152,152 @@ node /org/freedesktop/systemd1 {
   interface org.freedesktop.DBus.Introspectable {
   };
 };
-
 }}}
+
+=== Methods ==
+
+      GetUnit(in  s name,
+              out o unit);
+      GetUnitByPID(in  u pid,
+                   out o unit);
+      LoadUnit(in  s name,
+               out o unit);
+      StartUnit(in  s name,
+                in  s mode,
+                out o job);
+      StartUnitReplace(in  s old_unit,
+                       in  s new_unit,
+                       in  s mode,
+                       out o job);
+      StopUnit(in  s name,
+               in  s mode,
+               out o job);
+      ReloadUnit(in  s name,
+                 in  s mode,
+                 out o job);
+      RestartUnit(in  s name,
+                  in  s mode,
+                  out o job);
+      TryRestartUnit(in  s name,
+                     in  s mode,
+                     out o job);
+      ReloadOrRestartUnit(in  s name,
+                          in  s mode,
+                          out o job);
+      ReloadOrTryRestartUnit(in  s name,
+                             in  s mode,
+                             out o job);
+      KillUnit(in  s name,
+               in  s who,
+               in  s mode,
+               in  i signal);
+      ResetFailedUnit(in  s name);
+      GetJob(in  u id,
+             out o job);
+      ClearJobs();
+      ResetFailed();
+      ListUnits(out a(ssssssouso) units);
+      ListJobs(out a(usssoo) jobs);
+      Subscribe();
+      Unsubscribe();
+      Dump(out s dump);
+      CreateSnapshot(in  s name,
+                     in  b cleanup,
+                     out o unit);
+      Reload();
+      Reexecute();
+      Exit();
+      Reboot();
+      PowerOff();
+      Halt();
+      KExec();
+      SwitchRoot(in  s new_root,
+                 in  s init);
+      SetEnvironment(in  as names);
+      UnsetEnvironment(in  as names);
+      UnsetAndSetEnvironment(in  as unset,
+                             in  as set);
+      ListUnitFiles(out a(ss) changes);
+      GetUnitFileState(in  s file,
+                       out s state);
+      EnableUnitFiles(in  as files,
+                      in  b runtime,
+                      in  b force,
+                      out b carries_install_info,
+                      out a(sss) changes);
+      DisableUnitFiles(in  as files,
+                       in  b runtime,
+                       out a(sss) changes);
+      ReenableUnitFiles(in  as files,
+                        in  b runtime,
+                        in  b force,
+                        out b carries_install_info,
+                        out a(sss) changes);
+      LinkUnitFiles(in  as files,
+                    in  b runtime,
+                    in  b force,
+                    out a(sss) changes);
+      PresetUnitFiles(in  as files,
+                      in  b runtime,
+                      in  b force,
+                      out b carries_install_info,
+                      out a(sss) changes);
+      MaskUnitFiles(in  as files,
+                    in  b runtime,
+                    in  b force,
+                    out a(sss) changes);
+      UnmaskUnitFiles(in  as files,
+                      in  b runtime,
+                      out a(sss) changes);
+
+=== Signals ===
+
+      UnitNew(s id,
+              o unit);
+      UnitRemoved(s id,
+                  o unit);
+      JobNew(u id,
+             o job,
+             s unit);
+      JobRemoved(u id,
+                 o job,
+                 s unit,
+                 s result);
+      StartupFinished(t kernel,
+                      t initrd,
+                      t userspace,
+                      t total);
+      UnitFilesChanged();
+
+=== Properties ===
+
+Most properties simply reflect the respective options in system.conf and the kernel command line. The others:
+
+'''Version''' encodes the version string of the running systemd instance.
+
+'''Distribution''' encodes for which distribution the running systemd instance has been compiled.
+
+'''Features''' encodes the features that have been enabled resp. disabled for this build. Enabled options are prefixed with +, disabled options with -.
+
+'''Tained''' encodes a couple of taint flags, as colon seperated list. When systemd detects it is run on a system with certain problems it will set an appropriate taint flag. Taints may be used to lower the chance of bogus bug reports. The following taints are currently known: split-usr, mtab-not-symlink, cgroups-missing, local-hwclock. split-usr is set if /usr is not pre-mounted when systemd is first invoked. See [[http://freedesktop.org/wiki/Software/systemd/separate-usr-is-broken|Booting Without /usr is Broken]] for details why this is bad. mtab-not-symlink indicates that /etc/mtab is not a symlink to /proc/self/mounts as required. cgroups-missing indicates that control groups have not been enabled in the kernel. local-hwclock indicates that the local RTC is configured to be in local time rather than UTC. 
+
+'''InitRDTimestamp''', '''InitRDTimestampMonotonic''', '''StartupTimestamp''', '''StartupTimestampMonotonic''', '''FinishTimestamp''', '''FinishTimestampMonotonic''' encode CLOCK_REALTIME resp. CLOCK_MONOTONIC timestamps taken when the initrd first began execution, when the main systemd instance began execution and finally, when all queued startup jobs finished execution. These values are useful for determining boot-time performance.
+
+'''NNames''' encodes how many unit names are currently known.
+
+'''NJobs''' encodes how many jobs are currently queued.
+
+'''NInstalledJobs''' encodes how many jobs have ever been queued in total.
+
+'''NFailedJobs''' encodes how many jobs have ever failed in total.
+
+'''Progress''' encodes boot progress as floating point value between 0.0 and 1.0. This value begins at 0.0 at early-boot and ends at 1.0 when boot is finished and is based on the number of executed and queued jobs. After startup this field is always 1.0. Indicating a finished boot.
+
+'''Environment''' encodes the environment block passed to all executed services. It may be altered with bus calls such as !SetEnvironment() (see above).
+
+'''UnitPath''' encodes the currently active unit file search path. It is an array of strings, each being one file system path.
+
+'''ControlGroupHierarchy''' encodes the cgroup root path for this systemd instance. Prefixing /sys/fs/cgroup/ turns this into a file system path.
 
 == Job Objects ==
 {{{
