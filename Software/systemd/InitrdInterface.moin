@@ -19,3 +19,13 @@ systemd supports both initrd and initrd-less boots. If an initrd is used it is a
 One last clarification: we use the term ''initrd'' very genericly here describing any kind of of early boot file system, regardless whether that might be implemented as an actual ramdisk, ramfs or tmpfs. We recommend using ''initrd'' in this sense as a term that is unrelated to the actual backing technologies used. 
 
 Oh, and one last question before closing: instead of implementing these features in your own distro's initrd, may I suggest just using Dracut instead? It's all already implemented there!
+
+== Using systemd inside an initrd ==
+
+It is also possible and recommended to implement the initrd itself based on systemd. Here are a few terse notes:
+
+ * Provide /etc/initrd-release in the initrd image. The idea is that it follows the same format as the usual /etc/os-release but describes the initial RAM disk implementation rather than the OS. systemd uses the existance of this file as flag whether to run in initial RAM disk mode, or not.
+
+ * When run in initrd mode, systemd and its components will read a couple of additional command line arguments, which are generally prefixed with rd.
+
+ * To transition into the main system image invoke "systemctl switch-root".
