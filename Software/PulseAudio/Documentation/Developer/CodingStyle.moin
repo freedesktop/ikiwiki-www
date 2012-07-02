@@ -5,10 +5,10 @@
 
 Please follow the following rough rules when submitting code for inclusion in PA or committing code into Git. Although this list might appear massive I am still quite liberal in accepting patches that do not follow these rules. OTOH I am not your reindenting monkey, so please follow them, especially if your submissions are non-trivial!
 
- 1. No tabs please! Please indent exclusively with spaces.
- 1. Indentation is 4 characters.
- 1. Please keep the opening bracket of a block on the same line as the expression opening it. i.e. This is correct:
-{{{
+  1. No tabs please! Please indent exclusively with spaces.
+  1. Indentation is 4 characters.
+  1. Please keep the opening bracket of a block on the same line as the expression opening it. i.e. This is correct:
+     {{{
 void good_function(void) {
 
     if (a) {
@@ -17,8 +17,8 @@ void good_function(void) {
     }
 }
 }}}
- And this is wrong:
-{{{
+     And this is wrong:
+     {{{
 void bad_function(void) 
 {
     if (a) 
@@ -28,58 +28,58 @@ void bad_function(void)
     }
 }
 }}}
- 1. Avoid unnecessary curly braces. Good code:
-{{{
+  1. Avoid unnecessary curly braces. Good code:
+     {{{
 if (!braces_needed)
     printf("This is compact and neat.\n");
 }}}
- Bad code:
-{{{
+     Bad code:
+     {{{
 if (!braces_needed) {
     printf("This is superfluous and noisy.\n");
 }
 }}}
- 1. Don't put the return type of a function on a separate line. This is good:
-{{{
+  1. Don't put the return type of a function on a separate line. This is good:
+     {{{
 int good_function(void) {
 }
 }}}
- and this is bad:
-{{{
+     and this is bad:
+     {{{
 int
 bad_function(void) {
 }
 }}}
- 1. On function calls and definitions, don't put an extra space between the function name and the opening parenthesis of the argument list. This good:
-{{{
+  1. On function calls and definitions, don't put an extra space between the function name and the opening parenthesis of the argument list. This good:
+    {{{
 double sin(double x);
 }}}
- This bad:
-{{{
+    This bad:
+    {{{
 double sin (double x);
 }}}
- 1. Exported function names should be prefixed with `pa_`. Static definitions should not be prefixed. Exported structs should be typedef'ed so they can be used without typing "struct" each time. Structs that are used only inside a single source file should not be typedef'ed that way.
- 1. Keep private functions private! Make them static!
- 1. Data types that are usually passed as call-by-value arguments should be suffixed with `_t` with a typedef. I.e. all enums should be suffixed like this:
-{{{
+  1. Exported function names should be prefixed with `pa_`. Static definitions should not be prefixed. Exported structs should be typedef'ed so they can be used without typing "struct" each time. Structs that are used only inside a single source file should not be typedef'ed that way.
+  1. Keep private functions private! Make them static!
+  1. Data types that are usually passed as call-by-value arguments should be suffixed with `_t` with a typedef. I.e. all enums should be suffixed like this:
+     {{{
 typedef enum pa_resample_method {
   /* ... */
 } pa_resample_method_t;
 }}}
- 1. No C++ comments please! i.e. this is good:
-{{{
+  1. No C++ comments please! i.e. this is good:
+     {{{
 /* This is a good comment */
 }}}
- and this is bad:
-{{{
+     and this is bad:
+     {{{
 // This is a bad comment
 }}}
- Yes, the newest C iterations allow those comments. But they are ugly.
- 1. Comments are good, use them wherever it makes sense. Excessive comments are bad. i.e. comment complicated code, don't comment trivial code. For hackers it's usually easier to understand well written code than prose. Use doxygen only for exported APIs, not for internal code.
- 1. Code is about aesthetics. So please, format you code cleanly.
- 1. Please do ''not'' wrap your lines at 80 characters. Given that most screens are now considerably wider than they used to be, please make use of it. Wrap them at 128 characters.
- 1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code. Please add a separate `pa_assert()` for each argument. Do not use a single check for all parameters using `&&`. This would make debugging more difficult. Good code:
-{{{
+     Yes, the newest C iterations allow those comments. But they are ugly.
+  1. Comments are good, use them wherever it makes sense. Excessive comments are bad. i.e. comment complicated code, don't comment trivial code. For hackers it's usually easier to understand well written code than prose. Use doxygen only for exported APIs, not for internal code.
+  1. Code is about aesthetics. So please, format you code cleanly.
+  1. Please do ''not'' wrap your lines at 80 characters. Given that most screens are now considerably wider than they used to be, please make use of it. Wrap them at 128 characters.
+  1. Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code. Please add a separate `pa_assert()` for each argument. Do not use a single check for all parameters using `&&`. This would make debugging more difficult. Good code:
+     {{{
 void good_code(int a, int b) {
     pa_assert(a > 47);
     pa_assert(b != 0);
@@ -87,24 +87,24 @@ void good_code(int a, int b) {
     /* ... */
 }
 }}}
- Bad code:
-{{{
+     Bad code:
+     {{{
 void bad_code(int a, int b) {
     pa_assert(a > 47 && b != 0);
 
 }
 }}}
- 1. Errors are returned from functions as negative values. Success is returned as 0 or positive value.
- 1. Check for error codes on every system call, and every external library call. If you you are sure that calls like that cannot return an error, make that clear by wrapping it in `pa_assert_se()`. i.e.:
-{{{
+  1. Errors are returned from functions as negative values. Success is returned as 0 or positive value.
+  1. Check for error codes on every system call, and every external library call. If you you are sure that calls like that cannot return an error, make that clear by wrapping it in `pa_assert_se()`. i.e.:
+     {{{
 pa_assert_se(close(fd) == 0);
 }}}
- Please note that `pa_assert_se()` is identical to `pa_assert()`, except that it is not optimized away if NDEBUG is defined. (`se` stands for ''side effect'')
- 1. Every .c file should have a matching .h file (exceptions allowed)
- 1. In .c files we include .h files whose definitions we make use of with `#include <>`. Header files which we implement are to be included with `#include ""`.
- 1. If `#include <>` is used the full path to the file relative to `src/` should be used.
- 1. Please submit code only under LGPL2+, BSD/MIT or GPL2+, but don't make GPL code a hard dependency. Since PA is pluggable this would make it it impossible to load less-free-than-GPL code into the PA daemon.
- 1. Booleans: Use int as the boolean type in public APIs. Internally, use bool from stdbool.h.
+     Please note that `pa_assert_se()` is identical to `pa_assert()`, except that it is not optimized away if NDEBUG is defined. (`se` stands for ''side effect'')
+  1. Every .c file should have a matching .h file (exceptions allowed)
+  1. In .c files we include .h files whose definitions we make use of with `#include <>`. Header files which we implement are to be included with `#include ""`.
+  1. If `#include <>` is used the full path to the file relative to `src/` should be used.
+  1. Please submit code only under LGPL2+, BSD/MIT or GPL2+, but don't make GPL code a hard dependency. Since PA is pluggable this would make it it impossible to load less-free-than-GPL code into the PA daemon.
+  1. Booleans: Use int as the boolean type in public APIs. Internally, use bool from stdbool.h.
 
 Yes, not all code that is part of PA right now follows these rules closely. This is mostly due to the fact that the formalization of these rules is newer then most of the code itself.
 
