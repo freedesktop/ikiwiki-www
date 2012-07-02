@@ -67,6 +67,8 @@ The '''!BlockInhibited''' and '''!DelayInhibited''' properties encode what types
 
 '''InhibitDelayMaxUSec''' contains the delay timeout values as configured in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]].
 
+== Taking Blocking Locks ==
+
 Here's the basic scheme for applications which need blocking locks such as a package manager or CD burning application:
 
  1. Take the lock
@@ -81,6 +83,9 @@ fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "bloc
                  ... */
 close(fd);
 }}}
+
+
+== Taking Delay Locks ==
 
 Here's the basic scheme for applications which need delay locks such as a web browser or office suite:
 
