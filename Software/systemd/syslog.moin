@@ -12,6 +12,8 @@ Your BSD compatible logging service should alias syslog.service to itself (i.e. 
 
 Note that journald tries hard to forward to your BSD syslog daemon as much as it can. That means you will get more than you traditionally got on /dev/log, such as stuff all daemons log on STDOUT/STDERR and the messages that are logged natively to systemd. Also, we will send stuff like SCM_CREDENTIALS along if possible.
 
+(BTW, journald is smart enough not to forward the kernel messages it gets to you, you shoul read that on your own, directly from /proc/kmsg, as you always did.)
+
 And here are the recommendations:
 
  * First of all, make sure your syslog daemon installs a native unit file (SysV scripts are not sufficient!) and is socket activatable. Newer systemd versions (v35+) do not support non-socket-activated syslog daemons anymore and we do no longer recommend people to order their units after syslog.target. That means that unless your syslog implementation is socket activatable many services will not be able to log to your syslog implementation and early boot messages are lost entirely to your implementation.
