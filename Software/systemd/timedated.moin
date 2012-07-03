@@ -63,9 +63,32 @@ The sources for timedated are available in git for review: http://cgit.freedeskt
 
 For more information how the system clock and RTC interact see http://lists.freedesktop.org/archives/systemd-devel/2011-May/002526.html
 
-== Hooking In An NTP Implementation ==
+== Hooking in an NTP Implementation ==
 
-systemd-timedated will start/stop/enable/disable NTP implementations indirectly, via the systemd-timedated-ntp.target target. In order for an NTP implementation to be controllable via timedated it should add a .wants/ style symlink from that target to its service and a BindTo= in the other direction.
+systemd-timedated can enable/disable NTP implementations. Since multiple NTP implementations exist the unit to enable/start/disable/stop for this is not hardcoded in timedated and may be configured via drop-in files in /usr/lib/systemd/ntp-units.d/*.list. An NTP implementation should ship one of these files in its RPM listing the unit to disable or enable. timedated will then enable/disable the first unit it finds from all .list files in that directory. The file are sorted alphabetically by their names. A single file can list multiple unit files. Empty lines and lines starting with # are ignore. Example: the NTP implementation ntpd should ship:
+
+{{{
+ntpd.service
+}}}
+
+as `/usr/lib/systemd/ntp-units.d/60-ntpd.list`. Similar, chrony could ship:
+
+{{{
+chronyd.service
+}}}
+
+as `/usr/lib/systemd/ntp-units.d/50-chrony.list`. If both servers are installed ntpd would be controlled preferably by timedated, since `50-chrony.list` is alphabetically before `60-ntpd.list`. 
+
+Note that distributions can also override how the individual implementations order themselves alphabetically. For example, a distribution could drop in this:
+
+{{{
+# Prefer ntpd over chronyd
+ntpd.service
+chronyd.service
+}}}
+
+as `/usr/lib/systemd/ntp-units.d/00-fedora.list` in which case this overrides the others, `since 00-fedora.list` is alphabetically before both `50-chrony.list` and `60-ntpd.list`.
+
 
 ----
 This D-Bus interface follows [[http://0pointer.de/blog/projects/versioning-dbus.html|the usual interface versioning guidelines]].
