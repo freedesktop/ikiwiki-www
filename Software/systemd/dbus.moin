@@ -197,12 +197,14 @@ node /org/freedesktop/systemd1 {
       GetJob(in  u id,
              out o job);
       ClearJobs();
-      ResetFailed();
+
+'''ResetFailed()''' resets the "failed" state of all units.
+
       ListUnits(out a(ssssssouso) units);
       ListJobs(out a(usssoo) jobs);
-      Subscribe();
-      Unsubscribe();
-      Dump(out s dump);
+
+'''Subscribe()''' enables most bus signals to be sent out. Clients which are interested in signals need to call this function. Signals are only sent out if at least one client invoked this function. '''Unsubscribe()''' undoes the signal subscription that Subscribe() implements. It is not necessary to invoke Unsubscribe() as clients are tracked. Signals are no longer sent out as soon as all clients which previously asked for Subscribe() either closed the bus connection or invoked Unsubscribe().
+
       CreateSnapshot(in  s name,
                      in  b cleanup,
                      out o unit);
@@ -215,12 +217,14 @@ node /org/freedesktop/systemd1 {
 
 '''Reboot()''', '''!PowerOff()''', '''Halt()''', '''KExec()''' may be used to ask for immediate reboot, powering down, halt or kexec based reboot of the system. Note that this does not shut down any services and immediately transitions into the reboot process. These functions are normally only called as last step of shutdown, and should not be called directly. To shut down the machine it is a much better choice generally to invoke Reboot() and !PoweOff() on the logind manager object. See [[http://www.freedesktop.org/wiki/Software/systemd/logind|On logind]] for more information.
 
-      SwitchRoot(in  s new_root,
-                 in  s init);
-      SetEnvironment(in  as names);
-      UnsetEnvironment(in  as names);
-      UnsetAndSetEnvironment(in  as unset,
-                             in  as set);
+'''SwitchRoot()''' may be used to transition to a new root directory. This is intended to be used by initial RAM disks. The call takes two arguments: the new root directory (which needs to be specified), plus an init binary path (which may be left empty, in which case it is automatically searched for). The state of the system manager will be serialized before the transition. After the transition the manager binary on the main system is invoked and replaces the old PID 1. All state will then be deserialized.
+
+'''!SetEnvironment()''' may be used to alter the environment block that is passed to all spawned processes. Takes a string array with environment variable assignments. Settings passed will override previously set variables.
+
+'''!UnsetEnvironment()''' may be used to unset environment variables. Takes a string array with environment variable names. All variables specified will be unset (if they have been set previously) and no longer be passed to all spawned processes. This call has no effect for variables that were previously not set, but will not fail in that case.
+
+'''!UnsetAndSetEnvironment()''' is a combination of UnsetEnvironment() and SetEnvironment(). It takes two lists. The first one is a list of variables to unset, the second one of assignments to set. If a variable is listed in both the variable is set after this call, i.e. the set list overrides the unset list.
+
       ListUnitFiles(out a(ss) changes);
       GetUnitFileState(in  s file,
                        out s state);
