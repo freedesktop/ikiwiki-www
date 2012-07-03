@@ -206,13 +206,15 @@ node /org/freedesktop/systemd1 {
       CreateSnapshot(in  s name,
                      in  b cleanup,
                      out o unit);
-      Reload();
-      Reexecute();
-      Exit();
-      Reboot();
-      PowerOff();
-      Halt();
-      KExec();
+
+'''Reload()''' may be invoked to reload all unit files.
+
+'''Reexecute()''' may be invoked to reexecute the main manager process. It will serialize its state, reexecute, and deserizalize the state again. This is useful for upgrades and is a more comprehensive version of Reload(). 
+
+'''Exit()''' may be invoked to ask the manager to exit. This is not available for the system manager and is useful only for user session managers.
+
+'''Reboot()''', '''!PowerOff()''', '''Halt()''', '''KExec()''' may be used to ask for immediate reboot, powering down, halt or kexec based reboot of the system. Note that this does not shut down any services and immediately transitions into the reboot process. These functions are normally only called as last step of shutdown, and should not be called directly. To shut down the machine it is a much better choice generally to invoke Reboot() and !PoweOff() on the logind manager object. See [[http://www.freedesktop.org/wiki/Software/systemd/logind|On logind]] for more information.
+
       SwitchRoot(in  s new_root,
                  in  s init);
       SetEnvironment(in  as names);
