@@ -2,60 +2,45 @@
 
 = Writing syslog Daemons Which Cooperate Nicely With systemd =
 
-THIS IS OUT OF DATE, PLEASE TAKE WITH A GRAIN OF SALT
+Here are a few notes on things to keep in mind when you work on a classic BSD syslog daemon for Linux, to ensure that your syslog daemon works nicely together with systemd. If your syslog implementation does not follow these rules, then it will not be compatible with systemd v38 and newer.
 
-Here are a few notes on things to keep in mind when you work on a syslog daemon for Linux, to ensure that your syslog daemon works nicely together with systemd. If your syslog implementation does not follow these rules, then it will not be compatible with systemd v35 and newer.
+A few notes in advance: systemd centralizes all log streams in the Journal daemon. Messages coming in via /dev/log, via the native protocol, via STDOUT/STDERR of all services and via the kernel are received in the journal daemon. The journal daemon then stores them to disk or in RAM (depending on the configuration of the Storage= option in journald.conf), and optionally forwards them to the console, the kernel log buffer, or to a classic BSD syslog daemon -- and that's where you come in.
 
-First, let's start with a few logging features that systemd provides you with that are otherwise unavailable. Besides the fact that many distributions rely on systemd these days this list should give you a hint what you gain in the logging area by using systemd:
+Note that it is now the journal that listens on /dev/log, no longer the BSD syslog daemon directly. If your logging daemon wants to get access to all logging data then it should listen on /run/systemd/journal/syslog instead via the syslog.socket unit file that is shipped along with systemd. It is no longer OK to listen on /dev/log directly, and your daemon may not create the /run/systemd/journal/syslog socket on its own. If you do that then you will lose logging from STDOUT/STDERR of services (as well as other stuff).
 
- * Early boot logging. From the first point of userspace on (long before your main syslog implementation is started during the normal boot phase) /dev/log is accessible and can be written to (all output goes to /dev/kmsg where your syslog implementation can read it from later on).
+Your BSD compatible logging service should alias syslog.service to itself (i.e. symlink) when it is ''enabled''. That way "syslog.socket" will activate your service when things are logged. Of course, only one implementation of BSD syslog can own that symlink, and hence only one implementation can be enabled at a time, but that's intended as there can only be one process listening on that socket.
 
- * All services log to syslog by default. Unless logging was explicitly turned off for a specific service all output written to stderr/stdout of a service goes to syslog. All of it.
-
- * syslog implementations can be restarted/upgraded at any time without losing a single message
-
- * syslog implementations can be replaced at any time. If you stop your main syslog implementation a minimal implementation will automatically take over which writes output to kmsg from where a later started syslog implementation can read them again.
+Note that journald tries hard to forward to your BSD syslog daemon as much as it can. That means you will get more than you traditionally got on /dev/log, such as stuff all daemons log on STDOUT/STDERR and the messages that are logged natively to systemd. Also, we will send stuff like SCM_CREDENTIALS along if possible.
 
 And here are the recommendations:
 
- * First of all, make sure your syslog daemon installs a native unit file (SysV scripts are not sufficient!) and is socket activatable via /dev/log. Newer systemd versions (v35+) do not support non-socket-activated syslog daemons anymore and we do no longer recommend people to order their units after syslog.target. That means that unless your syslog implementation is socket activatable many services will not be able to log to your syslog implementation and early boot messages are lost entirely to your implementation. 
+ * First of all, make sure your syslog daemon installs a native unit file (SysV scripts are not sufficient!) and is socket activatable. Newer systemd versions (v35+) do not support non-socket-activated syslog daemons anymore and we do no longer recommend people to order their units after syslog.target. That means that unless your syslog implementation is socket activatable many services will not be able to log to your syslog implementation and early boot messages are lost entirely to your implementation.
 
  * Make sure that in your unit file you set !StandardOutput=null in the [Service] block. This makes sure that regardless what the global default for !StandardOutput= is the output of your syslog implementation goes to /dev/null. This matters since the default !StandardOutput= value for all units can be set to syslog and this should not create a feedback loop with your implementation where the messages your syslog implementation writes out are fed back to it. In other words: you need to explicitly opt out of the default standard output redirection we do for other services. (Also note that you do not need to set !StandardError= explicitly, since that inherits the setting of !StandardOutput= by default)
 
- * Use "Sockets=syslog.socket" in the [Service] block of your unit file. "syslog.socket" is a socket that is shared among all syslog implementations and encapsulates /dev/log. By using this socket unit you make sure that the user can dynamically switch between syslog implementations at any time, without having to close the listening socket and thus missing any messages. Do not ship a unit file of your own for /dev/log.
+ * /proc/kmsg is your property, flush it to disk as soon as you start up.
 
- * Use "!ExecStartPre=/bin/systemctl stop systemd-kmsg-syslogd.service" in the [Service] block to shut down systemd's internal logger. systemd's internal logger simply forwards all output to kmsg, and is started by default at early boot. As soon as your fully-fledged syslog implementation is started up you want to replace this minimal syslog with yours, hence terminate the internal logger.
-
- * On start-up, immediately and synchronously flush kmsg to disk, so that early boot messages recorded by systemd-kmsg-syslogd are not lost and are not interleaved with later userspace messages.
-
- * Make sure to include !WantedBy=multi-user.target in your [Install] section in the unit file. This matters since you need explicitly start your service at boot. syslog.socket will only spawn systemd-kmsg-syslogd.service on-demand (and this is good that way), hence you cannot rely on being activated by it on-demand too.
+ * Name your service unit after your daemon (e.g. rsyslog.service or syslog-ng.service) and make sure to include !Alias=syslog.service in your [Install] section in the unit file. This is ensures that the symlink syslog.service is created if your service is enabled and that it points to your service.
 
 Here are a few other recommendations, that are not directly related to systemd:
 
  * Make sure to read the priority prefixes of the kmsg log messages the same way like from normal userspace syslog messages. When systemd writes to kmsg it will prefix all messages with valid priorities which include standard syslog facility values. OTOH for kernel messages the facility is always 0. '''If you need to know whether a message originated in the kernel rely on the facility value''', not just on the fact that you read the message from /proc/kmsg! A number of userspace applications write messages to kmsg (systemd, udev, dracut, others), and they'll nowadays all set correct facility values.
 
- * Make sure to read the timestamp prefixes from kmsg messages. Most modern kernels add a monotonic timestamp prefix to all logged kernel messages. It is relatively easy to convert these timestamps back to wallclock time by comparing them with the CLOCK_MONOTONIC and CLOCK_REALTIME clocks. After you parsed them and turned them into uniform timestamps, consider stripping them from the original kernel log messages before storing them on disk.
-
- * When you read a message from /dev/log use SO_TIMESTAMP to determine its timestamp and drop the one the client sent you. This is nice in order to make chroot() environments work well, which might have different/outdated or no timezone data available.
-
- * When you read a message from /dev/log use SCM_CREDENTIALS to get information about the client generating it, and possibly patch the message with this data in order to make it impossible for clients to fake identities.
-
-Current rsyslog implements all these recommendations. Other syslog implementations implement them at least partially.
+ * When you read a message from the socket use SCM_CREDENTIALS to get information about the client generating it, and possibly patch the message with this data in order to make it impossible for clients to fake identities.
 
 The unit file you install for your service should look something like this:
 
 {{{
 [Unit]
 Description=System Logging Service
+Requires=syslog.socket
 
 [Service]
-ExecStartPre=/bin/systemctl stop systemd-kmsg-syslogd.service
-ExecStart=/sbin/rsyslogd -n
-Sockets=syslog.socket
+ExecStart=/usr/sbin/syslog-ng -n
 StandardOutput=null
 
 [Install]
-WantedBy=multi-user.target
+Alias=syslog.socket
 }}}
 
-And remember: don't ship any socket unit for /dev/log! That's already shipped along with systemd for you.
+And remember: don't ship any socket unit for /dev/log or /run/systemd/journal/syslog (or even make your daemon bind directly to these sockets)! That's already shipped along with systemd for you.
