@@ -158,12 +158,14 @@ node /org/freedesktop/systemd1 {
 
 === Methods ===
 
-      GetUnit(in  s name,
-              out o unit);
-      GetUnitByPID(in  u pid,
-                   out o unit);
-      LoadUnit(in  s name,
-               out o unit);
+'''!GetUnit()''' may be used to the the unit object path for a unit name. It takes the unit name and returns the object path. If a unit has not been loaded yet by this name this call will fail.
+
+
+'''!GetUnitByPID()''' may be used to get the unit object path of the unit a process ID belongs to. Takes a Unix PID and returns the object path. The PID must refer to an existing process of the system.
+
+
+'''!LoadUnit()''' is similar to !GetUnit() but will load the unit from disk if possible.
+
       StartUnit(in  s name,
                 in  s mode,
                 out o job);
@@ -193,10 +195,12 @@ node /org/freedesktop/systemd1 {
                in  s who,
                in  s mode,
                in  i signal);
-      ResetFailedUnit(in  s name);
-      GetJob(in  u id,
-             out o job);
-      ClearJobs();
+
+'''!GetJob()''' returns the job object path for a specific job, identified by its id.
+
+'''ClearJobs()''' flushes the job queue, removing all jobs that are still queued. Note that this does not have any effect on jobs whose execution has already begun, it only flushes jobs that are queued and have not yet begun execution.
+
+'''ResetFailedUnit()''' resets the "failed" state of a specific unit.
 
 '''ResetFailed()''' resets the "failed" state of all units.
 
@@ -217,13 +221,13 @@ node /org/freedesktop/systemd1 {
 
 '''Reboot()''', '''!PowerOff()''', '''Halt()''', '''KExec()''' may be used to ask for immediate reboot, powering down, halt or kexec based reboot of the system. Note that this does not shut down any services and immediately transitions into the reboot process. These functions are normally only called as last step of shutdown, and should not be called directly. To shut down the machine it is a much better choice generally to invoke Reboot() and !PoweOff() on the logind manager object. See [[http://www.freedesktop.org/wiki/Software/systemd/logind|On logind]] for more information.
 
-'''SwitchRoot()''' may be used to transition to a new root directory. This is intended to be used by initial RAM disks. The call takes two arguments: the new root directory (which needs to be specified), plus an init binary path (which may be left empty, in which case it is automatically searched for). The state of the system manager will be serialized before the transition. After the transition the manager binary on the main system is invoked and replaces the old PID 1. All state will then be deserialized.
+'''!SwitchRoot()''' may be used to transition to a new root directory. This is intended to be used by initial RAM disks. The call takes two arguments: the new root directory (which needs to be specified), plus an init binary path (which may be left empty, in which case it is automatically searched for). The state of the system manager will be serialized before the transition. After the transition the manager binary on the main system is invoked and replaces the old PID 1. All state will then be deserialized.
 
 '''!SetEnvironment()''' may be used to alter the environment block that is passed to all spawned processes. Takes a string array with environment variable assignments. Settings passed will override previously set variables.
 
 '''!UnsetEnvironment()''' may be used to unset environment variables. Takes a string array with environment variable names. All variables specified will be unset (if they have been set previously) and no longer be passed to all spawned processes. This call has no effect for variables that were previously not set, but will not fail in that case.
 
-'''!UnsetAndSetEnvironment()''' is a combination of UnsetEnvironment() and SetEnvironment(). It takes two lists. The first one is a list of variables to unset, the second one of assignments to set. If a variable is listed in both the variable is set after this call, i.e. the set list overrides the unset list.
+'''!UnsetAndSetEnvironment()''' is a combination of !UnsetEnvironment() and !SetEnvironment(). It takes two lists. The first one is a list of variables to unset, the second one of assignments to set. If a variable is listed in both the variable is set after this call, i.e. the set list overrides the unset list.
 
       ListUnitFiles(out a(ss) changes);
       GetUnitFileState(in  s file,
