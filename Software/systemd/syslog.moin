@@ -22,7 +22,7 @@ And here are the recommendations:
 
  * /proc/kmsg is your property, flush it to disk as soon as you start up.
 
- * Name your service unit after your daemon (e.g. rsyslog.service or syslog-ng.service) and make sure to include !Alias=syslog.service in your [Install] section in the unit file This is ensures that the symlink syslog.service is created if your service is enabled and that it points to your service. Also add WantedBy=multi-user.target so that your service gets started at boot, and add Requires=syslog.socket in [Unit] so that you pull in the socket unit.
+ * Name your service unit after your daemon (e.g. rsyslog.service or syslog-ng.service) and make sure to include Alias=syslog.service in your [Install] section in the unit file This is ensures that the symlink syslog.service is created if your service is enabled and that it points to your service. Also add !WantedBy=multi-user.target so that your service gets started at boot, and add Requires=syslog.socket in [Unit] so that you pull in the socket unit.
 
 Here are a few other recommendations, that are not directly related to systemd:
 
