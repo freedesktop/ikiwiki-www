@@ -108,6 +108,47 @@ pa_assert_se(close(fd) == 0);
 
 Yes, not all code that is part of PA right now follows these rules closely. This is mostly due to the fact that the formalization of these rules is newer then most of the code itself.
 
+
+== Localization ==
+
+We have some rules for deciding whether a log message should be localized or not (again, the existing code base is mostly older than the rules, so there are a lot of places where the rules are not followed). From a [[http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/12554|message]] on the mailing list:
+
+{{{
+A few of us had an IRC conversation about whether or not to localise 
+PulseAudio's log messages.
+The suggestion/outcome is to add localisation only if all of the 
+following points are fulfilled:
+
+  1) The message is of type "warning" or "error". (Debug and info levels 
+are seldom exposed to end users.)
+
+  2) The translator is likely to understand the sentence. (Otherwise 
+we'll have a useless translation anyway.)
+
+  3) It's at least remotely likely that someone will ever encounter it. 
+(Otherwise we're just wasting translator's time.)
+
+  4) The user is likely to be able to help himself, or at least be 
+informed, after having read the message.
+
+Example:
+
+pa_log_warn(_("OK, so you are running PA in system mode. Please note 
+that you most likely shouldn't be doing that.\n" (etc)
+
+The above can remain localised.
+
+pa_log_warn("Unable to set stop threshold: %s\n", pa_alsa_strerror(err));
+
+The above should NOT be localised (fails both 2, 3, and 4.)
+
+pa_log_info(_("Fresh high-resolution timers available! Bon appetit!"));
+
+The above should be changed to NOT be localised. (fails at least 1. 
+Maybe also 2 and 4.)
+}}}
+
+
 = Indentation in Emacs =
 
 If you use Emacs, consider using this Elisp function for proper indentation:
