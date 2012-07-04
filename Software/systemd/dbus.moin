@@ -171,7 +171,7 @@ Note that many of the calls exists twice: once on the Manager object, and once o
 
 '''!StopUnit()''' is similar to '''!StartUnit()''' but stops the specified unit rather than starting it. Note that "isolate" mode is invalid for this call.
 
-'''!ReloadUnit()''', '''!RestartUnit()''', '''!TryRestartUnit()''', '''!ReloadOrRestartUnit()''', '''!ReloadOrTryRestartUnit()''' may be used to restart and/or reload a unit, and takes similar arguments as '''StartUnit()'''. Reloading is done only if the unit is already running and fails otherwise. If a service is restarted that isn't running it will be started, unless the "Try" flavour is used in which case a service that isn't running is not affected by the restart. The "!ReloadOrRestart" flavours attempt a reload if the unit supports it and use a restart otherwise.
+'''!ReloadUnit()''', '''!RestartUnit()''', '''!TryRestartUnit()''', '''!ReloadOrRestartUnit()''', '''!ReloadOrTryRestartUnit()''' may be used to restart and/or reload a unit, and takes similar arguments as '''!StartUnit()'''. Reloading is done only if the unit is already running and fails otherwise. If a service is restarted that isn't running it will be started, unless the "Try" flavour is used in which case a service that isn't running is not affected by the restart. The "!ReloadOrRestart" flavours attempt a reload if the unit supports it and use a restart otherwise.
 
 '''!KillUnit()''' may be used to kill all processes of a unit. Takes the unit name, two enums who and mode, and a UNIX signal number to send. The who enum is one of "main", "control" or "all". If "main", only the main process of a unit is killed. If "control" only the control process of the unit is killed, if "all" all processes are killed. A "control" process is for example a process that is configured via !ExecStop= and is spawned in parallel to the main daemon process, in order to shut it down. The "mode" enum is one of "control-group", "process", or "none". If "control-group" is used the entire cgroup of the unit is killed, if "process" is used only the process selected via "who" is killed. With "none" no process is killed.
 
@@ -183,12 +183,31 @@ Note that many of the calls exists twice: once on the Manager object, and once o
 
 '''!ResetFailed()''' resets the "failed" state of all units.
 
-      ListUnits(out a(ssssssouso) units);
-      ListJobs(out a(usssoo) jobs);
+'''!ListUnits()''' returns an array with all currently loaded units. Note that units may be known by multiple names at the same name, and hence there might be more unit names loaded than actual units behind them. The array consists of structures with the following elements:
+
+ * The primary unit name as string
+ * The human readable description string
+ * The load state (i.e. whether the unit file has been loaded successfully)
+ * The active state (i.e. whether the unit is currently started or not)
+ * The sub state (a more fine-grained version of the active state that is specific to the unit type, which the active state is not)
+ * A unit that is being followed in its state by this unit, if there is any, otherwise the empty string.
+ * The unit object path
+ * If there is a job queued for the job unit the numeric job id, 0 otherwise
+ * The job type as string
+ * The job object path
+
+'''!ListJobs()''' returns an array with all currently queued jobs. Returns an array consisting of structures with the following elements:
+
+ * The numeric job id
+ * The primary unit name for this job
+ * The job type as string
+ * The job state as string
+ * The job object path
+ * The unit object path
 
 '''Subscribe()''' enables most bus signals to be sent out. Clients which are interested in signals need to call this function. Signals are only sent out if at least one client invoked this function. '''Unsubscribe()''' undoes the signal subscription that Subscribe() implements. It is not necessary to invoke Unsubscribe() as clients are tracked. Signals are no longer sent out as soon as all clients which previously asked for Subscribe() either closed the bus connection or invoked Unsubscribe().
 
-'''CreateSnapshot()''' creates a snapshot unit for the current system state, and stores it under the specified name. It will return the unit object path to the new snapshot. If the cleanup boolean is true the snapshot will be removed automatically when it has been activated, otherwise it remains and can be activated multiple times. Snapshots are not persistant.
+'''!CreateSnapshot()''' creates a snapshot unit for the current system state, and stores it under the specified name. It will return the unit object path to the new snapshot. If the cleanup boolean is true the snapshot will be removed automatically when it has been activated, otherwise it remains and can be activated multiple times. Snapshots are not persistant.
 
 '''Reload()''' may be invoked to reload all unit files.
 
