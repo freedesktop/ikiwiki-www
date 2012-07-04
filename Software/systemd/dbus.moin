@@ -52,7 +52,6 @@ node /org/freedesktop/systemd1 {
       ListJobs(out a(usssoo) jobs);
       Subscribe();
       Unsubscribe();
-      Dump(out s dump);
       CreateSnapshot(in  s name,
                      in  b cleanup,
                      out o unit);
@@ -161,36 +160,18 @@ node /org/freedesktop/systemd1 {
 '''!GetUnit()''' may be used to the the unit object path for a unit name. It takes the unit name and returns the object path. If a unit has not been loaded yet by this name this call will fail.
 
 
-'''!GetUnitByPID()''' may be used to get the unit object path of the unit a process ID belongs to. Takes a Unix PID and returns the object path. The PID must refer to an existing process of the system.
-
+'''GetUnitByPID()''' may be used to get the unit object path of the unit a process ID belongs to. Takes a Unix PID and returns the object path. The PID must refer to an existing process of the system.
 
 '''!LoadUnit()''' is similar to !GetUnit() but will load the unit from disk if possible.
 
-      StartUnit(in  s name,
-                in  s mode,
-                out o job);
-      StartUnitReplace(in  s old_unit,
-                       in  s new_unit,
-                       in  s mode,
-                       out o job);
-      StopUnit(in  s name,
-               in  s mode,
-               out o job);
-      ReloadUnit(in  s name,
-                 in  s mode,
-                 out o job);
-      RestartUnit(in  s name,
-                  in  s mode,
-                  out o job);
-      TryRestartUnit(in  s name,
-                     in  s mode,
-                     out o job);
-      ReloadOrRestartUnit(in  s name,
-                          in  s mode,
-                          out o job);
-      ReloadOrTryRestartUnit(in  s name,
-                             in  s mode,
-                             out o job);
+'''StartUnit()''' enqeues a start job, and possibly a depending jobs. Takes the unit to activate, plus a mode string. The mode needs to be one of replace, fail, isolate, ignore-dependencies, ignore-requirements. If "replace" the call will start the unit and its dependencies, possibly replacing already queued jobs that conflict with this. If "fail" the call with start the unit and its dependencies, but will fail if this would change an already queued job. if "isolate" the call will start the unit in question and terminate all units that aren't dependencies of it. If "ignore-dependencies" will start a unit but ignore all its dependencies. If "ignore-requirements" will start a unit but only ignore the requirement dependencies. It is not recommended to make use of the latter two options. Returns the newly created job object.
+
+'''StartUnitReplace()''' is similar to '''StartUnit()''' but replaces a job that is queued for one unit by a job for another.
+
+'''!StopUnit()''' is similar to '''!StartUnit()''' but stops the specified unit rather than starting it. Note that "isolate" mode is invalid for this call.
+
+'''!ReloadUnit()''', '''!RestartUnit()''', '''!TryRestartUnit()''', '''!ReloadOrRestartUnit()''', '''!ReloadOrTryRestartUnit()''' may be used to restart and/or reload a unit, and takes similar arguments as '''StartUnit()'''. Reloading is done only if the unit is already running and fails otherwise. If a service is restarted that isn't running it will be started, unless the "Try" flavour is used in which case a service that isn't running is not affected by the restart. The "!ReloadOrRestart" flavours attempt a reload if the unit supports it and use a restart otherwise.
+
       KillUnit(in  s name,
                in  s who,
                in  s mode,
@@ -209,9 +190,7 @@ node /org/freedesktop/systemd1 {
 
 '''Subscribe()''' enables most bus signals to be sent out. Clients which are interested in signals need to call this function. Signals are only sent out if at least one client invoked this function. '''Unsubscribe()''' undoes the signal subscription that Subscribe() implements. It is not necessary to invoke Unsubscribe() as clients are tracked. Signals are no longer sent out as soon as all clients which previously asked for Subscribe() either closed the bus connection or invoked Unsubscribe().
 
-      CreateSnapshot(in  s name,
-                     in  b cleanup,
-                     out o unit);
+'''CreateSnapshot()''' creates a snapshot unit for the current system state, and stores it under the specified name. It will return the unit object path to the new snapshot. If the cleanup boolean is true the snapshot will be removed automatically when it has been activated, otherwise it remains and can be activated multiple times. Snapshots are not persistant.
 
 '''Reload()''' may be invoked to reload all unit files.
 
