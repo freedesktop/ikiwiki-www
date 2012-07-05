@@ -1,4 +1,4 @@
-||<tablewidth="10%" tablestyle="float:right;margin:1em;border:0pt; "style="padding:0.5em;border:0pt"> {{attachment:gummiboot-icon.png}} ||
+||<tablewidth="10%" tablestyle="float:right;margin:1em;border:0pt;  "style="padding:0.5em;border:0pt"> {{attachment:gummiboot-icon.png}} ||
 
 
 = gummiboot Simple UEFI Boot Manager =
@@ -6,7 +6,33 @@ gummiboot is a simple UEFI boot manager which executes configured EFI images. Th
 
 gummiboot operates on the EFI System Partition (ESP) only. Configuration file fragments, kernels, initrds, other EFI images need to reside on the ESP. Linux kernels need to be built with CONFIG_EFI_STUB to be able to be directly executed as an EFI image.
 
-gummiboot reads simple and entirely generic boot loader configuration files; one file per boot loader entry to select from.
+gummiboot reads simple and entirely generic boot loader configuration files; one file per boot loader entry to select from. All files need to reside on the ESP.
+{{{
+/loader/loader.conf
+timeout 10
+default fedora-*
+
+/loader/entries/fedora-3.5.4-1.fc18.x86_64-6a9857a393724b7a981ebb5b8495b9ea.conf
+title   Fedora 18 (mars) (3.5.4-1.fc17.x86_64)
+linux   /fedora/vmlinuz-3.5.4-1.fc17.x86_64-6a9857a393724b7a981ebb5b8495b9ea
+initrd  /fedora/initrd-3.5.4-1.fc17.x86_64-6a9857a393724b7a981ebb5b8495b9ea
+options root=UUID=f8f83f73-df71-445c-87f7-31f70263b83b quiet
+
+/loader/entries/custom-kernel.conf
+title   My kernel
+efi     /bzImage
+options root=PARTUUID=084917b7-8be2-4e86-838d-f771a9902e08
+
+/boot/loader/entries/custom-kernel-initrd.conf
+title   My kernel with initrd
+linux   /bzImage
+initrd  /initrd.img
+options root=PARTUUID=084917b7-8be2-4e86-838d-f771a9902e08 quiet
+
+/loader/entries/redhat-grub.conf
+title   GRUB
+efi     /EFI/redhat/grub2-efi/grub.efi
+}}}
 
 Pressing the Space key (or most other keys actually work too) during bootup will show an on-screen menu with all configured loader entries to select from. Pressing Enter on the selected entry loads and starts the EFI image.
 
