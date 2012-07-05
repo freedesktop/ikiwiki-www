@@ -14,7 +14,22 @@ If no timeout is configured, which is the default setting, and no key pressed du
 
 {{attachment:gummiboot-menu.png}}
 
-Configuration files:
+The loader configuration file understands the following keywords:
+
+||||||<#FF8080 style="text-align:center">configuration keywords ||
+||default ||pattern to select the default entry in the list of entries ||
+||timeout ||timeout in seconds for how long to show the menu ||
+
+The entry configuration files understand the following keywords:
+
+||||||<#FF8080 style="text-align:center" entry config keywords ||
+||title ||text to show in the menu ||
+||efi ||executable EFI image ||
+||options ||options to pass to the EFI image / kernel command line ||
+||linux ||linux kernel image (gummiboot requires an EFI stub) ||
+||initrd ||initramfs image ||
+
+Examples:
 
 {{{
 /loader/loader.conf
@@ -43,20 +58,9 @@ title   GRUB
 efi     /EFI/redhat/grub2-efi/grub.efi
 }}}
 
-||||||<#FF8080 style="text-align:center">keywords in the loader configuration file ||
-||default ||pattern to select the default entry in the list of entries ||
-||timeout ||timeout in seconds for how long to show the menu ||
+While the menu is shown, the following keys are active
 
-
-||||||<#FF8080 style="text-align:center">keywords in the entry configuration files ||
-||title ||text to show in the menu ||
-||efi ||executable EFI image ||
-||options ||options to pass to the EFI image / kernel command line ||
-||linux ||linux kernel image (gummiboot requires an EFI stub) ||
-||initrd ||initramfs image ||
-
-
-||||||<#FF8080 style="text-align:center"><style="text-align:center">Active keys while the menu is shown ||
+||||||<#FF8080 style="text-align:center">keys ||
 ||Up/Down ||Select menu entry ||
 ||Enter ||boot the selected entry ||
 ||d ||select the default entry to boot (stored in a non-volatile EFI variable) ||
@@ -66,8 +70,10 @@ efi     /EFI/redhat/grub2-efi/grub.efi
 ||v ||show the gummiboot and UEFI version ||
 ||F1 ||show key mapping ||
 
+EFI variables control the loader or exported the loader state to the started operating system. The vendor UUID
+{{{4a67b082-0a4c-41cf-b6c7-440b29bb8c4f}}} and the variable names are supposed to be shared across all loaders which implement this scheme of configuration.
 
-||||||<#FF8080 style="text-align:center">Exported EFI variables ||
+||||||<#FF8080 style="text-align:center">EFI variables ||
 ||!LoaderEntryDefault ||entry identifier to select as default at bootup ||non-volatile ||
 ||!LoaderConfigTimeout ||timeout in seconds to show the menu ||non-volatile ||
 ||!LoaderEntryOneShot ||entry identifier to select at the next and only the next bootup ||non-volatile ||
