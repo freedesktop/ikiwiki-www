@@ -33,6 +33,14 @@ Disadvantages of this approach over rescue partition based updates:
 
  1. The basic mounts are done with code that might be subject to the updating process. This means that while the problems with conflicts between processes/libraries in memory on disk are minimized they are not zero.
 
-To clear up some confusion: generators are small binaries that live in /lib/systemd/system-generators. systemd will execute those binaries very early at bootup (and at configuration reload time), before the unit files are loaded. The generators can dynamically generate unit files in /run, and override existing definitions freely. (For more information see [[http://www.freedesktop.org/wiki/Software/systemd/Generators|Generators]].)
+To clear up some confusion: generators are small binaries that live in /usr/lib/systemd/system-generators. systemd will execute those binaries very early at bootup (and at configuration reload time), before the unit files are loaded. The generators can dynamically generate unit files in /run, and override existing definitions freely. (For more information see [[http://www.freedesktop.org/wiki/Software/systemd/Generators|Generators]].)
 
-The generator code and the basic definition of systemd-update.target live within the systemd tarball/package itself. The system update script and creation of /system-update should live in the distribution's package manager or packages such as PackageKit.
+The generator code and the basic definition of systemd-update.target live within the systemd tarball/package itself. The system update script and creation of /system-update should live in the distribution's package manager or packages such as !PackageKit.
+
+A few more recommendations:
+
+ 1. To make things a bit more robust we recommend to hook the update script into system-update.target via a .wants/ symlink in the distribution package, rather than depending on "systemctl enable" in the postinst scriptlets of your package. More specifically, for your update script create a .service file, without [Install] section, and then add a symlink like /usr/lib/systemd/system-update.target.wants/foobar.service → ../foobar.service to your package.
+
+ 2. Make sure to remove the /system-update symlink early in the update script to avoid reboot loops in case the update fails. 
+
+ 3. Use OnFailure=reboot.target in the service file for your update script to ensure that a reboot is automatically triggered if the update fails. OnFailure= makes sure that the specified unit is activated if your script exits uncleanly (by non-zero error code, or signal/coredump). If your script succeeds you should trigger the reboot in your own code, for example by invoking logind's Reboot() call. See [[http://www.freedesktop.org/wiki/Software/systemd/logind|On logind]] for details.
