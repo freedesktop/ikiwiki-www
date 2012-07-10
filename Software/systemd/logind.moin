@@ -100,6 +100,8 @@ node /org/freedesktop/login1 {
       readonly s HandlePowerKey = 'no-session';
       readonly s HandleSleepKey = 'tty-session';
       readonly s HandleLidSwitch = 'off';
+      readonly b PreparingForShutdown = false;
+      readonly b PreparingForSleep = false;
   };
   interface org.freedesktop.DBus.Properties {
   };
@@ -171,6 +173,8 @@ The '''!IdleHint''' property reflects the idle hint state of the system. If the 
 '''!IdleSinceHint''' and '''!IdleSinceHintMonotonic''' encode the timestamps of the last change of the idle hint boolean, in CLOCK_REALTIME resp. CLOCK_MONOTONIC timestamps in usec since the epoch.
 
 The '''!BlockInhibited''' and '''!DelayInhibited''' properties encode the currently active locks of the respective modes. They are colon separated lists of "shutdown", "sleep", "idle" (see above).
+
+The '''!PreparingForShutdown''' and '''!PreparingForSleep''' boolean properties are true between the two !PrepareForShutdown resp. !PrepareForSleep signals are sent. Note that these properties do not send out !PropertyChanged signals.
 
 == Seat Objects ==
 
