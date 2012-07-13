@@ -24,7 +24,7 @@ What we do support instead is that these storage daemons are started from the in
 
 Near the end of system shutdown, systemd executes a small tool called systemd-shutdown, replacing its own process. This tool (which runs as PID 1, as it entirely replaces the systemd init process) then iterates through the mounted file systems and running processes (as well as a couple of other resources) and tries to unmount/read-only mount/detach/kill them. It continues to do this in a tight loop as long as this results in any effect. From this killing spree a couple of processes are automatically excluded: PID 1 itself of course, as well as all kernel threads. After the killing/unmounting spree control is passed back to the initramfs, whose job is then to unmount/detach whatever might be remaining.
 
-The same killing spree logic is applied during the transition from the initrd to the main system (i.e. the "switch_root" operation).
+The same killing spree logic (but not the unmount/detach/read-only logic) is applied during the transition from the initrd to the main system (i.e. the "switch_root" operation), so that no processes from the initrd survive to the main system.
 
 To implement the supported logic proposed above (i.e. where storage daemons needed for the root fs which are started by the initramfs stay around during normal operation and are only killed after control is passed back to the initramfs) we need to exclude these daemons from the shutdown/switch_root killing spree. To accomplish this the following logic is available starting with systemd 38:
 
