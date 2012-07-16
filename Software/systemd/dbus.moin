@@ -225,38 +225,22 @@ Note that many of the calls exists twice: once on the Manager object, and once o
 
 '''!UnsetAndSetEnvironment()''' is a combination of !UnsetEnvironment() and !SetEnvironment(). It takes two lists. The first one is a list of variables to unset, the second one of assignments to set. If a variable is listed in both the variable is set after this call, i.e. the set list overrides the unset list.
 
-      ListUnitFiles(out a(ss) changes);
-      GetUnitFileState(in  s file,
-                       out s state);
-      EnableUnitFiles(in  as files,
-                      in  b runtime,
-                      in  b force,
-                      out b carries_install_info,
-                      out a(sss) changes);
-      DisableUnitFiles(in  as files,
-                       in  b runtime,
-                       out a(sss) changes);
-      ReenableUnitFiles(in  as files,
-                        in  b runtime,
-                        in  b force,
-                        out b carries_install_info,
-                        out a(sss) changes);
-      LinkUnitFiles(in  as files,
-                    in  b runtime,
-                    in  b force,
-                    out a(sss) changes);
-      PresetUnitFiles(in  as files,
-                      in  b runtime,
-                      in  b force,
-                      out b carries_install_info,
-                      out a(sss) changes);
-      MaskUnitFiles(in  as files,
-                    in  b runtime,
-                    in  b force,
-                    out a(sss) changes);
-      UnmaskUnitFiles(in  as files,
-                      in  b runtime,
-                      out a(sss) changes);
+'''!ListUnitFiles()''' returns an array of unit names plus their enablement status. Note that !ListUnit() returns a list of units currently loaded into memory, while !ListUnitFiles() returns a list of unit ''files'' that could be found on disk. Note that while most units are read directly from a unit file 
+with the same name some units are not backed by files, and some files (templates) cannot directly be loaded as units but need to be instantiated.
+
+'''!GetUnitFileState()''' returns the current enablement status of specific unit file.
+
+'''!EnableUnitFiles()''' may be used to enable one or more units in the system (by creating symlinks to them in /etc or /var). It takes a list of unit files to enable, and two booleans: the first controls whether the unit shall be enabled for runtime only (true), or persistently (false). The second one controls whether symlinks pointing to other units shall be replaced if necessary. This call returns one boolean and an array with the changes made. The boolean signals whether the unit files contained any enablement information (i.e. an [Install]) section. The changes list consists of structures with three strings: the type of the change (one of 'symlink' or 'unlink'), the file name of the symlink and the source of the symlink. The changes list is returned in a similar way from most of the following calls.
+
+Similar, '''!DisableUnitFiles()''' disables one or more units in the system, i.e. removes all symlinks to them in /etc and /var. 
+
+Similar, '''!ReenableUnitFiles()''' applies the changes to one or more units that would result from disabling and enabling the unit quickly one after the other in an atomic fashion. This is useful to apply updated [Install] information contained in unit files.
+
+Similar, '''!LinkUnitFiles()''' links unit files (that are located outside of the usual unit search paths) into the unit search path.
+
+Similar, '''!PresetUnitFiles()''' enables/disables one ore more units file according to the preset policy. See [[http://freedesktop.org/wiki/Software/systemd/Preset|Presets]] for more information.
+
+Similar, '''!MaskUnitFiles()''' masks unit files, and '''!UnmaskUnitFiles()''' unmasks them again.
 
 === Signals ===
 
