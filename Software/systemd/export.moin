@@ -5,9 +5,9 @@
 When exporting journal data for other uses or transferring it via the network/local IPC the ''journal export format'' is used. It's a simple serialization of journal entries, that is easy to read without any special tools, but still binary safe where necessary. The format is like this:
 
  * Two journal entries that follow each other are separated by a double newline
- * Journal fields are serialized as they are (i.e. field name, followed by '=', followed by field data), if they consist only of characters >= 32 (space) and < 127, i.e. printable, non-control ASCII.
- * Other journal fields are serialized in a special binary safe way: field name, followed by newline, followed by a 64bit little endian size value, followed by the binary field data.
- * Entry metadata that is not actually a field is serialized as field, beginning with two underscores. More specifically, __CURSOR, __REALTIME_TIMESTAMP, __MONOTONIC_TIMESTAMP. Note that these meta-fields are only generated when actual journal files are serialized. They are ommited for entries that do not originate from a journal file (possibly because they are transferred to actually submit them to one).
+ * Journal fields consisting only of characters >= 32 (space) and < 127 (i.e. printable, non-control ASCII) are are serialized as they are (i.e. field name, followed by '=', followed by field data), followed by a newline as separator to the next field.
+ * Other journal fields are serialized in a special binary safe way: field name, followed by newline, followed by a 64bit little endian size value, followed by the binary field data, followed by a newline as separator to the next field.
+ * Entry metadata that is not actually a field is serialized as field, beginning with two underscores. More specifically, __CURSOR, __REALTIME_TIMESTAMP, __MONOTONIC_TIMESTAMP. Note that these meta-fields are only generated when actual journal files are serialized. They are omitted for entries that do not originate from a journal file (for example because they are transferred for the first time to be stored in one).
 
 And that's already it.
 
@@ -67,4 +67,4 @@ _MACHINE_ID=a91663387a90b89f185d4e860000001a
 _HOSTNAME=epsilon
 }}}
 
-Yupp, no example with binary data here: the wiki couldn't show this nicely. Sorry.
+Yupp, no example with binary data here: the wiki can't show this nicely. Sorry.
