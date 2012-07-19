@@ -41,7 +41,6 @@ node /org/freedesktop/systemd1 {
                              out o job);
       KillUnit(in  s name,
                in  s who,
-               in  s mode,
                in  i signal);
       ResetFailedUnit(in  s name);
       GetJob(in  u id,
@@ -173,7 +172,7 @@ Note that many of the calls exists twice: once on the Manager object, and once o
 
 '''!ReloadUnit()''', '''!RestartUnit()''', '''!TryRestartUnit()''', '''!ReloadOrRestartUnit()''', '''!ReloadOrTryRestartUnit()''' may be used to restart and/or reload a unit, and takes similar arguments as '''!StartUnit()'''. Reloading is done only if the unit is already running and fails otherwise. If a service is restarted that isn't running it will be started, unless the "Try" flavour is used in which case a service that isn't running is not affected by the restart. The "!ReloadOrRestart" flavours attempt a reload if the unit supports it and use a restart otherwise.
 
-'''!KillUnit()''' may be used to kill all processes of a unit. Takes the unit name, two enums who and mode, and a UNIX signal number to send. The who enum is one of "main", "control" or "all". If "main", only the main process of a unit is killed. If "control" only the control process of the unit is killed, if "all" all processes are killed. A "control" process is for example a process that is configured via !ExecStop= and is spawned in parallel to the main daemon process, in order to shut it down. The "mode" enum is one of "control-group", "process", or "none". If "control-group" is used the entire cgroup of the unit is killed, if "process" is used only the process selected via "who" is killed. With "none" no process is killed.
+'''!KillUnit()''' may be used to kill (i.e. send a signal to) all processes of a unit. Takes the unit name, an enums who and a UNIX signal number to send. The who enum is one of "main", "control" or "all". If "main", only the main process of a unit is killed. If "control" only the control process of the unit is killed, if "all" all processes are killed. A "control" process is for example a process that is configured via !ExecStop= and is spawned in parallel to the main daemon process, in order to shut it down.
 
 '''!GetJob()''' returns the job object path for a specific job, identified by its id.
 
