@@ -2,6 +2,9 @@
 
 = The D-Bus API of systemd/PID 1 =
 
+systemd and its auxiliary daemons expose a number of APIs on D-Bus. The following describes the various APIs exposed by the system and service manager itself, and does not cover the auxiliary daemons.
+
+
 == The Manager Object ==
 {{{
 $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1
@@ -153,6 +156,10 @@ node /org/freedesktop/systemd1 {
   };
 };
 }}}
+
+=== Security ===
+
+Read access is generally granted to all clients, but changes may only be made by privileged clients. !PolicyKit is not used by this service, and access controlled exclusively via the D-Bus policy enforcement.
 
 === Methods ===
 
