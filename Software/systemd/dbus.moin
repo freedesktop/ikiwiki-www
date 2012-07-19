@@ -295,9 +295,218 @@ Most properties simply reflect the respective options in {{{/etc/systemd/system.
 {{{
 }}}
 
-== Service Unit Objects ==
-
+== Unit Objects ==
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservicenode /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
+  interface org.freedesktop.systemd1.Unit {
+    methods:
+      Start(in  s mode,
+            out o job);
+      Stop(in  s mode,
+           out o job);
+      Reload(in  s mode,
+             out o job);
+      Restart(in  s mode,
+              out o job);
+      TryRestart(in  s mode,
+                 out o job);
+      ReloadOrRestart(in  s mode,
+                      out o job);
+      ReloadOrTryRestart(in  s mode,
+                         out o job);
+      Kill(in  s who,
+           in  i signal);
+      ResetFailed();
+    signals:
+    properties:
+      readonly s Id = 'avahi-daemon.service';
+      readonly as Names = ['avahi-daemon.service'];
+      readonly s Following = '';
+      readonly as Requires = ['avahi-daemon.socket', 'systemd-journald.socket', 'dbus.socket', 'basic.target'];
+      readonly as RequiresOverridable = [];
+      readonly as Requisite = [];
+      readonly as RequisiteOverridable = [];
+      readonly as Wants = [];
+      readonly as BindsTo = [];
+      readonly as RequiredBy = [];
+      readonly as RequiredByOverridable = [];
+      readonly as WantedBy = ['multi-user.target', 'graphical.target'];
+      readonly as BoundBy = [];
+      readonly as Conflicts = ['shutdown.target'];
+      readonly as ConflictedBy = [];
+      readonly as Before = ['shutdown.target', 'multi-user.target'];
+      readonly as After = ['avahi-daemon.socket', 'systemd-journald.socket', 'dbus.socket', 'basic.target'];
+      readonly as OnFailure = [];
+      readonly as Triggers = [];
+      readonly as TriggeredBy = ['avahi-daemon.socket'];
+      readonly as PropagatesReloadTo = [];
+      readonly as ReloadPropagatedFrom = [];
+      readonly as RequiresMountsFor = [];
+      readonly s Description = 'Avahi mDNS/DNS-SD Stack';
+      readonly s SourcePath = '';
+      readonly as Documentation = [];
+      readonly s LoadState = 'loaded';
+      readonly s ActiveState = 'active';
+      readonly s SubState = 'running';
+      readonly s FragmentPath = '/usr/lib/systemd/system/avahi-daemon.service';
+      readonly s UnitFileState = 'enabled';
+      readonly t InactiveExitTimestamp = 1342738862998751;
+      readonly t InactiveExitTimestampMonotonic = 6799251;
+      readonly t ActiveEnterTimestamp = 1342738863176072;
+      readonly t ActiveEnterTimestampMonotonic = 6976573;
+      readonly t ActiveExitTimestamp = 0;
+      readonly t ActiveExitTimestampMonotonic = 0;
+      readonly t InactiveEnterTimestamp = 0;
+      readonly t InactiveEnterTimestampMonotonic = 0;
+      readonly b CanStart = true;
+      readonly b CanStop = true;
+      readonly b CanReload = true;
+      readonly b CanIsolate = false;
+      readonly (uo) Job = (0, '/org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice');
+      readonly b StopWhenUnneeded = false;
+      readonly b RefuseManualStart = false;
+      readonly b RefuseManualStop = false;
+      readonly b AllowIsolate = false;
+      readonly b DefaultDependencies = true;
+      readonly b OnFailureIsolate = false;
+      readonly b IgnoreOnIsolate = false;
+      readonly b IgnoreOnSnapshot = false;
+      readonly s DefaultControlGroup = 'name=systemd:/system/avahi-daemon.service';
+      readonly as ControlGroup = ['cpu:/system/avahi-daemon.service', 'name=systemd:/system/avahi-daemon.service'];
+      readonly a(sss) ControlGroupAttributes = [];
+      readonly b NeedDaemonReload = false;
+      readonly t JobTimeoutUSec = 0;
+      readonly t ConditionTimestamp = 1342738862978791;
+      readonly t ConditionTimestampMonotonic = 6779295;
+      readonly b ConditionResult = true;
+      readonly (ss) LoadError = ('', '');
+  };
+  interface org.freedesktop.systemd1.Service {
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
+
+== Service Unit Objects ==
+{{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservicenode /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Service {
+    methods:
+    signals:
+    properties:
+      readonly s Type = 'dbus';
+      readonly s Restart = 'no';
+      readonly s PIDFile = '';
+      readonly s NotifyAccess = 'main';
+      readonly t RestartUSec = 100000;
+      readonly t TimeoutUSec = 90000000;
+      readonly t WatchdogUSec = 0;
+      readonly t WatchdogTimestamp = 0;
+      readonly t WatchdogTimestampMonotonic = 0;
+      readonly t StartLimitInterval = 10000000;
+      readonly u StartLimitBurst = 5;
+      readwrite s StartLimitAction = 'none';
+      readonly a(sasbttuii) ExecStartPre = [];
+      readonly a(sasbttuii) ExecStart = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-s'], false, 1342738862998611, 6799112, 0, 0, 338, 0, 0)];
+      readonly a(sasbttuii) ExecStartPost = [];
+      readonly a(sasbttuii) ExecReload = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-r'], false, 0, 0, 0, 0, 0, 0, 0)];
+      readonly a(sasbttuii) ExecStop = [];
+      readonly a(sasbttuii) ExecStopPost = [];
+      readonly as Environment = [];
+      readonly u UMask = 18;
+      readonly t LimitCPU = 18446744073709551615;
+      readonly t LimitFSIZE = 18446744073709551615;
+      readonly t LimitDATA = 18446744073709551615;
+      readonly t LimitSTACK = 18446744073709551615;
+      readonly t LimitCORE = 18446744073709551615;
+      readonly t LimitRSS = 18446744073709551615;
+      readonly t LimitNOFILE = 4096;
+      readonly t LimitAS = 18446744073709551615;
+      readonly t LimitNPROC = 29974;
+      readonly t LimitMEMLOCK = 65536;
+      readonly t LimitLOCKS = 18446744073709551615;
+      readonly t LimitSIGPENDING = 29974;
+      readonly t LimitMSGQUEUE = 819200;
+      readonly t LimitNICE = 0;
+      readonly t LimitRTPRIO = 0;
+      readonly t LimitRTTIME = 18446744073709551615;
+      readonly s WorkingDirectory = '';
+      readonly s RootDirectory = '';
+      readonly i OOMScoreAdjust = 0;
+      readonly i Nice = 0;
+      readonly i IOScheduling = 0;
+      readonly i CPUSchedulingPolicy = 0;
+      readonly i CPUSchedulingPriority = 0;
+      readonly ay CPUAffinity = [];
+      readonly t TimerSlackNS;
+      readonly b CPUSchedulingResetOnFork = false;
+      readonly b NonBlocking = false;
+      readonly s StandardInput = 'null';
+      readonly s StandardOutput = 'journal';
+      readonly s StandardError = 'inherit';
+      readonly s TTYPath = '';
+      readonly b TTYReset = false;
+      readonly b TTYVHangup = false;
+      readonly b TTYVTDisallocate = false;
+      readonly i SyslogPriority = 30;
+      readonly s SyslogIdentifier = '';
+      readonly b SyslogLevelPrefix = true;
+      readonly s Capabilities = '';
+      readonly i SecureBits = 0;
+      readonly t CapabilityBoundingSet = 18446744073709551615;
+      readonly s User = '';
+      readonly s Group = '';
+      readonly as SupplementaryGroups = [];
+      readonly s TCPWrapName = '';
+      readonly s PAMName = '';
+      readonly as ReadWriteDirectories = [];
+      readonly as ReadOnlyDirectories = [];
+      readonly as InaccessibleDirectories = [];
+      readonly t MountFlags = 1048576;
+      readonly b PrivateTmp = false;
+      readonly b SameProcessGroup = false;
+      readonly s KillMode = 'control-group';
+      readonly i KillSignal = 15;
+      readonly s UtmpIdentifier = '';
+      readonly b ControlGroupModify = false;
+      readonly b ControlGroupPersistent = false;
+      readonly b PrivateNetwork = false;
+      readonly b IgnoreSIGPIPE = true;
+      readonly b NoNewPrivileges = false;
+      readonly au SystemCallFilter = [];
+      readonly s KillMode = 'control-group';
+      readonly i KillSignal = 15;
+      readonly b SendSIGKILL = true;
+      readonly b PermissionsStartOnly = false;
+      readonly b RootDirectoryStartOnly = false;
+      readonly b RemainAfterExit = false;
+      readonly t ExecMainStartTimestamp = 1342738862998734;
+      readonly t ExecMainStartTimestampMonotonic = 6799234;
+      readonly t ExecMainExitTimestamp = 1342738862998734;
+      readonly t ExecMainExitTimestampMonotonic = 6799234;
+      readonly u ExecMainPID = 338;
+      readonly i ExecMainCode = 0;
+      readonly i ExecMainStatus = 0;
+      readonly u MainPID = 338;
+      readonly u ControlPID = 0;
+      readonly s BusName = 'org.freedesktop.Avahi';
+      readonly s StatusText = 'Server startup complete. Host name is epsilon.local. Local service cookie is 3963893972.';
+      readonly s Result = 'success';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
 
 == Socket Unit Objects ==
