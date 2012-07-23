@@ -3990,14 +3990,14 @@ This might yield the following XML output:
 === CLOUD ===
 
 
-==== files / get quota ====
+==== user / get quota ====
 Reads the quota and the currently used space for a user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
- * syntax: /v1/cloud/files/quota/"user"
+ * syntax: /v1/cloud/user/"user"/quota
  * HTTP method: GET
  * Statuscodes:
    * 100 - successfull
-Example: GET http://frank:password@myowncloud.org/ocs/v1.php/cloud/files/quota
-Reads the quota and the currently used space for  myself.
+Example: GET http://frank:password@myowncloud.org/ocs/v1.php/cloud/user/frank/quota
+Reads the quota and the currently used space for myself.
 Example:
 {{{
 <?xml version="1.0"?>
@@ -4009,16 +4009,34 @@ Example:
   <totalitems>1</totalitems>
  </meta>
  <data>
-  <attribute>
-   <app>parley</app>
-   <key>language</key>
-   <value>english, german</value>
-   <lastmodified>2007-11-01T22:45:20+01:00</lastmodified>
-  </attribute>
+  <quota>6466643608</quota>
+  <free>6460997632</free>
+  <used>5645976</used>
+  <relative>0.09</relative>
  </data>
 </ocs>
 }}}
 
+==== user / set quota ====
+Sets the quota for a user. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header.
+ * syntax: /v1/cloud/user/"user"/quota
+ * HTTP method: POST
+ * Statuscodes:
+   * 100 - successfull
+Example: POST http://frank:password@myowncloud.org/ocs/v1.php/cloud/user/frank/quota -d quota=1234
+Sets the quota for and the currently used space for user frank to 1234.
+Example:
+{{{
+<?xml version="1.0"?>
+<ocs>
+ <meta>
+  <status>ok</status>
+  <statuscode>100</statuscode>
+  <message></message>
+ </meta>
+ <data/>
+</ocs>
+}}}
 
 ----
 CategoryHomepage
