@@ -38,12 +38,55 @@ To enable the Glamor, the following steps is needed:
    . Load "glamoregl"
   . !EndSection
 
+  . Section "Device"
+   . Identifier "intel"
+   . Driver "intel"
+   . Option "AccelMethod" "glamor"
+  . EndSection
+
 The reason why we need to load dri2/glamoregl earlier is both glx-xserver and glamor are a dri2 loader. And glx-xserver side has a own glapi/dispatch table implementation which is a subset of the standard mesa's implementation. So if the glx module is loaded earlier than dri2/glamoregl, then we will get an incomplete dispatch table and everything is broken in glamor then. This is also why we need to add --enable-glx-tls parameters when build mesa, as we need to keep mesa align with Xserver's behavious, xserver will enable-glx-tls by default, but mesa will not.
 
 After yuo finish all the above steps, then you can try to start x with glamor enabled DDX. To make sure it's the glamor running, you can refer to Xorg.0.log, and check that the Glamor is enabled if you can find the log like: ''__intel(0): Use GLAMOR acceleration.__''
 
-= What's New =
-The latest version is 0.4. Here is the new features in this releae:
+= ChangeLog =
+== version 0.5 ==
+Here is the new features in version 0.5:
+ 1. Support tiling large pixmap to multiple small textures.
+ 1. Enable gradient shader.
+ 1. Optimize glyphs rendering performance
+ 1. Implement first shader to generate trapezoids.
+
+Cairo-demo’s spinner on a large picture(12000x12000) get about 10x improvement, and gradient also
+get about 2x improvement. Aa10text and rgb10text also get about 2x improvement.
+
+=== Plan ===
+ 1.	Fix the coexisting problem with glx for latest xserver. Don’t rely on the module loading sequence.
+ 1.	Continue performance tuning:
+    2. Implement delay flushing mechanism to avoid tiny drawing operation for each DrawElements/DrawArrays call.
+    2. Implement atlas for small pixmap.
+    2. Optimize trapezoid shader to reduce the overhead for those non-edge pixels.
+    2. Optimize trapezoid/gradient shader to merge the mask/source creation and compositing into one shader.
+    2. Optimize glamor itself’ overhead.
+ 1. Xv support.
+
+=== Restrication ===
+Glamor has a restriction with latest xserver. The main issue is that glamor rely on the module loading
+sequence which is not guaranteed by current xserver. We will fix this issue in next version. If you want
+to try a full functional xserver with glamor, it’s recommended to use the following xserver version:
+
+ commit a615b90cab7569fae9d123e4da1d3373c871d84b
+ Author: Keith Packard <keithp@keithp.com>
+ Date:   Wed Mar 14 11:32:36 2012 -0700
+
+    Bump version number to 1.12.99.0
+
+    Now that 1.12 has branched, reset the version on master to a
+    development number.
+
+	   Signed-off-by: Keith Packard keithp@keithp.com
+
+== version 0.4 ==
+Here is the new features in version 0.4:
 
  1. DRI2 now works well, and texture-from-pixmap also works well.
  1. Fully support glx including AIGLX, indirect glx's GL context coexists with glamor's GL context safely. Thanks for Chris Wilson's help to refine this function.
@@ -53,7 +96,7 @@ The latest version is 0.4. Here is the new features in this releae:
  1. Fixed many of the bugs for cairo-test-suite, now we get almost identical or even better result than UXA.
  1. Implemented a fbo/texture cache pool mechanism which will reduce the over head of texture/fbo destruction and creation, and bring overall 15-20% performance imprvoement. On PVR545 platform, we even get about 10x performance improvement with this feature.
 
-= Plan =
+=== Plan ===
 We plan to release next version 0.5 at early of June. And the following major features will be added:
 
  1. Fully gradient optimization including linear and radial. Actually, the code is already in this release, but as it has some bugs and we disable it currently. Will fix those bug and enable it at next release.
