@@ -8,35 +8,24 @@ These build steps assume that you have set up a basic AOSP build environment as 
 
 The repository has been tested on and has configuration for the Samsung/Google Galaxy Nexus, which at the time of writing this is the reference platform for Android development. It should be fairly straightforward to port to a Pandaboard, and just a little less so for other devices with ALSA support (it's mostly a matter of making sure the mixer paths are correctly configured or adding appropriate ALSA UCM configuration).
 
-== Patches ==
-
-The following patches need to be applied to the source:
-
- * [[http://people.collabora.com/~arun/android/bionic-limits.h-fix.patch|bionic-limits.h-fix.patch]]: applies in bionic/ (submitted [[http://code.google.com/p/android/issues/detail?id=24177|upstream]])
- * [[http://people.collabora.com/~arun/android/bionic-un.h-fix.patch|bionic-un.h-fix.patch]]: applies in bionic/ (submitted [[http://code.google.com/p/android/issues/detail?id=24177|upstream]])
- * [[http://people.collabora.com/~arun/android/build-add-pulseaudio.patch|build-add-pulseaudio.patch]]: applies in build/
- * [[http://people.collabora.com/~arun/android/device-samsung-tuna-add-pulseaudio.patch|device-samsung-tuna-add-pulseaudio.patch]]: applies in device/samsung/tuna
- * (Optional) [[http://people.collabora.com/~arun/android/system-core-vmstat-fix.patch|system-core-vmstat-fix.patch]]: applies in system/core. Fixes vmstat's -n parameter (submitted [[http://code.google.com/p/android/issues/detail?id=17996|upstream]])
-
 == androgenizer ==
 
 Get [[http://cgit.collabora.com/git/user/derek/androgenizer.git/|androgenizer]], build it, and make sure the binary is in your path.
 
 == Get the code ==
 
+This assumes you have a checkout of the AOSP code from Google upstream already.
+
 {{{
-$ cd <path to android source>/external
-$ git clone git://git.collabora.co.uk/git/user/arun/android/pulseaudio-android pulseaudio
-$ cd pulseaudio
-$ git submodule init
-$ git submodule update
-$ cd ../..
+$ cd <top-level-AOSP-source-dir>
+$ wget http://people.collabora.com/~arun/android/local_manifest.xml -O .repo/local_manifest.xml
+$ .repo/repo/repo sync
 }}}
 
 == Compile ==
 
 {{{
-$ (assuming you've run envsetup.sh and lunch from the AOSP build instructions here)
+$ (assuming you've run envsetup.sh and lunch from the AOSP build instructions)
 $ export PATH=$PATH:/path/to/androgenizer
 $ make pulseaudio-aggregate-configure
 $ make
@@ -44,9 +33,21 @@ $ make
 
 == Running ==
 
-There is a {{{start-pulseaudio-android}}} script for setting up the environment and starting up !PulseAudio correctly in system mode.
+When you flash and restart the system image, you are now running PulseAudio as a replacement for AudioFlinger. Various bits of functionality are available, and this is a moving target. The following are tested at the time of writing this section:
 
-Also included is an {{{audio_test}}} binary that can be used for playing back audio to !PulseAudio or !AudioFlinger.
+ * Audio playback for most apps using native Android APIs
+ * Volume control
+ * Switching of outputs depending on the device plugged in (headphones, headset)
+
+== To Be Done ==
+
+The following pieces are either partially or not at all implemented
+
+ * Audio playback API completeness: infrequently-used bits of the API (loops, markers, etc.) are not implemented
+ * Calls: this is work-in-progress, but needs to be cleaned and merged
+ * Policy: initial implementations of volumes and port switching are done. There are probably a lot of bits of policy that still need to be implemented for us to have feature/bug-parity with standard Android.
+ * Audio record API: can be implemented fairly easily like the playback API was
+ * Audio effects API (we don't support this in PulseAudio at the moment)
 
 == Misc ==
 
