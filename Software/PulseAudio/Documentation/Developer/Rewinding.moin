@@ -58,7 +58,7 @@ The IO thread of a sink runs in a loop that basically does the following things:
 
 The first two bullet points are implemented by pa_rtpoll_run().
 
-BUG: Rewinds are processed also by filter sinks in their pop callbacks. While this should be pretty harmless (there should never be any rewind requests pending when the callback is called), it's useless code and may cause confusion.
+BUG: Rewinds are processed also by filter sinks in their pop callbacks. While this should be pretty harmless (there should never be any rewind requests pending when the callback is called), it's useless code and may cause confusion (https://bugs.freedesktop.org/show_bug.cgi?id=53915).
 
 Rewind requests can be made with pa_sink_request_rewind() or pa_sink_input_request_rewind(). pa_sink_input_request_rewind() always calls pa_sink_request_rewind(). The rewind requests must always reach the sink that implements the IO thread (the "root sink"), because processing of the rewinds is always done from that sink, and it can't process rewinds that have not been requested from it. Requests made on filter sinks are forwarded to the master sink by calling pa_sink_input_request_rewind() on the sink input between the filter sink and the master sink.
 
