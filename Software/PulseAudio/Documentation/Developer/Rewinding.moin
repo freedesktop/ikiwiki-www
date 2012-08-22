@@ -31,6 +31,8 @@ native protocol stream
                  r                       w
 }}}
 
+There's actually another buffer between render_memblockq and the sink input implementor (in the example above the native protocol stream): if a resampler is used, it may sometimes have some data in its leftover buffer. BUG: That buffer is not currently taken into account when rewinding (https://bugs.freedesktop.org/show_bug.cgi?id=53911).
+
 
 == Filter Sinks ==
 
