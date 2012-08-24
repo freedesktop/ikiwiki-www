@@ -124,7 +124,7 @@ The sink input implementor is notified by the rewind with the process_rewind() c
 
 ==== modules/alsa/alsa-sink.c: sink_update_requested_latency_cb(): pa_sink_request_rewind(s, (size_t) -1); ====
 
-The alsa sink does a full rewind when the latency is made smaller. Without this "reset", things apparently could go wrong if a non-full rewind was made while the sink buffer still contained more data than the new latency. There's a comment about this in sink_update_requested_latency_cb(). The comment doesn't explain all the details, but I still trust that the rewind is needed.
+The alsa sink does a full rewind when the latency is made smaller. There needs to be a rewind to ensure that the sink buffer doesn't contain more data than what is allowed by the new latency. This is because rewind requests can't be larger than the configured latency, and if there's more data than that in the buffer, a later rewind request may end up being too small. BUG (minor performance issue): A full rewind is unnecessary (https://bugs.freedesktop.org/show_bug.cgi?id=54007). BUG (not affecting users): The alsa sink shouldn't need to do this at all (https://bugs.freedesktop.org/show_bug.cgi?id=54006).
 
 
 ==== modules/module-ladspa-sink.c: LADSPA_SINK_MESSAGE_UPDATE_PARAMETERS: pa_sink_request_rewind(u->sink, -1); ====
@@ -145,8 +145,6 @@ The sink input is able to satisfy the whole rewind request internally, but it ne
 ==== pulsecore/sink.c: PA_SINK_MESSAGE_REMOVE_INPUT: pa_sink_request_rewind(s, (size_t) -1); ====
 
 When a sink input is removed, the sink buffer still contains audio from that input. Doing a full rewind will remove as much as possible of that audio.
-
-BUG: There's no rewind request in PA_SINK_MESSAGE_ADD_INPUT. There should be, according to a comment in the ADD_INPUT message handler.
 
 
 ==== pulsecore/sink.c: PA_SINK_MESSAGE_START_MOVE: pa_sink_request_rewind(s, (size_t) -1); ====
