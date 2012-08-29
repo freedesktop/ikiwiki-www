@@ -118,7 +118,7 @@ If rewrite_nbytes is not -1, then the write index of render_memblock is moved ba
 
 The amount that the write index of render_memblockq gets moved back is the actual amount that the sink rewound plus the length of the render_memblockq, or rewrite_nbytes, whichever is less.
 
-The sink input implementor is notified by the rewind with the process_rewind() callback. The nbytes parameter of the callback is the amount by which the render_memblockq write index was moved (or 0 if there was a rewind request with rewrite = false).
+The sink input implementor is notified of the rewind with the process_rewind() callback. The nbytes parameter of the callback is the amount by which the render_memblockq write index was moved (or 0 if there was a rewind request with rewrite = false).
 
 
 == Current Usage (as of 2012-08-11) ==
@@ -152,7 +152,7 @@ When a sink input is removed, the sink buffer still contains audio from that inp
 
 ==== pulsecore/sink.c: PA_SINK_MESSAGE_START_MOVE: pa_sink_request_rewind(s, (size_t) -1); ====
 
-This is essentially the same case as removing a sink input, from the sink point of view (from a wider point of view there are much more details to get right, and things aren't currently perfect (BUG), as explained in the long comment before this call).
+This is essentially the same case as removing a sink input, from the sink point of view (from a wider point of view there are much more details to get right, and things aren't currently perfect. BUG: https://bugs.freedesktop.org/show_bug.cgi?id=54182).
 
 
 ==== pulsecore/sink.c: PA_SINK_MESSAGE_FINISH_MOVE: pa_sink_request_rewind(s, nbytes); ====
