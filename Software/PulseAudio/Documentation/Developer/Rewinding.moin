@@ -264,7 +264,7 @@ Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting
 
 ==== pulsecore/protocol-esound.c: SINK_INPUT_MESSAGE_POST_DATA: pa_sink_input_request_rewind(c->sink_input, 0, FALSE, TRUE, FALSE); ====
 
-The sink input has been having an underrun which has now ended. A rewind is requested so that the data that has been missing can be added to the sink buffer. BUG: Instead of requesting a full rewind, the code should check how long the underrun has been. Doing a full rewind can cause skipping if the underrun was short and the sink buffer still has valid data from before the underrun started.
+The sink input has been having an underrun which has now ended. A rewind is requested so that the data that has been missing can be added to the sink buffer. BUG: Instead of requesting a full rewind, the code should check how long the underrun has been. Doing a full rewind can cause skipping if the underrun was short and the sink buffer still has valid data from before the underrun started (https://bugs.freedesktop.org/show_bug.cgi?id=54251).
 
 
 ==== pulsecore/protocol-native.c: handle_seek(): pa_sink_input_request_rewind(s->sink_input, (size_t) (s->sink_input->thread_info.underrun_for == (uint64_t) -1 ? 0 : s->sink_input->thread_info.underrun_for), FALSE, TRUE, FALSE); ====
@@ -279,7 +279,7 @@ The client does a rewrite of data that is already in the sink input's render_mem
 
 ==== pulsecore/protocol-simple.c: SINK_INPUT_MESSAGE_POST_DATA: pa_sink_input_request_rewind(c->sink_input, 0, FALSE, TRUE, FALSE); ====
 
-The sink input has been having an underrun which has now ended. A rewind is requested so that the data that has been missing can be added to the sink buffer. BUG: Same bug as in protocol-esound.c.
+The sink input has been having an underrun which has now ended. A rewind is requested so that the data that has been missing can be added to the sink buffer. BUG: Instead of requesting a full rewind, the code should check how long the underrun has been. Doing a full rewind can cause skipping if the underrun was short and the sink buffer still has valid data from before the underrun started (https://bugs.freedesktop.org/show_bug.cgi?id=54251).
 
 
 ==== pulsecore/sink-input.c: pa_sink_input_set_state_within_thread(): pa_sink_input_request_rewind(i, 0, TRUE, TRUE, FALSE); ====
