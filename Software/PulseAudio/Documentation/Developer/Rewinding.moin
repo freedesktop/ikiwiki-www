@@ -184,12 +184,12 @@ Someone has requested the echo-cancel sink to rewind, and it passes the request 
 
 ==== modules/echo-cancel/module-echo-cancel.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-The echo cancel sink input has been just attached after creation. A rewind request is made so that the sink input becomes hearable as soon as possible. BUG: This should actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT.
+The echo cancel sink input has been just attached after creation. A rewind request is made so that the sink input becomes hearable as soon as possible. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/module-combine-sink.c: sink_input_attach_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-The sink input is being attached. A rewind request is made so that the sink input becomes hearable as soon as possible. This should actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT. BUG: This is good for the sink input creation, but doing a full rewind when moving is not so great. There may still be a significant amount of data in the old sink, if it doesn't support rewinding very well or at all, so doing a full rewind on the new sink may lead to a situation where the sink input is audible simultaneously on both the old and new sinks. Doing this the same way as module-echo-cancel would be better (the best thing would of course to do this in the core).
+The sink input is being attached. A rewind request is made so that the sink input becomes hearable as soon as possible. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243). BUG: This is good for the sink input creation, but doing a full rewind when moving is not so great. There may still be a significant amount of data in the old sink, if it doesn't support rewinding very well or at all, so doing a full rewind on the new sink may lead to a situation where the sink input is audible simultaneously on both the old and new sinks. Doing this the same way as module-echo-cancel would be better (the best thing would of course to do this in the core).
 
 
 ==== modules/module-equalizer-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->input_q), TRUE, FALSE, FALSE); ====
@@ -199,7 +199,7 @@ Same as sink_request_rewind_cb() in module-echo-cancel.c, with the extra twist t
 
 ==== modules/module-equalizer-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/module-ladspa-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->memblockq), TRUE, FALSE, FALSE); ====
@@ -209,7 +209,7 @@ Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: There's the same 
 
 ==== modules/module-ladspa-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/module-loopback.c: SINK_INPUT_MESSAGE_POST: pa_sink_input_request_rewind(u->sink_input, (size_t) (u->sink_input->thread_info.underrun_for == (size_t) -1 ? 0 : u->sink_input->thread_info.underrun_for), FALSE, TRUE, FALSE); ====
@@ -224,12 +224,12 @@ Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: If thread_info.re
 
 ==== modules/module-remap-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/module-sine.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/module-virtual-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->memblockq), TRUE, FALSE, FALSE); ====
@@ -239,7 +239,7 @@ Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: There's the same 
 
 ==== modules/module-virtual-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/module-virtual-surround-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->memblockq), TRUE, FALSE, FALSE); ====
@@ -249,7 +249,7 @@ Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: There's the same 
 
 ==== modules/module-virtual-surround-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== modules/rtp/module-rtp-recv.c: rtpoll_work_cb(): pa_sink_input_request_rewind(s->sink_input, (size_t) (s->sink_input->thread_info.underrun_for == (uint64_t) -1 ? 0 : s->sink_input->thread_info.underrun_for), FALSE, TRUE, FALSE); ====
@@ -259,7 +259,7 @@ The sink input has been having an underrun which has now ended. A rewind is requ
 
 ==== pulsecore/play-memblockq.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
 
 
 ==== pulsecore/protocol-esound.c: SINK_INPUT_MESSAGE_POST_DATA: pa_sink_input_request_rewind(c->sink_input, 0, FALSE, TRUE, FALSE); ====
@@ -309,4 +309,4 @@ The sink updates its sink inputs' soft volumes, so a rewind is requested to make
 
 ==== pulsecore/sound-file-stream.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG: Same bug as in module-echo-cancel.c.
+Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243).
