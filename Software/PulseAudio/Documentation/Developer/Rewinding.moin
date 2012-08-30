@@ -304,7 +304,7 @@ The sink input's soft mute changed, so a rewind is requested to make that change
 
 ==== pulsecore/sink.c: sync_input_volumes_within_thread(): pa_sink_input_request_rewind(i, 0, TRUE, FALSE, FALSE); ====
 
-The sink updates its sink inputs' soft volumes, so a rewind is requested to make those changes audible as quickly as possible. BUG: This duplicates the code in the PA_SINK_INPUT_MESSAGE_SET_SOFT_VOLUME handler, so it would be better to just send that message to the sink inputs.
+The sink updates its sink inputs' soft volumes, so a rewind is requested to make those changes audible as quickly as possible. BUG (not affecting users): This duplicates the code in the PA_SINK_INPUT_MESSAGE_SET_SOFT_VOLUME handler, so it would be better to just send that message to the sink inputs (https://bugs.freedesktop.org/show_bug.cgi?id=54252).
 
 
 ==== pulsecore/sound-file-stream.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
