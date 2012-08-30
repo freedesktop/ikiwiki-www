@@ -189,7 +189,7 @@ The echo cancel sink input has been just attached after creation. A rewind reque
 
 ==== modules/module-combine-sink.c: sink_input_attach_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
 
-The sink input is being attached. A rewind request is made so that the sink input becomes hearable as soon as possible. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243). BUG: This is good for the sink input creation, but doing a full rewind when moving is not so great. There may still be a significant amount of data in the old sink, if it doesn't support rewinding very well or at all, so doing a full rewind on the new sink may lead to a situation where the sink input is audible simultaneously on both the old and new sinks. Doing this the same way as module-echo-cancel would be better (the best thing would of course to do this in the core).
+The sink input is being attached. A rewind request is made so that the sink input becomes hearable as soon as possible. BUG (not affecting users): This could actually be handled by the core in PA_SINK_MESSAGE_ADD_INPUT (https://bugs.freedesktop.org/show_bug.cgi?id=54243). BUG (not affecting users): Requesting the rewind in the attach callback is inconsistent with other sink input implementors (https://bugs.freedesktop.org/show_bug.cgi?id=54244).
 
 
 ==== modules/module-equalizer-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->input_q), TRUE, FALSE, FALSE); ====
