@@ -194,7 +194,7 @@ The sink input is being attached. A rewind request is made so that the sink inpu
 
 ==== modules/module-equalizer-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->input_q), TRUE, FALSE, FALSE); ====
 
-Same as sink_request_rewind_cb() in module-echo-cancel.c, with the extra twist that module-equalizer-sink can have some data buffered also in an internal memblockq. BUG: It looks like this logic is broken. I believe the internally buffered amount should be substracted from the request that is passed on, instead of making the request larger. BUG: If thread_info.rewind_nbytes and the input_q length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
+Same as sink_request_rewind_cb() in module-echo-cancel.c, with the extra twist that module-equalizer-sink can have some data buffered also in an internal memblockq. BUG: The internally buffered amount should be substracted from the request that is passed on, instead of making the request larger (https://bugs.freedesktop.org/show_bug.cgi?id=54245). BUG: If thread_info.rewind_nbytes and the input_q length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
 
 
 ==== modules/module-equalizer-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
@@ -204,7 +204,7 @@ Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting
 
 ==== modules/module-ladspa-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->memblockq), TRUE, FALSE, FALSE); ====
 
-Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: There's the same bug as in module-equalizer-sink.c. BUG: If thread_info.rewind_nbytes and the u->memblockq length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
+Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: The internally buffered amount should be substracted from the request that is passed on, instead of making the request larger (https://bugs.freedesktop.org/show_bug.cgi?id=54245). BUG: If thread_info.rewind_nbytes and the u->memblockq length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
 
 
 ==== modules/module-ladspa-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
@@ -234,7 +234,7 @@ Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting
 
 ==== modules/module-virtual-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->memblockq), TRUE, FALSE, FALSE); ====
 
-Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: There's the same bug as in module-equalizer-sink.c. BUG: If thread_info.rewind_nbytes and the u->memblockq length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
+Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: The internally buffered amount should be substracted from the request that is passed on, instead of making the request larger (https://bugs.freedesktop.org/show_bug.cgi?id=54245). BUG: If thread_info.rewind_nbytes and the u->memblockq length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
 
 
 ==== modules/module-virtual-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
@@ -244,7 +244,7 @@ Same as sink_input_state_change_cb() in module-echo-cancel.c. BUG (not affecting
 
 ==== modules/module-virtual-surround-sink.c: sink_request_rewind_cb(): pa_sink_input_request_rewind(u->sink_input, s->thread_info.rewind_nbytes + pa_memblockq_get_length(u->memblockq), TRUE, FALSE, FALSE); ====
 
-Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: There's the same bug as in module-equalizer-sink.c. BUG: If thread_info.rewind_nbytes and the u->memblockq length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
+Same as sink_request_rewind_cb() in module-echo-cancel.c. BUG: The internally buffered amount should be substracted from the request that is passed on, instead of making the request larger (https://bugs.freedesktop.org/show_bug.cgi?id=54245). BUG: If thread_info.rewind_nbytes and the u->memblockq length are 0, then the sink input will interpret the request as a full rewind (https://bugs.freedesktop.org/show_bug.cgi?id=54185). BUG: There may be more data buffered than max_rewind (https://bugs.freedesktop.org/show_bug.cgi?id=53709).
 
 
 ==== modules/module-virtual-surround-sink.c: sink_input_state_change_cb(): pa_sink_input_request_rewind(i, 0, FALSE, TRUE, TRUE); ====
