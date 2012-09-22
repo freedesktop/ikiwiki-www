@@ -3,18 +3,18 @@
 
 = Interface of `pa_core` =
 
-From [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/core.h|pulsecore/core.h]]: "The core structure of !PulseAudio. Every !PulseAudio daemon contains exactly one of these. It is used for storing kind of global variables for the daemon."
+From [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/core.h|pulsecore/core.h]]: "The core structure of !PulseAudio. Every !PulseAudio daemon contains exactly one of these. It is used for storing kind of global variables for the daemon."
 
 `pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. You're not supposed to modify the fields, at least not directly.
 
-Actually, in addition to being a variable collection, there is two interesting enumerations too.
+Actually, in addition to being a variable collection, there are two interesting enumerations too.
 
-The most important field is perhaps `mainloop`. That can be used for communicating with the daemon mainloop, see [[Software/PulseAudio/Documentation/Developer/MainLoop|[[Software/PulseAudio/Documentation/Developer/MainLoop|Daemon Mainloop]]]].
+The most important field is perhaps `mainloop`. That can be used for communicating with the daemon mainloop, see [[Software/PulseAudio/Documentation/Developer/MainLoop|Daemon Mainloop]].
 
 == `struct pa_core` ==
 
  `parent` ::
-   `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. It means also that `pa_core` can receive messages, see "The unnamed enumeration" later on this page. At some point in the future I may write a page about the [[ObjectSystem]] used inside !PulseAudio. I think [[MsgobjectAPI]] would be useful too.
+   `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. It means also that `pa_core` can receive messages, see "The unnamed enumeration" later on this page. At some point in the future I may write a page about the [[Software/PulseAudio/Documentation/Developer/ObjectSystem|object system]] used inside !PulseAudio. I think documenting the [[Software/PulseAudio/Documentation/Developer/MsgobjectAPI|pa_msgobject API]] would be useful too.
 
  `cookie` ::
    A random value which may be used to identify this instance of !PulseAudio. Not cryptographically secure in any way.
@@ -23,7 +23,7 @@ The most important field is perhaps `mainloop`. That can be used for communicati
    Pointer to the mainloop API.
 
  `clients` ::
-   Currently connected clients. If you're not familiar with the `pa_idxset` type, see the [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/idxset.h|header]].
+   Currently connected clients. If you're not familiar with the `pa_idxset` type, see the [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/idxset.h|header]].
 
  `sinks`, `sources` ::
    Currently existing sinks and sources.
@@ -37,20 +37,14 @@ The most important field is perhaps `mainloop`. That can be used for communicati
  `scache` ::
    The sample cache. The contained items are of type `pa_scache_entry`.
 
- `autoload_idxset` ::
-   The contained items are of type `pa_autoload_entry`, and specify what modules should be loaded on demand.
-
  `namereg` ::
-   All sink, source and sample names are stored in this hashmap. The hashmap ensures the uniqueness of the names. This is accessed through the [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/namereg.h|namereg interface]].
+   All sink, source and sample names are stored in this hashmap. The hashmap ensures the uniqueness of the names. This is accessed through the [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/namereg.h|namereg interface]].
 
- `autoload_hashmap` ::
-   Same as autoload_idxset, but indexable with the module name, also ensures module name uniqueness.
-
- `properties` ::
-   Modules can share variables through the property system, and this is the data store for those variables. See the [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/props.h|property system interface]].
+ `shared` ::
+   Modules can share variables through this "shared hashmap". Instead of using the hashmap functions directly, this variable should be accessed through a [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/shared.h|separate interface]].
 
  `default_source_name`, `default_sink_name` ::
-   Pretty self-explanatory, but do not access these directly, but through `pa_namereg_set_default`, `pa_namereg_get_default_sink_name` and `pa_namereg_get_default_source_name` that are defined in [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/namereg.h|pulsecore/namereg.h]].
+   Pretty self-explanatory, but do not access these directly, but through `pa_namereg_set_default`, `pa_namereg_get_default_sink_name` and `pa_namereg_get_default_source_name` that are defined in [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/namereg.h|pulsecore/namereg.h]].
 
  `default_sample_spec` ::
    When in need of a default format for an audio stream, you'll find it here.
@@ -65,7 +59,7 @@ The most important field is perhaps `mainloop`. That can be used for communicati
    The module system uses this to make mainloop unload modules. Not for you.
 
  `subscription_defer_event` ::
-   The subscription system uses this to make mainloop inform the subscribers about an event. Not for you. (What subscription system? See [[CatchingEvents]].)
+   The subscription system uses this to make mainloop inform the subscribers about an event. Not for you. (What subscription system? See [[Software/PulseAudio/Documentation/Developer/CatchingEvents|Catching Events]].)
 
  `subscriptions` ::
    Head of the list of existing subscriptions. Not for you.
@@ -110,11 +104,11 @@ The most important field is perhaps `mainloop`. That can be used for communicati
    One, if pulseaudio has made itself a high-priority process (i.e. is running with the SCHED_FIFO scheduling class), zero otherwise.
 
  `hooks` ::
-   The hooks that can be used to catch events in core, see [[CatchingEvents]].
+   The hooks that can be used to catch events in core, see [[Software/PulseAudio/Documentation/Developer/CatchingEvents|Catching Events]].
 
 == `enum pa_core_hook` ==
 
-The enumeration contains all the events that can be catched synchronously, see [[CatchingEvents]].
+The enumeration contains all the events that can be catched synchronously, see [[Software/PulseAudio/Documentation/Developer/CatchingEvents|Catching Events]].
 
 == The unnamed enumeration ==
 
@@ -122,7 +116,7 @@ There's this enumeration, that has only two elements: `PA_CORE_MESSAGE_UNLOAD_MO
 
 `PA_CORE_MESSAGE_UNLOAD_MODULE` causes a module (give the pointer as userdata to pa_asyncmsgq_post) to get unloaded. The difference between using this message and calling `pa_module_unload_request()` is that the latter may only be called using the daemon mainloop, the message can be sent from other threads.
 
-For information on how to use the inter-thread message passing system, see [[MessagingSystem]], or while waiting for that to materialize, try [[Software/PulseAudio/Documentation/Developer/Threading|[[Software/PulseAudio/Documentation/Developer/Threading|Threading Model]]]].
+For information on how to use the inter-thread message passing system, see [[Software/PulseAudio/Documentation/Developer/MessagingSystem|Messaging System]], or while waiting for that to materialize, try [[Software/PulseAudio/Documentation/Developer/Threading|Software/PulseAudio/Documentation/Developer/Threading|Threading Model]].
 
 == Functions and macros ==
 
@@ -134,7 +128,7 @@ As mentioned earlier, the functions `pa_core` has associated with it, are not in
  `pa_core_check_quit` ::
    Updates the quit_event field, called by the client system when clients come and leave.
 
-`PA_DECLARE_CLASS(pa_core)` in the header causes the following functions to become available (they are explained in the [[ObjectSystem]] page):
+`PA_DECLARE_CLASS(pa_core)` in the header causes the following functions to become available (they are explained in the [[Software/PulseAudio/Documentation/Developer/ObjectSystem|Object System]] page):
 
  `pa_core_isinstance` ::
  `pa_core_cast` ::
