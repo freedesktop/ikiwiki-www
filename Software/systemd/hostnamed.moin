@@ -56,6 +56,10 @@ The icon name is a name following the XDG icon naming spec. If not set informati
 
 A client which wants to change the local host name for DHCP/mDNS should invoke !SetHostname("newname", false) as soon as the name is available and afterwards reset it via !SetHostname("").
 
+Note that hostnamed starts only on request and terminates after a short idle period. This effectively means that PropertyChanged messages are not sent out for changes made directly on the files (as in: administrator edits the files with vi). This is actually intended behaviour: manual configuration changes should require manual reloading of them.
+
+The transient (dynamic) hostname directly maps to the kernel hostname. This hostname should be assumed to be highly dynamic, and hence should be watched directly, without involing PropertyChanged messages from hostnamed. For that, open /proc/sys/kernel/hostname and poll() for SIGHUP which is triggered by the kernel every time the hostname changes. Again: this is special for the transient (dynamic) hostname, and does not applied to the configured (fixed) hostname.
+
 Applications may bypass the daemon to read the hostname data if notifications of host name changes are not necessary. Use gethostname(), /etc/hostname (possibly with per-distribution fallbacks), and /etc/machine-data for that. For more information on these files and syscalls see the respective man pages.
 
 The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
