@@ -156,6 +156,7 @@ node /org/freedesktop/systemd1 {
       readonly s DefaultStandardError = 'inherit';
       readwrite s RuntimeWatchdogUSec = 0;
       readwrite s ShutdownWatchdogUSec = 600000000;
+      readonly s Virtualization = 'kvm';
   };
   interface org.freedesktop.DBus.Properties {
   };
@@ -298,6 +299,8 @@ Most properties simply reflect the respective options in {{{/etc/systemd/system.
 '''!UnitPath''' encodes the currently active unit file search path. It is an array of strings, each being one file system path.
 
 '''!ControlGroupHierarchy''' encodes the control group root path for this systemd instance. Prefixing {{{/sys/fs/cgroup/}}} turns this into a file system path.
+
+'''Virtualization''' contains a short ID string describing the used virtualization technology of the system. On bare-metal hardware this is the empty string, otherwise an identifier such as "kvm", "vmware" and so on. For a full list of IDs see systemd-detect-virt(1). Note that only the "innermost" virtualization technology is exported here. This detects both full machine virtualizations (VMs) and light-weight userspace virtualization (containers).
 
 == Job Objects ==
 {{{
