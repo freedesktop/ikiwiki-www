@@ -134,7 +134,7 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 '''!ActivateSession()''' brings the session with the specified ID into the foreground. '''!ActivateSessionOnSeat()''' does the same, but only if the seat id matches.
 
-'''!LockSession()''' asks the session with the specified ID to activate the screen lock. '''!UnlockSession()''' asks the session with the specified ID to remove an active screen lock. if there is any.
+'''!LockSession()''' asks the session with the specified ID to activate the screen lock. '''!UnlockSession()''' asks the session with the specified ID to remove an active screen lock, if there is any. This is implemented by sending out the Lock() and Unlock() signals from the respective session object which session managers are supposed to listen on.
 
 '''!LockSessions()''' asks all sessions to activate the screen locks. This may be used to lock any access to the machine in one action.
 
@@ -346,6 +346,8 @@ node /org/freedesktop/login1/session/2 {
 
 === Signals ===
 Whenever '''Active''' or the idle state changes '''!PropertyChanged''' signals are sent out to which clients can subscribe. 
+
+'''Lock''' (resp. '''Unlock''') is sent when the session is asked to be screen-locked/screen-unlocked. A session manager of the session should listen to this signal and act accordingly. This signal is sent out as result of the '''Lock()''' resp. '''Unlock()''' methods.
 
 === Properties ===
 '''Id''' encodes the session ID.
