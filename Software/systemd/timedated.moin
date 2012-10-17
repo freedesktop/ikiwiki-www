@@ -45,7 +45,7 @@ node /org/freedesktop/timedate1 {
 
 Use '''!SetTime()''' to change the system clock. Pass a value of microseconds since 1 Jan 1970 UTC. If "relative" is true the passed usec value will be added to the current system time, if it is false the current system time will be set to the passed usec value. If the system time is set with this call the RTC will be updated as well.
 
-Use '''!SetTimezone()''' to set the system timezone. Pass a value like "Europe/Berlin" to set the timezone. Valid timezones you may enumerate from the subdirs of /usr/share/zoneinfo/. If the RTC is configured to be maintained in local time it will be updated accordingly.
+Use '''!SetTimezone()''' to set the system timezone. Pass a value like "Europe/Berlin" to set the timezone. Valid timezones you may parse from /usr/share/zoneinfo/zone.tab. If the RTC is configured to be maintained in local time it will be updated accordingly.
 
 Use '''SetLocalRTC()''' to control whether the RTC is in local time or UTC. It is strongly recommended to maintain the RTC in UTC. Some OSes (Windows) however maintain the RTC in local time which might make it necessary to enable this feature. However, this creates various problems as daylight changes might be missed. If fix_system is passed "true" the time from the RTC is read again and the system clock adjusted according to the new setting. If fix_system is passed "false" the system time is written to the RTC taking the new setting into account. Use fix_system=true in installers and livecds where the RTC is probably more reliable than the system time. Use fix_system=false in configuration UIs that are run during normal operation and where the system clock is probably more reliable than the RTC.
 
