@@ -34,7 +34,7 @@ This document describes the current format of systemd 195. The format is compati
  * Wall clock time values are relative to the Unix time epoch, i.e. January 1st, 1970. (CLOCK_REALTIME)
  * Monotonic time values are always stored jointly with kernel boot ID value (i.e. /proc/sys/kernel/random/boot_id) they belong to. They are relative to the begin of the boot. (CLOCK_MONOTONIC)
 
-== General rules ==
+== General Rules ==
 
 If any kind of corruption is noticed by a writer it should immediately rotate the file and start a new one. No further writes should be attempted to the original file, but it should be left around so that as little data as possible is lost.
 
@@ -152,6 +152,15 @@ HEADER_INCOMPATIBLE_COMPRESSED indicates that the file includes DATA objects tha
 HEADER_COMPATIBLE_SEALED indicates that the file includes TAG objects required for Forward Secure Sealing.
 
 ==  Dirty Detection ==
+
+{{{
+enum {
+        STATE_OFFLINE = 0,
+        STATE_ONLINE = 1,
+        STATE_ARCHIVED = 2,
+        _STATE_MAX
+};
+}}}
 
 If a file is opened for writing the '''state''' field should be set to STATE_ONLINE. If a file is closed after writing the '''state''' field should be set to STATE_OFFLINE. After a file has been rotated it should be set to STATE_ARCHIVED. If a writer is asked to write to a file that is not in STATE_OFFLINE it should immediately rotate the file and start a new one, without changing the file.
 
