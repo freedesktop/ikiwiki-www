@@ -71,6 +71,8 @@ enum {
  * An '''ENTRY_ARRAY''' object, which encapsulates a sorted array of offsets to entries, used for seeking by bisection.
  * A '''TAG''' object, consisting of an FSS sealing tag for all data from the beginning of the file or the last tag written (whichever is later).
 
+== Header ==
+
 The Header struct defines, well, you guessed it, the file header:
 
 {{{
@@ -176,3 +178,58 @@ All entries carry sequence numbers that are monotonically counted up for each en
 The file format is designed to be usable in a single-writer/multiple-reader scenario. The synchronization model is very weak in order to facilitate storage on the most basic of file systems, and allow good performance. No file locking is used. The only time where disk synchronization via fdatasync() should be enforced is after and before changing the '''state''' field. It is recommended to execute a memory barrier after appending and initializing new fields at the end of the file, and before linking it up in the older objects.
 
 It is crucial that readers verify the structural they read and handle invalid structure gracefully. (This is crucial anyway out of security considerations.) This specifically includes checking offset values, and that they point to valid objects, with valid sizes and of the type expected. All code must be written with the fact in mind that a file with inconsistent structure file might just be inconsistent temporarily, and might become consistent later on. Payload OTOH requires less scrutiny, as it should only be linked up, and hence visible to readers after it was successfully written to memory (tough not necessarily to disk).
+
+== Objects ==
+
+All objects carry a common header:
+
+{{{
+enum {
+        OBJECT_COMPRESSED = 1
+};
+
+_packed_ struct ObjectHeader {
+        uint8_t type;
+        uint8_t flags;
+        uint8_t reserved[6];
+        le64_t size;
+        uint8_t payload[];
+};
+}}}
+
+The '''type''' field is one of the object types listed above. The '''flags''' field currently knows one flag: OBJECT_COMPRESSED. It is only valid for DATA objects and indicates that the data payload is compressed with XZ. If OBJECT_COMPRESSED is set for an object HEADER_INCOMPATIBLE_COMPRESSED must be set for the file as well. The '''size''' field encodes the size of the object including all its headers and payload.
+
+== Data Objects ==
+
+_packed_ struct DataObject {
+        ObjectHeader object;
+        le64_t hash;
+        le64_t next_hash_offset;
+        le64_t next_field_offset;
+        le64_t entry_offset; /* the first array entry we store inline */
+        le64_t entry_array_offset;
+        le64_t n_entries;
+        uint8_t payload[];
+};
+
+Data objects carry actual field data in the '''payload[]''' array, including a field name, a '=' and the field data. Example: "_SYSTEMD_UNIT=foobar.service". The '''hash''' field is a hash value of the payload. 
+
+'''next_hash_offset''' is used to link up DATA objects in the DATA_HASH_TABLE if a hash collision happens (in a singly linked list, with an offset of 0 indicating the end). '''next_field_offset''' is used to link up data objects with the same field name from the FIELD object of the field used. 
+
+'''entry_offset'' is an offset to the first ENTRY object referring to this DATA object. '''entry_array_offset''' is an offset to an ENTRY_ARRAY object with offsets to other entries referencing this DATA object. Storing the offset to the first ENTRY object in-line is an optimization given that many DATA objects will be referenced from a single entry only (for example, MESSAGE= frequently includes a practically unique string). '''n_entries''' is a counter of the total number of ENTRY objects that reference this object, i.e. the sum of all ENTRY_ARRAYS chained up from this object, plus 1.
+
+== Field Objects ==
+
+_packed_ struct FieldObject {
+        ObjectHeader object;
+        le64_t hash;
+        le64_t next_hash_offset;
+        le64_t head_data_offset;
+        uint8_t payload[];
+};
+
+Field objects are used to enumerate all possible values a certain field name can take in the entire journal file.
+
+The '''payload[]''' array contains the actual field name, without '=' or any field value. Example: "_SYSTEMD_UNIT". The '''hash''' field is a hash value of the payload. 
+
+'''next_hash_offset''' is used to link up FIELD objects in the FIELD_HASH_TABLE if a hash collision happens (in singly linked list, offset 0 indicating the end). '''head_data_offset''' points to the first DATA object that shares this field name. It is the head of a singly linked list using DATA's '''next_field_offset''' offset.
