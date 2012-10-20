@@ -17,7 +17,7 @@ Instead of implementing your own reader or writer for journal files we ask you t
 
 If you need access to the raw journal data in serialized stream form without C API our recommendation is to make use of the [[http://www.freedesktop.org/wiki/Software/systemd/export|Journal Export Format]], which you can get via "journalctl -o export" or via systemd-journal-gatewayd. This is much simpler to parse, but complete and accurate. Due to its stream-based nature it is not indexed.
 
-Or, to put this in other words: '''This document is probably not what you want for your project'''. You want our [[http://www.freedesktop.org/software/systemd/man/sd-journal.html|C API]] instead! And if you really don't want the C API, then you want the [[http://www.freedesktop.org/wiki/Software/systemd/export|Journal Export Format]] instead! This document OTOH is primarily for your entertainment and education. Thank you!
+''Or, to put this in other words: this low-level document is probably not what you want to use as base of your project. You want our [[http://www.freedesktop.org/software/systemd/man/sd-journal.html|C API]] instead! And if you really don't want the C API, then you want the [[http://www.freedesktop.org/wiki/Software/systemd/export|Journal Export Format]] instead! This document OTOH is primarily for your entertainment and education. Thank you!''
 
 We assume that you have a basic understand of the journal concepts, the properties of a journal entry and so on. If not, please go and read up, then come back!
 
@@ -336,7 +336,7 @@ Tag objects are used to seal off the journal for alteration. In regular interval
 
 == Algorithms ==
 
-Reading:
+''Reading:''
 
 Given an offset to an entry all data fields are easily found by following the offsets in the data item array of the entry. 
 
@@ -350,7 +350,9 @@ If multiple matches are applied, multiple chains of entry arrays should be trave
 
 When interleaving multiple journal files seeking tends to be a frequently used operation, but in this case can be effectively suppressed by caching results from previous entries.
 
-Writing:
+When listing all possible values a certain field can take it is sufficient to look up the FIELD object and follow the chain of links to all DATA it includes.
+
+''Writing:''
 
 When an entry is appended to the journal for each of its data fields the data hash table should be checked. If the data field is not yet existing in the file it should be appended and added to the data hash table. When a field data object is added the field hash table should be checked for the field name of the data field, and a field object be added if necessary. After all data fields (and recursively all field names) of the new entry are appended and linked up in the hashtables the entry object should be appended and linked up too.
 
