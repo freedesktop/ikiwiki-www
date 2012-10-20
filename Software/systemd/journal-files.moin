@@ -34,6 +34,16 @@ This document describes the current format of systemd 195. The format is compati
  * Wall clock time values are relative to the Unix time epoch, i.e. January 1st, 1970. (CLOCK_REALTIME)
  * Monotonic time values are always stored jointly with kernel boot ID value (i.e. /proc/sys/kernel/random/boot_id) they belong to. They are relative to the begin of the boot. (CLOCK_MONOTONIC)
 
+== General rules ==
+
+If any kind of corruption is noticed by a writer it should immediately rotate the file and start a new one. No further writes should be attempted to the original file, but it should be left around so that as little data as possible is lost.
+
+If any kind of corruption is noticed by a reader it should try hard to make the best of it, such as skipping over the corrupted data, but allowing access to as much data as possible.
+
+A reader should verify all offsets and other data as it reads it. This includes checking for alignment and range of offsets in the file, especially before trying to read it via a memory map.
+
+== Structure ==
+
 The file format's data structures are declared in [[http://cgit.freedesktop.org/systemd/systemd/tree/src/journal/journal-def.h|journal-def.h]].
 
 The file format begins with a header structure. After the header structure object structures follow. Objects are appended to the end as time progresses. Most data stored in these objects is not altered anymore after having been written once, with the exception of records necessary for indexing. When new data is appended to a file the writer first writes all new objects to the end of the file, and then links them up at front after that's done. Currently, seven different object types are known:
@@ -60,19 +70,52 @@ enum {
  * An '''ENTRY_ARRAY''' object, which encapsulates a sorted array of offsets to entries, used for seeking by bisection.
  * A '''TAG''' object, consisting of an FSS sealing tag for all data from the beginning of the file or the last tag written (whichever is later).
 
-If any kind of corruption is noticed by a writer it should immediately rotate the file and start a new one. No further writes should be attempted to the original file, but it should be left around so that as little data as possible is lost.
+The Header struct defines, well, you guessed it, the file header:
 
-If any kind of corruption is noticed by a reader it should try hard to make the best of it, such as skipping over the corrupted data, but allowing access to as much data as possible.
+{{{
+_packed_ struct Header {
+        uint8_t signature[8]; /* "LPKSHHRH" */
+        le32_t compatible_flags;
+        le32_t incompatible_flags;
+        uint8_t state;
+        uint8_t reserved[7];
+        sd_id128_t file_id;
+        sd_id128_t machine_id;
+        sd_id128_t boot_id;    /* last writer */
+        sd_id128_t seqnum_id;
+        le64_t header_size;
+        le64_t arena_size;
+        le64_t data_hash_table_offset;   
+        le64_t data_hash_table_size;
+        le64_t field_hash_table_offset;  
+        le64_t field_hash_table_size;
+        le64_t tail_object_offset;
+        le64_t n_objects;
+        le64_t n_entries;
+        le64_t tail_entry_seqnum;
+        le64_t head_entry_seqnum;
+        le64_t entry_array_offset;
+        le64_t head_entry_realtime;
+        le64_t tail_entry_realtime;
+        le64_t tail_entry_monotonic;
+        /* Added in 187 */
+        le64_t n_data;
+        le64_t n_fields;
+        /* Added in 189 */
+        le64_t n_tags;
+        le64_t n_entry_arrays;
+};
+}}}
 
-A reader should verify all offsets and other data as it reads it. This includes checking for alignment and range of offsets in the file, especially before trying to read it via a memory map.
-
-The first 8 bytes of Journal files must contain the ASCII letters LPKSHHRH.
+The first 8 bytes of Journal files must contain the ASCII characters LPKSHHRH.
 
 If a writer finds that the '''machine_id''' of a file to write to does not match the machine it is running on it should immediately rotate the file and start a new one.
 
 When journal file is first created the '''file_id''' is randomly and uniquely initialized.
 
-The currently used part of the file is the header_size plus the arena_size field of the header. If a writer shall write to a file where the actual file size on disk is smaller than the reported value it shall immediately rotate the file and start a new one.
+When a writer opens a file it shall initialize the '''boot_id''' to the current boot id of the system.
+
+The currently used part of the file is the header_size plus the arena_size field of the header. If a writer needs to write to a file where the actual file size on disk is smaller than the reported value it shall immediately rotate the file and start a new one.
 
 == Extensibility ==
 
