@@ -356,8 +356,12 @@ Before writing an object, time and disk space limits should be checked and rotat
 
 A few general ideas:
 
-The hash tables for looking up fields and data should be quickly in the memory cache and not hurt performance. All entries and entry arrays are ordered strictly by time on disk, and hence should expose an OK access pattern on rotating media.
+The hash tables for looking up fields and data should be quickly in the memory cache and not hurt performance. All entries and entry arrays are ordered strictly by time on disk, and hence should expose an OK access pattern on rotating media, when read sequentially (which should be the most common case, given the nature of log data).
 
-The disk access patterns of the binary search for entries are problematic on rotating disks. This should not be a major issue though, since seeking should not be a frequent operation.
+The disk access patterns of the binary search for entries needed for seeking are problematic on rotating disks. This should not be a major issue though, since seeking should not be a frequent operation.
 
-When reading, collecting data fields for presenting entries is problematic on rotating disks. In order to optimize these patterns the item array of entry objects should be sorted by disk offset before writing. Frequently used data objects should be in the memory cache quickly. Non-frequently used data objects are likely to be located between the previous and current entry when reading and hence should expose an OK access pattern. Problematic are data objects that are neither frequently nor infrequently referenced, which will cost seek time.
+When reading, collecting data fields for presenting entries to the user is problematic on rotating disks. In order to optimize these patterns the item array of entry objects should be sorted by disk offset before writing. Effectively, frequently used data objects should be in the memory cache quickly. Non-frequently used data objects are likely to be located between the previous and current entry when reading and hence should expose an OK access pattern. Problematic are data objects that are neither frequently nor infrequently referenced, which will cost seek time.
+
+And that's all there is to it.
+
+Thanks for your interest!
