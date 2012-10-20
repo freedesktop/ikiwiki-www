@@ -181,6 +181,10 @@ The file format is designed to be usable in a single-writer/multiple-reader scen
 
 This weak synchronization model means that it is crucial that readers verify the structural integrity of the file as they read it and handle invalid structure gracefully. (Checking what you read is a pretty good idea out of security considerations anyway.) This specifically includes checking offset values, and that they point to valid objects, with valid sizes and of the type and hash value expected. All code must be written with the fact in mind that a file with inconsistent structure file might just be inconsistent temporarily, and might become consistent later on. Payload OTOH requires less scrutiny, as it should only be linked up (and hence visible to readers) after it was successfully written to memory (tough not necessarily to disk). On non-local file systems it is a good idea to verify the payload hashes when reading, in order to avoid annoyances with mmap() inconsistencies.
 
+Clients intending to show a live view of the journal should use inotify() for this to watch for files changes. Since file writes done via mmap() do not result in inotify() writers shall truncate the file to its current size after writing on or more entries, which results in inotify events being generated. Note that this is not used as transaction scheme (it doesn't protect anything), but merely for triggering wakeups.
+
+Note that inotify will not work on network file systems if reader and writer reside on different hosts. Readers which detect they are run on journal files on a non-local file system should hence not rely on inotify for live views but fall back to simple time based polling of the files (maybe recheck every 2s).
+
 == Objects ==
 
 All objects carry a common header:
