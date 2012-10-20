@@ -43,6 +43,8 @@ If any kind of corruption is noticed by a reader it should try hard to handle th
 
 A reader should verify all offsets and other data as it reads it. This includes checking for alignment and range of offsets in the file, especially before trying to read it via a memory map.
 
+A reader must interleave rotated and corrupted files as good as possible and present them as single stream to the user.
+
 == Structure ==
 
 The file format's data structures are declared in [[http://cgit.freedesktop.org/systemd/systemd/tree/src/journal/journal-def.h|journal-def.h]].
@@ -259,15 +261,57 @@ _packed_ struct EntryObject {
 };
 }}}
 
-And ENTRY object binds several DATA objects together into one log item. 
+An ENTRY object binds several DATA objects together into one log entry, and includes other meta data such as various timestamps.
 
-The '''seqnum''' field contains the sequence number of the entry, '''realtime'' the realtime timestamp, and '''monotonic''' the monotonic timestamp for the boot identified by '''boot_id'''.
+The '''seqnum''' field contains the sequence number of the entry, '''realtime''' the realtime timestamp, and '''monotonic''' the monotonic timestamp for the boot identified by '''boot_id'''.
 
 The '''xor_hash''' field contains a binary XOR of the hashes of the payload of all DATA objects referenced by this ENTRY. This value is usable to check the contents of the entry, being independent of the order of the DATA objects in the array.
 
 The '''items[]''' array contains references to all DATA objects of this entry, plus their respective hashes.
 
 In the file ENTRY objects are written ordered monotonically by sequence number. For continuous parts of the file written during the same boot (i.e. with the same boot_id) the monotonic timestamp is montonic to. Modulo wallclock time jumps (due to incorrect clocks being corrected) the realtime timestamps are monotonic too.
+
+== Hash Table Objects ==
+
+{{{
+_packed_ struct HashItem {
+        le64_t head_hash_offset;
+        le64_t tail_hash_offset;
+};
+
+_packed_ struct HashTableObject {
+        ObjectHeader object;
+        HashItem items[];
+};
+}}}
+
+The structure of both DATA_HASH_TABLE and FIELD_HASH_TABLE objects are identical. They implement a simple hash table, which each cell containing offsets to the head and tail of the singly linked list of the DATA and FIELD objects, respectively. DATA's and FIELD's next_hash_offset field are used to chain up the objects. Empty cells have both offsets set to 0.
+
+Each file contains exactly one DATA_HASH_TABLE and one FIELD_HASH_TABLE objects. Their payload is directly referred to by the file header in the '''data_hash_table_offset''', '''data_hash_table_size''', '''field_hash_table_offset''', '''field_hash_table_size''' fields. These offsets do ''not'' point to the object headers but directly to the payloads. When a new journal file is created the two hash table objects need to be created right away as first two objects in the stream.
+
+If the hash table fill level is increasing over a certain fill level (Learning from Java's Hashtable for example: > 75%), the writer should rotate the file and create a new one. 
+
+The DATA_HASH_TABLE should be sized taking into account to the maximum size the file is expected to grow, as configured by the administrator or disk space considerations. The FIELD_HASH_TABLE should be size to a fixed size, as the number of fields should be pretty static is depends only on developers creativity rather than runtime parameters.
+
+== Entry Array Objects ==
+
+{{{
+_packed_ struct EntryArrayObject {
+        ObjectHeader object;
+        le64_t next_entry_array_offset;
+        le64_t items[];
+};
+}}}
+
+Entry Arrays are used to store a sorted array of offsets to entries. Entry arrays are strictly sorted by offsets on disk, and hence by their timestamps and sequence numbers (with some restrictions, see above).
+
+Entry Arrays are chained up. If one entry array is full another one is allocated and the '''next_entry_array_offset''' field of the old one pointed to it. An Entry Array with '''next_entry_array_offset''' set to 0 is the last in the list. To optimize allocation and seeking, as entry arrays are appended to a chain of entry arrays they should increase in size (double).
+
+Due to being monotonically ordered entry arrays may be searched with a binary search (bisection).
+
+One chain of entry arrays links up all entries written to the journal. The first entry array is referenced in the '''entry_array_offset''' field of the header.
+
+Each DATA object also references an entry array chain listing all entries referencing a specific DATA object. Since many DATA objects are only referenced by a single ENTRY the first offset of the list is stored inside the DATA object itself, an ENTRY_ARRAY object is only needed if it is referenced by more than one ENTRY.
 
 == Algorithms ==
 
