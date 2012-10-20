@@ -201,6 +201,7 @@ The '''type''' field is one of the object types listed above. The '''flags''' fi
 
 == Data Objects ==
 
+{{{
 _packed_ struct DataObject {
         ObjectHeader object;
         le64_t hash;
@@ -211,15 +212,17 @@ _packed_ struct DataObject {
         le64_t n_entries;
         uint8_t payload[];
 };
+}}}
 
 Data objects carry actual field data in the '''payload[]''' array, including a field name, a '=' and the field data. Example: "_SYSTEMD_UNIT=foobar.service". The '''hash''' field is a hash value of the payload. 
 
 '''next_hash_offset''' is used to link up DATA objects in the DATA_HASH_TABLE if a hash collision happens (in a singly linked list, with an offset of 0 indicating the end). '''next_field_offset''' is used to link up data objects with the same field name from the FIELD object of the field used. 
 
-'''entry_offset'' is an offset to the first ENTRY object referring to this DATA object. '''entry_array_offset''' is an offset to an ENTRY_ARRAY object with offsets to other entries referencing this DATA object. Storing the offset to the first ENTRY object in-line is an optimization given that many DATA objects will be referenced from a single entry only (for example, MESSAGE= frequently includes a practically unique string). '''n_entries''' is a counter of the total number of ENTRY objects that reference this object, i.e. the sum of all ENTRY_ARRAYS chained up from this object, plus 1.
+'''entry_offset''' is an offset to the first ENTRY object referring to this DATA object. '''entry_array_offset''' is an offset to an ENTRY_ARRAY object with offsets to other entries referencing this DATA object. Storing the offset to the first ENTRY object in-line is an optimization given that many DATA objects will be referenced from a single entry only (for example, MESSAGE= frequently includes a practically unique string). '''n_entries''' is a counter of the total number of ENTRY objects that reference this object, i.e. the sum of all ENTRY_ARRAYS chained up from this object, plus 1.
 
 == Field Objects ==
 
+{{{
 _packed_ struct FieldObject {
         ObjectHeader object;
         le64_t hash;
@@ -227,9 +230,29 @@ _packed_ struct FieldObject {
         le64_t head_data_offset;
         uint8_t payload[];
 };
+}}}
 
 Field objects are used to enumerate all possible values a certain field name can take in the entire journal file.
 
 The '''payload[]''' array contains the actual field name, without '=' or any field value. Example: "_SYSTEMD_UNIT". The '''hash''' field is a hash value of the payload. 
 
 '''next_hash_offset''' is used to link up FIELD objects in the FIELD_HASH_TABLE if a hash collision happens (in singly linked list, offset 0 indicating the end). '''head_data_offset''' points to the first DATA object that shares this field name. It is the head of a singly linked list using DATA's '''next_field_offset''' offset.
+
+== Entry Objects ==
+
+{{{
+_packed_ struct EntryItem {
+        le64_t object_offset;
+        le64_t hash;
+};
+
+_packed_ struct EntryObject {
+        ObjectHeader object;
+        le64_t seqnum;
+        le64_t realtime;
+        le64_t monotonic;
+        sd_id128_t boot_id;
+        le64_t xor_hash;
+        EntryItem items[];
+};
+}}}
