@@ -38,6 +38,20 @@ The file format's data structures are declared in [[http://cgit.freedesktop.org/
 
 The file format begins with a header structure. After the header structure object structures follow. Objects are appended to the end as time progresses. Most data stored in these objects is not altered anymore after having been written once, with the exception of records necessary for indexing. When new data is appended to a file the writer first writes all new objects to the end of the file, and then links them up at front after that's done. Currently, seven different object types are known:
 
+{{{
+enum {
+        OBJECT_UNUSED,
+        OBJECT_DATA,               
+        OBJECT_FIELD,
+        OBJECT_ENTRY,
+        OBJECT_DATA_HASH_TABLE,
+        OBJECT_FIELD_HASH_TABLE,
+        OBJECT_ENTRY_ARRAY,        
+        OBJECT_TAG,
+        _OBJECT_TYPE_MAX
+};
+}}}
+
  * A '''DATA''' object, which encapsulates the contents of one field of an entry, i.e. a string such as "_SYSTEMD_UNIT=avahi-daemon.service", or "MESSAGE=Foobar made a booboo." but possibly including large or binary data, and always prefixed by the field name and "=".
  * A '''FIELD''' object, which encapsulates a field name, i.e. a string such as "_SYSTEMD_UNIT" or "MESSAGE", without any "=" or even value.
  * An '''ENTRY''' object, which binds several '''DATA''' objects together into a log entry.
