@@ -177,7 +177,7 @@ All entries carry sequence numbers that are monotonically counted up for each en
 
 The file format is designed to be usable in a single-writer/multiple-reader scenario. The synchronization model is very weak in order to facilitate storage on the most basic of file systems, and allow good performance. No file locking is used. The only time where disk synchronization via fdatasync() should be enforced is after and before changing the '''state''' field. It is recommended to execute a memory barrier after appending and initializing new fields at the end of the file, and before linking it up in the older objects.
 
-It is crucial that readers verify the structural they read and handle invalid structure gracefully. (This is crucial anyway out of security considerations.) This specifically includes checking offset values, and that they point to valid objects, with valid sizes and of the type expected. All code must be written with the fact in mind that a file with inconsistent structure file might just be inconsistent temporarily, and might become consistent later on. Payload OTOH requires less scrutiny, as it should only be linked up, and hence visible to readers after it was successfully written to memory (tough not necessarily to disk).
+It is crucial that readers verify the structural they read and handle invalid structure gracefully. (This is crucial anyway out of security considerations.) This specifically includes checking offset values, and that they point to valid objects, with valid sizes and of the type and hash value expected. All code must be written with the fact in mind that a file with inconsistent structure file might just be inconsistent temporarily, and might become consistent later on. Payload OTOH requires less scrutiny, as it should only be linked up, and hence visible to readers after it was successfully written to memory (tough not necessarily to disk).
 
 == Objects ==
 
@@ -220,6 +220,8 @@ Data objects carry actual field data in the '''payload[]''' array, including a f
 
 '''entry_offset''' is an offset to the first ENTRY object referring to this DATA object. '''entry_array_offset''' is an offset to an ENTRY_ARRAY object with offsets to other entries referencing this DATA object. Storing the offset to the first ENTRY object in-line is an optimization given that many DATA objects will be referenced from a single entry only (for example, MESSAGE= frequently includes a practically unique string). '''n_entries''' is a counter of the total number of ENTRY objects that reference this object, i.e. the sum of all ENTRY_ARRAYS chained up from this object, plus 1.
 
+The '''payload[]''' field contains the field name and date unencoded, unless OBJECT_COMPRESSED is set in the ObjectHeader, in which case the payload is LZMA compressed.
+
 == Field Objects ==
 
 {{{
@@ -256,3 +258,17 @@ _packed_ struct EntryObject {
         EntryItem items[];
 };
 }}}
+
+And ENTRY object binds several DATA objects together into one log item. 
+
+The '''seqnum''' field contains the sequence number of the entry, '''realtime'' the realtime timestamp, and '''monotonic''' the monotonic timestamp for the boot identified by '''boot_id'''.
+
+The '''xor_hash''' field contains a binary XOR of the hashes of the payload of all DATA objects referenced by this ENTRY. This value is usable to check the contents of the entry, being independent of the order of the DATA objects in the array.
+
+The '''items[]''' array contains references to all DATA objects of this entry, plus the respective hash.
+
+In the file ENTRY objects are written ordered monotonically by sequence number. For continuous parts of the file written during the same boot (i.e. with the same boot_id) the monotonic timestamp is montonic to. Modulo wallclock time jumps (due to incorrect clocks being corrected) the realtime timestamps are monotonic too.
+
+== Algorithms ==
+
+== Optimizing Disk IO ==
