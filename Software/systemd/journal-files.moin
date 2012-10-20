@@ -313,6 +313,51 @@ One chain of entry arrays links up all entries written to the journal. The first
 
 Each DATA object also references an entry array chain listing all entries referencing a specific DATA object. Since many DATA objects are only referenced by a single ENTRY the first offset of the list is stored inside the DATA object itself, an ENTRY_ARRAY object is only needed if it is referenced by more than one ENTRY.
 
+== Tag Object ==
+
+{{{
+#define TAG_LENGTH (256/8)
+
+_packed_ struct TagObject {
+        ObjectHeader object;
+        uint64_t seqnum;
+        uint64_t epoch;
+        uint8_t tag[TAG_LENGTH]; /* SHA-256 HMAC */
+};
+}}}
+
+Tag objects are used to seal off the journal for alteration. In regular intervals a tag object is appended to the file. The tag object consists of a SHA-256 HMAC tag that is calculated from the objects stored in the file since the last tag was written, or from the beginning if not tag was written yet. The key for the HMAC is calculated via the externally maintained FSPRG logic for the epoch that is written into '''epoch'''. The sequence number '''seqnum''' is increased with each tag. When calculating the HMAC of objects header fields that are volatile are excluded (skipped). More specifically all fields that might validly be altered to maintain a consistent file structure (such as offsets to objects added later for the purpose of linked lists and suchlike) after an object has been written are not protected by the tag. This means a verifier has to independently check these fields for consistency of structure. For the fields excluded from the HMAC please consult the source code directly. A verifier should read the file from the beginning to the end, always calculating the HMAC for the objects it reads. Each time a tag object is encountered the HMAC should be verified and restarted. The tag object sequence numbers need to increase strictly monotonically. Tag objects themselves are partially protected by the HMAC (i.e. seqnum and epoch is included, the tag itself not).
+
 == Algorithms ==
 
+Reading:
+
+Given an offset to an entry all data fields are easily found by following the offsets in the data item array of the entry. 
+
+Listing entries without filter is done by traversing the list of entry arrays starting with the headers' '''entry_array_offset''' field.
+
+Seeking to an entry by timestamp or sequence number (without any matches) is done via binary search in the entry arrays starting with the header's '''entry_array_offset''' field. Since these arrays double in size as more are added the time cost of seeking is O(log(n)*log(n)) if n is the number of entries in the file.
+
+When seeking or listing with one field match applied the DATA object of the match is first identified, and then its data entry array chain traversed. The time cost is the same as for seeks/listings with no match.
+
+If multiple matches are applied, multiple chains of entry arrays should be traversed in parallel. Since they all are strictly monotonically ordered by offset of the entries, advancing in one can be directly applied to the others, until a entry matching all matches is found. In the worst case seeking like this is O(n) where n is the number of matching entries of the "loosest" match, but in the common case should be much more efficient at least for the well-known fields, where the set of possible field values tend to be closely related. Checking whether an entry matches a number of matches is efficient since the item array of the entry contains hashes of all data fields referenced, and the number of data fields of an entry is generally small (< 30).
+
+When interleaving multiple journal files seeking tends to be a frequently used operation, but in this case can be effectively suppressed by caching results from previous entries.
+
+Writing:
+
+When an entry is appended to the journal for each of its data fields the data hash table should be checked. If the data field is not yet existing in the file it should be appended and added to the data hash table. When a field data object is added the field hash table should be checked for the field name of the data field, and a field object be added if necessary. After all data fields (and recursively all field names) of the new entry are appended and linked up in the hashtables the entry object should be appended and linked up too.
+
+In regular intervals a tag object should be written if sealing is enabled (see above). Before the file is closed a tag should be written too, to seal it off.
+
+Before writing an object, time and disk space limits should be checked and rotation triggered if necessary.
+
 == Optimizing Disk IO ==
+
+A few general ideas:
+
+The hash tables for looking up fields and data should be quickly in the memory cache and not hurt performance. All entries and entry arrays are ordered strictly by time on disk, and hence should expose an OK access pattern on rotating media.
+
+The disk access patterns of the binary search for entries are problematic on rotating disks. This should not be a major issue though, since seeking should not be a frequent operation.
+
+When reading, collecting data fields for presenting entries is problematic on rotating disks. In order to optimize these patterns the item array of entry objects should be sorted by disk offset before writing. Frequently used data objects should be in the memory cache quickly. Non-frequently used data objects are likely to be located between the previous and current entry when reading and hence should expose an OK access pattern. Problematic are data objects that are neither frequently nor infrequently referenced, which will cost seek time.
