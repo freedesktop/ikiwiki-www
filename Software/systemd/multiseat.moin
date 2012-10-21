@@ -2,9 +2,9 @@
 
 = Multi-Seat on Linux =
 
-systemd 30 and newer include support for keeping track of user sessions and seats. This adds full hotplug multi-seat support to Linux. Here's a quick overview on how it works.
+systemd, versions 30 and newer, includes support for keeping track of user sessions and seats. This adds full hotplug multi-seat support to Linux. Here's a quick overview on how it works.
 
-If you are interesting the actual APIs for multi-seat support, please have a look at the [[http://www.freedesktop.org/wiki/Software/systemd/logind|logind Bus API]] and [[http://www.freedesktop.org/software/systemd/man/sd-login.html|sd-login(7)]]. If you are planning to write (or port) a multi-seat aware display manager, please have a look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].
+If you are interested in the actual APIs for multi-seat support, please have a look at the [[http://www.freedesktop.org/wiki/Software/systemd/logind|logind Bus API]] and [[http://www.freedesktop.org/software/systemd/man/sd-login.html|sd-login(7)]]. If you are planning to write (or port) a multi-seat aware display manager, please have a look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].
 
 == Definition of Terms ==
 
@@ -179,4 +179,4 @@ int enum_input_on_seat(const char *seat) {
 
 == Multi-Seat X ==
 
-Note that even though XOrg learned a new -seat switch to make use of multi-seat information it does so only for input devices, not for displays. To work around this systemd includes a tiny wrapper binary in /lib/systemd/systemd-multi-seat-x which emulates the right behaviour by creating a throw-away X configuration file which does the right thing. If you are implementing a multi-seat display manager you probably want to use this binary instead of the real X binary for now. As soon as XOrg upstream learns proper multi-seat support also for displays this binary will be removed from systemd, hence write your DM to fallback to the real X server if systemd's wrapper is not found.
+Note that even though XOrg gained, in version 1.12 of xserver, a new -seat switch to make use of multi-seat information it does so only for input devices, not for displays. To work around this systemd includes a tiny wrapper binary in /lib/systemd/systemd-multi-seat-x which emulates the right behaviour by creating a throw-away X configuration file which does the right thing. If you are implementing a multi-seat display manager you probably want to use this binary instead of the real X binary for now. As soon as XOrg upstream gains proper multi-seat support also for displays this binary will be removed from systemd, hence write your DM to fallback to the real X server if systemd's wrapper is not found.
