@@ -12,7 +12,7 @@ systemd has a number of interfaces for interaction with container managers when 
 
  * Make sure to pre-mount /sys, and /proc, /sys/fs/selinux before invoking systemd, and mount /proc/sys and the entirety of /sys and /sys/fs/selinux read-only in order to avoid that the container can alter the host kernel's configuration settings. systemd and various tools (such as the selinux) have been modified to detect whether these file systems are read-only, and will behave accordingly.
 
- * Consider syncing /etc/localtime from the host file system into the container. Make it a relative symlink to the containers's zoneinfo dir, as usual. Tools rely on being ablet to determine the timezone setting from the symlink value, and by making it relative it looks nice even if people list the containers' /etc from the host.
+ * Consider syncing /etc/localtime from the host file system into the container. Make it a relative symlink to the containers's zoneinfo dir, as usual. Tools rely on being able to determine the timezone setting from the symlink value, and by making it relative it looks nice even if people list the containers' /etc from the host.
 
  * Pre-mount /dev as (container private) tmpfs for the container and bind mount some suitable TTY to /dev/console. Also, make sure to create device nodes for /dev/null, /dev/zero, /dev/full, /dev/random, /dev/urandom, /dev/tty, /dev/ptmx in /dev. It is not necessary to create /dev/fd or /dev/stdout, as systemd will do that on its own. Make sure to drop CAP_MKNOD from the capability bounding set to ensure that the container is not able to get access to any other device.
 
