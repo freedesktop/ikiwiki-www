@@ -248,7 +248,7 @@ _packed_ struct EntryObject {
         EntryItem items[];
 };
 }}}
-An ENTRY object binds several DATA objects together into one log entry, and includes other meta data such as various timestamps.
+An ENTRY object binds several DATA objects together into one log entry, and includes other metadata such as various timestamps.
 
 The '''seqnum''' field contains the sequence number of the entry, '''realtime''' the realtime timestamp, and '''monotonic''' the monotonic timestamp for the boot identified by '''boot_id'''.
 
@@ -328,7 +328,7 @@ When listing all possible values a certain field can take it is sufficient to lo
 
 ''Writing:''
 
-When an entry is appended to the journal for each of its data fields the data hash table should be checked. If the data field is not yet existing in the file it should be appended and added to the data hash table. When a field data object is added the field hash table should be checked for the field name of the data field, and a field object be added if necessary. After all data fields (and recursively all field names) of the new entry are appended and linked up in the hashtables the entry object should be appended and linked up too.
+When an entry is appended to the journal for each of its data fields the data hash table should be checked. If the data field does not yet exist in the file it should be appended and added to the data hash table. When a field data object is added the field hash table should be checked for the field name of the data field, and a field object be added if necessary. After all data fields (and recursively all field names) of the new entry are appended and linked up in the hashtables the entry object should be appended and linked up too.
 
 In regular intervals a tag object should be written if sealing is enabled (see above). Before the file is closed a tag should be written too, to seal it off.
 
