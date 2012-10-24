@@ -7,5 +7,28 @@
 In most cases the Journal JSON serialization is the obvious mapping of the entry field names (as JSON strings) to the entry field values (also as JSON strings) encapsulated in one JSON object. However, there are a few special cases to handle:
 
  * A field that contains non-printable or non-UTF8 is serialized as a number array instead. This is necessary to handle binary data in a safe way without losing data, since JSON cannot embed binary data natively. Each byte of the binary field will be mapped to its numeric value in the range 0..255.
- * The JSON serializer can optionally skip huge data fields from the JSON object. If that is enabled and a data field is too large, the field name is still included in the JSON object but assigned ''null''.
+ * The JSON serializer can optionally skip huge (as in larger than a specific threshold) data fields from the JSON object. If that is enabled and a data field is too large, the field name is still included in the JSON object but assigned ''null''.
  * Within the same entry, Journal fields may have multiple values assigned. This is not allowed in JSON. The serializer will hence create a single JSON field only for these cases, and assign it an array of values (which the can be strings, ''null'' or number arrays, see above).
+
+Here's an example, illustrating all cases mentioned above. Consider this entry:
+
+{{{
+MESSAGE=Hello World
+_UDEV_DEVNODE=/dev/waldo
+_UDEV_DEVLINK=/dev/alias1
+_UDEV_DEVLINK=/dev/alias2
+BINARY=this is a binary value \a
+LARGE=this is a super large value (let's pretend at least, for the sake of this example)
+}}}
+
+This translates into the following JSON Object:
+
+{{{
+{ 
+        "MESSAGE" : "Hello World",
+        "_UDEV_DEVNODE" : "/dev/waldo",
+        "_UDEV_DEVLINK" : [ "/dev/alias1", "/dev/alias2" ],
+        "BINARY" : [ ],
+        "LARGE" : null
+}
+}}}  
