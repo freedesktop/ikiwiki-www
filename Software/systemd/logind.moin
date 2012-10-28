@@ -8,7 +8,7 @@ See [[http://www.freedesktop.org/software/systemd/man/systemd-logind.service.htm
 
 The daemon provides both a C library interface as well as a D-Bus interface. The library interface may be used to introspect and watch the state of user logins or seat. The bus interface provides the same but in addition may also be used to make changes to system state. For more more information please consult the man pages: [[http://www.freedesktop.org/software/systemd/man/sd-login.html|sd-login(7)]]
 
-If you are interested in writing a display manager that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].
+If you are interested in writing a display manager that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].  If you are interested in writing a desktop environment that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-desktop-environments|Writing Desktop Environments]].
 
 The inhibition logic is documented in [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]].
 
@@ -59,10 +59,12 @@ node /org/freedesktop/login1 {
       Reboot(in  b interactive);
       Suspend(in  b interactive);
       Hibernate(in  b interactive);
+      HybridSleep(in  b interactive);
       CanPowerOff(out s result);
       CanReboot(out s result);
       CanSuspend(out s result);
       CanHibernate(out s result);
+      CanHybridSleep(out s result);
       Inhibit(in  s what,
               in  s who,
               in  s why,
