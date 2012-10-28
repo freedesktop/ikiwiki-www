@@ -4,7 +4,7 @@
 
 ''Or: how to hook up your favourite desktop environment with logind''
 
-systemd's logind service obsoletes ConsoleKit which was previously widely used on Linux distributions. This provides a number of new features, but also requires updating of the Desktop Environment running on it, in a few ways.
+systemd's logind service obsoletes !ConsoleKit which was previously widely used on Linux distributions. This provides a number of new features, but also requires updating of the Desktop Environment running on it, in a few ways.
 
 This document should be read together with [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]] which focuses on the porting work necessary for display managers.
 
@@ -18,9 +18,9 @@ Here are the suggested changes:
 
  * Your session manager should listen to "Lock" and "Unlock" messages that are emitted from the session object logind exposes for your DE session, on the system bus. If "Lock" is received the screen lock should be activated, if "Unlock" is received it should be deactivated. This can easily be tested with "loginctl lock-sessions". See the [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]] for further details.
 
- * Whenever the session gets idle the DE should invoke the SetIdleHint(True) call on the respective session object on the session bus. This is necessary for the system to implement auto-suspend when all sessions are idle. If the session gets used again it should call SetIdleHint(False). A session should be considered idle if it didn't receive user input (mouse movements, keyboard) in a while. See the [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]] for further details.
+ * Whenever the session gets idle the DE should invoke the !SetIdleHint(True) call on the respective session object on the session bus. This is necessary for the system to implement auto-suspend when all sessions are idle. If the session gets used again it should call !SetIdleHint(False). A session should be considered idle if it didn't receive user input (mouse movements, keyboard) in a while. See the [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]] for further details.
 
- * To reboot/power-off/suspend/hibernate the machine from the DE use logind's bus calls Reboot(), PowerOff(), Suspend(), Hibernate(), HybridSleep(). For further details see [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]].
+ * To reboot/power-off/suspend/hibernate the machine from the DE use logind's bus calls Reboot(), PowerOff(), Suspend(), Hibernate(), !HybridSleep(). For further details see [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]].
 
  * If your session manager handles the special power, suspend, hibernate hardware keys or the laptop lid switch on its own it is welcome to do so, but needs to disable logind's built-in handling of these events. Take one or more of the ''handle-power-key'', ''handle-suspend-key'', ''handle-hibernate-key'', ''handle-lid-switch'' inhibitor locks for that. See [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]] for further details on this.
 
