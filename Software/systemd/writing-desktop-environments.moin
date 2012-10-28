@@ -20,10 +20,12 @@ Here are the suggested changes:
 
  * Whenever the session gets idle the DE should invoke the SetIdleHint(True) call on the respective session object on the session bus. This is necessary for the system to implement auto-suspend when all sessions are idle. If the session gets used again it should call SetIdleHint(False). A session should be considered idle if it didn't receive user input (mouse movements, keyboard) in a while. See the [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]] for further details.
 
- * If your session manager handles the special power, suspend, hibernate hardware keys or the laptop lid switch on its own it is welcome to do so, but needs to disable logind's built-in handling of these events. Take one or more of the ''handle-power-key'', ''handle-suspend-key'', ''handle-hibernate-key'', 'handle-lid-switch'' inhibitor locks for that. See [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]] for further details on this.
-
  * To reboot/power-off/suspend/hibernate the machine from the DE use logind's bus calls Reboot(), PowerOff(), Suspend(), Hibernate(), HybridSleep(). For further details see [[http://www.freedesktop.org/wiki/Software/systemd/logind|Bus API of logind]].
 
- * Before rebooting/powering-off/suspending/hibernating and when the operation is triggered by the user by clicking on some UI elements (or suchlike) it is recommended to show the list of currently active inhibitors for the operation, and ask the use to acknowledge the operation. Note that PK often allows the user to execute the operation ignoring the inhibitors.
+ * If your session manager handles the special power, suspend, hibernate hardware keys or the laptop lid switch on its own it is welcome to do so, but needs to disable logind's built-in handling of these events. Take one or more of the ''handle-power-key'', ''handle-suspend-key'', ''handle-hibernate-key'', ''handle-lid-switch'' inhibitor locks for that. See [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]] for further details on this.
+
+ * Before rebooting/powering-off/suspending/hibernating and when the operation is triggered by the user by clicking on some UI elements (or suchlike) it is recommended to show the list of currently active inhibitors for the operation, and ask the use to acknowledge the operation. Note that PK often allows the user to execute the operation ignoring the inhibitors. Use logind's ListInhibitor() call to get a list of these inhibitors. See [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]] for further details on this.
 
  * If your DE contains a process viewer of some kind ("system monitor") it's a good idea to show session, service and seat information for each process. Use sd_pid_get_session(), sd_pid_get_unit(), sd_session_get_seat() to determine these.
+
+And that's all! Thank you!
