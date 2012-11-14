@@ -9,7 +9,7 @@ Here are some guidelines how to implement "offline" OS updates with systemd. By 
 The logic:
 
  1. The package manager prepares system updates by downloading all (RPM or DEB or whatever) packages to update off-line in a special directory /var/lib/system-update (or another directory of the package/upgrade manager's choice).
- 2. When the user OK'ed the update a symlink /system-update is created that points to /var/lib/system-update (or wherever the upgrade package directory is called) and the system is rebooted. This symlink is in the root directory, since we need to check for it very early at boot, at a a time where /var is not available yet.
+ 2. When the user OK'ed the update a symlink /system-update is created that points to /var/lib/system-update (or wherever the upgrade package directory is called) and the system is rebooted. This symlink is in the root directory, since we need to check for it very early at boot, at a time where /var is not available yet.
  3. Very early in the new boot a systemd generator checks whether /system-update exists. If so, it (temporarily and for this boot only) redirects (i.e. symlinks) default.target to system-update.target, a new target that is intended to pull in the base system (i.e. sysinit.target, so that all file systems are mounted but little else) and the system update script.
  4. The system now continues to boot into default.target, and thus into system-update.target. This target pulls in the OS update script, which is executed after all file systems are mounted.
  5. The system update script now creates a btrfs snapshot (if possible), then installs all RPMs. After completion (regardless whether the update succeeded or failed) the /system-update symlink is removed. In addition, on failure it reverts to the old btrfs state (modulo the aforementioned symlink), on success it leaves the newly made changes in place.
@@ -39,7 +39,7 @@ The generator code and the basic definition of systemd-update.target live within
 
 A few more recommendations:
 
- 1. To make things a bit more robust we recommend to hook the update script into system-update.target via a .wants/ symlink in the distribution package, rather than depending on "systemctl enable" in the postinst scriptlets of your package. More specifically, for your update script create a .service file, without [Install] section, and then add a symlink like /usr/lib/systemd/system-update.target.wants/foobar.service → ../foobar.service to your package.
+ 1. To make things a bit more robust we recommend hooking the update script into system-update.target via a .wants/ symlink in the distribution package, rather than depending on "systemctl enable" in the postinst scriptlets of your package. More specifically, for your update script create a .service file, without [Install] section, and then add a symlink like /usr/lib/systemd/system-update.target.wants/foobar.service → ../foobar.service to your package.
 
  2. Make sure to remove the /system-update symlink ''early'' in the update script to avoid reboot loops in case the update fails. 
 
