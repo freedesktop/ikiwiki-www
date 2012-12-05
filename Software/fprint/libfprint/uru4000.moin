@@ -1,8 +1,8 @@
 {{http://www.reactivated.net/fprint/img/Microsoft_fingerprint_scanner.jpg|Microsoft Fingerprint Scanner|align=right}}
 
-The `uru4000` driver supports devices based on the [[http://www.digitalpersona.com/products/dpFingRead.php|DigitalPersona U.are.U 4000/4000B chipsets]].
+The `uru4000` driver supports devices based on the [[http://www.digitalpersona.com/products/dpFingRead.php|DigitalPersona U.are.U 4000/4000B/4500 chipsets]].
 
-uru4000 is part of [[../|libfprint]] and is developed/maintained by Daniel Drake.
+uru4000 is part of [[../|libfprint]] and is developed/maintained by Daniel Drake and Timo Teräs.
 
 == Supported devices ==
 
@@ -20,6 +20,8 @@ In mid-2007, Microsoft released a new revision of their fingerprint reader (USB 
 
 Daniel Drake reverse engineered the device protocol and formed the [[http://dpfp.berlios.de|libdpfp project]]. uru4000 is based on code from libdpfp, and libdpfp has been obsoleted by libfprint as a result.
 
+Timo Teräs reverse engineered the encryption cipher and implemented uru4500 support.
+
 == Device operation ==
 
 These devices are imaging devices: they simply present images of the user's fingerprint to the host computer. The hardware makes no attempt to enhance, process, or compare fingerprint images.
@@ -30,13 +32,11 @@ The devices are capable of detecting when a finger has been placed on or removed
 
 The device is driven in a mode-based way: there are modes such as "wait for finger", "wait for finger removal", and "capture continuously". Capturing a fingerprint is therefore approximated to: set "wait for finger" mode, wait for interrupt, set "capture continuously" mode, wait for image, set "wait for finger removal" mode, ...
 
-The device protocol is mostly understood, but there are some unknowns. In particular, we do not know the correct way to power down the device so we have guessed. This adds a series of issues when we come to power up the scanner next time, so we have a fair amount of code to try and prod the device into action, without having much understanding of why we need to try so hard. If anyone has another setup (e.g. DigitalPersona's own SDK?) where they can use software to disable the scan light on the device, please [[mailing list|contact us]] so that we can obtain bus traffic logs from this event and do it properly.
+The device protocol is mostly understood, but there are still some unknowns. The auxiliary image capture is not fully understood at this time.
 
 == Security notes ==
 
-DigitalPersona's own drivers and SDKs send encrypted images over the USB bus. The same applies for the most recent Microsoft drivers, but not for the earlier Microsoft driver releases.
-
-As the encryption scheme is unknown, uru4000 disables image encryption meaning that '''images of your fingerprint are always sent unencrypted over the USB bus'''.
+Fingerprint images are encrypted over the USB bus. The encryption scheme is not strong, so it is possible to decrypt the image from USB traces. All control messages are unencrypted.
 
 In 2006, Mikko Kiviharju wrote a paper about the security of these devices and presented it at Black Hat Europe 2006. His [[http://www.blackhat.com/presentations/bh-europe-06/bh-eu-06-Kiviharju/bh-eu-06-kiviarju.pdf|slides]] and [[http://www.blackhat.com/presentations/bh-europe-06/bh-eu-06-Kiviharju/bh-eu-06-kiviharju-resources.zip|research paper]] are available for download.
 
@@ -56,7 +56,7 @@ The devices have an alternative fingerprint illumination mode, much dimmer with 
 
 == Image info and optical behaviour ==
 
-In the default illumination mode, the scanner sends a 384x289 image separated into 2 USB transactions (prepended by a 64 byte header, which we ignore). Each pixel is represented as 1 byte, so rendering it as standard greyscale data yields the following:
+In the default illumination mode, the scanner sends a 384x289 image separated into 2 USB transactions (prepended by a 64 byte header). Each pixel is represented as 1 byte, so rendering it as standard greyscale data yields the following:
 
 {{http://www.reactivated.net/fprint/img/Uru4000_raw_scan.jpg}}
 
