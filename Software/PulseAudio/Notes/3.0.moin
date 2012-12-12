@@ -12,6 +12,7 @@ TODO: Short introduction
  * Configurable device latency offset
  * Improvements for automatic testing
  * Runtime editable LADSPA filter parameters
+ * Automatic loopback for Bluetooth sources
  * Unloading modules by name
  * Logging improvements
  * Adhere to the XDG Base Directory Specification
@@ -21,7 +22,7 @@ TODO: Short introduction
 
  * Bluetooth support requires now "sbc", a library for the SBC codec. The codec used to be included within !PulseAudio, but it has now been split off into a separate library. It's available at [[http://www.bluez.org]].
  * Support for the "socket API" of BlueZ has been dropped in favour of the D-Bus based "media API". Due to this change, the minimum supported version of BlueZ is now 4.99. Also, make sure that you don't have "Disable=Media" in /etc/bluetooth/audio.conf. And due to a bug in BlueZ, it's probably necessary to have "Disable=Socket", otherwise there will be problems with the A2DP profile.
- * Support for HAL has been removed. This shouldn't affect anyone, but if it does, please configure !PulseAudio to use udev instead.
+ * Support for HAL has been removed. This shouldn't affect anyone, but if it does, please configure !PulseAudio to use udev instead. module-hal-detect still exists for maintaining configuration file compatibility, but all it does is to load module-udev-detect. module-hal-detect may get completely removed in 4.0.
 
 
 == pavucontrol 2.0 ==
@@ -43,12 +44,17 @@ Accurate latency reporting is important for e.g. "lip sync" in video playback. !
 
 === Improvements for Automatic Testing ===
 
-Deng Zhengrong improved !PulseAudio's automatic testing support as part of his Google Summer of Code work. The improvements include support for test coverage reporting with gcov.
+Deng Zhengrong improved !PulseAudio's automatic testing support as part of his Google Summer of Code work. The improvements include support for test coverage reporting with gcov, changing the existing tests to use the "check" framework, and making it possible to launch a !PulseAudio daemon for testing purposes while simultaneously having the normal daemon running.
 
 
 === Runtime Editable LADSPA Filter Parameters ===
 
 The LADSPA module now exposes a basic D-Bus interface for changing the filter parameters on the fly. Previously the parameters could not be changed after loading the filter.
+
+
+=== Automatic Loopback for Bluetooth Sources ===
+
+!PulseAudio can be used in a Bluetooth headset role, for example to connect a laptop to a mobile phone and pretend that the laptop is a headset. It's often desirable in that case to loop back the audio from the phone to the laptop's sound card. That is now done automatically by module-bluetooth-policy, which is loaded by default.
 
 
 === Unloading Modules by Name ===
