@@ -8,17 +8,19 @@ TODO: Short introduction
 
 == Notable Changes ==
 
+ * ALSA Use Case Manager (UCM) support
  * Configurable device latency offset
  * Improvements for automatic testing
  * Runtime editable LADSPA filter parameters
  * Unloading modules by name
- * Log target can be changed during runtime
+ * Logging improvements
  * Adhere to the XDG Base Directory Specification
 
 
 == Packaging ==
 
  * Bluetooth support requires now "sbc", a library for the SBC codec. The codec used to be included within !PulseAudio, but it has now been split off into a separate library. It's available at [[http://www.bluez.org]].
+ * Support for the "socket API" of BlueZ has been dropped in favour of the D-Bus based "media API". Due to this change, the minimum supported version of BlueZ is now 4.99. Also, make sure that you don't have "Disable=Media" in /etc/bluetooth/audio.conf. And due to a bug in BlueZ, it's probably necessary to have "Disable=Socket", otherwise there will be problems with the A2DP profile.
  * Support for HAL has been removed. This shouldn't affect anyone, but if it does, please configure !PulseAudio to use udev instead.
 
 
@@ -28,6 +30,11 @@ Version 2.0 of pavucontrol, "the !PulseAudio GUI", has been released to accompan
 
 
 == Changes in More Detail ==
+
+=== ALSA Use Case Manager (UCM) support ===
+
+The audio hardware on desktop and laptop computers is usually standard enough for !PulseAudio to handle using a common set of configuration files. The situation is different on e.g. phones and tablets. Practically all of those devices need a separate configuration files for describing the hardware so that !PulseAudio can properly use all basic features of the hardware. The configuration could be shipped as !PulseAudio configuration files, but the ALSA folks have been working on a system that allows applications (such as !PulseAudio) to use the hardware without needing any extra configuration in the application. The system is called UCM, and !PulseAudio now has (some) support for it.
+
 
 === Configurable Device Latency Offset ===
 
@@ -49,9 +56,9 @@ The LADSPA module now exposes a basic D-Bus interface for changing the filter pa
 pactl and pacmd now support unloading modules by name. Previously unloading could only be done by the module index, which was a bit inconvenient, because usually you don't know the index without somehow looking it up first.
 
 
-=== Log Target Can Be Changed During Runtime ===
+=== Logging Improvements ===
 
-pacmd has a new command: set-log-target. It can be used to change the log target of a running daemon.
+In addition to the automatic testing improvements, GSoC student Deng worked also on !PulseAudio's logging facilities. It's now possible to change the log target of a running daemon with pacmd, using the set-log-target command. Also, a new log target type was added: "newfile". The "newfile" target is like the old "file" target, with the difference that if the given file name already exists, the file is not overwritten, but instead a new file is created with a numbered suffix.
 
 
 === Adhere to the XDG Base Directory Specification ===
