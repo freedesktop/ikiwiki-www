@@ -241,7 +241,7 @@ In order to configure the remapped sink, you'll have to decide two things: what 
   remix
     Allow remixing of the mono or stereo streams to multiple channels (default is yes; set to "no" if you don't want the stereo stream to be up-mixed to all channels except subwoofer and channels named aux0-aux15).
 
-An example to split a surround sound card to two stereo devices (remember to disable automatic device configuration first, by commenting out `module-hal-detect` and `module-detect`):
+An example to split a surround sound card to two stereo devices (remember to disable automatic device configuration first, by commenting out `module-udev-detect` and `module-detect`):
 
 {{{
 # Use aux channels so that the channels won't be used for anything
@@ -802,24 +802,11 @@ This does not only restores the volume level but also the used sink which is use
 
 Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers, and the information is taken directy from them, not through udev or HAL.
 
-Do not use this together with module-udev-detect or module-hal-detect!
+Do not use this together with module-udev-detect!
 
 The parameter:
   just-one
     If set to 1 the module will only try to load a single sink/source and than stop.
-
-=== module-hal-detect ===
-
-'''This module is deprecated on systems where udev is available. Please use module-udev-detect instead.'''
-
-Detects audio devices on the system using [[http://freedesktop.org/wiki/Software/hal|HAL]].
-
-Do not use this together with module-udev-detect or module-detect!
-
-'''Since 0.9.11'''
-
-  tsched
-    Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). This value is simply passed through to the alsa sink/source modules. If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
 
 === module-zeroconf-publish ===
 
