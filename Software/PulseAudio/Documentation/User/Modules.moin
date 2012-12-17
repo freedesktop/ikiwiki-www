@@ -521,15 +521,27 @@ end
 }}}
 Available ''config''s include: ''volume-up'', ''volume-down'', ''mute'', ''mute-toggle'' and ''reset''.
 
+
 == Bluetooth ==
 
 === module-bluetooth-discover ===
 
-'''Since 0.9.13.''' Detect available bluetooth audio devices and load bluetooth sinks, using BlueZ.
+Detects available bluetooth audio devices using BlueZ. For each audio device, a module-bluetooth-device instance is loaded automatically.
 
-=== module-bluetooth-sink ===
+Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW profiles). This is called the "SCO over PCM" mode. For such hardware, the alsa sink and source need to be specified with the "sco_sink" and "sco_source" arguments.
 
-'''Since 0.9.13.''' Bluetooth audio sink and source
+  sco_sink
+    Name of the alsa sink that should be used in the "SCO over PCM" mode.
+
+  sco_source
+    Name of the alsa source that should be used in the "SCO over PCM" mode.
+
+
+=== module-bluetooth-device ===
+
+Creates a card for a bluetooth audio device. Normally module-bluetooth-device instances should be automatically loaded by module-bluetooth-discover, but it's also possible to load module-bluetooth-device manually.
+
+The module needs to be given an identifier for the device so that it knows what device to talk to. Either the device address (such as 00:1E:DE:29:B7:3B) or the D-Bus object path (such as /org/bluez/2613/hci0/dev_00_1E_DE_29_B7_3B) can be used as the identifier. So, it's mandatory to give the "address" or the "path" argument when loading the module.
 
   sink_name, source_name, card_name
     The name for the sink/source/card.
@@ -541,18 +553,20 @@ Available ''config''s include: ''volume-up'', ''volume-down'', ''mute'', ''mute-
     Automatic name prefix
 
   address
-    The bluetooth device address (BTADDR, such as {{{00:18:42:F2:C9:89}}}
+    The device address.
 
   profile
-    The audio profile, {{{a2dp}}}, {{{hsp}}} or {{{hfgw}}}
-
-  rate, channels
+    The initial card profile: "a2dp", "a2dp_source", "hsp", "hfgw" or "off".
 
   path
+    The D-Bus object path of the device.
 
   auto_connect
+    Boolean, the default value is "true". What does this option do??
 
-'''NOTE''': '''hsp''' profile doesn't work on some devices. Refer to [[http://comments.gmane.org/gmane.linux.bluez.kernel/10584|this thread]].
+  sco_sink, sco_source
+    See the documentation of module-bluetooth-discover.
+
 
 === module-bluetooth-proximity ===
 
