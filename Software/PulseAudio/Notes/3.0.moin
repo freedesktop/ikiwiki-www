@@ -5,22 +5,19 @@
 
 2012-12-17
 
-Here it is, after 7 months of development, version 3.0 of !PulseAudio!
+We're, back with another shiny !PulseAudio release! While the 3.0 release is delayed, it brings a number of important improvements, and bug fixes. A summary of changes follows.
 
 
 == Notable Changes ==
 
  * ALSA Use Case Manager (UCM) support
- * Various ALSA changes
- * Configurable device latency offset
- * Improvements for automatic testing
  * Runtime editable LADSPA filter parameters
- * Automatic loopback for Bluetooth sources
- * Unloading modules by name
- * Logging improvements
+ * Out-of-the-box support for Bluetooth sources
+ * ARM NEON optimisations
+ * Configurable device latency offset
  * Adhere to the XDG Base Directory Specification
- * Bluetooth code refactoring
-
+ * Various ALSA changes
+ * Lots of infrastructure improvements
 
 == Packaging ==
 
@@ -29,56 +26,27 @@ Here it is, after 7 months of development, version 3.0 of !PulseAudio!
  * Support for HAL has been removed. This shouldn't affect anyone, but if it does, please configure !PulseAudio to use udev instead. module-hal-detect still exists for maintaining configuration file compatibility, but all it does is to load module-udev-detect. module-hal-detect may get completely removed in 4.0.
 
 
-== pavucontrol 2.0 ==
-
-Version 2.0 of pavucontrol, "the !PulseAudio GUI", has been released to accompany the !PulseAudio 3.0 release. The new version fixes some bugs and adds support for device latency offset configuration. It's now also possible to make pavucontrol reconnect to the !PulseAudio daemon automatically when the daemon is restarted.
-
-
 == Changes in More Detail ==
 
 === ALSA Use Case Manager (UCM) Support ===
 
-The audio hardware on desktop and laptop computers is usually standard enough for !PulseAudio to handle using a common set of configuration files. The situation is different on e.g. phones and tablets. Practically all of those devices need a separate configuration files for describing the hardware so that !PulseAudio can properly use all basic features of the hardware. The configuration could be shipped as !PulseAudio configuration files, but the ALSA folks have been working on a system that allows applications (such as !PulseAudio) to use the hardware without needing any extra configuration in the application. The system is called UCM, and !PulseAudio now has (some) support for it.
-
-
-=== Various ALSA Changes ===
-
-A regression in 2.0, that could cause some machines not to have "Speaker" or "Internal Mic" ports, has been mostly fixed in 3.0 - when used together with Linux 3.6 or higher. Also, a workaround for older kernels is applied to certain most common machines.
-
-We have added icon name property to ALSA ports, which could help UI makers to display better per-port icons.
-
-Also, there has been a few other changes, such as removing the troublesome lfe-on-mono port, and adding more mixer control names to better stay in sync with the kernel.
-
-
-=== Configurable Device Latency Offset ===
-
-Accurate latency reporting is important for e.g. "lip sync" in video playback. !PulseAudio relies on the audio hardware to provide accurate information about the audio delay. If that information is not accurate for some reason, it is now possible to configure an offset to be applied to each latency report, thanks to Damir Jelić's Google Summer of Code work. For example, if you're watching a video and you use a Bluetooth headset for audio output, the lip sync might be a bit off, because !PulseAudio doesn't currently have proper support for querying the latency for Bluetooth devices. You can now open pavucontrol and fix the synchronization problem by adjusting the latency offset of the Bluetooth headset.
-
-
-=== Improvements for Automatic Testing ===
-
-Deng Zhengrong improved !PulseAudio's automatic testing support as part of his Google Summer of Code work. The improvements include support for test coverage reporting with gcov, changing the existing tests to use the "check" framework, and making it possible to launch a !PulseAudio daemon for testing purposes while simultaneously having the normal daemon running.
-
+The audio hardware on desktop and laptop computers is usually standard enough for !PulseAudio to handle using a common set of configuration files. The situation is different on e.g. phones and tablets. Practically all of those devices need a separate configuration files for describing the hardware so that !PulseAudio can properly use all basic features of the hardware. The configuration could be shipped as !PulseAudio configuration files, but the ALSA folks have been working on a system that allows applications (such as !PulseAudio) to use the hardware without needing any extra configuration in the application. The system is called UCM, and !PulseAudio now has support for it.
 
 === Runtime Editable LADSPA Filter Parameters ===
 
 The LADSPA module now exposes a basic D-Bus interface for changing the filter parameters on the fly. Previously the parameters could not be changed after loading the filter.
 
+=== Out-of-the-box support for Bluetooth sources ===
 
-=== Automatic Loopback for Bluetooth Sources ===
+!PulseAudio can be used in a Bluetooth headset role, for example to connect a laptop to a mobile phone and pretend that the laptop is a headset. It's often desirable in that case to loop back the audio from the phone to the laptop's sound card. That is now done automatically by module-bluetooth-policy, which is loaded by default. Users do need to enable Source support in their BlueZ configuration, though.
 
-!PulseAudio can be used in a Bluetooth headset role, for example to connect a laptop to a mobile phone and pretend that the laptop is a headset. It's often desirable in that case to loop back the audio from the phone to the laptop's sound card. That is now done automatically by module-bluetooth-policy, which is loaded by default.
+=== ARM NEON optimisations ===
 
+Optimisations were added for sample format conversion between S16LE and floating point formats using the ARM NEON instructions. Support for these is detected at compile-time (based on FPU flags) as well as run-time (based on /proc/cpuinfo). As part of this effort, the groundwork has been laid for adding more NEON optimisations in the future.
 
-=== Unloading Modules by Name ===
+=== Configurable Device Latency Offset ===
 
-pactl and pacmd now support unloading modules by name. Previously unloading could only be done by the module index, which was a bit inconvenient, because usually you don't know the index without somehow looking it up first.
-
-
-=== Logging Improvements ===
-
-In addition to the automatic testing improvements, GSoC student Deng worked also on !PulseAudio's logging facilities. It's now possible to change the log target of a running daemon with pacmd, using the set-log-target command. Also, a new log target type was added: "newfile". The "newfile" target is like the old "file" target, with the difference that if the given file name already exists, the file is not overwritten, but instead a new file is created with a numbered suffix.
-
+Accurate latency reporting is important for e.g. "lip sync" in video playback. !PulseAudio relies on the audio hardware to provide accurate information about the audio delay. If that information is not accurate for some reason, it is now possible to configure an offset to be applied to each latency report, thanks to Damir Jelić's Google Summer of Code work. For example, if you're watching a video and you use a Bluetooth headset for audio output, the lip sync might be a bit off, because !PulseAudio doesn't currently have proper support for querying the latency for Bluetooth devices. You can now open pavucontrol and fix the synchronization problem by adjusting the latency offset of the Bluetooth headset.
 
 === Adhere to the XDG Base Directory Specification ===
 
@@ -86,17 +54,467 @@ The location of configuration files has been moved from ~/.pulse to ~/.config/pu
 
 The location of runtime files (i.e. files that don't need to be kept across reboots, e.g. sockets) has been moved from a random directory under /tmp to $XDG_RUNTIME_DIR/pulse. In case $XDG_RUNTIME_DIR is not set, the old scheme is still used as a fallback.
 
+=== Various ALSA Changes ===
+
+A regression in 2.0, that could cause some machines not to have "Speaker" or "Internal Mic" ports, has been mostly fixed in 3.0 - when used together with Linux 3.6 or higher. Also, a workaround for older kernels is applied to certain most common machines.
+
+Pierre-Louis Bossart introduced a change to improve accuracy of timestamp queries, and thus timer-based scheduling, by querying a number of ALSA timing parameters atomically.
+
+We have added icon name property to ALSA ports, which could help UI makers to display better per-port icons.
+
+Also, there has been a few other changes, such as removing the troublesome lfe-on-mono port, and adding more mixer control names to better stay in sync with the kernel.
+
+=== Improvements for Automatic Testing ===
+
+Deng Zhengrong improved !PulseAudio's automatic testing support as part of his Google Summer of Code work. The improvements include support for test coverage reporting with gcov, changing the existing tests to use the "check" framework, and making it possible to launch a !PulseAudio daemon for testing purposes while simultaneously having the normal daemon running.
+
+=== Unloading Modules by Name ===
+
+pactl and pacmd now support unloading modules by name. Previously unloading could only be done by the module index, which was a bit inconvenient, because usually you don't know the index without somehow looking it up first.
+
+=== Logging Improvements ===
+
+In addition to the automatic testing improvements, GSoC student Deng worked also on !PulseAudio's logging facilities. It's now possible to change the log target of a running daemon with pacmd, using the set-log-target command. Also, a new log target type was added: "newfile". The "newfile" target is like the old "file" target, with the difference that if the given file name already exists, the file is not overwritten, but instead a new file is created with a numbered suffix.
 
 === Bluetooth Code Refactoring ===
 
 There has been a lot of refactoring work done on the Bluetooth modules, as preparation for the upcoming BlueZ 5 support and for making the code more pleasant to work with in general. These are not directly user-visible changes, but we'd like to take the opportunity here to thank Mikel Astiz anyway for the great work he has done.
 
-
 == Next Steps ==
 
 The development continues as always, and the 4.0 release is targeted to happen in April (so far we haven't been very good at maintaining a 4 month release cycle, though, so take that with a grain of salt). The [[http://arunraghavan.net/2012/11/pulseconf-2012-report/|report from PulseConf 2012]] offers some clues about what might be coming next.
 
-
 == git shortlog ==
 
-TODO
+{{{
+Andika Triwidada (1):
+      i18n: Add Indonesian translation.
+
+Arti Trivedi Bora (4):
+      modules: Use pa_streq instead of strcmp.
+      pulsecore: Use pa_streq instead of strcmp.
+      tests: use pa_streq instead of strcmp
+      daemon: use pa_streq instead of strcmp
+
+Arun Raghavan (68):
+      sink-input,source-output: Avoid unneccessary rate updates
+      role-cork: Fix a minor leak
+      core-util: Add a pa_split_in_place() string utility function
+      core-util: Make pa_make_secure_dir() act like mkdir -p
+      auth: Create cookie directory if it doesn't exist
+      pactl: Print sink-input/source-output corked status
+      glib: Stop using g_source_get_current_time()
+      core-util: Fix permissions handling while creating directories
+      Revert "role-cork: Fix a minor leak"
+      role-cork: Fix incorrect check at deinitialisation time
+      Revert "Revert "role-cork: Fix a minor leak""
+      role-cork: Fix another minor leak
+      alsa: Allow channel count probe on open by mapping
+      alsa: Add a proplist to mappings
+      alsa: Add separate sinks/sources for UCM modifiers if needed
+      i18n: Remove module-hal-detect reference in POTFILES
+      echo-cancel: Print what AEC engine is being used
+      build: Avoid libstdc++ dep for module-echo-cancel if possible
+      i18n: module-coreaudio-device now has some translatable strings
+      build: Fix distcheck failure on libwebrtc-util
+      tests: Factor out Orc test code into cpu-test
+      tests: Make cpu-test less verbose
+      build: Merge bluez pkg-config checks into one
+      Revert "build: Merge bluez pkg-config checks into one"
+      stream: Allow record streams to start muted
+      core: Separate ARM CPU detection from initialisation
+      tests: Factor out ARM svolume test into cpu-test
+      tests: Minor cpu-test reorganisation
+      core: Document ARM-optimised svolume code a bit
+      core: Fix a litte-endian bug in ARM svolume code
+      tests: Add a copyright header to cpu-test
+      tests: Factor out core sconv test code in cpu-test
+      tests: Reorganise cpu-test to reuse code
+      tests: Add a basic sanity test to sconv cpu-test
+      tests: Run sconv tests with multiple alignments
+      build-sys: Add volume code to libpulsecommon
+      sconv: Fix NEON sconv rounding code
+      tests: Allow off-by-one error in sconv test
+      tests: Increase sconv cpu-test timeout
+      tests: Print average outer-loop iteration time in cpu-test
+      tests: Minor cpu-test fixes for non-NEON builds
+      core: Fix warning on non-win32 builds
+      tests: Run svolume test for various sample alignments
+      tests: Make cpu-test less verbose
+      tests: Run svolume on different channel counts
+      tests: Fix a cpu-test debug message
+      build-sys: Drop -Wvla from compiler flags
+      tests: Minor alignment adjustment fix for cpu-test
+      svolume: Fix ARM alignment issues
+      Revert "core: adjust playing_for and underrun_for at rewind"
+      build-sys: Bump soname
+      i18n: Fix POTFILES for poll changes
+      build-sys: Document libpulsecommon vs. libpulse duplication
+      alsa: Drop verbosity on UCM message
+      Revert "tests: modify alsa-time-test to use 'check' framework"
+      introspect: Minor documentation fix
+      man: Correction for how sample rate switching is disabled
+      sink, source: Prevent unnecessary rate update attempts
+      modules: Micro-optimisation for rewind_requested paths
+      build-sys: Bump BlueZ dependency to 4.99
+      build-sys: Bump soname
+      build-sys: Drop ChangeLog generation
+      source-output: Fix volume fixup for rate update
+      sink-input, source-output: Check rate update success for passthrough
+      core: Remove bad free() call
+      alsa: Try to support non-standard rates in alsa-sink/source
+      build-sys: Bump soname
+      build-sys: Bump soname
+
+Chan-yeol Park (1):
+      bluetooth: Remove ipc.[ch] files in the bluetooth module
+
+Colin Walters (1):
+      git-version-gen: Honor GIT_DESCRIBE_FOR_BUILD environment variable
+
+David Henningsson (22):
+      once: Fix race causing pa_once to sometimes run twice
+      alsa-mixer: Add special profiles for some laptops missing speaker and/or internal mic
+      alsa-mixer: Add Phantom Jack support
+      alsa-mixer: Always turn "Inverted Internal Mic" off
+      alsa-mixer: Add "Front Headphone" jack
+      alsa-mixer: Document "state.plugged" and "state.unplugged"
+      alsa-mixer: Add "Front Headphone Jack" (fixup)
+      alsa-mixer: Add "Headphone Mic" support for 3-pin ASUS netbooks
+      resampler: Fix volume on downmix to mono
+      alsa-mixer: Add "iec958-stereo-input" to well known path names
+      flist: Increase default list size to 256
+      alsa-mixer: Cache failure to open inputs/output mappings
+      alsa-mixer: Remove analog-output-lfe-on-mono
+      cli: Output asterisk when default sink/source is found
+      alsa-sink/source: Warn for scheduling delays
+      alsa-mixer: Don't let "Mic Jack Mode" alone create a "Line In" path
+      alsa-mixer: Add a few more machines to internal mic whitelist
+      alsa-mixer: Add "CLFE" and "Bass Speaker" names
+      alsa-mixer: Prefer "Digital Input Source:Digital Mic 1"
+      alsa udev quirks: Add some more Dell devices to speaker whitelist
+      alsa-mixer: Add Dell Inspiron One 2020 to mic whitelist
+      alsa-mixer: Add device.icon-name property for some common ports
+
+Deng Zhengrong (48):
+      cli: Add set-log-target command for pacmd
+      daemon: use pa_streq instead of plain strcmp
+      x11: fix the wrong parameter sequence in pax11publish
+      build: Add gcov coverage support
+      pacmd: add help info for 'set-log-target'
+      xen: add the HAVE_CONFIG_H macro guard
+      add a new log target that enables to create new log file if it exists
+      bluetooth: add a parenthesis around pa_streq()
+      man: document option `set-log-target`
+      core: add more verbose error info
+      build-sys: add `check` test framework
+      tests: modify mix-test to use new 'check' test framework
+      tests: add cpu test
+      tests: modify mainloop-test to use new 'check' framework
+      tests: modify utf8-test to use new 'check' test framework
+      tests: modify strlist-test to use new 'check' framework
+      build: add a target to ease the creation of coverage files
+      tests: enable to test standalone pulseaudio daemon
+      tests: modify volume_test to use new 'check' framework
+      tests: modify usergroup-test to use 'check' test framework
+      tests: modify format-test to use 'check' framework
+      tests: modify get-binary-name-test to use 'check' framework
+      tests: modify thread-test to use 'check' framework
+      tests: modify thread-mainloop-test to use 'check' framework
+      tests: modify alsa-time-test to use 'check' framework
+      tests: modify asyncmsgq-test to new 'check' framework
+      tests: modify asyncq-test to use 'check' framework
+      tests: modify channelmap-tets to use 'check' framework
+      tests: modify cpulimit-test to use 'check' framework
+      tests: modify queue-test to use 'check' framework
+      tests: modify connect-stress to use 'check' framework
+      tests: modify memblock-test to use 'check' framework
+      tests: modify proplist-test to use 'check' framework
+      tests: modify memblockq-test to use 'check' framework
+      tests: modify hook-list-test to use 'check' framework
+      tests: modify extended-test to use 'check' framework
+      tests: modify sync-playback to use 'check' framework
+      tests: modify smoother-test to use 'check' framework
+      tests: modify interpol-test to use 'check' framework
+      tests: modify sigbus-test to use 'check' framework
+      tests: modify sig2str-test to use 'check' framework
+      tests: modify rtpoll-test to use 'check' framework
+      tests: modify lock-autospawn-test to use 'check' framework
+      tests: modify once-test to use 'check' framework
+      tests: modify ipacl-test to use 'check' framework
+      tests: fix the wrong library path in check-daemon
+      tests: make 'check' optional
+      build: fix Mac OS X configure process
+
+Eero Nurkkala (2):
+      alsa-sink: add missing header 'signal.h'
+      alsa-source: add missing header 'signal.h'
+
+Feng Wei (3):
+      alsa: Integrate UCM basic functions
+      alsa: Add UCM jack detection
+      alsa: Catch role matched streams to enable/disable modifier
+
+Flavio Ceolin (4):
+      sink-input: Remove redundant check in pa_sink_input_request_rewind().
+      modargs: New function: pa_modargs_get_value_double().
+      pulse: Fix for volume documentation
+      utils: Adding a function to get volume from string
+
+Frédéric Dalleau (6):
+      loopback: Enable routing on loopback streams
+      bluetooth: module-bluetooth-policy initial commit
+      pacmd: Display inputs and outputs PASSTHROUGH flag
+      loopback: Cork sink-input if source is suspended
+      loopback: Cork source-output if sink is suspended
+      resampler: Fix crash if 'auto' resampler chooses ffmpeg with variable rate
+
+Frédéric Danis (2):
+      bluetooth: Fix crash on disconnection
+      bluetooth: Fix bluetooth.nrec property not updated
+
+Harsh Prateek Bora (2):
+      modules: Use PA_IDXSET_FOREACH wherever applicable.
+      pulsecore: Use PA_IDXSET_FOREACH wherever applicable.
+
+Ismo Puustinen (2):
+      ladspa: D-Bus interface for setting algorithm parameters on-the-fly.
+      ladspa: Added a python script for testing.
+
+Jan Alexander Steffens (heftig) (1):
+      alsa-mixer: Actually install analog-input-headphone-mic.conf
+
+Jarkko Nikula (2):
+      alsa: move pa_alsa_setting_select close to pa_alsa_path_select
+      alsa: Merge pa_alsa_setting_select with pa_alsa_path_select
+
+Jarkko Suontausta (1):
+      bluetooth: Release transport when the pa_rtpoll_run loop finishes.
+
+Juho Hämäläinen (1):
+      stream-restore: Add missing method handler argument.
+
+Lennart Poettering (14):
+      util: XDG_SESSION_COOKIE is unsuitable as session ID
+      proplist: document new meaning of the session ID
+      util: /etc/machine-id should be tried first, the D-Bus only as fallback for legacy systems
+      util: use the return value of gethosid() as fallback, not the address of the function
+      build-sys: readd stub makefiles to subdirectories to make building with emacs easier
+      build-sys: remove HAL support, it's obsolete since years
+      rtkit: update drop-in files
+      context: get rid of really old runtime dir logic, i.e. break compat with >4y-old PA
+      util: hook up pa_get_runtime_dir() with XDG_RUNTIME_DIR
+      core-util: move configuration home directory from ~/,pulse to ~/.config/pulse to follow XDG basedir spec
+      man: update man pages to only refer to the new place for the configuration files
+      core-util: when searching for configuration files, honour XDG basedir spec
+      auth: move cookie file to ~/.config/pulse/cookie
+      gnome: start PA early in the gnome session
+
+Luiz Augusto von Dentz (2):
+      bluetooth: Remove built-in/static SBC codec
+      bluetooth: Don't force any profile on discovery module
+
+Marc-Antoine Perennou (1):
+      udev: Don't use deprecated udev_get_*_path() functions
+
+Martin-Éric Racine (1):
+      manpage, finnish translation: fix spelling errors
+
+Matthijs Kooijman (1):
+      equalizer: Don't cleanup u->sink in sink_input_kill_cb yet
+
+Mihai Moldovan (1):
+      core-util: use the generic PATH_MAX variant of pa_realpath on Mac OS X
+
+Mikel Astiz (67):
+      bluetooth: Don't use the old socket IPC mechanism with BlueZ
+      bluetooth: Refactor property parsing code
+      bluetooth: Remove library for IPC to BlueZ
+      bluetooth: Minor style fixes
+      bluetooth: Consider different input and output MTU
+      bluetooth: Avoid duplicating profile argument twice
+      bluetooth: Replace deprecated ListAdapters()
+      bluetooth: Replace deprecated ListDevices()
+      bluetooth: Remove minor unnecessary check
+      bluetooth: Minor style fix
+      bluetooth: Fix missing state checks for a2dp_source
+      bluetooth: Fix bluetooth.protocol property
+      bluetooth: Trivial style fix
+      bluetooth: Generalize module-bluetooth-policy
+      bluetooth: Support HFGW in module-bluetooth-policy
+      loopback: Disable adjust timer when suspended
+      bluetooth: Remove return value of bt_transport_config()
+      bluetooth: Remove return value of setup_stream()
+      bluetooth: Refactor parsing of signal PropertyChanged
+      bluetooth: Refactor code to helper function
+      bluetooth: Fix wrongly set "phone" role for HFGW
+      bluetooth: Fix using garbage memory
+      bluetooth: Fix check if transport exists before acquire
+      sink, source: Support creating suspended sinks and sources
+      bluetooth: Provide dummy set_port callbacks
+      bluetooth: Config MTU transport after acquire
+      bluetooth: Support port availability flag
+      bluetooth: Set profile even if transport not acquired
+      bluetooth: Do not acquire transport during profile change
+      bluetooth: Acquire transport when becomes available
+      bluetooth: Release transport when not available
+      bluetooth: Do not switch to HFGW automatically
+      bluetooth: Let suspend-on-idle request audio in headset
+      bluetooth: Add port availability transition policies
+      bluetooth: Ignore Device.DisconnectRequested
+      bluetooth: Trivial function rename
+      bluetooth: Fix potential assertion failure
+      bluetooth: Don't find device if set profile is off
+      bluetooth: Release transport in stop_thread()
+      bluetooth: Unlink sink-sources in stop_thread()
+      bluetooth: Remove stream moving code
+      bluetooth: Use assertions when setting off profile
+      bluetooth: Check return value of init_profile()
+      bluetooth: Check return value of start_thread()
+      bluetooth: Remove const qualifier for transports
+      bluetooth: Add hook to tell transport was removed
+      bluetooth: Set to off if transport removed
+      bluetooth: Set to off instead of failing module load
+      bluetooth: Hold transport pointer while profile set
+      bluetooth: Remove const qualifier for device
+      bluetooth: Add hook to tell device was removed
+      bluetooth: Self unload module-bluetooth-device
+      bluetooth: Hold device pointer while module loaded
+      bluetooth: Refactor code to create card profiles
+      bluetooth: Refactor code to create profile ports
+      card: Support adding profiles dynamically
+      card: Support adding ports dynamically
+      bluetooth: Add hook to announce late UUIDs
+      bluetooth: Rename former device_is_audio()
+      bluetooth: Run the discovery hook only when necessary
+      bluetooth: Merge headset ports into one
+      bluetooth: Disable profile auto-switch policy for headsets
+      conf: Load bluetooth-policy module by default
+      bluetooth: Trivially refactor to call setup_stream() directly
+      bluetooth: Do not setup stream before thread starts
+      bluetooth: Request headset audio during profile switch
+      bluetooth: Fix unacquired transports during sink resume
+
+Niels Ole Salscheider (3):
+      virtual-surround: Add silence to hrir if necessary.
+      virtual-surround: Limit the number of hrir samples.
+      virtual-surround: check if resampled memblock is not equal to input
+
+Paul Menzel (1):
+      Fix spelling of separated: s, sepera, separa, g
+
+Peter Meerwald (13):
+      pipe: whitespace and log output cleanup
+      pipe: check return value of mkfifo()
+      memblock: Fix typos.
+      build: Fix static linking
+      core: Set volumes const in pa_do_volume_func_t
+      modules: Add null/dummy echo canceller
+      daemon: Fix redundant redeclaration warning
+      svolume_arm: Fix a const warning.
+      echo-cancel: Fix false warning in webrtc AEC.
+      rtp: Fix warning using pa_assert_not_reached()
+      core: Add ARM NEON optimized sample conversion code
+      tests: Fix test description in cpu-test
+      tests: Implement test code for ARM NEON sconv s16_to_float
+
+Pierre-Louis Bossart (1):
+      alsa: get avail, delay, timestamps in a single kernel call
+
+Sjoerd Simons (2):
+      build-sys: webrtc-utils needs to be installed before module-echo-cancel
+      build-sys: Correct bluez support error if sbc is missing
+
+Sjors Gielen (1):
+      osx: Add a single "On" profile to coreaudio devices. Fixes crash on OS X.
+
+Tanu Kaskinen (51):
+      device-port: Create the profiles hashmap at initialization.
+      device-port: Remove an out-of-date comment.
+      native: Don't save device, volume or mute of new streams.
+      sink, source: Fix setting the latency offset when the sink/source is unlinked.
+      Fix a copy-paste error in PROTOCOL.
+      pulse: Use more intuitive indexing with port infos in introspect.c.
+      proplist: Change proplist_name_valid() to be public function pa_proplist_key_valid().
+      tagstruct: Allow NULL proplist with pa_tagstruct_get_proplist().
+      conf-parser: Pass parser state in a struct instead of function parameters.
+      conf-parser: Pass parser state in a struct also for parse callbacks.
+      conf-parser: Add support for parsing property lists.
+      alsa-mixer: Add support for defining port property lists in the path configuration files.
+      native: Send the actual port proplists with card info.
+      pactl: Print card port properties with the "list" command.
+      card: Don't crash if someone gives NULL name to pa_card_set_profile().
+      sink, source: Always create a hashmap for ports.
+      card: Ensure that there's always at least one profile.
+      Assume that the profiles hashmap of ports is always non-NULL.
+      Assume that the ports hashmap of cards is always non-NULL.
+      card-restore: Handle reading NULL profile name from the database.
+      alsa-mixer: Implement a new path option: "mute-during-activation".
+      build-sys: Link utf8-test to libpulsecommon.
+      Add comments referring to bug #53709.
+      memblock: Add pa_memblock_acquire_chunk().
+      object: Get rid of "warning: cast increases required alignment of target type"
+      sink-input: Fix comment: s/push/peek/
+      sink-input: Add a comment in pa_sink_input_request_rewind().
+      sink: Remove an incorrect FIXME comment.
+      bluetooth: Remove commented out code.
+      .gitignore: Add cpu-test.
+      rtp: Fix rtp_port reading.
+      card: Store a pa_card pointer in pa_card_profile.
+      build: Add a2dp-codecs.h to libbluetooth-util sources.
+      memblockq: Fix the order of setting minreq and prebuf.
+      resampler: Make sure that there are no overflows when multiplying potentially big numbers.
+      loopback: Use the real sample spec once it's known.
+      loopback: Don't fix the source output format/rate/channels.
+      virtual-surround-sink: Fix setting max_request and max_rewind.
+      combine: Keep the timer active in the null mode only when running.
+      match: Use the SINK_INPUT_FIXATE hook instead of NEW.
+      build: Add .gitignore files to EXTRA_DIST.
+      device-restore: When restoring volume, print the restored volume to the log.
+      build: Add PROTOCOL to EXTRA_DIST.
+      pulse: Fix hole handling in pa_stream_peek().
+      mainloop: Change wakeup_requested type from pa_bool_t to pa_atomic_t.
+      mainloop: Don't care about the mainloop state variable when waking up the mainloop.
+      sink: Process rewind requests also when suspended.
+      bluetooth: Add a pa_bluetooth_discovery pointer to pa_bluetooth_device.
+      bluetooth: Ignore Device.Connected
+      bluetooth: Add helper pa_bluetooth_device_any_audio_connected()
+      bluetooth: Unload device module when no audio profiles connected
+
+Thomas Martitz (7):
+      pacat: Enable binary mode on Windows.
+      core: Transparently handle non-blocking sockets on Windows
+      pacat: Replace read(), write() with pa_* equivalent.
+      core: Slightly more helpful pa_cstrerror for unknown errors
+      gccmacro: Disable printf-like format checking on mingw32 compilers.
+      core: Proper poll() emulation to fix pacat and friends on Windows
+      core-util: Don't error out on existing runtime directory.
+
+Uoti Urpala (2):
+      sink-input: Fix underrun_for calculation when resampling.
+      core: adjust playing_for and underrun_for at rewind
+
+Wieland Hoffmann (1):
+      man pulse-daemon.conf: Correct typoes
+
+poljar (8):
+      pacmd: Added --help and --version descriptions to the man page.
+      native: Use foreach to iterate trough modules.
+      pactl: Add unloading modules by name.
+      pacmd: Add unloading modules by name.
+      bluetooth: Add ports to the bluetooth sink/source
+      device-port: Add a latency variable to the port struct
+      sink, source: Add a latency offset which is inherited from the port
+      pacmd: Add functions to handle the latency offset
+
+poljar (Damir Jelic) (2):
+      introspect: Add functions to handle the latency offset.
+      pactl: Add set-latency-offset command.
+
+poljar (Damir Jelić) (5):
+      device-port: Change the latency offset type to a signed int.
+      conf-parser: Initialize the state to zero immediately.
+      device-port: Send a subscription event when the offset changes.
+      man: Add latency offset documentation to the cli syntax.
+      card-restore: Add the ability to save and restore the latency offset.
+}}}
