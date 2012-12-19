@@ -4,13 +4,13 @@
 
 ''So you are working on a Linux distribution or appliance and need very fast boot-ups?''
 
-systemd can already offer boot times of < 2s (userspace only, i.e. only the bits controlled by systemd) for complete up-to-date desktop environments on simpler (but modern, i.e. SSDs) laptops if configured properly (example: http://git.fenrus.org/tmp/bootchart-20120512-1036.svg). In this page we want to suggest a couple of ideas how to achieve that, and if the resulting boot times do not suffice where we believe room for improvements are that we'd like to see implemented sooner or later. If you are interested in investing engineering manpower in systemd to get to even shorter boot itmes, this list hopefully includes a few good suggestions to start with.
+systemd can already offer boot times of < 2s (userspace only, i.e. only the bits controlled by systemd) for complete up-to-date desktop environments on simpler (but modern, i.e. SSDs) laptops if configured properly (example: http://git.fenrus.org/tmp/bootchart-20120512-1036.svg). In this page we want to suggest a couple of ideas how to achieve that, and if the resulting boot times do not suffice where we believe room for improvements are that we'd like to see implemented sooner or later. If you are interested in investing engineering manpower in systemd to get to even shorter boot times, this list hopefully includes a few good suggestions to start with.
 
 Of course, before optimizing you should instrument the boot to generate profiling data, so make sure you know your way around with bootchart, systemd-analyze and pytimechart! Optimizations without profiling are premature optimizations!
 
 Note that systemd's fast performance is a side effect of its design but wasn't the primary design goal. As it stands now systemd (and Fedora using it) has been optimized very little and still has a lot of room for improvements. There are still many low hanging fruits to pick!
 
-We are very interested in merging optimization work into systemd upstream. Note however that we are careful not to merge work that would drastically limit the general purpose usefulness or reliability of our code, or that woud make systemd harder to maintain. So in case you work on optimizations for systemd, try to keep your stuff mainlineable. If in doubt, ask us. 
+We are very interested in merging optimization work into systemd upstream. Note however that we are careful not to merge work that would drastically limit the general purpose usefulness or reliability of our code, or that would make systemd harder to maintain. So in case you work on optimizations for systemd, try to keep your stuff mainlineable. If in doubt, ask us. 
 
 The distributions have adopted systemd to varying levels. While there are many compatibility scripts in the boot process on Debian for example, Fedora has much less (but still too many). For better performance consider disabling these scripts, or using a different distribution.
 
@@ -22,17 +22,17 @@ What you can optimize (locally) without writing any code:
 
  2. Consider bypassing the initrd, if you use one. On Fedora, make sure to install the OS on a plain disk without encryption, and without LVM/RAID/... (encrypted /home is fine) when doing this. Then, simply edit grub.conf and remove the initrd from your configuration, and change the root= kernel command line parameter so that it uses kernel device names instead of UUIDs, i.e. "root=sda5" or what is appropriate for your system. Also specify the root FS type with "rootfstype=ext4" (or as appropriate). Note that using kernel devices names is not really that nice if you have multiple hard disks, but if you are doing this for a laptop (i.e. with a single hdd), this should be fine. Note that you shouldn't need to rebuild your kernel in order to bypass the initrd. Distribution kernels (at least Fedora's) work fine with and without initrd, and systemd supports both ways to be started.
 
- 3. Consider disabling SELinux and auditing. We recommend to leave SELinux on, for security reasons, but truth be told you can save 100ms of your boot if you disable it. Use selinux=0 on the kernel cmdline.
+ 3. Consider disabling SELinux and auditing. We recommend leaving SELinux on, for security reasons, but truth be told you can save 100ms of your boot if you disable it. Use selinux=0 on the kernel cmdline.
 
  4. Consider disabling Plymouth. If userspace boots in less than 2s, a boot splash is hardly useful, hence consider passing plymouth.enable=0 on the kernel command line. Plymouth is generally quite fast, but currently still forces settling device enumerations for graphics cards, which is slow. Disabling plymouth removes this bit of the boot.
 
  5. Consider disabling syslog. The journal is used anyway on newer systemd systems, and is usually more than sufficient for desktops, and embedded, and even many servers. Just uninstall all syslog implementations and remember that "journalctl" will get you a pixel perfect copy of the classic /var/log/messages message log. To make journal logs persistent (i.e. so that they aren't lost at boot) make sure to run "mkdir -p /var/log/journal".
 
- 6. Consider masking a couple of redundant distribution boot scripts, that artifically slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages which slow down the boot substantially even if no storage of the specific kind is used (and if these RPMs can't be removed because some important packages require them, at least mask the respective services). 
+ 6. Consider masking a couple of redundant distribution boot scripts, that artificially slow down the boot. For example, on Fedora it's a good idea to mask fedora-autoswap.service fedora-configure.service fedora-loadmodules.service fedora-readonly.service. Also remove all LVM/RAID/FCOE/iSCSI related packages which slow down the boot substantially even if no storage of the specific kind is used (and if these RPMs can't be removed because some important packages require them, at least mask the respective services). 
 
  7. Console output is slow. So if you measure your boot times and ship your system, make sure to use "quiet" on the command line and disable systemd debug logging (if you enabled it before).
 
- 8. Consider removing cron from your system and use systemd timer units instead. Timer units currently have no support for calendar times (i.e. cannot be used to spawn things "at 6 am every monday", but can do "run this every 7 days"), but for the usual /etc/cron.daily/, /etc/cron.weekly/, ... should be good enough, if the time of day of the execution doesn't matter (just add four small service and timer units for supporting these dirs. Eventually we might support these out of the box, but until then, just write your own scriplets for this).
+ 8. Consider removing cron from your system and use systemd timer units instead. Timer units currently have no support for calendar times (i.e. cannot be used to spawn things "at 6 am every Monday", but can do "run this every 7 days"), but for the usual /etc/cron.daily/, /etc/cron.weekly/, ... should be good enough, if the time of day of the execution doesn't matter (just add four small service and timer units for supporting these dirs. Eventually we might support these out of the box, but until then, just write your own scriplets for this).
 
  9. If you work on an appliance, consider disabling readahead collection in the shipped devices, but leave readahead replay enabled.
 
@@ -42,13 +42,13 @@ What you can optimize (locally) without writing any code:
 
  12. Use a modern desktop that doesn't pull in !ConsoleKit anymore. For example GNOME 3.4.
 
- 13. Get rid of a local MTA, if you are building a desktop or appliance. i.e. on Fedora remove the sendmail RPMs which are (still!) installed by default.
+ 13. Get rid of a local MTA, if you are building a desktop or appliance. I.e. on Fedora remove the sendmail RPMs which are (still!) installed by default.
 
- 14. If you build an appliance, don't forget that various components of systemd are optional and may be disabled during build time, see "./configure --help" for details. For example, get rid of of the virtual console setup if you never have local console users (this is a major source of slowness, actually). In addition, if you never have local users at all, consider disabling logind. And there are more components that are frequently unnecessary on appliances.
+ 14. If you build an appliance, don't forget that various components of systemd are optional and may be disabled during build time, see "./configure --help" for details. For example, get rid of the virtual console setup if you never have local console users (this is a major source of slowness, actually). In addition, if you never have local users at all, consider disabling logind. And there are more components that are frequently unnecessary on appliances.
 
  15. This goes without saying: the boot-up gets faster if you started less stuff at boot. So run "systemctl" and check if there's stuff you don't need and disable it, or even remove its package.
 
- 16. Don't use debug kernels. Debug kernels are slow. Fedora exclusively uses debug kernels during the development phase of each release. If you care about boot performance, either recompile these kernels with debugging turned off or wait for the final distribution release. It's a drastic difference. That also means that if you publish boot performance data of a Fedora pre-release distribution your are doing something wrong. ;-)
+ 16. Don't use debug kernels. Debug kernels are slow. Fedora exclusively uses debug kernels during the development phase of each release. If you care about boot performance, either recompile these kernels with debugging turned off or wait for the final distribution release. It's a drastic difference. That also means that if you publish boot performance data of a Fedora pre-release distribution you are doing something wrong. ;-)
 
 So much about the basics of how to get a quick boot. Now, here's an incomprehensive list of things we'd like to see improved in systemd (and elsewhere) over short or long and need a bit of hacking (sometimes more, and sometimes less):
 
@@ -64,7 +64,7 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
 
  6. Add socket activation to X. Due to the special socket allocation semantics of X this is useful only for display :0. This should allow parallelization of X startup with its clients.
 
- 7. The usual housekeeping: get rid of shell-based services (i.e. SysV init scripts), replace them with unit files. Don't make use of Type=forking and ordering dependencies if possible, use socket activation with Type=simple instead. This allows drastically better parallized start-up for your services. Also, if you cannot use socket activation, at least consider patching your services to support Type=notify in place of Type=forking. Consider making seldom used services activated on-demand (for example, printer services), and start frequently used services already at boot instead of delaying them until they are used.
+ 7. The usual housekeeping: get rid of shell-based services (i.e. SysV init scripts), replace them with unit files. Don't make use of Type=forking and ordering dependencies if possible, use socket activation with Type=simple instead. This allows drastically better parallelized start-up for your services. Also, if you cannot use socket activation, at least consider patching your services to support Type=notify in place of Type=forking. Consider making seldom used services activated on-demand (for example, printer services), and start frequently used services already at boot instead of delaying them until they are used.
 
  8. Implement calendar based timers in .timer units, so that cron becomes fully unnecessary.
 
@@ -72,7 +72,7 @@ So much about the basics of how to get a quick boot. Now, here's an incomprehens
 
  10. Consider making use of systemd for the session as well, the way Tizen is doing this. This still needs some love in systemd upstream to be a smooth ride, but we definitely would like to go this way sooner or later, even for the normal desktops.
 
- 11. Add an option for service units to temporarily bump the CPU and IO priority of the startup code of important services. Note however, that we assume that this will not bring much and hence recommend looking into this only very late. Since boot-up tends to be IO bound, solutions such as readahead are probably more interesting than priorizing service startup IO. Also, this would probably always require a certain amount of manual configuration since determining automatically which services are important is hard (if not impossible), because we cannot track properly which services other services wait for.
+ 11. Add an option for service units to temporarily bump the CPU and IO priority of the startup code of important services. Note however, that we assume that this will not bring much and hence recommend looking into this only very late. Since boot-up tends to be IO bound, solutions such as readahead are probably more interesting than prioritizing service startup IO. Also, this would probably always require a certain amount of manual configuration since determining automatically which services are important is hard (if not impossible), because we cannot track properly which services other services wait for.
 
  12. Same as the previous item, but temporarily lower the CPU/IO priority of the startups part of unimportant leaf services. This is probably more useful than 11 as it is easier to determine which processes don't matter.
 
