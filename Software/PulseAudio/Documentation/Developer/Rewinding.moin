@@ -10,7 +10,7 @@ Rewinding is mostly used for making changes in the audio hearable as quickly as 
 
 == Buffers ==
 
-A useful way to think about the system is that there are three buffers: the sink buffer, the render_memblockq and the sink input implementor's buffer (forget about filter sinks for now). Each buffer has a read and a write index that normally move forward, but on rewinds one or both of them move backwards. The sink read index never moves backwards. You can think the sink read index as the point where the digital audio is converted into analog signal - there's no way to rewrite that data.
+A useful way to think about the system is that there are three buffers: the sink buffer, the render_memblockq and the sink input implementor's buffer. Each buffer has a read and a write index that normally move forward, but on rewinds one or both of them move backwards. The sink read index never moves backwards. You can think the sink read index as the point where the digital audio is converted into analog signal - there's no way to rewrite that data.
 
 The three buffers can be thought as infinite, so don't think them as ringbuffers (even if the implementation is a ringbuffer). They don't contain an infinite amount of data, though. The word "infinite" means just that the read and write index grow without limit (the indexes are implemented as 64-bit integers, so they are virtually unlimited). The sink buffer has a hard limit on how far ahead the write index can be from the read index. In other words, the sink buffer has a defined size. The sink buffer size is also the maximum rewind amount that the sink supports, and that is stored in pa_sink.thread_info.max_rewind.
 
