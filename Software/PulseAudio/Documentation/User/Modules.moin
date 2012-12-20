@@ -110,49 +110,77 @@ You should (almost) never need to load this module manually. Let module-udev-det
 This module supports device=, fragments=, fragment_size= and tsched= arguments the same way as module-alsa-sink.
 Also mmap, name, device, control, tsched_buffer_size, tsched_watermark, ignore_dB, namereg_fail, fixed_latency_range
 
+
 === module-alsa-card ===
 
-Provides an interface for configuring how the card functions (2.0, 4.0, 5.1, 7.1, ...)
-
-Of the default sample spec arguments, only format and rate are supported.
-
-Supported parameters:
+Creates a !PulseAudio card for an ALSA card. The "device_id" argument is mandatory, it tells !PulseAudio which ALSA card to use.
 
   card_name
+    Name for the !PulseAudio card.
 
   card_properties
+    Extra properties to be stored in the card's property list.
+
+  sink_name
+    Name to be used by the card's sinks. If the card has any profiles that have multiple sinks, then this argument can't be used, because the sink names can't all be the same.
+
+  sink_properties
+    Extra properties to be stored in the property lists of the card's sinks.
+
+  source_name
+    Name to be used by the card's sources. If the card has any profiles that have multiple sources, then this argument can't be used, because the source names can't all be the same.
 
   namereg_fail
+    A boolean. If "true", loading the card will fail if there already exists a card with the same name. If "false", a suffix is added to the card name if there already exists a card with the same name.
 
   profile
     The initial profile to activate when loading the module.
 
   profile_set
-    '''Since 1.0''': Profile set configuration file. Can be an absolute path, or relative to the usual profile-sets directory.
+    Profile set configuration file. Can be an absolute path, or relative to the standard profile-sets directory.
 
   device_id
     The alsa card identifier. Can be the card index or the name. See `/proc/asound/cards` for the list of available cards and their identifiers.
 
+  format
+    The sample format to be used by the card's sinks and sources.
+
+  rate
+    The sample rate to be used by the card's sinks and sources.
+
   name
+    The "device_id" argument is used by default as a part of the card name (if "card_name" is not given), and also in the card's sink and source names. If you're not happy with that for some reason, this argument can be given to be a substitute for "device_id" in the card, sink and source names.
 
   tsched
+    A boolean. If "true", the sinks and sources of this card will use the timer-based scheduling.
 
   ignore_dB
+    A boolean. If "true", any decibel information given by the ALSA drivers will be ignored (useful if that information is wrong).
 
   fragments
+    The number of fragments to be used in the sink and source buffers. Only effective if the timer-based scheduling is disabled.
 
   fragment_size
+    The size of one fragment (in bytes) to be used in the sink and source buffers. Only effective if the timer-based scheduling is disabled.
 
   mmap
+    A boolean. If "true", !PulseAudio will access ALSA using the mmap interface.
 
-  name
+  tsched_buffer_size
+    The total sink and source buffer size in bytes. Only effective if the timer-based scheduling is enabled.
 
-  tsched_buffer_size, tsched_watermark
+  tsched_buffer_watermark
+    The buffer fill level (in bytes) at which the sinks must refill the buffer. Only effective if the timer-based scheduling is enabled.
 
-  sync_volume
+  deferred_volume
+    A boolean. If "true", !PulseAudio will slightly delay hardware volume changes in order to synchronize the changes with software volume changes.
 
   fixed_latency_range
-    '''Since 2.0.''' Boolean. Normally when there's an alsa underrun or overrun, and timer based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
+    A boolean. Normally when there's an alsa underrun or overrun, and timer-based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
+
+  use_ucm
+    A boolean. If "true", the card will use the ALSA Use Case Manager interface for configuration, if it's available. If "false", or if there's no UCM configuration for the card, !PulseAudio's own profile and path configuration files will be used instead.
+
 
 === module-oss ===
 
