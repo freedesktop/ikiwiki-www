@@ -54,7 +54,7 @@ The '''static (configured) host name''' is the one configured in /etc/hostname o
 
 The '''transient (dynamic) host name''' is the one configured via the kernel's sethostbyname(). It can be different from the static hostname in case DHCP or mDNS have been configured to change the name based on network information. This property is never empty. If no host name is set this will default to "localhost". Setting this property to the empty string will reset the dynamic hostname to the static host name. If no static host name is configured the dynamic host name will be reset to "localhost". This hostname should be an internet-style hostname, 7bit ASCII, no special chars/spaces, lower case.
 
-The '''pretty host name''' is a free-form UTF8 host name for presentation to the user. UIs should ensure that the pretty hostname and the static hostname stay in sync. i.e. when the former is "Lennart's Computer" the latter should be "lennarts-computer". If no pretty host name is set this setting will be the empty string. Applications should then find a suitable fallback, such as the dynamic hostname.
+The '''pretty host name''' is a free-form UTF8 host name for presentation to the user. UIs should ensure that the pretty hostname and the static hostname stay in sync. I.e. when the former is "Lennart's Computer" the latter should be "lennarts-computer". If no pretty host name is set this setting will be the empty string. Applications should then find a suitable fallback, such as the dynamic hostname.
 
 The '''icon name''' is a name following the XDG icon naming spec. If not set information such as the chassis type (see below) are used to find a suitable fallback icon name (i.e. "computer-laptop" vs. "computer-desktop" is picked based on the chassis information). If no such data is available returns the empty string. In that case an application should fall back to a replacement icon, for example "computer". If this property is set to the empty string this automatic fallback name selection is enabled again.
 
@@ -62,13 +62,13 @@ The '''chassis type''' should be one of the following that are currently defined
 
 A client which wants to change the local host name for DHCP/mDNS should invoke !SetHostname("newname", false) as soon as the name is available and afterwards reset it via !SetHostname("").
 
-Note that hostnamed starts only on request and terminates after a short idle period. This effectively means that PropertyChanged messages are not sent out for changes made directly on the files (as in: administrator edits the files with vi). This is actually intended behaviour: manual configuration changes should require manual reloading of them.
+Note that hostnamed starts only on request and terminates after a short idle period. This effectively means that PropertyChanged messages are not sent out for changes made directly on the files (as in: administrator edits the files with vi). This is actually intended behavior: manual configuration changes should require manual reloading of them.
 
-The transient (dynamic) hostname directly maps to the kernel hostname. This hostname should be assumed to be highly dynamic, and hence should be watched directly, without involing PropertyChanged messages from hostnamed. For that, open /proc/sys/kernel/hostname and poll() for SIGHUP which is triggered by the kernel every time the hostname changes. Again: this is special for the transient (dynamic) hostname, and does not apply to the configured (fixed) hostname.
+The transient (dynamic) hostname directly maps to the kernel hostname. This hostname should be assumed to be highly dynamic, and hence should be watched directly, without involving PropertyChanged messages from hostnamed. For that, open /proc/sys/kernel/hostname and poll() for SIGHUP which is triggered by the kernel every time the hostname changes. Again: this is special for the transient (dynamic) hostname, and does not apply to the configured (fixed) hostname.
 
 Applications may bypass the daemon to read the hostname data if notifications of host name changes are not necessary. Use gethostname(), /etc/hostname (possibly with per-distribution fallbacks), and /etc/machine-data for that. For more information on these files and syscalls see the respective man pages.
 
-The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
+The user_interaction boolean parameters can be used to control whether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
 
 The !PolicyKit action for !SetHostname() is ''org.freedesktop.hostname1.set-hostname''. For !SetStaticHostname() and !SetPrettyHostname() it is ''org.freedesktop.hostname1.set-static-hostname''. For !SetIconName() and !SetChassis() it is ''org.freedesktop.hostname1.set-machine-info''.
 
@@ -89,13 +89,13 @@ To properly handle name lookups with changing local hostnames without having to 
 Here are some recommendations to follow when generating a static (internet) hostname from a pretty name:
 
  * Generate a single DNS label only, not an FQDN. That means no dots allowed. Strip them, or replace them by "-".
- * It's probably safer not to use any non-ASCII chars, even if DNS allows this in some way these days. In fact, restrict your charset to a-zA-Z0-9, -. Strip other chars, or try to replace them in some smart way with chars from this set, for example "ä" → "ae" and suchlike, and use "-" as replacement for all kinds of punctuation chars or spaces.
+ * It's probably safer not to use any non-ASCII chars, even if DNS allows this in some way these days. In fact, restrict your charset to a-zA-Z0-9, -. Strip other chars, or try to replace them in some smart way with chars from this set, for example "ä" ? "ae" and suchlike, and use "-" as replacement for all kinds of punctuation chars or spaces.
  * Try to avoid creating repeated "-", as well as "-" as the first or last char.
  * Limit the hostname to 63 chars, which is the length of a DNS label
  * If after stripping special chars the empty string is the result, you can pass this as-is to hostnamed in which case it will automatically make "localhost" out of this.
  * It probably is a good idea to replace uppercase by lowercase chars
 
-Note that while hostnamed applies some checks to the hostname you pass they are much loser than the recommendations above. For example, hostnamed will also accept "_" in the hostname, but I'd recommend not to use this to avoid clashes with DNS-SD service types. Also hostnamed allows you longer hostnames, but because of the DNS label limitations I'd recommend not making use of this.
+Note that while hostnamed applies some checks to the hostname you pass they are much looser than the recommendations above. For example, hostnamed will also accept "_" in the hostname, but I'd recommend not using this to avoid clashes with DNS-SD service types. Also hostnamed allows you longer hostnames, but because of the DNS label limitations I'd recommend not making use of this.
 
 Here are a couple of example conversions:
 
