@@ -1,0 +1,56 @@
+= Supported hardware =
+== Hardware matrix ==
+|| || || [[http://en.wikipedia.org/wiki/PCI_configuration_space|PCI device ID]] || 2D accel. || 3D accel. || [[http://en.wikipedia.org/wiki/X_video_extension|XV]] || [[http://en.wikipedia.org/wiki/Mpeg2|MPEG2]] || [[http://en.wikipedia.org/wiki/H.264/MPEG-4_AVC|MPEG4]] || [[http://en.wikipedia.org/wiki/Dual_head|Dual head]] || Panel ||
+|| Unichrome || CLE266 || 0x3122 || OK || OK || OK || OK (up to 1024x1024) || absent || not implemented || OK ||
+|| Unichrome || KM400, KN400, KM400A, P4M800 || 0x7205 || OK || OK || OK || not implemented (up to 1024x1024) || absent || not implemented || OK ||
+|| Unichrome Pro B || K8M800 || 0x3108 || OK || OK (locks up with textures) || OK || OK (up to 1024x1024) || absent || not implemented || OK ||
+|| Unichrome Pro A || CN400, PM800, PN800, PM880 || 0x3118 || OK || OK || OK || OK (up to 2048x2048) || not implemented || not implemented || OK ||
+|| Unichrome Pro || CN700, VN800, P4M800Pro || 0x3344 || OK || OK || OK || OK (up to 1024x1024) || absent || not implemented || OK ||
+|| Unichrome Pro || P4M890 || 0x3343 || OK || OK || OK || OK (up to 1024x1024) || absent || not implemented || OK ||
+|| Unichrome Pro II || CX700 || 0x3157 || OK || OK || OK || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] (up to 2048x2048) || absent || not implemented || OK ||
+|| Unichrome Pro II || CX700M(2) || 0x3157 || OK || OK || OK || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] (up to 2048x2048) || not implemented || not implemented || OK ||
+|| Chrome9 || K8M890 || 0x3230 || OK || not implemented || OK || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] (up to 1024x1024) || absent || not implemented || OK ||
+|| Chrome9 HC || P4M900, VN896 || 0x3371 || OK || not implemented ||OK  || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] (up to 2048x2048) || absent || not implemented || OK ||
+|| Chrome9 HC3 || VX800 || 0x1122 || OK || not implemented || OK || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] (up to 2048x2048) || not implemented || not implemented || OK ||
+|| Chrome9 HCM || VX855 || 0x5122 || OK || not implemented || OK || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] || not implemented || not implemented || OK ||
+|| Chrome9 HD || VX900 || 0x7122 || OK|| not implemented || OK || [[http://openchrome.org/trac/browser/branches/xvmc-dev|WIP]] (up to 2048x2048) || not implemented || not implemented || OK ||
+|| ? || VX11 || ? || not implemented|| not implemented || not implemented || not implemented || not implemented || not implemented || not implemented ||
+
+== Unichrome ==
+=== CLE266 ===
+The CLE266 is quite well supported: 2D acceleration, 3D acceleration, [[http://en.wikipedia.org/wiki/X_video_extension|Xv]] and [[http://en.wikipedia.org/wiki/Mpeg2|MPEG2]] decoding using [[http://en.wikipedia.org/wiki/X-Video_Motion_Compensation|XvMC]] should work just fine. There is no support in the driver for the video capture functionality. The maximum image size of the mpeg2 decoder is 1024x1024, so don't try to use [[http://en.wikipedia.org/wiki/HDTV|HDTV]] with this chip.                                                                                                                                                                                                                                  
+
+=== KM400 / KM400A ===
+The KM400 is also quite well supported. 2D accel, 3D accel and Xv work fine, but there is no support for the mpeg2 acceleration facility of KM400, nor will there be in the near future.                                                     
+Xv is generally not fast enough to show HDTV. Also, some KM400s suffer from broken display interrupt hardware and the kernel will turn off the display interrupt shortly after it is enabled. This means that you cannot use the vsync functionality of some OpenGL programs and mythtv, and EXA acceleration may be slightly less responsive. KM400A doesn't suffer from the broken interrupt problem.                                                                                   
+                                                                                                                                                                                                                                             
+== Unichrome Pro ==
+=== K8M800 (Unichrome Pro group B) ===
+=== CN700, VM/N800, P4M800PRO (Unichrome Pro B) ===
+The Unichrome Pro group B chips are very similar in support level to the KM400, except that for these chips the hardware mpeg2 decoder is supported and is running quite nicely. Again, the maximum image size of the mpeg2 decoder is 1024x1024. I've never seen a K8M/N800 with a functional display interrupt, so vsync will not be useable and EXA acceleration may be slightly less responsive. Interrupts on the CN700 should work. For the other chips we don't have any reports. 2D acceleration should work just fine and 3D acceleration works fine as well, except on K8M/N800 chips where there are frequent hangs, probably due to timing problems. For x86_64 systems we have recently added some fixes to Mesa and DRM to make it work. You will need Mesa 6.4.X and at least via drm version 2.7.4. For Unichrome Pro laptops the driver automatically activates VBE modes to make the panel work, and you will thus be restricted to the BIOS modes when you are using the panel with these computers. (This may not work in 64-bit mode.)                                                                                                                                                                      
+                                                                                                                                                                                                                                             
+=== CN400 / PM800 / PM880 (Unichrome Pro group A) ===
+=== VM800 (Unichrome Pro group A) ===
+=== P4M890 (Unichrome Pro group A) ===
+For the CN400 and PM800, the 2D and 3D acceleration should work nicely. Xv and XvMC are also functional but may cause the computer to lock up if the video window is moved around extensively. It is on our todo list to fix this bug. The mpeg2 decoder of CN400 / PM800 is capable of decoding HDTV. However, none of the developers have had any decent HDTV output devices (or sources for that matter) to test the implementation. There are reports that HDTV stutters when subtitles are used, but we have been unable to verify this. XvMC currently decodes mpeg2. Support for mpeg4 acceleration with xine is underway. For what we know, the display interrupt should be fully functional with these devices. There is support for the vt1623 tv encoder present on the CN400, but support is not complete for the vt1625 HDTV encoder present on some Commel motherboards.
+
+=== CX700 (Unichrome Pro II) ===
+
+== Chrome9 ==
+
+The [[http://en.wikipedia.org/wiki/Direct_Rendering_Infrastructure|DRI]] and [[http://en.wikipedia.org/wiki/Motion_compensation|XvMC]] is not implemented yet. All OpenGL applications runs with software rendering mode (please see http://www.openchrome.org/trac/ticket/303).
+
+=== K8M890 ===
+
+=== P4M900 ===
+
+=== VX800 ===
+
+=== VX855 ===
+Basic VX855 support was introduced in changeset r756 and r757. VX855 graphics chip is capable [http://en.wikipedia.org/wiki/1080p 1080p] video acceleration, including [[http://en.wikipedia.org/wiki/H.264|H.264]].
+
+=== VX900 ===
+Basic support for chipset was added in r888. The prototype implementation will be available at branch: http://www.openchrome.org/trac/browser/branches/vx900_branch
+
+== See also: ==
+ * [[http://en.wikipedia.org/wiki/S3_Chrome|Chrome]]
