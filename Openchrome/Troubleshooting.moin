@@ -1,0 +1,67 @@
+= Troubleshooting =
+== DRM kernel modules ==
+To verify that the kernel DRM modules are loaded and functional, run the following command:
+{{{
+   dmesg | grep -e agp -e drm
+}}}
+This should produce output similar to this:
+{{{
+    Linux agpgart interface v0.102
+    agpgart: Detected VIA KM400/KM400A chipset
+    agpgart: AGP aperture is 64M @ 0xe0000000
+    [drm] Initialized drm 1.1.0 20060810
+    [drm] Initialized via 2.11.1 20070202 on minor 0
+    [drm] Used old pci detect: framebuffer loaded
+    agpgart: Found an AGP 3.5 compliant device at 0000:00:00.0.
+    agpgart: Device is in legacy mode, falling back to 2.x
+    agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+    agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
+}}}
+== openchrome driver ==
+To verify that the openchrome driver is being used, run:
+{{{
+    grep openchrome /var/log/Xorg.0.log
+}}}
+This should produce the following output:
+{{{
+    (II) LoadModule: "openchrome"
+    (II) Loading /usr/lib/xorg/modules/drivers//openchrome_drv.so
+    (II) Module openchrome: vendor="http://openchrome.org"
+    (!!) For support, refer to http://openchrome.org/.
+}}}
+== Direct Rendering ==
+To verify whether direct rendering is working (just in theory, as on some chipsets it doesn't actually work), run:
+{{{
+    grep rendering /var/log/Xorg.0.log
+}}}
+On the older chipsets this should say:
+{{{
+    (II) CHROME(0): direct rendering enabled
+}}}
+To verify whether there are any errors:
+{{{
+      grep "^(EE)" /var/log/Xorg.0.log
+}}}
+To verify whether there are any warnings:
+{{{
+      grep "^(WW)" /var/log/Xorg.0.log
+}}}
+
+
+
+== 3D ==
+If you can't get the [[http://en.wikipedia.org/wiki/Mesa_3D_(OpenGL)|Mesa 3D]] unichrome driver from git running properly, here are some things to try:
+
+- If you're on a 64-bit system, you really need via drm version 2.7.4 or above. You also need the mesa_6_4_branch from git. Also check that unichrome_dri.so gets installed in the correct location, since there may be some confusion as to where it should be installed. Use the LIBGL_DEBUG setting below to see from what location it is loaded and compare with where it got installed.
+
+- Check in the X server log /var/log/Xorg.0.log that DRI is enabled.
+
+- Check that you really used compatible versions of libdrm and Mesa. [How?]
+
+- Run glxinfo It should say Direct Rendering: Yes at some point. If it doesn't, use the environment variable setting export LIBGL_DEBUG=verbose (for bash-type shells) or setenv LIBGL_DEBUG verbose on csh/tcsh and rerun glxinfo to see what is wrong. Usually the 3D driver is not installed properly.
+
+- If you get AGP-related errors, check that you have the AGP aperture set to 32MB or more in the BIOS. Also make sure that the AGP driver is loaded before the drm driver. The agp driver is called via_agp.ko unless you're on a K8M/N800 system, where it is called amd64_agp.ko Usually distros will list one of these modules in the file /etc/modprobe.preload
+
+- The gears of glxgears may appear to turn slowly even if the printed figures say the framerate is high. This is perfectly normal: the eye is much too slow to see rates above about 30 fps. Trust the figures.
+
+- If your cursor seems to disappear or to misrender the background when you move it over a 3D window, it is probably because you are using a color cursor and the openChrome driver is currently not capable of doing hardware color cursors. Instead it falls back to software color cursors, and these are implemented in the X server using extensions that are not compatible with DRI. That is why you see what you see. A workaround is to use monochrome cursors [todo: figure out how].
