@@ -1,0 +1,130 @@
+= TTM stack build howto =
+
+*WARNING* : This is not for public consumption yet, don't try this at home unless you understand what you are doing.
+
+
+
+
+== Caveats ==
+
+   * Must run with DRM installed.
+   * XvMC not working yet.
+
+== Pre-requisites ==
+
+   * Linux kernel >= 2.6.27. 2.6.26 may work as well.
+   * Xserver >= 1.4. If you want to run the 3D driver, you'll need at least 1.5.
+   * pthread-stubs and xorg macros.
+
+== Components in install order ==
+
+(This was tested on a fully updated Fedora 10, Archlinux 2009.08 system, Gos 3.1 Gadgets, and Debian sid / unstable. All binary and devel packages used to compile the openchrome TTM stack can be taken from upstream (the original source) or using your distribution's package manager.)
+
+=== pthread-stubs ===
+{{{
+git clone git://anongit.freedesktop.org/xcb/pthread-stubs
+cd pthread-stubs
+./autogen.sh --prefix=/usr
+make install
+}}}
+
+=== xorg macros ===
+{{{
+git clone git://anongit.freedesktop.org/xorg/util/macros
+cd macros
+./autogen.sh --prefix=/usr
+make install
+}}}
+
+=== DRM and libdrm ===
+{{{
+git clone git://anongit.freedesktop.org/mesa/drm
+cd drm
+git checkout --track -b modesetting-newttm origin/modesetting-newttm
+./autogen.sh --prefix=/usr
+make
+make install
+}}}
+{{{
+cd linux-core
+make LINUXDIR=/lib/modules/`uname -r`/build DRM_MODULES="openchrome"
+mkdir -p /lib/modules/`uname -r`/updates/kernel/drivers/char/drm
+install -m 744 drm.ko /lib/modules/`uname -r`/updates/kernel/drivers/char/drm
+install -m 744 openchrome/openchrome.ko /lib/modules/`uname -r`/updates/kernel/drivers/char/drm
+depmod -ae
+}}}
+
+Link to latest upstream changes : http://cgit.freedesktop.org/mesa/drm/log/?h=modesetting-newttm
+
+=== libwsbm ===
+{{{
+wget http://cgit.freedesktop.org/mesa/libwsbm/snapshot/libwsbm-375a9b16472031d603fd0d2f3cbea3e1ed9bc6c7.tar.gz
+tar zxf libwsbm*.tar.gz
+cd libwsbm*
+make
+make install
+}}}
+
+Link to latest upstream changes : http://cgit.freedesktop.org/mesa/libwsbm/log/
+
+=== OpenChrome ===
+{{{
+svn co http://svn.openchrome.org/svn/branches/ttm_branch
+cd ttm_branch
+./autogen.sh --prefix=/usr \
+             --disable-static \
+             --enable-debug \
+             --enable-xv-debug
+make
+make install
+}}}
+
+Link to latest upstream changes : http://www.openchrome.org/trac/log/branches/ttm_branch
+
+=== Mesa ===
+xproto and x11proto from upstream is needed:
+{{{
+git clone git://anongit.freedesktop.org/xorg/proto/xproto
+git clone git://anongit.freedesktop.org/xorg/proto/x11proto
+cd xproto
+./autogen.sh --prefix=/usr
+make install
+cd ../x11proto
+./autogen.sh --prefix=/usr
+make install
+}}}
+{{{
+git clone git://anongit.freedesktop.org/mesa/mesa
+cd mesa
+git checkout --track -b openchrome-branch origin/openchrome-branch
+./autogen.sh --prefix=/usr --with-dri-drivers=openchrome --disable-glut --disable-gallium
+make
+make install
+}}}
+
+=== For 64 bit users ===
+
+When compiling mesa on a 64-bit machine with a 64-bit operating system, you must use the following ./autogen.sh line
+{{{
+./autogen.sh --prefix=/usr --libdir=/usr/lib64 --with-dri-drivers=openchrome --disable-glut --disable-gallium
+}}}
+
+Link to latest upstream changes : http://cgit.freedesktop.org/mesa/mesa/log/?h=openchrome-branch
+
+
+== Please note ==
+
+When compiling mesa, the version string may not change in glxinfo. That is because mesa was installed to /usr/lib/dri rather than /usr/lib/xorg/modules/dri. To fix this if it does not work:
+{{{
+cd mesa
+./autogen.sh --prefix=/usr --with-dri-driverdir=/usr/lib/xorg/modules/dri --with-dri-drivers=openchrome --disable-glut
+make
+make install
+}}}
+
+== Todo list ==
+  1. Fix EXA problems
+  2. Get XvMC working again.
+  3. Merge with trunk to get the latest modesetting / cursor bits.
+  4. Fix the 2D driver so it will run without DRM
+  5. Start merging in VIAs Chrome 9 bits into the new DRM.
