@@ -1,0 +1,71 @@
+= Development =
+== Hardware documentation ==
+=== Host bridge ===
+ * VIA VX800 : http://linux.via.com.tw/support/beginDownload.action?eleid=563&fid=863
+ * VIA VX855 : http://linux.via.com.tw/support/beginDownload.action?eleid=561&fid=861
+ * VIA VX900 : http://linux.via.com.tw/support/beginDownload.action?eleid=562&fid=862
+=== 2D ===
+ * VIA CX700 : http://www.x.org/docs/via/OGPM_UniChrome_ProII_R108a_Part1_Core_2D.pdf
+ * VIA VX800 : http://www.x.org/docs/via/OGPM_Chrome9%20HC3_R100a_Part1_Core_2D.pdf
+ * VIA VX855 : http://www.x.org/docs/via/OGPM_Chrome9%20HCM_R100_Part1_Core_2D.pdf
+ * VIA VX900 : http://www.x.org/docs/via/OGPM_Chrome9%20HD%20DX9%20_R100_PartI_Core_2D.pdf
+=== 3D ===
+ * VIA CX700 : http://www.x.org/docs/via/OGPM_UniChrome_ProII_R108a_Part2_3D_Video.pdf
+ * VIA VX800 : http://www.x.org/docs/via/OGPM_Chrome9%20HC3_R100a_Part2_3D_Video.pdf
+ * VIA VX855 : http://www.x.org/docs/via/OGPM_Chrome9%20HCM_R100_Part2_3D_Video.pdf
+ * VIA VX900 : http://www.x.org/docs/via/OGPM_Chrome9%20HD%20DX9%20_R100_PartII_3D_Video.pdf
+=== LVDS encoders ===
+ * VIA VT1631L : not available
+ * VIA VT1636 : ftp://ftp.vt-bridge.org/Docs/Video/DVI_LVDS/DS_VT1636_100_CCPL.pdf
+ * VIA VT1637 : ftp://ftp.vt-bridge.org/Docs/Video/DVI_LVDS/DS_VT1637_100_CCPL.pdf
+ * Chrontel CH7019B : http://www.chrontel.com/pdf/7019ds.pdf
+=== TMDS encoders ===
+ * VIA VT1632A : ftp://ftp.vt-bridge.org/Docs/Video/DVI_LVDS/DS_VT1632A_100_CCPL.pdf
+=== TV encoders ===
+ * VIA VT1625/M : ftp://ftp.vt-bridge.org/Docs/Video/TVENC/DS_VT1625_VT1625M_100_CCPL.pdf
+ * VIA VT1625S/SM : ftp://ftp.vt-bridge.org/Docs/Video/TVENC/DS_VT1625S_VT1625SM_100_CCPL.pdf
+ * Chrontel CH7019B : http://www.chrontel.com/pdf/7019ds.pdf
+
+== Coding style ==
+The code formatting in the openChrome driver is currently a mess.  It is the result of having several different developers, each coding in his own way.  The goal is to get as close as possible to some kind of Xorg unified coding style. If the instructions below differ substantially from what's current practice, they will be revised.
+
+Function names start with a lowercase letter and are written like this: viaFunctionName() As a general rule all functions should start with the prefix "via", however to improve clarity, static functions are allowed to start with other names.
+
+Variables also start with a lowercase letter: numOfScreens Global variables should be avoided.
+
+Type names start with an uppercase letter: !ViaMagicType Structs are wrapped with typedef.
+
+Indentation and general formatting should be done with the command:
+{{{
+indent -bad -bap -c40 -cd0 -ncdb -ci4 -cli0 -cp0 -ncs -d0 -di4 \
+       -i4 -ip4 -l78 -nlp -npcs -psl -sob -ss -br -ce -sc
+}}}
+See also the Xorg coding style page: 
+http://www.x.org/wiki/CodingStyle
+
+== Todo list ==
+|| Priority || Task || Status ||
+|| High || VX800 support || WIP ||
+|| High || [[http://en.wikipedia.org/wiki/Digital_Visual_Interface|DVI]] support (integrated [[http://en.wikipedia.org/wiki/Transition_Minimized_Differential_Signaling|TMDS]]) || WIP ||
+|| High || Better integrated and hardwired [[http://en.wikipedia.org/wiki/LVDS|LVDS]] support || WIP ||
+|| High || Dual head support || WIP ||
+|| Medium || TV out (integrated TV encoder) || WIP ||
+|| Medium || Better VT1625 TV encoder support || WIP ||
+|| Medium || Multiple Xv ports support || Not started ||
+|| Medium || Better hardware cursor support || Done ||
+|| Medium || [[http://en.wikipedia.org/wiki/Randr|RandR]] 1.2 support || WIP ||
+|| Medium || XvMC VLD for Unichrome Pro II || WIP ||
+|| Medium || Finish up TTM branch and merge back to trunk || Not started ||
+|| Medium || VX855 support|| WIP ||
+|| Low || iDCT, [[http://en.wikipedia.org/wiki/Motion_compensation|MoComp]] acceleration || Not started ||
+|| Low || mpeg4 acceleration || Not started ||
+|| Low || More TMDS encoder support (VT1632) || Not started ||
+|| Low || More LVDS encoders support (VT1631, VT1636) || Not started ||
+|| Low || Better additionnal TV encoders support (CH7011,CH7019A,CH7019B) || Not started ||
+|| Low || Additionnal TV encoder support (FS454, SAA7108) || Not started ||
+|| Low || VAAPI support|| Not Started ||
+
+== Registers dump ==
+Building the driver with the --enable-viaregtool configure option will generate a via_regs_dump binary that will be placed into /usr/sbin on install.
+
+It can be used to dump the IGP registers as well as other useful information.
