@@ -1,0 +1,117 @@
+= 2D driver installation =
+== Prebuilt binaries ==
+It is strongly adviced to use the openchrome packages provided by your distribution or alternatively contributed binaries if openchrome is not officially shipped in your distro.
+
+ * Ark Linux:
+   * Ark Linux includes and uses !OpenChrome by default. There is no need to install external packages.
+ * Debian:
+   * Official package: xserver-xorg-video-openchrome
+ * Fedora:
+   * Fedora Core 2 up to Fedora Core 6: http://washington.kelkoo.net/epia (Dead link).
+   * Fedora 7 and newer: just run 'yum install xorg-x11-drv-openchrome'.
+   * Fedora 9 and newer: openchrome is the default driver for VIA IGPs.
+ * Gentoo:
+   * Available in the portage: http://packages.gentoo.org/package/x11-drivers/xf86-video-openchrome
+ * Mandriva:
+   * Mandriva 2006 32 bits: http://www.mde.djura.org/index2006.0.html
+   * Mandriva 2006 64 bits: http://www.mde.djura.org/index2006.0_64.html
+   * Mandriva 2007.0 or newer: just run 'urpmi x11-driver-video-openchrome'.
+ * PCLinuxOS 2005:
+   * http://www.mde.djura.org/indexpclo2005.html
+ * RHEL/Centos:
+   * RHEL/Centos 4: http://www.yuiop.co.uk/epia/rhel4 - these are built from the same SRPMs as the Fedora ones provided above by xavier, but not updated as often.
+   * RHEL/Centos 5: Available through the [[http://fedoraproject.org/wiki/EPEL|EPEL]] project.
+   * RHEL/Centos 6: Available in the base distribution.
+ * Sabayon Linux:
+   * Sabayon Linux ships and uses !OpenChrome by default. Package information here
+ * Slackware:
+   * Slackware 12.2 and newer includes by default (xf86-video-openchrome).
+   * Slackware 12.1 and previous see in linuxpackages.net (Unofficial package).
+ * SUSE and OpenSUSE:
+   * http://www.logix.cz/michal/devel/suse-openchrome - RPMS for OpenSUSE 10.1, 10.2 and 10.3, both i386 and x86-64
+ * T2 SDE:
+   * http://www.t2-project.org/packages/xf86-video-openchrome.html - T2 SDE trunk package information
+ * Ubuntu
+   * Ubuntu 8.04 Hardy and newer includes and uses !OpenChrome by default.
+   * http://gamesplace.info/opensource/openchrome/dapper-binaries/ (Dapper)
+
+== Install from a release tarball ==
+If your distribution is not shipping openchrome or is shipping and old version and you want to upgrade, this is the recommended method. Don't use the GIT sources unless you absolutely need to.
+
+Get the latest release tarball from http://openchrome.org/releases, decompress it then build and install the driver:
+{{{
+    wget http://www.openchrome.org/releases/xf86-video-openchrome-latest.tar.gz
+    tar xvzf xf86-video-openchrome-latest.tar.gz
+    cd xf86-video-openchrome-<version number>
+    ./configure --prefix=/usr 
+    make
+    sudo make install
+}}}
+
+== Install from GIT ==
+If you want to use the very latest, not yet released code, this is what you need. Be warned that although the code in trunk should build at any time, the driver you will obtain might be a bit rough on the edges. The code in the branches might not even compile. You've been warned. Happy hacking :-)
+
+For Debian based distributions (Debian, Ubuntu, Mint), go to webpage related to [[https://help.ubuntu.com/community/OpenChrome|build the openchrome driver]].
+
+First make backups of your current /usr/lib/xorg/modules/drivers/openchrome_drv.so and /usr/lib/libchromeXvMC*so* files — these will be overwritten during 'make install' below.
+
+{{{
+    git clone git://anongit.freedesktop.org/openchrome/xf86-video-openchrome
+    cd xf86-video-openchrome
+    ./autogen.sh --prefix=/usr --enable-debug --enable-xv-debug
+    make
+}}}
+and finally:
+{{{
+    su -c 'make install'
+}}}
+or
+{{{
+    sudo make install
+}}}
+== Source installation build dependencies ==
+In order to build openchrome from sources, you will need to install some build dependencies.
+Here are some distro specific instructions on how to get them easily :
+ * Debian/Ubuntu/Mint
+   * type:
+     {{{
+sudo apt-get build-dep xserver-xorg-video-openchrome
+}}}
+     to get dependency packages: 
+     {{{
+libdrm-dev libx11-dev x11proto-xf86dri-dev libxext-dev libxvmc-dev x11proto-gl-dev mesa-common-dev
+}}}
+   * [[https://help.ubuntu.com/community/OpenChrome|Openchrome build instructions]]
+    
+ * Fedora/RHEL and RHEL clones :
+    {{{
+yum-builddep xorg-x11-drv-openchrome
+}}}
+
+= Other components installation =
+== DRM ==
+Building the [[http://en.wikipedia.org/wiki/Direct_Rendering_Manager|DRM]] kernel modules
+On modern kernels (2.6.22 and later) the DRM is up-to-date. Compile these modules yourself only if your kernel is older.
+When your libdrm is older than 2.3.0, you also need to build the drm library from source, and when your kernel is older than 2.6.22, also the drm.ko and via.ko kernel modules.
+
+
+Get the source
+{{{
+    git clone git://anongit.freedesktop.org/git/mesa/drm
+    cd drm
+}}}
+Install libdrm
+Do this part only if your libdrm is older than 2.3.0.
+{{{
+    ./autogen.sh
+    make
+    make install
+}}}
+Install kernel modules
+{{{
+    cd linux-core
+    make LINUXDIR=/lib/modules/`uname -r`/build DRM_MODULES=via
+    cp *.ko /lib/modules/`uname -r`/kernel/drivers/char/drm/
+    depmod -ae
+}}}
+== DRI ==
