@@ -1,0 +1,250 @@
+= Configuration =
+== Using the driver ==
+In /etc/X11/xorg.conf, in the Section "Device", change the driver to "openchrome". That is all. Now restart X. Then proceed to the [wiki:Openchrome/Troubleshooting] page.
+
+See also:
+ * [[http://en.wikipedia.org/wiki/XFree86_Modeline|XFree86 Modeline]]
+ * [[http://en.wikipedia.org/wiki/EDID|EDID]]
+
+== Man page ==
+[[http://linux.die.net/man/4/openchrome manpage link]]
+
+== EXA ==
+
+From xorg-server-1.3.99.0 [[http://en.wikipedia.org/wiki/EXA|EXA]] work properly with the openChrome driver.
+
+If you have earlier xorg-server, to make [[http://en.wikipedia.org/wiki/EXA|EXA]] work properly with the openChrome driver, you need the patch from Xorg bugzilla [[http://bugs.freedesktop.org/show_bug.cgi?id=7639|BUG #7639]]. Otherwise EXA will corrupt the offscreen memory management resulting (at best) in strange video and cursor rendering glitches.
+
+Some more patches to Xorg that migth be needed for optimal performance:
+Xorg bugzilla [[http://bugs.freedesktop.org/show_bug.cgi?id=6818|BUG #6818]] if your screen remains black at X server startup. This fix has been committed to Xorg, though, so you don't need it with recent versions of the X server.
+Xorg bugzilla [[http://bugs.freedesktop.org/show_bug.cgi?id=7671|BUG #7671]] Makes EXA really usable on openChrome. No more slow window movements unless you have a huge amount of big windows.
+
+The openChrome driver has a fairly new implementation of the EXA acceleration architecture. It should be considered development and not stable yet, but you are welcome to try it out and report bugs. To make most of it, you need the via DRM kernel version 2.7.3 or higher, which helps you transfer images to and from the screen using PCI DMA. Then add the following to the driver section in your /etc/X11/xorg.conf:
+{{{
+  Option "AccelMethod" "exa"
+}}}
+A good choice of other options:
+{{{
+  Option "ExaScratchSize" "8192"
+  Option "MaxDRIMem" "16384"
+  Option "MigrationHeuristic" "greedy"
+}}}
+And to enable the composite extension you need to add the following section:
+{{{
+Section "Extensions"
+  Option "Composite" "Enable"
+EndSection
+}}}
+Then restart your X server and you can go on using fancy applications. A good tutorial can be found here. The composite extension just got accelerated in the openChrome driver, which means that it  is probably a little buggy. Please report bugs when you come across them. Translucent windows, window fading and shadows work reasonably fast, particularly in 16 bit mode. General render acceleration, like antialiazed fonts and such are actually faster in software, since it seems to be some overhead setting up the 3D engine for each character. Also, the core EXA implementation in the X server is probably not fully optimized yet.
+
+!OpenChrome EXA works both with and without DRI. Depending on the actual hardware, things may be slower or faster with DRI enabled. As a rule of thumb, rendering glyphs and small things are faster without DRI, but if EXA feels like copying a big area from screen to memory, the X server may hang for a second or so while this is happening, if DRI is not enabled.
+
+YOU SHOULD REALLY HAVE 64 MB VIDEO MEMORY SET IN BIOS WHEN USING A COMPOSITE MANAGER!!! Consider yourself advised.
+
+Currently I use xfce (a nice lean desktop) with the builtin composite manager in xfwm4, which is the window manager that comes with xfce. Gives you a really snappy nice-looking compositing desktop.
+
+Note that combined with some window managers (like the one in KDE) there may be screen garbage left over when resizing windows, or when using shaped (not fully rectangular) windows, like oclock. This is not an openChrome bug but a bug in either the window- or the composite manager.
+
+Some applications, like later versions of konqueror seem dead slow with EXA and composite acceleration. Consider EXA an evolving technology.
+
+== XvMC ==
+=== XvMC supported hardware and features ===
+Although the chipsets are often capable of various level of acceleration, only VLD (aka slice decoding) is implemented.
+
+Currently XvMC is supported and verified on CLE266, K8M800, CN400/PM800, CN700/VM800/P4M800Pro and P4M890. All chipsets except the K8M800 are capable of streaming mpeg data using AGP DMA. In the K8M800 case, this means that the driver manually has to poll the chip for decoding completion and this takes a lot of CPU power. Usually you're better off with Xv on the K8M800 chipset unless you use Xine's unichrome_cpu_save option explained below.
+
+The PM800 and CN400 supports HDTV mpeg decoding. On the other chips, the maximum mpeg frame size is 1024x1024.
+
+Unsupported chipsets are :
+ * KM400 : Does have some acceleration capabilities, but it doesn't have VLD. Other levels are not implemented currently.
+ * CX700 : Slightly different engine than the previous versions. No documentation is available.
+ * VX800 : Same engine as CX700, but there's no DRM driver yet. No Documentation available.
+ * K8M890, P4M900, VX800, VX855 : No DRM driver. No Documentation available.
+
+=== Acceleration capabilities per chipset ===
+|| || [[http://en.wikipedia.org/wiki/MPEG2|MPEG2]] || || || || [[http://en.wikipedia.org/wiki/MPEG4|MPEG4]] || || || [[http://en.wikipedia.org/wiki/WMV|WMV]] ||
+|| || [[http://en.wikipedia.org/wiki/Variable-length_code|VLD]] || [[http://en.wikipedia.org/wiki/IDCT|IDCT]] || [[http://en.wikipedia.org/wiki/Motion_compensation|MoComp]] || [[http://en.wikipedia.org/wiki/MPEG-2#ATSC|MP@HL]] || [[http://en.wikipedia.org/wiki/Advanced_Simple_Profile|ASP]] Level 5 || [[http://en.wikipedia.org/wiki/Global_motion_compensation|GMC]] L0/L1 || 1/4-pixel [[http://en.wikipedia.org/wiki/Motion_compensation|MC]] || WMV9 ||
+|| CLE266 ||X||X||X||-||-||-||-||-||
+|| KM400, P4M800 ||-||X||X||-||-||-||-||-||
+|| K8M800 ||X||X||X||-||-||-||-||-||
+|| CN400, PM800, PM880 ||X||X||X||X||X||X||X||-||
+|| CN700, VM800, P4M800Pro ||X||X||X||-||-||-||-||-||
+|| P4M890 ||X||X||X||-||-||-||-||-||
+|| CX700 ||X||X||X||X||-||-||-||-||
+|| CX700M(2) ||X||X||X||X||X||X||X||X||
+|| K8M890 ||X||X||X||-||-||-||-||-||
+|| P4M900, VN896 ||X||X||X||-||-||-||-||-||
+|| VX800 ||X||X||X||X||X||X||X||X||
+|| VX855 ||X||X||X||X||X||X||X||X||
+|| VX900 ||X||X||X||X||X||X||X||X||
+
+Abbreviation:
+ * MP@HL - MainProfile@HighLevel
+
+See also:
+ * [[http://en.wikipedia.org/wiki/XvMC|XvMC]]
+ * [[http://en.wikipedia.org/wiki/MPEG2|MPEG2]]
+ * [[http://en.wikipedia.org/wiki/MPEG4|MPEG4]]
+ * [[http://en.wikipedia.org/wiki/WMV|WMV]]
+ * [[http://en.wikipedia.org/wiki/IDCT|IDCT]]
+ * [[http://en.wikipedia.org/wiki/Motion_compensation|MoComp]]
+
+=== Enabling XvMC on the X server ===
+This is done automatically if the chipset supports XvMC, and if DRI is enabled.
+
+=== XvMC wrapper library ===
+Different drivers use different XvMC libraries. The xserver now has a wrapper library integrated to make use of this various libraries, as told by the driver. This should be done automatically, but you can force the xserver to use a specific library in the /etc/X11/XvMCConfig file. This file contains the name of the library which is used for XvMC. This file is not mandatory.
+
+For P4M900 and CN400/PM800 chipset family (VIA VT3259 and VT3364), the library is "libchromeXvMCPro.so.1".
+For other supported chipsets, this file is "libchromeXvMC.so.1".
+
+
+Only some video players have support for the XvMC VLD level of acceleration :
+=== xine-lib based players === 
+Out of the box support, just make sure to use the xxmc output.
+For example :
+{{{
+xine -V xxmc dvd:/
+}}}
+=== mplayer ===
+mplayer needs to be patched to work with !OpenChrome hardware acceleration. We try to maintain a cumulative patch that works with BoB deinterlacing and that has fallback to other video out plugins if XvMC fails.
+
+This patch by Ivor Hewitt and others enables VLD XvMC with optional deinterlacing and fallback to Xv if XvMC is not supported for the particular file format. The patch is a collection of three patches that have been floating around the unichrome and openChrome mailing lists.
+
+First get and apply the latest mplayer patch :
+   * [attachment:mplayer-1.0-pre8-XvMC_VLD.diff mplayer-1.0-pre8]
+   * [attachment:mplayer-1.0-rc1-XvMC_VLD.diff mplayer-1.0-rc1]
+   * [attachment:mplayer-1.0-rc2-XvMC_VLD.diff mplayer-1.0-rc2] (svn revision 24967)
+
+ * Configuration
+Add the following configuration options:
+{{{
+--enable-xvmc --with-xvmclib=XvMCW
+}}}
+ 
+ * Running
+To run, use the following mplayer command line options (or add them in the appropriate mplayer config file. It should work with both gmplayer (mplayers graphical gui) and mplayerplug-in.
+{{{
+-vo xvmc,xv -vc ffmpeg12mc,
+}}}
+(Note the trailing comma to the -vc option)!
+
+To make these options default with mplayer, the following lines should be present in  ~/.mplayer/config
+{{{
+vo=xvmc,xv
+vc=ffmpeg12mc,
+}}}
+To make these options default with mplayerplug-in, the above lines should be present in
+~/.mplayer/mplayerplug-in.conf
+
+And finally to make gmplayer (mplayer's graphical gui) use xvmc, make sure the following lines are present in ~.mplayer/gui.conf
+{{{
+vo_driver = "xvmc,xv"
+v_vfm = "ffmpeg12mc,"
+}}}
+
+=== MythTV ===
+Out of the box support.
+FIXME: Describe the mythtv conf to take advantage of XvMC VLD. 
+
+=== VLC ===
+Unsupported, no known patch.
+
+== TV out ==
+You need to set some options in the device section of your xorg.conf:
+{{{
+Option "TVType" "string"
+}}}
+Where string is one of the following TV standard:
+NTSC ; PAL ; 480P ; 576P ; 720P ; 1080I
+
+and
+{{{
+Option "TVOutput" "string"
+}}}
+Where string is one of the following TV connexion type:
+Composite ; S-Video ; RGB ; YCbCr ; SC
+
+Then you need to use a supported mode for your TV encoder and the TVType
+you set in xorg.conf (See tables below).
+
+Here's a minimal TV out configuration example:
+{{{
+Section "Monitor"
+        Identifier   "Monitor0"
+        HorizSync    30 - 50
+        VertRefresh  50.0 - 50.0
+EndSection
+Section "Device"
+        Identifier  "Card0"
+        Driver      "openchrome"
+        Option      "ActiveDevice" "TV"
+        Option      "TVType" "PAL"
+        Option      "TVOutput" "S-Video"
+EndSection
+Section "Screen"
+        Identifier "Screen0"
+        Device     "Card0"
+        Monitor    "Monitor0"
+        DefaultDepth     24
+        SubSection "Display"
+                Viewport   0 0
+                Modes    "720x576" "720x576Noscale"
+        EndSubSection
+EndSection
+}}}
+
+All TV output modes are currently hardcoded, you can't define your own. Also, there's currently no way to use a different resolution and refresh rate on TV and another output (CRT, Panel). If you need two outputs at the same type, the TV output will be limiting the other one to the same resolution and refresh rate.
+
+Here's a dump of all supported modes for all supported encoders. Not all of them are guaranteed to work (for example [[http://en.wikipedia.org/wiki/Overscan|Overscan]] modes). If you have the hardware, it would be nice to confirm which modes are working for you.
+
+=== VT1621 ===
+ * NTSC: 640x480  640x480Over  800x600  [[http://en.wikipedia.org/wiki/Overscan|800x600Over]]
+ * PAL: 640x480  640x480Over  800x600  800x600Over
+
+
+=== VT1622 ===
+ * NTSC: 640x480  640x480Over  720x480Noscale  720x480  720x480Over  800x600  800x600Over  848x480  848x480Over  1024x768  [[http://en.wikipedia.org/wiki/Overscan|1024x768Over]]
+ * PAL: 640x480Over  640x480  720x576Noscale  720x576Over  720x576  800x600Over  800x600  848x480Over  848x480 1024x768Over  1024x768
+
+
+=== VT1622A/VT1623 ===
+ * NTSC: 640x480  640x480Over  720x480  720x480Over  800x600  800x600Over  848x480  848x480Over  720x480NoscaleOK  1024x768  1024x768Over
+ * PAL: 640x480  640x480Over  720x480pal  720x576OK 720x576NoscaleOK 720x576OverOK 800x600  800x600Over  848x480  848x480Over  1024x768  1024x768Over
+
+
+=== VT1625 ===
+ * PAL: 640x480  720x576  720x576Over  800x600  1024x768
+ * NTSC: 640x480  720x480Under  720x480Fit  720x480Over
+ * 480P: 720x480Under  720x480Fit  720x480Over
+ * 720P: 1280x720
+ * 1080I: 1920x1080
+
+=== CH7011 ===
+ * NTSC: 640x480  640x480Over  720x480  720x480Noscale  800x600  800x600Over  1024x768  1024x768Over 
+ * PAL: 640x480  640x480Over  720x576  720x576Noscale  800x600  800x600Over  1024x768  1024x768Over
+
+=== CH7019 ===
+ * NTSC: 640x480  640x480Over  800x600  800x600Over  1024x768  [[http://en.wikipedia.org/wiki/Overscan|1024x768Over]]
+ * PAL: 640x480  640x480Over  800x600  800x600Over  1024x768  1024x768Over
+
+
+Check out Terry Barnaby's excellent unichrome tv-out guide [[http://www.kingcot.eclipse.co.uk/unichrome/unichromeTvOut.html|here]]! All patches he mentions are already in the openChrome driver. His vt1622.c program does not currently work with TV-encoders sitting on [[http://en.wikipedia.org/wiki/I%C2%B2C|I2C]] bus 3 (check your /var/log/Xorg.log.0), like VT1623 and VT1625, but it should be easy to modify the program to have it write to the correct I2C bus.: use the I2C code in the openChrome driver for reference. If tv-out doesn't look OK on your particular television set and following Terry's guide doesn't help, we're unfortunately unable to help you ATM, but patches and ports are always welcome. This project is about getting involved! Get your hands dirty!
+
+== DVI/HDMI ==
+Only the CX700 and VX800 integrated TMDS encoders are natively supported. You need to use Option "ActiveDevice" "DFP", as this is disabled by default.
+Here's a minimal DVI/HDMI out configuration example:
+{{{
+Section "Device"
+        Identifier  "Card0"
+        Driver      "openchrome"
+        Option      "ActiveDevice" "DFP"
+EndSection
+}}}
+
+There's currently no native support for [[http://en.wikipedia.org/wiki/Digital_Visual_Interface|DVI]] for all other TMDS encoders. You may get it working by using the VBEModes option though.
+
+== Dual head ==
+Although the hardware supports dual head, it is currently not implemented. The only possibility is clone mode, but with the same resolution and refresh rate on the 2 outputs.
+
+Randr support is currently worked on, but it's not ready yet.
