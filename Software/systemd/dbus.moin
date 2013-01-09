@@ -428,7 +428,31 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
 
 '''!UnitFileState''' encodes the install state of the unit file of '''!FragmentPath'''. It currently knows the following states: ''enabled'', ''enabled-runtime'', ''linked'', ''linked-runtime'', ''masked'', ''masked-runtime'', ''static'', ''disabled'', ''invalid''. ''enabled'' indicates that a unit file is permanently enabled. ''enable-runtime'' indicates the unit file is only temporarily enabled, and will no longer be enabled after a reboot (that means, it is enabled via /run symlinks, rather than /etc). ''linked'' indicates that a unit is linked into /etc permanently, ''linked'' indicates that a unit is linked into /run temporarily (until the next reboot). ''masked'' indicates that the unit file is masked permanently, ''masked-runtime'' indicates that it is only temporarily masked in /run, until the next reboot. ''static'' indicates that the unit is statically enabled, i.e. always enabled and doesn't need to be enabled explicitly. ''invalid'' indicates that it could not be determined whether the unit file is enabled.
 
-'''!InactiveExitTimestamp''', '''!InactiveExitTimestampMonotonic''', '''!ActiveEnterTimestamp''', '''!ActiveEnterTimestampMonotonic''', '''!ActiveExitTimestamp''', '''!ActiveExitTimestampMonotonic''', '''!InactiveEnterTimestamp''', '''!InactiveEnterTimestampMonotonic''' contain CLOCK_REALTIME and CLOCK_MONOTONIC 64bit usec timestamps of the last time a unit left the inactive state, entered the active state, exited the active state, or entered an inactive state. These are the points in time where the unit transitioned ''inactive/failed'' → ''activating'', ''activating'' → ''active'', ''active'' → ''deactivating'', and finally ''deactivating'' → ''inactive/failed''.
+'''!InactiveExitTimestamp''', '''!InactiveExitTimestampMonotonic''', '''!ActiveEnterTimestamp''', '''!ActiveEnterTimestampMonotonic''', '''!ActiveExitTimestamp''', '''!ActiveExitTimestampMonotonic''', '''!InactiveEnterTimestamp''', '''!InactiveEnterTimestampMonotonic''' contain CLOCK_REALTIME and CLOCK_MONOTONIC 64bit usec timestamps of the last time a unit left the inactive state, entered the active state, exited the active state, or entered an inactive state. These are the points in time where the unit transitioned ''inactive/failed'' → ''activating'', ''activating'' → ''active'', ''active'' → ''deactivating'', and finally ''deactivating'' → ''inactive/failed''. The fields are 0 in case such a transition has not been recording on this boot yet.
+
+'''!CanStart''', '''!CanStop''', '''!CanReload''' encodes as booleans whether the unit supports the start, stop or reload operations. Even if a unit supports such an operation the client might not necessary have the right privileges to execute them.
+
+'''!CanIsolate''' encodes as boolean whether the unit may be started in isolation mode.
+
+'''Job''' encodes the job ID and job object path of the job currently scheduled or executed for this unit, if there is any. If no job is scheduled or executed the job id field will be 0.
+
+'''!StopWhenUnneeded''', '''!RefuseManualStart''', '''!RefuseManualStop''', '''!AllowIsolate''', '''!DefaultDependencies''', '''!OnFailureIsolate''', '''!IgnoreOnIsolate''', '''!IgnoreOnSnapshot''' map directly to the corresponding configuration booleans in the unit file.
+
+'''!DefaultControlGroup''' contains the main control group of this unit as a string. This refers to a group in systemd's own ''name=systemd'' hierarchy, which systemd uses to watch and manipulate the unit and all its processes.
+
+'''!ControlGroup''' contains an array of the control groups this unit is making use of. This includes the default control group in the ''name=systemd'' hierarchy, but also includes groups in additional hierarchies.
+
+'''!ControlGroupAttributes''' contains an array of string triples for each control group to set for this unit. Each triplet consist of hierarchy name, field and value.
+
+'''!NeedDaemonReload''' is a boolean that indicates whether the configuration file this unit is loaded from (i.e. '''!FragmentPath''' or '''!SourcePath''') has changed since the configuration was read and hence whether are configuration reload is recommended.
+
+'''!JobTimeoutUSec''' maps directly to the corresponding configuration setting in the unit file.
+
+'''!ConditionTimestamp''' and '''!ConditionTimestampMonotonic''' contain the CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps of the last time the configured conditions of the unit have been checked, or 0 if they have never been checked. Conditions are checked when a unit is requested to start.
+
+'''!ConditionResult''' contain the condition result of the last time the configured conditions of this unit were checked. 
+
+'''!LoadError''' contains a pair of strings. If the unit failed to load (as encoded in '''LoadState''', see above), then this will include a D-Bus error pair consisting of the error ID and an explanatory human readable string of what happened. If it succeeded to load this will be a pair of empty strings.
 
 == Service Unit Objects ==
 {{{
