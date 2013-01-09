@@ -731,7 +731,30 @@ Similar '''NConnections''' contains the number of currently open connections on 
 
 == Device Unit Objects ==
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice
+node /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Device {
+    methods:
+    signals:
+    properties:
+      readonly s SysFSPath = '/sys/devices/pci0000:00/0000:00:1f.2/ata2/host1/target1:0:0/1:0:0:0/block/sdb';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
+
+=== Properties ===
+
+Device units only expose a single type-specific property:
+
+'''SysFSPath''' contains the sysfs path of the kernel device this object corresponds to.
 
 == Mount Unit Objects ==
 {{{
