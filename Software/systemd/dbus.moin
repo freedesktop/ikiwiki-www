@@ -873,7 +873,29 @@ Most of the properties map directly to the corresponding settings in mount unit 
 '''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''resources'', ''timeout'', ''exit-code'', ''signal'', '''core-dump''' which have the identical meaning as the corresponding values of the corresponding field of service unit objects (see above).
 
 == Automount Unit Objects ==
+
+All automount unit objects implement the {{{org.freedesktop.systemd1.Automount}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
+
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount 
+node /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Automount {
+    methods:
+    signals:
+    properties:
+      readonly s Where = '/proc/sys/fs/binfmt_misc';
+      readonly u DirectoryMode = 493;
+      readonly s Result = 'success';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
 
 == Snapshot Unit Objects ==
@@ -881,7 +903,31 @@ Most of the properties map directly to the corresponding settings in mount unit 
 }}}
 
 == Timer Unit Objects ==
+
+All timer unit objects implement the {{{org.freedesktop.systemd1.Timer}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
+
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer 
+node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Timer {
+    methods:
+    signals:
+    properties:
+      readonly s Unit = 'systemd-tmpfiles-clean.service';
+      readonly a(stt) Timers = [('OnUnitActiveUSec', 86400000000, 87300018861), ('OnBootUSec', 900000000, 900000000)];
+      readonly t NextElapseUSec = 87300018861;
+      readonly s Result = 'success';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
 
 == Swap Unit Objects ==
