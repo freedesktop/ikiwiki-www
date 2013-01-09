@@ -760,7 +760,7 @@ node /org/freedesktop/systemd1/unit/basic_2etarget {
 };
 }}}
 
-Target units have neither type-specific methods not properties.
+Target units have neither type-specific methods nor properties.
 
 == Device Unit Objects ==
 
@@ -1105,9 +1105,30 @@ node /org/freedesktop/systemd1/unit/cups_2epath {
 }}}
 
 == Job Objects ==
-{{{
-}}}
 
+Job objects encapsulate scheduled or running jobs. Each unit can have none or one jobs in the execution queue. Each job is attached to exactly one unit.
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/job/1292 
+node /org/freedesktop/systemd1/job/1292 {
+  interface org.freedesktop.systemd1.Job {
+    methods:
+      Cancel();
+    signals:
+    properties:
+      readonly u Id = 1292;
+      readonly (so) Unit = ('slow.service', '/org/freedesktop/systemd1/unit/slow_2eservice');
+      readonly s JobType = 'start';
+      readonly s State = 'running';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
 
 ----
 
