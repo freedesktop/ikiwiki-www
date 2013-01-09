@@ -985,7 +985,31 @@ Most of the properties map directly to the corresponding settings in swap unit f
 '''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''resources'', ''timeout'', ''exit-code'', ''signal'', '''core-dump''' which have the identical meaning as the corresponding values of the corresponding field of service unit objects (see above).
 
 == Path Unit Objects ==
+
+All path unit objects implement the {{{org.freedesktop.systemd1.Path}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
+
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/cups_2epath 
+node /org/freedesktop/systemd1/unit/cups_2epath {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Path {
+    methods:
+    signals:
+    properties:
+      readonly s Unit = 'cups.service';
+      readonly a(ss) Paths = [('PathExistsGlob', '/var/spool/cups/d*')];
+      readonly b MakeDirectory = false;
+      readonly u DirectoryMode = 493;
+      readonly s Result = 'success';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
 
 == Job Objects ==
