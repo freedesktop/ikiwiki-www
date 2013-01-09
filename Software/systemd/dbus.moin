@@ -4,9 +4,11 @@
 
 systemd and its auxiliary daemons expose a number of APIs on D-Bus. The following describes the various APIs exposed by the system and service manager itself, and does not cover the auxiliary daemons.
 
-The service manager exposes a number of objects on the bus: one manager object as central entry point for clients and individual objects for each unit and for each queued job.
+The service manager exposes a number of objects on the bus: one manager object as central entry point for clients and individual objects for each unit and for each queued job. The unit objects each implement a generic Unit interface plus a type-specific interface. For example, service units implement org.freedesktop.systemd1.Unit as well as org.freedesktop.system1.Service. The manager object can be use to list unit and job objects, or to directly convert a unit name or job id into a bus path for the corresponding objects.
 
-Note that properties exposing time values are usually encoded in microseconds (usec) on the bus, even if their corresponding settings in the unit files are in seconds. 
+Note that properties exposing time values are usually encoded in microseconds (usec) on the bus, even if their corresponding settings in the unit files are in seconds.
+
+In contrast to most of the other services of the systemd suite PID 1 does not use !PolicyKit for controlling access to privileged operations, but relies exclusively on the low-level D-Bus policy language. (This is done in order to avoid a cyclic dependency between PolicyKit and systemd/PID 1.) This means that sensitive operations exposed by PID 1 on the bus are generally not available to unprivileged processes directly. However some (such as shutdown/reboot/suspend) are made available via [[http://www.freedesktop.org/wiki/Software/systemd/logind|logind's interfaces]].
 
 == The Manager Object ==
 {{{
