@@ -729,7 +729,7 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket {
 
 === Properties ===
 
-Most of the properties map directly to the corresponding settings in socket unit files. As socket units can include '''!ExecStartPre''' (and similar) fields which contain information about processes to execute they also share most of the fields related to the execution context that Service objects expose (see above). In addition to these properties there are the following:
+Most of the properties map directly to the corresponding settings in socket unit files. As socket units can include '''!ExecStartPre''' (and similar) fields which contain information about processes to execute. They also share most of the fields related to the execution context that Service objects expose (see above). In addition to these properties there are the following:
 
 '''NAccepted''' contains the accumulated number of connections ever accepted on this socket. This only applies to sockets with '''Accept''' set to ''true'', i.e. those where systemd is responsible for accepted connections. 
 
@@ -768,8 +768,109 @@ Device units only expose a single type-specific property:
 '''SysFSPath''' contains the sysfs path of the kernel device this object corresponds to.
 
 == Mount Unit Objects ==
+
+All mount unit objects implement the {{{org.freedesktop.systemd1.Mount}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
+
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/home_2emount 
+node /org/freedesktop/systemd1/unit/home_2emount {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Mount {
+    methods:
+    signals:
+    properties:
+      readonly s Where = '/home';
+      readonly s What = '/dev/mapper/home';
+      readonly s Options = 'rw,relatime,rw,seclabel,data=ordered';
+      readonly s Type = 'ext4';
+      readonly t TimeoutUSec = 90000000;
+      readonly a(sasbttuii) ExecMount = [('/bin/mount', ['/bin/mount', '/dev/disk/by-uuid/59a54df8-d070-4907-a4a7-2e0ce05d5c2a', '/home', '-t', 'ext4'], false, 1357656124168977, 11158027, 1357656124274805, 11263855, 608, 1, 0)];
+      readonly a(sasbttuii) ExecUnmount = [];
+      readonly a(sasbttuii) ExecRemount = [];
+      readonly as Environment = [];
+      readonly u UMask = 18;
+      readonly t LimitCPU = 18446744073709551615;
+      readonly t LimitFSIZE = 18446744073709551615;
+      readonly t LimitDATA = 18446744073709551615;
+      readonly t LimitSTACK = 18446744073709551615;
+      readonly t LimitCORE = 18446744073709551615;
+      readonly t LimitRSS = 18446744073709551615;
+      readonly t LimitNOFILE = 4096;
+      readonly t LimitAS = 18446744073709551615;
+      readonly t LimitNPROC = 61434;
+      readonly t LimitMEMLOCK = 65536;
+      readonly t LimitLOCKS = 18446744073709551615;
+      readonly t LimitSIGPENDING = 61434;
+      readonly t LimitMSGQUEUE = 819200;
+      readonly t LimitNICE = 0;
+      readonly t LimitRTPRIO = 0;
+      readonly t LimitRTTIME = 18446744073709551615;
+      readonly s WorkingDirectory = '';
+      readonly s RootDirectory = '';
+      readonly i OOMScoreAdjust = 0;
+      readonly i Nice = 0;
+      readonly i IOScheduling = 0;
+      readonly i CPUSchedulingPolicy = 0;
+      readonly i CPUSchedulingPriority = 0;
+      readonly ay CPUAffinity = [];
+      readonly t TimerSlackNS;
+      readonly b CPUSchedulingResetOnFork = false;
+      readonly b NonBlocking = false;
+      readonly s StandardInput = 'null';
+      readonly s StandardOutput = 'journal';
+      readonly s StandardError = 'inherit';
+      readonly s TTYPath = '';
+      readonly b TTYReset = false;
+      readonly b TTYVHangup = false;
+      readonly b TTYVTDisallocate = false;
+      readonly i SyslogPriority = 30;
+      readonly s SyslogIdentifier = '';
+      readonly b SyslogLevelPrefix = true;
+      readonly s Capabilities = '';
+      readonly i SecureBits = 0;
+      readonly t CapabilityBoundingSet = 18446744073709551615;
+      readonly s User = '';
+      readonly s Group = '';
+      readonly as SupplementaryGroups = [];
+      readonly s TCPWrapName = '';
+      readonly s PAMName = '';
+      readonly as ReadWriteDirectories = [];
+      readonly as ReadOnlyDirectories = [];
+      readonly as InaccessibleDirectories = [];
+      readonly t MountFlags = 0;
+      readonly b PrivateTmp = false;
+      readonly b SameProcessGroup = true;
+      readonly s KillMode = 'control-group';
+      readonly i KillSignal = 15;
+      readonly s UtmpIdentifier = '';
+      readonly b ControlGroupModify = false;
+      readonly b ControlGroupPersistent = false;
+      readonly b PrivateNetwork = false;
+      readonly b IgnoreSIGPIPE = true;
+      readonly b NoNewPrivileges = false;
+      readonly au SystemCallFilter = [];
+      readonly s KillMode = 'control-group';
+      readonly i KillSignal = 15;
+      readonly b SendSIGKILL = true;
+      readonly u ControlPID = 0;
+      readonly u DirectoryMode = 493;
+      readonly s Result = 'success';
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
+
+Most of the properties map directly to the corresponding settings in mount unit files. As mount units invoke the {{{/usr/bin/mount}}} comman they include implicit '''!ExecMount''' (and similar) fields which contain information about processes to execute. They also share most of the fields related to the execution context that Service objects expose (see above). In addition to these properties there are the following:
+
+'''ControlPID''' contains the PID of the currently running {{{/usr/bin/mount}}} or {{{/usr/bin/umount}}} command if there is one running, otherwise 0.
+
+'''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''resources'', ''timeout'', ''exit-code'', ''signal'', '''core-dump''' which have the identical meaning as the corresponding values of the corresponding field of service unit objects (see above).
 
 == Automount Unit Objects ==
 {{{
