@@ -130,7 +130,7 @@ node /org/freedesktop/systemd1 {
       readonly t FirmwareTimestampMonotonic = 0;
       readonly t LoaderTimestamp = 0;
       readonly t LoaderTimestampMonotonic = 0;
-      readonly t KernelTimestamp = 0;
+      readonly t KernelTimestamp =1340822954124381;
       readonly t KernelTimestampMonotonic = 0;
       readonly t InitRDTimestamp = 1340822954724393;
       readonly t InitRDTimestampMonotonic = 2431571;
@@ -299,13 +299,10 @@ Most properties simply reflect the respective options in {{{/etc/systemd/system.
 
 '''Virtualization''' contains a short ID string describing the virtualization technology the system runs in. On bare-metal hardware this is the empty string, otherwise an identifier such as "kvm", "vmware" and so on. For a full list of IDs see systemd-detect-virt(1). Note that only the "innermost" virtualization technology is exported here. This detects both full-machine virtualizations (VMs) and shared-kernel virtualization (containers).
 
-== Job Objects ==
-{{{
-}}}
-
 == Unit Objects ==
 {{{
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservicenode /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice
+node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
   interface org.freedesktop.systemd1.Unit {
     methods:
       Start(in  s mode,
@@ -399,6 +396,31 @@ $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/f
   };
 };
 }}}
+
+=== Methods ===
+
+'''Start()''', '''Stop()''', '''Reload()''', '''Restart()''', '''!TryRestart()''', '''!ReloadOrRestart()''', '''!ReloadOrTryRestart()''', '''Kill()''' and '''!ResetFailed()''' implement the same operation as the respective method calls on the Manager object (see above), however operate on the unit object and hence do not take a unit name parameter. Invoking the methods directly on the Manager object has the advantage of not requiring a '''GetUnit()''' call to get the unit object for a specific unit name. Calling the methods on the Manager object is hence a round trip optimization.
+
+=== Properties ===
+
+'''Id''' contains the primary name of the unit.
+
+'''Names''' contains all names of the unit, including the primary name that is also exposed in '''Id'''.
+
+'''Following''' either contains the empty string or contains the name of another unit that this unit follows in state. This used for some device units which reflect the unit state machine of another unit, and which other unit this is might possibly change.
+
+'''Requires''', '''!RequiresOverridable''', '''Requisite''', '''!RequisiteOverridable''', '''Wants''', '''!BindsTo''', '''!RequiredBy''', '''!RequiredByOverridable''', '''!WantedBy''', '''BoundBy''', '''Conflicts''', '''!ConflictedBy''', '''Before''', '''After''', '''!OnFailure''', '''Triggers''', '''TriggeredBy''', '''!PropagatesReloadTo''', '''!RequiresMountsFor''' contain arrays which encode the dependencies and their inverse dependencies (where this applies), as configure in the unit file or determined automatically. 
+
+'''Description''' contains the human readable description string for the unit.
+
+'''!SourcePath''' contains the path to a configuration file this unit is automatically generated from in case it is not a native unit (in which case it contains the empty string). For example, all mount units generated from {{{/etc/fstab}}} have this field set to this value.
+
+'''Documentation''' contains a string array with URLs of documentation for this unit.
+
+'''LoadState''' contains a state value that reflects whether the configuration file of this unit has been loaded. The following states are currently defined: ''loaded'', ''error'', ''masked''. ''loaded'' indicates that the configuration was successfully loaded. ''error'' indicates that the configuration failed to load, the '''LoadError''' field (see below) contains information about the cause of this failure. ''masked'' indicates that the unit is currently masked out (i.e. symlinked to /dev/null or suchlike). Note that the '''LoadState''' is fully orthogonal to the '''ActiveState''' (see below) as units without valid loaded configuration might be active (because configuration might have been reloaded at a time where a unit was already active).
+
+
+'''ActiveState''' contains a state value that reflects whether the unit is currently active or not. The following states are currently defined: ''active'', ''reloading'', ''inactive'', ''failed'', ''activating'', ''deactivating''. ''active'' indicates that unit is active (obviously...). ''reloading'' indicates that the unit is active and currently reloading its configuration. ''inactive'' indicates that it is inactive and the previous run was successful or no previous run has taken place yet. ''failed'' indicates that it is inactive and the previous run was not successful. ''activating'' indicates that the unit has previously been inactive but is currently in the process of entering an active state. Conversely ''deactivating'' indicates that the unit is currently in the process of deactivation.
 
 == Service Unit Objects ==
 {{{
@@ -548,6 +570,11 @@ $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/f
 == Path Unit Objects ==
 {{{
 }}}
+
+== Job Objects ==
+{{{
+}}}
+
 
 ----
 
