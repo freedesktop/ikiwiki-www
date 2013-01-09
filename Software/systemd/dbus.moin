@@ -12,7 +12,7 @@ In contrast to most of the other services of the systemd suite PID 1 does not us
 
 == The Manager Object ==
 
-The main entry point object is available on the fixed /org/freedesktop/systemd1 object path:
+The main entry point object is available on the fixed {{{/org/freedesktop/systemd1}}} object path:
 
 {{{
 $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1
@@ -464,6 +464,9 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
 '''!LoadError''' contains a pair of strings. If the unit failed to load (as encoded in '''!LoadState''', see above), then this will include a D-Bus error pair consisting of the error ID and an explanatory human readable string of what happened. If it succeeded to load this will be a pair of empty strings.
 
 == Service Unit Objects ==
+
+All service unit objects implement the {{{org.freedesktop.systemd1.Service}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}} interface (see above).
+
 {{{
 $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservicenode /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
   interface org.freedesktop.systemd1.Unit {
@@ -603,6 +606,9 @@ Most properties of the Service interface map directly to the corresponding setti
 '''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state (see '''!ActiveState''' above). The following values are currently known: ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''!StartLimitInterval''', '''!StartLimitBurst''').
 
 == Socket Unit Objects ==
+
+All socket unit objects implement the {{{org.freedesktop.systemd1.Socket}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}} interface (see above).
+
 {{{
 $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket 
 node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket {
@@ -721,7 +727,6 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket {
 };
 }}}
 
-
 === Properties ===
 
 Most of the properties map directly to the corresponding settings in socket unit files. As socket units can include '''!ExecStartPre''' (and similar) fields which contain information about processes to execute they also share most of the fields related to the execution context that Service objects expose (see above). In addition to these properties there are the following:
@@ -733,6 +738,9 @@ Similar '''NConnections''' contains the number of currently open connections on 
 '''Result''' encodes the reason why a socket unit failed if it is in ''failed'' state (see '''!ActiveState''' above). The values ''resources'', ''timeout'', ''exit-code'', ''signal'' and ''core-dump'' have the same meaning as they have for the corresponding field of service units (see above). In addition to that the value '''service-failed-permanent''' indicates that the service of this socket failed continuously.
 
 == Device Unit Objects ==
+
+All device unit objects implement the {{{org.freedesktop.systemd1.Device}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}} interface (see above).
+
 {{{
 $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice
 node /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice {
