@@ -737,6 +737,31 @@ Similar '''NConnections''' contains the number of currently open connections on 
 
 '''Result''' encodes the reason why a socket unit failed if it is in ''failed'' state (see '''!ActiveState''' above). The values ''resources'', ''timeout'', ''exit-code'', ''signal'' and ''core-dump'' have the same meaning as they have for the corresponding field of service units (see above). In addition to that the value '''service-failed-permanent''' indicates that the service of this socket failed continuously.
 
+== Target Unit Objects ==
+
+All target unit objects implement the {{{org.freedesktop.systemd1.Target}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
+
+{{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/basic_2etarget 
+node /org/freedesktop/systemd1/unit/basic_2etarget {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Target {
+    methods:
+    signals:
+    properties:
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
+}}}
+
+Target units have neither type-specific methods not properties.
+
 == Device Unit Objects ==
 
 All device unit objects implement the {{{org.freedesktop.systemd1.Device}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
@@ -899,7 +924,28 @@ node /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount 
 }}}
 
 == Snapshot Unit Objects ==
+
+All snapshot unit objects implement the {{{org.freedesktop.systemd1.Snapshot}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
+
 {{{
+$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/foo_2esnapshot 
+node /org/freedesktop/systemd1/unit/foo_2esnapshot {
+  interface org.freedesktop.systemd1.Unit {
+  };
+  interface org.freedesktop.systemd1.Snapshot {
+    methods:
+      Remove();
+    signals:
+    properties:
+      readonly b Cleanup = false;
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
 }}}
 
 == Timer Unit Objects ==
