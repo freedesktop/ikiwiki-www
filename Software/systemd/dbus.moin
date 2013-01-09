@@ -574,11 +574,11 @@ $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/f
 
 === Properties ===
 
-Most properties of the Service interface map directly to the corresponding settings in service unit files. For the sake of brevity, here's a list of all others:
+Most properties of the Service interface map directly to the corresponding settings in service unit files. For the sake of brevity, here's a list of all exceptions only:
 
 '''!WatchdogTimestamp''' and '''!WatchdogTimestampMonotonic''' contain CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps of the last watchdog ping received from the services, or 0 if none was ever received.
 
-'''ExecStartPre''', '''ExecStart''', '''ExecStartPost''', '''ExecReload''', '''ExecStop''', '''ExecStop''' each are arrays of structures each containing: the binary path to execute; an array with all arguments to pass to the executed command, starting with argument 0; a boolean whether it should be considered a failure if the process exits uncleanly; two pairs of CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps when the process began and finished running the last time, or 0 if it never ran or never finished running; the PID of the process, or 0 if it has not run yet; the exit code and status of the last run. This field hence maps more or less to the corresponding setting in the service unit file but is augmented with a runtime data.
+'''!ExecStartPre''', '''!ExecStart''', '''!ExecStartPost''', '''!ExecReload''', '''!ExecStop''', '''!ExecStop''' each are arrays of structures each containing: the binary path to execute; an array with all arguments to pass to the executed command, starting with argument 0; a boolean whether it should be considered a failure if the process exits uncleanly; two pairs of CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps when the process began and finished running the last time, or 0 if it never ran or never finished running; the PID of the process, or 0 if it has not run yet; the exit code and status of the last run. This field hence maps more or less to the corresponding setting in the service unit file but is augmented with a runtime data.
 
 '''LimitCPU''' map more or less directly to the corresponding settings in the service unit files, however are set to 18446744073709551615 (i.e. -1) if they aren't set.
 
@@ -592,7 +592,7 @@ Most properties of the Service interface map directly to the corresponding setti
 
 '''!StatusText''' contain the status text passed to the service manager via a call to sd_notify(). This may be used by services to inform the service manager about its internal state with a nice explanatory string.
 
-'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state. The following values are currently known: ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''StartLimitInterval''', '''StartLimitBurst''').
+'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state. The following values are currently known: ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''!StartLimitInterval''', '''!StartLimitBurst''').
 
 == Socket Unit Objects ==
 {{{
