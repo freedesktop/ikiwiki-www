@@ -421,8 +421,7 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
 
 '''!LoadState''' contains a state value that reflects whether the configuration file of this unit has been loaded. The following states are currently defined: ''loaded'', ''error'', ''masked''. ''loaded'' indicates that the configuration was successfully loaded. ''error'' indicates that the configuration failed to load, the '''!LoadError''' field (see below) contains information about the cause of this failure. ''masked'' indicates that the unit is currently masked out (i.e. symlinked to /dev/null or suchlike). Note that the '''!LoadState''' is fully orthogonal to the '''!ActiveState''' (see below) as units without valid loaded configuration might be active (because configuration might have been reloaded at a time where a unit was already active).
 
-
-'''!ActiveState''' contains a state value that reflects whether the unit is currently active or not. The following states are currently defined: ''active'', ''reloading'', ''inactive'', ''failed'', ''activating'', ''deactivating''. ''active'' indicates that unit is active (obviously...). ''reloading'' indicates that the unit is active and currently reloading its configuration. ''inactive'' indicates that it is inactive and the previous run was successful or no previous run has taken place yet. ''failed'' indicates that it is inactive and the previous run was not successful. ''activating'' indicates that the unit has previously been inactive but is currently in the process of entering an active state. Conversely ''deactivating'' indicates that the unit is currently in the process of deactivation.
+'''!ActiveState''' contains a state value that reflects whether the unit is currently active or not. The following states are currently defined: ''active'', ''reloading'', ''inactive'', ''failed'', ''activating'', ''deactivating''. ''active'' indicates that unit is active (obviously...). ''reloading'' indicates that the unit is active and currently reloading its configuration. ''inactive'' indicates that it is inactive and the previous run was successful or no previous run has taken place yet. ''failed'' indicates that it is inactive and the previous run was not successful (more information about the reason for this is available on the unit type specific interfaces, for example for services in the '''Result''' property, see below). ''activating'' indicates that the unit has previously been inactive but is currently in the process of entering an active state. Conversely ''deactivating'' indicates that the unit is currently in the process of deactivation.
 
 '''!SubState''' encodes states of the same state machine that '''!ActiveState''' covers, but knows more fine-grained states that are unit-type-specific. Where '''!ActiveState''' only covers six high-level states, '''!SubState''' covers possibly many more low-level unit-type-specific states that are mapped to the six high-level states. Note that multiple low-level states might map to the same high-level state, but not vice versa. Not all high-level states have low-level counterparts on all unit types. At this point the low-level states are not documented here, and are more likely to be extended later on than the common high-level states explained above.
 
@@ -572,6 +571,28 @@ $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/f
   };
 };
 }}}
+
+=== Properties ===
+
+Most properties of the Service interface map directly to the corresponding settings in service unit files. For the sake of brevity, here's a list of all others:
+
+'''!WatchdogTimestamp''' and '''!WatchdogTimestampMonotonic''' contain CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps of the last watchdog ping received from the services, or 0 if none was ever received.
+
+'''ExecStartPre''', '''ExecStart''', '''ExecStartPost''', '''ExecReload''', '''ExecStop''', '''ExecStop''' each are arrays of structures each containing: the binary path to execute; an array with all arguments to pass to the executed command, starting with argument 0; a boolean whether it should be considered a failure if the process exits uncleanly; two pairs of CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps when the process began and finished running the last time, or 0 if it never ran or never finished running; the PID of the process, or 0 if it has not run yet; the exit code and status of the last run. This field hence maps more or less to the corresponding setting in the service unit file but is augmented with a runtime data.
+
+'''LimitCPU''' map more or less directly to the corresponding settings in the service unit files, however are set to 18446744073709551615 (i.e. -1) if they aren't set.
+
+'''Capabilities''' contains the configured capabilities, as formatted with cap_to_text().
+
+'''!SecureBits''', '''!CapabilityBoundingSet''', '''!MountFlags''' also correspond to the configured settings of the unit files, but are encoded in the actual flag fields they are, rather than formatted as string.
+
+'''!ExecMainStartTimestamp''', '''!ExecMainStartTimestampMonotonic''', '''!ExecMainExitTimestamp''', '''!ExecMainExitTimestampMonotonic''', '''ExecMainPID''', '''!ExecMainCode''', '''!ExecMainStatus''' contains information about the main process of the service as far as it is known. This is often the same runtime information that is stored in '''!ExecStart'''. However, it deviates for Type=forking services where the main process of the service is not forked off systemd directly. These fields either contain information of the last run of the process or of the current runtime.
+
+'''!MainPID''' and '''!ControlPID''' contain the main and control PID of the service. The main PID is the current main PID of the service and is 0 when the service currently has no main PID. The control PID is the PID of the current start/stop/reload process running and is 0 if no such process is currently running. That means that '''ExecMainPID''' and '''MainPID''' differ in the way that the latter immediately reflects whether a main process is currently running while the latter possible contains information collected from the last run even if the process is no longer around.
+
+'''!StatusText''' contain the status text passed to the service manager via a call to sd_notify(). This may be used by services to inform the service manager about its internal state with a nice explanatory string.
+
+'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state. The following values are currently known: ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''StartLimitInterval''', '''StartLimitBurst''').
 
 == Socket Unit Objects ==
 {{{
