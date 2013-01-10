@@ -22,6 +22,8 @@ systemd has a number of interfaces for interaction with container managers when 
 
  * Make the container journal available in the host, by automatically symlinking the container journal directory into the host journal directory. More precisely, link /var/log/journal/<container-machine-id> of the container into the same dir of the host. Administrators can then automatically browse all container journals (correctly interleaved) by issuing "journalctl -m". The container machine ID you can determine from /etc/machine-id in the container.
 
+ * If the container manager wants to cleanly shutdown the container, it might be a good idea to send SIGRTMIN+3 to it's init process. systemd will then do a clean shutdown. Note however, that only systemd understands SIGRTMIN+3 like this, this might confuse other init systems.
+
 If you write software that wants to detect whether it is run in a container, please check /proc/1/environ and look for the container= environment variable. Do not assume the environment variable is inherited down the process tree. It generally is not. Hence check the environment block of PID 1, not your own.
 
 Note that it is our intention to make systemd systems work flawlessly and out-of-the-box in containers. In fact we are interested to ensure that the same OS image can be booted on a bare system, in a VM and in a container, and behave correctly each time. If you notice that some component in systemd does not work in a container as it should please contact us.
