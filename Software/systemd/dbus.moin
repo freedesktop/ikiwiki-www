@@ -4,7 +4,7 @@
 
 systemd and its auxiliary daemons expose a number of APIs on D-Bus. The following describes the various APIs exposed by the system and service manager itself, and does not cover the auxiliary daemons.
 
-The service manager exposes a number of objects on the bus: one manager object as central entry point for clients and individual objects for each unit and for each queued job. The unit objects each implement a generic Unit interface plus a type-specific interface. For example, service units implement {{{org.freedesktop.systemd1.Unit}}} as well as {{{org.freedesktop.system1.Service}}}. The manager object can be use to list unit and job objects, or to directly convert a unit name or job id into a bus path of the corresponding D-Bus objects.
+The service manager exposes a number of objects on the bus: one manager object as central entry point for clients and individual objects for each unit and for each queued job. The unit objects each implement a generic Unit interface plus a type-specific interface. For example, service units implement {{{org.freedesktop.systemd1.Unit}}} as well as {{{org.freedesktop.system1.Service}}}. The manager object can be used to list unit and job objects, or to directly convert a unit name or job id into a bus path of the corresponding D-Bus objects.
 
 Note that properties exposing time values are usually encoded in microseconds (usec) on the bus, even if their corresponding settings in the unit files are in seconds.
 
@@ -187,7 +187,7 @@ Note that many of the calls exist twice: once on the Manager object, and once on
 
 '''!LoadUnit()''' is similar to !GetUnit() but will load the unit from disk if possible.
 
-'''!StartUnit()''' enqeues a start job, and possibly depending jobs. Takes the unit to activate, plus a mode string. The mode needs to be one of replace, fail, isolate, ignore-dependencies, ignore-requirements. If "replace" the call will start the unit and its dependencies, possibly replacing already queued jobs that conflict with this. If "fail" the call will start the unit and its dependencies, but will fail if this would change an already queued job. If "isolate" the call will start the unit in question and terminate all units that aren't dependencies of it. If "ignore-dependencies" will start a unit but ignore all its dependencies. If "ignore-requirements" will start a unit but only ignore the requirement dependencies. It is not recommended to make use of the latter two options. Returns the newly created job object.
+'''!StartUnit()''' enqeues a start job, and possibly depending jobs. Takes the unit to activate, plus a mode string. The mode needs to be one of replace, fail, isolate, ignore-dependencies, ignore-requirements. If "replace" the call will start the unit and its dependencies, possibly replacing already queued jobs that conflict with this. If "fail" the call will start the unit and its dependencies, but will fail if this would change an already queued job. If "isolate" the call will start the unit in question and terminate all units that aren't dependencies of it. If "ignore-dependencies" it will start a unit but ignore all its dependencies. If "ignore-requirements" it will start a unit but only ignore the requirement dependencies. It is not recommended to make use of the latter two options. Returns the newly created job object.
 
 '''!StartUnitReplace()''' is similar to '''!StartUnit()''' but replaces a job that is queued for one unit by a job for another.
 
