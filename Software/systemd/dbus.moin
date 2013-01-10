@@ -994,9 +994,9 @@ node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
 
 '''Unit''' contains the name of the unit to activate when the timer elapses.
 
-'''!TimersMonotonic''' contains an array of structs that contain information about all monotonic timers of this timer unit. The structs contain a string identifying the timer base, which is one of ''OnActiveSec'', ''!OnBootUSec'', ''OnStartupUSec'', ''OnUnitActiveUSec'', ''OnUnitInactiveUSec'', which correspond to the settings of the same names in the timer unit files; the usec offset from this timer base in monotonic time; the next elapsation point on the CLOCK_MONOTONIC clock, relative the the epoch.
+'''!TimersMonotonic''' contains an array of structs that contain information about all monotonic timers of this timer unit. The structs contain a string identifying the timer base, which is one of ''OnActiveUSec'', ''OnBootUSec'', ''OnStartupUSec'', ''OnUnitActiveUSec'', ''OnUnitInactiveUSec'', which correspond to the settings of the same names in the timer unit files; the usec offset from this timer base in monotonic time; the next elapsation point on the CLOCK_MONOTONIC clock, relative its epoch.
 
-'''!TimersCalendar''' contains an array of structs that contain information about all realtime/calendar timers of this timer unit. The structs contain a string identifiying the timer base, which may only be ''!OnCalendar'' for now; the calendar specification string; the next elapsation point pm tje CLOCK_REALTIME clock, relative to the epoch.
+'''!TimersCalendar''' contains an array of structs that contain information about all realtime/calendar timers of this timer unit. The structs contain a string identifiying the timer base, which may only be ''!OnCalendar'' for now; the calendar specification string; the next elapsation point on the CLOCK_REALTIME clock, relative to its epoch.
 
 '''NextElapseUSecRealtime''' contains the next elapsation point on the CLOCK_REALTIME clock in usec since the epoch, or 0 if this timer event does not include at least one calendar event.
 
@@ -1098,6 +1098,8 @@ node /org/freedesktop/systemd1/unit/dev_2dsda3_2eswap {
   };
 }}}
 
+=== Properties ===
+
 Most of the properties map directly to the corresponding settings in swap unit files. As mount units invoke the {{{/usr/bin/swapon}}} command their bus objects include implicit '''!ExecActivate''' (and similar) fields which contain information about processes to execute. They also share most of the fields related to the execution context that Service objects expose (see above). In addition to these properties there are the following:
 
 '''ControlPID''' contains the PID of the currently running {{{/usr/bin/swapon}}} or {{{/usr/bin/swapoff}}} command if there is one running, otherwise 0.
@@ -1131,6 +1133,14 @@ node /org/freedesktop/systemd1/unit/cups_2epath {
   };
 };
 }}}
+
+=== Properties ===
+
+Most properties corresponding directly with the matching settings of path unit files. The others:
+
+'''Paths''' contains an array of structs. Each construct contains the condition to watch, which can be one of ''!PathExists'', ''!PathExistsGlob'', ''!PathChanged'', ''!PathModified'', ''!DirectoryNotEmpty'' which correspond directly to the matching settings in the path unit files; and the path to watch, possibly including glob expressions.
+
+'''Result''' contains a result value which can be ''success'' or ''resources'', which have the same meaning as the corresponding field of the service interface.
 
 == Job Objects ==
 
