@@ -56,6 +56,7 @@ node /org/freedesktop/systemd1 {
       ResetFailedUnit(in  s name);
       GetJob(in  u id,
              out o job);
+      CancelJob(in  u id);
       ClearJobs();
       ResetFailed();
       ListUnits(out a(ssssssouso) units);
@@ -65,6 +66,7 @@ node /org/freedesktop/systemd1 {
       CreateSnapshot(in  s name,
                      in  b cleanup,
                      out o unit);
+      RemoveSnapshot(in  s name);
       Reload();
       Reexecute();
       Exit();
@@ -199,6 +201,8 @@ Note that many of the calls exist twice: once on the Manager object, and once on
 
 '''!GetJob()''' returns the job object path for a specific job, identified by its id.
 
+'''!CancelJob()''' cancels a specific job identified by its numer ID. This operation is also available in the '''!Cancel()''' method of Job objects (see below), and exists primarily to reduce the necessary round trips to execute this operation. Note that this will not have any effect on jobs whose execution has already begun.
+
 '''!ClearJobs()''' flushes the job queue, removing all jobs that are still queued. Note that this does not have any effect on jobs whose execution has already begun, it only flushes jobs that are queued and have not yet begun execution.
 
 '''!ResetFailedUnit()''' resets the "failed" state of a specific unit.
@@ -230,6 +234,8 @@ Note that many of the calls exist twice: once on the Manager object, and once on
 '''Subscribe()''' enables most bus signals to be sent out. Clients which are interested in signals need to call this function. Signals are only sent out if at least one client invoked this function. '''Unsubscribe()''' undoes the signal subscription that Subscribe() implements. It is not necessary to invoke Unsubscribe() as clients are tracked. Signals are no longer sent out as soon as all clients which previously asked for Subscribe() either closed the bus connection or invoked Unsubscribe().
 
 '''!CreateSnapshot()''' creates a snapshot unit for the current system state, and stores it under the specified name. It will return the unit object path to the new snapshot. If the cleanup boolean is true the snapshot will be removed automatically when it has been activated, otherwise it remains and can be activated multiple times. Snapshots are not persistent.
+
+'''!RemoveSnapshot()''' removes a snapshot. This call is also available in the '''Remove()''' method of Snapshot objects (see below), and exists primarily to reduce the number of required roundtrips for this call.
 
 '''Reload()''' may be invoked to reload all unit files.
 
@@ -958,7 +964,7 @@ node /org/freedesktop/systemd1/unit/foo_2esnapshot {
 
 === Methods ===
 
-'''Remove()''' deletes the snapshot unit.
+'''Remove()''' deletes the snapshot unit. This operation is also available in the '''RemoveSnapshot()''' operation of the Manager object (see above), which is sometimes nicer to call, in order to reduce roundtrips.
 
 === Properties ===
 
@@ -1170,7 +1176,7 @@ node /org/freedesktop/systemd1/job/1292 {
 
 === Methods ===
 
-'''Cancel()''' cancels the job. Note that this will remove a job from the queue if it is not yet executed but generally will not cause a job that is already in the process of being executed to be aborted.
+'''Cancel()''' cancels the job. Note that this will remove a job from the queue if it is not yet executed but generally will not cause a job that is already in the process of being executed to be aborted. This operation may also be requested via the '''CancelJob()''' method of the Manager object (see above), which is sometimes useful to reduce roundtrips.
 
 === Properties ===
 
