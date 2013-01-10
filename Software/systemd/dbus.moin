@@ -603,7 +603,7 @@ Most properties of the Service interface map directly to the corresponding setti
 
 '''!StatusText''' contains the status text passed to the service manager via a call to sd_notify(). This may be used by services to inform the service manager about its internal state with a nice explanatory string.
 
-'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state (see '''!ActiveState''' above). The following values are currently known: ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''!StartLimitInterval''', '''!StartLimitBurst''').
+'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state (see '''!ActiveState''' above). The following values are currently known: ''success'' is set if the unit didn't fail. ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''!StartLimitInterval''', '''!StartLimitBurst''').
 
 == Socket Unit Objects ==
 
@@ -735,7 +735,7 @@ Most of the properties map directly to the corresponding settings in socket unit
 
 Similar '''NConnections''' contains the number of currently open connections on this socket, and also applies only to socket with '''Accept''' set to ''true''.
 
-'''Result''' encodes the reason why a socket unit failed if it is in ''failed'' state (see '''!ActiveState''' above). The values ''resources'', ''timeout'', ''exit-code'', ''signal'' and ''core-dump'' have the same meaning as they have for the corresponding field of service units (see above). In addition to that the value '''service-failed-permanent''' indicates that the service of this socket failed continuously.
+'''Result''' encodes the reason why a socket unit failed if it is in ''failed'' state (see '''!ActiveState''' above). The values ''success'', ''resources'', ''timeout'', ''exit-code'', ''signal'' and ''core-dump'' have the same meaning as they have for the corresponding field of service units (see above). In addition to that the value '''service-failed-permanent''' indicates that the service of this socket failed continuously.
 
 == Target Unit Objects ==
 
@@ -891,11 +891,13 @@ node /org/freedesktop/systemd1/unit/home_2emount {
 };
 }}}
 
+=== Properties ===
+
 Most of the properties map directly to the corresponding settings in mount unit files. As mount units invoke the {{{/usr/bin/mount}}} command their bus objects include implicit '''!ExecMount''' (and similar) fields which contain information about processes to execute. They also share most of the fields related to the execution context that Service objects expose (see above). In addition to these properties there are the following:
 
 '''ControlPID''' contains the PID of the currently running {{{/usr/bin/mount}}} or {{{/usr/bin/umount}}} command if there is one running, otherwise 0.
 
-'''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''resources'', ''timeout'', ''exit-code'', ''signal'', ''core-dump'' which have the identical meaning as the corresponding values of the corresponding field of service unit objects (see above).
+'''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''success'', ''resources'', ''timeout'', ''exit-code'', ''signal'', ''core-dump'' which have the identical meaning as the corresponding values of the corresponding field of service unit objects (see above).
 
 == Automount Unit Objects ==
 
@@ -923,6 +925,12 @@ node /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount 
 };
 }}}
 
+=== Properties ===
+
+Most of the properties map directly to the corresponding settings in the automount unit files.
+
+'''Result''' knows the values ''success'' and ''resources''', at this time. They have the same meetings as the corresponding values of the corresponding field of the Service object.
+
 == Snapshot Unit Objects ==
 
 All snapshot unit objects implement the {{{org.freedesktop.systemd1.Snapshot}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
@@ -948,6 +956,14 @@ node /org/freedesktop/systemd1/unit/foo_2esnapshot {
 };
 }}}
 
+=== Methods ===
+
+'''Remove()''' deletes the snapshot unit.
+
+=== Properties ===
+
+'''Cleanup''' is a boolean that indicates that the snapshot unit should be removed automatically after the first time it is activated.
+
 == Timer Unit Objects ==
 
 All timer unit objects implement the {{{org.freedesktop.systemd1.Timer}}} interface (described here) in addition to the generic {{{org.freedesktop.systemd1.Unit}}} interface (see above).
@@ -958,23 +974,35 @@ node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
   interface org.freedesktop.systemd1.Unit {
   };
   interface org.freedesktop.systemd1.Timer {
-    methods:
-    signals:
-    properties:
       readonly s Unit = 'systemd-tmpfiles-clean.service';
-      readonly a(stt) Timers = [('OnUnitActiveUSec', 86400000000, 87300018861), ('OnBootUSec', 900000000, 900000000)];
-      readonly t NextElapseUSec = 87300018861;
+      readonly a(stt) TimersMonotonic = [('OnUnitActiveUSec', 86400000000, 173700033104), ('OnBootUSec', 900000000, 900000000)];
+      readonly a(sst) TimersCalendar = [];
+      readonly t NextElapseUSecRealtime = 0;
+      readonly t NextElapseUSecMonotonic = 173700033104;
       readonly s Result = 'success';
   };
   interface org.freedesktop.DBus.Properties {
   };
   interface org.freedesktop.DBus.Peer {
-
   };
   interface org.freedesktop.DBus.Introspectable {
   };
 };
 }}}
+
+=== Properties ===
+
+'''Unit''' contains the name of the unit to activate when the timer elapses.
+
+'''!TimersMonotonic''' contains an array of structs that contain information about all monotonic timers of this timer unit. The structs contain a string identifying the timer base, which is one of ''OnActiveSec'', ''!OnBootUSec'', ''OnStartupUSec'', ''OnUnitActiveUSec'', ''OnUnitInactiveUSec'', which correspond to the settings of the same names in the timer unit files; the usec offset from this timer base in monotonic time; the next elapsation point on the CLOCK_MONOTONIC clock, relative the the epoch.
+
+'''!TimersCalendar''' contains an array of structs that contain information about all realtime/calendar timers of this timer unit. The structs contain a string identifiying the timer base, which may only be ''!OnCalendar'' for now; the calendar specification string; the next elapsation point pm tje CLOCK_REALTIME clock, relative to the epoch.
+
+'''NextElapseUSecRealtime''' contains the next elapsation point on the CLOCK_REALTIME clock in usec since the epoch, or 0 if this timer event does not include at least one calendar event.
+
+Similar, '''NextElapseUSecMonotonic''' contains the next elapsation point on the CLOCK_MONOTONIC clock in usec since the epoch, or 0 if this timer event does not include at least one monotonic event.
+
+'''Result''' knows the values ''success'' and ''resources''' with the same meanings as the matching values of the corresponding property of the service interface.
 
 == Swap Unit Objects ==
 
@@ -1074,7 +1102,7 @@ Most of the properties map directly to the corresponding settings in swap unit f
 
 '''ControlPID''' contains the PID of the currently running {{{/usr/bin/swapon}}} or {{{/usr/bin/swapoff}}} command if there is one running, otherwise 0.
 
-'''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''resources'', ''timeout'', ''exit-code'', ''signal'', ''core-dump'' which have the identical meaning as the corresponding values of the corresponding field of service unit objects (see above).
+'''Result''' contains a value explaining why a mount unit failed if it failed. It can take the values ''success'', ''resources'', ''timeout'', ''exit-code'', ''signal'', ''core-dump'' which have the identical meanings as the corresponding values of the corresponding field of service unit objects (see above).
 
 == Path Unit Objects ==
 
