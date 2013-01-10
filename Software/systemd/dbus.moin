@@ -417,9 +417,9 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
 
 '''Names''' contains all names of the unit, including the primary name that is also exposed in '''Id'''.
 
-'''Following''' either contains the empty string or contains the name of another unit that this unit follows in state. This used for some device units which reflect the unit state machine of another unit, and which other unit this is might possibly change.
+'''Following''' either contains the empty string or contains the name of another unit that this unit follows in state. This is used for some device units which reflect the unit state machine of another unit, and which other unit this is might possibly change.
 
-'''Requires''', '''!RequiresOverridable''', '''Requisite''', '''!RequisiteOverridable''', '''Wants''', '''!BindsTo''', '''!RequiredBy''', '''!RequiredByOverridable''', '''!WantedBy''', '''!BoundBy''', '''Conflicts''', '''!ConflictedBy''', '''Before''', '''After''', '''!OnFailure''', '''Triggers''', '''!TriggeredBy''', '''!PropagatesReloadTo''', '''!RequiresMountsFor''' contain arrays which encode the dependencies and their inverse dependencies (where this applies), as configure in the unit file or determined automatically. 
+'''Requires''', '''!RequiresOverridable''', '''Requisite''', '''!RequisiteOverridable''', '''Wants''', '''!BindsTo''', '''!RequiredBy''', '''!RequiredByOverridable''', '''!WantedBy''', '''!BoundBy''', '''Conflicts''', '''!ConflictedBy''', '''Before''', '''After''', '''!OnFailure''', '''Triggers''', '''!TriggeredBy''', '''!PropagatesReloadTo''', '''!RequiresMountsFor''' contain arrays which encode the dependencies and their inverse dependencies (where this applies), as configured in the unit file or determined automatically. 
 
 '''Description''' contains the human readable description string for the unit.
 
@@ -451,9 +451,9 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
 
 '''!ControlGroup''' contains an array of the control groups this unit is making use of. This includes the default control group in the ''name=systemd'' hierarchy, but also includes groups in additional hierarchies.
 
-'''!ControlGroupAttributes''' contains an array of string triples for each control group to set for this unit. Each triplet consist of hierarchy name, field and value.
+'''!ControlGroupAttributes''' contains an array of string triples for each control group to set for this unit. Each triplet consists of hierarchy name, field and value.
 
-'''!NeedDaemonReload''' is a boolean that indicates whether the configuration file this unit is loaded from (i.e. '''!FragmentPath''' or '''!SourcePath''') has changed since the configuration was read and hence whether are configuration reload is recommended.
+'''!NeedDaemonReload''' is a boolean that indicates whether the configuration file this unit is loaded from (i.e. '''!FragmentPath''' or '''!SourcePath''') has changed since the configuration was read and hence whether a configuration reload is recommended.
 
 '''JobTimeoutUSec''' maps directly to the corresponding configuration setting in the unit file.
 
@@ -603,7 +603,7 @@ Most properties of the Service interface map directly to the corresponding setti
 
 '''!StatusText''' contains the status text passed to the service manager via a call to sd_notify(). This may be used by services to inform the service manager about its internal state with a nice explanatory string.
 
-'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state (see '''!ActiveState''' above). The following values are currently known: ''success'' is set if the unit didn't fail. ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occured while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''!StartLimitInterval''', '''!StartLimitBurst''').
+'''Result''' encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in ''failed'' state (see '''!ActiveState''' above). The following values are currently known: ''success'' is set if the unit didn't fail. ''resources'' indicates that not enough resources have been available to fork off and execute the service processes. ''timeout'' indicates that a time-out occurred while executing a service operation. ''exit-code'' indicates that a service process exited with an unclean exit code. ''signal'' indicates that a service process exited with an uncaught signal. ''core-dump'' indicates that a service process exited uncleanly and dumped core. ''watchdog'' indicates that a service did not send out watchdog ping messages often enough. ''start-limit'' indicates that a service has been started too frequently in a time frame (as configured in '''!StartLimitInterval''', '''!StartLimitBurst''').
 
 == Socket Unit Objects ==
 
@@ -996,7 +996,7 @@ node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
 
 '''!TimersMonotonic''' contains an array of structs that contain information about all monotonic timers of this timer unit. The structs contain a string identifying the timer base, which is one of ''OnActiveUSec'', ''OnBootUSec'', ''OnStartupUSec'', ''OnUnitActiveUSec'', ''OnUnitInactiveUSec'', which correspond to the settings of the same names in the timer unit files; the usec offset from this timer base in monotonic time; the next elapsation point on the CLOCK_MONOTONIC clock, relative its epoch.
 
-'''!TimersCalendar''' contains an array of structs that contain information about all realtime/calendar timers of this timer unit. The structs contain a string identifiying the timer base, which may only be ''!OnCalendar'' for now; the calendar specification string; the next elapsation point on the CLOCK_REALTIME clock, relative to its epoch.
+'''!TimersCalendar''' contains an array of structs that contain information about all realtime/calendar timers of this timer unit. The structs contain a string identifying the timer base, which may only be ''!OnCalendar'' for now; the calendar specification string; the next elapsation point on the CLOCK_REALTIME clock, relative to its epoch.
 
 '''NextElapseUSecRealtime''' contains the next elapsation point on the CLOCK_REALTIME clock in usec since the epoch, or 0 if this timer event does not include at least one calendar event.
 
@@ -1138,7 +1138,7 @@ node /org/freedesktop/systemd1/unit/cups_2epath {
 
 Most properties correspond directly with the matching settings in path unit files. The others:
 
-'''Paths''' contains an array of structs. Each construct contains the condition to watch, which can be one of ''!PathExists'', ''!PathExistsGlob'', ''!PathChanged'', ''!PathModified'', ''!DirectoryNotEmpty'' which correspond directly to the matching settings in the path unit files; and the path to watch, possibly including glob expressions.
+'''Paths''' contains an array of structs. Each struct contains the condition to watch, which can be one of ''!PathExists'', ''!PathExistsGlob'', ''!PathChanged'', ''!PathModified'', ''!DirectoryNotEmpty'' which correspond directly to the matching settings in the path unit files; and the path to watch, possibly including glob expressions.
 
 '''Result''' contains a result value which can be ''success'' or ''resources'', which have the same meaning as the corresponding field of the service interface.
 
