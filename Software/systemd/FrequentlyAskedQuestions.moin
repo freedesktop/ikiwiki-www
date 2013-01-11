@@ -79,15 +79,14 @@ A: Unfortunately that would be a racy operation. For an explanation why and how 
 
 A: If both files are available the native unit file always takes precedence and the SysV init script is ignored, regardless whether either is enabled or disabled. Note that a SysV service that is enabled but overridden by a native service does not have the effect that the native service would be enabled, too. Enabling of native and SysV services is completely independent. Or in other words: you cannot enable a native service by enabling a SysV service by the same name, and if a SysV service is enabled but the respective native service is not, this will not have the effect that the SysV script is executed.
 
-'''Q: How can i use journalctl to display full (== not truncated) messages?'''
+'''Q: How can I use journalctl to display full (== not truncated) messages even if less is not used?'''
 
 A: Use:
 
 {{{
-# journalctl -a
+# journalctl --full
 }}}
-Then use arrow keys , to scroll to right/left. To see wrapped text, you can use:
 
-{{{
-# journalctl --no-pager | less
-}}}
+'''Q: Whenever my service tries to acquire RT scheduling for one of its threads this is refused with EPERM even though my service is running with full privileges. This works fine on my non-systemd system!'''
+
+A: By default, systemd places all systemd daemons in their own cgroup in the "cpu" hierarchy. Unfortunately, due to a kernel limitation, this has the effect of disallowing RT entirely for the service. See MyServiceCantGetRealtime for a longer discussion and what to do about this.
