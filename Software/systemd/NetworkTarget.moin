@@ -38,7 +38,7 @@ systemctl enable NetworkManager-wait-online.service
 
 This will ensure that all configured network devices are up and have an IP address assigned before boot continues. This service will time out after 90s. Enabling this service might considerably delay your boot even if the timeout is not reached.
 
-Alternatively, you can write your own service file wrapping any other program or script you like and simply order it before {{{network.target}}}.
+Alternatively, you can write your own service file wrapping any other program or script you like and simply order it before {{{network.target}}} (with Before=). Your service also needs to pull in {{{network.target}}} (with Wants=), to indicate that it implements this target.
 
 == What does this mean for me, a Developer? ==
 
