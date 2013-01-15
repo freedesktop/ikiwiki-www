@@ -42,4 +42,8 @@ Alternatively, you can write your own service file wrapping any other program or
 
 == What does this mean for me, a Developer? ==
 
-If you are a developer, instead of wondering what to do about {{{network.target}}}, please just fix your program to watch rtnetlink and react properly to network configuration changes as they happen. That way you will make your users happy because things just start to work, and you will get fewer bug reports as your stuff is just rock solid.
+If you are a developer, instead of wondering what to do about {{{network.target}}}, please just fix your program to be friendly to dynamically changing network configuration.  That way you will make your users happy because things just start to work, and you will get fewer bug reports as your stuff is just rock solid. Here are a couple of possible approaches:
+
+ * Watch [[https://www.kernel.org/doc/man-pages/online/pages/man7/rtnetlink.7.html|rtnetlink]] and react properly to network configuration changes as they happen. This is usually the nicest solution, but not always the easiest.
+ * If you write a server: listen on 0.0.0.0 and 127.0.0.1 only. These pseudo-addresses are unconditionally available. If you always bind to these addresses you will have code that doesn't have to react to network changes, as it all you listen on is catch-all and private addresses.
+ * If you write a server: if you want to listen on other, explicitly configured addresses, consider using the [[https://www.kernel.org/doc/man-pages/online/pages/man7/ip.7.html|IP_FREEBIND sockopt]] functionality of the Linux kernel. This allows your code to bind to an address even if it is not actually (yet or ever) configured locally. This also makes your code robust towards network configuration changes.
