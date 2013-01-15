@@ -3,3 +3,23 @@
 = Running Services After the Network is up =
 
 ''So you have configured your service to run after {{{network.target}}} but it still gets run before your network is up? And now you are wondering why that is and what you can do about it?''
+
+The {{{network.target}}} unit is the system counterpart of LSB's old $network facility. However as this facility is defined [[[http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/facilname.html|only very unprecisely]]] people tend to have different ideas what it is supposed to mean. Here are a couple of ideas people came up with so far:
+
+ * All "configured" network interfaces are up and an IP address has been assigned
+ * All discovered local hardware interfaces that have a link beat have an IP address assigned
+ * The network has been set up precisely to the level that a DNS server is reachable
+ * Similar, but some specific site-specific server is reachable
+ * Similar, but "the Internet" is reachable
+ * All "configured" ethernet devices are up, but all "configured" PPP links which are supposed to also start at boot don't have to
+ * A certain "profile" is enabled and some condition of the above holds. If another "profile" is enable a different condition would have to be checked
+ * Based on the location of the system a different set of configuration should be up or checked for
+ * At least one global IPv4 address is configured
+ * At least one global IPv6 address is configured
+ * At least one global IPv4 or IPv6 address is configured
+
+And so on and so on. All these are valid approaches to the question "When is the network up?", but none of them would be useful to be good as generic default. 
+
+Modern networking tends to be highly dynamic: machines are moved between networks, network configuration changes, hardware is added and removed, virtual networks are set up, reconfigured and shut down again. Network connectivity is not unconditionally available, and a machine is connected to different networks at different times. This particularly true for mobile hardware such as handsets, tablets and laptops, but also for embedded and servers. Software that is written under the assumption that network connectivity is available continuously and never changes is hence not up-to-date with modern setups. Well-written software should be able to handle dynamic configuration changes. It should react to changing network configuration and make the best of it. If it cannot reach a server it must retry. If network configuration connectivty it must react. Reacting to local network configuration changes in daemon code is not particularly hard. In fact many well-known network-facing services running on Linux have been doing this for decades. A service written like this is robust, can be started at any time, and will always do the best of the circumstances it is running in.
+
+{{{network.target}}} is a mechanism that is required only to deal with software that assumes continuous network was available.
