@@ -28,7 +28,18 @@ Even though normally none of these API file systems are listed in {{{/etc/fstab}
 It is possible to disable the automatic mounting of some (but not all) of these file systems, if that is required. These are marked with (X) in the list above. You may disable them simply by masking them:
 
 {{{
-systemctl mask tmp.mount
+systemctl mask dev-hugepages.mount
 }}}
 
 This has the effect that the temporary, volatile file system (tmpfs) on {{{/tmp}}} is not mounted by default, starting with the next boot. See [[http://0pointer.de/blog/projects/three-levels-of-off.html|Three Levels of Off]] for more information on masking.
+
+== Why are you telling me all this? I just want to get rid of the tmpfs backed /tmp? ==
+
+You have two options: 
+
+ 1. Disable any mounting on {{{/tmp}}} so that it resides on the same physical file system as the root directory. For that execute:
+{{{
+systemctl mask tmp.mount
+}}}
+ 2. Mount a different, physical file system to {{{/tmp}}}. For that, simply create an entry for it in {{{/etc/fstab}}} as you would do for any other file system.
+ 3. Keep {{{/tmp}}} but increase/decrease the size of it. For that, also just create an entry for it in {{{/etc/fstab}}} as you would do for any other {{{tmpfs}}} file system, and use the right {{{size=}}} option.
