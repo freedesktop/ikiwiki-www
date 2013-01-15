@@ -26,7 +26,7 @@ Modern networking tends to be highly dynamic: machines are moved between network
 
 A robust system boots up independently of external services. More specifically, if a network DHCP server does not react this should not slow down boot on most setups, but only for those where network connectivity is strictly needed (for example, because the host actually boots from the network).
 
-In systemd {{{network.target}}} by default does not have much meaning. If a service orders itself after it this will have little effect. It is up to the admin to actually fill {{{network.target}}} with sense, i.e. order a service before it that waits until the "network is up" based on the policy the admin chooses, based on the needs of the software that shall be ordered after it and its configuration.
+In systemd {{{network.target}}} by default does not have much meaning. If a service orders itself after it this will have little effect, by default. It is up to the admin to actually fill {{{network.target}}} with sense, i.e. order a service before it that waits until the "network is up" based on the policy the admin chooses, based on the needs of the software that shall be ordered after it and its configuration. By defaulting to the empty meaning we hence provide a speedy boot that is not slowed down by external factors for the majority of cases, but by allowing {{{network.target}}} to be defined by the administrator as he likes any policy is implementable instead. 
 
 == Cut the crap! How do I make network.target work for me? ==
 
