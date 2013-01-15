@@ -4,14 +4,14 @@
 
 ''So you have configured your service to run after {{{network.target}}} but it still gets run before your network is up? And now you are wondering why that is and what you can do about it?''
 
-The {{{network.target}}} unit is the system counterpart of LSB's old $network facility. However as this facility is defined [[[http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/facilname.html|only very unprecisely]]] people tend to have different ideas what it is supposed to mean. Here are a couple of ideas people came up with so far:
+The {{{network.target}}} unit is the systemd counterpart of LSB's {{{$network}}} facility. However as this facility is defined [[[http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/facilname.html|only very unprecisely]]] people tend to have different ideas what it is supposed to mean. Here are a couple of ideas people came up with so far:
 
  * All "configured" network interfaces are up and an IP address has been assigned
  * All discovered local hardware interfaces that have a link beat have an IP address assigned
  * The network has been set up precisely to the level that a DNS server is reachable
  * Similar, but some specific site-specific server is reachable
  * Similar, but "the Internet" is reachable
- * All "configured" ethernet devices are up, but all "configured" PPP links which are supposed to also start at boot don't have to
+ * All "configured" ethernet devices are up, but all "configured" PPP links which are supposed to also start at boot don't have to be yet
  * A certain "profile" is enabled and some condition of the above holds. If another "profile" is enable a different condition would have to be checked
  * Based on the location of the system a different set of configuration should be up or checked for
  * At least one global IPv4 address is configured
@@ -20,6 +20,26 @@ The {{{network.target}}} unit is the system counterpart of LSB's old $network fa
 
 And so on and so on. All these are valid approaches to the question "When is the network up?", but none of them would be useful to be good as generic default. 
 
-Modern networking tends to be highly dynamic: machines are moved between networks, network configuration changes, hardware is added and removed, virtual networks are set up, reconfigured and shut down again. Network connectivity is not unconditionally available, and a machine is connected to different networks at different times. This particularly true for mobile hardware such as handsets, tablets and laptops, but also for embedded and servers. Software that is written under the assumption that network connectivity is available continuously and never changes is hence not up-to-date with modern setups. Well-written software should be able to handle dynamic configuration changes. It should react to changing network configuration and make the best of it. If it cannot reach a server it must retry. If network configuration connectivty it must react. Reacting to local network configuration changes in daemon code is not particularly hard. In fact many well-known network-facing services running on Linux have been doing this for decades. A service written like this is robust, can be started at any time, and will always do the best of the circumstances it is running in.
+Modern networking tends to be highly dynamic: machines are moved between networks, network configuration changes, hardware is added and removed, virtual networks are set up, reconfigured and shut down again. Network connectivity is not unconditionally and continuously available, and a machine is connected to different networks at different times. This is particularly true for mobile hardware such as handsets, tablets and laptops, but also for embedded and servers. Software that is written under the assumption that network connectivity is available continuously and never changes is hence not up-to-date with modern setups. Well-written software should be able to handle dynamic configuration changes. It should react to changing network configuration and make the best of it. If it cannot reach a server it must retry. If network configuration connectivity is lost it must react. Reacting to local network configuration changes in daemon code is not particularly hard. In fact many well-known network-facing services running on Linux have been doing this for decades. A service written like this is robust, can be started at any time, and will always do the best of the circumstances it is running in.
 
-{{{network.target}}} is a mechanism that is required only to deal with software that assumes continuous network was available.
+{{{network.target}}} is a mechanism that is required only to deal with software that assumes continuous network was available (i.e. of the simple non-well-written kind). Which facet of it it requires is undefined. An IMAP server might just require a certain IP to be assigned so that it can listen on it. OTOH a network file system client might need DNS up, and the service to contact up, as well. For {{{network.target}}} what precisely is required is not obvious and can be different things depending on local configuration.
+
+A robust system boots up independently of external services. More specifically, if a network DHCP server does not react this should not slow down boot on most setups, but only for those where network connectivity is strictly needed (for example, because the host actually boots from the network).
+
+In systemd {{{network.target}}} by default does not have much meaning. If a service orders itself after it this will have little effect. It is up to the admin to actually fill {{{network.target}}} with sense, i.e. order a service before it that waits until the "network is up" based on the policy the admin chooses, based on the needs of the software that shall be ordered after it and its configuration.
+
+== Cut the crap! How do I make {{{network.target}}} work for me? ==
+
+Well, that depends on your setup and the services you plan to run after it. If you use !NetworkManager one option is to enable {{{NetworkManager-wait-online.service}}}:
+
+{{{
+systemctl enable NetworkManager-wait-online.service
+}}}
+
+This will ensure that all configured network devices are up and have an IP address assigned before boot continues. This service will time out after 90s. Enabling this service might considerably delay your boot even if the timeout is not reached.
+
+Alternatively, you can write your own service file wrapping any other program or script you like and simply order it before {{{network.target}}}.
+
+== For Developers ==
+
+If you are a developer, instead of wondering what to do about {{{network.target}}}, please just fix your program to watch rtnetlink and react properly to network configuration changes as they happen. That way you will make your users happy because things just start to work, and you will get less bug reports as your stuff is just rock solid.
