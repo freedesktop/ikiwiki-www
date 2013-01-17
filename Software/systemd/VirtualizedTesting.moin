@@ -36,14 +36,14 @@ $ sudo yum -y --releasever=18 --nogpg --installroot=$HOME/fedora-tree --disabler
 You can do something similar with debootstrap on a Debian system. Now, we need to set a root password in order to be able to log in.
 
 {{{
-$ sudo systemd-nspawn -D ~/fedora-tree
+$ sudo systemd-nspawn --capability=cap_audit_write,cap_audit_control -D ~/fedora-tree
 # passwd
 }}}
 
 Next step, I can already boot the container:
 
 {{{
-$ sudo systemd-nspawn -bD ~/fedora-tree
+$ sudo systemd-nspawn --capability=cap_audit_write,cap_audit_control -bD ~/fedora-tree
 }}}
 
 To test systemd in the container I then run this from my source tree:
