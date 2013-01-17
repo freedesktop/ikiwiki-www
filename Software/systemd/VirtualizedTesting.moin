@@ -21,7 +21,7 @@ exec sudo qemu-kvm -smp 2 -m 512 -snapshot /dev/sda
 This will boot your local system in a throw-away VM. It will take your main harddisk, boot from it in the VM, allow changes to it, but these changes are all just buffered in memory and never hit the real disk. Any changes made in this VM will be lost when the VM terminates. I have called this script "q", and hence for test booting my own system all I do type the following command in my systemd source tree and I can see if it worked.
 
 {{{
-$ make -j6 && sudo make install && q
+$ make -j10 && sudo make install && q
 }}}
 
 The first tree lines are necessary to ensure that the kernel's disk caches are all synced to disk before qemu takes the snapshot of it. Yes, invoking "umount /" will sync your file system to disk as a side effect, even though it will actually fail. When the machine boots up the file system will still be marked dirty (and hence you will get an fsck, usually), but it will work fine nonetheless in virtual cases.
@@ -43,7 +43,7 @@ $ sudo systemd-nspawn -bD /home/lennart/fedora-tree
 To test systemd in the container I then run this from my source tree:
 
 {{{
-$ make -j6 && sudo DESTDIR=~/fedora-tree make install && sudo systemd-nspawn -bD ~/fedora-tree
+$ make -j10 && sudo DESTDIR=~/fedora-tree make install && sudo systemd-nspawn -bD ~/fedora-tree
 }}}
 
 And that's already it.
