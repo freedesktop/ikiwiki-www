@@ -25,31 +25,43 @@ $ make -j10 && sudo make install && q
 
 The first three lines are necessary to ensure that the kernel's disk caches are all synced to disk before qemu takes the snapshot of it. Yes, invoking "umount /" will sync your file system to disk as a side effect, even though it will actually fail. When the machine boots up the file system will still be marked dirty (and hence you will get an fsck, usually), but it will work fine nonetheless in virtually all cases.
 
+YMMV if you use LVM or btrfs. 
+
 == Testing in a container ==
 
-Test-booting systemd in a container has the benefit of being much easiert to debug/instrument from the outside. For that I first install Fedora into a container tree: 
+Test-booting systemd in a container has the benefit of being much easiert to debug/instrument from the outside. 
+
+As preparation it is essential to turn of auditing entirely on your host. Auditing cannot be used with containers, and will trigger all kinds of error ins containers if not turned off. Use '''audit=0''' on the host's kernel command line to turn it off.
+
+Then, as first step I install Fedora into a container tree: 
 
 {{{
-$ sudo yum -y --releasever=18 --nogpg --installroot=$HOME/fedora-tree --disablerepo='*' --enablerepo=fedora install systemd passwd openssh-server yum fedora-release
+$ sudo yum -y --releasever=18 --nogpg --installroot=$HOME/fedora-tree --disablerepo='*' --enablerepo=fedora install systemd passwd yum fedora-release
 }}}
 
-You can do something similar with debootstrap on a Debian system. Now, we need to set a root password in order to be able to log in.
+You can do something similar with debootstrap on a Debian system. Now, we need to set a root password in order to be able to log in:
 
 {{{
-$ sudo systemd-nspawn --capability=cap_audit_write,cap_audit_control -D ~/fedora-tree
-# passwd
+$ sudo systemd-nspawn -D /home/lennart/fedora-tree/
+Spawning namespace container on /home/lennart/fedora-tree (console is /dev/pts/4).
+-bash-4.2# passwd
+Changing password for user root.
+New password: 
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+-bash-4.2# logout
 }}}
 
-Next step, I can already boot the container:
+As next step I can already boot the container:
 
 {{{
-$ sudo systemd-nspawn --capability=cap_audit_write,cap_audit_control -bD ~/fedora-tree
+$ sudo systemd-nspawn -bD ~/fedora-tree
 }}}
 
 To test systemd in the container I then run this from my source tree:
 
 {{{
-$ make -j10 && sudo DESTDIR=$HOME/fedora-tree make install && sudo systemd-nspawn --capability=cap_audit_write,cap_audit_control -bD ~/fedora-tree 3
+$ make -j10 && sudo DESTDIR=$HOME/fedora-tree make install && sudo systemd-nspawn -bD ~/fedora-tree 3
 }}}
 
 And that's already it.
