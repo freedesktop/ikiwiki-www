@@ -2,9 +2,11 @@
 
 = Testing systemd during Development in Virtualization =
 
+For quickly testing systemd during development it us useful to boot it up in a container and in a QEMU VM. 
+
 == Testing in a VM ==
 
-Here's a nice trick if you regularly build and test-boot systemd, are gutsy enough to install it into your host, but too afraid or too lazy to continuously reboot your host.
+Here's a nice hack if you regularly build and test-boot systemd, are gutsy enough to install it into your host, but too afraid or too lazy to continuously reboot your host.
 
 Create a shell script like this: 
 
@@ -26,6 +28,8 @@ $ make -j10 && sudo make install && q
 }}}
 
 The first three lines are necessary to ensure that the kernel's disk caches are all synced to disk before qemu takes the snapshot of it. Yes, invoking "umount /" will sync your file system to disk as a side effect, even though it will actually fail. When the machine boots up the file system will still be marked dirty (and hence you will get an fsck, usually), but it will work fine nonetheless in virtually all cases.
+
+Of course, if the host's hard disk changes while the VM is running this will be visible to the VM, and might confuse it. If you use this little hack you should keep changes on the host at a minimum, hence.
 
 YMMV if you use LVM or btrfs. 
 
