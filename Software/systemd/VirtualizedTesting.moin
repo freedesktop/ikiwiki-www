@@ -1,0 +1,50 @@
+= Testing systemd in Virtualization =
+
+
+== Testing in a VM ==
+
+Here's a nice trick if you regularly build and test boot systemd, are gutsy enough to install it into your host, but too afraid or too lazy to continuously reboot your host.
+
+Create a shell script like this: 
+
+{{{
+#!/bin/sh
+
+sudo sync
+sudo /bin/sh -c 'echo 3 > /proc/sys/vm/drop_caches'
+sudo umount /
+sudo modprobe kvm-intel
+
+exec sudo qemu-kvm -smp 2 -m 512 -snapshot /dev/sda
+#exec sudo qemu-kvm -smp 2 -m 512 -snapshot /dev/sda -kernel /boot/vmlinuz-3.5.0-1.fc18.x86_64 -serial stdio -append "root=/dev/sda6 rootfstype=ext4 console=tty0 console=ttyS0 quiet 3
+}}}
+
+This will boot your local system in a throw-away VM. It will take your main harddisk, boot from it in the VM, allow changes to it, but these changes are all just buffered in memory and never hit the real disk. Any changes made in this VM will be lost when the VM terminates. I have called this script "q", and hence for test booting my own system all I do type the following command in my systemd source tree and I can see if it worked.
+
+{{{
+$ make -j6 && sudo make install && q
+}}}
+
+The first tree lines are necessary to ensure that the kernel's disk caches are all synced to disk before qemu takes the snapshot of it. Yes, invoking "umount /" will sync your file system to disk as a side effect, even though it will actually fail. When the machine boots up the file system will still be marked dirty (and hence you will get an fsck, usually), but it will work fine nonetheless in virtual cases.
+
+== Testing in a container ==
+
+Test-booting systemd in a container has the benefit of being much easiert to debug/instrument from the outside. For that I first install Fedora into a container tree: 
+
+{{{
+$ sudo yum -y --releasever=18 --nogpg --installroot=~/fedora-tree --disablerepo='*' --enablerepo=fedora install systemd passwd openssh-server rpm
+}}}
+
+(You can do something similar with debootstrap on a Debian system.) Next step, I can already boot the container:
+
+{{{
+$ sudo systemd-nspawn -bD /home/lennart/fedora-tree
+}}}
+
+To test systemd in the container I then run this from my source tree:
+
+{{{
+$ make -j && sudo DESTDIR=~/fedora-tree make install && sudo systemd-nspawn -bD ~/fedora-tree
+}}}
+
+And that's already it.
