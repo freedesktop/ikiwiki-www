@@ -16,7 +16,6 @@ sudo umount /
 sudo modprobe kvm-intel
 
 exec sudo qemu-kvm -smp 2 -m 512 -snapshot /dev/sda
-#exec sudo qemu-kvm -smp 2 -m 512 -snapshot /dev/sda -kernel /boot/vmlinuz-3.5.0-1.fc18.x86_64 -serial stdio -append "root=/dev/sda6 rootfstype=ext4 console=tty0 console=ttyS0 quiet 3
 }}}
 
 This will boot your local system in a throw-away VM. It will take your main harddisk, boot from it in the VM, allow changes to it, but these changes are all just buffered in memory and never hit the real disk. Any changes made in this VM will be lost when the VM terminates. I have called this script "q", and hence for test booting my own system all I do type the following command in my systemd source tree and I can see if it worked.
