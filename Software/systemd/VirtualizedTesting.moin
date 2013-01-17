@@ -33,7 +33,7 @@ Test-booting systemd in a container has the benefit of being much easier to debu
 
 '''Important:''' As preparation it is essential to turn off auditing entirely on your system. Auditing is broken with containers, and will trigger all kinds of error in containers if not turned off. Use ''audit=0'' on the host's kernel command line to turn it off.
 
-Then, as first step I install Fedora into a container tree: 
+Then, as the first step I install Fedora into a container tree: 
 
 {{{
 $ sudo yum -y --releasever=18 --nogpg --installroot=$HOME/fedora-tree --disablerepo='*' --enablerepo=fedora install systemd passwd yum fedora-release
@@ -48,7 +48,7 @@ $ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -D ~/fedora
 # ^D
 }}}
 
-As next step we can already boot the container:
+As the next step we can already boot the container:
 
 {{{
 $ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -bD ~/fedora-tree 3
