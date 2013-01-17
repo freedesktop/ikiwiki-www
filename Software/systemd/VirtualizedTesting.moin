@@ -29,9 +29,9 @@ YMMV if you use LVM or btrfs.
 
 == Testing in a container ==
 
-Test-booting systemd in a container has the benefit of being much easiert to debug/instrument from the outside. 
+Test-booting systemd in a container has the benefit of being much easier to debug/instrument from the outside. 
 
-As preparation it is essential to turn of auditing entirely on your host. Auditing cannot be used with containers, and will trigger all kinds of error ins containers if not turned off. Use '''audit=0''' on the host's kernel command line to turn it off.
+'''Important:''' As preparation it is essential to turn of auditing entirely on your host. Auditing cannot be used with containers, and will trigger all kinds of error ins containers if not turned off. Use ''audit=0'' on the host's kernel command line to turn it off.
 
 Then, as first step I install Fedora into a container tree: 
 
@@ -42,7 +42,7 @@ $ sudo yum -y --releasever=18 --nogpg --installroot=$HOME/fedora-tree --disabler
 You can do something similar with debootstrap on a Debian system. Now, we need to set a root password in order to be able to log in:
 
 {{{
-$ sudo systemd-nspawn -D /home/lennart/fedora-tree/
+$ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -D /home/lennart/fedora-tree/
 # passwd
 # ^D
 }}}
@@ -50,13 +50,15 @@ $ sudo systemd-nspawn -D /home/lennart/fedora-tree/
 As next step I can already boot the container:
 
 {{{
-$ sudo systemd-nspawn -bD ~/fedora-tree
+$ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -bD ~/fedora-tree
 }}}
 
 To test systemd in the container I then run this from my source tree:
 
 {{{
-$ make -j10 && sudo DESTDIR=$HOME/fedora-tree make install && sudo systemd-nspawn -bD ~/fedora-tree 3
+$ make -j10 && sudo DESTDIR=$HOME/fedora-tree make install && sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -bD ~/fedora-tree 3
 }}}
 
 And that's already it.
+
+You need to specify --capability= on the nspawn command line in order to grant the container audit capabilities (which nspawn doesn't normally grant, since audit can't handle containers), since some of the crappy audit client code will fail fatally if the audit capabilities aren't around even if auditing is turned off in the kernel entirely. Audit is simply a pain in the ass, and even annoying if one turns it off.
