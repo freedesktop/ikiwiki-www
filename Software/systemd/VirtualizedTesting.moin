@@ -31,7 +31,7 @@ YMMV if you use LVM or btrfs.
 
 Test-booting systemd in a container has the benefit of being much easier to debug/instrument from the outside. 
 
-'''Important:''' As preparation it is essential to turn of auditing entirely on your host. Auditing cannot be used with containers, and will trigger all kinds of error ins containers if not turned off. Use ''audit=0'' on the host's kernel command line to turn it off.
+'''Important:''' As preparation it is essential to turn off auditing entirely on your system. Auditing is broken with containers, and will trigger all kinds of error in containers if not turned off. Use ''audit=0'' on the host's kernel command line to turn it off.
 
 Then, as first step I install Fedora into a container tree: 
 
@@ -42,15 +42,16 @@ $ sudo yum -y --releasever=18 --nogpg --installroot=$HOME/fedora-tree --disabler
 You can do something similar with debootstrap on a Debian system. Now, we need to set a root password in order to be able to log in:
 
 {{{
-$ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -D /home/lennart/fedora-tree/
+$ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -D ~/fedora-tree/
 # passwd
+...
 # ^D
 }}}
 
-As next step I can already boot the container:
+As next step we can already boot the container:
 
 {{{
-$ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -bD ~/fedora-tree
+$ sudo systemd-nspawn --capability=cap_audit_control,cap_audit_write -bD ~/fedora-tree 3
 }}}
 
 To test systemd in the container I then run this from my source tree:
