@@ -12,7 +12,7 @@ The {{{network.target}}} unit is the systemd counterpart of LSB's {{{$network}}}
  * Similar, but some specific site-specific server is reachable
  * Similar, but "the Internet" is reachable
  * All "configured" ethernet devices are up, but all "configured" PPP links which are supposed to also start at boot don't have to be yet
- * A certain "profile" is enabled and some condition of the above holds. If another "profile" is enable a different condition would have to be checked
+ * A certain "profile" is enabled and some condition of the above holds. If another "profile" is enabled a different condition would have to be checked
  * Based on the location of the system a different set of configuration should be up or checked for
  * At least one global IPv4 address is configured
  * At least one global IPv6 address is configured
@@ -22,7 +22,7 @@ And so on and so on. All these are valid approaches to the question "When is the
 
 Modern networking tends to be highly dynamic: machines are moved between networks, network configuration changes, hardware is added and removed, virtual networks are set up, reconfigured and shut down again. Network connectivity is not unconditionally and continuously available, and a machine is connected to different networks at different times. This is particularly true for mobile hardware such as handsets, tablets and laptops, but also for embedded and servers. Software that is written under the assumption that network connectivity is available continuously and never changes is hence not up-to-date with modern standards. Well-written software should be able to handle dynamic configuration changes. It should react to changing network configuration and make the best of it. If it cannot reach a server it must retry. If network configuration connectivity is lost it must react. Reacting to local network configuration changes in daemon code is not particularly hard. In fact many well-known network-facing services running on Linux have been doing this for decades. A service written like this is robust, can be started at any time, and will always do the best of the circumstances it is running in.
 
-{{{network.target}}} is a mechanism that is required only to deal with software that assumes continuous network was available (i.e. of the simple non-well-written kind). Which facet of it it requires is undefined. An IMAP server might just require a certain IP to be assigned so that it can listen on it. OTOH a network file system client might need DNS up, and the service to contact up, as well. For {{{network.target}}} what precisely is required is not obvious and can be different things depending on local configuration.
+{{{network.target}}} is a mechanism that is required only to deal with software that assumes continuous network is available (i.e. of the simple non-well-written kind). Which facet of it it requires is undefined. An IMAP server might just require a certain IP to be assigned so that it can listen on it. OTOH a network file system client might need DNS up, and the service to contact up, as well. For {{{network.target}}} what precisely is required is not obvious and can be different things depending on local configuration.
 
 A robust system boots up independently of external services. More specifically, if a network DHCP server does not react this should not slow down boot on most setups, but only for those where network connectivity is strictly needed (for example, because the host actually boots from the network).
 
@@ -47,5 +47,5 @@ If you are a developer, instead of wondering what to do about {{{network.target}
 Here are a couple of possible approaches:
 
  * Watch [[https://www.kernel.org/doc/man-pages/online/pages/man7/rtnetlink.7.html|rtnetlink]] and react properly to network configuration changes as they happen. This is usually the nicest solution, but not always the easiest.
- * If you write a server: listen on 0.0.0.0 and 127.0.0.1 only. These pseudo-addresses are unconditionally available. If you always bind to these addresses you will have code that doesn't have to react to network changes, as it all you listen on is catch-all and private addresses.
+ * If you write a server: listen on 0.0.0.0 and 127.0.0.1 only. These pseudo-addresses are unconditionally available. If you always bind to these addresses you will have code that doesn't have to react to network changes, as all you listen on is catch-all and private addresses.
  * If you write a server: if you want to listen on other, explicitly configured addresses, consider using the [[https://www.kernel.org/doc/man-pages/online/pages/man7/ip.7.html|IP_FREEBIND sockopt]] functionality of the Linux kernel. This allows your code to bind to an address even if it is not actually (yet or ever) configured locally. This also makes your code robust towards network configuration changes.
