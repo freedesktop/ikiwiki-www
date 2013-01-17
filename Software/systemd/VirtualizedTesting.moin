@@ -30,10 +30,17 @@ The first tree lines are necessary to ensure that the kernel's disk caches are a
 Test-booting systemd in a container has the benefit of being much easiert to debug/instrument from the outside. For that I first install Fedora into a container tree: 
 
 {{{
-$ sudo yum -y --releasever=18 --nogpg --installroot=~/fedora-tree --disablerepo='*' --enablerepo=fedora install systemd passwd openssh-server rpm
+$ sudo yum -y --releasever=18 --nogpg --installroot=~/fedora-tree --disablerepo='*' --enablerepo=fedora install systemd passwd openssh-server rpm yum
 }}}
 
-(You can do something similar with debootstrap on a Debian system.) Next step, I can already boot the container:
+You can do something similar with debootstrap on a Debian system. Now, we need to set a root password in order to be able to log in.
+
+{{{
+$ sudo systemd-nspawn -D /home/lennart/fedora-tree
+# passwd
+}}}
+
+Next step, I can already boot the container:
 
 {{{
 $ sudo systemd-nspawn -bD /home/lennart/fedora-tree
@@ -42,7 +49,7 @@ $ sudo systemd-nspawn -bD /home/lennart/fedora-tree
 To test systemd in the container I then run this from my source tree:
 
 {{{
-$ make -j10 && sudo DESTDIR=~/fedora-tree make install && sudo systemd-nspawn -bD ~/fedora-tree
+$ make -j10 && sudo DESTDIR=~/fedora-tree make install && sudo systemd-nspawn --capability=cap_audit_write,cap_audit_control -bD ~/fedora-tree
 }}}
 
 And that's already it.
