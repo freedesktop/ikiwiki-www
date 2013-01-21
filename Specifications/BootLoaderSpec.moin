@@ -42,12 +42,12 @@ These configuration snippets shall be Unix-style text files (i.e. line separatio
  * {{{title}}} shall contain a human readable title string for this menu item. This will be displayed in the boot menu for the item. It is a good idea to initialize this from the {{{PRETTY_NAME}}} of {{{/etc/os-release}}}. This name should be descriptive and does not have to be unique. If a boot loader discovers two entries with the same title it is a good idea to show more than just the this raw title in the UI, for example by appending the {{{version}}} field. This field is optional. Example: "Fedora 18 (Spherical Cow)".
  * {{{version}}} shall contain a human readable version string for this menu item. This is usually the kernel version and is intended for use by OSes to install multiple kernel versions at the same time with the same {{{title}}} field. This field shall be in a syntax that is useful for Debian-style version sorts, so that the boot loader UI can determine the newest version easily and show it first or preselect it automatically. This field is optional. Example: {{{3.7.2-201.fc18.x86_64}}}
  * {{{machine-id}}} shall contain the machine ID of the OS {{{/etc/machine-id}}}. This is useful for boot loaders and applications to filter out boot entries, for example to show only a single newest kernel per OS, or to group items by OS, or to maybe filter out the currently booted OS in UIs that want to show only other installed operating systems. This ID shall be formatted as 32 lower case hexadecimal characters (i.e. without any UUID formatting). This key is optional. Example: {{{4098b3f648d74c13b1f04ccfba7798e8}}}
- * {{{linux}}} refers to the kernel to spawn, and shall be an path relative to the {{{$BOOT}} directory. It is recommended that every distribution creates a directory in this directory and places its kernels and initial RAM disk images there. Example: {{{/fedora/4098b3f648d74c13b1f04ccfba7798e8/vmlinuz-3.7.2-201.fc18.x86_64}}}.
+ * {{{linux}}} refers to the kernel to spawn, and shall be an path relative to the {{{$BOOT}} directory. It is recommended that every distribution creates a vendor and installation specific subdirectory below {{{$BOOT}}} and places its kernels and initial RAM disk images there. The directory should include a vendor and OS installation ID. Example: {{{/fedora/4098b3f648d74c13b1f04ccfba7798e8/vmlinuz-3.7.2-201.fc18.x86_64}}}.
  * {{{initrd}}} refers to the initrd to use when executing the kernel. This also shall be a path relative to the {{{$BOOT}}} directory. This key is optional. Example: {{{/fedora/4098b3f648d74c13b1f04ccfba7798e8/initramfs-3.7.2-201.fc18.x86_64.img}}}
  * {{{efi}}} to spawn arbitrary EFI programs. This also takes an path relative to {{{$BOOT}}}. 
  * {{{options}}} shall contain kernel parameters to pass to the Linux kernel to spawn. This key is optional.
 
-Each configuration drop-in snippet must include at least a {{{linux}}} or a {{{efi}}} key, and is otherwise not valid. Here's an example for a complete drop-in:
+Each configuration drop-in snippet must include at least a {{{linux}}} or a {{{efi}}} key, and is otherwise not valid. Here's an example for a complete drop-in file:
 
 {{{
 title         Fedora 18 (Spherical Cow)
@@ -57,3 +57,15 @@ options       BOOT_IMAGE=/vmlinuz-3.6.11-3.fc18.x86_64 root=UUID=6d3376e4-fc93-4
 linux         /fedora/4098b3f648d74c13b1f04ccfba7798e8/vmlinuz-3.7.2-201.fc18.x86_64
 initrd        /fedora/4098b3f648d74c13b1f04ccfba7798e8/initramfs-3.7.2-201.fc18.x86_64.img
 }}}
+
+In order to be compatible with EFI systems it is highly recommended only to install EFI kernel images, even on non-EFI systems, if that's available.
+
+== Logic ==
+
+A boot loader needs a file system driver to discover and read {{{$BOOT}}}, then simply reads all files {{{$BOOT/loader/entries/*.conf}}}, and populates its boot menu with this. Optionally it might sort the menu based on the {{{machine-id}}} and {{{version}}} fields, and possibly others. It uses the file name to identify specific items, for example in case it supports storing away default entry information somewhere.
+
+A kernel installer package installs the kernel and initrd images to {{{$BOOT/}}} (it is recommended to place these files in a vendor and OS and installation pecific directory) and then generates a configuration snippet for it, placing this in {{{$BOOT/loader/entries/xyz.conf}}}, with xyz as concatenation of vendor, machine and version information (see above).
+
+A UI application intended to show available boot options shall operate similar to a boot loader, but might apply additional filters, for example by filtering out the booted OS via the machine ID, or by suppressing all but the newest kernel versions.
+
+A OS installer picks the right place for {{{$BOOT}}} as defined above, and pre-creates the {{{/loader/entries}}} directory in it. It then installs an appropriate boot loader that can read these snippets. Finally it installs the necessary kernel packages.
