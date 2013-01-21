@@ -4,7 +4,7 @@ The Boot Loader Specification defines a scheme how different operating systems c
 
  * Boot loader developers, to write a boot loader that directly reads its configuration at runtime from these drop-in snippets
  * Distribution and Core OS developers, in order to create these snippets at kernel package installation time
- * UI developers, for implement a user interface that discovers the available boot options
+ * UI developers, for implementing a user interface that discovers the available boot options
  * OS Installer developers, for setting up the initial drop-in directory
 
 == Why is there a need for this specification? ==
@@ -22,6 +22,38 @@ The EFI specification provides a boot options logic that can offer similar funct
  * The various EFI implementations implement the boot order/boot item logic to different levels. Some firmware implementations do not offer a boot menu at all and instead unconditionally follow the boot loader, booting the first item defined.
  * If the firmware setup is used to reset all data usually all EFI boot entries are lost, making the system entirely unbootable, as the firmware setups generally do not offer a UI do define additional boot items. By placing the menu item information on disk it is always available, regardles if the BIOS setup data is lost.
  * Harddisk images should be moveable between machines and be bootable without requiring explicit EFI variables to be set. This also requires that the list of boot options is defined on disk, and not in EFI variables alone.
- * EFI is not universal yet, this specification is useful both for EFI and non-EFI boot loaders.
+ * EFI is not universal yet (especially on non-x86 platforms), this specification is useful both for EFI and non-EFI boot loaders.
+ * Many EFI systems disable USB support during early boot to optimize boot times, thus making keyboard input unavailable in the EFI menu. It is thus useful if the OS UI has a standardized way to discover available boot options which can be booted to.
 
 == Technical Details ==
+
+We define two directories: 
+ * {{{$BOOT/loader/}}} is the directory containing all files defined by this specification
+ * {{{$BOOT/loader/entries}}} is the directory containing the drop-in snippets. This directory contains one {{{.conf}}} file for each boot menu item.
+
+These directories are defined below the placeholder {{{$BOOT}}}. This placeholder shall be defined as:
+ * On EFI systems {{{$BOOT}}} shall be the ESP. The loader directory should hence be located directly in the root directory of the ESP, and not in the EFI/ subdirectory. From a running Linux perspective the loader directory might hence appear in {{{/boot/loader}}} or {{{/boot/efi/loader}}} depending where the ESP is mounted. This allows EFI boot loaders installed to ESP to discover all loader entries 
+ * On non-EFI systems there is no defined way how to discover this directory. It is generally expected that the installer asks about it when the OS is installed. To improve user experience it might be a good idea to attempt to auto-discover it (for example: look for all local fs that have a {{{/loader/}}} or {{{/boot/loader}}} directory in the root directory, and then simply ask the user for confirmation. However, automatic detection of the loader file system without user confirmation should not be attempted.
+
+Inside the {{{$BOOT/loader/}}} directories each OS vendor may drop one or more configuration snippets with the suffix ".conf", one for each boot menu item. The file name of the file is used for identification of the boot item, but shall never be presented to the user in the UI. The file name may be chosen freely but should be unique enough to avoid clashes between OS installations. More specifically it is suggested to include the machine ID ({{{/etc/machine-id}}} or the D-Bus machine ID for OSes that lack {{{/etc/machine-id}}}), the kernel version (as returned by {{{uname -r}}}) and an OS identifier (The ID field of {{{/etc/os-release}}}). Example: {{{$BOOT/loader/fedora-3.6.11-3.fc18.x86_64-4098b3f648d74c13b1f04ccfba7798e8.conf}}}.
+
+These configuration snippets shall be Unix-style text files (i.e. line separation with a single newline character), in the UTF-8 character sets. The configuration snippets are losely inspired on Grub1's configuration syntax. Lines beginning with '#' shall be ignored and used for commenting. The first word of a line is used as key, and shall be separated by a space from its value. The following keys are known:
+
+ * {{{title}}} shall contain a human readable title string for this menu item. This will be displayed in the boot menu for the item. It is a good idea to initialize this from the {{{PRETTY_NAME}}} of {{{/etc/os-release}}}. This name should be descriptive and does not have to be unique. If a boot loader discovers two entries with the same title it is a good idea to show more than just the this raw title in the UI, for example by appending the {{{version}}} field. This field is optional. Example: "Fedora 18 (Spherical Cow)".
+ * {{{version}}} shall contain a human readable version string for this menu item. This is usually the kernel version and is intended for use by OSes to install multiple kernel versions at the same time with the same {{{title}}} field. This field shall be in a syntax that is useful for Debian-style version sorts, so that the boot loader UI can determine the newest version easily and show it first or preselect it automatically. This field is optional. Example: {{{3.7.2-201.fc18.x86_64}}}
+ * {{{machine-id}}} shall contain the machine ID of the OS {{{/etc/machine-id}}}. This is useful for boot loaders and applications to filter out boot entries, for example to show only a single newest kernel per OS, or to group items by OS, or to maybe filter out the currently booted OS in UIs that want to show only other installed operating systems. This ID shall be formatted as 32 lower case hexadecimal characters (i.e. without any UUID formatting). This key is optional. Example: {{{4098b3f648d74c13b1f04ccfba7798e8}}}
+ * {{{linux}}} refers to the kernel to spawn, and shall be an path relative to the {{{$BOOT}} directory. It is recommended that every distribution creates a directory in this directory and places its kernels and initial RAM disk images there. Example: {{{/fedora/4098b3f648d74c13b1f04ccfba7798e8/vmlinuz-3.7.2-201.fc18.x86_64}}}.
+ * {{{initrd}}} refers to the initrd to use when executing the kernel. This also shall be a path relative to the {{{$BOOT}}} directory. This key is optional. Example: {{{/fedora/4098b3f648d74c13b1f04ccfba7798e8/initramfs-3.7.2-201.fc18.x86_64.img}}}
+ * {{{efi}}} to spawn arbitrary EFI programs. This also takes an path relative to {{{$BOOT}}}. 
+ * {{{options}}} shall contain kernel parameters to pass to the Linux kernel to spawn. This key is optional.
+
+Each configuration drop-in snippet must include at least a {{{linux}}} or a {{{efi}}} key, and is otherwise not valid. Here's an example for a complete drop-in:
+
+{{{
+title         Fedora 18 (Spherical Cow)
+version       3.7.2-201.fc18.x86_64
+machine-id    4098b3f648d74c13b1f04ccfba7798e8
+options       BOOT_IMAGE=/vmlinuz-3.6.11-3.fc18.x86_64 root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2 ro rootflags=subvol=root rd.md=0 rd.lvm=0 rd.dm=0 rd.luks=0 log_buf_len=1M rhgb quiet LANG=de_DE.UTF-8 
+linux         /fedora/4098b3f648d74c13b1f04ccfba7798e8/vmlinuz-3.7.2-201.fc18.x86_64
+initrd        /fedora/4098b3f648d74c13b1f04ccfba7798e8/initramfs-3.7.2-201.fc18.x86_64.img
+}}}
