@@ -1,0 +1,27 @@
+= The Boot Loader Specification =
+
+The Boot Loader Specification defines a scheme how different operating systems can cooperatively manage a boot loader configuration directory, that accepts drop-in files for boot menu items that are defined in a format that is shared between various boot loader implementations, operating systems, and userspace programs. The target audience for this specification is:
+
+ * Boot loader developers, to write a boot loader that directly reads its configuration at runtime from these drop-in snippets
+ * Distribution and Core OS developers, in order to create these snippets at kernel package installation time
+ * UI developers, for implement a user interface that discovers the available boot options
+ * OS Installer developers, for setting up the initial drop-in directory
+
+== Why is there a need for this specification? ==
+
+Of course, right now no such specification existed, and things worked just fine. Here's why we think this specification is needed.
+
+ * To unify and thus simplify configuration of the various boot loaders around, which makes configuration of the boot loading process easier for users, administrators and developers alike
+ * To make the boot more robust, as no explicit rewriting of configuration files is required anymore
+ * To improve multi-boot scenarios. Currently, multiple Linux installations tend to fight over which boot loader becomes primary, and only that installation can then update the boot loader configuration of it. Other Linux installs have to be manually configured to never touch the MBR and instead install a chain-loaded boot loader in their own partition headers. In this new scheme as all installations share a loader directory no manual configuration has to take place, and all participants implicitly cooperate and can install/remove their own boot menu entries at free will.
+
+== Why not simply rely on the EFI boot menu logic? ==
+
+The EFI specification provides a boot options logic that can offer similar functionality. Here's why we think that it is not enough for our uses:
+
+ * The various EFI implementations implement the boot order/boot item logic to different levels. Some firmware implementations do not offer a boot menu at all and instead unconditionally follow the boot loader, booting the first item defined.
+ * If the firmware setup is used to reset all data usually all EFI boot entries are lost, making the system entirely unbootable, as the firmware setups generally do not offer a UI do define additional boot items. By placing the menu item information on disk it is always available, regardles if the BIOS setup data is lost.
+ * Harddisk images should be moveable between machines and be bootable without requiring explicit EFI variables to be set. This also requires that the list of boot options is defined on disk, and not in EFI variables alone.
+ * EFI is not universal yet, this specification is useful both for EFI and non-EFI boot loaders.
+
+== Technical Details ==
