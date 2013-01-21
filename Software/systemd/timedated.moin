@@ -55,7 +55,7 @@ Whenever the timezone and local_rtc settings are changed via the daemon !Propert
 
 Note that this service will not inform you about system time changes. Use timerfd() with CLOCK_REALTIME and TFD_TIMER_CANCEL_ON_SET for that.
 
-The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
+The user_interaction boolean parameters can be used to control whether !PolicyKit should interactively ask the user for authentication credentials if it needs to.
 
 The !PolicyKit action for !SetTimezone() is ''org.freedesktop.timedate1.set-timezone''. For SetLocalRTC() it is ''org.freedesktop.timedate1.set-local-rtc'', for !SetTime() it is ''org.freedesktop.timedate1.set-time'' and for SetNTP() it is ''org.freedesktop.timedate1.set-ntp''.
 
@@ -65,7 +65,7 @@ For more information how the system clock and RTC interact see http://lists.free
 
 == Hooking in an NTP Implementation ==
 
-systemd-timedated can enable/disable NTP implementations. Since multiple NTP implementations exist the unit to enable/start/disable/stop for this is not hardcoded in timedated and may be configured via drop-in files in /usr/lib/systemd/ntp-units.d/*.list. An NTP implementation should ship one of these files in its RPM listing the unit to disable or enable. timedated will then enable/disable the first unit it finds from all .list files in that directory. The file are sorted alphabetically by their names. A single file can list multiple unit files. Empty lines and lines starting with # are ignored. Example: the NTP implementation ntpd could ship:
+systemd-timedated can enable/disable NTP implementations. Since multiple NTP implementations exist the unit to enable/start/disable/stop for this is not hardcoded in timedated and may be configured via drop-in files in /usr/lib/systemd/ntp-units.d/*.list. An NTP implementation should ship one of these files in its RPM listing the unit to disable or enable. timedated will then enable/disable the first unit it finds from all .list files in that directory. The files are sorted alphabetically by their names. A single file can list multiple unit files. Empty lines and lines starting with # are ignored. Example: the NTP implementation ntpd could ship:
 
 {{{
 ntpd.service
