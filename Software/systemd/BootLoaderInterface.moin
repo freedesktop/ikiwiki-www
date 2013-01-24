@@ -8,6 +8,6 @@ systemd can interface with the boot loader to receive performance data and other
  * The EFI Variable '''!LoaderTimeExecUSec''' contains the timestamp in microseconds when the loader finished its work and is about to execute the kernel. The time spent in the loader is the difference between {{{LoaderTimeExecUsec}}} and {{{LoaderTimeInitUsec}}}. This value is formatted the same way as {{{LoaderTimeInitUsec}}}.
  * The EFI variable '''LoaderDevicePartUUID''' contains the partition GUID of the ESP the boot loader was run from formatted as UTF16 string, in normal GUID syntax.
 
-If {{{LoaderTicksInit}}} and {{{LoaderTicksExec}}} are set, {{{systemd-analyze}}} will include them in its boot-time analysis.  If {{{LoaderDevicePartUUID}}} is set, systemd will mount the ESP that was used for the boot to /boot, but only if that directory is empty otherwise, and only if no other file systems are mounted there via user mount units or {{{/etc/fstab}}}.
+If {{{LoaderTimeInitUSec}}} and {{{LoaderTimeExecUSec}}} are set, {{{systemd-analyze}}} will include them in its boot-time analysis.  If {{{LoaderDevicePartUUID}}} is set, systemd will mount the ESP that was used for the boot to /boot, but only if that directory is empty otherwise, and only if no other file systems are mounted there via user mount units or {{{/etc/fstab}}}.
 
 This interface is currently implemented by [[http://freedesktop.org/wiki/Software/gummiboot|Gummiboot]].
