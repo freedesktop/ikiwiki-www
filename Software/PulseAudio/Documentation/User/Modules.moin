@@ -836,16 +836,6 @@ The table file should contain a regexp and volume on each line, separated by spa
 
 The volumes of all streams with titles starting with sample: are automatically set to 32000. (FYI: All sample cache streams start with sample:)
 
-=== module-volume-restore ===
-
-Adjust the volume of a playback stream automatically based on its name.
-
-  table
-    The table file to use (defaults to ~/.pulse/volume.table)
-
-In contrast to module-match this module needs no explicit configuration. Instead the volumes are saved and restored in a fully automatic fashion depending on the client name to identify streams. The volume for a stream is automatically saved every time it is changed and than restored when a new stream is created.
-
-This does not only restores the volume level but also the used sink which is useful if the target server provides more than one.
 
 === module-udev-detect ===
 
@@ -984,3 +974,20 @@ Disadvantages: When pulseaudio gives up the backend, and the backend is not capa
 === module-switch-on-connect ===
 
 Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source. Takes no arguments.
+
+
+=== module-role-ducking ===
+
+This module lowers the volume of less important streams when a more important stream appears, and raises the volume back up once the important stream has finished (this is called "ducking"). The decision whether a stream has high or low priority is made based on the stream role (the media.role property). By default, "music" and "video" streams are ducked, and "phone" streams trigger the ducking.
+
+  trigger_roles
+    Comma separated list of roles that will trigger ducking.
+
+  ducking_roles
+    Comma separated list of roles that will be ducked.
+
+  global
+    A boolean. If true, ducking will be applied to all streams that have a ducking role. If false, ducking will be applied only to streams that are connected to the same device as the triggering stream.
+
+  volume
+    Attenuation to be used while ducking. The value can be given either as a percentage (for example, "40%"), in decibels (for example, "-20dB") or as a plain integer between 0 and 65536 (this is the representation that !PulseAudio uses for volume internally).
