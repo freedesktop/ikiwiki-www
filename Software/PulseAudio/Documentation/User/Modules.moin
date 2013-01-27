@@ -791,6 +791,49 @@ General purpose equalizer that can be applied over a given sink. '''Since 1.0'''
     Whether to use volume sharing with master sink/source
 
 
+=== module-ladspa-sink ===
+
+Adds signal processing (for example equalizing) to a sink with a [[http://www.ladspa.org/|LADSPA]] plugin.
+
+The module shows up as a separate sink.
+
+  sink_name
+    Name for this sink.
+
+  sink_properties
+    Extra properties to be stored in the sink's property list.
+
+  master
+    The sink where the processed audio is forwarded to.
+
+  channels, rate, channel_map
+    Normal sink parameters. It's best to leave these unspecified, so that the master sink parameters will be used.
+
+  plugin
+    The name of the .so file that contains the desired filter without the ".so" part. Specify only the file name, not the full directory path. The directories where the plugin files are searched from can be specified with the environment variable LADSPA_PATH. Multiple directories can be specified using colon (:) as the separator. If the environment variable isn't set, "$libdir/ladspa:/usr/local/lib/ladspa:/usr/lib/ladspa" is used instead ($libdir is specified at build time, so the default search path should include the directory where your distribution installs LADSPA plugins).
+
+  label
+    One plugin file may contain multiple plugins, which are identified by a label. Specify it here.
+
+  control
+    If the plugin has control input ports, you have to specify their values here. That is done by simply listing the numeric values using comma as the separator. Default values can be used by leaving the number out. Examples: Plugin with five control ports, leaving the third to the default value: `control=0.34,-2.3,,0.00346,5` Plugin with three control ports, leaving all to the default values: `control=,,`
+
+  input_ladspaport_map
+    Comma separated list of input LADSPA audio port names. The list is matched with the sink channel map so that each LADSPA port in the list is assigned for the corresponding channel channel map. If this argument is not given, the ports are assigned in the order that the plugin lists them.
+
+  output_ladspaport_map
+    Comma separated list of output LADSPA audio port names. The list is matched with the sink channel map so that each LADSPA port in the list is assigned for the corresponding channel channel map. If this argument is not given, the ports are assigned in the order that the plugin lists them.
+
+An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin is in the `swh-plugins` package).
+{{{
+load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_1197 label=mbeq control=11.621622,10,4.594594,2.702703,0,0,-1.621622,-0.270270,-5.405406,-3.513514,-8.648648,-5.675676,-4.054054,1.351351,9.189189
+}}}
+
+The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [[http://jack-rack.sourceforge.net/|JACK Rack]] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
+
+Control output ports are ignored.
+
+
 == Miscellaneous ==
 
 === module-sine ===
@@ -874,37 +917,6 @@ Discover sinks/sources on other PulseAudio servers using mDNS Zeroconf.
 
 Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink.
 
-=== module-ladspa-sink ===
-
-'''Since 0.9.7.''' Adds signal processing (for example equalizing) to a sink with a [[http://www.ladspa.org/|LADSPA]] plugin.
-
-The module shows up as a separate sink.
-
-  sink_name
-    Name for this sink.
-  master
-    The sink where the processed audio is forwarded to.
-  format, channels, rate, channel_map
-    Normal sink parameters. It's best to leave these unspecified, so that the master sink parameters will be used.
-  plugin
-    The name of the .so file that contains the desired filter without the ".so" part. Specify only the file name, not the full directory path. The directories where the plugin files are searched from can be specified with the environment variable LADSPA_PATH. Multiple directories can be specified using colon (:) as the separator. If the environment variable isn't set, "$libdir/ladspa:/usr/local/lib/ladspa:/usr/lib/ladspa" is used instead ($libdir is specified at build time, so the default search path should include the directory where your distribution installs LADSPA plugins).
-  label
-    One plugin file may contain multiple plugins, which are identified by a label. Specify it here.
-  control
-    If the plugin has control input ports, you have to specify their values here. That is done by simply listing the numeric values using comma as the separator. Default values can be used by leaving the number out. If you're running !PulseAudio version less than 0.9.10 and you want the last control port to use the default value, you have to add an extra comma to the end (bug #204). Examples: Plugin with five control ports, leaving the third to the default value:<<BR>>`control=0.34,-2.3,,0.00346,5`<<BR>>Plugin with three control ports, leaving all to the default values:<<BR>>`control=,,`
-
-An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin is in the `swh-plugins` package). '''Note:''' This particular plugin only works on !PulseAudio 0.9.8 and newer.
-{{{
-load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_1197 label=mbeq control=11.621622,10,4.594594,2.702703,0,0,-1.621622,-0.270270,-5.405406,-3.513514,-8.648648,-5.675676,-4.054054,1.351351,9.189189
-}}}
-
-
-
-The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [[http://jack-rack.sourceforge.net/|JACK Rack]] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
-
-Currently this module only works with plugins that have one audio input port named "Input" and one output with name "Output". Patches welcome!
-
-Control output ports are ignored.
 
 === module-systemd-login ===
 
