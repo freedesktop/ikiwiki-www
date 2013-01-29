@@ -2,7 +2,7 @@
 
 = Inhibitor Locks =
 
-systemd 183 and newer include a logic to inhibit system shutdowns and sleep states. This is implemented as part of [[http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html|systemd-logind.daemon(8)]] There are a couple of different usecases for this:
+systemd 183 and newer include a logic to inhibit system shutdowns and sleep states. This is implemented as part of [[http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html|systemd-logind.daemon(8)]] There are a couple of different use cases for this:
 
  * A CD burning application wants to ensure that the system is not turned off or suspended while the burn process is in progress.
  * A package manager wants to ensure that the system is not turned off while a package upgrade is in progress.
@@ -24,7 +24,7 @@ Seven distinct inhibitor lock types may be taken, or a combination of them:
 
 Two different modes of locks are supported:
 
- 1. ''block'' inhibits operations entirely until the lock is released. If such a lock is taken the operation will fail (but still may be overriden if the user possesses the necessary privileges).
+ 1. ''block'' inhibits operations entirely until the lock is released. If such a lock is taken the operation will fail (but still may be overridden if the user possesses the necessary privileges).
  2. ''delay'' inhibits operations only temporarily, either until the lock is released or up to a certain amount of time. The !InhibitDelayMaxSec= setting in [[http://www.freedesktop.org/software/systemd/man/logind.conf.html|logind.conf(5)]] controls the timeout for this. This is intended to be used by applications which need a synchronous way to execute actions before system suspend but shall not be allowed to block suspend indefinitely. This mode is only available for ''sleep'' and ''shutdown'' locks.
 
 Inhibitor locks are taken via the Inhibit() D-Bus call on the logind Manager object:
@@ -68,7 +68,7 @@ Inhibit() returns a single value, a file descriptor that encapsulates the lock. 
 
 '''!ListInhibitors()''' lists all currently active inhibitor locks. It returns an array of structs, each consisting of What, Who, Why, Mode as above, plus the PID and UID of the process that requested the lock.
 
-The '''!PrepareForShutdown()''' and '''!PrepareForSleep()''' signals are emitted if a system suspend or shutdown has been requested but a delay inhibitor lock has been taken and when all locks are released or the timeout reached. The signals carry a boolean argument. If true the shutdown/sleep preperation should begin, if false it ends.  If true, this should be used as indication to quickly execute the operations the applications wanted to execute before suspend and then release the delay lock. If false the preparation time for shutdown/sleep is over, either because all delay locks have have been released or because the timeout is reached. The signals with 'false' might get delivered only after the system comes back from system suspend. It is usually the signal on which applications request a new delay lock in order to be synchronously notified about the next suspend/shutdown. Note that !PrepareForShutdown()/PrepareForSleep() are ''not'' send out if no delay lock is taken, and more specifically not send out if only block locks are taken.
+The '''!PrepareForShutdown()''' and '''!PrepareForSleep()''' signals are emitted if a system suspend or shutdown has been requested but a delay inhibitor lock has been taken and when all locks are released or the timeout reached. The signals carry a boolean argument. If true the shutdown/sleep preparation should begin, if false it ends.  If true, this should be used as indication to quickly execute the operations the applications wanted to execute before suspend and then release the delay lock. If false the preparation time for shutdown/sleep is over, either because all delay locks have been released or because the timeout is reached. The signals with 'false' might get delivered only after the system comes back from system suspend. It is usually the signal on which applications request a new delay lock in order to be synchronously notified about the next suspend/shutdown. Note that !PrepareForShutdown()/PrepareForSleep() are ''not'' sent out if no delay lock is taken, and more specifically not sent out if only block locks are taken.
 
 The '''!BlockInhibited''' and '''!DelayInhibited''' properties encode what types of locks are currently taken. These fields are a colon separated list of {{{shutdown}}}, {{{sleep}}}, {{{idle}}}, {{{handle-power-key}}}, {{{handle-suspend-key}}}, {{{handle-hibernate-key}}}, {{{handle-lid-switch}}}. The list is basically the union of the What fields of all currently active locks of the specific mode.
 
@@ -88,7 +88,7 @@ Example pseudo code:
 {{{
 fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
 /* ...
-      do you work
+      do your work
                  ... */
 close(fd);
 }}}
@@ -132,7 +132,7 @@ onPrepareForSleep(bool b) {
 
 == Taking Key Handling Locks ==
 
-By default logind will handle the power and sleeps keys of the machine, as well as the lid switch in all states. This ensures that this basic system behaviour is guaranteed to work in all circumstances, on text consoles as well as on all graphical environments. However, some DE might want to do their own handling of these keys, for example in order to show a pretty dialog box before executing the relevant operation, or to simply disable the action under certain conditions. For these cases the handle-power-key, handle-suspend-key, handle-hibernate-key and handle-lid-switch type inhibitor locks are available. When taken, these locks simply disable the low-level handling of the keys, they have no effect on system suspend/hibernate/poweroff executed with other mechanisms than the hardware keys (such as the user typing "systemctl suspend" in a shell). A DE intending to do its own handling of these keys should simply take the locks at login time, and release them on logout; alternatively it might make sense to take this lock only temporarily under certain circumstances (e.g. take the lid switch lock only when a second monitor is plugged in, in order to support the common setup where people close their laptops when they have the big screen connected).
+By default logind will handle the power and sleep keys of the machine, as well as the lid switch in all states. This ensures that this basic system behavior is guaranteed to work in all circumstances, on text consoles as well as on all graphical environments. However, some DE might want to do their own handling of these keys, for example in order to show a pretty dialog box before executing the relevant operation, or to simply disable the action under certain conditions. For these cases the handle-power-key, handle-suspend-key, handle-hibernate-key and handle-lid-switch type inhibitor locks are available. When taken, these locks simply disable the low-level handling of the keys, they have no effect on system suspend/hibernate/poweroff executed with other mechanisms than the hardware keys (such as the user typing "systemctl suspend" in a shell). A DE intending to do its own handling of these keys should simply take the locks at login time, and release them on logout; alternatively it might make sense to take this lock only temporarily under certain circumstances (e.g. take the lid switch lock only when a second monitor is plugged in, in order to support the common setup where people close their laptops when they have the big screen connected).
 
 These locks need to be taken in the "block" mode, "delay" is not supported for them.
 
@@ -148,4 +148,4 @@ If an application finds a lock denied it should not consider this much of an err
 
 The tool [[http://www.freedesktop.org/software/systemd/man/systemd-inhibit.html|systemd-inhibit(1)]] may be used to take locks or list active locks from the command line.
 
-Note that gnome-session also provides an [[http://people.gnome.org/~mccann/gnome-session/docs/gnome-session.html#org.gnome.SessionManager.Inhibit|inhibitor API]], which is very similar to the one of systemd. Internally, locks taken on gnome-session's interface will be forwarded to logind, hence both APIs are supported. While both offer similar functionality they do differ in some regards. For obvious reasons gnome-session can offer logout locks and screensave avoidance locks which logind lacks. logind's API OTOH supports delay locks in addition to block locks like GNOME. Also, logind is available to system components, and centralizes locks from all users, not just the one of a one specific one. In general: if in doubt it is probably advisable to stick to the GNOME locks, unless there is a good reason to use the logind APIs directly. When locks are to be enumerated it is better to use the logind APIs however, since they also include locks taken by system services and other users.
+Note that gnome-session also provides an [[http://people.gnome.org/~mccann/gnome-session/docs/gnome-session.html#org.gnome.SessionManager.Inhibit|inhibitor API]], which is very similar to the one of systemd. Internally, locks taken on gnome-session's interface will be forwarded to logind, hence both APIs are supported. While both offer similar functionality they do differ in some regards. For obvious reasons gnome-session can offer logout locks and screensaver avoidance locks which logind lacks. logind's API OTOH supports delay locks in addition to block locks like GNOME. Also, logind is available to system components, and centralizes locks from all users, not just those of a specific one. In general: if in doubt it is probably advisable to stick to the GNOME locks, unless there is a good reason to use the logind APIs directly. When locks are to be enumerated it is better to use the logind APIs however, since they also include locks taken by system services and other users.
