@@ -1,0 +1,130 @@
+## page was renamed from AppStream/Metadata
+= App-installer Metadata Meeting Notes =
+
+
+'''what we want/need'''
+  * desktop file with annotations like pkgname, repository, component
+    * description
+    * icon(s)
+    * categories (.desktop)  (for relating to menus)
+    * categories (distribution)  (with distro QA process, used to implement specific use cases)
+    * categories (user folksonomy)  (community tags)
+    * upstream URL  - TODO put it into the .desktop file
+    * keywords - TODO put it into the .desktop file (or just use tags?)
+    * screenshots - screenshots.debian.net with locales
+    *  videos (?)
+    * long description including markup (markdown?)
+      (didn't we mention that upstream URLs can do as well, at least as a tradeoff? I think we said we need a "medium size" description, + upstream URL for more information (moving to chat in bottom right))
+    * suggestions (based on zeitgeist usage, based on what other people use, static list, app of the day)
+    * addons
+    * repository information
+  * upstream activity (http://www.ohloh.net/)
+    * latest upstream version(?) : stable version, dev version (if such a distinction exists)
+    * latest upstream release date(?)
+    * pluggable extra tagsets
+       * child ratings
+         http://www.miriamruiz.es/weblog/?p=69
+         http://www.miriamruiz.es/weblog/?p=155
+         http://wiki.debian.org/OpenRating/Categories
+       * QA tags
+    *?more urls to more things (debian-administration articles, ask.debian.net questions, howtos) (possibly built as backlink searches, microformats style?)
+    * mime types
+  * comments, ratings, moderation (including version, origin)
+
+
+'''where to store it'''
+ * an rfc822/xml (or other lighter format) file containing mapping between packages and applications (build by scanning the packages for desktop files), on mirrors
+    * this can include all the useful data from desktop files (categories, long description, short description, translations ? (would make it way bigger))
+  * (yet to define) server(s) for other metadata (screenshots, ratings, comments, ...)
+   * one master server and slave servers for each distribution (so that they can "control" it ?)
+  * screenshots should have a additional api that includes origin
+
+
+'''How to access (API/format)'''
+
+'''Moderation'''
+
+'''Localization'''
+
+'''How do we identify uniquely an application.''' From what information ? Do we need to define a unique identifier ? Where, who ?
+
+
+
+
+'''appdata.xml (one file per repository)'''
+
+''What we need :''
+ * application_id (paths ?)
+ * package name (distribution-dependant)
+ * app-name (+ translations)
+ * app-summary (+ translations)
+ * keywords[] (+ translations)
+ * icon (stock:games) relative to mirror URL / absolute URL (?)
+ * AppCategories[]
+ * MimeTypes []
+ * Enhances[]
+ * URL[]
+
+''Issues :'' application id : 
+ * /usr/share/applications/foo.desktop ?
+ * /usr/share/kde4/foo.desktop ?
+ * just foo.desktop ?
+ * kde4/foo.desktop ?
+
+''Example file :''
+{{{
+<applications version="0.1">
+  <application>
+    <id type="desktop">firefox.desktop</id>
+    <pkgname>firefox-bin</pkgname>
+    <name>Firefox upstream</name>
+    <name lang="en_GB">Firefox</name>
+    ...
+    <summary>...</summary>
+    <summary lang="en_GB">...</summary>
+    ...
+    <keywords>
+      <keyword lang="en_GB">colour</keyword>
+      <keyword>color</keyword>
+      <keyword>agent</keyword>
+      ...
+    </keywords>
+    <icon type="stock">application-games</icon>
+    <appcategories>
+      <appcategory></appcategory>
+      <appcategory></appcategory>
+      ...
+    </appcategories>
+    <mimetypes>
+      <mimetype>...</mimetype>
+      <mimetype>...</mimetype>
+      ...
+    </mimetypes>
+    <url type="homepage">http://example.com</url>
+  </application>
+  <application>
+    ...
+  </application>
+  ...
+</applications>
+}}}
+
+''Layout :''
+ * /appdata.xml
+ * /icons/64x64
+
+'''Notes:'''
+   * Leave the compression to the distro
+   * when appdata.xml changes in any repo (including adding and removing ppas/repos) we need to rebuild xapian index
+   * xdg application id for /usr/share/applications/kde4/kwrite.desktop is "kde4/kwrite.desktop" so we can open the actual desktop file once installed just from using the application_id.
+   * Perhaps not include applications if they don't have AppCategories (maybe a useful feature for plugins that you don't want to show in the "by groups" or "by tags" views, but still have available for searching and in also in relation to the application(s) they enhance.
+
+
+'''Action Items:'''
+ * Add extra items to .desktop item specification
+ * use '/' as separator for GIO application id, not '-'
+ * Need to do reference implementation to extract .rpm/.deb to xml file
+   * ./append-metadata --output output.xml --input ./packages/dave.rpm --package-name=dave-bin
+ * Need to merge the metadata into a shared xapian instance
+ * Talk about compressed mmappable file for icons. Lots of small files doesn't sit well with the mirrors, and means we have to download the icons through the package manager one at a time, rather than being able to load these in one lump.
+   * Use appdata-icons-32x32.tar.gz if we don't want to ship thousands of icons on the mirrors -- allows the package manager to download this in one go, explode to the filesystem and then use the <icon type="local">/usr/cache/icons/foo.png</icons>
