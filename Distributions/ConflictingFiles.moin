@@ -1,0 +1,32 @@
+= Conflicting Files =
+
+Sometimes two upstream packages will have files that are named the same.  When this happens, the two packages can't be installed without conflicts.  The way to resolve this is to rename the files from one or both packages.  Whenever possible these changes should occur upstream so everyone benefits from it.  Sometimes, however, upstream is not responsive to requests to rename.  When this happens distributions have to rename the files at their level.
+
+Renaming at the distribution level is less than ideal as end-users using multiple distributions may be confused when they have to use different names to invoke a program or compile against a library.  This page exists to help distributions coordinate these renames to minimize this end user confusion.
+
+== Policies ==
+
+Different distributions have slightly different policies about renaming conflicting files.  Here are links to relevant policies in various distros.
+
+ * Fedora: http://fedoraproject.org/wiki/Packaging/Conflicts#Conflicting_Files
+ * Gentoo: http://lists.freedesktop.org/archives/distributions/2008-August/000205.html
+ * Debian: http://lists.freedesktop.org/archives/distributions/2008-August/000206.html
+
+== Renamed Files ==
+
+This table of renames is manually created by packagers in the various distributions therefore it is not complete.
+
+||Upstream Package||Upstream File||Renamed To||Distributions Renamed In||
+||[[http://code.google.com/p/sqlalchemy-migrate/|sqlalchemy-migrate]]||/usr/bin/migrate||/usr/bin/sqlalchemy-migrate||Fedora||
+||[[http://www.os-cillation.com/index.php?id=42&L=5|Terminal]]||/usr/bin/Terminal||/usr/bin/xfce4-terminal||Debian||
+
+=== docbook2x ===
+
+ Homepage: http://docbook2x.sourceforge.net/
+
+ * !AltLinux: --program-transform-name='s/docbook2/db2x_docbook2/'
+ * ﻿Redhat EL, Fedore: --program-transform-name='s/docbook2/db2x_docbook2/'
+ * Debian: --program-transform-name="s/^docbook2/docbook2x-/"
+ * openSUSE: just moves files to docbook-to-man and docbook-to-texi
+ * Mandriva: does nothing
+ * Gentoo: --program-transform-name='s,\(docbook2.*\),\1.pl,'
