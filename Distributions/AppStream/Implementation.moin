@@ -1,0 +1,49 @@
+= AppStream Architecture =
+
+{{http://gitorious.org/appstream/resources/blobs/raw/master/architecture.png|Architecture plan|width=800}}
+
+Appstream is split into four logical blocks, on three principal levels.
+
+<<TableOfContents(2)>>
+
+== Client ==
+
+=== Software Center ===
+ * The existing Ubuntu Application Center fits the perceived need and is an established and stable project
+  * Has CLA we might need to work around / fork.
+  * Have to convert away from using custom social server to OCS, non-issue
+  * Have to port to PackageKit 100%, non-issue
+ * Talks to zeitgeist for usage stats
+ * Has recommendations and featured applications
+ * Need the ability to tag applications and moderate comments
+=== PackageKit ===
+ * http://www.packagekit.org
+ * Use the assumption that packages are an uninteresting implementation detail.
+ * Need to be able to search whilst we are installing, perhaps limited to existing xapian results.
+=== xapian ===
+ * http://xapian.org/
+ * Established project used for many years to enable free text search using important things like priority and stemming that can return results in 10's of milliseconds.
+ * We discussed a relational database, but not suitable for our needs
+ * Need to rebuild every time we add/enable or disabled.
+=== OCS ===
+ * http://www.freedesktop.org/wiki/Specifications/open-collaboration-services
+ * Provides a shared API we can add social media to an application installer
+ * Growing userbase and stable and approachable upstream
+ * Can have single server for all or private instance on own infrastructure with possible federation between distros
+
+== Mirror ==
+=== Metadata ===
+ * Just another file on the mirror server: app-data.xml
+ * Contains data derived from the upstream desktop files and extracted at repo-compose time.
+ * Means we have different metadata for each repo
+ * Just another blob of data that can be downloaded by apt-get, yum, etc
+  * See http://gitorious.org/appstream/resources/blobs/master/appdata.xml for an example, or schema here http://gitorious.org/appstream/resources/blobs/raw/master/appdata.xsd
+=== Icons ===
+ * super-critical in search results
+ * app-data-32x32.tar.gz
+ * icons/32x32/foo.png
+ * Can encode location and type of icons in the appdata.xml
+== Compose server ==
+ * We explode the package files which contain a desktop file and extract the data from the desktop files
+ * All gets added to the app-data.xml and icons get (resized/converted?) and copied
+ * Probably a per-distro tool outputting shared format XML
