@@ -2,11 +2,11 @@
 
 = logind =
 
-systemd 30 and newer include systemd-logind. This is a tiny daemon that can manages user logins and seats in various ways.
+systemd 30 and newer include systemd-logind. This is a tiny daemon that manages user logins and seats in various ways.
 
 See [[http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html|systemd-logind(8).service]] for more information. Please consult [[http://www.freedesktop.org/wiki/Software/systemd/multiseat|Multi-Seat on Linux]] for more information on the basic concepts.
 
-The daemon provides both a C library interface as well as a D-Bus interface. The library interface may be used to introspect and watch the state of user logins or seat. The bus interface provides the same but in addition may also be used to make changes to system state. For more more information please consult the man pages: [[http://www.freedesktop.org/software/systemd/man/sd-login.html|sd-login(7)]]
+The daemon provides both a C library interface as well as a D-Bus interface. The library interface may be used to introspect and watch the state of user logins or seat. The bus interface provides the same but in addition may also be used to make changes to system state. For more information please consult the man pages: [[http://www.freedesktop.org/software/systemd/man/sd-login.html|sd-login(7)]]
 
 If you are interested in writing a display manager that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers|Writing Display Managers]].  If you are interested in writing a desktop environment that makes use of logind, please have look at [[http://www.freedesktop.org/wiki/Software/systemd/writing-desktop-environments|Writing Desktop Environments]].
 
@@ -120,19 +120,19 @@ node /org/freedesktop/login1 {
 
 A number of operations are protected via the !PolicyKit privilege system. !SetUserLinger() requires the ''org.freedesktop.login1.set-user-linger'' privilege. !AttachDevice() requires ''org.freedesktop.login1.attach-device'' and !FlushDevices() ''org.freedesktop.login1.flush-devices''. !PowerOff(), Reboot(), Suspend(), Hibernate(), !HybridSleep() require ''org.freedesktop.login1.power-off'', ''org.freedesktop.login1.power-off-multiple-sessions'', ''org.freedesktop.login1.power-off-ignore-inhibit'', ''org.freedesktop.login1.reboot'', ''org.freedesktop.login1.reboot-multiple-sessions'', ''org.freedesktop.login1.reboot-ignore-inhibit'', ''org.freedesktop.login1.suspend'', ''org.freedesktop.login1.suspend-multiple-sessions'', ''org.freedesktop.login1.suspend-ignore-inhibit'', ''org.freedesktop.login1.hibernate'', ''org.freedesktop.login1.hibernate-multiple-sessions'' resp. ''org.freedesktop.login1.hibernate-ignore-inhibit'', depending whether there are other sessions around or active inhibits. Inhibit() is protected via either one of ''org.freedesktop.login1.inhibit-block-shutdown'', ''org.freedesktop.login1.inhibit-delay-shutdown'',  ''org.freedesktop.login1.inhibit-block-sleep'', ''org.freedesktop.login1.inhibit-delay-sleep'', ''org.freedesktop.login1.inhibit-block-idle'', ''org.freedesktop.login1.inhibit-handle-power-key'', ''org.freedesktop.login1.inhibit-handle-suspend-key'', ''org.freedesktop.login1.inhibit-handle-hibernate-key'', ''org.freedesktop.login1.inhibit-handle-lid-switch'' depending on the lock type and mode taken.
 
-The user_interaction boolean parameters can be used to control wether !PolicyKit should interactively ask the user for authentication credentials if it needs to. 
+The user_interaction boolean parameters can be used to control whether !PolicyKit should interactively ask the user for authentication credentials if it needs to. 
 
 === Methods ===
 
 '''!GetSession()''' may be used to get the session object path for the session with the specified ID. Similar, '''!GetUser()''' and '''!GetSeat()''' get the user resp. seat objects. '''GetSessionByPID()''' gets the session object of the session the specified PID belongs to if there is any.
 
-'''!ListSessions()''' returns an array with all current sessions. The structures in the array consist of the following fields: session id, user id, user name, seat id, session object path. If a session does not have a seat attached the seat id field will be the empty string.
+'''!ListSessions()''' returns an array with all current sessions. The structures in the array consist of the following fields: session id, user id, user name, seat id, session object path. If a session does not have a seat attached the seat id field will be an empty string.
 
-'''!ListUsers()''' returns an array with all currently logged in users. The structures in the array consists of the following fields: user id, user name, user object path.
+'''!ListUsers()''' returns an array with all currently logged in users. The structures in the array consist of the following fields: user id, user name, user object path.
 
-'''!ListSeats()''' returns an arry with all currently available seats. The structure in the array consists of the following fields: seat id, seat object path.
+'''!ListSeats()''' returns an array with all currently available seats. The structure in the array consists of the following fields: seat id, seat object path.
 
-'''!CreateSession()''' and '''!ReleaseSession()''' may be used to open or close login sessions. These calls should ''never'' be invoked directly by clients. Creating/closing sessions is exclusively the job PAM and it's pam_systemd module. 
+'''!CreateSession()''' and '''!ReleaseSession()''' may be used to open or close login sessions. These calls should ''never'' be invoked directly by clients. Creating/closing sessions is exclusively the job of PAM and its pam_systemd module. 
 
 '''!ActivateSession()''' brings the session with the specified ID into the foreground. '''!ActivateSessionOnSeat()''' does the same, but only if the seat id matches.
 
@@ -142,21 +142,21 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 '''!KillSession()''' may be used to send a Unix signal to one or all processes of a session. As arguments it takes the session id, either the string "leader" or "all" and a signal number. If "leader" is passed only the session "leader" is killed. If "all" is passed all processes of the session are killed.
 
-'''!KillUser()''' may be used to send a Unix signal to all processes of a user. As arugment it takes the user id and a signal number.
+'''!KillUser()''' may be used to send a Unix signal to all processes of a user. As argument it takes the user id and a signal number.
 
 '''!TerminateSession()''', '''!TerminateUser()''', '''!TerminateSeat()''' may be used to forcibly terminate one specific session, all processes of a user, resp. all sessions attached to a specific seat. The session, user, seat is identified by their respective IDs.
 
-'''!SetUserLinger()''' enables or disables user lingering. If enabled the runtime directory of a user is kept around and he may continue to run processes while he is logged out. If disabled the runtime directory goes away as soon as he logs out. Expects three arguments: the UID, a boolean whether to enable/disable and a boolean controlling the !PolicyKit authorization interactivity (see above). Note that the user linger state is persistantly stored on disk.
+'''!SetUserLinger()''' enables or disables user lingering. If enabled the runtime directory of a user is kept around and he may continue to run processes while he is logged out. If disabled the runtime directory goes away as soon as he logs out. Expects three arguments: the UID, a boolean whether to enable/disable and a boolean controlling the !PolicyKit authorization interactivity (see above). Note that the user linger state is persistently stored on disk.
 
-'''!AttachDevice()''' may be used to assign a specific a device to a specific seat. The device is identified by its /sys path, and must be eligible for seat assignments. Takes three arguments: the seat id, the sysfs path, and a boolean for controlling !PolicyKit interactivity (see above). Device assignments are persistantly stored to disk. To create a new seat, simply specify a previously unused seat id. For more information about the seat assignment logic see [[http://www.freedesktop.org/wiki/Software/systemd/multiseat|Multi-Seat for Linux]].
+'''!AttachDevice()''' may be used to assign a specific device to a specific seat. The device is identified by its /sys path, and must be eligible for seat assignments. Takes three arguments: the seat id, the sysfs path, and a boolean for controlling !PolicyKit interactivity (see above). Device assignments are persistently stored to disk. To create a new seat, simply specify a previously unused seat id. For more information about the seat assignment logic see [[http://www.freedesktop.org/wiki/Software/systemd/multiseat|Multi-Seat for Linux]].
 
 '''!FlushDevices()''' removes all explicit seat assignments for devices, resetting all assignments to the automatic defaults. The only argument this takes is the !PolicyKit interactivity boolean (see above).
 
 '''!PowerOff()''', '''Reboot()''', '''Suspend()''', '''Hibernate()''', '''!HybridSleep()''' results in the system being powered off, rebooted, suspend, hibernated or hibernated+suspended. The only argument is the !PolicyKit interactivity boolean (see above). The main purpose of these calls is that they enforce PolicyKit policy and hence allow powering off/rebooting/suspending/hibernating even by unprivileged users. They also enforce inhibition locks. UIs should expose these calls as primary mechanism to poweroff/reboot/suspend/hibernate/hybrid-sleep the machine.
 
-'''!CanPowerOff()''', '''!CanReboot()''', '''!CanSuspend()''', '''!CanHibernate()''', '''!CanHybridSleep()''' tests whether the system supports the respective operation and whether calling user is eligible for the desired operation. Returns one of "na", "yes", "no" or "challenge". if "na" is returned the operation is not available because hardware, kernel or drivers do not support it. If "yes" is returned the operation is supported and the user may execute the operation without further authentication. If "no" is returned the operation is available but the user is not allowed to execute the operation. If "challenge" is returned the operation is available, but only after authorization.
+'''!CanPowerOff()''', '''!CanReboot()''', '''!CanSuspend()''', '''!CanHibernate()''', '''!CanHybridSleep()''' tests whether the system supports the respective operation and whether the calling user is eligible for the desired operation. Returns one of "na", "yes", "no" or "challenge". If "na" is returned the operation is not available because hardware, kernel or drivers do not support it. If "yes" is returned the operation is supported and the user may execute the operation without further authentication. If "no" is returned the operation is available but the user is not allowed to execute the operation. If "challenge" is returned the operation is available, but only after authorization.
 
-'''Inhibit()''' creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep", "idle", "handle-power-key", "handle-suspend-key", "handle-hibernate-key", "handle-lid-switch", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, the automatic idle logic, or hardware key handling. "Who" should be short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all is duplicates) is closed. For more information on the inhibition logic see [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]].
+'''Inhibit()''' creates an inhibition lock. It takes four parameters: What, Who, Why and Mode. "What" is one or more of "shutdown", "sleep", "idle", "handle-power-key", "handle-suspend-key", "handle-hibernate-key", "handle-lid-switch", separated by colons, for inhibiting poweroff/reboot, suspend/hibernate, the automatic idle logic, or hardware key handling. "Who" should be a short human readable string identifying the application taking the lock. "Why" should be a short human readable string identifying the reason why the lock is taken. Finally, "Mode" is either "block" or "delay" which encodes whether the inhibit shall be consider mandatory or whether it should just delay the operation to a certain maximum time. The call returns a file descriptor. The lock is released the moment this file descriptor (and all its duplicates) are closed. For more information on the inhibition logic see [[http://www.freedesktop.org/wiki/Software/systemd/inhibit|Inhibitor Locks]].
 
 '''!ListInhibitors()''' lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
@@ -164,9 +164,9 @@ The user_interaction boolean parameters can be used to control wether !PolicyKit
 
 Whenever the inhibition state or idle hint changes daemon '''!PropertyChanged''' signals are sent out to which clients can subscribe. 
 
-The '''!SessionNew()''', '''!SessionRemoved()''', '''!UserNew()''', '''!UserRemoved()''', '''!SeatNew()''', '''!SeatRemoved()''' signals are sent each time a session is created or removed, a user logs in or out, or a seat added or removed. They each contain the ID of the object plus the object path.
+The '''!SessionNew()''', '''!SessionRemoved()''', '''!UserNew()''', '''!UserRemoved()''', '''!SeatNew()''', '''!SeatRemoved()''' signals are sent each time a session is created or removed, a user logs in or out, or a seat is added or removed. They each contain the ID of the object plus the object path.
 
-The '''!PrepareForShutdown()''' resp. '''!PrepareForSleep()''' signals are sent immediately before (with the argument True) and after (with the argument False) the system goes down for reboot/poweroff, resp. suspend/hibernate, if at least one inhibition lock is taken. This may be used by applications for saving data on disk, releasing memory or doing other jobs that shall be done shortly before shutdown/sleep. After completation they should release their inhibition locks in order not to delay the operation any further.
+The '''!PrepareForShutdown()''' resp. '''!PrepareForSleep()''' signals are sent immediately before (with the argument True) and after (with the argument False) the system goes down for reboot/poweroff, resp. suspend/hibernate, if at least one inhibition lock is taken. This may be used by applications for saving data on disk, releasing memory or doing other jobs that shall be done shortly before shutdown/sleep. After completion they should release their inhibition locks in order not to delay the operation any further.
 
 === Properties ===
 
@@ -349,7 +349,7 @@ node /org/freedesktop/login1/session/2 {
 === Signals ===
 Whenever '''Active''' or the idle state changes '''!PropertyChanged''' signals are sent out to which clients can subscribe. 
 
-'''Lock''' (resp. '''Unlock''') is sent when the session is asked to be screen-locked/screen-unlocked. A session manager of the session should listen to this signal and act accordingly. This signal is sent out as result of the '''Lock()''' resp. '''Unlock()''' methods.
+'''Lock''' (resp. '''Unlock''') is sent when the session is asked to be screen-locked/screen-unlocked. A session manager of the session should listen to this signal and act accordingly. This signal is sent out as a result of the '''Lock()''' resp. '''Unlock()''' methods.
 
 === Properties ===
 '''Id''' encodes the session ID.
@@ -366,17 +366,17 @@ Whenever '''Active''' or the idle state changes '''!PropertyChanged''' signals a
 
 '''Seat''' encodes the seat this session belongs to, if there is any. This is a structure consisting of the ID and the seat object path.
 
-'''TTY''' encodes the kernel TTY path of the session if this is a text login. If not this is the empty string.
+'''TTY''' encodes the kernel TTY path of the session if this is a text login. If not this is an empty string.
 
-'''Display''' encodes the X11 display name if this is a graphical login. If not this is the empty string.
+'''Display''' encodes the X11 display name if this is a graphical login. If not this is an empty string.
 
 '''Remote''' encodes whether the session is local or remote.
 
-'''!RemoteHost''' and '''!RemoteUser''' encode the remote host and user if this is a remote session, or the empty string otherwise.
+'''!RemoteHost''' and '''!RemoteUser''' encode the remote host and user if this is a remote session, or an empty string otherwise.
 
 '''Service''' encodes the PAM service name that registered the session.
 
-'''Leader''' encodes the PID of the proces that registered the session.
+'''Leader''' encodes the PID of the process that registered the session.
 
 '''Audit''' encodes the Kernel Audit session ID of the session, if auditing is available.
 
@@ -392,7 +392,7 @@ Whenever '''Active''' or the idle state changes '''!PropertyChanged''' signals a
 
 '''!KillProcesses''' encodes whether the processes of this session shall be killed if the session ends. It's also controllable on pam_systemd's command line.
 
-'''!IdleHint''', '''!IdleSinceHint''', '''!IdleSinceHintMonotonic''' encapsulate the idle hint state of this session, similar how the respective properties on the manager object to it for the whole system.
+'''!IdleHint''', '''!IdleSinceHint''', '''!IdleSinceHintMonotonic''' encapsulate the idle hint state of this session, similar to how the respective properties on the manager object do it for the whole system.
 
 ----
 
