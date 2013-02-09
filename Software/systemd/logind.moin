@@ -40,6 +40,7 @@ node /org/freedesktop/login1 {
       LockSession(in  s id);
       UnlockSession(in  s id);
       LockSessions();
+      UnlockSessions();
       KillSession(in  s id,
                   in  s who,
                   in  s signal);
@@ -138,7 +139,7 @@ The user_interaction boolean parameters can be used to control whether !PolicyKi
 
 '''!LockSession()''' asks the session with the specified ID to activate the screen lock. '''!UnlockSession()''' asks the session with the specified ID to remove an active screen lock, if there is any. This is implemented by sending out the Lock() and Unlock() signals from the respective session object which session managers are supposed to listen on.
 
-'''!LockSessions()''' asks all sessions to activate the screen locks. This may be used to lock any access to the machine in one action.
+'''!LockSessions()''' asks all sessions to activate the screen locks. This may be used to lock any access to the machine in one action. Similar, '''!UnlockSessions()''' asks all sessions to deactivate their screen locks.
 
 '''!KillSession()''' may be used to send a Unix signal to one or all processes of a session. As arguments it takes the session id, either the string "leader" or "all" and a signal number. If "leader" is passed only the session "leader" is killed. If "all" is passed all processes of the session are killed.
 
