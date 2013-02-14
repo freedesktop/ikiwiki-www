@@ -92,3 +92,10 @@ A ''kernel installer package'' installs the kernel and initrd images to {{{$BOOT
 A ''UI application'' intended to show available boot options shall operate similar to a boot loader, but might apply additional filters, for example by filtering out the booted OS via the machine ID, or by suppressing all but the newest kernel versions.
 
 An ''OS installer'' picks the right place for {{{$BOOT}}} as defined above (possibly creating a partition and file system for it), and pre-creates the {{{/loader/entries/}}} directory in it. It then installs an appropriate boot loader that can read these snippets. Finally it installs one or more kernel packages.
+
+== Out of Focus ==
+
+There are a couple of items that are out of focus for this specifications:
+
+ * If userspace can figure out the available boot options, then this is only useful so much: we'd still need to come up with a way how userspace could communicate to the boot loader the default boot loader entry temporarily or persistently. Defining a common scheme for this is certainly a good idea, but out of focus for this specifications.
+ * This specifications is just about "Free" Operating systems. Hooking in other operating systems (like Windows, MacOS) into the boot menu is a different story, and should probably happen outside of this specification. For example, boot loaders might choose to detect other available OSes dynamically at runtime without explicit configuration (like Gummiboot does it), or via natvie configuration (for example via explicit Grub2 configuration generated once at installation).
