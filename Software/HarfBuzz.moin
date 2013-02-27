@@ -10,9 +10,26 @@ HarfBuzz is an [[http://www.microsoft.com/OpenType/OTSpec/|OpenType]] text shapi
 
 === Download ===
 
-For tarball releases of the new HarfBuzz codebase, look [[http://www.freedesktop.org/software/harfbuzz/release/|here]].  The API is not expected to change incompatibly, but we cannot guarantee that until HarfBuzz 1.0.0 is released.  Other than that, we consider it very stable, and the API that comes with ''hb.h'' is unlikely to change.  API in ''hb-ft.h'' and other peripheral headers are more likely to through reviews before 1.0.
+For tarball releases of the new HarfBuzz codebase, look [[http://www.freedesktop.org/software/harfbuzz/release/|here]].  At the same place you will also find Win32 binary bundles that include libharfbuzz DLL, hb-view.exe, hb-shape.exe, and all dependencies.
+
+The API is not expected to change incompatibly, but we cannot guarantee that until HarfBuzz 1.0.0 is released.  Other than that, we consider it very stable, and the API that comes with ''hb.h'' is unlikely to change.  API in ''hb-ft.h'' and other peripheral headers are more likely to through reviews before 1.0.
 
 There are no tarball releases of the old HarfBuzz codebase available.  If you want to use the old HarfBuzz, just import it into your project.  And be warned that you are on your own.
+
+
+=== Building ===
+
+On Linux, install the development packages for FreeType, Cairo, and GLib.  For example, on Ubuntu / Debian, you would do:
+
+  sudo apt-get install libfreetype6-dev libglib2.0-dev libcairo2-dev
+
+whereas on Fedora, RHEL, CentOS, and other Red Hat based systems you would do:
+
+  sudo yum install freetype-devel glib2-devel cairo-devel
+
+If you are using a tarball, you can now proceed to running configure and make as with any other standard package.  That should leave you with a shared library in src/, and a few utility programs including hb-view and hb-shape under util/.
+
+If you are bootstraping from git, you need a few more tools before you can run autogen.sh for the first time.  Namely, [[http://www.freedesktop.org/wiki/Software/pkg-config|pkg-config]] and ragel [[http://www.complang.org/ragel/|ragel]].  These all come with most standard distros, so look there before downloading them off the net.
 
 
 === Development ===
