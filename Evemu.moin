@@ -28,7 +28,19 @@ evemu provides multiple binaries for recording and replaying devices:
 evemu-record cannot see events while another process has an EVIOCGRAB on the device. This is the case for the X.Org synaptics and wacom drivers, you must disable the devices or VT-switch away before running evtest to see events. Devices can be disabled with
 
             xinput set-prop "my device name" "Device Enabled" 0
-            
+
+If you need the device enabled to verify that the bug is indeed triggered, use the following xorg.conf.d snippet:
+{{{
+$> cat /etc/X11/xorg.conf.d/99-synaptics-dontgrab.conf
+Section "InputClass"
+        Identifier "Don't grab synaptics"
+        MatchDriver "synaptics"
+        Option "GrabEventDevice" "off"
+EndSection
+}}}
+
+Once saved, restart your server and evemu can now record while the synaptics is
+running.
 
 == Submitting useful evemu recordings ==
 
