@@ -63,3 +63,28 @@ The application that you submit is only one factor when we think whether you sho
 '''Necessary background:''' What skills are required/beneficial?
 
 '''Potential mentors:''' List of people who volunteer to mentor this project.
+
+
+=== Better JACK Configurability ===
+
+'''Problem statement:''' [[http://jackaudio.org/|JACK]] is a sound server for so called "pro audio" use cases, such as music production or live performances. Many people want to run !PulseAudio on top of JACK, so that JACK has direct access to the sound card and !PulseAudio accesses the sound card through JACK. When running !PulseAudio on top of JACK, the default configuration creates one two-channel sink (i.e. output device) and one two-channel source (i.e. input device) for JACK inside !PulseAudio. If the user wants something different, the only way to change the configuration is to edit the configuration file by hand, which isn't particularly user-friendly. Furthermore, the configuration parameters are very limited: only the number of channels per device can be changed, and it's not possible to have different number of channels for input and output. (Actually, to be more accurate, it is possible to have different number of channels for input and output, if you load module-jack-sink and module-jack-source manually instead of relying on module-jackdbus-detect, but then you lose the convenience that module-jackdbus-detect provides.)
+
+Things that users might want to configure:
+ * channels for input and output separately
+ * disabling input or output altogether
+ * multiple input or output devices
+ * modes for quickly switching between several configurations
+
+'''Suggested solution:''' The set of parameters that module-jackdbus-detect supports should be expanded to cover the given use cases. As the responsibilities of module-jackdbus-detect grow beyond bare detection, it might make sense to rename the module to simply module-jack.
+
+The switchable modes should be implemented as card profiles. Currently, the JACK code doesn't implement a card object, so one task is to implement a "JACK card".
+
+To achieve user-friendliness, there should be a GUI for changing the settings. Just implementing the JACK card with a good default set of profiles would go a long way, because the existing GUIs already support changing card profiles.
+
+Implementing only the JACK card would probably make this project too small to fill the whole summer, so there could be some extra GUI options added for JACK: for example, the "auto-connect" option could be exposed in a GUI (maybe separately for each device or card profile). It's a simple boolean option that is already supported, but changing the option value requires editing the configuration file by hand. Adding new run-time-editable configuration options is far from trivial: the GUI code needs to be written, the client API needs to be extended, the IPC protocol needs to be extended and persistent storage for the options needs to be implemented.
+
+'''Contacts:''' Tanu
+
+'''Necessary background:''' C for !PulseAudio code. C++ for pavucontrol code (the preferred GUI application to modify is pavucontrol).
+
+'''Potential mentors:''' Tanu
