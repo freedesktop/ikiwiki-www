@@ -88,20 +88,3 @@ Implementing only the JACK card would probably make this project too small to fi
 '''Necessary background:''' C for !PulseAudio code. C++ for pavucontrol code (the preferred GUI application to modify is pavucontrol).
 
 '''Potential mentors:''' Tanu
-
-
-=== Improvements Related to Configuration ===
-
-'''Problem statement:''' There are a couple of separate problems:
- * If setting some option in a configuration file doesn't seem to have any effect, chances are that it's being overridden in some other file, but which file? It's slightly tedious to manually look in several directories and check the file contents. It's even more cumbersome when debugging a problem remotely, when it's necessary to explain every step that needs to be performed.
- * Changing a configuration file requires restarting the server before the change takes effect.
-
-'''Suggested solution:'''
- * When reading configuration files, the daemon should store the origin file of each option separately. This information should then be made possible to query by clients. Then, pactl (a command-line utility for interacting with the server) should be extended to provide a command that prints the configuration of the running server, and also the origin file of each option. This functionality would probably apply only to the "ini-style" configuration files. Those cover most of the !PulseAudio configuration, with the notable exception of the startup script. It might be useful to also record the loaded startup script(s) so that the startup sequence can be queried for debug purposes.
- * Sending SIGHUP to the server process should cause it to reload its configuration. This too would probably apply only to the "ini-style" configuration files, not to the startup script. It's probably not possible to make all configuration options changeable at run-time, but that's OK.
-
-'''Contacts:''' Tanu
-
-'''Necessary background:''' C
-
-'''Potential mentors:''' Tanu
