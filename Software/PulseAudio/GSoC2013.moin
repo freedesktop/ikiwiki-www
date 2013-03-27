@@ -34,6 +34,7 @@ Feel free to contact us on IRC or via the mailing list (see the links above). We
 
  * Arun Raghavan (Ford_Prefect on IRC, <<MailTo(arun AT SPAMFREE accosted DOT net)>> (admin)
  * Tanu Kaskinen (tanuk on IRC, <<MailTo(tanuk AT SPAMFREE iki DOT fi)>> (mentor, backup admin)
+ * Peter Meerwald (pmeerw on IRC, <<MailTo(pmeerw AT SPAMFREE pmeerw DOT net)>> (mentor)
  * David Henningsson (diwic on IRC, <<MailTo(david.henningsson AT SPAMFREE canonical DOT com)>> (mentor)
 
 
@@ -88,3 +89,16 @@ Implementing only the JACK card would probably make this project too small to fi
 '''Necessary background:''' C for !PulseAudio code. C++ for pavucontrol code (the preferred GUI application to modify is pavucontrol).
 
 '''Potential mentors:''' Tanu
+
+
+=== Resampling Improvements ===
+
+'''Problem statement:''' !PulseAudio aims to match the sample rates supported by the hardware to the sample rates requsted by the application. This process is called resampling and is quite CPU intensive. !PulseAudio resorts mostly to external code to provide resampling: speex, ffmpeg, libsamplerate. Speex seems unmaintained, ffmpeg now provides a library interface (libav) and code duplication is unnecessary (we have a copy of the ffmpeg resampler in our source tree). libsamplerate is GPL. Lightweight, high-quality and optimized resampling code is desirable.
+
+'''Suggested solution:''' Assess available audio resampling code, performance-wise and feature-wise. Implement interface to enable resampling provided by libav and drop code copied from ffmpeg.
+
+'''Contacts:''' Peter
+
+'''Necessary background:''' C for !PulseAudio, signal processing, possibly assembler for SIMD optimization (SSE, NEON).
+
+'''Potential mentors:''' Peter
