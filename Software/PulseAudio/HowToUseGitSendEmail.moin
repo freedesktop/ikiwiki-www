@@ -1,0 +1,84 @@
+<<Include(Software/PulseAudio/TOC)>>
+
+= How to Use git send-email =
+
+The preferred way to send patches is by email, using git send-email (more information about sending patches can be found on the [[wiki:Software/PulseAudio/Documentation/User/Community|Community]] page). This page explains how to use git send-email.
+
+
+== Installing send-email ==
+
+You probably already have git already installed, but that's not necessarily enough to have also the send-email command available. You can check if send-email is available by running "git send-email --help". If it shows the man page for send-email, then send-email is available. Otherwise, you need to install the send-email command. Your distribution probably has a package for it; on Debian the package name is "git-email".
+
+
+== Configuring Your Name and Email Address ==
+
+You should tell git your name and email address. You have probably done this already, but if not, run these commands:
+
+{{{
+git config --global user.name "My Name"
+git config --global user.email "myemail@example.com"
+}}}
+
+
+== Configuring the Mail Sending Options ==
+
+git send-email sends the emails through your SMTP server, so you need to configure the server parameters. Refer to your email provider documentation to find the right parameters. This is how I would configure my mail settings:
+
+{{{
+git config --global sendemail.smtpencryption tls
+git config --global sendemail.smtpserver mail.messagingengine.com
+git config --global sendemail.smtpuser tanuk@fastmail.fm
+git config --global sendemail.smtpserverport 587
+git config --global sendemail.smtppass hackme
+}}}
+
+Storing the password in the git configuration file is obviously a security risk. It's not mandatory to configure the password. If it's not configured, git send-email will ask it every time the command is used.
+
+
+== Using the send-email Command ==
+
+See "git send-email --help" for full reference. I'll go through only the basic usage here.
+
+git send-email will ask a few questions before the patches are sent. Most of the questions have a sensible default value shown in square brackets. Just press enter to use the default value. Type the answer to the question if you don't want to use the default answer. The questions are:
+
+ * Who should the emails appear to be from?
+   * This will be used as the "From" header. You should have configured your name and email address earlier, so the default is usually correct.
+ * Who should the emails be sent to?
+   * To avoid the need to type the mailing list address every time, configure the default "To" header with "git config sendemail.to pulseaudio-discuss@lists.freedesktop.org".
+ * Message-ID to be used as In-Reply-To for the first email?
+   * This can usually be left empty, in which case the patch or patches will appear as a new thread. When sending updated patches, in my opinion it's nice to set this to the "Message-Id" header of the previous version of the patch (for multi-patch series, use the cover letter's Message-Id), so that the full patch history can be easily accessed. This is the only valid use case for setting the "In-Reply-To" header (again, in my opinion). In other words, please do NOT send patches as replies to regular discussion.
+ * Send this email?
+   * The mail headers are visible above the question, so that you can check that everything looks OK.
+
+
+=== Sending a Single Patch ===
+
+Sending the last commit in the current branch:
+
+{{{
+git send-email -1
+}}}
+
+Sending some other commit:
+
+{{{
+git send-email -1 <commit reference>
+}}}
+
+
+=== Sending Multiple Patches ===
+
+Sending the last 10 commits in the current branch:
+
+{{{
+git send-email -10 --cover-letter --annotate
+}}}
+
+The --cover-letter option creates an extra mail that will be sent before the actual patch mails. You can add write some introduction to the patch set in the cover letter. If you need to explain the patches, be sure to include the explanations also in the commit messages, because the cover letter text won't be recorded in the git history. If you don't think any introduction or explanation is necessary, it's fine to only have the shortlog that is included in the cover letter by default, and only set the "Subject" header to something sensible.
+
+The --annotate option causes an editor to be started for each of the mails, allowing you to edit the mails. The option is always necessary, so that you can edit the cover letter's "Subject" header.
+
+
+=== Adding Patch Version Information ===
+
+By default the patch mails will have "[PATCH]" in the subject (or "[PATCH n/m]", where n is the sequence number of the patch and m is the total number of patches in the patch set). When sending updated versions of patches, the version should be indicated: "[PATCH v2]" or "[PATCH v2 n/m]". To do this, use the --annotate option and edit the "Subject" header of the mails.
