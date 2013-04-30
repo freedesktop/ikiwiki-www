@@ -34,6 +34,13 @@ git config --global sendemail.smtppass hackme
 
 Storing the password in the git configuration file is obviously a security risk. It's not mandatory to configure the password. If it's not configured, git send-email will ask it every time the command is used.
 
+== Configuring the Default Destination Address ==
+
+For PulseAudio, the patches should be sent to our mailing list. In order to avoid having to remember it and retyping it all the time, you can configure the address to be used by default by git send-email. As you may contribute to many projects using git, it does not make sense to set this option globally so instead we'll only set it in our clone of the PulseAudio code.
+
+{{{
+git config sendemail.to pulseaudio-discuss@lists.freedesktop.org
+}}}
 
 == Using the send-email Command ==
 
@@ -44,7 +51,7 @@ git send-email will ask a few questions before the patches are sent. Most of the
  * Who should the emails appear to be from?
    * This will be used as the "From" header. You should have configured your name and email address earlier, so the default is usually correct.
  * Who should the emails be sent to?
-   * To avoid the need to type the mailing list address every time, configure the default "To" header with "git config sendemail.to pulseaudio-discuss@lists.freedesktop.org".
+   * As noted above, patches should be sent to our mailing list: ''pulseaudio-discuss@lists.freedesktop.org''
  * Message-ID to be used as In-Reply-To for the first email?
    * This can usually be left empty, in which case the patch or patches will appear as a new thread. When sending updated patches, in my opinion it's nice to set this to the "Message-Id" header of the previous version of the patch (for multi-patch series, use the cover letter's Message-Id), so that the full patch history can be easily accessed. This is the only valid use case for setting the "In-Reply-To" header (again, in my opinion). In other words, please do NOT send patches as replies to regular discussion.
  * Send this email?
