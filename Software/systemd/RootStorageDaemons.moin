@@ -6,7 +6,7 @@ a.k.a. ''Pax Cellae pro Radix Arbor''
 
 (or something like that, my Latin is a bit rusty)
 
-A number of modern storage technologies on Linux (e.g. RAID, volume management, networked storage) require user space services to run while the storage is active and mountable. This requirement becomes tricky as soon as the root file system of the Linux operating system is stored on such storage technology. Previously no clear path to make this work was available. This text tries to clear up the resulting confusion, and what is now supported and what is not.
+A number of complex storage technologies on Linux (e.g. RAID, volume management, networked storage) require user space services to run while the storage is active and mountable. This requirement becomes tricky as soon as the root file system of the Linux operating system is stored on such storage technology. Previously no clear path to make this work was available. This text tries to clear up the resulting confusion, and what is now supported and what is not.
 
 == A Bit of Background ==
 
@@ -31,17 +31,27 @@ To implement the supported logic proposed above (i.e. where storage daemons need
 Processes (run by the root user) whose first character of the zeroth command line argument is '@' are excluded from the killing spree, much the same way as kernel threads are excluded too. Thus, a daemon which wants to take advantage of this logic needs to place the following at the top of its main() function:
 
 {{{
-int main(int argc, char *argv) {
+        ...
         argv[0][0] = '@';
         ...
-}
 }}}
 
 And that's already it. Note that this functionality is only to be used by programs running from the initramfs, and '''not''' for programs running from the root file system itself. Programs which use this functionality and are running from the root file system are considered buggy since they effectively prohibit clean unmounting/detaching of the root file system and its backing storage.
 
 ''Again: if your code is being run from the root file system, then this logic suggested above is '''NOT''' for you. Sorry. Talk to us, we can probably help you to find a different solution to your problem.''
 
-The recommended way to distinguish between run-from-initramfs and run-from-rootfs for a daemon is to check for /etc/initrd-release (which exists on all modern initrd implementations) which when exists results in argv[0][0] being set to '@', and otherwise doesn't. 
+The recommended way to distinguish between run-from-initramfs and run-from-rootfs for a daemon is to check for /etc/initrd-release (which exists on all modern initrd implementations, see [[http://www.freedesktop.org/wiki/Software/systemd/InitrdInterface|The Initrd Interface]] for details) which when exists results in argv[0][0] being set to '@', and otherwise doesn't. Something like this: 
+
+{{{
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+        ...
+        if (access("/etc/initrd-release", F_OK) >= 0) 
+                argv[0][0] = '@';
+        ...
+}
+}}}
 
 Why '@'? Why argv[0][0]? First of all, a technique like this is not without precedent: traditionally Unix login shells set argv[0][0] to '-' to clarify they are login shells. This logic is also very easy to implement. We have been looking for other ways to mark processes for exclusion from the killing spree, but could not find any that was equally simple to implement and quick to read when traversing through /proc. Also, as a side effect replacing the first character of argv[0] with '@' also visually invalidates the path normally stored in argv[0] (which usually starts with '/') thus helping the administrator to understand that your daemon is actually not originating from the actual root file system, but from a path in a completely different namespace (i.e. the initramfs namespace). Other than that we just think that '@' is a cool character which looks pretty in the ps output... ;-)
 
