@@ -6,11 +6,6 @@
 TODO: Short introduction.
 
 
-== Notable Changes ==
-
- * New module: module-role-ducking.
-
-
 == Notes for Application Developers ==
 
 So far card profiles have been static, that is, the set of profiles on a card has never changed after the creation of the card object. While that has never been promised in the API documentation, it may be that some applications have the assumption that the profiles are static. Due to the nature of the Bluetooth protocol, it has turned out to be necessary to be able to add profiles to a card after it has been created. So, make sure your application doesn't crash or otherwise behave badly if new profiles suddenly appear on a card. It's best to prepare for profiles disappearing too.
@@ -21,6 +16,8 @@ Have you ever wanted to get a callback from pa_operation when it's cancelled (pe
 == Notes for Packagers ==
 
 D-Bus dependency version has been bumped to 1.4.12.
+
+pa_format_info_free2 symbol has been dropped from libpulse. The pa_format_info_free2 symbol was never part of the public API, but was still exported in the ABI in the previous version of PulseAudio. It is now completely dropped. Since it was never exposed in any header files, the only programs affected should be test tools specifically looking for missing symbols.
 
 
 == Changes in More Detail ==
