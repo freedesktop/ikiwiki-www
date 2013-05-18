@@ -1,0 +1,81 @@
+<<Include(Software/PulseAudio/TOC)>>
+
+= PulseAudio Community =
+
+== Mailing Lists ==
+
+Please join our [[http://lists.freedesktop.org/mailman/listinfo/pulseaudio-discuss|mailing list]]. (Posting requires subscription)
+
+You can subscribe to GIT changes on [[http://lists.freedesktop.org/mailman/listinfo/pulseaudio-commits|pulseaudio-commits]]. (No posting allowed)
+
+You can subscribe to Bugzilla Bug/Trac Ticket changes on [[http://lists.freedesktop.org/mailman/listinfo/pulseaudio-bugs|pulseaudio-bugs]]. (No posting allowed)
+
+== IRC ==
+
+You have a chance to meet the developers on [irc://irc.freenode.org/pulseaudio #pulseaudio on irc.freenode.org].
+
+== Tracking ==
+
+[[http://cia.navi.cx/stats/project/polypaudio|PulseAudio on CIA]] (CIA hasn't been reconfigured yet after the recent project name change)
+
+[[http://freshmeat.net/projects/pulseaudio/|PulseAudio on Freshmeat]] (If you want to be notified whenever a new version of PulseAudio is released, consider subscribing here)
+
+[[http://swik.net/pulseaudio|PulseAudio on SWIK]]
+
+[[http://www.ohloh.net/projects/4038|PulseAudio on Ohloh]] (Don't forget to give us kudos!) [[OhlohBadge(4038)]]
+
+== Bugs, Patches & Translations ==
+
+'''Bugs''' are reported in freedesktop.org's [[https://bugs.freedesktop.org/enter_bug.cgi?product=PulseAudio|Bugzilla]]. See also the list of [[https://bugs.freedesktop.org/buglist.cgi?quicksearch=product%3APulseAudio|open bugs in Bugzilla]]. Also, there might be a chance that the bug you want to report is not actually one. For those we have prepared a list of '''[[CannedResponses|canned responses]]'''. Please check this list before filing a bug because otherwise you might find your bug closed quickly with a reference to one of the items of that list. Because of heavy spamming, you have to be logged in to the freedesktop.org Bugzilla to create and modify bugs.
+
+'''Important:''' If you are encountering a '''crash''', please make sure to provide a '''stack trace''' when you file a bug. The various distributions usually provide documentation how you do this best.  Here are the guides for [[http://fedoraproject.org/wiki/StackTraces|Fedora]], [[http://wiki.mandriva.com/en/Development/Howto/Software_Crash|Mandriva]] and [[https://wiki.ubuntu.com/Backtrace|Ubuntu]]. Also, make sure to include the verbose output of PA when this problem happens. For that run "pulseaudio -vvvvv" in a terminal and try to reproduce your issue. You might need to stop a running PA first by issuing "pulseaudio -k". If autospawning is enabled (which it now is by default) you might have to race against it when restarting PA, so it might be a good idea to issue "pulseaudio -k ; pulseaudio -vvvvv" in a single command and try a few times. Usually that should work well enough to win the race. If it doesn't, adding "autospawn=no" to ~/.config/pulse/client.conf will disable autospawning.
+
+'''Important:''' If you are using '''Ubuntu''' [[http://pulseaudio.org/wiki/UbuntuBugs|please read this before filing a bug]].
+
+Below is a rough outline of how a stack trace can be acquired with gdb:
+{{{
+$ LD_BIND_NOW=1 gdb pulseaudio
+>> run -vvvvv
+>> ...
+>> *** crash ***
+>> thread apply all bt full 
+>> ...
+>> *** etc. etc. ***
+}}}
+
+Before posting a bug report you might want to check [[Software/PulseAudio/Backends/ALSA/BrokenDrivers|this list of broken ALSA sound drivers]]. (might be out of date)
+
+If you are encountering a CPU load issue, [[Software/PulseAudio/Documentation/Developer/CPULoad|make sure to read this]].
+
+If you want to complain about !PulseAudio's '''mixer handling''', [[Software/PulseAudio/Documentation/User/PulseAudioStoleMyVolumes|read this first!]] If you want to complain about '''memory consumption''' [[Software/PulseAudio/Documentation/User/MemoryConsumption|read this first!]] If you want to complain that PA doesn't honour your '''default device''' choices, [[Software/PulseAudio/Documentation/User/DefaultDevice|read this first!]] Other '''canned responsed''' [[CannedResponses|you find in this list.]]
+
+'''Patches''' are preferably submitted to the mailing list, ideally using `git send-email` ([[Software/PulseAudio/HowToUseGitSendEmail|instructions here]]). It's ok send patches also by filing a bug and attaching the patch there, but the mailing list is the preferred way. Patches should be made against the current Git master branch. Before submitting patches please read through our [[Software/PulseAudio/Documentation/Developer/CodingStyle|coding style guidelines]].
+
+'''Translations''' --(shall be submitted via '''[[http://www.transifex.net/projects/p/pulseaudio/c/master-tx/|Transifex]]'''. This will commit your translations directly to our GIT repository and lessen our burden to merge patches. Please note that translations submitted by other means (bug tickets, mailed patches) will be ignored (or closed as "wontfix" in the case of bug tickets). You don't need an PulseAudio BTS user account if you want to submit translations this way.)-- Currently Transiflex integration is [[https://bugs.freedesktop.org/show_bug.cgi?id=45524|not hooked up]]. Until this situation changes, please [[https://bugs.freedesktop.org/enter_bug.cgi?product=PulseAudio|open a bug]] and attach your patch against latest git. Please include ''i18n'' in the keywords section.
+
+== People ==
+
+!PulseAudio has been developed by:
+
+ * '''[[http://0pointer.de/lennart/|Lennart Poettering]]''' (mezcalero) through his employer '''[[http://redhat.com|Red Hat]]'''
+ * '''[[http://drzeus.cx/|Pierre Ossman]]''' (ossman, !DrZeus) through his employer '''[[http://www.cendio.com|Cendio]]'''
+ * '''[[http://colin.guthr.ie/|Colin Guthrie]]''' (coling)
+ * '''[[http://arunraghavan.net/|Arun Raghavan]]''' (Ford_Prefect) through his employer '''[[http://www.collabora.com/|Collabora]]'''
+ * '''Tanu Kaskinen''' (tanuk) through his employer '''[[http://intel.com|Intel]]'''
+ * '''[[http://voices.canonical.com/david.henningsson/|David Henningsson]]''' (diwic) through his employer '''[[http://www.canonical.com/|Canonical]]'''
+
+
+The following people have also made contributions (this list isn't really maintained at all):
+
+ * '''Jeff Waugh''' - Initial Ubuntu/Debian packages
+ * '''Miguel Freitas''' - Xine driver
+ * '''Joe Marcus Clarke''',  '''Diego Pettenó''' - Porting to FreeBSD
+ * '''Sebastien Estienne''' - Testing
+ * '''Igor Zubkov''' - Some portability patches and packages for ALT Linux Sisyphus
+ * '''Jan Schmidt''' - Some latency interpolation love
+ * '''Shahms E. King''' (shahms)
+
+
+And a lot of other folks. Consult git for a complete list of contributors.
+
+The !PulseAudio logo has been designed by '''Pierre Ossman''' and '''Rafael Jannone'''.
