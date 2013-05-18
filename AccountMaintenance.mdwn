@@ -1,5 +1,5 @@
 
-This page is not about getting new accounts.  If you do not currently have a fd.o account, see [[AccountRequests|AccountRequests]]. 
+This page is not about getting new accounts.  If you do not currently have a fd.o account, see [[AccountRequests]]. 
 
 
 # Account Maintenance
@@ -14,9 +14,9 @@ The web interface is not operational at this time.
 ## Adding/removing SSH keys
 
 The mail gateway maintains SSH keys by _replacing_ all keys with the contents of the mail.  Send the mail, GPG-signed, each key on a new line: 
-[[!format txt """
-cat ~/.ssh/key1.pub ~/.ssh/key2.pub ~/.ssh/key3.pub | gpg --clearsign | mail change@db.freedesktop.org
-"""]]
+
+    cat ~/.ssh/key1.pub ~/.ssh/key2.pub ~/.ssh/key3.pub | gpg --clearsign | mail change@db.freedesktop.org
+
 You will receive a mail back within a few minutes confirming your changes.  Note again that this replaces the entire list of keys: following the example above, if you previously had key1 and key4 active, the new set would be key1, key2, and key3: key4 would be excluded.  Note that this is important as password logins are not available on freedesktop.org. 
 
 **Only RSA keys are accepted!** Due to security reasons relating to an OpenSSL vulnerability, DSA keys (as well as legacy RSA1 keys) will not be accepted. 
@@ -28,20 +28,13 @@ You will receive a mail back within a few minutes confirming your changes.  Note
 **Note3: If you never get a reply back, make sure your return address is actually valid.** 
 ## Changing email address
 
-
-[[!format txt """
-echo 'emailforward: new@address.com' | gpg --clearsign | mail change@db.freedesktop.org
-"""]]
+    echo 'emailforward: new@address.com' | gpg --clearsign | mail change@db.freedesktop.org
 
 ## Getting a copy of your current details
 
 
-[[!format txt """
-echo 'show' | gpg --clearsign | mail change@db.freedesktop.org
-"""]]
+    echo 'show' | gpg --clearsign | mail change@db.freedesktop.org
+
 Your LDAP record will be mailed back to you, GPG-encrypted.  Most of these details can be changed by sending the same string back to [[change@db.freedesktop.org|mailto:change@db.freedesktop.org]], e.g.: 
 
-
-[[!format txt """
-echo 'gecos: Full Name' | gpg --clearsign | mail change@db.freedesktop.org
-"""]]
+    echo 'gecos: Full Name' | gpg --clearsign | mail change@db.freedesktop.org
