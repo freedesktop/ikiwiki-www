@@ -1,0 +1,253 @@
+
+This page lists the language bindings for D-Bus, their status and, if appropriate, links to download them. 
+
+
+## GDBus (D-Bus support in GLib)
+
+Since version 2.26, GLib includes a D-Bus binding. This is intended to replace the DBus-GLib bindings and many applications have started migrating their code. See the documentation for the [[high-level|http://library.gnome.org/devel/gio/2.26/gdbus-convenience.html]] and [[low-level|http://library.gnome.org/devel/gio/2.26/gdbus-lowlevel.html]] API for more details. 
+
+
+## DBus-GLib (obsolete)
+
+**New GLib applications should use the D-Bus support built into GLib. See above.** 
+
+You can find the old dbus-glib binding in Freedesktop's [[git repo|http://cgit.freedesktop.org/dbus/dbus-glib/]].  To access with git: 
+
+* users with commit access: git+[[ssh://git.freedesktop.org/git/dbus/dbus-glib|ssh://git.freedesktop.org/git/dbus/dbus-glib]] 
+* anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-glib 
+* [[API documentation|http://dbus.freedesktop.org/doc/dbus-glib/index.html]] 
+* [[Training material for Glib wrappers from maemo|http://maemo.org/maemo_training_material/maemo4.x/html/maemo_Platform_Development_Chinook/Chapter_03_Using_the_GLib_wrappers_for_DBus.html]] 
+A page for working on a roadmap for dbus-glib's future can be found at [[DBusGLibRoadmap|DBusGLibRoadmap]]. 
+
+
+## e_dbus
+
+You can find latest EFL (Enlightenment) bindings in Enlightenment [[Subversion repo|http://trac.enlightenment.org/e/browser/trunk/e_dbus]]. To access with SVN: 
+
+* anonymous read only access: svn co [[http://svn.enlightenment.org/svn/e/trunk/e_dbus|http://svn.enlightenment.org/svn/e/trunk/e_dbus]] svn co [[https://svn.enlightenment.org/svn/e/trunk/e_dbus|https://svn.enlightenment.org/svn/e/trunk/e_dbus]] 
+**The latest release is [[here|http://download.enlightenment.org/snapshots/LATEST/]].** 
+
+
+## edelib
+
+edelib is a base library for [[EDE|http://equinox-project.org]] and comes with own C++ D-Bus binding. Latest source can be obtained via anonymous SVN access: 
+
+* svn co [[https://ede.svn.sourceforge.net/svnroot/ede/trunk/edelib|https://ede.svn.sourceforge.net/svnroot/ede/trunk/edelib]] 
+
+## Python
+
+
+### GDBus
+
+GDBus, the D-Bus implementation in GLib, can be used from Python 2 or 3 via GObject-Introspection and PyGI. 
+
+
+### QtDBus
+
+QtDBus, the D-Bus implementation in Qt, can be used from Python 2 or 3 via recent versions of [[PyQt|PyQt]]. 
+
+
+### txdbus
+
+[[txdbus|http://pypi.python.org/pypi/txdbus]] is a native Python implementation of the D-Bus protocol for the Twisted networking framework. 
+
+
+### dbus-python
+
+dbus-python is a binding for libdbus, the reference implementation of D-Bus. For compatibility reasons, its API involves a lot of type-guessing (despite "explicit is better than implicit" and "resist the temptation to guess"). 
+
+Since version 1.0.0 it supports both Python 2 and 3. 
+
+* [[Recent release history|http://dbus.freedesktop.org/doc/dbus-python/NEWS.html]] 
+* Releases are always available from [[http://dbus.freedesktop.org/releases/dbus-python/|http://dbus.freedesktop.org/releases/dbus-python/]] 
+* API and other documentation are at [[http://dbus.freedesktop.org/doc/dbus-python/|http://dbus.freedesktop.org/doc/dbus-python/]] 
+* dbus-python is maintained in git: [[dbus-python git web|http://cgit.freedesktop.org/dbus/dbus-python/]] 
+* For users with commit access: git clone git+[[ssh://git.freedesktop.org/git/dbus/dbus-python|ssh://git.freedesktop.org/git/dbus/dbus-python]] 
+* For anonymous read only access: git clone git://anongit.freedesktop.org/git/dbus/dbus-python 
+* Bugs are tracked in the freedesktop.org bugzilla: [[search for dbus-python bugs|https://bugs.freedesktop.org/buglist.cgi?product=dbus&component=python&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED]] or [[file a dbus-python bug|https://bugs.freedesktop.org/enter_bug.cgi?product=dbus&component=python]] 
+
+## Java
+
+There are now three versions of Java D-Bus. Since version 2.0 it has been a complete native implementation of the protocol and not a wrapper around the reference implementation. 1.x versions are feature-complete bindings around the reference implementation, but only work with 1.5-compatible VMs (Currently only Sun). There are older 1.4-compatible bindings which are feature incomplete and have not had much optimization work. See below if you want to try these. 
+
+Java D-Bus is hosted in freedesktop.org's [[git repository|http://cgit.freedesktop.org/dbus/dbus-java/]] and can be accessed: 
+
+For users with commit access: git+[[ssh://git.freedesktop.org/git/dbus/dbus-java|ssh://git.freedesktop.org/git/dbus/dbus-java]] 
+
+For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-java 
+
+**The current release is [[dbus-java-2.7.tar.gz|http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.7.tar.gz]]. (2009-12-06)** 
+
+Version 2.7: 
+
+* Fix bug in disconnected signal/exception handling (Spotted by Serkan Kaba <serkan_kaba -at- yahoo -dot- com>) 
+* Fix bug in empty signals (Spotted by Daniel Wagner <Daniel -dot- Wagner -at- bmw-carit -dot- de>) 
+* Fix bug in maps containing complex types (Spotted by Tim Court <tim -dot- court -at- venture3systems -dot- com>) 
+* Fix signal handling bug in DBusDaemon (Spotted by Markus Gaebelein <Markus -dot- Gaebelein -at- fiducia -dot- de>) 
+* Make MessageReader/Writer use Buffered streams to try and improve performance 
+* Support reading session bus address from file in $HOME 
+* Fix TCP cookie timestamp problems (Report/fix from Johannes Felten <johannesfelten -at- googlemail -dot- com>) 
+* Add handleError() method to callbacks (breaks backwards source compatibility) 
+**The previous release was [[dbus-java-2.6.tar.gz|http://dbus.freedesktop.org/releases/dbus-java/dbus-java-2.6.tar.gz]]. (2009-04-05)** 
+
+Version 2.6: 
+
+* Add DBusConnection.releaseBusName API 
+* Add DBusConnection.[[PeerSet|PeerSet]] for tracking peer lifetimes 
+* Fix bug where DBusDaemon never sends [[NameOwnerChanged/NameLost|NameOwnerChanged/NameLost]] signals 
+* Patches from Omair Majid <omajid -at- redhat -dot- com> to fix DBusCall manpage and allow alternative docbook-to-man implementations. 
+* Fix dependency on unix.jar even in tcp mode 
+* Fix Path/ObjectPath cast issues (reported by Greg [[DeAngelis|DeAngelis]] <gdeangel -at- gmail -dot- com>) 
+* Fix behavior when disconnected (spotted by Christopher Armstrong <carmstrong -at- fastmail -dot- com -dot- au>) 
+The last release binding the reference implementation is [[libdbus-java-1.13.tar.gz|http://dbus.freedesktop.org/releases/dbus-java/libdbus-java-1.13.tar.gz]]. 
+
+Documentation and API reference for the Java implementation of D-Bus is [[here|http://dbus.freedesktop.org/doc/dbus-java/]]. 
+
+The older 1.4-compatible bindings are still available [[here|http://www.matthew.ath.cx/projects/java]]. 
+
+The Maintainer is Matthew Johnson < [[dbus@matthew.ath.cx|mailto:dbus@matthew.ath.cx]] > 
+
+
+## Qt4
+
+The D-Bus bindings for Qt4 are distributed alongside Qt itself, starting with version 4.2. 
+
+The bindings are documented at [[http://doc.trolltech.com/qtdbus.html|http://doc.trolltech.com/qtdbus.html]]. 
+
+The latest release can be found at [[http://www.trolltech.com/developer/downloads/qt/index|http://www.trolltech.com/developer/downloads/qt/index]]. More recent versions can be found in Qt's [[nightly snapshots|http://www.trolltech.com/developer/downloads/qt/snapshots]]. 
+
+
+## Perl
+
+The Perl bindings currently work on any Perl >= 5.8.x and any D-Bus version from 0.33.0 onwards.  They can be downloaded from [[CPAN|http://search.cpan.org]] under the [[Net-DBus|http://search.cpan.org/~danberr/Net-DBus-1.0.0/]] module: 
+
+* [[Net-DBus-1.0.0.tar.gz|http://search.cpan.org/CPAN/authors/id/D/DA/DANBERR/Net-DBus-1.0.0.tar.gz]] 
+* [[API documentation|http://search.cpan.org/~danberr/Net-DBus-1.0.0/lib/Net/DBus.pm]] 
+* [[Tutorials|http://search.cpan.org/~danberr/Net-DBus-1.0.0/lib/Net/DBus/Tutorial.pod]] 
+The maintainer is [[Daniel P. Berrange|http://search.cpan.org/~danberr/]], and the source code is managed in a Git repository at [[https://gitorious.org/net-dbus|https://gitorious.org/net-dbus]] 
+
+
+## C++
+
+[[dbus-cpp|Software/dbus-cpp]] was started almost three years ago to provide a C++ API for D-Bus, but is unfortunately abandoned since then. For this reason [[PaoloDurante|PaoloDurante]] wrote a pure C++ binding ([[dbus-c++|Software/dbus-c++]]) while working on the [[OpenWengo|http://dev.openwengo.com/]] softphone. 
+
+
+### dbus-cxx
+
+[[dbus-cxx|http://dbus-cxx.sourceforge.net]] provides a C++ API for D-Bus, but explicitly exposes the C API as well. dbus-cxx-glibmm provides a way to integrate dbus-cxx with Glibmm/Gtkmm applications. 
+
+* Project home: [[http://dbus-cxx.sourceforge.net|http://dbus-cxx.sourceforge.net]] 
+* _dbus-cxx-xml2cpp_ generates C++ proxy and adapter interfaces from extended D-Bus XML introspection documents 
+* Fedora packages are available in Fedora 9+ (dbus-cxx, dbus-cxx-devel, dbus-cxx-doc, dbus-cxx-glibmm, dbus-cxx-glibmm-devel, dbus-cxx-tools) 
+* Ubuntu packages are available from Launchpad's PPA 
+* [[Documentation|http://dbus-cxx.sourceforge.net/hierarchy.html]] 
+* [[News|http://sourceforge.net/news/?group_id=259994]] 
+* [[Subversion repository|http://dbus-cxx.svn.sourceforge.net/viewvc/dbus-cxx/trunk/dbus-cxx]] 
+* Mailing lists 
+   * Users List (for those developing with dbus-cxx): 
+      * [[Archives|http://sourceforge.net/mailarchive/forum.php?forum_name=dbus-cxx-users]] 
+      * [[Subscribe/Unsubscribe|http://lists.sourceforge.net/mailman/listinfo/dbus-cxx-users]] 
+   * Development List (for development of dbus-cxx itself): 
+      * [[Archives|http://sourceforge.net/mailarchive/forum.php?forum_name=dbus-cxx-devel]] 
+      * [[Subscribe/Unsubscribe|http://lists.sourceforge.net/mailman/listinfo/dbus-cxx-devel]] 
+
+## PHP
+
+PHP bindings (PECL) are in progress and details can be found [[here|http://pecl.php.net/package/DBus]]. This extension allows you to talk to DBUS services on a system, and also act as a DBUS service. 
+
+An additional PHP only binding with limited functionality is available [[on github|http://github.com/dNG-git/php_dbus]]. This one allows you to interact with DBUS services on a system as a client application. 
+
+
+## Pascal
+
+Free Pascal has bindings of version 1.2.16 included in release 2.6.  
+
+
+## Qt3
+
+There is a Qt3 backport of the Qt4 bindings available under [[WebSVN@KDE|http://websvn.kde.org/branches/work/dbus-qt4-qt3backport/]] and [ [[http://people.freedesktop.org/~krake/dbus-1-qt3/libdbus-1-qt3-0.8.tar.gz|http://people.freedesktop.org/~krake/dbus-1-qt3/libdbus-1-qt3-0.8.tar.gz]] Sources ca. 600 KB] 
+
+Check out through anonymous SVN is also avialable: _svn co svn://anonsvn.kde.org/home/kde/branches/work/dbus-qt4-qt3backport_ 
+
+API documentation can be found here: [[API Docs|http://people.freedesktop.org/~krake/dbus-1-qt3/api-docs/]] 
+
+The maintainer is Kevin Krammer < [[kevin.krammer@gmx.at|mailto:kevin.krammer@gmx.at]] > 
+
+
+## .NET
+
+The .NET bindings located in the D-Bus GIT server is unmaintained. They are scheduled to be removed unless a maintainer steps up.  The have been split and placed in a [[git repo|http://cgit.freedesktop.org/dbus/dbus-mono/]] for anyone who would like to pick up maintainership. It can be accessed via git at: 
+
+For users with commit access: git+[[ssh://git.freedesktop.org/git/dbus/dbus-mono|ssh://git.freedesktop.org/git/dbus/dbus-mono]] 
+
+For anonymous read only access: git://anongit.freedesktop.org/git/dbus/dbus-mono 
+
+For those interested in .NET support, the [[D-Bus Sharp|http://www.ndesk.org/DBusSharp]] implementation provides an alternative and is in active development. D-Bus Sharp is not a binding to the reference implementation, but an alternative implementation of the D-Bus protocol. 
+
+
+## Ruby
+
+The most active and complete ruby implementation at this point is the ruby-dbus project at [[https://trac.luon.net/ruby-dbus/|https://trac.luon.net/ruby-dbus/]].  This is a follow on from the original ruby-dbus project on rubyforge. 
+
+Sven Herzberg was asked by a friend to develop dbus bindings for ruby. His git repository is located at: [[http://www.blaubeermuffin.de/rdbus.git|http://www.blaubeermuffin.de/rdbus.git]] 
+
+
+## Scheme
+
+[[Chicken Scheme|http://www.call-with-current-continuation.org]] binding can be found at chicken's _Egg Repository_ as [[dbus egg|http://chicken.wiki.br/dbus]]. The same place contains few short usage samples. 
+
+
+## Tcl
+
+The Tcl bindings are hosted under the [[dbus-tcl project at SourceForge|http://sourceforge.net/projects/dbus-tcl]]. At least Tcl version 8.5 is required to use the dbus-tcl package. 
+
+* [[Release download page|http://sourceforge.net/project/showfiles.php?group_id=234589&package_id=284807]] 
+* [[API documentation|http://dbus-tcl.sourceforge.net/dbus-tcl.html]] 
+
+## Squeak
+
+The Squeak Smalltalk bindings are available under the [[dbus project at Squeak Source site|http://squeaksource.com/dbus.html]]. 
+
+* [[Releases, News and Description are available on this page.|http://squeaksource.com/dbus.html]] 
+
+## Haskell
+
+The [[dbus-core|https://john-millikin.com/software/dbus-core/]] library is an implementation of the D-Bus protocol in Haskell. The current version is [[0.9|https://john-millikin.com/downloads/dbus-core_0.9.tar.gz]]. 
+
+
+## OCaml
+
+OCaml has an alternative implementation of D-BUS, it is called OBus. The current version is [[obus-1.0rc1|http://forge.ocamlcore.org/frs/download.php/280/obus-1.0rc1.tar.gz]]. 
+
+* [[Home page|http://obus.forge.ocamlcore.org/]] 
+* [[Darcs repository|http://darcs.ocamlcore.org/cgi-bin/darcsweb.cgi?r=obus;a=summary]] 
+
+## Gambas
+
+Gambas has a D-Bus component implementation in its development version. That component allows to: 
+
+* Call any method and properties of any application connected to D-Bus. 
+* Catch any signal sent by any application connected to D-Bus. 
+* Automatically export application objects to D-Bus. 
+For more information: 
+
+* [[Gambas home page|http://gambas.sourceforge.net]] 
+* [[D-Bus component documentation|http://gambasdoc.org/help/comp/gb.dbus?v3]] 
+
+## Objective-C
+
+The GNUstep project provides Objective-C bindings for D-Bus with the DBusKit project. It can be obtained via SVN: 
+
+* svn co svn://svn.gna.org/svn/gnustep/libs/dbuskit/trunk 
+
+## Ada
+
+
+### D_Bus/Ada
+
+The [[D_Bus/Ada|http://www.codelabs.ch/dbus-ada/]] project provides an Ada binding to D-Bus. 
+
+* [[Download|http://www.codelabs.ch/download]] 
+* [[Git repository|http://git.codelabs.ch/?p=dbus-ada.git]] 
+* Packages are available in Debian (>= Wheezy) 
+* Packages are available in Ubuntu (>= Quantal Quetzal) 
