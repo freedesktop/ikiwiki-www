@@ -1,0 +1,154 @@
+= Action Items =
+
+== Next steps / Timeline ==
+ * '''[DONE]''' (step -1 : save the piratepads somewhere :))
+ * Step 0 (next week)
+   * Get infrastructure for development (wiki, mailing list, git) => fd.o
+     * subscribe to mailing list: http://lists.freedesktop.org/mailman/listinfo/distributions
+     * '''[DONE]''' wiki: http://distributions.freedesktop.org/
+     * bugzilla: product on http://bugs.freedesktop.org [vuntz to create it if needed]
+     * '''[DONE]''' git repo: gitorious.org
+   * '''[DONE]''' Draw the big picture [hughsie]
+   * '''[DONE]''' xml schema for the metadata format (hughsie)
+ * First step: end-of-march
+   * Update desktop entry spec for new fields [vuntz]
+   * Push new fields in .desktop upstream [all]
+   * Getting the metadata published by distros [Debian: ?, Fedora: ?, Mageia: misc+samuel?, openSUSE: ?, Ubuntu: ? Can do it on http://distrib-coffee.ipsl.jussieu.fr/ for testing (Nanar)]
+   * Create desktop-xml-to-xapian musher (mvo :-)
+   * Get up to date xapian in all distros
+   * Implement the OCS changes described below (Frank)
+   * Move USC to using !PackageKit rather than leaking apt stuff (mvo,vuntz)
+   * CLA topic clarified
+   * How to validate:
+     * USC works on openSUSE
+     * USC works on Fedora (hughsie)
+     * 10% of desktop files have extra metadata
+     * distros are adding metadata back upstream (packagers)
+     * USC can display the metadata
+     * resolution on CLA (mvo)
+ * Second step: end-of-june
+   * Publish specification for the metadata format
+   * Setup distros OCS servers
+   * Use OCS in USC
+   * Put test data in OCS servers
+   * Getting screenshots.debian.net to have symlinks for appid
+   * How to validate:
+     * screenshots working on other distros in USC
+     * test data from OCS visible in USC
+ * End Goal: november
+   * Distros releasing at the end of 2011 have all that
+     * Hopefully with OCS data
+     * Hopefully with suggestions
+
+== Big untriaged list of action items ==
+
+This is a list of action items organized by topics. Most of them have been integrated in the timeline above.
+
+'''List, for each metadata item'''
+ * is it available offline / online ? (essential vs nice to have)
+ * where it comes from (desktop file, user-provided...)
+ * if it's translated, and how
+ * if it's the same for all distributions or has to be tagged by origin
+
+'''Communication'''
+ * share meeting results
+   * FOSDEM talk (vuntz)
+   * wiki
+   * write a short "why this project is for your distribution" text ?
+ * "sell" the project to our distributions/managers (hughsie, vuntz)
+ * "sell" it to other distributions
+ * "sell" it upstream
+
+'''Desktop Files (vuntz,hughsie)'''
+ * Add extra items to .desktop item specification
+ * Add Homepage
+   * a package can contain more than one application, e.g. openoffice-writer and presenter
+ * Add Keywords
+   * So gimp.desktop can contain "photoshop"
+ * Add !OnlyShowIn/!NotShowIn item for !AppStore/!SoftwareCenter
+ * Enhances=firefox.desktop [comma seporated list] for firefox plugins (!AddonTo, Extends,... pick one)
+ * Fix categories to be sane, so they could be used as tags too
+   * Add new categories
+   * Deprecate old useless ones
+   * Fix the issue with secondary categories requiring a main category, and you end up with two main categories because you're too explicit when listing secondary ones
+   * etc.
+   * We'll use Categories by default, and if an override is needed, use !AppCategory?
+
+'''Software Center'''
+ * Write !PackageKit backend [vuntz/mvo]
+ * improve distro abstractions (pkginfo provider instead of apt cache) including strings like *Ubuntu* Software Center [mvo]
+ * ask people to review ubuntu cla [mvo,vuntz]
+ * write OCS ratings/reviews backend
+ * add support for appdata.xml in update-softare-center.py [mvo]
+
+'''OCS'''
+ * {spam} for comments/inappropriate comments (Frank)
+ * Merge the new requirements into an OCS version 1.7 draft (Frank)
+ * Do a tagging module (Frank)
+ * Discuss and agree on OCS 1.7 on ocs@freedesktop.org (Frank)
+ * Provide a testing Server for development (Frank)
+ * Do an OCS 2.0 meeting (Frank)
+
+'''Screenshot'''
+ * screenshot.debian.net should use application id as a key, even if it's a symlink
+
+'''Translations'''
+ * Define translations workflow for applications descriptions
+
+'''Packaging (misc,Nanar)'''
+ * rpmlint/lintian: have some checks to make sure the .desktop metadata (Url, Enhances, etc.) is also in the package metadata
+ * automatically add a Provides for each .desktop file
+
+'''Metadata format'''
+ * Create a spec on xdg (can help: vuntz)
+ * Create a reference implementation
+   * create a fedora implementation in icky python (hughsie)
+
+'''Matching package data (enrico)'''
+ * source<->source (via upstream URLs -- or something else ;-))
+ * binary<->binary (via .desktop files, regexps on package names)
+ * work at http://git.debian.org/?p=users/enrico/distromatch.git
+ * datasets at http://people.debian.org/~enrico/dist-info.tar.gz
+ * Other attempts:
+   * http://lists.freedesktop.org/mailman/listinfo/packagemap
+   * http://blog.hartwork.org/?p=373
+   * https://github.com/silviocesare/Equivalent-Packages/blob/master/NearestNeighbour/Debian5_Fedora13_Matches
+   * http://packages.debian.org/sid/whohas
+ * Use cases
+   * falling back to other distros for missing data like categories and screenshots
+   * accessing ratings and comments
+   * finding patches from other distros
+   * linking BTSes
+   * cross-distro, googlable application index
+
+'''Building a Xapian index for non-debian distros (enrico)'''
+ * bringing debtags across after a rough binary package matching [prototype done: http://www.enricozini.org/2011/debian/distromatch/ now it needs to be deployed with regular updates]
+ * [[Distributions/AppStream/XapianIndexHOWTO|Build a Xapian index on your distro]]
+ * run Enrico's faceted prototype (http://www.enricozini.org/2011/debian/pkgshelf/) on other distro data
+
+'''Klik (vuntz)'''
+ * talk to alexl about klik
+   * see http://blogs.gnome.org/alexl/2007/08/07/experiments-with-runtime-less-app-bundles/
+
+'''(side things) (enrico)'''
+ * Deploying apt-file fast server-side index for other distros http://dde.debian.net/dde/q/aptfile/all/bin/mc
+ * web-based application browsing (mageia-app-db project) (Samuel)
+   * http://mageia-app-db.tuxette.fr/projects/mageia-app-db/wiki
+   * are there other distributions than Mageia and Mandriva interested in this app ?
+   * deploy one test instance per RPM distribution
+     * fedora
+     * opensuse
+   * make it usable with DEB repos too (currently only RPM) : depending on debian/ubuntu interest in it.
+   * use xapian index to speed things up
+   * flag packages as applications based on .desktop files and provide "application-only" views
+   * use "strong" and "weak" suggests dependencies to group applications and add-ons together
+   * map from distributions package names to names in screenshots.debian.net, until we have the screenshots provided by OCS servers
+   * one click install
+   * tags support (read-only to begin with)
+   * use OCS servers as soon as they are available (read-only to begin with)
+
+'''Debtags links'''
+ * Pointers to the data: http://debtags.alioth.debian.org/tags/
+
+'''Misc'''
+ * http://git.debian.org/?p=users/enrico/pkgshelf.git (the prototype xapian based appstoreything put together in 2 hours that I demoed the first day [enrico])
