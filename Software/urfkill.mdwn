@@ -1,0 +1,59 @@
+
+
+# urfkill
+
+For the laptop and mobile devices users, the management of the radio killswitches is important for the connectivity and power consumption. [[HAL|Software/hal]] used to take care of this job, but it is now [[deprecated|http://lists.freedesktop.org/archives/hal/2008-May/011560.html]]. The urfkill project is created to fill the gap and to provide more flexible configuration for the rfkill-related function keys. 
+
+
+## Download
+
+The latest release is 0.3.0 and can be downloaded from [[github|https://github.com/downloads/lcp/urfkill/urfkill-0.3.0.tar.xz]]. 
+
+Development happens in [[git|GettingInvolved]].  There is a [[web interface|https://github.com/lcp/urfkill/]] to the repository. 
+
+
+## Documentation
+
+The documents of the D-Bus API and liburfkill-glib can be found [[here|http://lcp.github.com/urfkill-doc/]]. 
+
+
+### HowTo
+
+[[How to launch urfkill during system boot|Software/urfkill/HowToLaunch]] 
+
+
+## Known Issues
+
+* For Lenovo Thinkpad X200, the bluetooth killswitch (hci0) sometimes was soft-blocked after turning on bluetooth.  
+
+Solution: set "force_sync" to true in /etc/urfkill/urfkill.conf 
+
+* The bluetooth killswitches cannot be controlled by urfkilld in Lenovo [[ThinkPad|ThinkPad]] laptops. 
+
+The states of the bluetooth killswitches in [[ThinkPad|ThinkPad]] are maintained by the kernel platform drivers, i.e. thinkpad_acpi, and urfkilld has no way to change it. 
+
+Solution: please leave them alone. 
+
+
+## Bugs
+
+Please mail to Gary Lin ([[glin@suse.com|mailto:glin@suse.com]]) and Joey Lee ([[jlee@suse.com|mailto:jlee@suse.com]]) or poke me (glin) on #udev/irc.freenode.net 
+
+
+## Client
+
+* [[rfkiller|https://github.com/lcp/rfkiller]] - a gnome-extension which utilizes urfkill to manage killswitches. 
+
+
+## TODO
+
+* Provide a policy for the user to setup rfkill control rules when catching WLAN/BT/3G keycodes. 
+* Integrate with GUI to provide power consumption function to user, e.g. 
+         * Killswitch-Manager 
+         * killswitch-applet 
+         * python-killswitch 
+
+
+---
+
+ [[CategoryHalReplacement|CategoryHalReplacement]] 
