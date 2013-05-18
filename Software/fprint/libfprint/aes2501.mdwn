@@ -1,0 +1,44 @@
+
+
+## Introduction
+
+[[!img Precise 100XS] 
+
+The `aes2501` driver supports devices based on the [[AuthenTec AES2501 chipset|http://www.authentec.com/products-pcsandperipherals-aes2501b.html]].  
+
+aes2501 is part of [[libfprint|Software/fprint/libfprint]] and is developed/maintained by Daniel Drake. 
+
+
+## Supported devices
+
+This device can be found in some standalone devices, and also in laptops (commonly Lenovo). Even when embedded into laptops, these devices just sit on the regular USB bus. 
+
+
+## Driver history
+
+This driver was based on code from the [[AES2501 kernel driver project|http://home.gna.org/aes2501/index_en.html]], developed by Cyrille Bagard and Vasily Khoruzhick. The kernel driver project was a rewrite of Wittawat Yamwong's userspace driver project, corresponding with specifications for similar Authentec devices. 
+
+
+## Device operation
+
+These are swipe-type imaging devices. The device provides a series of 192x16 "frames" to the computer capturing a small area of the finger surface. It is up to the software to piece the frames together, eliminate overlap etc.  
+
+libfprint includes a simple algorithm to join the frames which seems to work OK. It could do with tweaking to detect when the join is too dirty and hence reject the image. We should also add detection for non-centered finger, etc. 
+
+
+## Security notes
+
+The fingerprint is always sent unencrypted over the USB bus. 
+
+
+## Imaging performance
+
+[[!img Standardized "long" image from AES2501] 
+
+For my own Precise 100XS, image quality is very good and imaging performance is very high as a result. Similar image quality has been achieved on the Lenovo 3000 N100 laptop. Scanning technique is easy to pick up: don't scan too fast, don't scan too slow, don't put too much pressure on the sensor. 
+
+On a good "long" image, MINDTCT finds well over 50 minutiae - a good count. 
+
+If you get a good long enrollment image, verification works very well. 
+
+The current driver has hard-coded values for gain and sensitivity, and even though it works fine on the above mentioned devices, we have [[a bug report|:bug:2]] suggesting that this is not true everywhere. We need to investigate implementing automatic calibration in the driver. 
