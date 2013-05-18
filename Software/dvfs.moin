@@ -1,0 +1,234 @@
+== Desktop VFS ==
+
+Desktop VFS aims to provide a system allowing desktop-oriented applications, such as file managers and office applications among others, to have access to remote data storage facilities using a Virtual File System API.
+
+D-VFS is a new API which will be designed to simplify common tasks and make new operations available that existing APIs do not support at all.  The primary target of D-VFS is the Desktop and the applications that run there, which means that the API will be ideal for those uses while possibly no so ideal for console or server applications.  A [[http://fuse.sourceforge.net|FUSE]] module may be provided in the future to allow applications that do not natively use D-VFS to utilize D-VFS.  D-VFS will utilize URIs for referencing files and folders.
+
+D-VFS is in the first stages of design. The requirements and api are being fleshed out at this location.  Adding your comments to the design of D-VFS is very simple.  First, get a freedesktop [[UserPreferences|login]].  Second, edit this page by hitting the <<Icon(edit)>> icon.  Once you have edited this page, you will be signed up for email notifications of any future edits on this page.
+
+Except where noted, the following was written by SeanMiddleditch.  (If you make additions, edits, or comments, please identify your changes.)
+
+== Requirements ==
+
+Desktop VFS is intended to be used primarily by desktop apps like office suites and by desktop file managers like Nautilus or Konqueror.  These applications have a certain set of operations which they must perform in order to operate correctly.
+
+ * Save and load documents
+ * Manipulate document metadata
+ * List files in a folder
+ * Move, copy, and delete documents
+ * Create, move, copy, and delete folders
+
+In addition to the basic required operations, additional operations may be required by some applications in order to perform efficiently.
+
+ * Seeking backward
+ * Seeking forward
+ * Request a portion of a file
+ * Append a file
+
+There are certain qualities of the API which are required in order for most desktop applications to function properly,
+
+ * Event-based (asynchronous) API
+ * Complete error reporting with user-oriented messages available
+ * Monitor progress of any operation
+ * Cancel any in-progress operation
+ * Resume operations with non-critical errors ("failed to make backup; save anyhow?")
+ * Threadsafe (AlexanderLarsson says being non-threadsafe is a real problem in gnome-vfs developers run into)
+ * Change notification for folders and documents
+ * Atomic operations when possible
+ * Query capabilities of backend/protocol
+ * Good versioning and API/ABI compatibility practices
+
+There are additional features that, while not strictly necessary, can make using D-VFS more pleasant or increase the ease with which applications may be ported.
+
+ * Push/pull (pseudo-synchronous) API
+ * FUSE backend
+ * Locking
+
+Finally, there are esoteric features that are (currently) rarely used, but which may be useful in the future.  These can be added to D-VFS after the first version ships if necessary.
+
+ * Rollback and versioning
+ * Meta-data querying (search)
+ * Encryption and decryption
+ * Compression
+
+One of the main purposes of D-VFS is to allow seamless access to files on remote file stores.  Some of the more important protocols that D-VFS will support include WebDAV, SMB/CIFS, FTP, and SCP/SFTP.  Protocols which may have (limited) support include plain HTTP and FTP.  Some of the more esoteric or rare protocols will not likely be supported directly, although D-VFS will allow developers to supply their own backends to support new protocols.
+
+== Rationalization ==
+
+=== Save and Load Interface ===
+
+The vast majority of applications do only two things to all files they access.  They either open the file in read mode and sequentially read the entire file or they open the file in write mode and sequentially write out the entire file.
+
+As those are two of the most used, if not ''the'' most used, operations that a VFS must perform, it makes sense that both of those operations be as simple as possible.  It is also vital that those operations work appropriately for the needs a GUI application.
+
+The D-VFS will attempt to make asynchronous reads and writes of whole files as simple as possible.  Higher layers will offer synchronous versions of these APIs for even easier development.
+
+=== Asynchronous Interface ===
+
+GUI applications need to remain responsive at all times to external events, such as user input events or windowing system commands.  If you've ever seen an application window get "ghosted" while it was processing some data, then you've seen the outcome of having an application become unresponsive to events.
+
+Because D-VFS will offer seamless access to remote file systems where latency and bandwidth can often make simple operations take a long time, D-VFS may not cause the application to "block" or pause.  In order to ensure that applications can continue processing important events while the operation is outstanding, D-VFS will be built around the concept of asynchronous operations.  That essentially means callback-based programming.
+
+Don't worry, a pseudo-synchronous interface is also planned to ease development: see below.
+
+=== URIs ===
+
+D-VFS will use URIs to reference files and folders.  This is the existing practice in gnome-vfs and KIOSlaves, as well as the practice for referencing files on most interesting remote protocols in common clients (including the web browser).
+
+While console users may be more comfortable with paths, note that D-VFS is intended for desktop users (where the URI reigns supreme), and that console users will have to 'mount' URIs anyway to access them, which will cause the URI to be mapped to whatever path the console user desires.
+
+=== Optional Features and Emulation ===
+
+Many of the features that D-VFS will support will not be implementable on certain protocols.  FTP does not allow seeking, for example.
+
+If it is possible to provide a relatively efficient emulation of a feature, D-VFS will strive to do so.  No protocol is required to implement any feature outside of the core set (save, load, list files, etc.).
+
+Applications may query whether a particular feature is available or not for any protocol.
+
+It is ''highly'' recommended that application authors stick to the core feature set if at all possible to ensure maximum utility.  When developers do need optional features, it is recommended that they disable any parts of their application that need the feature when its not available while allowing the rest of their application to function; it is better to have a mostly functioning app than a completely non-functioning app.
+
+=== Toolkit Integration ===
+
+Some features of D-VFS cannot be expressed in an easy to use API without a level of integration with the application's toolkit.  Monitoring the D-BUS (note: not determined for sure we'll use D-BUS, but it seems overwhelmingly likely) and processing windowing system events during VFS operations are two examples of where the D-VFS must have integration with the toolkit.
+
+For this reason, the core D-VFS client-side API will be designed for toolkit developers, not applications developers.  It is expected that application developers will use the toolkit-specific D-VFS wrappers when writing their applications.
+
+Thankfully, the number of applications that do not use an established toolkit are rare.  The major toolkits inlude, but are not limited to: glib, Qt, and Gecko.  A major application that uses its own toolkit is OpenOffice.org
+
+=== POSIX Compatibility ===
+
+D-VFS does not attempt to provide compatibility with the POSIX I/O API or to existing applications.  Applications will need to be updated to use the D-VFS API if they wish to make full use of its capabilities.
+
+Modules for FUSE and similar technologies on non-Linux platforms will be entirely possible, in addition to module to existing user-space VFS systems like KIO and gnome-vfs.  These should provide good migration paths and compatibility with applications that are uninterested in D-VFS.
+
+=== Pseudo-Synchronous API ===
+
+While it is mandatory for GUI applications that VFS operations be asynchronous, actually programming against an asynchronous API can be very difficult, especially in popular languages like C or C++.  A pseudo-synchronous API can be provided which provides easier to use blocking functions, but which integrate with the application's main loop in order to ensure that important events are still processed while the application waits for the VFS.
+
+This API must be implemented at the toolkit layer.
+
+=== Change Notification ===
+
+Change notification allows applications to be notified when a file or folder they are interested in changes.  A file manager would use these feature to refresh the file list of any windows it had open if a file is added or removed to any of the open folders.
+
+Applications can also make use of change notification to enhance the user experience.  A word processor or text editor might watch for changes made to the file being edited and warn the user of such changes.
+
+=== Seeking and Partial Content ===
+
+Some applications can make use of, or even require, the ability to seek around a file (rewind and fast forward), or only need to access a small portion of a file.  A thumbnailer used in a file manager is an example of such an application.
+
+Both seeking and partial content requests are not supportable on all interesting protocols.  The current plan is to simply not provide these features on such file systems.  It may be possible to provide some level of emulation at a later date.  (Possibly before D-VFS 1.0.)
+
+=== Locking and Concurrent Access ===
+
+Where possible, D-VFS will attempt to make operations atomic.  That means that the operation appears to happen as a single uninterruptable action.  For example, when an application saves a document using the save document API, D-VFS will make the file change appear atomic when possible.  While that works to ensure data integrity in the case of system failure, it doesn't not protect against concurrent edits, where two users may save the same file - whichever save completes second will overwrite the first one.
+
+Locking will allow an application to claim ownership of a file so that no other applications may modify the document.  This can be used to protect against two users editing the same document at the same time.
+
+Neither atomic writes nor locking will be supported on all protocols.
+
+== VFS Daemon ==
+
+=== Advantages ===
+
+The VFS daemon allows:
+ * Connection sharing between processes
+ * Separation of application logic and security control (not letting applications access user passwords)
+ * Client-side asynchronous operation on synchronous protocols/APIs
+ * Language-neutral entry-point to the VFS
+ * Integration with current desktop keychain/password-cache
+ * Easier implementation of some feature emulations like change notification polling
+
+The security advantages of a VFS daemon are interesting.  If applications were responsible for querying the user for her password when authenticating to a remote share, two problems arise.  First, the user must trust every application they run, or restrict all untrusted applications from accessing the VFS.  Otherwise, the untrusted application could request her password and then send it to an attacker trojan-horse style.
+
+While it's true that any app can pretend to ask for a password, the second security advantage of a daemon can attempt to circumvent that problem.  Secure X extensions under discussion would allow for a user to verify that any window is legitimate (by using a key-combination that only trusted applications may respond to, for example).  Since all authentication must come from a trusted application, it is easiest for the daemon (or, more likely, another helper process) to do the authentication querying instead of each individual application.
+
+=== Disadvantages ===
+
+The main disadvantage of using a daemon is the theoretical performance degradation.  For network filesystems, the performance impact will be marginally - most of the time will be spent waiting on the network.  For local filesystem access, it is possible for the performance impact to be noticable.  Whether this will be a true problem, or just a theoretical one, is yet to be seen.
+
+The daemon will be required.  The complexity in making backends support both in-process and daemon operation would severely complicate the development of a backend.  The only backend where in-process support makes a lot of sense is local file system operations, althought some of those still will ''require'' a daemon or separate thread.
+
+=== Protocol Backends ===
+
+The system will be comprised of backends which implement protocols.  A single backend may support more than one protocol.  For example, a neon backend might support both dav: and davs:, while an SFTP backend might also implement support for SCP.  It's possible that more than one backend might be installed that implements a particular protocol.
+
+The backends will provide a list of capabilities and entry points for using the backend.  A very simple model would simply provide a vtable of function pointers.  Whether a particular entry is set or not would indicate whether the capability is supported and would also provide the entry point to the backend.
+
+It is vital that backends be both backward and forward compatible.  A backend written for D-VFS 1.1 should work under D-VFS 1.0; the only difference would be that some newer features found in 1.1 will simply be unavailable to application susing D-VFS 1.0.  Likewise, a module written for 1.0 should work under D-VFS 1.1, although it will not be able to offer implementations of the new features found in 1.1.
+
+By doing this, we make it much, much easier for third party developers to build, distribute, and support custom protocol backends.  This can be especially important for in-house development projects with oddball specialized protocols that need to be usable on a variety of machines in the organization.
+
+== Licensing ==
+
+This is always a scary subject to approach, but it's worth mentioning in brief even at this point.  The D-VFS is intended to be of maximum utility to both users and developers.  It is important that any potentially restrictive licensing problems be avoided to ensure that the system is used by the widest range of software projects possible.  Simply following suit with D-BUS' licensing or using the MIT license (like Xorg does) is probably the best bet all around.
+
+== Discussion ==
+
+=== Mailinglist ===
+
+All previous D-VFS discussion has been on [[http://lists.freedesktop.org/mailman/listinfo/xdg|the main xdg mailing list]].  Please add specific vfs requirements or proposals on this Wiki.  Discussion of more general interest should continue to be posted on [[http://lists.freedesktop.org/mailman/listinfo/xdg|xdg]]
+
+=== Mailing List Threads ===
+
+The mailing list threads which recently started this discussion are:
+ * [[http://lists.freedesktop.org/pipermail/xdg/2005-March/006076.html|dvfs locking]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002322.html|A virtual filesystem standard]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002340.html|A virtual filesystem standard]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002398.html|virtual filesystem ideas]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002400.html|virtual filesystem ideas]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002406.html|a common VFS - a different approach]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002423.html|virtual filesystem ideas]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002425.html|VFS ramblings]]
+ * [[http://lists.freedesktop.org/archives/xdg/2003-September/002434.html|Fwd: Re: virtual filesystem ideas]]
+ * [[http://lists.freedesktop.org/archives/xdg/2005-February/005946.html|A common VFS and a Common conf-system (Was: namespacing)]]
+ * [[http://lists.freedesktop.org/archives/xdg/2005-March/005957.html|A common VFS and a Common conf-system [Part II]]]
+ * [[http://lists.freedesktop.org/archives/xdg/2005-March/005958.html|A common VFS and a Common conf-system (Was: namespacing)]]
+ * [[http://lists.freedesktop.org/archives/xdg/2005-March/005968.html|A common VFS and a Common conf-system (Was: namespacing)]]
+ * [[http://lists.freedesktop.org/archives/xdg/2005-March/005972.html|A common VFS and a Common conf-system (Was: namespacing)]]
+
+=== Interesting Links ===
+
+ * [[http://developer.kde.org/documentation/library/3.4-api/kio/html/index.html]] - KDE's IOSlaves developer documentation
+ * [[http://developer.gnome.org/doc/API/gnome-vfs/]] - GNOME's gnome-vfs developer documentation
+ * [[http://live.gnome.org/GnomeVfsPlans]] - Discussion on improving gnome-vfs
+ * [[http://www.scheinwelt.at/~norbertf/common-vfs/]] - Common/Shared VFS thoughts by NorbertFrese
+ * [[http://mail.gnome.org/archives/gtk-devel-list/2007-February/msg00062.html]] - GVFS status report (The new Gnome-VFS replacement)
+ * [[http://www.scheinwelt.at/~norbertf/devel/fusi/]] - libfusi - A desktop interface to manage FUSE-mounts.
+
+ * The [[http://portland.freedesktop.org/|Project Portland]] also has a [[http://portland.freedesktop.org/wiki/TaskVFS|VFS-Task]]. It aims to provide a generic interface to VFS-functions through scripts and a library interface (discontinued).
+
+=== Comments ===
+
+Please append your comments here:
+
+(BuliaByak) Please consider adding support for accessing files within archives, such as zip, jar or tar.bz2. This is a very important feature that these days is almost standard in file managers (at least), so providing at the system level will be very beneficial. Any vfs-aware application will be able to edit and manipulate files in an archive transparently. If you don't do it, a file manager will only be able to use d-vfs for e.g. FTP, but will have to implement its own incompatible (and largely similar) vfs for working with archives. One vfs which claims to support archives is that in tcl/tk: http://wiki.tcl.tk/vfs. Please also make it easy to add support for more archive formats.
+
+(GeorgeStaikos) How do you plan to deal with complex issues like HTTP, where "sessions" are required with multiple concurrent slaves running?  It also requires huge amounts of callbacks, user interaction, system-wide SSL integration, and much much more.  Making this portable across desktops is painful at best, if sane.
+
+(RobertWittams) Is there a case for making authentication, cookie sharing, history, and cacheing work even between different HTTP stacks? I don't think that everyone will agree on one implementation of HTTP right now. But the state that browsers have could certainly be shared. Maybe this is even a separate project than DVFS, but it needs to be thought about because of the implications it has for authentication helpers. 
+
+(SeanMiddleditch) Cleaned up the document, including incorporating some of the comments (if you're wondering where they went).  In regards to a shared HTTP implementation: I think web browsers and download are a somewhat separate topic, although they have a strong relationship to some things D-VFS will do.  I think a shared HTTP implementation (possibly built on an existing implemetnation) is a great idea, but should be done separately from D-VFS.  Once such an implementation exists, though, it would be great for D-VFS to support it so applications can seamlessly access content from URIs retrieved from the browser (and possibly needing cookies or whatnot to read).
+
+(MortenSvantesson) I can't see why you claim that FTP doesn't support seeking. Sending the commands ABOR and REST ''offset'' seems enough like seeking to me and I've seen them used as such. Granted, ''offset'' is not guaranteed by the RFC to be a byte offset, but I don't know of any implementations where it isn't.
+
+Since I'm a heavy user of AFS there are some issues I want to press: 
+ * Access rights are not covered yet.
+ * File managers have use of knowing quotas or more to the point: how much more can be stored. Gnome VFS has [[http://developer.gnome.org/doc/API/gnome-vfs/gnome-vfs-gnome-vfs-utils.html#GNOME-VFS-GET-VOLUME-FREE-SPACE|gnome_vfs_get_volume_free_space]] (but doesn't support AFS).
+ * AFS is accessed by the user through paths but need a special backend for support of quotas and access rights. How should this be handled? The problem might arise for users of other protocols&#8212;like SMB&#8212;as well.
+
+== CVS ==
+
+There is no CVS repository as there is no api or documentation.
+
+== Bugs & Patches ==
+
+There is no Bugzilla as there is no api or documentation.
+
+== Download ==
+
+There are no D-VFS downloads as there is no api, implementation, tests, samples, or documentation, but there are projects with a similar intend:
+
+The new Gnome-VFS replacement called '''GVFS''' is actively developed and might be used as a shared Desktop-VFS (to replace or back KIO): [[http://mail.gnome.org/archives/gtk-devel-list/2007-February/msg00062.html]]
+
+An alternate approach is using FUSE: '''libfusi''' is an attempt to provide a desktop interface to manage FUSE mounts. [[http://www.scheinwelt.at/~norbertf/devel/fusi/]]
