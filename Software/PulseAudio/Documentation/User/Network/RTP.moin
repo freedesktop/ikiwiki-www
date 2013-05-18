@@ -1,0 +1,112 @@
+<<TableOfContents>>
+ = How to listen to the pulseaudio RTP Stream = 
+Various methods on how to listen to the RTP Stream with other clients than native pulseaudio.
+
+Preparations: You must know the following stream parameters:
+  * Multicast address and port
+  * Sample rate / channel count
+  * Sample format (according to [[https://tango.0pointer.de/pipermail/pulseaudio-discuss/2007-September/000678.html|this post]], it is always s16be)
+
+Disclaimer:
+  I am not responsible if this fries any of your machines, deletes all your data, eats your breakfast etc. It worked for me so I decided to post it in the wiki for other people who want to try this and skip the googling. Feel free to edit this page, correct typos, add new cool ideas and so on. That's what a wiki is for, right?
+
+ == How to get the multicast address and port - the quick and dirty way - with tcpdump ==
+  1. Start the stream.
+  1. On the target machine, enter the command
+{{{
+tcpdump -n net 224.0.0.0/8 -c 10
+}}}
+  1. Examine the output, for example
+{{{
+12:18:20.404866 IP 10.54.5.9.33043 > 224.0.0.56.46454: UDP, length 1292
+}}}
+  1. Congratulations, you now know three things:
+    1. The packets are arriving
+    1. The multicast address (in my case 224.0.0.56)
+    1. The multicast port (in my case 46454)
+
+
+ == Play it using mplayer ==
+From the [[https://tango.0pointer.de/pipermail/pulseaudio-discuss/2007-September/000704.html|pulseaudio-discuss mailing list]]:
+{{{
+mplayer -demuxer rawaudio -rawaudio channels=2:rate=44100:samplesize=2:format=0x10001 rtp://[addr]:[port]
+}}}
+For me it did not really work, mplayer always played it back at 48000hz - although I specified it otherwise -  and thus pitch was too high and lots of buffer-underruns (guess why ; )
+Mplayer ignores in that case your rate parameter and uses the rate from formatstring(dvdpcm). This works for me good
+{{{
+mplayer -cache 2048 -demuxer rawaudio -rawaudio format=0x20776172 rtp://[addr]:[port]
+}}}
+
+  1. -cache - use a buffersize of 2048 kbyte
+  1. format - take a look here http://www.mplayerhq.hu/DOCS/codecs-status.html for explanation. Does somebody know a better site with detailed informations of the fourcc strings ?
+
+ == Play it using rtpdump and sox (invoked as "play") ==
+Now for the really cool and low-resource way.
+  1. Download and compile the rtptools from http://www.cs.columbia.edu/irt/software/rtptools/ (direct link http://www.cs.columbia.edu/irt/software/rtptools/download/), if it is not in your distro's packet management.
+  1. Download and compile sox from http://sox.sourceforge.net/ (but THAT should really be in your distro...)
+  1. Make a fifo for the RTP payload data (rtpdump doesn't support `-` aka stdout)
+{{{
+mkfifo /tmp/audiofifo
+}}}
+  1. Fire up rtpdump, dumping payload data to the fifo (note the addr slash port noation, instead of the usual addr colon port notation)
+{{{
+rtpdump -F payload -o /tmp/audiofifo [addr]/[port] &
+}}}
+  1. Start sox (invoked as "play", make a symlink if you need to) with the stream parameters.
+{{{
+play -c 2 -f s -r 44100 -s w -t raw -x --file=/tmp/audiofifo
+}}}
+    1. -c 2 : 2 Channels (stereo)
+    1. -f s : signed (''signed'' 16 bit big-endian, remember?)
+    1. -r 44100 : sample rate (I'm playing MP3 music from CDs)
+    1. -s w : sample size "word" (16 bit aka 2 bytes)
+    1. -t raw : raw pcm audio data
+    1. -x : swap endianness (I am using a little-endian based system)
+  1. Edit! with sox v14.0.0 the following commandline worked:
+{{{
+play -t raw -r 44100 -s -2 -c 2 -B /tmp/audiofifo
+}}}
+    1. -r 44100 : rate 44100hz
+    2. -s : signed
+    3. -2 : 2 bytes (16 bit) per sample
+    4. -c 2 : channels 2 (stereo)
+    5. -B : big endian
+  1. If you don't like to listen anymore, simply kill play with CTRL-C. rtpdump should automagically terminate. (aka crash because of the broken pipe ; )
+
+ == Play it using rtpdump and aplay ==
+As above but use aplay from alsa-utils instead of sox:
+{{{
+rtpdump -F payload [addr]/[port] | aplay -f cdr
+}}}
+
+ == Play it using vlc ==
+
+The swiss-army knife vlc can be used to simply receive one stream. It's more for testing purpose then for daily usage.
+
+{{{
+vlc rtp://@0.0.0.0:46444/
+}}}
+
+In this simple configuration vlc does not support more then one stream and is not very stable when it comes to changing streams.
+
+ == Stream it with vlc as mp3 for low bandwidth ==
+
+As uncompressed audio needs a lot of bandwidth you can compress the stream first and then send it as a mp3 stream
+
+1. You should change the configuration file default.pa to send the RTP traffic to 127.0.0.1 and a specific port (in my case 46998)
+{{{
+load-module module-null-sink sink_name=rtp format=s16be channels=2 rate=44100 description="RTP Multicast Sink"
+load-module module-rtp-send source=rtp.monitor destination=127.0.0.1 port=46998 loop=1
+}}}
+2. Log off and back on or reboot to enable the changes
+3. Now you can transcode the incomming RTP/s16be stream with vlc and send the RTP/mp3 stream to a multicast address
+{{{
+cvlc --ipv4 rtp://@127.0.0.1:46998 ":sout=#transcode{acodec=mp3,ab=256,channels=2}:duplicate{dst=rtp{dst=225.0.0.1,mux=ts,port=12345}}"
+}}}
+4. Playback the stream on any computer
+{{{
+vlc --ipv4 rtp://@225.0.0.1:12345
+}}}
+
+You can stream your audio to a lot of PCs (in different rooms) and playback songs synchronic (You just need to fist start the clients for the vlc playback and then the transcoder)
+This way I wrote a little shell script to start playing music in my whole house ;-)
