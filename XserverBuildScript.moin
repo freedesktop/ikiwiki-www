@@ -1,0 +1,204 @@
+{{{
+#! /bin/bash -e
+
+# Note that this script should be run with "sh -e" so that it will exit
+# if something fails.
+
+# Before starting the script, make sure you have these set correctly
+# If you use distcc and/or ccache you will want to set these variables
+
+# Make sure that if you are mixing operating systems, you use the same
+# compiler-version on all machines (most of the times, for example
+# mixing 3.3 versions works, but 3.4 and 3.3 versions will probably not
+# work and will cause 'undefined reference __something'-like errors)
+
+# export CC="ccache distcc gcc34"
+# export DISTCC_HOSTS=""
+
+# If you have a symmetric multi processing machine or if you are going
+# to use distcc, you want to set this variable. The '5' should be replaced
+# with the amount of processors that will be used multiplied by two
+
+# MAKEOPTS=-j5
+
+
+if [ -z "$PKG_CONFIG_PATH" ]; then
+export PKG_CONFIG_PATH=/opt/fdo/lib/pkgconfig
+else
+export PKG_CONFIG_PATH="/opt/fdo/lib/pkgconfig:$PKG_CONFIG_PATH"
+fi
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xproto
+pushd Xproto
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xdmcp
+pushd Xdmcp
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co XExtensions
+pushd XExtensions
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co xtrans
+pushd xtrans
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xau
+pushd Xau
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co X11
+pushd X11
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xext
+pushd Xext
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Randr
+pushd Randr
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Render
+pushd Render
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xrender
+pushd Xrender
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xrandr
+pushd Xrandr
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co FixesExt
+pushd FixesExt
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co DamageExt
+pushd DamageExt
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xfont
+pushd Xfont
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co ResourceExt
+pushd ResourceExt
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co RecordExt
+pushd RecordExt
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co CompositeExt
+pushd CompositeExt
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co xkbfile
+pushd xkbfile
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xserver co xserver
+pushd xserver
+./autogen.sh --prefix=/opt/fdo --enable-composite
+make $MAKEOPTS
+sudo install -d /opt/fdo/bin
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xfixes
+pushd Xfixes
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xcomposite
+pushd Xcomposite
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xdamage
+pushd Xdamage
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+# http://cvs.freedesktop.org/xapps/
+wget http://www.freedesktop.org/xapps/release/xcompmgr-1.1.tar.gz
+tar zxf xcompmgr-1.1.tar.gz
+pushd xcompmgr-1.1
+./autogen.sh --prefix=/opt/fdo
+make $MAKEOPTS
+sudo make install
+popd
+
+# to start server, try something like...
+# sudo /opt/fdo/bin/Xvesa :1 & xterm -display :1
+
+# in xterm...
+# export LD_LIBRARY_PATH="/opt/fdo/lib:$LD_LIBRARY_PATH"
+# /opt/fdo/bin/xcompmgr
+
+
+
+}}}
