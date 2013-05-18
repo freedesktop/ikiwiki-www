@@ -1,0 +1,136 @@
+= Application Package Specification (Idea) =
+----
+== Introduction ==
+This specification is designed to provide a desktop neutral way to package one application.
+
+Dependencies can be installed on first start of the application. The necessary runtime environment should be installed (may use of packagekit) and the runtime environment should install the necessary modules.
+
+== Package Structure ==
+A application-package is an archive containing the application and a file describing all the contents.
+The archive should be a gzip-compressed tarball with an .app extension.
+
+{{{
+    /
+    /info
+    /app/
+}}}
+
+=== Package Description ===
+The info file should be formatted as followed:
+
+==== Package Name ====
+{{{
+    [Application]
+    Name=Example application
+}}}
+The Name of the application, it is required for identification-purposes.
+==== ApplicationPackage-file version ====
+{{{
+    Version=1.0
+}}}
+The Desktop-file syntax version, this field must be present.
+
+==== Mime-type ====
+{{{
+    Type=X-ApplicationPackage
+}}}
+The mime-type, this field must be present and have the value ''X-Application``Package''.
+
+==== Executable file ====
+{{{
+    Exec=example.bin
+}}}
+This field represents the main executable file of the application. It must be present.
+
+==== Mime-type of executable file ====
+{{{
+    ExecType=application/x-executable
+}}}
+This field represents the mime-type of the main executable file of the application. It must be present.
+
+==== Maintainer ====
+{{{
+    Maintainer=John Doe <john DOT doe AT freedesktop DOT org>
+}}}
+The Theme``Package maintainer, this field should be present and formatted as followed
+
+''Name < email >''
+
+If for some reason this field is not available, implementations may choose to warn a user about this fact.
+
+==== Application version ====
+{{{
+    Application-Version=1.0
+}}}
+The Application``Package version-number (increases with every update), this field should be present and formatted as followed
+
+''a[.b[.c[.d[.e]]]]'' Where a, b, c, d and e are numbers between 0 and 4294967296 (32 bits unsigned integers).
+
+===== Author(s) / Artist(s) name(s) =====
+{{{
+    Authors=Jane Doe <jane AT freedesktop DOT org>; John Doe <john AT freedesktop DOT org>
+}}}
+
+The author(s) of the application, this field may be present.
+
+''Name < email >[; Name < email >[; etc...]]''
+
+===== Package Description =====
+{{{
+    Description=This example application is a great multiplayer game for the whole family. You can use your keyboard and your mouse. For more information see our website: www.greatgame.example.
+}}}
+This field provides a description about the application.
+
+===== Application License Information =====
+{{{
+    License=GPL;Creative-Commons
+}}}
+The License under which the application is distributed.
+
+===== Icon =====
+{{{
+    Icon=http://example.com/example_app_icon.svg
+}}}
+Icon to display in the software center, menus, etc. The name of the file should be either an web address or a name according to the [[Specifications/icon-theme-spec|Icon Theme Specification]].
+
+===== Web address for download =====
+{{{
+    DownloadURL=http://example.com/example.app
+}}}
+The web address which allows to download the application again.
+
+===== Update information =====
+{{{
+    UpdateInfo=http://example.com/example.info
+}}}
+An info file according to this spec. This file must content an DownloadURL field. It should provide a never version if available. This specification allows to put information about several versions in one info file.
+
+=== info Example ===
+{{{
+    [Application]
+    Name=Example application
+    Version=1.0
+    Type=X-ApplicationPackage
+    Exec=example.bin
+    ExecType=application/x-executable
+    Maintainer=John Doe <john AT freedesktop DOT org>
+    Application-Version=1.0
+    Authors=Jane Doe <jane AT freedesktop DOT org>; John Doe <john AT freedesktop DOT org>
+    Description=This example application is a great multiplayer game for the whole family. You can use your keyboard and your mouse. For more information see our website: www.greatgame.example.
+    License=GPL;Creative-Commons
+    Icon=http://example.com/example_app_icon.svg
+    DownloadURL=http://example.com/example.app
+    UpdateInfo=http://example.com/example.info
+}}}
+
+=== app directory ===
+This directory contains the application files. This directory will be used to look for the exec file which is stated in the info file.
+
+=== Installation ===
+The user should be able to copy the application to applications:// to register the application. At all you don't need to install the application, just execute the app-file to use the application. The system will may share the application for multiple users.
+
+=== Security considerations ===
+Software according to this specification should run in a sandbox. The application is not allowed to read any personal information from the home directory. Therefore each ApplicationPackage gets his own home directory with write access. A special file selector widget should allow applications to read and write to specific files chosen by the user.
+
+=== Internationalization ===
+The package server should be able to provide descriptions of packages in the user's language.
