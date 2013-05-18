@@ -1,0 +1,20 @@
+
+My little list of things I'd like to see fixed in BlueZ: 
+
+* A lot of [[PropertyChanged|PropertyChanged]] signals are sent for properties that haven't actually changed. e.g. each time a device connects/disconnects the [[PropertyChanged|PropertyChanged]] signals for Name and Alias are sent out. It would be good if those could be surpessed. 
+* /me doesn't like parsing XML for finding out which interfaces are supported by a device. Hence I would prefer a function [[ListInterfaces|ListInterfaces]]() or suchlike to find out which interfaces are implemented. 
+* It would be good if ipc.[ch] would allow querying the configuration of the current active connection 
+* It would be good if sbc.[ch] could be compiled with -Wsign-compare without any warnings 
+* Also, it would be good if ipc.[ch] would be ANSI C conforming. I.e. use "unsigned u:6" instead of "uint8_t u:6" in structs -- what's "uint8_t u:6" supposed to mean anyway? An unsigned 8 bit integer that is 6 bits wide? Uh? Also instead og gcc-only zero-sized arrays as in "foo[0]" its better to use c99 flexible arrays as in "foo[]" 
+* The Bluetooth Applet needs a nice way to connect to audio devices. Best would be right inside the applet menu like they have on MacOS ([[bug 573759|http://bugzilla.gnome.org/show_bug.cgi?id=573759]]) 
+* The Bluetooth Applet/Wizard/Properties are a bit weird to use if no BT hw is available. There is no warning about that! The Wizard will silently find no devices. The Applet will gray out all menu options except the "Preferences" and "Setup new device". The latter should probably be grayed out, too. The "Preferences" dialog will be weirdly empty with again no warning that no bt adapter is found! ([[bug 573779|http://bugzilla.gnome.org/show_bug.cgi?id=573779]] and [[bug 573376|http://bugzilla.gnome.org/show_bug.cgi?id=573376]]). 
+* ~~I don't understand the differnces between the right and the left-click menu in the applet. Why make a difference at all?~~ (Fixed in gnome-bluetooth) 
+* ~~The "Preferences" menu items needs "..." too since it also shows a dialog.~~ (Fixed in gnome-bluetooth) 
+* ~~Shouldn't it read "Temporarily visible" instead of "Temporary visible"?~~ (This doesn't exist anymore in gnome-bluetooth) 
+* It would be good if the applet would try to connect to all devices it was previously connected to (or maybe that have been flagged that way?) when the GNOME session starts. I'd expect that if i power on my laptop and my headset at the same time they'll just work. But without a connection attempt from the PC's side this is not going to happen due to the longer bootup time of the PC. ([[bug 573759|http://bugzilla.gnome.org/show_bug.cgi?id=573759]] as well) 
+* Hmm, I have doubts that putting codec_capabilities_t in bt_get_capabilities_rsp::data just like that is safe in regards of alignment.  
+* /me wonders about the rationale behind make some structs typedefs and others not. 
+* the header files could need a bit of more documentation on what's going on. Especially sbc.h 
+* sbc.h should use const pointers where applicable. 
+* sbc.h should use size_t and other types appropriately instead of "int" everywhere.  
+* Hmm, why isn't the D-Bus logic implementing org.freedesktop.Properties? 
