@@ -1,0 +1,107 @@
+
+
+## Introduction
+
+pam_fprint is a simple PAM module which uses [[libfprint|Software/fprint/libfprint]]'s fingerprint processing and verification functionality for authentication. In other words, instead of seeing a password prompt, you're asked to scan your fingerprint. 
+
+pam_fprint is a proof-of-concept, and also my-first-PAM-module. It has some deficiencies: 
+
+* Can't be configured in any way. 
+* Finds the first enrolled fingerprint that can be verified on a device that is currently plugged in, and uses that one and only that one. 
+* Reads enrolled fingerprints from users home directories. 
+   * It will only work when trying to authenticate your own user account (as you can read your own home directory), or in the system login prompt (which runs as root). 
+   * You cannot authenticate yourself as another user, since you don't have access to read that user's home directory. 
+pam_fprint is an open source project, licensed under the [[GNU GPL v2|http://www.gnu.org/licenses/old-licenses/gpl-2.0.html]]. 
+
+
+## Download
+
+See the [[Download|Download]] page. 
+
+
+## Development
+
+This software is developed using the [[git version control system|http://git.or.cz/]]. The [[git user manual|http://www.kernel.org/pub/software/scm/git/docs/user-manual.html]] is very useful for new users. 
+
+* git://github.com/dsd/pam_fprint.git 
+* [[View online at github|http://github.com/dsd/pam_fprint/tree/master]] 
+Contributions encouraged. Please submit patches on the [[mailing list|Software/fprint/Mailing list]]. 
+
+
+## Installation
+
+Some installation instructions can be found [[here|Software/fprint/Installation]] 
+
+
+## Setup
+
+
+### Enrolling your fingers
+
+Example below: 
+
+
+[[!format txt """
+# pam_fprint_enroll --help
+Usage: ./pam_fprint_enroll options
+        -h      --help                  Display this usage information.
+        -f      --enroll-finger index   Enroll finger with index.
+
+        Valid indexes are:
+        1 - Left Thumb
+        2 - Left Index Finger
+        3 - Left Middle Finger
+        4 - Left Ring Finger
+        5 - Left Little Finger
+        6 - Right Thumb
+        7 - Right Index Finger
+        8 - Right Middle Finger
+        9 - Right Ring Finger
+        10 - Right Little Finger
+
+# pam_fprint_enroll --enroll-finger 7
+This program will enroll your finger, unconditionally overwriting any selected print that was enrolled previously.
+If you want to continue, press enter, otherwise hit Ctrl+C
+ 
+Found device claimed by Digital Persona U.are.U 4000/4000B driver
+Opened device. It's now time to enroll your finger.
+You will need to successfully scan your Right Index Finger 1 times to complete the process.
+ 
+Scan your finger now.
+Enroll complete!
+Enrollment completed!
+"""]]
+You only need to enroll one finger. pam_fprint will always ask you for the first one that it finds. 
+
+
+### Configuring PAM
+
+Here are two setups on my system: Gentoo Linux with PAM 0.99.9.0 
+
+
+#### Fingerprint acceptance sufficient, fall back on password otherwise
+
+/etc/pam.d/system-auth has sections for "auth", "account", "password" and others. Modify the file so that it looks like this: 
+
+
+[[!format txt """
+ auth       required pam_env.so
+ auth       sufficient   pam_fprint.so
+ auth       sufficient   pam_unix.so try_first_pass likeauth nullok
+ auth       required pam_deny.so
+"""]]
+On my system, that simply equated to inserting line 2. It says that authentication through pam_fprint is sufficient to grant access to the user, but if pam_fprint fails to authenticate them, it's no big deal: fall back on password (pam_unix). 
+
+This is somewhat insecure in that someone can simply unplug the fingerprint reader and enter your password as normal, so password security is as critical as always and fingerprint login is just for the cool factor. 
+
+
+#### Fingerprint acceptance required, no password input
+
+Make the _auth_ section of /etc/pam.d/system-auth look like this: 
+[[!format txt """
+ auth       required pam_env.so
+ auth       required   pam_fprint.so
+"""]]
+and remove other auth entries. 
+
+This setup requires successful fingerprint verification through libfprint before login can succeed. I would not recommend doing this at this point in time, because libfprint is alpha software, and if it breaks, you're in trouble! 
