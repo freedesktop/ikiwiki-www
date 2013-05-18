@@ -1,0 +1,62 @@
+= DBPC Servers : specification, interfaces and methods description =
+
+[[Specifications/DBPC|DBPC]]
+
+<<TableOfContents(2)>> 
+
+== Introduction ==
+A DBPC server is a D-Bus service offering communication facilities with industrial equipement.  
+
+
+== Servers type ==
+
+Server can be mandatory for a field bus, protocol or electronic equipment : 
+
+   * '''Field bus or protocol based servers''' allow retrieving tags value trough a communication interface and make those values available, thanks to D-bus, trough a DBPC server. 
+ 
+   * '''Electronic device based server''' are generally supplied by manufacturers which would provide a standardized interface for there equipments within Linux systems. 
+
+
+== D-bus service bus name ==
+
+D-Bus service name of DBPC server begin always with "org.dbpc.". Usually server name correspond to the corresponding protocol. (example: org.dbpc.modbustcp) 
+
+An other name can be choose with option -n  
+
+
+== Servers configuration file ==
+
+By default, configuration file is stored in "/etc/dbpc/". Configuration file has the same name than the D-Bus service name, folowed by ".conf". (example: modbustcp.conf) 
+
+Another file can be choose with option -f  
+
+
+== Server methods ==
+{{{
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/org/dbpc/server">
+
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+
+  <interface name="org.dbpc.server">
+    <method name="get_state">
+      <arg direction="in"  type="v" name="variant" />
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+
+</node>
+}}}
+
+== Server implementation name ==
+
+Server implementations are usually named with the field bus or protocol designation, optionally followed by a specific name or identifier and finishing with "DBPC server". (example: ModbusTCP_..._DBPCserver)
+
+Generic server may be only called with a specific name or identifier followed by "DBPCserver".
+
+Electronic equipment server name usually begin with manufacturer name followed by model designation and finish with "DBPC_server". (example: Wago_750-863_DBPCserver)
