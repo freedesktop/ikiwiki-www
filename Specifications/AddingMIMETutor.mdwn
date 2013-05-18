@@ -1,0 +1,52 @@
+
+
+## Tutorial: adding MIME information to the database
+
+This tutorial is for application authors and users who want to extend the database. For example, the Gimp may wish to add: 
+
+* **image/png** can be **edited** using the **Gimp**. 
+* **image/png** should be **described** in **English** as **"Portable Network Graphics file"**. 
+* Files whose **names** end in **.png** should have the type **image/png**. 
+Users should normally use a graphical editor application, such as [[MIME-Editor|http://rox.sourceforge.net/desktop/MIME-Editor]], to edit the database (although ideally no user-editing should be required at all). If you really want to do it manually, create a file called **$XDG_DATA_HOME/mime/packages/Override.xml** in the format described below. 
+
+(see the [[Base Directory Specification|Specifications/basedir-spec]] for information about the XDG_ variables) 
+
+When your application is installed, it should install a file with the application's name in **$XDG_DATA_DIRS/mime/packages**. For example, doing **./configure && make install** with Gimp should create **/usr/local/share/mime/packages/gimp.xml**. 
+
+This file has the following format: 
+
+
+[[!format txt """
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="image/png">
+         <comment xml:lang="en">PNG image</comment>
+         <comment xml:lang="af">png beeld</comment>
+         ...
+         <magic priority="50">
+                <match type="string" value="\x89PNG" offset="0"/>
+         </magic>
+         <glob pattern="*.png"/>
+  </mime-type>
+</mime-info>
+"""]]
+This provides a comment (in two languages), a rule to recognise PNG files by their contents, and a rule to recognise them by their names. You can provide information about several types in the single **gimp.xml** file. You do not need to provide any information which is also in the base package (in fact, all the information above is already present; this is just an example!). 
+
+You can also add extra elements, provided they are namespaced to avoid conflicts. For example: 
+
+
+[[!format txt """
+         <desktop:can-edit-with>gimp.desktop</desktop:can-edit-with>
+"""]]
+This indicates that the named desktop entry file describes an application that can edit **image/png** files. Note that the above is just an example; the desktop entry specification does not currently define this element. See the [[MIME actions specification|Specifications/mime-actions-spec]] for more details. 
+
+Note also that information added to the database should be static ("gimp can edit PNG files"), **not** configuration ("gimp is the preferred editor for PNG files"). See the [[shared configuration system|Specifications/config-spec]] for storing configuration information. 
+
+Once you have installed the **gimp.xml** file, run the **update-mime-database** command to rebuild the output files. This program checks that the syntax of your file is correct and merges the information in it with that in the other XML files in the **packages** directory. It then puts the rules for recognising files into one set of files, and the information about each type into other files (eg **$XDG_DATA_DIR/mime/image/png.xml**), where other programs can access it easily. 
+
+When the Gimp is uninstalled, it should remove the **gimp.xml** file and run **update-mime-database** again to remove the information from the database. 
+
+
+## Submitting patches for the main package
+
+If you have added types that should go in the common freedesktop.org base list of types, you should create an enhancement request  on [[the MIME bugtracker|https://bugs.freedesktop.org/buglist.cgi?product=shared-mime-info&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED]] following the instructions in the [[HACKING file|http://cgit.freedesktop.org/xdg/shared-mime-info/tree/HACKING]] (note that sending the created XML file will not be enough). 
