@@ -1,0 +1,188 @@
+##META:TOPICINFO{author`"ThomasLeonard" date`"1067961125" format`"1.0" version`"1.3"}%
+##META:TOPICPARENT{name="shared-mime-info-spec"}%
+= History and related systems =
+
+This document describes some of the existing MIME database solutions that were around when the [[Specifications/shared-mime-info-spec|Shared MIME Database]] system was devised. The new database sought to unify the GNOME, KDE and ROX databases, while providing a way for
+applications and new specifications to extend the database.
+
+== KDE ==
+
+KDE uses '.desktop' files, with Type=Mime``Type, one file per type to determine type from file name. The files are arranged in the filesystem to mirror the two-level MIME type hierarchy. The syntax is very similar to other '.desktop' files, with Name, Comment= etc.
+
+Example file:
+
+{{{
+[Desktop Entry]
+Encoding=UTF-8
+MimeType=application/x-kword
+Comment=KWord
+Comment[af]=kword
+[... etc. other translations ]
+Icon=kword
+Type=MimeType
+Patterns=*.kwd;*.kwt;
+X-KDE-AutoEmbed=false
+
+[Property::X-KDE-NativeExtension]
+Type=QString
+Value=.kwd
+}}}
+
+KDE does not have a separate system for specifying extension matches, but uses case-sensitive glob patterns for everything.
+
+A single file stores all the rules for recognising files by content. This is almost identical to file(1)'s 'magic.mime' database file, but without the encoding field.
+
+The format is described in the file itself as follows:
+
+{{{
+# The format is 4-5 columns:
+#	 Column #1: byte number to begin checking from, ">" indicates continuation
+#	 Column #2: type of data to match
+#	 Column #3: contents of data to match
+#	 Column #4: MIME type of result
+}}}
+
+== GNOME ==
+
+GNOME uses the gnome-vfs library to determine the MIME type of a file. This library loads name-to-type rules from files with a '.mime' extension in a system-wide directory (set at install time), and merged with those in the user's directory. It loads textual descriptions for the types from files in the same directories, ending with '.keys'. The file 'gnome-vfs.mime' in the system directory is always loaded first (allowing everything else to override it). The file 'user.mime' in the user's directory is always loaded last, making these settings take precedence over all others.
+
+The format of the .mime files are described as follows:
+
+{{{
+# Mime types as provided by the GNOME libraries for GNOME.
+#
+# Applications can provide more mime types by installing other
+# .mime files in the PREFIX/share/mime-info directory.
+#
+# The format of this file is:
+#
+# mime-type
+#	ext[,prio]:	list of extensions for this mime-type
+#	regex[,prio]:	a regular expression that matches the filename
+#
+# more than one ext: and regex: fields can be present.
+#
+# prio is the priority for the match, the default is 1. This is required
+# to distinguish composed filenames, for example .gz has a priority of 1
+# and .tar.gz has a priority of 2 (thus a file having the filename
+# something.tar.gz will match the mime-type for tar.gz before the mime-type
+# for .gz
+#
+# The values in this file are kept in alphabetical order for convenience.
+# Please maintain this when adding new types. Also consider adding a
+# human-readable description to gnome-vfs.keys when adding a new type here.
+#
+# Also do please not add illegal mime types, observe the mime standard when
+# adding new types.
+}}}	
+
+When looking up the type for a file, gnome-vfs looks first for an exact-case match for the extension, then an all upper-case match, then an all lower-case match. If no matches are found, or there is no '.' in the name, then the regular expression matches are checked. It does this first for rules with priority 2, then for those with priority 1. The modification time on the 'mime-info' directories is used to detect changes.
+
+The .keys files contain type-to-description rules, eg:
+
+{{{
+application/msword
+	description=Microsoft Word document
+	[de]description=Microsoft Word-Dokument
+	...
+}}}	
+
+Guidelines for writing descriptions can be found in the 'mime-descriptions-guidelines.txt' file.
+
+The format for magic entries is defined as:
+
+{{{
+# The format of magic entries is:
+#
+#	  offset''start[:offset''end] pattern''type pattern [&pattern''mask] type
+#
+# <offset''start> and <offset''end> are decimal numbers (file offsets).
+#
+# <pattern_type> is (byte | short | long | string | date | beshort |
+#                           belong | bedate | leshort | lelong | ledate).
+#
+# <pattern> is an ASCII string with non-printable characters escaped
+# as hex or octal escape sequences, and spaces and other important
+# whitespace escaped with '\'.
+#
+# <pattern_mask> is a string of hex digits. The mask must be the same
+# length as the pattern.
+#
+# <type> is a valid MIME type.
+#
+# Order magic patterns such that ambiguous ones (such as
+# application/x-ms-dos-executable) are at the end of the list and
+# therefore get applied last.
+#
+# Avoid rules that require a seek deep into the examined file. If you
+# must, locate such rules at the end of the list so that they get
+# applied last
+#
+# When designing new document formats, make them easily recognizable
+# by defining a sufficiently unique magic pattern near the document
+# start. A good pattern is at least four bytes long and contains one
+# or two non-printable characters so that text files won't be
+# misidentified.
+}}}
+
+== ROX ==
+
+Note that ROX is now using the new specification. This section details the previous implementation.
+
+ROX searches 'MIME-info' directories in CHOICESPATH ('~/Choices/MIME-info:/usr/local/share/Choices/MIME-info:/usr/share/Choices/MIME-info' by default). Files from earlier directories override those in later ones, but the order within a directory is not specified.
+
+The files are in the same format as GNOME, except:
+
+	* There are no .keys files, so files of all extensions are loaded.
+	* The priority is ignored.
+	* A case-sensitive match is tried first, then a lower-case match. No upper-case match is tried.
+	* Multiple extensions are allowed. Eg: {{{
+    application/x-compressed-postscript
+        ext: ps.gz eps.gz
+}}}					
+
+When looking up the type for a file, ROX starts with the first '.' and tries a case-sensitive match of the remaining text against the extensions. The it tries again with the filename in lower-case. It then tries again from the second '.', and so on. If no type is found, it tries the regular expressions.
+
+ROX has no rules for determining a file's type from its contents.
+
+== ACAP Media Type Dataset Class ==
+
+The ACAP Media Type Dataset Class[ACAP] draft proposes a network-based solution to the problem. The sytem is intended mainly to allow email clients to find a viewer application for an attachment. The draft gives the following example of a record for the 'image/jpeg' type:
+
+{{{
+attribute                          value
+---------                          -----
+entry                              JPEG image
+mediatype.common.type              image/jpeg
+mediatype.common.extension         jpg
+mediatype.common.extensionOther    (jpeg jpe jfif jfi)
+mediatype.common.description       JPEG is an image format most suitable
+                                   for compressing photographs
+mediatype.common.suppressWarning   1
+mediatype.macOS.type.bin           JPEG
+mediatype.macOS.creator.bin        JVWR
+mediatype.macOS.creator.name       JPEG View
+mediatype.macOS.action.edit.bin    8BIM
+mediatype.macOS.action.edit.name   Adobe Photoshop
+mediatype.unix.action.view         xv
+}}}
+
+Finding a type involves sending a query to a remote database, which is intended to allow companies to configure MIME information on a company-wide basis. The system is designed to allow a single database to be shared between different platforms.
+
+It is not designed for handing a large number of lookups quickly, making the system too slow for use in file managers and similar. Both its name and contents matching are more primitive than other systems; only extensions can be matched, case is ignored, and the contents matching can only match an exact string at the start of the file. It provides similar information to this specification, except that it defines many items of platform-specific information in the core specification, instead of using namespacing to allow vendor extensions. 
+
+== References ==
+
+GNOME: The GNOME desktop, [[http://www.gnome.org]]
+
+KDE: The KDE desktop, [[http://www.kde.org]]
+
+ROX: The ROX desktop, [[http://rox.sourceforge.net]]
+
+Desktop``Entries: Desktop Entry Specification, [[http://www.freedesktop.org/standards/desktop-entry-spec.html]]
+
+SharedMIME: Shared MIME-info Database, [[http://www.freedesktop.org/standards/shared-mime-info-spec]]
+
+ACAP: ACAP Media Type Dataset Class, [[ftp://ftp.ietf.org/internet-drafts/draft-ietf-acap-mediatype-01.txt]]
+
+-- Main.ThomasLeonard - 09 Oct 2003
