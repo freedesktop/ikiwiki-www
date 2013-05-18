@@ -1,0 +1,38 @@
+##META:TOPICINFO{author`"BehdadEsfahbod" date`"1093046783" format`"1.0" version`"1.7"}%
+##META:TOPICPARENT{name="Home"}%
+== Bidirectional Scripts in Desktop Software ==
+Bidirectional scripts are those with characters flowing from right to left.  Major bidirectional scripts are the Arabic, Persian and Hebrew scripts, but there are other ones too.  Supporting these languages in the user interface of a desktop system needs special support in several layers of the system.  Experiments and history shows such special support moves on the very thin edge between completely unusable and highly usable.  So they deserve their own guidelines for a consistent cross-desktop behavior.  That's what we aim to do here.
+
+=== Readings (a.k.a. References) ===
+ * [[http://www.unicode.org/reports/tr9/|Unicode Bidirectional Algorithm]] (UBA from now on, a.k.a UAX#9) is the place to start.  It contains the basic algorithm to map a Unicode plain text string to a visual ordering.
+ * [[http://behdad.org/download/Presentations/bidi-layouts/|Bidirectional Layouts in GTK+]] is a presentation of the state of art bidi support in Gtk+ by mid 2004.  Discusses several problems and concepts that are general to all GUI applications.
+ * [[http://cben-hacks.sourceforge.net/bidi/hibidi.html|Hierarchically Implicit Bidi]] is a personal proposal for a hierarchical bidi system.
+ * [[http://imagic.weizmann.ac.il/~dov/Hebrew/logicUI24.htm|Guidelines of a Logical User Interface for Editing Bidirectional Text]] (also [[http://www-306.ibm.com/software/globalization/topics/bidiui/index.jsp|here]]) is the guidelines in use by IBM.
+ * [[http://yudit.org/bidi/|Yudit Bidirectional Information]] discusses surprises and potential security problems with bidi text support complying to the UBA.
+ * [[http://www.w3.org/International/iri-edit/BidiExamples|Examples of bidirectional IRIs]] linked from [[http://www.w3.org/International/iri-edit/|Editing 'Internationalized Resource Identifiers (IRIs)']].
+ * [[http://www.langbox.com/AraMosaic/mozilla/BiDi_API.html|Mozilla Bi-Di API proposal]] (out-dated) is the old proposal to add support for bidirectional text to Mozilla.  Note that the API proposed in this document is missing essential features, like line breaking support.
+ * [[http://www.w3.org/TR/CSS21/visuren.html#direction|The 'direction' and 'unicode-bidi' properties]] in CSS 2.1 specification, and its [[http://www.w3.org/TR/CSS21/box.html#q11|box model]].
+ * [[http://lists.w3.org/Archives/Public/www-style/2002Aug/0396.html|A]] [[http://lists.w3.org/Archives/Public/www-style/2002Sep/0049.html|couple]] messages about start/end margins as opposed to left/right margins in CSS 3.  Unfortunately seems like the whole thing did not make it into final CSS 3.  [[https://bugzilla.mozilla.org/show_bug.cgi?id=74880|Mozilla]] bug about the issue, and [[http://bugs.kde.org/show_bug.cgi?id=56219|KDE]]'s.
+ * [[http://www.sw.it.aoyama.ac.jp/2005/pub/IUC28-bidi/IUC28.html|Exploring Better Source Editing for Bidirectional XHTML and XML]], a paper from IUC28, Septembre 2005.  Excellent reading in itself, but even more valuable is the list of references.  Check it out.
+ * [[http://groups.google.ca/group/comp.windows.x.intrinsics/msg/936cf8754a29b740?q=group:comp.windows.x.intrinsics+author:goerwitz&hl=en&lr=&c2coff=1&as_drrb=b&as_mind=9&as_minm=4&as_miny=1994&as_maxd=9&as_maxm=4&as_maxy=1994&rnum=1|Better tutorial on mixed directionality]] is a Usenet post about cursor movement in bidirectional text.
+ * [[http://developer.mozilla.org/en/docs/Documentation_for_BiDi_Mozilla|Documentation for BiDi Mozilla]].  This is preliminary documentation of the changes introduced to Mozilla as part of the bidi support contributed by IBM (a.k.a. IBMBIDI).
+ * [[http://osdir.com/ml/region.israel.ivrix.discuss/2003-05/msg00031.html|RFC: Standard for automatic insertion of bidi control characters]].  Interesting discussion thread on good ol' ivrix list.
+=== Non-Readings (a.k.a. Pre-Unicode Tries) ===
+ * [[http://www-306.ibm.com/software/webservers/hostondemand/library/v8infocenter/hod/en/help/bidi.html|Understanding bidirectional language support]] is an older IBM standard.
+ * ECMA TR53 Handling of Bi-directional Texts, Second Edition is a technical report on supporting bidi text in text terminals.  No one knows if it was ever implemented.
+=== Implementations ===
+ * [[http://fribidi.org/|GNU FriBidi]] is GNU project's implementation of the UBA, also used in several other projects.
+ * [[http://bugzilla.gnome.org/show_bug.cgi?id=70451|Automatic paragraph direction according to the UBA in Gtk+]] (bugzilla discussion) (also
+[[http://bugzilla.gnome.org/show_bug.cgi?id=136529|this]] and [[http://bugzilla.gnome.org/show_bug.cgi?id=116626|this]].)
+
+ * [[http://bugzilla.gnome.org/show_bug.cgi?id=168108|Handling markup text from a bidi point of view]] (bugzilla discussion).
+ * [[http://cvs.arabeyes.org/viewcvs/projects/adawat/minibidi|miniBidi]] is a minimal implemention of the UBA (BMP only, implicit only).
+ * [[http://crl.nmsu.edu/~mleisher/ucdata.html|PGBA: Pretty Good Bidi Algorithm]] (approximate, implicit only)
+ * [[http://imagic.weizmann.ac.il/~dov/freesw/gtk/gtkbiditext/|GtkBidiText: A Gtk BiDirectional text widget for Hebrew]] (out-dated)
+ * [[http://imagic.weizmann.ac.il/~dov/Hebrew/protobidi/|ProtoBidi: The Prototype Bidirectional Widget]] (out-dated)
+ * [[http://bidiui.mozdev.org/|Mozilla BiDi UI Extension]] is a Mozilla extension to support bidi widgets on Mozilla user interface.
+ * [[http://live.gnome.org/Gedit/Plugins/BidiAssist|Gedit Bidi Assistant]] is a Gedit plugin for dealing with Unicode bidirectional markup.
+=== Mailinglist ===
+All bidi discussion is currently on [[http://freedesktop.org/mailman/listinfo/bidi/|bidi at lists freedesktop org]].  The archives are [[http://freedesktop.org/pipermail/bidi/|here]].
+
+-- BehdadEsfahbod - June 7, 2005
