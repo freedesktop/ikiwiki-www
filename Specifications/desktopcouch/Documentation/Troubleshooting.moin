@@ -1,0 +1,36 @@
+= Desktop Couch Troubleshooting =
+
+If desktopcouch seems to not be working for some reason, here are some things you can try.
+
+== When I open the couchdb.html bookmark file I get "Unable to connect" ==
+
+This normally means that desktopcouch didn't properly write the bookmark file last time it started up. Try killing and restarting desktopcouch, below.
+
+== My data is being stored in desktopcouch but it's not replicating to other desktopcouches or Ubuntu One ==
+
+If data isn't syncing to other CouchDBs properly, so (for example) your Evolution contacts are stored in desktopcouch but are not appearing in the Ubuntu One web interface, check the replication log. This is a logfile listing the output from replication, and is at `~/.cache/desktop-couch/log/desktop-couch-replication.log`. This log may give you some clues as to what's going wrong. Ask on irc.freenode.net `#ubuntuone` if the log makes no sense.
+
+Verify that you have Avahi running: '''[[https://bugs.launchpad.net/bugs/506601|#506601]]''' Pairing and replication does not work if Avahi is down.
+
+Verify that desktopcouch is properly started. The correct way of desktopcouch startup is via desktopcouch-service (or DBus autolaunch e.g. on getPort()). desktopcouch.records module is able to start couchdb if it is not running, but it does not start related services: '''[[https://bugs.launchpad.net/bugs/519028|#519028]]''' Desktopcouch replication and org.desktopcouch.CouchDB.service are NOT started on desktopcouch.records calls.
+
+== Killing and restarting desktopcouch ==
+
+To re-start desktopcouch from scratch, do the following, in a terminal window:
+
+ 1. `killall beam.smp` - this will kill any existing desktopcouch processes. (Note: '''do not''' do this with `sudo`!) If this says `beam.smp: no process found`, then do `killall beam` instead.
+ 2. `rm ~/.config/desktop-couch/desktop-couchdb.ini` - this will remove the desktopcouch configuration file, which will then be re-generated. (This will ''not'' lose any data stored in desktopcouch, do not worry.)
+ 3. `dbus-send --session --dest=org.desktopcouch.CouchDB --print-reply --type=method_call / org.desktopcouch.CouchDB.getPort` - this should restart desktopcouch. You can ignore messages printed by this command
+ 4. `xdg-open file:///home/YOURUSERNAME/.local/share/desktop-couch/couchdb.html` - open the bookmark file, which should then correctly take you to your desktopcouch web interface
+
+== Can't open CouchDB addressbook from Evolution contacts ==
+This usually means that desktopcouch is not running, but it might be due to other causes, so to troubleshoot it, please run, on a terminal:
+{{{
+$ evolution --force-shutdown
+$ /usr/lib/evolution/evolution-data-server-2.28    # note that this path might be different depending on your distro/version
+                                                   # so make sure you check where the evolution-data-server binary is on your
+                                                   # system if this doesn't work
+}}}
+Then, start Evolution again and try to open again the CouchDB addressbook. If it fails, have a look at the output on the terminal, it should have some hints as to why it failed. If you don't understand it, please copy all the output and [[https://bugs.edge.launchpad.net/evolution-couchdb/+filebug|file a bug here]], making sure you paste the output from the terminal to the bug report.
+
+There is a command line application written by aquarius to manage your couchdb instance located on Ubuntu One servers: [[attachment:ubuntuone-couchdb-query2]]
