@@ -1,12 +1,6 @@
-
-
 # Application Package Specification (Idea)
-
-
-
----
-
  
+
 ## Introduction
 
 This specification is designed to provide a desktop neutral way to package one application. 
@@ -19,11 +13,10 @@ Dependencies can be installed on first start of the application. The necessary r
 A application-package is an archive containing the application and a file describing all the contents. The archive should be a gzip-compressed tarball with an .app extension. 
 
 
-[[!format txt """
     /
     /info
     /app/
-"""]]
+
 
 ### Package Description
 
@@ -32,132 +25,108 @@ The info file should be formatted as followed:
 
 #### Package Name
 
-
-[[!format txt """
     [Application]
     Name=Example application
-"""]]
+
 The Name of the application, it is required for identification-purposes. 
+
+
 #### ApplicationPackage-file version
 
-
-[[!format txt """
     Version=1.0
-"""]]
+
 The Desktop-file syntax version, this field must be present. 
 
 
 #### Mime-type
 
-
-[[!format txt """
     Type=X-ApplicationPackage
-"""]]
+
 The mime-type, this field must be present and have the value _X-Application``Package_. 
 
 
 #### Executable file
 
-
-[[!format txt """
     Exec=example.bin
-"""]]
+
 This field represents the main executable file of the application. It must be present. 
 
 
 #### Mime-type of executable file
 
-
-[[!format txt """
     ExecType=application/x-executable
-"""]]
+
 This field represents the mime-type of the main executable file of the application. It must be present. 
 
 
 #### Maintainer
 
-
-[[!format txt """
     Maintainer=John Doe <john DOT doe AT freedesktop DOT org>
-"""]]
+
 The Theme``Package maintainer, this field should be present and formatted as followed 
 
-_Name < email >_ 
+    _Name < email >_ 
 
 If for some reason this field is not available, implementations may choose to warn a user about this fact. 
 
 
 #### Application version
 
-
-[[!format txt """
     Application-Version=1.0
-"""]]
+
 The Application``Package version-number (increases with every update), this field should be present and formatted as followed 
 
-_a[.b[.c[.d[.e]]]]_ Where a, b, c, d and e are numbers between 0 and 4294967296 (32 bits unsigned integers). 
+    _a[.b[.c[.d[.e]]]]_
+
+Where a, b, c, d and e are numbers between 0 and 4294967296 (32 bits unsigned integers). 
 
 
 ##### Author(s) / Artist(s) name(s)
 
-
-[[!format txt """
     Authors=Jane Doe <jane AT freedesktop DOT org>; John Doe <john AT freedesktop DOT org>
-"""]]
+
 The author(s) of the application, this field may be present. 
 
-_Name < email >[; Name < email >[; etc...]]_ 
+    _Name < email >[; Name < email >[; etc...]]_ 
 
 
 ##### Package Description
 
-
-[[!format txt """
     Description=This example application is a great multiplayer game for the whole family. You can use your keyboard and your mouse. For more information see our website: www.greatgame.example.
-"""]]
+
 This field provides a description about the application. 
 
 
 ##### Application License Information
 
-
-[[!format txt """
     License=GPL;Creative-Commons
-"""]]
+
 The License under which the application is distributed. 
 
 
 ##### Icon
 
-
-[[!format txt """
     Icon=http://example.com/example_app_icon.svg
-"""]]
+
 Icon to display in the software center, menus, etc. The name of the file should be either an web address or a name according to the [[Icon Theme Specification|Specifications/icon-theme-spec]]. 
 
 
 ##### Web address for download
 
-
-[[!format txt """
     DownloadURL=http://example.com/example.app
-"""]]
+
 The web address which allows to download the application again. 
 
 
 ##### Update information
 
-
-[[!format txt """
     UpdateInfo=http://example.com/example.info
-"""]]
+
 An info file according to this spec. This file must content an DownloadURL field. It should provide a never version if available. This specification allows to put information about several versions in one info file. 
 
 
 ### info Example
 
-
-[[!format txt """
     [Application]
     Name=Example application
     Version=1.0
@@ -172,7 +141,7 @@ An info file according to this spec. This file must content an DownloadURL field
     Icon=http://example.com/example_app_icon.svg
     DownloadURL=http://example.com/example.app
     UpdateInfo=http://example.com/example.info
-"""]]
+
 
 ### app directory
 
@@ -186,7 +155,7 @@ The user should be able to copy the application to applications:// to register t
 
 ### Security considerations
 
-Software according to this specification should run in a sandbox. The application is not allowed to read any personal information from the home directory. Therefore each [[ApplicationPackage|ApplicationPackage]] gets his own home directory with write access. A special file selector widget should allow applications to read and write to specific files chosen by the user. 
+Software according to this specification should run in a sandbox. The application is not allowed to read any personal information from the home directory. Therefore each [[ApplicationPackage]] gets his own home directory with write access. A special file selector widget should allow applications to read and write to specific files chosen by the user. 
 
 
 ### Internationalization

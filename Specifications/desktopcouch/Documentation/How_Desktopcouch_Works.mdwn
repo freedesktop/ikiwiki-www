@@ -1,5 +1,3 @@
-
-
 # How desktopcouch works
 
 The process of giving every user a CouchDB for their applications to work with involves a number of engineering choices. This document explains how all those parts fit together and gives some indication as to why the decisions were made. 
@@ -11,12 +9,10 @@ If you are using desktopcouch from your applications, or are looking at your des
 
 The Desktop Couch CouchDB server runs on a randomly chosen port. This is because a fixed port would not make sense on a multi-user machine. Since the port is randomly generated, there has to be a way to discover the port; desktopcouch provides a D-Bus API to do so. You can discover the port from the command line with 
 
+    dbus-send --session --dest=org.desktopcouch.CouchDB \
+       --print-reply --type=method_call / \
+       org.desktopcouch.CouchDB.getPort
 
-[[!format txt """
-dbus-send --session --dest=org.desktopcouch.CouchDB \
-   --print-reply --type=method_call / \
-   org.desktopcouch.CouchDB.getPort
-"""]]
 Calling the D-Bus getPort API actually starts desktopcouch if it is not already running. This means that desktopcouch does not impact desktop startup time for people who don't use it. It also means that the API is the only reliable way to discover the port; do not grovel through the couchdb log files or `lsof` yourself to get it. 
 
 It is safe to call getPort if desktopcouch is already running; it will simply return the port of the running desktop CouchDB. 

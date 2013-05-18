@@ -1,5 +1,3 @@
-
-
 # A Requirements document for an Input Method Subsystem in Qt4
 
 [[!toc 3]] 
@@ -93,83 +91,83 @@ This allows input methods to provide integrated direct UI controls in QT's text 
 qtrc, environment variable, etc. 
 
 QT_IM_SWITCHER idea proposed by YAMAKEN: 
-[[!format txt """
-In our current implementation, there is a usability problem. We
-can configure default IM plugin using QT''IM''MODULE env var (or
-the equivalent in qtrc), but there is no way to control default
-IM on QMultiInputContext because it is an ordinary plugin. The
-user interface is not useful.
 
-application    <- QT''IM''MODULE="multi"
-  |
-QMultiInputContext
-  |
-QFooInputContext
+    In our current implementation, there is a usability problem. We
+    can configure default IM plugin using QT''IM''MODULE env var (or
+    the equivalent in qtrc), but there is no way to control default
+    IM on QMultiInputContext because it is an ordinary plugin. The
+    user interface is not useful.
+    
+    application    <- QT''IM''MODULE="multi"
+      |
+    QMultiInputContext
+      |
+    QFooInputContext
+    
+    
+    To resolve such problem, we can introduce additional
+    configuration variable for QMultiInputContext. The Qt itself is
+    not aware of QT''IM''MODULE''FOR''SWITCHER variable.
+    
+    application    <- QT''IM''MODULE="multi"
+      |
+    QMultiInputContext <- QT''IM''MODULE''FOR''SWITCHER="bar"
+      |
+    QBarInputContext
+    
+    
+    Although the problem itself can be resolved as above,
+    unnecessary confusion is also introduced by the solution. Most
+    users will configure QT''IM''MODULE to choose their own favorite
+    IM because they always configure so in GTK+ environment. They
+    will be confused if the configuration QT''IM''MODULE="bar" makes
+    IM-switching menu vanish.
+    
+    application    <- QT''IM''MODULE="bar"
+      |
+    QBarInputContext
+    
+    
+    To avoid the confusion, I propose following naming
+    convention. The name QT''IM''SWITCHER is just a trick for users to
+    form appropriate mental model. Qt itself is not treat
+    IM-switchers specially. It is still ordinary IM plugin.
+    
+    application    <- QT''IM''SWITCHER="multi" (default)
+      |
+    QMultiInputContext <- QT''IM''MODULE="bar"
+      |
+    QBarInputContext
+    
+    
+    The convention is upward compatible with GTK+. In GTK+, the
+    equivalent of QMultiInputContext is hardcoded as default and not
+    replaceable. But IM-switcher should be replaceable as I said
+    recently, so I propose the new convention.
+    
+    application   <- gtk''im''multicontext_new()
+      |
+    GtkIMMulticontext       <- GTK''IM''MODULE="bar"
+             |
+    GtkIMBarContext
+    
+    
+    To accomplish the new convention, I've renamed the identifier
+    name of QMultiInputContext "multi" as "imsw-multi". The "imsw-"
+    prefix prevents IM-switchers from being listed in popup menu as
+    input method. All other IM-switcher implementation is also
+    expected to follow this "imsw-" convention. I think that it
+    should not be API such as QInputContextPlugin::isIMSwitcher()
+    because Qt API should be isolated from IM-switcher issues.
+    
+    If a system integrator such as RedHat want to make a specific
+    IM-framework the switcher, the patch offers following
+    configuration.
+    
+    application                      <- QT''IM''SWITCHER="iiimqcf"
+             |
+    IIIMInputContext
+             |
+    (IIIMF's own switching framework)
 
-
-To resolve such problem, we can introduce additional
-configuration variable for QMultiInputContext. The Qt itself is
-not aware of QT''IM''MODULE''FOR''SWITCHER variable.
-
-application    <- QT''IM''MODULE="multi"
-  |
-QMultiInputContext <- QT''IM''MODULE''FOR''SWITCHER="bar"
-  |
-QBarInputContext
-
-
-Although the problem itself can be resolved as above,
-unnecessary confusion is also introduced by the solution. Most
-users will configure QT''IM''MODULE to choose their own favorite
-IM because they always configure so in GTK+ environment. They
-will be confused if the configuration QT''IM''MODULE="bar" makes
-IM-switching menu vanish.
-
-application    <- QT''IM''MODULE="bar"
-  |
-QBarInputContext
-
-
-To avoid the confusion, I propose following naming
-convention. The name QT''IM''SWITCHER is just a trick for users to
-form appropriate mental model. Qt itself is not treat
-IM-switchers specially. It is still ordinary IM plugin.
-
-application    <- QT''IM''SWITCHER="multi" (default)
-  |
-QMultiInputContext <- QT''IM''MODULE="bar"
-  |
-QBarInputContext
-
-
-The convention is upward compatible with GTK+. In GTK+, the
-equivalent of QMultiInputContext is hardcoded as default and not
-replaceable. But IM-switcher should be replaceable as I said
-recently, so I propose the new convention.
-
-application   <- gtk''im''multicontext_new()
-  |
-GtkIMMulticontext       <- GTK''IM''MODULE="bar"
-         |
-GtkIMBarContext
-
-
-To accomplish the new convention, I've renamed the identifier
-name of QMultiInputContext "multi" as "imsw-multi". The "imsw-"
-prefix prevents IM-switchers from being listed in popup menu as
-input method. All other IM-switcher implementation is also
-expected to follow this "imsw-" convention. I think that it
-should not be API such as QInputContextPlugin::isIMSwitcher()
-because Qt API should be isolated from IM-switcher issues.
-
-If a system integrator such as RedHat want to make a specific
-IM-framework the switcher, the patch offers following
-configuration.
-
-application                      <- QT''IM''SWITCHER="iiimqcf"
-         |
-IIIMInputContext
-         |
-(IIIMF's own switching framework)
-"""]]
--- Main.[[KenDeeter|KenDeeter]] - 27 Jun 2004 
+-- Main.[[KenDeeter]] - 27 Jun 2004 

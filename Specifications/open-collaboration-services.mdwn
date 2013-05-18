@@ -1,5 +1,3 @@
-
-
 # Open Collaboration Services v1.6
 
 Frank Karlitschek [[MailTo(karlitschek AT kde.org)|MailTo(karlitschek AT kde.org)]] 
@@ -148,47 +146,45 @@ we support versioning of the service specifications. so if we break the api in a
 
 it is important to decouple the applications from the services. so we suggest to use provider files to control the mapping of applications to service providers. if an application wants to access a services it first gets the provider file to get the list of available providers. than it can access the different providers and merge the results. An example provider file: 
 
+    <providers>
+    
+    <provider>
+     <id>opendesktop</id>
+     <location>https://api.opendesktop.org/v1/</location>
+     <name>openDesktop.org</name>
+     <icon></icon>
+     <termsofuse>https://opendesktop.org/terms/</termsofuse>
+     <register>https://opendesktop.org/usermanager/new.php</register>
+     <services>
+       <person ocsversion="1.3" />
+       <friend ocsversion="1.3" />
+       <message ocsversion="1.3" />
+       <activity ocsversion="1.3" />
+       <content ocsversion="1.3" />
+       <fan ocsversion="1.3" />
+       <knowledgebase ocsversion="1.3" />
+       <event ocsversion="1.3" />
+     </services>
+    </provider>
+    
+    <provider>
+     <id>testy</id>
+     <location>http://api.foo.org</location>
+     <name>Foo provider</name>
+     <icon></icon>
+     <termsofuse>https://foo.org/terms/</termsofuse>
+     <register>https://foo.org/register.php</register>
+     <services>
+       <person ocsversion="1.5" />
+       <friend ocsversion="1.3" />
+       <message ocsversion="1.3" />
+       <knowledgebase ocsversion="1.2" />
+       <event ocsversion="1.1" />
+     </services>
+    </provider>
+    
+    </providers>
 
-[[!format txt """
-<providers>
-
-<provider>
- <id>opendesktop</id>
- <location>https://api.opendesktop.org/v1/</location>
- <name>openDesktop.org</name>
- <icon></icon>
- <termsofuse>https://opendesktop.org/terms/</termsofuse>
- <register>https://opendesktop.org/usermanager/new.php</register>
- <services>
-   <person ocsversion="1.3" />
-   <friend ocsversion="1.3" />
-   <message ocsversion="1.3" />
-   <activity ocsversion="1.3" />
-   <content ocsversion="1.3" />
-   <fan ocsversion="1.3" />
-   <knowledgebase ocsversion="1.3" />
-   <event ocsversion="1.3" />
- </services>
-</provider>
-
-<provider>
- <id>testy</id>
- <location>http://api.foo.org</location>
- <name>Foo provider</name>
- <icon></icon>
- <termsofuse>https://foo.org/terms/</termsofuse>
- <register>https://foo.org/register.php</register>
- <services>
-   <person ocsversion="1.5" />
-   <friend ocsversion="1.3" />
-   <message ocsversion="1.3" />
-   <knowledgebase ocsversion="1.2" />
-   <event ocsversion="1.1" />
- </services>
-</provider>
-
-</providers>
-"""]]
 The KDE provider file is here: [[http://download.kde.org/ocs/providers.xml|http://download.kde.org/ocs/providers.xml]] 
 
 
@@ -206,24 +202,24 @@ get some basic API configuration information
 * Method: GET 
 * Statuscodes: 
       * 100 - successful 
-Example: GET [[http://api.opendesktop.org/v1/config|http://api.opendesktop.org/v1/config]] Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <version>1.4</version>
-  <website>openDesktop.org</website>
-  <host>api.openDesktop.org</host>
-  <contact>frank@openDesktop.org</contact>
-  <ssl>true</ssl>
- </data>
-</ocs>
-"""]]
+Example: GET <http://api.opendesktop.org/v1/config> Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <version>1.4</version>
+      <website>openDesktop.org</website>
+      <host>api.openDesktop.org</host>
+      <contact>frank@openDesktop.org</contact>
+      <ssl>true</ssl>
+     </data>
+    </ocs>
+
 <a name="PERSON"></a> 
 ### PERSON
 
@@ -243,23 +239,21 @@ Check if the given login and password or the API key is valid. It returns the as
       * 100 - successfull / valid account 
       * 101 - please specify all mandatory fields 
       * 102 - login not valid 
-Example: POST [[http://api.opendesktop.org/v1/person/check|http://api.opendesktop.org/v1/person/check]] postdata: login="frank" password="123456" Checks if frank,123456 is a valid account. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <person details="check">
-   <personid>frank</personid>
-  </person>
- </data>
-</ocs>
+Example: POST <http://api.opendesktop.org/v1/person/check> postdata: login="frank" password="123456" Checks if frank,123456 is a valid account. Example: 
 
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <person details="check">
+       <personid>frank</personid>
+      </person>
+     </data>
+    </ocs>
 
 #### add
 
@@ -281,18 +275,16 @@ Registers a new user account on the server. The users still have to approve the 
       * 104 - login already exists 
       * 105 - email already taken 
       * 106 - email invalid 
-Example: POST [[http://api.opendesktop.org/v1/person/add|http://api.opendesktop.org/v1/person/add]] postdata: login="frank" password="123456" firstname="Frank" lastname="Karlitschek" email="[[karlitschek@kde.org|mailto:karlitschek@kde.org]]" registers a new user account. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
+Example: POST <http://api.opendesktop.org/v1/person/add> postdata: login="frank" password="123456" firstname="Frank" lastname="Karlitschek" email="[[karlitschek@kde.org|mailto:karlitschek@kde.org]]" registers a new user account. Example: 
 
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
 
 #### search
 
@@ -319,46 +311,45 @@ find a specific list of persons. Only authenticated users are allowed to access 
       * 102 - more than 1000 people found. it is not allowed to fetch such a big resultset. please specify more search conditions 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
 * Result: personlist xml 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&longitude=22&distance=0.5&page=2&pagesize=10|http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&longitude=22&distance=0.5&page=2&pagesize=10]] Gets the third page of the search result list from the search for person where "eter" is in the nickname, firstname or lastname and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5 
+Example: GET <http://frank:password@api.opendesktop.org/v1/person/data?name=eter&city=don&description=development&latitude=11.2&longitude=22&distance=0.5&page=2&pagesize=10> Gets the third page of the search result list from the search for person where "eter" is in the nickname, firstname or lastname and "don" is in the city and who is interested in "development" and who lived near latitude:11.2 and longitude:22.0 witch a tolerance of 0.5 
 
 Example: <?xml version="1.0"?> 
-[[!format txt """
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <person details="summary">
-   <personid>Testy</personid>
-   <privacy>0</privacy>
-   <privacytext>public</privacytext>
-   <firstname>Peter</firstname>
-   <lastname>-</lastname>
-   <company></company>
-   <gender></gender>
-   <communityrole></communityrole>
-   <city>London</city>
-   <country></country>
-  </person>
-  <person details="summary">
-   <personid>peter</personid>
-   <privacy>0</privacy>
-   <privacytext>public</privacytext>
-   <firstname>Frank</firstname>
-   <lastname>Test</lastname>
-   <company>company</company>
-   <gender>male</gender>
-   <communityrole></communityrole>
-   <city>London</city>
-   <country></country>
-  </person>
- </data>
-</ocs>
-"""]]
+
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <person details="summary">
+       <personid>Testy</personid>
+       <privacy>0</privacy>
+       <privacytext>public</privacytext>
+       <firstname>Peter</firstname>
+       <lastname>-</lastname>
+       <company></company>
+       <gender></gender>
+       <communityrole></communityrole>
+       <city>London</city>
+       <country></country>
+      </person>
+      <person details="summary">
+       <personid>peter</personid>
+       <privacy>0</privacy>
+       <privacytext>public</privacytext>
+       <firstname>Frank</firstname>
+       <lastname>Test</lastname>
+       <company>company</company>
+       <gender>male</gender>
+       <communityrole></communityrole>
+       <city>London</city>
+       <country></country>
+      </person>
+     </data>
+    </ocs>
 
 #### get
 
@@ -372,72 +363,71 @@ get the data from one specific person. Only authenticated users are allowed to a
       * 100 - successfull 
       * 101 - person not found 
       * 102 - data is private 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/person/data/frank|http://frank:password@api.opendesktop.org/v1/person/data/frank]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/person/data/frank> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <person details="full">
-   <personid>Frank</personid>
-   <privacy>1</privacy>
-   <privacytext>visible only for registered users</privacytext>
-   <firstname>Frank</firstname>
-   <lastname>Test</lastname>
-   <gender>male</gender>
-   <communityrole>developer</communityrole>
-   <homepage>openDesktop.org</homepage>
-   <homepagetype></homepagetype>
-   <homepageicon></homepageicon>
-   <homepage2></homepage2>
-   <homepagetype2></homepagetype2>
-   <homepage3></homepage3>
-   <homepagetype3></homepagetype3>
-   <homepage4></homepage4>
-   <homepagetype4></homepagetype4>
-   <homepageicon4></homepageicon4>
-   <homepage5></homepage5>
-   <homepagetype5></homepagetype5>
-   <homepage6>www.facebook.com/foo</homepage6>
-   <homepagetype6>Facebook</homepagetype6>
-   <homepageicon6>http://openDesktop.org/img/socialicons/emblem-facebook.png</homepageicon6>
-   <company>opendesktop.org</company>
-   <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
-   <avatarpicfound>1</avatarpicfound>
-   <bigavatarpic>http://www.KDE-Look.org/CONTENT/user-bigpics/0/Frank.jpg</bigavatarpic>
-   <bigavatarpicfound>1</bigavatarpicfound>
-   <birthday>1973-07-25</birthday>
-   <jobstatus>working</jobstatus>
-   <city>Stuttgart</city>
-   <country>Germany</country>
-   <latitude></latitude>
-   <longitude></longitude>
-   <ircnick>karli</ircnick>
-   <ircchannels>kde-dev, plasma</ircchannels>
-   <irclink>irc://irc.freenode.org/kde-dev</irclink>
-   <irclink>irc://irc.freenode.org/plasma</irclink>
-   <likes>lot of stuff</likes>
-   <dontlikes>nothing</dontlikes>
-   <interests>travel</interests>
-   <languages>english</languages>
-   <programminglanguages>php, c++</programminglanguages>
-   <favouritequote></favouritequote>
-   <favouritemusic>nin</favouritemusic>
-   <favouritetvshows></favouritetvshows>
-   <favouritemovies>fightclub</favouritemovies>
-   <favouritebooks></favouritebooks>
-   <favouritegames>ut3</favouritegames>
-   <description></description>
-   <profilepage>http://www.KDE-Look.org/usermanager/search.php?username=Frank</profilepage>
-  </person>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <person details="full">
+       <personid>Frank</personid>
+       <privacy>1</privacy>
+       <privacytext>visible only for registered users</privacytext>
+       <firstname>Frank</firstname>
+       <lastname>Test</lastname>
+       <gender>male</gender>
+       <communityrole>developer</communityrole>
+       <homepage>openDesktop.org</homepage>
+       <homepagetype></homepagetype>
+       <homepageicon></homepageicon>
+       <homepage2></homepage2>
+       <homepagetype2></homepagetype2>
+       <homepage3></homepage3>
+       <homepagetype3></homepagetype3>
+       <homepage4></homepage4>
+       <homepagetype4></homepagetype4>
+       <homepageicon4></homepageicon4>
+       <homepage5></homepage5>
+       <homepagetype5></homepagetype5>
+       <homepage6>www.facebook.com/foo</homepage6>
+       <homepagetype6>Facebook</homepagetype6>
+       <homepageicon6>http://openDesktop.org/img/socialicons/emblem-facebook.png</homepageicon6>
+       <company>opendesktop.org</company>
+       <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
+       <avatarpicfound>1</avatarpicfound>
+       <bigavatarpic>http://www.KDE-Look.org/CONTENT/user-bigpics/0/Frank.jpg</bigavatarpic>
+       <bigavatarpicfound>1</bigavatarpicfound>
+       <birthday>1973-07-25</birthday>
+       <jobstatus>working</jobstatus>
+       <city>Stuttgart</city>
+       <country>Germany</country>
+       <latitude></latitude>
+       <longitude></longitude>
+       <ircnick>karli</ircnick>
+       <ircchannels>kde-dev, plasma</ircchannels>
+       <irclink>irc://irc.freenode.org/kde-dev</irclink>
+       <irclink>irc://irc.freenode.org/plasma</irclink>
+       <likes>lot of stuff</likes>
+       <dontlikes>nothing</dontlikes>
+       <interests>travel</interests>
+       <languages>english</languages>
+       <programminglanguages>php, c++</programminglanguages>
+       <favouritequote></favouritequote>
+       <favouritemusic>nin</favouritemusic>
+       <favouritetvshows></favouritetvshows>
+       <favouritemovies>fightclub</favouritemovies>
+       <favouritebooks></favouritebooks>
+       <favouritegames>ut3</favouritegames>
+       <description></description>
+       <profilepage>http://www.KDE-Look.org/usermanager/search.php?username=Frank</profilepage>
+      </person>
+     </data>
+    </ocs>
 
 #### get self
 
@@ -448,58 +438,57 @@ get the data from yourself. Only authenticated users are allowed to access this 
 * Result: person xml 
 * Statuscodes: 
       * 100 - successfull 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/person/self|http://frank:password@api.opendesktop.org/v1/person/self]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/person/self> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <person details="full">
-   <personid>Frank</personid>
-   <privacy>1</privacy>
-   <privacytext>visible only for registered users</privacytext>
-   <firstname>Frank</firstname>
-   <lastname>Test</lastname>
-   <gender>male</gender>
-   <communityrole>developer</communityrole>
-   <homepage>opendesktop.org</homepage>
-   <company>opendesktop.org</company>
-   <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
-   <avatarpicfound>1</avatarpicfound>
-   <bigavatarpic>http://www.KDE-Look.org/CONTENT/user-bigpics/0/Frank.jpg</bigavatarpic>
-   <bigavatarpicfound>1</bigavatarpicfound>
-   <birthday>1973-07-25</birthday>
-   <jobstatus>working</jobstatus>
-   <city>Stuttgart</city>
-   <country>Germany</country>
-   <latitude></latitude>
-   <longitude></longitude>
-   <ircnick>karli</ircnick>
-   <ircchannels>kde-dev, plasma</ircchannels>
-   <irclink>irc://irc.freenode.org/kde-dev</irclink>
-   <irclink>irc://irc.freenode.org/plasma</irclink>
-   <likes>lot of stuff</likes>
-   <dontlikes>nothing</dontlikes>
-   <interests>travel</interests>
-   <languages>english</languages>
-   <programminglanguages>php, c++</programminglanguages>
-   <favouritequote></favouritequote>
-   <favouritemusic>nin</favouritemusic>
-   <favouritetvshows></favouritetvshows>
-   <favouritemovies>fightclub</favouritemovies>
-   <favouritebooks></favouritebooks>
-   <favouritegames>ut3</favouritegames>
-   <description></description>
-   <profilepage>http://www.KDE-Look.org/usermanager/search.php?username=Frank</profilepage>
-  </person>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <person details="full">
+       <personid>Frank</personid>
+       <privacy>1</privacy>
+       <privacytext>visible only for registered users</privacytext>
+       <firstname>Frank</firstname>
+       <lastname>Test</lastname>
+       <gender>male</gender>
+       <communityrole>developer</communityrole>
+       <homepage>opendesktop.org</homepage>
+       <company>opendesktop.org</company>
+       <avatarpic>http://www.KDE-Look.org/CONTENT/user-pics/0/Frank.jpg</avatarpic>
+       <avatarpicfound>1</avatarpicfound>
+       <bigavatarpic>http://www.KDE-Look.org/CONTENT/user-bigpics/0/Frank.jpg</bigavatarpic>
+       <bigavatarpicfound>1</bigavatarpicfound>
+       <birthday>1973-07-25</birthday>
+       <jobstatus>working</jobstatus>
+       <city>Stuttgart</city>
+       <country>Germany</country>
+       <latitude></latitude>
+       <longitude></longitude>
+       <ircnick>karli</ircnick>
+       <ircchannels>kde-dev, plasma</ircchannels>
+       <irclink>irc://irc.freenode.org/kde-dev</irclink>
+       <irclink>irc://irc.freenode.org/plasma</irclink>
+       <likes>lot of stuff</likes>
+       <dontlikes>nothing</dontlikes>
+       <interests>travel</interests>
+       <languages>english</languages>
+       <programminglanguages>php, c++</programminglanguages>
+       <favouritequote></favouritequote>
+       <favouritemusic>nin</favouritemusic>
+       <favouritetvshows></favouritetvshows>
+       <favouritemovies>fightclub</favouritemovies>
+       <favouritebooks></favouritebooks>
+       <favouritegames>ut3</favouritegames>
+       <description></description>
+       <profilepage>http://www.KDE-Look.org/usermanager/search.php?username=Frank</profilepage>
+      </person>
+     </data>
+    </ocs>
 
 #### edit
 
@@ -514,17 +503,16 @@ Update the latitude, longitude, city and country of myself. Only authenticated u
 * Statuscodes: 
       * 100 - successfull 
       * 101 - no parameters to update found 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/person/self|http://frank:password@api.opendesktop.org/v1/person/self]] postdata: longitude="1.23" latitude="3.45" Updated my position to 1.23 and 3.45 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-   <status>ok</status>
-   <statuscode>100</statuscode>
-   <message></message>
- </meta>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/person/self> postdata: longitude="1.23" latitude="3.45" Updated my position to 1.23 and 3.45 Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+       <status>ok</status>
+       <statuscode>100</statuscode>
+       <message></message>
+     </meta>
+    </ocs>
 
 #### balance
 
@@ -533,24 +521,23 @@ Get the account balance of a user.
 * Syntax: /v1/person/balance 
 * HTTP Method: GET 
 * Result: status xml 
-* Example: [[http://api.opendesktop.org/v1/person/balance|http://api.opendesktop.org/v1/person/balance]] 
+* Example: <http://api.opendesktop.org/v1/person/balance> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <person details="balance">
-   <currency>USD</currency>
-   <balance>1.49</balance>
-  </person>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <person details="balance">
+       <currency>USD</currency>
+       <balance>1.49</balance>
+      </person>
+     </data>
+    </ocs>
 
 #### get attributes
 
@@ -563,26 +550,25 @@ Gets the list of extended attributes of a person. You can store several attribut
 * Arguments: key - The key of the attribute you want to get. This parameter is optional. 
 * Statuscodes: 
       * 100 - successfull 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/person/attributes/fregl/parley/language|http://frank:password@api.opendesktop.org/v1/person/attributes/fregl/parley/language]] Get the value of the key language of the application parley from the user fregl. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>1</totalitems>
- </meta>
- <data>
-  <attribute>
-   <app>parley</app>
-   <key>language</key>
-   <value>english, german</value>
-   <lastmodified>2007-11-01T22:45:20+01:00</lastmodified>
-  </attribute>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/person/attributes/fregl/parley/language> Get the value of the key language of the application parley from the user fregl. Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>1</totalitems>
+     </meta>
+     <data>
+      <attribute>
+       <app>parley</app>
+       <key>language</key>
+       <value>english, german</value>
+       <lastmodified>2007-11-01T22:45:20+01:00</lastmodified>
+      </attribute>
+     </data>
+    </ocs>
 
 #### set attribute
 
@@ -595,17 +581,16 @@ Set a attribute of a person. Only authenticated users are allowed to access this
 * POST arguments: value - The value of the attribute. 
 * Statuscodes: 
       * 100 - successfull 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/person/setattribute/parley/language|http://frank:password@api.opendesktop.org/v1/person/setattribute/parley/language]] postdata: value="italian" Set the value of the key "language" of the application "parley" to "italian". Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/person/setattribute/parley/language> postdata: value="italian" Set the value of the key "language" of the application "parley" to "italian". Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
 
 #### delete attribute
 
@@ -617,17 +602,17 @@ Delete a attribute of a person. Only authenticated users are allowed to access t
 * Arguments: key - The key of the attribute. 
 * Statuscodes: 
       * 100 - successfull 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/person/deleteattribute/parley/language|http://frank:password@api.opendesktop.org/v1/person/deleteattribute/parley/language]] Delete the attribute with the key "language" and the application "parley". Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/person/deleteattribute/parley/language> Delete the attribute with the key "language" and the application "parley". Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
+
 <a name="FRIEND"></a> 
 ### FRIEND
 
@@ -647,30 +632,29 @@ Gets the list of friends from a person. Only authenticated users are allowed to 
       * 100 - successfull 
       * 101 - data is private 
       * 102 - user not found 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/friend/data/foobar?pagesize=10&page=1|http://frank:password@api.opendesktop.org/v1/friend/data/foobar?pagesize=10&page=1]] Gets the second page of friends of the person "foobar" Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>3</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <user details="id">
-   <personid>cornelius</personid>
-  </user>
-  <user details="id">
-   <personid>dave</personid>
-  </user>
-  <user details="id">
-   <personid>fen</personid>
-  </user>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/friend/data/foobar?pagesize=10&page=1> Gets the second page of friends of the person "foobar" Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>3</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <user details="id">
+       <personid>cornelius</personid>
+      </user>
+      <user details="id">
+       <personid>dave</personid>
+      </user>
+      <user details="id">
+       <personid>fen</personid>
+      </user>
+     </data>
+    </ocs>
 
 #### receivedinvitations
 
@@ -682,24 +666,23 @@ Gets the list of friendship invitations. Only authenticated users are allowed to
 * URL Arguments: pagesize - The amount of entries per page. 
 * Statuscodes: 
       * 100 - successfull 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/friend/receivedinvitations?page=1|http://frank:password@api.opendesktop.org/v1/friend/receivedinvitations?page=1]] Gets the second page of my received invitations. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>1</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <user details="id">
-   <personid>testy</personid>
-  </user>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/friend/receivedinvitations?page=1> Gets the second page of my received invitations. Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>1</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <user details="id">
+       <personid>testy</personid>
+      </user>
+     </data>
+    </ocs>
 
 #### sentinvitations
 
@@ -711,24 +694,23 @@ Gets the list of sent friendship invitations. Only authenticated users are allow
 * URL Arguments: pagesize - The amount of entries per page. 
 * Statuscodes: 
       * 100 - successfull 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/friend/sentinvitations?page=1|http://frank:password@api.opendesktop.org/v1/friend/sentinvitations?page=1]] Gets the second page of my sent invitations. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>1</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <user details="id">
-   <personid>testy</personid>
-  </user>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/friend/sentinvitations?page=1> Gets the second page of my sent invitations. Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>1</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <user details="id">
+       <personid>testy</personid>
+      </user>
+     </data>
+    </ocs>
 
 #### invite
 
@@ -743,14 +725,13 @@ Invite a person to become a friend. Only authenticated users are allowed to acce
       * 101 - message must not be empty 
       * 102 - you can´t invite yourself 
       * 103 - user not found 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/friend/invite/foobar/|http://frank:password@api.opendesktop.org/v1/friend/invite/foobar/]] postdata: message="hi. how are you?" Invites the person "foobar" and send him a message "hi. how are you?" Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/friend/invite/foobar/> postdata: message="hi. how are you?" Invites the person "foobar" and send him a message "hi. how are you?" Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### approve
 
@@ -761,14 +742,13 @@ Approve a friendship request. Only authenticated users are allowed to access thi
 * Arguments: personid - The person you want to approve as a friend. 
 * Statuscodes: 
       * 100 - successful 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/friend/approve/foobar/|http://frank:password@api.opendesktop.org/v1/friend/approve/foobar/]] Approve the invitation from the user "foobar" Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/friend/approve/foobar/> Approve the invitation from the user "foobar" Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### decline
 
@@ -779,14 +759,13 @@ Decline a friendship request. Only authenticated users are allowed to access thi
 * Arguments: personid - The person you want to decline. 
 * Statuscodes: 
       * 100 - successful 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/friend/decline/foobar/|http://frank:password@api.opendesktop.org/v1/friend/decline/foobar/]] Decline the invitation from the user "foobar" Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/friend/decline/foobar/> Decline the invitation from the user "foobar" Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### cancel
 
@@ -797,14 +776,14 @@ Cancel a friendship with a user. Only authenticated users are allowed to access 
 * Arguments: personid - The person you want to cancel the friendship with. 
 * Statuscodes: 
       * 100 - successful 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/friend/cancel/foobar/|http://frank:password@api.opendesktop.org/v1/friend/cancel/foobar/]] Cancel the friendship with the user "foobar" Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/friend/cancel/foobar/> Cancel the friendship with the user "foobar" Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
+
 <a name="MESSAGE"></a> 
 ### MESSAGE
 
@@ -820,45 +799,44 @@ Gets a list of the availabe message folders. You need the ids if you want to acc
 * Result: messagefolder xml 
 * Statuscodes: 
       * 100 - successfull 
-* Example: [[http://frank:password@api.opendesktop.org/v1/message|http://frank:password@api.opendesktop.org/v1/message]] 
+* Example: <http://frank:password@api.opendesktop.org/v1/message> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>4</totalitems>
- </meta>
- <data>
-  <folder>
-   <id>0</id>
-   <name>inbox</name>
-   <messagecount>27</messagecount>
-   <type>inbox</type>
-  </folder>
-  <folder>
-   <id>1</id>
-   <name>send</name>
-   <messagecount>9</messagecount>
-   <type>send</type>
-  </folder>
-  <folder>
-   <id>2</id>
-   <name>trash</name>
-   <messagecount>0</messagecount>
-   <type>trash</type>
-  </folder>
-  <folder>
-   <id>3</id>
-   <name>archive</name>
-   <messagecount>0</messagecount>
-   <type></type>
-  </folder>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>4</totalitems>
+     </meta>
+     <data>
+      <folder>
+       <id>0</id>
+       <name>inbox</name>
+       <messagecount>27</messagecount>
+       <type>inbox</type>
+      </folder>
+      <folder>
+       <id>1</id>
+       <name>send</name>
+       <messagecount>9</messagecount>
+       <type>send</type>
+      </folder>
+      <folder>
+       <id>2</id>
+       <name>trash</name>
+       <messagecount>0</messagecount>
+       <type>trash</type>
+      </folder>
+      <folder>
+       <id>3</id>
+       <name>archive</name>
+       <messagecount>0</messagecount>
+       <type></type>
+      </folder>
+     </data>
+    </ocs>
 
 #### list
 
@@ -876,47 +854,46 @@ Gets the list of messages from a specific folder. the messages are sorted in chr
       * Status: 2 - answered 
 * Statuscodes: 
       * 100 - successfull 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/message/1?page=2&pagesize=10|http://frank:password@api.opendesktop.org/v1/message/1?page=2&pagesize=10]] Gets the third page of messages from the folder with the id 1 of person "frank". firstname, lastname and profilepage are from the sender of the message. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <message details="full">
-   <id>8490</id>
-   <messagefrom>testy</messagefrom>
-   <firstname>Frank</firstname>
-   <lastname>Karlitschek</lastname>
-   <profilepage>http://www.opendesktop.org/usermanager/search.php?username=Frank</profilepage>
-   <messageto>Frank</messageto>
-   <senddate>2008-08-10T16:03:59+02:00</senddate>
-   <status>1</status>
-   <statustext></statustext>
-   <subject>test message</subject>
-   <body>Sorry for bothering but did you ...</body>
-  </message>
-  <message details="full">
-   <id>8491</id>
-   <messagefrom>testy1</messagefrom>
-   <firstname>Testy</firstname>
-   <lastname>TTT</lastname>
-   <profilepage>http://www.opendesktop.org/usermanager/search.php?username=testy1</profilepage>
-   <messageto>Frank1</messageto>
-   <senddate>2008-08-12T16:03:59+02:00</senddate>
-   <status>1</status>
-   <statustext></statustext>
-   <subject>test message</subject>
-   <body>Testy 2 ...</body>
-  </message>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/message/1?page=2&pagesize=10> Gets the third page of messages from the folder with the id 1 of person "frank". firstname, lastname and profilepage are from the sender of the message. Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <message details="full">
+       <id>8490</id>
+       <messagefrom>testy</messagefrom>
+       <firstname>Frank</firstname>
+       <lastname>Karlitschek</lastname>
+       <profilepage>http://www.opendesktop.org/usermanager/search.php?username=Frank</profilepage>
+       <messageto>Frank</messageto>
+       <senddate>2008-08-10T16:03:59+02:00</senddate>
+       <status>1</status>
+       <statustext></statustext>
+       <subject>test message</subject>
+       <body>Sorry for bothering but did you ...</body>
+      </message>
+      <message details="full">
+       <id>8491</id>
+       <messagefrom>testy1</messagefrom>
+       <firstname>Testy</firstname>
+       <lastname>TTT</lastname>
+       <profilepage>http://www.opendesktop.org/usermanager/search.php?username=testy1</profilepage>
+       <messageto>Frank1</messageto>
+       <senddate>2008-08-12T16:03:59+02:00</senddate>
+       <status>1</status>
+       <statustext></statustext>
+       <subject>test message</subject>
+       <body>Testy 2 ...</body>
+      </message>
+     </data>
+    </ocs>
 
 #### get
 
@@ -933,32 +910,31 @@ Get a message. Only authenticated users are allowed to access this method. Authe
 * Statuscodes: 
       * 100 - successful 
       * 101 - message not found 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/message/1/42|http://frank:password@api.opendesktop.org/v1/message/1/42]] Get the message with the id 42 in the folder 1. firstname, lastname and profilepage are from the sender of the message. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <message details="full">
-   <id>8490</id>
-   <messagefrom>testy</messagefrom>
-   <firstname>Test</firstname>
-   <lastname>TTT</lastname>
-   <profilepage>http://www.opendesktop.org/usermanager/search.php?username=testy</profilepage>
-   <messageto>Frank</messageto>
-   <senddate>2008-08-10T16:03:59+02:00</senddate>
-   <status>1</status>
-   <statustext></statustext>
-   <subject>test message</subject>
-   <body>Sorry for bothering but did you ...</body>
-  </message>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/message/1/42> Get the message with the id 42 in the folder 1. firstname, lastname and profilepage are from the sender of the message. Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <message details="full">
+       <id>8490</id>
+       <messagefrom>testy</messagefrom>
+       <firstname>Test</firstname>
+       <lastname>TTT</lastname>
+       <profilepage>http://www.opendesktop.org/usermanager/search.php?username=testy</profilepage>
+       <messageto>Frank</messageto>
+       <senddate>2008-08-10T16:03:59+02:00</senddate>
+       <status>1</status>
+       <statustext></statustext>
+       <subject>test message</subject>
+       <body>Sorry for bothering but did you ...</body>
+      </message>
+     </data>
+    </ocs>
 
 #### send
 
@@ -975,16 +951,16 @@ Send a message. Only authenticated users are allowed to access this method. Auth
       * 101 - user not found 
       * 102 - subject or message not found 
       * 103 - you can not send a message to yourself. 
-* Example: POST [[http://frank:password@api.opendesktop.org/v1/message/2|http://frank:password@api.opendesktop.org/v1/message/2]] postdata message="coding is fun" subject="hello" to=frank 
+* Example: POST <http://frank:password@api.opendesktop.org/v1/message/2> postdata message="coding is fun" subject="hello" to=frank 
 * Send a message to "frank" with the subject "hello" and a messagebody "coding is fun" 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
+
 <a name="ACTIVITY"></a> 
 ### ACTIVITY
 
@@ -1022,47 +998,46 @@ Gets the list of activities. Only authenticated users are allowed to access this
       * 19 - has registered (new user) 
 * Statuscodes: 
       * 100 - successfull 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/activity?page=3&pagesize=10|http://frank:password@api.opendesktop.org/v1/activity?page=3&pagesize=10]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/activity?page=3&pagesize=10> 
 * Gets the third page of the activities of person "frank" 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <activity details="full">
-   <id>42</id>
-   <personid>testy2</personid>
-   <firstname>Test</firstname>
-   <lastname>Te</lastname>
-   <profilepage>/usermanager/search.php?username=testy2</profilepage>
-   <avatarpic>http://www.opendesktop.org/usermanager/nopic.png</avatarpic>
-   <timestamp>2008-08-01T20:30:19+02:00</timestamp>
-   <type>6</type>
-   <message>testy2 has updated: &quot;Extract And Compress&quot;</message>
-   <link>http://www.KDE-Look.org/content/show.php?content=84206</link>
-  </activity>
-  <activity details="full">
-   <id>43</id>
-   <personid>foobar2</personid>
-   <firstname>Foo</firstname>
-   <lastname>Bar</lastname>
-   <profilepage>/usermanager/search.php?username=foobar2</profilepage>
-   <avatarpic>http://www.opendesktop.org/usermanager/nopic.png</avatarpic>
-   <timestamp>2008-08-02T19:38:10+02:00</timestamp>
-   <type>6</type>
-   <message>foobar2 has updated: &quot;Arezzo&quot;</message>
-   <link>http://www.KDE-Look.org/content/show.php?content=84403</link>
-  </activity>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <activity details="full">
+       <id>42</id>
+       <personid>testy2</personid>
+       <firstname>Test</firstname>
+       <lastname>Te</lastname>
+       <profilepage>/usermanager/search.php?username=testy2</profilepage>
+       <avatarpic>http://www.opendesktop.org/usermanager/nopic.png</avatarpic>
+       <timestamp>2008-08-01T20:30:19+02:00</timestamp>
+       <type>6</type>
+       <message>testy2 has updated: &quot;Extract And Compress&quot;</message>
+       <link>http://www.KDE-Look.org/content/show.php?content=84206</link>
+      </activity>
+      <activity details="full">
+       <id>43</id>
+       <personid>foobar2</personid>
+       <firstname>Foo</firstname>
+       <lastname>Bar</lastname>
+       <profilepage>/usermanager/search.php?username=foobar2</profilepage>
+       <avatarpic>http://www.opendesktop.org/usermanager/nopic.png</avatarpic>
+       <timestamp>2008-08-02T19:38:10+02:00</timestamp>
+       <type>6</type>
+       <message>foobar2 has updated: &quot;Arezzo&quot;</message>
+       <link>http://www.KDE-Look.org/content/show.php?content=84403</link>
+      </activity>
+     </data>
+    </ocs>
 
 #### put
 
@@ -1071,20 +1046,20 @@ Updates your activities. This is microblogging like Twitter. Only authenticated 
 * POST: /v1/activity 
 * POST Arguments: message - The text you want to post. 
 * Result: status xml 
-* Example: POST [[http://frank:password@api.opendesktop.org/v1/activity|http://frank:password@api.opendesktop.org/v1/activity]] postdata message="coding is fun" 
+* Example: POST <http://frank:password@api.opendesktop.org/v1/activity> postdata message="coding is fun" 
 * Posts the text "coding is fun" to franks hompage and the activities of franks friends. 
 * Statuscodes: 
       * 100 - successful 
       * 101 - empty message 
       * 102 - user not found 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
+
 <a name="CONTENT"></a> 
 ### CONTENT
 
@@ -1099,37 +1074,36 @@ Get a list of all available content categories.
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/content/categories|http://frank:password@api.opendesktop.org/v1/content/categories]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/content/categories> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>4</totalitems>
- </meta>
- <data>
-  <category>
-   <id>1</id>
-   <name>KDE Wallpaper 640x480</name>
-  </category>
-  <category>
-   <id>2</id>
-   <name>KDE Wallpaper 800x600</name>
-  </category>
-  <category>
-   <id>3</id>
-   <name>KDE Wallpaper 1024x768</name>
-  </category>
-  <category>
-   <id>4</id>
-   <name>KDE Wallpaper 1280x1024</name>
-  </category>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>4</totalitems>
+     </meta>
+     <data>
+      <category>
+       <id>1</id>
+       <name>KDE Wallpaper 640x480</name>
+      </category>
+      <category>
+       <id>2</id>
+       <name>KDE Wallpaper 800x600</name>
+      </category>
+      <category>
+       <id>3</id>
+       <name>KDE Wallpaper 1024x768</name>
+      </category>
+      <category>
+       <id>4</id>
+       <name>KDE Wallpaper 1280x1024</name>
+      </category>
+     </data>
+    </ocs>
 
 #### licenses
 
@@ -1141,36 +1115,35 @@ Get a list of all possible licenses. The IDs can be alphanumeric. The IDs should
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/content/licenses|http://frank:password@api.opendesktop.org/v1/content/licenses]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/content/licenses> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>17</totalitems>
- </meta>
- <data>
-  <license>
-   <id>1000</id>
-   <name></name>
-   <link></link>
-  </license>
-  <license>
-   <id>3</id>
-   <name>Artistic 2.0</name>
-   <link>http://dev.perl.org/perl6/rfc/346.html</link>
-  </license>
-  <license>
-   <id>6</id>
-   <name>BSD</name>
-   <link>http://www.opensource.org/licenses/bsd-license.php</link>
-  </license>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>17</totalitems>
+     </meta>
+     <data>
+      <license>
+       <id>1000</id>
+       <name></name>
+       <link></link>
+      </license>
+      <license>
+       <id>3</id>
+       <name>Artistic 2.0</name>
+       <link>http://dev.perl.org/perl6/rfc/346.html</link>
+      </license>
+      <license>
+       <id>6</id>
+       <name>BSD</name>
+       <link>http://www.opensource.org/licenses/bsd-license.php</link>
+      </license>
+     </data>
+    </ocs>
 
 #### distributions
 
@@ -1182,37 +1155,36 @@ Get a list of all possible distributions. The IDs can be alphanumeric.
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/content/distributions|http://frank:password@api.opendesktop.org/v1/content/distributions]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/content/distributions> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>23</totalitems>
- </meta>
- <data>
-  <distribution>
-   <id>0</id>
-   <name></name>
-  </distribution>
-  <distribution>
-   <id>2200</id>
-   <name>Arch</name>
-  </distribution>
-  <distribution>
-   <id>2000</id>
-   <name>Ark</name>
-  </distribution>
-  <distribution>
-   <id>1100</id>
-   <name>Debian</name>
-  </distribution>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>23</totalitems>
+     </meta>
+     <data>
+      <distribution>
+       <id>0</id>
+       <name></name>
+      </distribution>
+      <distribution>
+       <id>2200</id>
+       <name>Arch</name>
+      </distribution>
+      <distribution>
+       <id>2000</id>
+       <name>Ark</name>
+      </distribution>
+      <distribution>
+       <id>1100</id>
+       <name>Debian</name>
+      </distribution>
+     </data>
+    </ocs>
 
 #### dependencies
 
@@ -1224,37 +1196,36 @@ Get a list of all possible dependencies.
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/content/dependencies|http://frank:password@api.opendesktop.org/v1/content/dependencies]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/content/dependencies> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>36</totalitems>
- </meta>
- <data>
-  <dependtypes>
-   <id>0</id>
-   <name></name>
-  </dependtypes>
-  <dependtypes>
-   <id>30</id>
-   <name>GNOME 1.x</name>
-  </dependtypes>
-  <dependtypes>
-   <id>31</id>
-   <name>GNOME 2.x</name>
-  </dependtypes>
-  <dependtypes>
-   <id>20</id>
-   <name>GTK 1.x</name>
-  </dependtypes>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>36</totalitems>
+     </meta>
+     <data>
+      <dependtypes>
+       <id>0</id>
+       <name></name>
+      </dependtypes>
+      <dependtypes>
+       <id>30</id>
+       <name>GNOME 1.x</name>
+      </dependtypes>
+      <dependtypes>
+       <id>31</id>
+       <name>GNOME 2.x</name>
+      </dependtypes>
+      <dependtypes>
+       <id>20</id>
+       <name>GTK 1.x</name>
+      </dependtypes>
+     </data>
+    </ocs>
 
 #### homepagetypes
 
@@ -1266,33 +1237,32 @@ Get a list of all possible homepagetypes.
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: GET [[http://frank:password@api.opendesktop.org/v1/content/homepages|http://frank:password@api.opendesktop.org/v1/content/homepages]] 
+* Example: GET <http://frank:password@api.opendesktop.org/v1/content/homepages> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>14</totalitems>
- </meta>
- <data>
-  <homepagetypes>
-   <id>0</id>
-   <name>&amp;nbsp;</name>
-  </homepagetypes>
-  <homepagetypes>
-   <id>10</id>
-   <name>Blog</name>
-  </homepagetypes>
-  <homepagetypes>
-   <id>20</id>
-   <name>Facebook</name>
-  </homepagetypes>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>14</totalitems>
+     </meta>
+     <data>
+      <homepagetypes>
+       <id>0</id>
+       <name>&amp;nbsp;</name>
+      </homepagetypes>
+      <homepagetypes>
+       <id>10</id>
+       <name>Blog</name>
+      </homepagetypes>
+      <homepagetypes>
+       <id>20</id>
+       <name>Facebook</name>
+      </homepagetypes>
+     </data>
+    </ocs>
 
 #### list
 
@@ -1313,82 +1283,81 @@ Gets a list of a specific set of contents.
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: [[http://frank:password@api.opendesktop.org/v1/content/data?categories=1x2x3x4&search=foo&sortmode=new&page=1|http://frank:password@api.opendesktop.org/v1/content/data?categories=1x2x3x4&search=foo&sortmode=new&page=1]] Gets the second page of the list of the newest contents from categories 1,2,3 and 4 with the string foo in the name. 
+* Example: <http://frank:password@api.opendesktop.org/v1/content/data?categories=1x2x3x4&search=foo&sortmode=new&page=1> Gets the second page of the list of the newest contents from categories 1,2,3 and 4 with the string foo in the name. 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
 
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <content details="summary">
-   <id>1420</id>
-   <name>name</name>
-   <version>11122</version>
-   <changed>2007-11-24T22:41:08+01:00</changed>
-   <created>2007-11-01T22:28:24+01:00</created>
-   <typeid>6</typeid>
-   <typename>KDE Wallpaper (other)</typename>
-   <language></language>
-   <personid>Frank</personid>
-   <profilepage>http://www.opendesktop.org/usermanager/search.php?username=Frank</profilepage>
-   <downloads>5</downloads>
-   <score>50</score>
-   <comments>0</comments>
-   <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=1420&amp;file1=1420-1.png&amp;file2=1420-2.png&amp;file3=&amp;name=nameeee</preview1>
-   <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/1420-1.png</previewpic1>
-  </content>
-  <content details="summary">
-   <id>1422</id>
-   <name>testy2</name>
-   <version>11</version>
-   <summary>this is a short summary</summary>
-   <changed>2007-11-01T22:45:20+01:00</changed>
-   <created>2007-11-01T22:43:21+01:00</created>
-   <typeid>7</typeid>
-   <typename>KDE Wallpaper (SVG)</typename>
-   <language></language>
-   <personid>Frank</personid>
-   <downloads>8</downloads>
-   <score>50</score>
-   <comments>0</comments>
-   <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=1422&amp;file1=1422-1.jpg&amp;file2=1422-2.png&amp;file3=1422-3.png&amp;name=vdfdds222</preview1>
-   <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/1422-1.jpg</previewpic1>
-   <icon width="16" height="16">http://www.KDE-Look.org/img/icon1.png</icon>
-   <icon width="32" height="32">http://www.KDE-Look.org/img/icon2.png</icon>
-   <icon width="64" height="64">http://www.KDE-Look.org/img/icon2.png</icon>
-   <smallpreviewpic1>http://www.KDE-Look.org/CONTENT/content-m1/m1421-1.png</smallpreviewpic1>
-   <downloadway1>1</downloadway1>
-   <downloadtype1>Fedora</downloadtype1>
-   <downloadprice1>2.99</downloadprice1>
-   <downloadlink1>http://www.opendesktop.org/content/buy.php?content=1422&amp;id=1</downloadlink1>
-   <downloadname1>pay item 1</downloadname1>
-   <downloadsize1>2</downloadsize1>
-   <downloadgpgsignature1></downloadgpgsignature1>
-   <downloadgpgfingerprint1></downloadgpgfingerprint1>
-   <downloadtype2>Ubuntu </downloadtype2>
-   <downloadprice2>0</downloadprice2>
-   <downloadlink2>http://www.opendesktop.org/content/download.php?content=1422&amp;id=2</downloadlink2>
-   <downloadname2>free download</downloadname2>
-   <downloadgpgsignature2></downloadgpgsignature2>
-   <downloadgpgfingerprint2></downloadgpgfingerprint2>
-   <downloadtype3>SUSE </downloadtype3>
-   <downloadprice3>0</downloadprice3>
-   <downloadlink3>http://www.opendesktop.org/content/download.php?content=1422&amp;id=3</downloadlink3>
-   <downloadname3>free item</downloadname3>
-   <downloadgpgsignature3></downloadgpgsignature3>
-   <downloadgpgfingerprint3></downloadgpgfingerprint3>
-   <detailpage>http://www.KDE-Look.org/content/show.php?content=100</detailpage>
-  </content>
- </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <content details="summary">
+       <id>1420</id>
+       <name>name</name>
+       <version>11122</version>
+       <changed>2007-11-24T22:41:08+01:00</changed>
+       <created>2007-11-01T22:28:24+01:00</created>
+       <typeid>6</typeid>
+       <typename>KDE Wallpaper (other)</typename>
+       <language></language>
+       <personid>Frank</personid>
+       <profilepage>http://www.opendesktop.org/usermanager/search.php?username=Frank</profilepage>
+       <downloads>5</downloads>
+       <score>50</score>
+       <comments>0</comments>
+       <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=1420&amp;file1=1420-1.png&amp;file2=1420-2.png&amp;file3=&amp;name=nameeee</preview1>
+       <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/1420-1.png</previewpic1>
+      </content>
+      <content details="summary">
+       <id>1422</id>
+       <name>testy2</name>
+       <version>11</version>
+       <summary>this is a short summary</summary>
+       <changed>2007-11-01T22:45:20+01:00</changed>
+       <created>2007-11-01T22:43:21+01:00</created>
+       <typeid>7</typeid>
+       <typename>KDE Wallpaper (SVG)</typename>
+       <language></language>
+       <personid>Frank</personid>
+       <downloads>8</downloads>
+       <score>50</score>
+       <comments>0</comments>
+       <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=1422&amp;file1=1422-1.jpg&amp;file2=1422-2.png&amp;file3=1422-3.png&amp;name=vdfdds222</preview1>
+       <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/1422-1.jpg</previewpic1>
+       <icon width="16" height="16">http://www.KDE-Look.org/img/icon1.png</icon>
+       <icon width="32" height="32">http://www.KDE-Look.org/img/icon2.png</icon>
+       <icon width="64" height="64">http://www.KDE-Look.org/img/icon2.png</icon>
+       <smallpreviewpic1>http://www.KDE-Look.org/CONTENT/content-m1/m1421-1.png</smallpreviewpic1>
+       <downloadway1>1</downloadway1>
+       <downloadtype1>Fedora</downloadtype1>
+       <downloadprice1>2.99</downloadprice1>
+       <downloadlink1>http://www.opendesktop.org/content/buy.php?content=1422&amp;id=1</downloadlink1>
+       <downloadname1>pay item 1</downloadname1>
+       <downloadsize1>2</downloadsize1>
+       <downloadgpgsignature1></downloadgpgsignature1>
+       <downloadgpgfingerprint1></downloadgpgfingerprint1>
+       <downloadtype2>Ubuntu </downloadtype2>
+       <downloadprice2>0</downloadprice2>
+       <downloadlink2>http://www.opendesktop.org/content/download.php?content=1422&amp;id=2</downloadlink2>
+       <downloadname2>free download</downloadname2>
+       <downloadgpgsignature2></downloadgpgsignature2>
+       <downloadgpgfingerprint2></downloadgpgfingerprint2>
+       <downloadtype3>SUSE </downloadtype3>
+       <downloadprice3>0</downloadprice3>
+       <downloadlink3>http://www.opendesktop.org/content/download.php?content=1422&amp;id=3</downloadlink3>
+       <downloadname3>free item</downloadname3>
+       <downloadgpgsignature3></downloadgpgsignature3>
+       <downloadgpgfingerprint3></downloadgpgfingerprint3>
+       <detailpage>http://www.KDE-Look.org/content/show.php?content=100</detailpage>
+      </content>
+     </data>
+    </ocs>
 
 #### get
 
@@ -1402,99 +1371,98 @@ Read content data of one specific content.
       * 100 - successfull 
       * 101 - content not found 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: [[http://frank:password@api.opendesktop.org/v1/content/data/12345|http://frank:password@api.opendesktop.org/v1/content/data/12345]] 
+* Example: <http://frank:password@api.opendesktop.org/v1/content/data/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <content details="full">
-   <id>100</id>
-   <name>GradE8</name>
-   <version></version>
-   <typeid>10</typeid>
-   <typename>Theme/Style for KDE 2.1</typename>
-   <language></language>
-   <personid>Hans</personid>
-   <created>2001-09-28T18:45:40+02:00</created>
-   <changed>2001-09-28T18:45:40+02:00</changed>
-   <downloads>2</downloads>
-   <score>67</score>
-   <description>his is my first KDE 2.0 theme. It isn't the final version, I must add some icons etc...</description>
-   <summary>this is a short summary</summary>
-   <changelog></changelog>
-   <feedbackurl>http://openDesktop.org/feedback</feedbackurl>
-   <homepage>http://en.wikipedia.org/foo111</homepage>
-   <homepagetype>Wikipedia</homepagetype>
-   <homepage2></homepage2>
-   <homepagetype2></homepagetype2>
-   <homepage3>http://myhomepage.com</homepage3>
-   <homepagetype3>Blog</homepagetype3>
-   <homepage4></homepage4>
-   <homepagetype4></homepagetype4>
-   <homepage5></homepage5>
-   <homepagetype5></homepagetype5>
-   <homepage6></homepage6>
-   <homepagetype6></homepagetype6>
-   <homepage7></homepage7>
-   <homepagetype7></homepagetype7>
-   <homepage8></homepage8>
-   <homepagetype8></homepagetype8>
-   <homepage9></homepage9>
-   <homepagetype9></homepagetype9>
-   <homepage10></homepage10>
-   <homepagetype10></homepagetype10>
-   <donationpage>http://www.opendesktop.org/content/donation.php?content=123</donationpage>
-   <comments>0</comments>
-   <commentspage>http://www.opendesktop.org/content/show.php?content=100</commentspage>
-   <fans>22</fans>
-   <fanspage>http://www.opendesktop.org/content/show.php?action=fan&amp;content=100</fanspage>
-   <knowledgebaseentries>7</knowledgebaseentries>
-   <knowledgebasepage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=100</knowledgebasepage>
-   <depend></depend>
-   <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=100&amp;file1=100-1.jpg&amp;file2=&amp;file3=&amp;name=GradE8</preview1>
-   <preview2></preview2>
-   <preview3></preview3>
-   <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/100-1.jpg</previewpic1>
-   <previewpic2></previewpic2>
-   <previewpic3></previewpic3>
-   <smallpreviewpic1>http://www.KDE-Look.org/CONTENT/content-m1/m100-1.png</smallpreviewpic1>
-   <smallpreviewpic2></smallpreviewpic2>
-   <smallpreviewpic3></smallpreviewpic3>
-   <icon width="16" height="16">http://www.KDE-Look.org/img/icon1.png</icon>
-   <icon width="32" height="32">http://www.KDE-Look.org/img/icon2.png</icon>
-   <icon width="64" height="64">http://www.KDE-Look.org/img/icon2.png</icon>
-   <video>http://www.KDE-Look.org/video/video1.mpg</video>
-   <video>http://www.KDE-Look.org/video/video2.mpg</video>
-   <video>http://www.KDE-Look.org/video/video3.mpg</video>
-   <detailpage>http://www.KDE-Look.org/content/show.php?content=100</detailpage>
-   <downloadway1>1</downloadway1>
-   <downloadtype1>Fedora </downloadtype1>
-   <downloadprice1>0</downloadprice1>
-   <downloadlink1>http://www.opendesktop.org/content/download.php?content=1423&amp;id=2</downloadlink1>
-   <downloadname1>gdfgd22</downloadname1>
-   <downloadsize1>2</downloadsize1>
-   <downloadgpgfingerprint1>6AD9 150F D8CC 941B 4541 2DCC 68B7 AB89 5754 8D2D</downloadgpgfingerprint1>
-   <downloadgpgsignature1>iEYEABECAAYFAkxT52oACgkQMNASEGDVgdegPAbDSMHn/xDQCfSplogMr9x0G0ZNqMUAn3WLVmXADVzWdEToTJ8B5wpdm3zb=A6Dy</downloadgpgsignature1>
-   <downloadpackagename1>packname</downloadpackagename1>
-   <downloadrepository1>repo</downloadrepository1>
-   <downloadtype2>Fedora </downloadtype2>
-   <downloadprice2>2.99</downloadprice2>
-   <downloadlink2>http://www.opendesktop.org/content/buy.php?content=1423&amp;id=1</downloadlink2>
-   <downloadname2>gdgg22</downloadname2>
-   <downloadgpgfingerprint2>6AD9 150F D8CC 941B 4541 2DCC 68B7 AB89 5754 8D2D</downloadgpgfingerprint2>
-   <downloadgpgsignature2>iEYEABECAAYFAkxT52oACgkQMNASEGDVgdegPAbDSMHn/xDQCfSplogMr9x0G0ZNqMUAn3WLVmXADVzWdEToTJ8B5wpdm3zb=A6Dy</downloadgpgsignature2>
-   <downloadpackagename2>packname</downloadpackagename2>
-   <downloadrepository2>repo</downloadrepository2>
-  </content>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <content details="full">
+       <id>100</id>
+       <name>GradE8</name>
+       <version></version>
+       <typeid>10</typeid>
+       <typename>Theme/Style for KDE 2.1</typename>
+       <language></language>
+       <personid>Hans</personid>
+       <created>2001-09-28T18:45:40+02:00</created>
+       <changed>2001-09-28T18:45:40+02:00</changed>
+       <downloads>2</downloads>
+       <score>67</score>
+       <description>his is my first KDE 2.0 theme. It isn't the final version, I must add some icons etc...</description>
+       <summary>this is a short summary</summary>
+       <changelog></changelog>
+       <feedbackurl>http://openDesktop.org/feedback</feedbackurl>
+       <homepage>http://en.wikipedia.org/foo111</homepage>
+       <homepagetype>Wikipedia</homepagetype>
+       <homepage2></homepage2>
+       <homepagetype2></homepagetype2>
+       <homepage3>http://myhomepage.com</homepage3>
+       <homepagetype3>Blog</homepagetype3>
+       <homepage4></homepage4>
+       <homepagetype4></homepagetype4>
+       <homepage5></homepage5>
+       <homepagetype5></homepagetype5>
+       <homepage6></homepage6>
+       <homepagetype6></homepagetype6>
+       <homepage7></homepage7>
+       <homepagetype7></homepagetype7>
+       <homepage8></homepage8>
+       <homepagetype8></homepagetype8>
+       <homepage9></homepage9>
+       <homepagetype9></homepagetype9>
+       <homepage10></homepage10>
+       <homepagetype10></homepagetype10>
+       <donationpage>http://www.opendesktop.org/content/donation.php?content=123</donationpage>
+       <comments>0</comments>
+       <commentspage>http://www.opendesktop.org/content/show.php?content=100</commentspage>
+       <fans>22</fans>
+       <fanspage>http://www.opendesktop.org/content/show.php?action=fan&amp;content=100</fanspage>
+       <knowledgebaseentries>7</knowledgebaseentries>
+       <knowledgebasepage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=100</knowledgebasepage>
+       <depend></depend>
+       <preview1>http://www.KDE-Look.org/content/preview.php?preview=1&amp;id=100&amp;file1=100-1.jpg&amp;file2=&amp;file3=&amp;name=GradE8</preview1>
+       <preview2></preview2>
+       <preview3></preview3>
+       <previewpic1>http://www.KDE-Look.org/CONTENT/content-pre1/100-1.jpg</previewpic1>
+       <previewpic2></previewpic2>
+       <previewpic3></previewpic3>
+       <smallpreviewpic1>http://www.KDE-Look.org/CONTENT/content-m1/m100-1.png</smallpreviewpic1>
+       <smallpreviewpic2></smallpreviewpic2>
+       <smallpreviewpic3></smallpreviewpic3>
+       <icon width="16" height="16">http://www.KDE-Look.org/img/icon1.png</icon>
+       <icon width="32" height="32">http://www.KDE-Look.org/img/icon2.png</icon>
+       <icon width="64" height="64">http://www.KDE-Look.org/img/icon2.png</icon>
+       <video>http://www.KDE-Look.org/video/video1.mpg</video>
+       <video>http://www.KDE-Look.org/video/video2.mpg</video>
+       <video>http://www.KDE-Look.org/video/video3.mpg</video>
+       <detailpage>http://www.KDE-Look.org/content/show.php?content=100</detailpage>
+       <downloadway1>1</downloadway1>
+       <downloadtype1>Fedora </downloadtype1>
+       <downloadprice1>0</downloadprice1>
+       <downloadlink1>http://www.opendesktop.org/content/download.php?content=1423&amp;id=2</downloadlink1>
+       <downloadname1>gdfgd22</downloadname1>
+       <downloadsize1>2</downloadsize1>
+       <downloadgpgfingerprint1>6AD9 150F D8CC 941B 4541 2DCC 68B7 AB89 5754 8D2D</downloadgpgfingerprint1>
+       <downloadgpgsignature1>iEYEABECAAYFAkxT52oACgkQMNASEGDVgdegPAbDSMHn/xDQCfSplogMr9x0G0ZNqMUAn3WLVmXADVzWdEToTJ8B5wpdm3zb=A6Dy</downloadgpgsignature1>
+       <downloadpackagename1>packname</downloadpackagename1>
+       <downloadrepository1>repo</downloadrepository1>
+       <downloadtype2>Fedora </downloadtype2>
+       <downloadprice2>2.99</downloadprice2>
+       <downloadlink2>http://www.opendesktop.org/content/buy.php?content=1423&amp;id=1</downloadlink2>
+       <downloadname2>gdgg22</downloadname2>
+       <downloadgpgfingerprint2>6AD9 150F D8CC 941B 4541 2DCC 68B7 AB89 5754 8D2D</downloadgpgfingerprint2>
+       <downloadgpgsignature2>iEYEABECAAYFAkxT52oACgkQMNASEGDVgdegPAbDSMHn/xDQCfSplogMr9x0G0ZNqMUAn3WLVmXADVzWdEToTJ8B5wpdm3zb=A6Dy</downloadgpgsignature2>
+       <downloadpackagename2>packname</downloadpackagename2>
+       <downloadrepository2>repo</downloadrepository2>
+      </content>
+     </data>
+    </ocs>
 
 #### download
 
@@ -1512,29 +1480,28 @@ Download or buy one specific content item. links to the package and links to rep
       * 103 - content item not found 
       * 104 - please login to buy this content 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: [[http://api.opendesktop.org/v1/content/download/12345/2|http://api.opendesktop.org/v1/content/download/12345/2]] 
+* Example: <http://api.opendesktop.org/v1/content/download/12345/2> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <content details="download">
-   <downloadway>0</downloadway>
-   <downloadlink>http://www......tar.gz</downloadlink>
-   <mimetype>image/jpeg</mimetype>
-   <packagename>glibc-2.10.1-10.4.i686.rpm</packagename>
-   <packagerepository>http://download.opensuse.org/distribution/11.2/repo/oss/</packagerepository>
-   <gpgfingerprint>6AD9 150F D8CC 941B 4541 2DCC 68B7 AB89 5754 8D2D</gpgfingerprint>
-   <gpgsignature>iEYEABECAAYFAkxT52oACgkQMNASEGDVgdegPAbDSMHn/xDQCfSplogMr9x0G0ZNqMUAn3WLVmXADVzWdEToTJ8B5wpdm3zb=A6Dy</gpgsignature>
-  </content>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <content details="download">
+       <downloadway>0</downloadway>
+       <downloadlink>http://www......tar.gz</downloadlink>
+       <mimetype>image/jpeg</mimetype>
+       <packagename>glibc-2.10.1-10.4.i686.rpm</packagename>
+       <packagerepository>http://download.opensuse.org/distribution/11.2/repo/oss/</packagerepository>
+       <gpgfingerprint>6AD9 150F D8CC 941B 4541 2DCC 68B7 AB89 5754 8D2D</gpgfingerprint>
+       <gpgsignature>iEYEABECAAYFAkxT52oACgkQMNASEGDVgdegPAbDSMHn/xDQCfSplogMr9x0G0ZNqMUAn3WLVmXADVzWdEToTJ8B5wpdm3zb=A6Dy</gpgsignature>
+      </content>
+     </data>
+    </ocs>
 
 #### vote
 
@@ -1549,15 +1516,14 @@ Vote for one specific content.
       * 100 - successful 
       * 101 - content not found 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: [[http://api.opendesktop.org/v1/content/vote/12345|http://api.opendesktop.org/v1/content/vote/12345]] with the POST variable vote=good 
+* Example: <http://api.opendesktop.org/v1/content/vote/12345> with the POST variable vote=good 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### add
 
@@ -1729,23 +1695,22 @@ Add a new content entry:
       * 100 - successful 
       * 101 - please specify all mandatory fields 
       * 102 - no permission to change content 
-* Example: [[http://api.opendesktop.org/v1/content/add|http://api.opendesktop.org/v1/content/add]] 
+* Example: <http://api.opendesktop.org/v1/content/add> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <content>
-   <id>1234567</id>
-  </content>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <content>
+       <id>1234567</id>
+      </content>
+     </data>
+    </ocs>
 
 #### edit
 
@@ -1918,15 +1883,14 @@ Edit a content entry:
       * 100 - successful 
       * 101 - please specify all mandatory fields 
       * 102 - no permission to change content 
-* Example: [[http://api.opendesktop.org/v1/content/edit/12345|http://api.opendesktop.org/v1/content/edit/12345]] 
+* Example: <http://api.opendesktop.org/v1/content/edit/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### delete content entry
 
@@ -1939,15 +1903,14 @@ Delete a content entry:
 * Statuscodes: 
       * 100 - successful 
       * 101 - no permission to change content 
-* Example: [[http://api.opendesktop.org/v1/content/delete/12345|http://api.opendesktop.org/v1/content/delete/12345]] 
+* Example: <http://api.opendesktop.org/v1/content/delete/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### upload new download file
 
@@ -1963,15 +1926,14 @@ Upload a new download file to a content:
       * 101 - upload error 
       * 102 - localfile not found 
       * 103 - no permission to change content 
-* Example: [[http://api.opendesktop.org/v1/content/uploaddownload/12345|http://api.opendesktop.org/v1/content/uploaddownload/12345]] 
+* Example: <http://api.opendesktop.org/v1/content/uploaddownload/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### delete download file
 
@@ -1984,15 +1946,14 @@ Delete the download file from a content:
 * Statuscodes: 
       * 100 - successful 
       * 101 - no permission to change content 
-* Example: [[http://api.opendesktop.org/v1/content/deletedownload/12345|http://api.opendesktop.org/v1/content/deletedownload/12345]] 
+* Example: <http://api.opendesktop.org/v1/content/deletedownload/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### upload preview image
 
@@ -2009,15 +1970,14 @@ Upload a new preview image for a content:
       * 101 - localfile not found 
       * 102 - no permission to change content 
       * 103 - preview must be 1, 2 or 3 
-* Example: [[http://api.opendesktop.org/v1/content/uploadpreview/12345/1|http://api.opendesktop.org/v1/content/uploadpreview/12345/1]] 
+* Example: <http://api.opendesktop.org/v1/content/uploadpreview/12345/1> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### delete preview image
 
@@ -2032,15 +1992,14 @@ Delete a preview image from a content:
       * 100 - successful 
       * 101 - no permission to change content 
       * 102 - preview not found 
-* Example: [[http://api.opendesktop.org/v1/content/deletepreview/12345/1|http://api.opendesktop.org/v1/content/deletepreview/12345/1]] 
+* Example: <http://api.opendesktop.org/v1/content/deletepreview/12345/1> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### getrecommendation
 
@@ -2055,28 +2014,28 @@ Gets a list of cross selling for a contentid
 * Statuscodes: 
       * 100 - successful 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: [[http://frank:password@api.opendesktop.org/v1/content/recommendations/123/?categories=1x2x3x4&page=1|http://frank:password@api.opendesktop.org/v1/content/recommendations/123/?categories=1x2x3x4&page=1]] Gets the second page of the list of recommendations for the content 123 from categories 1,2,3 and 4. 
+* Example: <http://frank:password@api.opendesktop.org/v1/content/recommendations/123/?categories=1x2x3x4&page=1> Gets the second page of the list of recommendations for the content 123 from categories 1,2,3 and 4. 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <content details="basic">
-   <id>1422</id>
-  </content>
-  <content details="basic">
-   <id>1223344</id>
-  </content>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <content details="basic">
+       <id>1422</id>
+      </content>
+      <content details="basic">
+       <id>1223344</id>
+      </content>
+     </data>
+    </ocs>
+
 <a name="FAN"></a> 
 ### FAN
 
@@ -2093,30 +2052,29 @@ Gets a list of fans of a specific content entries. Only authenticated users are 
 * Result: fan xml 
 * Statuscodes: 
       * 100 - successful 
-* Example: [[http://frank:password@api.opendesktop.org/v1/fan/data/123&page=1&pagesize=10|http://frank:password@api.opendesktop.org/v1/fan/data/123&page=1&pagesize=10]] Gets the second page of the list of fans of the content with the id 123. The pagesize is 10 
+* Example: <http://frank:password@api.opendesktop.org/v1/fan/data/123&page=1&pagesize=10> Gets the second page of the list of fans of the content with the id 123. The pagesize is 10 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <person details="fans">
-   <personid>Frank</personid>
-   <timestamp>2009-08-18T10:40:09+02:00</timestamp>
-  </person>
-  <person details="fans">
-   <personid>Test</personid>
-   <timestamp>2009-07-18T11:41:15+02:00</timestamp>
-  </person>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <person details="fans">
+       <personid>Frank</personid>
+       <timestamp>2009-08-18T10:40:09+02:00</timestamp>
+      </person>
+      <person details="fans">
+       <personid>Test</personid>
+       <timestamp>2009-07-18T11:41:15+02:00</timestamp>
+      </person>
+     </data>
+    </ocs>
 
 #### isfan
 
@@ -2128,21 +2086,20 @@ Check if the current user is fan of a specific content. Only authenticated users
 * Result: fan xml Possible stati are "fan" or "notfan" 
 * Statuscodes: 
       * 100 - successful 
-* Example: [[http://frank:password@api.opendesktop.org/v1/fan/status/123|http://frank:password@api.opendesktop.org/v1/fan/status/123]] Checks if the user frank is a fan of the content 123 
+* Example: <http://frank:password@api.opendesktop.org/v1/fan/status/123> Checks if the user frank is a fan of the content 123 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <status>fan</status>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <status>fan</status>
+     </data>
+    </ocs>
 
 #### add
 
@@ -2154,18 +2111,17 @@ Become a fan of a specific content. Only authenticated users are allowed to acce
 * Result: fan xml 
 * Statuscodes: 
       * 100 - successful 
-* Example: [[http://frank:password@api.opendesktop.org/v1/fan/add/123|http://frank:password@api.opendesktop.org/v1/fan/add/123]] The user frank becomes a fan of the content 123 
+* Example: <http://frank:password@api.opendesktop.org/v1/fan/add/123> The user frank becomes a fan of the content 123 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
 
 #### remove
 
@@ -2177,18 +2133,18 @@ Remove the user from the fans list of a specific content. Only authenticated use
 * Result: fan xml 
 * Statuscodes: 
       * 100 - successful 
-* Example: [[http://frank:password@api.opendesktop.org/v1/fan/remove/123|http://frank:password@api.opendesktop.org/v1/fan/remove/123]] The user frank is no longer a fan of the content 123 
+* Example: <http://frank:password@api.opendesktop.org/v1/fan/remove/123> The user frank is no longer a fan of the content 123 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
+
 <a name="KNOWLEDGEBASE"></a> 
 ### KNOWLEDGEBASE
 
@@ -2208,49 +2164,48 @@ Gets a list of a specific set of knowledgebase entries. Only authenticated users
 * Result: knowledgebase xml 
 * Statuscodes: 
       * 100 - successful 
-* Example: [[http://frank:password@api.opendesktop.org/v1/knowledgebase/data?content=123&search=foo&sortmode=new&page=1|http://frank:password@api.opendesktop.org/v1/knowledgebase/data?content=123&search=foo&sortmode=new&page=1]] Gets the second page of the list of the newest knowledgebase entries from content 123 with the string foo in the name, description or answer. 
+* Example: <http://frank:password@api.opendesktop.org/v1/knowledgebase/data?content=123&search=foo&sortmode=new&page=1> Gets the second page of the list of the newest knowledgebase entries from content 123 with the string foo in the name, description or answer. 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <content details="detail">
-   <id>1</id>
-   <status>not answered</status>
-   <contentid>12345</contentid>
-   <category>Application</category>
-   <user>testy</user>
-   <changed>2009-02-07T23:14:11+01:00</changed>
-   <name>app question</name>
-   <description>How can I ........</description>
-   <answer></answer>
-   <answeruser>testy2</answeruser>
-   <comments>0</comments>
-   <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12345</detailpage>
-  </content>
-  <content details="detail">>
-   <id>2</id>
-   <status>answered</status>
-   <contentid>12345</contentid>
-   <category>other</category>
-   <user>testy</user>
-   <changed>2009-02-03T21:11:01+01:00</changed>
-   <name>app question 22</name>
-   <description>How can I 22........</description>
-   <answeruser>testy2</answeruser>
-   <answer></answer>
-   <comments>0</comments>
-   <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12</detailpage>
-  </content>
- </data>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <content details="detail">
+       <id>1</id>
+       <status>not answered</status>
+       <contentid>12345</contentid>
+       <category>Application</category>
+       <user>testy</user>
+       <changed>2009-02-07T23:14:11+01:00</changed>
+       <name>app question</name>
+       <description>How can I ........</description>
+       <answer></answer>
+       <answeruser>testy2</answeruser>
+       <comments>0</comments>
+       <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12345</detailpage>
+      </content>
+      <content details="detail">>
+       <id>2</id>
+       <status>answered</status>
+       <contentid>12345</contentid>
+       <category>other</category>
+       <user>testy</user>
+       <changed>2009-02-03T21:11:01+01:00</changed>
+       <name>app question 22</name>
+       <description>How can I 22........</description>
+       <answeruser>testy2</answeruser>
+       <answer></answer>
+       <comments>0</comments>
+       <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12</detailpage>
+      </content>
+     </data>
 
 #### get
 
@@ -2263,34 +2218,33 @@ Read one specific knowledgebase entry. Only authenticated users are allowed to a
 * Statuscodes: 
       * 100 - successful 
       * 101 - entry not found 
-* Example: [[http://frank:password@api.opendesktop.org/v1/knowledgebase/data/12345|http://frank:password@api.opendesktop.org/v1/knowledgebase/data/12345]] 
+* Example: <http://frank:password@api.opendesktop.org/v1/knowledgebase/data/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <knowledgebase>
-   <id>1</id>
-   <status>not answered</status>
-   <contentid>12345</contentid>
-   <category>Application</category>
-   <user>testy</user>
-   <changed>2009-02-07T23:14:11+01:00</changed>
-   <name>app question</name>
-   <description>How can I ........</description>
-   <answeruser>testy2</answeruser>
-   <answer></answer>
-   <comments>0</comments>
-   <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12345</detailpage>
-  </knowledgebase>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <knowledgebase>
+       <id>1</id>
+       <status>not answered</status>
+       <contentid>12345</contentid>
+       <category>Application</category>
+       <user>testy</user>
+       <changed>2009-02-07T23:14:11+01:00</changed>
+       <name>app question</name>
+       <description>How can I ........</description>
+       <answeruser>testy2</answeruser>
+       <answer></answer>
+       <comments>0</comments>
+       <detailpage>http://www.opendesktop.org/content/show.php?action=knowledgebase&amp;content=11&amp;kbid=12345</detailpage>
+      </knowledgebase>
+     </data>
+    </ocs>
 
 #### add
 
@@ -2306,18 +2260,18 @@ Add one specific knowledgebase entry. Only authenticated users are allowed to ac
 * Statuscodes: 
       * 100 - successful 
       * 101 - please specify all mandatory fields 
-* Example: [[http://frank:password@api.opendesktop.org/v1/knowledgebase/data|http://frank:password@api.opendesktop.org/v1/knowledgebase/data]] 
+* Example: <http://frank:password@api.opendesktop.org/v1/knowledgebase/data> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-<meta>
- <status>ok</status>
- <statuscode>100</statuscode>
- <message></message>
-</meta>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+    <meta>
+     <status>ok</status>
+     <statuscode>100</statuscode>
+     <message></message>
+    </meta>
+    </ocs>
+
 <a name="EVENT"></a> 
 ### EVENT
 
@@ -2344,60 +2298,56 @@ Gets a list of a specific set of events. Only authenticated users are allowed to
 * Result: event xml 
 * Statuscodes: 
       * 100 - successful 
-* Example: [[http://frank:password@api.opendesktop.org/v1/event/data?country=us&startat=01-01-2009&type=10&search=foo&sortmode=new&page=1|http://frank:password@api.opendesktop.org/v1/event/data?country=us&startat=01-01-2009&type=10&search=foo&sortmode=new&page=1]] Gets the second page of the list of the newest events of 2009 from type party in the US with the string foo in the name or description. 
+* Example: <http://frank:password@api.opendesktop.org/v1/event/data?country=us&startat=01-01-2009&type=10&search=foo&sortmode=new&page=1> Gets the second page of the list of the newest events of 2009 from type party in the US with the string foo in the name or description. 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>2</totalitems>
-  <itemsperpage>10</itemsperpage>
- </meta>
- <data>
-  <event details="detail">
-   <id>4</id>
-   <name>Test Party</name>
-   <category>Party</category>
-   <startdate>2010-08-02T00:00:00+02:00</startdate>
-   <enddate>2011-10-03T00:00:00+02:00</enddate>
-   <user>Frank</user>
-   <city>Stuttgart</city>
-   <country>Germany</country>
-   <longitude>9.183</longitude>
-   <latitude>48.767</latitude>
-   <changed>2009-05-18T14:03:55+02:00</changed>
-   <comments>2</comments>
-   <participants>2</participants>
-   <badge></badge>
-   <detailpage>http://www.opendesktop.org/events/?id=4</detailpage>
-  </event>
-  <event details="detail">
-   <id>3</id>
-   <name>Another Party</name>
-   <category>Party</category>
-   <startdate>1979-01-01T01:00:01+01:00</startdate>
-   <enddate>1979-01-01T01:00:01+01:00</enddate>
-   <user>Frank</user>
-   <city>Stuttgart</city>
-   <country>Germany</country>
-   <longitude>1.2</longitude>
-   <latitude>1.1</latitude>
-   <changed>2009-05-16T00:25:31+02:00</changed>
-   <comments>0</comments>
-   <participants>1</participants>
-   <badge></badge>
-   <detailpage>http://www.opendesktop.org/events/?id=3</detailpage>
-  </event>
- </data>
-</ocs>
 
-
-
-"""]]
-
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>2</totalitems>
+      <itemsperpage>10</itemsperpage>
+     </meta>
+     <data>
+      <event details="detail">
+       <id>4</id>
+       <name>Test Party</name>
+       <category>Party</category>
+       <startdate>2010-08-02T00:00:00+02:00</startdate>
+       <enddate>2011-10-03T00:00:00+02:00</enddate>
+       <user>Frank</user>
+       <city>Stuttgart</city>
+       <country>Germany</country>
+       <longitude>9.183</longitude>
+       <latitude>48.767</latitude>
+       <changed>2009-05-18T14:03:55+02:00</changed>
+       <comments>2</comments>
+       <participants>2</participants>
+       <badge></badge>
+       <detailpage>http://www.opendesktop.org/events/?id=4</detailpage>
+      </event>
+      <event details="detail">
+       <id>3</id>
+       <name>Another Party</name>
+       <category>Party</category>
+       <startdate>1979-01-01T01:00:01+01:00</startdate>
+       <enddate>1979-01-01T01:00:01+01:00</enddate>
+       <user>Frank</user>
+       <city>Stuttgart</city>
+       <country>Germany</country>
+       <longitude>1.2</longitude>
+       <latitude>1.1</latitude>
+       <changed>2009-05-16T00:25:31+02:00</changed>
+       <comments>0</comments>
+       <participants>1</participants>
+       <badge></badge>
+       <detailpage>http://www.opendesktop.org/events/?id=3</detailpage>
+      </event>
+     </data>
+    </ocs>
+    
 #### get
 
 Read one specific event entry. Only authenticated users are allowed to access this method. Authentication is done by sending a Basic HTTP Authorisation header. 
@@ -2409,46 +2359,44 @@ Read one specific event entry. Only authenticated users are allowed to access th
 * Statuscodes: 
       * 100 - successful 
       * 101 - entry not found 
-* Example: [[http://frank:password@api.opendesktop.org/v1/event/data/12345|http://frank:password@api.opendesktop.org/v1/event/data/12345]] 
+* Example: <http://frank:password@api.opendesktop.org/v1/event/data/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <event>
-   <id>6</id>
-   <name>bbb</name>
-   <description>here is the description text</description>
-   <category>Party</category>
-   <startdate>1970-01-01T00:00:00+01:00</startdate>
-   <enddate>1970-01-01T00:00:00+01:00</enddate>
-   <user>Frank</user>
-   <organizer></organizer>
-   <location></location>
-   <city></city>
-   <country>Germany</country>
-   <longitude>0</longitude>
-   <latitude>0</latitude>
-   <homepage></homepage>
-   <tel></tel>
-   <fax></fax>
-   <email></email>
-   <changed>2009-05-18T18:49:15+02:00</changed>
-   <comments>1</comments>
-   <participants>2</participants>
-   <detailpage>http://www.opendesktop.org/events/?id=6</detailpage>
-   <badge>http://www.opendesktop.org/CONTENT/event-badge/0/6.png</badge>
-   <image></image>
-  </event>
- </data>
-</ocs>
 
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <event>
+       <id>6</id>
+       <name>bbb</name>
+       <description>here is the description text</description>
+       <category>Party</category>
+       <startdate>1970-01-01T00:00:00+01:00</startdate>
+       <enddate>1970-01-01T00:00:00+01:00</enddate>
+       <user>Frank</user>
+       <organizer></organizer>
+       <location></location>
+       <city></city>
+       <country>Germany</country>
+       <longitude>0</longitude>
+       <latitude>0</latitude>
+       <homepage></homepage>
+       <tel></tel>
+       <fax></fax>
+       <email></email>
+       <changed>2009-05-18T18:49:15+02:00</changed>
+       <comments>1</comments>
+       <participants>2</participants>
+       <detailpage>http://www.opendesktop.org/events/?id=6</detailpage>
+       <badge>http://www.opendesktop.org/CONTENT/event-badge/0/6.png</badge>
+       <image></image>
+      </event>
+     </data>
+    </ocs>
 
 #### add
 
@@ -2483,23 +2431,22 @@ Add a new event entry. Only authenticated users are allowed to access this metho
       * 100 - successful 
       * 101 - please specify all mandatory fields 
       * 102 - no permission to add event 
-* Example: [[http://api.opendesktop.org/v1/event/add|http://api.opendesktop.org/v1/event/add]] 
+* Example: <http://api.opendesktop.org/v1/event/add> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <event>
-   <id>1234567</id>
-  </event>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <event>
+       <id>1234567</id>
+      </event>
+     </data>
+    </ocs>
 
 #### edit
 
@@ -2534,15 +2481,14 @@ Edit a event entry. Only authenticated users are allowed to access this method. 
       * 100 - successful 
       * 101 - please specify all mandatory fields 
       * 102 - no permission to change event 
-* Example: [[http://api.opendesktop.org/v1/event/edit/12345|http://api.opendesktop.org/v1/event/edit/12345]] 
+* Example: <http://api.opendesktop.org/v1/event/edit/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
 
 #### delete event entry
 
@@ -2555,15 +2501,15 @@ Delete a event entry. Only authenticated users are allowed to access this method
 * Statuscodes: 
       * 100 - successful 
       * 101 - no permission to change event 
-* Example: [[http://api.opendesktop.org/v1/event/delete/12345|http://api.opendesktop.org/v1/event/delete/12345]] 
+* Example: <http://api.opendesktop.org/v1/event/delete/12345> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <status>ok</status>
- <message></message>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <status>ok</status>
+     <message></message>
+    </ocs>
+
 <a name="COMMENTS"></a> 
 ### COMMENTS
 
@@ -2587,50 +2533,49 @@ Gets a list of comments.
       * 4 - forum 
       * 7 - knowledgebase 
       * 8 - event 
-* Example: [[http://frank:password@api.opendesktop.org/v1/comments/data/1/123/0&page=1&pagesize=10|http://frank:password@api.opendesktop.org/v1/comments/data/1/123/0&page=1&pagesize=10]] Gets the second page of the list of comments of the content with the id 123. The pagesize is 10 
+* Example: <http://frank:password@api.opendesktop.org/v1/comments/data/1/123/0&page=1&pagesize=10> Gets the second page of the list of comments of the content with the id 123. The pagesize is 10 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <comment>
-   <id>234</id>
-   <subject>vfvvdsx</subject>
-   <text>vdxvvsx</text>
-   <childcount>0</childcount>
-   <user>test</user>
-   <date>2005-01-29T18:58:40+01:00</date>
-   <score>50</score>
-  </comment>
-  <comment>
-   <id>235</id>
-   <subject>vxvdfvd</subject>
-   <text>gfdgfdgfgfgf
-   </text>
-   <childcount>1</childcount>
-   <user>test</user>
-   <date>2005-01-29T19:17:06+01:00</date>
-   <score>60</score>
-   <children>
-    <comment>
-     <id>315</id>
-     <subject>Re: jjjjjjjjjjjjjjj</subject>
-     <text>gfdg</text>
-     <childcount>0</childcount>
-     <user>Frank</user>
-     <date>2007-03-13T21:34:43+01:00</date>
-     <score>40</score>
-    </comment>
-   </children>
-  </comment>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <comment>
+       <id>234</id>
+       <subject>vfvvdsx</subject>
+       <text>vdxvvsx</text>
+       <childcount>0</childcount>
+       <user>test</user>
+       <date>2005-01-29T18:58:40+01:00</date>
+       <score>50</score>
+      </comment>
+      <comment>
+       <id>235</id>
+       <subject>vxvdfvd</subject>
+       <text>gfdgfdgfgfgf
+       </text>
+       <childcount>1</childcount>
+       <user>test</user>
+       <date>2005-01-29T19:17:06+01:00</date>
+       <score>60</score>
+       <children>
+        <comment>
+         <id>315</id>
+         <subject>Re: jjjjjjjjjjjjjjj</subject>
+         <text>gfdg</text>
+         <childcount>0</childcount>
+         <user>Frank</user>
+         <date>2007-03-13T21:34:43+01:00</date>
+         <score>40</score>
+        </comment>
+       </children>
+      </comment>
+     </data>
+    </ocs>
 
 #### add
 
@@ -2655,18 +2600,17 @@ Add a comment. Only authenticated users are allowed to access this method. Authe
       * 101 - content must not be empty 
       * 102 - message or subject must not be empty 
       * 103 - no permission to add a comment 
-* Example: [[http://api.opendesktop.org/v1/comments/add|http://api.opendesktop.org/v1/comments/add]] 
+* Example: <http://api.opendesktop.org/v1/comments/add> 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
 
 #### vote
 
@@ -2681,23 +2625,23 @@ Vote for one specific comment. Only authenticated users are allowed to access th
       * 100 - successful 
       * 101 - comment not found 
       * 200 - too many API requests in the last 15 minutes from your IP address. please try again later. 
-* Example: [[http://api.opendesktop.org/v1/content/vote/12345|http://api.opendesktop.org/v1/content/vote/12345]] with the POST variable vote=4 
+* Example: <http://api.opendesktop.org/v1/content/vote/12345> with the POST variable vote=4 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
- <data>
-  <comment>
-   <id>1234567</id>
-  </comment>
- </data>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+     <data>
+      <comment>
+       <id>1234567</id>
+      </comment>
+     </data>
+    </ocs>
+
 <a name="PRIVATEDATA"></a> 
 ### PRIVATE DATA
 
@@ -2712,26 +2656,25 @@ Gets the list of my personal extended attributes. You can store several attribut
 * Arguments: key - The key of the attribute you want to get. This parameter is optional. 
 * Statuscodes: 
       * 100 - successfull 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/privatedata/getattribute/parley/language|http://frank:password@api.opendesktop.org/v1/privatedata/getattribute/parley/language]] Get the value of the key language of the application parley from myself. Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
-  <totalitems>1</totalitems>
- </meta>
- <data>
-  <attribute>
-   <app>parley</app>
-   <key>language</key>
-   <value>english, german</value>
-   <lastmodified>2007-11-01T22:45:20+01:00</lastmodified>
-  </attribute>
- </data>
-</ocs>
-"""]]
+Example: GET <http://frank:password@api.opendesktop.org/v1/privatedata/getattribute/parley/language> Get the value of the key language of the application parley from myself. Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+      <totalitems>1</totalitems>
+     </meta>
+     <data>
+      <attribute>
+       <app>parley</app>
+       <key>language</key>
+       <value>english, german</value>
+       <lastmodified>2007-11-01T22:45:20+01:00</lastmodified>
+      </attribute>
+     </data>
+    </ocs>
 
 #### set attribute
 
@@ -2744,17 +2687,16 @@ Set a attribute. Only authenticated users are allowed to access this method. Aut
 * POST arguments: value - The value of the attribute. 
 * Statuscodes: 
       * 100 - successfull 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/privatedata/setattribute/parley/language|http://frank:password@api.opendesktop.org/v1/privatedata/setattribute/parley/language]] postdata: value="italian" Set the value of the key "language" of the application "parley" to "italian". Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/privatedata/setattribute/parley/language> postdata: value="italian" Set the value of the key "language" of the application "parley" to "italian". Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
 
 #### delete attribute
 
@@ -2766,17 +2708,17 @@ Delete a attribute. Only authenticated users are allowed to access this method. 
 * Arguments: key - The key of the attribute. 
 * Statuscodes: 
       * 100 - successfull 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/privatedata/deleteattribute/parley/language|http://frank:password@api.opendesktop.org/v1/privatedata/deleteattribute/parley/language]] Delete the attribute with the key "language" and the application "parley". Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
- <meta>
-  <status>ok</status>
-  <statuscode>100</statuscode>
-  <message></message>
- </meta>
-</ocs>
-"""]]
+Example: POST <http://frank:password@api.opendesktop.org/v1/privatedata/deleteattribute/parley/language> Delete the attribute with the key "language" and the application "parley". Example: 
+
+    <?xml version="1.0"?>
+    <ocs>
+     <meta>
+      <status>ok</status>
+      <statuscode>100</statuscode>
+      <message></message>
+     </meta>
+    </ocs>
+
 <a name="FORUM"></a> 
 ### FORUM
 
@@ -2792,52 +2734,51 @@ Gets a list of forums.
 * Result: comments xml 
 * Statuscodes: 
       * 100 - successful 
-Example: [[http://frank:password@api.opendesktop.org/v1/forums/data&page=1&pagesize=10|http://frank:password@api.opendesktop.org/v1/forums/data&page=1&pagesize=10]] Gets the second page of the list of forums. The pagesize is 10 
+Example: <http://frank:password@api.opendesktop.org/v1/forums/data&page=1&pagesize=10> Gets the second page of the list of forums. The pagesize is 10 
 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-<meta>
-<status>ok</status>
-<statuscode>100</statuscode>
-<message></message>
-</meta>
-<data>
-<forum>
- <id>234</id>
- <name>vfvvdsx</name>
- <description>test</description>
- <date>2005-01-29T18:58:40+01:00</date>
- <icon>http://forum.example.org/images/forum-img.png</icon>
- <childcount>0</childcount>
- <children></children>
- <topics>123</topics>
-</forum>
-<forum>
- <id>876</id>
- <name>yheweq</name>
- <description>foobar</description>
- <date>2005-01-29T18:58:40+01:00</date>
- <icon>http://forum.example.org/img/forum-icon.gif</icon>
- <childcount>1</childcount>
- <children>
+
+    <?xml version="1.0"?>
+    <ocs>
+    <meta>
+    <status>ok</status>
+    <statuscode>100</statuscode>
+    <message></message>
+    </meta>
+    <data>
     <forum>
-      <id>234</id>
-      <name>cameras</name>
-      <description>new forum</description>
-      <date>2005-01-29T18:58:40+01:00</date>
-      <icon>http://forum.example.org/images/icon.jpg</icon>
-      <childcount>0</childcount>
-      <children></children>
-      <topics>5</topics>
+     <id>234</id>
+     <name>vfvvdsx</name>
+     <description>test</description>
+     <date>2005-01-29T18:58:40+01:00</date>
+     <icon>http://forum.example.org/images/forum-img.png</icon>
+     <childcount>0</childcount>
+     <children></children>
+     <topics>123</topics>
     </forum>
- </children>
- <topics>789</topics>
-</forum>
-</data>
-</ocs>
-"""]]
+    <forum>
+     <id>876</id>
+     <name>yheweq</name>
+     <description>foobar</description>
+     <date>2005-01-29T18:58:40+01:00</date>
+     <icon>http://forum.example.org/img/forum-icon.gif</icon>
+     <childcount>1</childcount>
+     <children>
+        <forum>
+          <id>234</id>
+          <name>cameras</name>
+          <description>new forum</description>
+          <date>2005-01-29T18:58:40+01:00</date>
+          <icon>http://forum.example.org/images/icon.jpg</icon>
+          <childcount>0</childcount>
+          <children></children>
+          <topics>5</topics>
+        </forum>
+     </children>
+     <topics>789</topics>
+    </forum>
+    </data>
+    </ocs>
 
 #### topics/list
 
@@ -2854,31 +2795,30 @@ Gets a list of a specific set of topics.
 * Result: forum topic listing xml 
 * Statuscodes: 
       * 100 - successful 
-Example: [[http://frank:password@api.opendesktop.org/v1/forum/topics/list?forum[]=123&search=foo&sortmode=new&page=1|http://frank:password@api.opendesktop.org/v1/forum/topics/list?forum[]=123&search=foo&sortmode=new&page=1]] Gets the second page of the list of the newest topics from forum 123 with the string foo in the subject, content or the comment. Additional forums can be specified to be searched by adding further &forum[]= entries to the request. 
+Example: <http://frank:password@api.opendesktop.org/v1/forum/topics/list?forum[]=123&search=foo&sortmode=new&page=1> Gets the second page of the list of the newest topics from forum 123 with the string foo in the subject, content or the comment. Additional forums can be specified to be searched by adding further &forum[]= entries to the request. 
 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-<meta>
- <status>ok</status>
- <statuscode>100</statuscode>
- <message></message>
- <totalitems>2</totalitems>
- <itemsperpage>10</itemsperpage>
-</meta>
-<data>
- <topic details="detail">
-  <id>1</id>
-  <forumid>123</forumid>
-  <user>testy</user>
-  <changed>2009-02-07T23:14:11+01:00</changed>
-  <subject>Random forum post</subject>
-  <content>Just testing</content>
-  <comments>0</comments>
- </topic>
-</data>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+    <meta>
+     <status>ok</status>
+     <statuscode>100</statuscode>
+     <message></message>
+     <totalitems>2</totalitems>
+     <itemsperpage>10</itemsperpage>
+    </meta>
+    <data>
+     <topic details="detail">
+      <id>1</id>
+      <forumid>123</forumid>
+      <user>testy</user>
+      <changed>2009-02-07T23:14:11+01:00</changed>
+      <subject>Random forum post</subject>
+      <content>Just testing</content>
+      <comments>0</comments>
+     </topic>
+    </data>
 
 #### forum/topics/add
 
@@ -2893,19 +2833,18 @@ Add a new topic to a forum. Only authenticated users are allowed to access this 
 * Statuscodes: 
       * 100 - successful 
       * 101 - please specify all mandatory fields 
-Example: [[http://frank:password@api.opendesktop.org/v1/forum/topic/add|http://frank:password@api.opendesktop.org/v1/forum/topic/add]] 
+Example: <http://frank:password@api.opendesktop.org/v1/forum/topic/add> 
 
 Example: 
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-<meta>
-<status>ok</status>
-<statuscode>100</statuscode>
-<message></message>
-</meta>
-</ocs>
-"""]]
+
+    <?xml version="1.0"?>
+    <ocs>
+    <meta>
+    <status>ok</status>
+    <statuscode>100</statuscode>
+    <message></message>
+    </meta>
+    </ocs>
 
 ### BUILDSERVICE
 
@@ -2940,26 +2879,23 @@ Create a new project for the authorized user, optionally inserting information i
          * 110 - url was not an acceptable format 
          * 111 - developers was not in an acceptable format 
          * 112 - summary contained newlines 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/project/create|http://frank:password@api.opendesktop.org/v1/buildservice/project/create]] postdata: name="A Project" developers[0][name]="Frank Karlitschek" developers[0][url]="[[mailto:karlitschek@kde.org|mailto:karlitschek@kde.org]]" developers[1][name]="Dan jensen" developers[1][url]="[[mailto:admin@leinir.dk|mailto:admin@leinir.dk]]" 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/project/create> postdata: name="A Project" developers[0][name]="Frank Karlitschek" developers[0][url]="[[mailto:karlitschek@kde.org|mailto:karlitschek@kde.org]]" developers[1][name]="Dan jensen" developers[1][url]="[[mailto:admin@leinir.dk|mailto:admin@leinir.dk]]" 
 
 This creates a new project and inserts the two listed developers as information on the project. 
 
 Example: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <projectid>122</projectid>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <projectid>122</projectid>
+      </data>
+    </ocs>
 
 ##### get
 
@@ -2974,60 +2910,57 @@ Get all information for a specified project. Only authenticated users are allowe
          * 100 - success 
          * 101 - no such project 
          * 102 - project id should be an integer 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/project/get/122|http://frank:password@api.opendesktop.org/v1/buildservice/project/get/122]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/project/get/122> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <project>
-      <projectid>122</projectid>
-      <name>A Project</name>
-      <version>1.0pre1</version>
-      <license>Creative Commons Attribution Share-Alike 2.0</license>
-      <url>http://somesite.com/</url>
-      <developers>Frank Karlitschek &lt;karlitschek@kde.org&gt;
-Dan Jensen &lt;admin@leinir.dk&gt;</developers>
-      <summary>A neat little project which does something</summary>
-      <description>A long description of the project
-      
-which even cleverly includes multiple lines</description>
-      <requirements></requirements>
-      <specfile>#
-# spec file for package a-project
-#
-# Copyright (C) 2010 Frank Karlitschek (mailto:karlitschek@kde.org)
-# Copyright (C) 2010 Dan Jensen (mailto:admin@leinir.dk)
-#
-
-Name: a-project
-Summary: A neat little project which does something
-
-Version: 1.0pre1
-Release: 0
-License: Creative Commons Attribution Share-Alike 2.0
-Url: http://somesite.com/
-BuildRoot: /var/tmp/%name-root
-Source: a-project-1.0pre1.tar.bz2
-
-%description
-A long description of the project
-      
-which even cleverly includes multiple lines
-
-(etc etc...)</specfile>
-    </project>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <project>
+          <projectid>122</projectid>
+          <name>A Project</name>
+          <version>1.0pre1</version>
+          <license>Creative Commons Attribution Share-Alike 2.0</license>
+          <url>http://somesite.com/</url>
+          <developers>Frank Karlitschek &lt;karlitschek@kde.org&gt;
+    Dan Jensen &lt;admin@leinir.dk&gt;</developers>
+          <summary>A neat little project which does something</summary>
+          <description>A long description of the project
+          
+    which even cleverly includes multiple lines</description>
+          <requirements></requirements>
+          <specfile>#
+    # spec file for package a-project
+    #
+    # Copyright (C) 2010 Frank Karlitschek (mailto:karlitschek@kde.org)
+    # Copyright (C) 2010 Dan Jensen (mailto:admin@leinir.dk)
+    #
+    
+    Name: a-project
+    Summary: A neat little project which does something
+    
+    Version: 1.0pre1
+    Release: 0
+    License: Creative Commons Attribution Share-Alike 2.0
+    Url: http://somesite.com/
+    BuildRoot: /var/tmp/%name-root
+    Source: a-project-1.0pre1.tar.bz2
+    
+    %description
+    A long description of the project
+          
+    which even cleverly includes multiple lines
+    
+    (etc etc...)</specfile>
+        </project>
+      </data>
+    </ocs>
 
 ##### delete
 
@@ -3041,21 +2974,18 @@ Delete a specific project and the uploaded source files. Only authenticated user
          * 101 - no such project 
          * 102 - project id should be an integer 
          * 110 - project delete failed (details in meta message) 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/project/delete/122|http://frank:password@api.opendesktop.org/v1/buildservice/project/delete/122]] 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/project/delete/122> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 ##### edit
 
@@ -3080,21 +3010,18 @@ Set any of the values found on a project. Only authenticated users are allowed t
          * 102 - projectid no an int 
          * 110 - url was not an acceptable format 
          * 111 - developers was not in an acceptable format 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/project/edit/122|http://frank:password@api.opendesktop.org/v1/buildservice/project/edit/122]] postdata: name="A Project" summary="A neat little project which does something" 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/project/edit/122> postdata: name="A Project" summary="A neat little project which does something" 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 ##### list
 
@@ -3107,40 +3034,37 @@ List all projects for the currently authorized user. Only authenticated users ar
    * HTTP method: GET 
    * Statuscodes: 
          * 100 - success 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/project/list|http://frank:password@api.opendesktop.org/v1/buildservice/project/list]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/project/list> 
 
 This might yield the following XML output (where the user has exactly one project): 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <projectlist>
-      <project>
-        <projectid>122</projectid>
-        <name>A Project</name>
-        <version>1.0pre1</version>
-        <license>Creative Commons Attribution Share-Alike 2.0</license>
-        <url>http://somesite.com/</url>
-        <developers>Frank Karlitschek &lt;karlitschek@kde.org&gt;
-Dan Jensen &lt;admin@leinir.dk&gt;</developers>
-        <summary>A neat little project which does something</summary>
-        <description>A long description of the project
-      
-which even cleverly includes multiple lines</description>
-        <requirements></requirements>
-        <specfile></specfile>
-      </project>
-    </projectlist>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <projectlist>
+          <project>
+            <projectid>122</projectid>
+            <name>A Project</name>
+            <version>1.0pre1</version>
+            <license>Creative Commons Attribution Share-Alike 2.0</license>
+            <url>http://somesite.com/</url>
+            <developers>Frank Karlitschek &lt;karlitschek@kde.org&gt;
+    Dan Jensen &lt;admin@leinir.dk&gt;</developers>
+            <summary>A neat little project which does something</summary>
+            <description>A long description of the project
+          
+    which even cleverly includes multiple lines</description>
+            <requirements></requirements>
+            <specfile></specfile>
+          </project>
+        </projectlist>
+      </data>
+    </ocs>
 
 ##### uploadsource
 
@@ -3160,21 +3084,18 @@ Note: If the project has not had a source file uploaded yet, and the specfile da
          * 102 - project id should be an int 
          * 103 - source bundle file not correctly uploaded 
          * 104 - source bundle was an unrecognised format 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/project/uploadsource/122|http://frank:password@api.opendesktop.org/v1/buildservice/project/uploadsource/122]] 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/project/uploadsource/122> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 #### Remote Accounts
 
@@ -3194,41 +3115,38 @@ Get a list of all the remote accounts a user has added references to. Only authe
          * password - string, the user's password on the remote service 
    * Statuscodes: 
          * 100 - success 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/list|http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/list]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/list> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <remoteaccountslist>
-      <remoteaccount>
-        <id>2</id>
-        <type>1</type>
-        <typeid>mbs</typeid>
-        <data></data>
-        <login>frank</login>
-        <password>password</password>
-      </remoteaccount>
-      <remoteaccount>
-        <id>7</id>
-        <type>2</type>
-        <typeid>1</typeid>
-        <data></data>
-        <login>frank</login>
-        <password>password</password>
-      </remoteaccount>
-    </remoteaccountslist>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <remoteaccountslist>
+          <remoteaccount>
+            <id>2</id>
+            <type>1</type>
+            <typeid>mbs</typeid>
+            <data></data>
+            <login>frank</login>
+            <password>password</password>
+          </remoteaccount>
+          <remoteaccount>
+            <id>7</id>
+            <type>2</type>
+            <typeid>1</typeid>
+            <data></data>
+            <login>frank</login>
+            <password>password</password>
+          </remoteaccount>
+        </remoteaccountslist>
+      </data>
+    </ocs>
 
 ##### add
 
@@ -3247,24 +3165,21 @@ Add a new remote account reference to a user. Only authenticated users are allow
          * 100 - success 
          * 101 - no such service 
          * 102 - service id was not recognised 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/add|http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/add]] postdata: type=1 typeid="mbs" 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/add> postdata: type=1 typeid="mbs" 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <remoteaccountid>7</remoteaccountid>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <remoteaccountid>7</remoteaccountid>
+      </data>
+    </ocs>
 
 ##### edit
 
@@ -3281,21 +3196,18 @@ Change the details of a specified remote account for the authenticated user. Onl
    * Statuscodes: 
          * 100 - success 
          * 101 - no such remote account 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/edit/7|http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/edit/7]] postdata: login="frank" password="bet123ter" 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/edit/7> postdata: login="frank" password="bet123ter" 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 ##### get
 
@@ -3313,31 +3225,28 @@ Get the details of a specific remote account. Only authenticated users are allow
    * Statuscodes: 
          * 100 - success 
          * 101 - no such remote account 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/get/7|http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/get/7]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/get/7> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <remoteaccount>
-        <id>7</id>
-        <type>2</type>
-        <typeid>1</typeid>
-        <data></data>
-        <login>frank</login>
-        <password>bet123ter</password>
-    </remoteaccount>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <remoteaccount>
+            <id>7</id>
+            <type>2</type>
+            <typeid>1</typeid>
+            <data></data>
+            <login>frank</login>
+            <password>bet123ter</password>
+        </remoteaccount>
+      </data>
+    </ocs>
 
 ##### remove
 
@@ -3348,21 +3257,18 @@ Remove the specific remote account from the user's list of remote accounts. Only
    * Statuscodes: 
          * 100 - success 
          * 101 - no such remote account 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/remove/7|http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/remove/7]] 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/remoteaccounts/remove/7> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 #### Build Services
 
@@ -3383,44 +3289,41 @@ Get a list of all the build services available. If the user is not authenticated
          * supportedtargets - list of targets, made up of an integer id and a string name 
    * Statuscodes: 
          * 100 - success 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/buildservices/list|http://frank:password@api.opendesktop.org/v1/buildservice/buildservices/list]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/buildservices/list> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <buildservices>
-      <buildservice>
-        <id>1</id>
-        <name>Some Build Service</name>
-        <registrationurl>http://bs.some.com/user/new</registrationurl>
-        <supportedtargets>
-          <target>
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <buildservices>
+          <buildservice>
             <id>1</id>
-            <name>i386</name>
-          </target>
-          <target>
-            <id>2</id>
-            <name>x86_64</name>
-          </target>
-          <target>
-            <id>3</id>
-            <name>armv5</name>
-          </target>
-        </supportedtargets>
-      </buildservice>
-    </buildservices>
-  </data>
-</ocs>
-"""]]
+            <name>Some Build Service</name>
+            <registrationurl>http://bs.some.com/user/new</registrationurl>
+            <supportedtargets>
+              <target>
+                <id>1</id>
+                <name>i386</name>
+              </target>
+              <target>
+                <id>2</id>
+                <name>x86_64</name>
+              </target>
+              <target>
+                <id>3</id>
+                <name>armv5</name>
+              </target>
+            </supportedtargets>
+          </buildservice>
+        </buildservices>
+      </data>
+    </ocs>
 
 ##### get
 
@@ -3438,42 +3341,39 @@ Get a the information on a particular build service.
    * Statuscodes: 
          * 100 - success 
          * 101 - no such build service 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/buildservices/get/1|http://frank:password@api.opendesktop.org/v1/buildservice/buildservices/get/1]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/buildservices/get/1> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <buildservice>
-      <id>1</id>
-      <name>Some Build Service</name>
-      <registrationurl>http://bs.some.com/user/new</registrationurl>
-      <supportedtargets>
-        <target>
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <buildservice>
           <id>1</id>
-          <name>i386</name>
-        </target>
-        <target>
-          <id>2</id>
-          <name>x86_64</name>
-        </target>
-        <target>
-          <id>3</id>
-          <name>armv5</name>
-        </target>
-      </supportedtargets>
-    </buildservice>
-  </data>
-</ocs>
-"""]]
+          <name>Some Build Service</name>
+          <registrationurl>http://bs.some.com/user/new</registrationurl>
+          <supportedtargets>
+            <target>
+              <id>1</id>
+              <name>i386</name>
+            </target>
+            <target>
+              <id>2</id>
+              <name>x86_64</name>
+            </target>
+            <target>
+              <id>3</id>
+              <name>armv5</name>
+            </target>
+          </supportedtargets>
+        </buildservice>
+      </data>
+    </ocs>
 
 #### Build Jobs
 
@@ -3493,47 +3393,44 @@ List the jobs a user has, optionally for a single project. If projectid is speci
          * 100 - success 
          * 101 - no such project 
          * 102 - project id should be an int 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/jobs/list/122|http://frank:password@api.opendesktop.org/v1/buildservice/jobs/list/122]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/jobs/list/122> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <buildjobs>
-      <buildjob>
-        <id>12</id>
-        <project>122</project>
-        <buildservice>mbs</buildservice>
-        <target>2</target>
-        <name>armv5 job 12</name>
-        <status>1</status>
-        <progress>0.56</progress>
-        <url>http://bs.some.com/job/54322</url>
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
         <message></message>
-      </buildjob>
-      <buildjob>
-        <id>18</id>
-        <project>122</project>
-        <buildservice>obs</buildservice>
-        <target>4</target>
-        <name>armv5 job 14</name>
-        <status>1</status>
-        <progress>0.88</progress>
-        <url>http://bs.some.com/job/54324</url>
-        <message></message>
-      </buildjob>
-    </buildjobs>
-  </data>
-</ocs>
-"""]]
+      </meta>
+      <data>
+        <buildjobs>
+          <buildjob>
+            <id>12</id>
+            <project>122</project>
+            <buildservice>mbs</buildservice>
+            <target>2</target>
+            <name>armv5 job 12</name>
+            <status>1</status>
+            <progress>0.56</progress>
+            <url>http://bs.some.com/job/54322</url>
+            <message></message>
+          </buildjob>
+          <buildjob>
+            <id>18</id>
+            <project>122</project>
+            <buildservice>obs</buildservice>
+            <target>4</target>
+            <name>armv5 job 14</name>
+            <status>1</status>
+            <progress>0.88</progress>
+            <url>http://bs.some.com/job/54324</url>
+            <message></message>
+          </buildjob>
+        </buildjobs>
+      </data>
+    </ocs>
 
 ##### create
 
@@ -3554,24 +3451,21 @@ Create a new build job. Only authenticated users are allowed to access this meth
          * 104 - build service id should be an integer 
          * 105 - build service does not support target 
          * 106 - failed to create build job (further information in meta message) 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/jobs/create/122/1/armv5|http://frank:password@api.opendesktop.org/v1/buildservice/jobs/create/122/1/armv5]] 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/jobs/create/122/1/armv5> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <buildjobid>616</buildjobid>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <buildjobid>616</buildjobid>
+      </data>
+    </ocs>
 
 ##### cancel
 
@@ -3587,21 +3481,18 @@ Cancel a build job. Only authenticated users are allowed to access this method. 
          * 102 - build job id should be an integer 
          * 103 - job not running 
          * 104 - failed (further information in meta message) 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/jobs/cancel/616|http://frank:password@api.opendesktop.org/v1/buildservice/jobs/cancel/616]] 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/jobs/cancel/616> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 ##### get
 
@@ -3624,34 +3515,31 @@ Get information about a build job. See also getoutput. Only authenticated users 
          * 100 - success 
          * 101 - no such build job 
          * 102 - build job id should be an integer 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/jobs/get/616|http://frank:password@api.opendesktop.org/v1/buildservice/jobs/get/616]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/jobs/get/616> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <buildjob>
-      <id>12</id>
-      <project>122</project>
-      <buildservice>mbs</buildservice>
-      <target>2</target>
-      <name>armv5 job 12</name>
-      <status>1</status>
-      <progress>0.56</progress>
-      <url>http://bs.some.com/job/54322</url>
-      <message></message>
-    </buildjob>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <buildjob>
+          <id>12</id>
+          <project>122</project>
+          <buildservice>mbs</buildservice>
+          <target>2</target>
+          <name>armv5 job 12</name>
+          <status>1</status>
+          <progress>0.56</progress>
+          <url>http://bs.some.com/job/54322</url>
+          <message></message>
+        </buildjob>
+      </data>
+    </ocs>
 
 ##### getoutput
 
@@ -3666,27 +3554,24 @@ Get the build output from a specific build job. This is the clear text version o
          * 100 - success 
          * 101 - no such build job 
          * 102 - build job id should be an integer 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/jobs/getoutput/616|http://frank:password@api.opendesktop.org/v1/buildservice/jobs/getoutput/616]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/jobs/getoutput/616> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <output>-- Found GCC: /usr/bin/gcc
--- Found X11: /usr/lib64/libX11.so
-(etc etc)
-    </output>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <output>-- Found GCC: /usr/bin/gcc
+    -- Found X11: /usr/lib64/libX11.so
+    (etc etc)
+        </output>
+      </data>
+    </ocs>
 
 #### Publishing
 
@@ -3707,71 +3592,68 @@ Status 102 is informational and in essence is a success. It is meant as a conven
          * 100 - success 
          * 101 - no such user 
          * 102 - user has not registered with any publishers 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getpublishingcapabilities|http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getpublishingcapabilities]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getpublishingcapabilities> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <publishers>
-      <publisher>
-        <id>1</id>
-        <name>Some App Store</name>
-        <registrationurl>http://store.some.com/user/new</registrationurl>
-        <fields>
-          <field>
-            <name>Name</name>
-            <fieldtype>string</fieldtype>
-            <options></options>
-            <fieldsize>256</fieldsize>
-            <required>true</required>
-          </field>
-          <field>
-            <name>Description</name>
-            <fieldtype>longtext</fieldtype>
-            <options></options>
-            <fieldsize>4294967296</fieldsize>
-            <required>false</required>
-          </field>
-          <field>
-            <name>Category</name>
-            <fieldtype>item</fieldtype>
-            <options>
-              <option>Game</option>
-              <option>Productivity</option>
-              <option>Gadget</option>
-            </options>
-            <fieldsize>0</fieldsize>
-            <required>true</required>
-          </field>
-        </fields>
-        <supportedtargets>
-          <target>i386</target>
-          <target>x86_64</target>
-          <target>armv5</target>
-        </supportedtargets>
-      </publisher>
-      <publisher>
-        <id>2</id>
-        <name>Somewhere</name>
-        <registrationurl>http://store.some.where/register</registrationurl>
-        <fields></fields>
-        <supportedtargets>
-          <target>i386</target>
-        </supportedtargets>
-      </publisher>
-    </publishers>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <publishers>
+          <publisher>
+            <id>1</id>
+            <name>Some App Store</name>
+            <registrationurl>http://store.some.com/user/new</registrationurl>
+            <fields>
+              <field>
+                <name>Name</name>
+                <fieldtype>string</fieldtype>
+                <options></options>
+                <fieldsize>256</fieldsize>
+                <required>true</required>
+              </field>
+              <field>
+                <name>Description</name>
+                <fieldtype>longtext</fieldtype>
+                <options></options>
+                <fieldsize>4294967296</fieldsize>
+                <required>false</required>
+              </field>
+              <field>
+                <name>Category</name>
+                <fieldtype>item</fieldtype>
+                <options>
+                  <option>Game</option>
+                  <option>Productivity</option>
+                  <option>Gadget</option>
+                </options>
+                <fieldsize>0</fieldsize>
+                <required>true</required>
+              </field>
+            </fields>
+            <supportedtargets>
+              <target>i386</target>
+              <target>x86_64</target>
+              <target>armv5</target>
+            </supportedtargets>
+          </publisher>
+          <publisher>
+            <id>2</id>
+            <name>Somewhere</name>
+            <registrationurl>http://store.some.where/register</registrationurl>
+            <fields></fields>
+            <supportedtargets>
+              <target>i386</target>
+            </supportedtargets>
+          </publisher>
+        </publishers>
+      </data>
+    </ocs>
 
 ##### getpublisher
 
@@ -3805,60 +3687,57 @@ Get the descriptive information about a publisher.
          * 100 - success 
          * 101 - no such publisher 
          * 102 - publisher id should be an integer 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getpublisher/5|http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getpublisher/5]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getpublisher/5> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <publisher>
-      <id>1</id>
-      <name>Some App Store</name>
-      <registrationurl>http://store.some.com/user/new</registrationurl>
-      <fields>
-        <field>
-          <name>Name</name>
-          <fieldtype>string</fieldtype>
-          <options></options>
-          <fieldsize>256</fieldsize>
-          <required>true</required>
-        </field>
-        <field>
-          <name>Description</name>
-          <fieldtype>longtext</fieldtype>
-          <options></options>
-          <fieldsize>4294967296</fieldsize>
-          <required>false</required>
-        </field>
-        <field>
-          <name>Category</name>
-          <fieldtype>item</fieldtype>
-          <options>
-            <option>Game</option>
-            <option>Productivity</option>
-            <option>Gadget</option>
-          </options>
-          <fieldsize>0</fieldsize>
-          <required>true</required>
-        </field>
-      </fields>
-      <supportedtargets>
-        <target>i386</target>
-        <target>x86_64</target>
-        <target>armv5</target>
-      </supportedtargets>
-    </publisher>
-  </data>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <publisher>
+          <id>1</id>
+          <name>Some App Store</name>
+          <registrationurl>http://store.some.com/user/new</registrationurl>
+          <fields>
+            <field>
+              <name>Name</name>
+              <fieldtype>string</fieldtype>
+              <options></options>
+              <fieldsize>256</fieldsize>
+              <required>true</required>
+            </field>
+            <field>
+              <name>Description</name>
+              <fieldtype>longtext</fieldtype>
+              <options></options>
+              <fieldsize>4294967296</fieldsize>
+              <required>false</required>
+            </field>
+            <field>
+              <name>Category</name>
+              <fieldtype>item</fieldtype>
+              <options>
+                <option>Game</option>
+                <option>Productivity</option>
+                <option>Gadget</option>
+              </options>
+              <fieldsize>0</fieldsize>
+              <required>true</required>
+            </field>
+          </fields>
+          <supportedtargets>
+            <target>i386</target>
+            <target>x86_64</target>
+            <target>armv5</target>
+          </supportedtargets>
+        </publisher>
+      </data>
+    </ocs>
 
 ##### publishtargetresult
 
@@ -3877,21 +3756,18 @@ Publish the result of a specific build job to one publisher. Only authenticated 
          * 106 - no such publisher 
          * 107 - publisher id should be an integer 
          * 108 - publishing failed (further information in meta message) 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/publishing/publishtargetresult/616/5|http://frank:password@api.opendesktop.org/v1/buildservice/publishing/publishtargetresult/616/5]] 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/publishing/publishtargetresult/616/5> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+    </ocs>
 
 ##### savefields
 
@@ -3913,21 +3789,18 @@ Save field data relating to a particular project. Only authenticated users are a
          * 102 - project id should be an integer 
          * 103 - field data not correct (further information in meta message) 
          * 104 - field data missing (further information in meta message) 
-Example: POST [[http://frank:password@api.opendesktop.org/v1/buildservice/publishing/savefields/122|http://frank:password@api.opendesktop.org/v1/buildservice/publishing/savefields/122]] postdata: fields[0]["name"]="Name" fields[0]["fieldtype"]="string" fields[0]["data"]="A Project" fields[1]["name"]="Category" fields[1]["fieldtype"]="item" fields[1]["data"]="Nifty" 
+Example: POST <http://frank:password@api.opendesktop.org/v1/buildservice/publishing/savefields/122> postdata: fields[0]["name"]="Name" fields[0]["fieldtype"]="string" fields[0]["data"]="A Project" fields[1]["name"]="Category" fields[1]["fieldtype"]="item" fields[1]["data"]="Nifty" 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>failed</status>
-    <statuscode>103</statuscode>
-    <message>The item "Nifty" does not exist in the list of possible options. The options are: "Game", "Productivity", "Gadget"</message>
-  </meta>
-</ocs>
-"""]]
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>failed</status>
+        <statuscode>103</statuscode>
+        <message>The item "Nifty" does not exist in the list of possible options. The options are: "Game", "Productivity", "Gadget"</message>
+      </meta>
+    </ocs>
 
 ##### getfields
 
@@ -3945,42 +3818,38 @@ Get the field data from the previous publishing of a particular project. In the 
          * 100 - success 
          * 101 - no such project 
          * 102 - project id should be an integer 
-Example: GET [[http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getfields/122|http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getfields/122]] 
+Example: GET <http://frank:password@api.opendesktop.org/v1/buildservice/publishing/getfields/122> 
 
 This might yield the following XML output: 
 
-
-[[!format txt """
-<?xml version="1.0"?>
-<ocs>
-  <meta>
-    <status>ok</status>
-    <statuscode>100</statuscode>
-    <message></message>
-  </meta>
-  <data>
-    <fields>
-      <field>
-        <name>Name</name>
-        <fieldtype>string</fieldtype>
-        <data>A Project</data>
-      </field>
-      <field>
-        <name>Summary</name>
-        <fieldtype>string</fieldtype>
-        <data>A neat little project which does something</data>
-      </field>
-      <field>
-        <name>Category</name>
-        <fieldtype>item</fieldtype>
-        <data>Gadget</data>
-      </field>
-    </fields>
-  </data>
-</ocs>
-"""]]
-
+    <?xml version="1.0"?>
+    <ocs>
+      <meta>
+        <status>ok</status>
+        <statuscode>100</statuscode>
+        <message></message>
+      </meta>
+      <data>
+        <fields>
+          <field>
+            <name>Name</name>
+            <fieldtype>string</fieldtype>
+            <data>A Project</data>
+          </field>
+          <field>
+            <name>Summary</name>
+            <fieldtype>string</fieldtype>
+            <data>A neat little project which does something</data>
+          </field>
+          <field>
+            <name>Category</name>
+            <fieldtype>item</fieldtype>
+            <data>Gadget</data>
+          </field>
+        </fields>
+      </data>
+    </ocs>
 
 ---
 
- [[CategoryHomepage|CategoryHomepage]] 
+[[CategoryHomepage]] 

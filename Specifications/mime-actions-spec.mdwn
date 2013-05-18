@@ -30,14 +30,12 @@ Users can change the default order of applications by writing (using graphical t
 
 The syntax of this file is: 
 
+    [Added Associations]
+    mimetype1=foo1.desktop;foo2.desktop;foo3.desktop;
+    mimetype2=foo4.desktop;
+    [Removed Associations]
+    mimetype1=foo5.desktop;
 
-[[!format txt """
-[Added Associations]
-mimetype1=foo1.desktop;foo2.desktop;foo3.desktop;
-mimetype2=foo4.desktop;
-[Removed Associations]
-mimetype1=foo5.desktop;
-"""]]
 This means that foo1 is the preferred application for mimetype1, but if it is not installed then foo2 is going to be used, etc. It also means that if another application, say "new.desktop" is installed with mimetype1 in its mimetypes line, it will be at the fourth place in the list of applications associated with mimetype1 (it comes after the explicitely specified ones). On the other hand, the application foo5 was explicitely removed by the user, so it is not associated with mimetype1 anymore. 
 
 This mechanism allows for multiple levels of configuration, where mimeapps.list files override each other in XDG_DATA_DIRS directories. Sysadmin-provided settings can be overridden by user-local mimeapps.list files). 

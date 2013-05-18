@@ -1,5 +1,3 @@
-
-
 # How to create a new IME in about 15 minutes with SCIM and scim-tables
 
 
@@ -23,88 +21,82 @@ We can save ourselves effort by creating a simple project with a makefile. I mea
 
 First, we create a directory structure (yours can be different, but then you will have to modify makefile): 
 
+    mkdir tables
+    cd tables
+    touch Makefile
+    mkdir bin
+    mkdir icons
+    mkdir src
 
-[[!format txt """
-mkdir tables
-cd tables
-touch Makefile
-mkdir bin
-mkdir icons
-mkdir src
-"""]]
 My `Makefile` looks like this (I have three tables in the `./src` right now): 
 
+    SCIM''TABLES''DIR=/usr/share/scim/tables
+    SCIM''ICONS''DIR=/usr/share/scim/icons
+    
+    SRC_DIR=./src
+    BIN_DIR=./bin
+    ICON_DIR=./icons
+    
+    SCIM''MAKE''TABLE=scim-make-table
+    
+    compile: compile-korean compile-Viqr compile-akkadian
+    
+    compile-ko-latin: $(BIN_DIR)/korean.bin
+    compile-Viqr: $(BIN_DIR)/Viqr.bin
+    compile-akkadian: $(BIN_DIR)/akkadian.bin
+    
+    install: install-korean install-Viqr install-akkadian
+    uninstall: uninstall-korean uninstall-Viqr uninstall-akkadian
+    
+    install-korean: compile-korean
+            cp $(BIN''DIR)/korean.bin $(SCIM''TABLES_DIR)
+            cp $(ICON''DIR)/korean.png $(SCIM''ICONS_DIR)
+    
+    uninstall-korean:
+            rm $(SCIM''TABLES''DIR)/korean.bin
+            rm $(SCIM''ICONS''DIR)/korean.png
+    
+    install-Viqr: compile-Viqr
+            cp $(BIN''DIR)/Viqr.bin $(SCIM''TABLES_DIR)
+            cp $(ICON''DIR)/Viqr.png $(SCIM''ICONS_DIR)
+    
+    uninstall-Viqr:
+            rm $(SCIM''TABLES''DIR)/Viqr.bin
+            rm $(SCIM''ICONS''DIR)/Viqr.png
+    
+    install-akkadian: compile-akkadian
+            cp $(BIN''DIR)/akkadian.bin $(SCIM''TABLES_DIR)
+            cp $(ICON''DIR)/akkadian.png $(SCIM''ICONS_DIR)
+    
+    uninstall-akkadian:
+            rm $(SCIM''TABLES''DIR)/akkadian.bin
+            rm $(SCIM''ICONS''DIR)/akkadian.png
+    
+    clean:
+            rm -f $(BIN_DIR)/*
+    
+    $(BIN''DIR)/korean.bin: $(SRC''DIR)/korean.txt.in
+            sed -e 's,@SCIM''ICONDIR@,$(SCIM''ICONS''DIR),g' $(SRC''DIR)/korean.txt.in > $(BIN_DIR)/korean.txt
+            $(SCIM''MAKE''TABLE) $(BIN''DIR)/korean.txt -b -o $(BIN''DIR)/korean.bin
+            rm $(BIN_DIR)/korean.txt
+    
+    $(BIN''DIR)/Viqr.bin: $(SRC''DIR)/Viqr.txt.in
+            sed -e 's,@SCIM''ICONDIR@,$(SCIM''ICONS''DIR),g' $(SRC''DIR)/Viqr.txt.in > $(BIN_DIR)/Viqr.txt
+            $(SCIM''MAKE''TABLE) $(BIN''DIR)/Viqr.txt -b -o $(BIN''DIR)/Viqr.bin
+            rm $(BIN_DIR)/Viqr.txt
+    
+    $(BIN''DIR)/akkadian.bin: $(SRC''DIR)/akkadian.txt.in
+            sed -e 's,@SCIM''ICONDIR@,$(SCIM''ICONS''DIR),g' $(SRC''DIR)/akkadian.txt.in > $(BIN_DIR)/akkadian.txt
+            $(SCIM''MAKE''TABLE) $(BIN''DIR)/akkadian.txt -b -o $(BIN''DIR)/akkadian.bin
+            rm $(BIN_DIR)/akkadian.txt
 
-[[!format txt """
-SCIM''TABLES''DIR=/usr/share/scim/tables
-SCIM''ICONS''DIR=/usr/share/scim/icons
-
-SRC_DIR=./src
-BIN_DIR=./bin
-ICON_DIR=./icons
-
-SCIM''MAKE''TABLE=scim-make-table
-
-compile: compile-korean compile-Viqr compile-akkadian
-
-compile-ko-latin: $(BIN_DIR)/korean.bin
-compile-Viqr: $(BIN_DIR)/Viqr.bin
-compile-akkadian: $(BIN_DIR)/akkadian.bin
-
-install: install-korean install-Viqr install-akkadian
-uninstall: uninstall-korean uninstall-Viqr uninstall-akkadian
-
-install-korean: compile-korean
-        cp $(BIN''DIR)/korean.bin $(SCIM''TABLES_DIR)
-        cp $(ICON''DIR)/korean.png $(SCIM''ICONS_DIR)
-
-uninstall-korean:
-        rm $(SCIM''TABLES''DIR)/korean.bin
-        rm $(SCIM''ICONS''DIR)/korean.png
-
-install-Viqr: compile-Viqr
-        cp $(BIN''DIR)/Viqr.bin $(SCIM''TABLES_DIR)
-        cp $(ICON''DIR)/Viqr.png $(SCIM''ICONS_DIR)
-
-uninstall-Viqr:
-        rm $(SCIM''TABLES''DIR)/Viqr.bin
-        rm $(SCIM''ICONS''DIR)/Viqr.png
-
-install-akkadian: compile-akkadian
-        cp $(BIN''DIR)/akkadian.bin $(SCIM''TABLES_DIR)
-        cp $(ICON''DIR)/akkadian.png $(SCIM''ICONS_DIR)
-
-uninstall-akkadian:
-        rm $(SCIM''TABLES''DIR)/akkadian.bin
-        rm $(SCIM''ICONS''DIR)/akkadian.png
-
-clean:
-        rm -f $(BIN_DIR)/*
-
-$(BIN''DIR)/korean.bin: $(SRC''DIR)/korean.txt.in
-        sed -e 's,@SCIM''ICONDIR@,$(SCIM''ICONS''DIR),g' $(SRC''DIR)/korean.txt.in > $(BIN_DIR)/korean.txt
-        $(SCIM''MAKE''TABLE) $(BIN''DIR)/korean.txt -b -o $(BIN''DIR)/korean.bin
-        rm $(BIN_DIR)/korean.txt
-
-$(BIN''DIR)/Viqr.bin: $(SRC''DIR)/Viqr.txt.in
-        sed -e 's,@SCIM''ICONDIR@,$(SCIM''ICONS''DIR),g' $(SRC''DIR)/Viqr.txt.in > $(BIN_DIR)/Viqr.txt
-        $(SCIM''MAKE''TABLE) $(BIN''DIR)/Viqr.txt -b -o $(BIN''DIR)/Viqr.bin
-        rm $(BIN_DIR)/Viqr.txt
-
-$(BIN''DIR)/akkadian.bin: $(SRC''DIR)/akkadian.txt.in
-        sed -e 's,@SCIM''ICONDIR@,$(SCIM''ICONS''DIR),g' $(SRC''DIR)/akkadian.txt.in > $(BIN_DIR)/akkadian.txt
-        $(SCIM''MAKE''TABLE) $(BIN''DIR)/akkadian.txt -b -o $(BIN''DIR)/akkadian.bin
-        rm $(BIN_DIR)/akkadian.txt
-"""]]
 It generally means that if I am in the `tables` directory and run `make` command, it will generate source files with correct icon path in `./bin` directory (the `.in` extension gets cut off), and compile it afterwards. For example in case of Korean table the compile command looks like this: `scim-make-table ./bin/korean.txt -b -o ./bin/korean.bin` . The binary table will be written to `./bin` directory. If I update one file, for example `korean.txt.in`, I do not need to compile and reinstall everything. In this case I use command `make install-korean`. This command will first compile the updated table, and install it afterwards. 
 
 The installation is equal to copying the binary table and icon to correct locations: 
 
+    cp ./bin/korean.bin /usr/share/scim/tables
+    cp ./icons/korean.png /usr/share/scim/icons
 
-[[!format txt """
-cp ./bin/korean.bin /usr/share/scim/tables
-cp ./icons/korean.png /usr/share/scim/icons
-"""]]
 I can also do `make uninstall-korean`. Another command, `make clean` clears the `./bin` directory.  
 
 
@@ -114,79 +106,66 @@ The first thing that we need is an icon. Mine is korean.png and I put it in `./i
 
 Now we need the source of the table. As we just modify existing table, we copy the source of the table that we modify. It is in scim-tables sources. 
 
+    cp /dat/src/cpp/scim/scim-tables-0.4.3/ko/Hangul.txt.in ./src
+    mv ./src/Hangul.txt.in ./src/korean.txt.in
 
-[[!format txt """
-cp /dat/src/cpp/scim/scim-tables-0.4.3/ko/Hangul.txt.in ./src
-mv ./src/Hangul.txt.in ./src/korean.txt.in
-"""]]
 We need UUID for our new input: 
 
+    $ uuidgen
+    ec1343c3-cd84-421c-b653-fd4793759e6c
 
-[[!format txt """
-$ uuidgen
-ec1343c3-cd84-421c-b653-fd4793759e6c
-"""]]
 We open `./src/korean.txt.in` in our favourite text editor and make necessary corrections. 
 
 First, we change UUID line to: 
 
+    UUID = ec1343c3-cd84-421c-b653-fd4793759e6c
 
-[[!format txt """
-UUID = ec1343c3-cd84-421c-b653-fd4793759e6c
-"""]]
 We also update serial number, icon location and input name: 
 
+    SERIAL_NUMBER = 20041005
+    ICON = @SCIM_ICONDIR@/korean.png
+    NAME = Korean
 
-[[!format txt """
-SERIAL_NUMBER = 20041005
-ICON = @SCIM_ICONDIR@/korean.png
-NAME = Korean
-"""]]
 This is enough to compile and install the table ( `make && make install` ). Now is your part - modify the table data and do not forget to update MAX_KEY_LENGTH value after that. 
 
 Sometimes we start the table from scratch. In these cases it may help to generate the dummy table of characters to begin your work with. I do it with Perl - it saves me time. For example, I am going to start work on an latin prefix notation table to allow input of latin accented characters. The script I used to generate the raw table to begin my work with was: 
 
+    #!/usr/bin/perl
+    
+    # Basic
+    for my $char  (0x0021 .. 0x007e) {
+      print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
+    }
+    
+    # Suplement
+    
+    for my $char  (0x00A1 .. 0x00ff) {
+      print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
+    }
+    
+    # Extended A
+    
+    for my $char  (0x0100 .. 0x017f) {
+      print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
+    }
+    
+    # Extended B
+    
+    for my $char  (0x0180 .. 0x0236) {
+      print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
+    }
+    
+    # Extended Additional
+    
+    for my $char  (0x1e00 .. 0x1ef9) {
+      print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
+    }
 
-[[!format txt """
-#!/usr/bin/perl
-
-# Basic
-for my $char  (0x0021 .. 0x007e) {
-  print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
-}
-
-# Suplement
-
-for my $char  (0x00A1 .. 0x00ff) {
-  print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
-}
-
-# Extended A
-
-for my $char  (0x0100 .. 0x017f) {
-  print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
-}
-
-# Extended B
-
-for my $char  (0x0180 .. 0x0236) {
-  print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
-}
-
-# Extended Additional
-
-for my $char  (0x1e00 .. 0x1ef9) {
-  print "x", sprintf("%x",$char), "\t", pack('U',$char), "\t0\n";
-}
-"""]]
 This script prints the table to `STDIN`. We save it by redirecting it's output to a file, like this: `./latintab.pl > latin.txt`. 
 
 When you are ready with your input tables, type this command in your project directory: 
 
-
-[[!format txt """
-make install
-"""]]
+    make install
 
 ## Final word
 
@@ -194,6 +173,6 @@ You have to restart SCIM to load (or reload) your table. It makes testing diffic
 
 I did not test much this approach. I just describe what worked for me. Good luck! 
 
--- Main.[[JanuszPrusaczyk|JanuszPrusaczyk]] - 06 Oct 2004 
+-- Main.[[JanuszPrusaczyk]] - 06 Oct 2004 
 
                      * [[%ATTACHURL%/Korean.txt][Korean.txt|%ATTACHURL%/Korean.txt][Korean.txt]]: Korean input using latin transcription 
