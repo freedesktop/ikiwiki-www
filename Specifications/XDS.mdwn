@@ -1,0 +1,129 @@
+
+
+## Saving Files Via Drag-and-Drop: The Direct Save Protocol for the X Window System
+
+[[!toc ]] 
+
+This document was created from Google's cache of [[http://www.newplanetsoftware.com/xds/|http://www.newplanetsoftware.com/xds/]]. 
+
+
+## Introduction
+
+The Direct Save Protocol (XDS) builds on top of the [[XDND|XDND]] protocol to allow users to save a file by simply dragging it to a file manager window, thereby avoiding the necessity of having a directory browser in each application's Save File dialog. 
+
+Current version: 0 Last updated on June 7, 1999 
+
+[[Supporters of the XDS protocol|http://www.newplanetsoftware.com/xds/supporters.html]] 
+
+
+## Example walk-through
+
+Note: Parenthesized numbers in bold-face are the number of packets sent to or from the server. 
+
+
+### Step 0: Before the drop
+
+Before the drag begins, the source creates a window property `XdndDirectSave` on itself of type `text/plain` (including the charset attribute, if necessary) that contains the file name (without a path) in which the user wants to save. 
+
+The source should specify the action `XdndActionDirectSave`. 
+
+When the file manager receives `XdndPosition`, it should only accept the drop if the target directory is writable. If the mouse is over the icon or name of a writable directory, this is the target, and the icon should be highlighted. Otherwise, the target is the directory whose contents are displayed in the window. Since continuous feedback is provided to the source, this will not cause problems even if the window's directory is not writable and some of its subdirectories are writable. 
+
+
+### Step 1: Drop is send
+
+When the file manager received `XdndDrop`, it should first check for `XdndDirectSave`. If this is not provided, it should fall back on `text/uri-list`. 
+
+If it finds the `XdndDirectSave` target, it retrieves the data from the source window's `XdndDirectSave` property (**2**), converts it to a URL (e.g. `name` -> `file://host/path/name`), places this in the `XdndDirectSave` property (**2**), changes the type to match the character set (if necessary), and requests `XdndDirectSave` from the source. (**7**) 
+
+
+### Step 2: Transmit source location
+
+The source receives the request for `XdndDirectSave`, retrieves the data from its `XdndDirectSave` property (**2**), and tries to save the data to the specified location. 
+
+If successful, it responds to the target's request with data of type `XA_STRING` containing the single character `S (0x53)`, indicating success. It then waits for the file manager to respond further. 
+
+If it would like to use the specified location but cannot because it is on a different machine, it responds with data of type `XA_STRING` containing the single character `F (0x46)`, indicating failure. It then waits for the file manager to respond further. 
+
+If it refuses to save the data in the specified location (e.g. it does not allow saving on a different machine because the file's contents are not relocatable), it responds with data of type `XA_STRING` containing the single character `E (0x45)`, indicating an error. 
+
+
+### Step 3: Status code exchange
+
+The file manager receives the result. 
+
+If it receives `S`, it refreshes its display to show the new file and then sends `XdndFinished`. 
+
+If it receives `F`, it checks for the data type `application/octet-stream`. If this is available, it retrieves it and tries to save the file itself. If successful, it refreshes its display. Otherwise, it changes the source window's `XdndDirectSave` property to zero length to indicate failure. (**1**) It then sends `XdndFinished`. 
+
+If it receives `E`, it sends `XdndFinished`. 
+
+
+### Step 4: Finishing
+
+The source receives `XdndFinished`. 
+
+If it sent `S` or `F`, it checks its `XdndDirectSave` property. If this is not empty, the source updates the file path and name that it stores and clears its "needs save" flag. (The property can be empty in either case, as explained in the Notes section.) 
+
+Regardless of what it sent or received, it must delete the `XdndDirectSave` property when it is finished. (This can be done in the `XGetWindowProperty()` call.) 
+
+
+## Notes
+
+Given that some prefer not to use a file manager, it is still a good idea to provide a directory browser so the user has a choice. 
+
+If one chooses not to provide a directory browser, then the interface might act as follows: 
+
+* When the user initiates Save, the program displays a modeless dialog with an input field, a Save button, and a draggable icon. If the file does not exist on disk, the input field contains an example name. If the file exists on the same machine, the input field contains the full path + name. If the file exists on a different machine, the input field contains the full URL. 
+* If the user drags the icon, use the XDS protocol and dismiss the dialog if successful. 
+* If the input field contains a full path + name, the Save button should enabled. If the user clicks it (or presses Return), save the file directly and dismiss the dialog if successful. 
+The source should report the error if it sends `E` in Step 2. The target should report it if an error occurs in Step 3. 
+
+Other applications can use this protocol if they need the name of the data in addition to the data itself by simply retrieving the contents of the `XdndDirectSave` window property before requesting the actual data. 
+
+If a program expects a large amount of data (e.g. a video clip) then it could in principle pretend to be a file manager in order to obtain the data on disk instead of via the X Selection. In this case, it must always set the property to zero length in Step 3 so the source doesn't think that the data has been saved. Since this will only work if the source is on the same machine, however, it is usually better to use a Publish-Subscribe protocol where the target simply checks for modifications to a file written by the source. 
+
+
+### Technical details
+
+Current version: 0 
+
+Unless otherwise noted, all constants mentioned below are the string names of X atoms, capitalized as shown. This avoids the need for hard-coded values, which would require a global registry. 
+
+
+### Atoms and Properties
+
+**`XdndDirectSave`** 
+
+This is both a window property and a data type. In both cases, the full name of the atom is `XdndDirectSave0`. The version number is included in the name to allow new versions of the protocol in the future. All applications are required to support all previous versions of this protocol. A file manager should search the list of available data types starting with the latest version of `XdndDirectSave` that it supports and use the latest version that it finds. This is equivalent to the way the XDND protocol works. For direct save, the version number is part of the atom name instead of being stored in a window property because the latter method would require more network traffic. 
+
+The window property must be of type `text/plain`, including the `charset` attribute, if necessary. This allows file names to contain any character that the file system can handle. File managers that cannot handle the character set can refuse the drop. Applications that cannot handle the character set returned by the file manager can treat this as an error and return `E`. (Refer to step 2 of the walk-through.) If the charset attribute is not set, it is assumed to be `ISO-8859-1`. 
+
+**`XdndActionDirectSave`** 
+
+This is the action that is sent to the target. 
+
+**`application/octet-stream`** 
+
+This data type is reserved to provide the data in the exact format that the program would write to disk. 
+
+
+## Sample implementation
+
+While implementing this protocol, you may find it very useful to use the programs `xlsatoms` to list all the atoms that the server knows about, `xprop` to list all the properties on a particular window, and `xscope` to study the timing of events. 
+
+Even if you implement Direct Save from scratch, we would appreciate it if your distribution included some sort of documentation that states clearly that you are supporting this protocol and provides a reference to this web page. This will help get the snowball rolling. The more applications that support the same protocol, the more useful Direct Save will be for the users. If you tell us that you support the protocol, we will also add you to the list of supporters. 
+
+
+## Changes from previous versions
+
+October 26, 2000: 
+
+                        * Action changed to `XdndActionDirectSave`. 
+June 7, 1999: 
+
+                        * Initial publication. 
+
+## Acknowledgements
+
+This protocol was developed by Main.[[ThomasLeonard|ThomasLeonard]] who works on the [[ROX Desktop|http://rox.sourceforge.net]] and John Lindal at [[New Planet Software|http://www.newplanetsoftware.com]]. 
