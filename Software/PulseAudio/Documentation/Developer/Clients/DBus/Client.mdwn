@@ -1,0 +1,102 @@
+
+
+# D-Bus Interface: Clients
+
+[[(Back to the toplevel D-Bus Interface page)|Software/PulseAudio/Documentation/Developer/Clients/DBus]] 
+
+Objects and their interfaces: 
+
+* /org/pulseaudio/core1/clientX 
+      * - org.PulseAudio.Core1.Client - org.freedesktop.DBus.Properties - org.freedesktop.DBus.Introspectable 
+
+## org.PulseAudio.Core1.Client
+
+
+### Properties
+
+
+#### Index
+
+* Type: Uint32 
+* Access: read 
+The client index. 
+
+
+#### Driver
+
+* Type: String 
+* Access: read 
+The driver that implements the client object. This is usually expressed as a source code file name, for example "protocol-native.c". 
+
+
+#### !OwnerModule
+
+* Type: ObjectPath 
+* Access: read 
+The module that owns this client object. It's not guaranteed that any module claims ownership; in such case this property does not exist. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if this client is not owned by any module. 
+
+#### !PlaybackStreams
+
+* Type: [ObjectPath] 
+* Access: read 
+The playback streams created by this client. 
+
+
+#### !RecordStreams
+
+* Type: [ObjectPath] 
+* Access: read 
+The record streams created by this client. 
+
+
+#### !PropertyList
+
+* Type: {String -> [Byte]} 
+* Access: read 
+The client's property list. 
+
+
+### Methods
+
+
+#### Kill
+
+Cut the client's connection, terminating also its streams. 
+
+
+#### !UpdateProperties
+
+* Arguments: property_list : {String -> [Byte]}, update_mode : Uint32 
+      * - property_list: The properties to update - update_mode: How the properties should be merged, see [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] for the list of possible values 
+Updates the client's property list with new values. A client can modify only its own property list. 
+
+* Errors: 
+      * - org.freedesktop.DBus.Error.AccessDenied if a client tries to modify some other client's property list. 
+
+#### !RemoveProperties
+
+* Arguments: keys : [String] 
+      * - keys: Array of property names 
+Removes properties from the client's property list. A client can modify only its own property list. 
+
+* Errors: 
+      * - org.freedesktop.DBus.Error.AccessDenied if a client tries to modify some other client's property list. 
+
+### Signals
+
+
+#### !PropertyListUpdated
+
+* Parameters: property_list : {String -> [Byte]} 
+      * - property_list: The new property list 
+The client's property list was modified. 
+
+
+#### !ClientEvent
+
+* Parameters: name : String, property_list : {String -> [Byte]} 
+      * - name: Event name - property_list: Additional event parameters 
+The server may send per-client events (visible only to the client that is the intended recipient). However, currently no such events are generated, so until some events are actually defined this signal remains unused. 
