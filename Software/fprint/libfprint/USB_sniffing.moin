@@ -1,0 +1,68 @@
+== Introduction ==
+
+Most of the drivers in [[../../libfprint|libfprint]] have been developed with some the assistance of some kind reverse engineering. Specifically, we have used '''bus traffic analysis''' to get started in many cases.
+
+Bus traffic analysis involves running the fingerprint reader in a configuration supported by other people's software -- typically that means that you have to run the fingerprint reader under Windows using drivers and software provided by the manufacturer. While operating the fingerprint reader in the usual way, you also run some software which records the traffic which goes across the USB cable to and from the device.
+
+This document aims to detail the recording aspect. Once logs have been recorded, they can be shared with those who do not have the device, which may facilitate driver writing, or at least initial analysis of the work that would be involved.
+
+The resultant log files may contain sensitive data (e.g. images of your finger) so be careful who you share them with.
+
+== Sniffing software ==
+
+=== Windows 2000/XP ===
+
+There are a few options available, but my preferred sniffer is [[http://www.pcausa.com/Utilities/UsbSnoop/default.htm|SniffUsb 2.0]]. It is free and open source. My usual usage pattern is:
+
+ 1. Run SniffUsb
+ 1. Enable auto-refresh, every 1 second
+ 1. Plug device in
+ 1. Install filter on device
+ 1. Unplug device
+ 1. Plug in device again
+ 1. Watch the log size increase
+ 1. Perform action
+ 1. Unplug
+ 1. Uninstall filter
+
+Where the kind of action to perform is detailed below. Note that it is preferable to unplug/replug rather than using the "Replug" button because the physical unplug will cause a complete reset of the device.
+
+=== Windows Vista ===
+
+Unfortunately, there do not seem to be any free USB sniffers that work with Vista. I mailed the SniffUsb author who said he does not plan to work on a Vista version.
+
+[[http://www.hhdsoftware.com/Family/usb-monitor.html|HHD Software USB monitor]] does work under Vista though, and you can download a trial version which is enough to capture and save some logs.
+
+Please let us know on the [[../../Mailing list|mailing list]] if there are other Vista sniffing options available.
+
+=== Linux ===
+
+If this is an option, it is usually the best one. On rare occasions, vendors do produce proprietary Linux software which works with their hardware. UPEK do this, for example. Linux is a much easier environment to do sniffing under.
+
+The Linux kernel includes an inbuilt USB sniffer called ''usbmon.'' Usage instructions are in the kernel source at Documentation/usb/usbmon.txt, viewable online [[http://lxr.linux.no/linux+v2.6.27.7/Documentation/usb/usbmon.txt|here]].
+
+I prefer the text interface ("u") rather than the binary one.
+
+=== Hardware-based options ===
+
+The final option is to purchase or otherwise get your hands on a hardware-based USB sniffer. This is  a device that sits between the computer and the USB device and logs the traffic to some kind of internal memory, which you can then access later. The advantage is that they are OS-independent, you don't have to install any software, but they generally cost a lot of money.
+
+== Technique ==
+
+There's a little more to it than just running the sniffer once and sending the resultant file. You need a little more structure.
+
+Firstly, the driver probably sends some initialization commands to the device when you plug it in (or when you start the software), and it's useful to isolate them from the rest. So, you should set up your sniffer, plug your device in, wait a few seconds, then unplug. Then save and close that log file.
+
+You can then do the same where you start the software to scan your finger, but close it after a few seconds without actually scanning.
+
+Then do the same where you do scan your finger.
+
+And so on.
+
+Once you have a collection of log files, send them on accompanied with a ''description'' of the contents of each file. For example, state that the first log file was just of a plug/unplug cycle, the 2nd log file was of a single fingerprint scan, etc.
+
+== What next? ==
+
+The log files you provide will hopefully facilitate the initial stages of driver development, which usually involves me taking a quick look at them, and then figuring out how I can purchase a device for myself and continue the effort.
+
+It is out of the scope of this document, but the next step is to read over the logs and experiment with the data within -- e.g. write code under Linux to send the same requests to the device, and examine the responses. The very curious could look at [[http://www.reactivated.net/weblog-content/20050806-reverse-0.2.txt|this document]] to get started.
