@@ -1,0 +1,180 @@
+
+
+# Theme Package Specification (Draft)
+
+
+
+---
+
+ 
+## Introduction
+
+This specification is designed to provide a desktop neutral way to package multiple themes inside a single 'metatheme', it does not explain where themes should go. 
+
+It should bring artists and users together, allow artists to create a collection of themes building a certain look and users can install that same collection at the touch of a button to get the look the artist designed. 
+
+Themes should be installed as specified by the [[DesktopThemeSpec|DesktopThemeSpec]]. 
+
+
+## Theme Package Structure
+
+A theme-package is an archive containing several different kinds of themes and a themepackage file describing all the contents. The archive should be a gzip-compressed tarball with a .theme extension. 
+
+Individual themes are located in different folders, see below: 
+[[!format txt """
+    /
+    /ThemePackage.index
+    /gtk-2.0/
+    /metacity/
+    /xfwm4/
+    /icons/
+    /cursors/
+"""]]
+
+### Theme Package Description
+
+The Theme``Package.index file should be formatted as followed: 
+
+
+#### Theme Name
+
+
+[[!format txt """
+    [ThemePackage Entry]
+    Name=Example theme
+"""]]
+The Name of the theme, it is required for identification-purposes. 
+#### Desktop-file version
+
+
+[[!format txt """
+    Version=1.0
+"""]]
+The Desktop-file syntax version, this field must be present. 
+
+
+#### Mime-type
+
+
+[[!format txt """
+    Type=X-ThemePackage
+"""]]
+The mime-type, this field must be present and have the value _X-Theme``Package_. 
+
+
+#### Maintainer
+
+
+[[!format txt """
+    Maintainer=John Doe <john DOT doe AT freedesktop DOT org>
+"""]]
+The Theme``Package maintainer, this field should be present and formatted as followed 
+
+_Name < email >_ 
+
+If for some reason this field is not available, Theme-manager implementations may choose to warn a user about this fact. 
+
+
+#### Theme version
+
+
+[[!format txt """
+    Theme-Version=1.0
+"""]]
+The Theme``Package version-number (increases with every update), this field should be present and formatted as followed 
+
+_a[.b[.c[.d[.e]]]]_ Where a, b, c, d and e are numbers between 0 and 4294967296 (32 bits unsigned integers). 
+
+
+#### Theme components
+
+
+[[!format txt """
+    Contains=gtk-2.0;xfwm4;metacity;icons;wallpapers;cursors
+"""]]
+A list of themes contained within the [[ThemePackage|ThemePackage]], these strings MUST represent the folder-names inside the archive. However, since not every theme-category might be available, some of the items from this list could be missing. (eg, if it does not contain an icon-theme, just leave out the 'icons' entry from this list) 
+
+It is possible to include any theme-category to a theme-package, given it adheres to the following rules: 
+
+* the category should be unique (eg, it can't be called gtk-2.0 and conflict to existing gtk themes) 
+* the theme should be installed in $XDG_DATA_DIRS/themes 
+   * This means that the theme data-files can be found in $XDG_DATA_DIRS/themes/THEME_NAME/COMPONENT_NAME/ where THEME_NAME equals the Name field from the Theme``Package.desktop file, and the COMPONENT_NAME equals the name of a theme-category. 
+Applications which install themes may choose which components to install but it should also provide an option to install all available components. 
+
+
+#### Component-related information
+
+You may add an individual section for certain package-components, this can be used to add additional information regarding the individual theme-author and license related to the specific themes. 
+
+
+##### Author(s) / Artist(s) name(s)
+
+
+[[!format txt """
+    [gtk-2.0]
+    Authors=Jane Doe <jane AT freedesktop DOT org>; John Doe <john AT freedesktop DOT org>
+"""]]
+The author(s) of the component theme, this field may be present. 
+
+_Name < email >[; Name < email >[; etc...]]_ 
+
+
+##### Theme Component Name
+
+
+[[!format txt """
+    Name=Component Theme Name
+"""]]
+The component's theme name, this is optional and overrides the Theme``Package name for a component. It is useful when a Theme``Package is filled with several pre-existing themes. 
+
+
+##### Theme Component Description
+
+
+[[!format txt """
+    Description=This Example theme gives the User Interface an olive-greenish look.
+"""]]
+This field provides a description about the specific component. 
+
+
+##### Theme Component License Information
+
+
+[[!format txt """
+    License=GPL;Creative-Commons
+"""]]
+The License under which the component is distributed, if this field is missing or empty a theme-manager may choose to notify the user about such fact. 
+
+
+### ThemePackage.index Example
+
+
+[[!format txt """
+    [ThemePackage Entry]
+    Name=Example theme
+    Version=1.0
+    Type=X-ThemePackage
+    Maintainer=John Doe <john AT freedesktop DOT org>
+    Theme-Version=1.0
+    Contains=gtk-2.0,xfwm4,metacity,icons
+
+    [gtk-2.0]
+    Authors=Jane Doe <jane AT freedesktop DOT org>; John Doe <john AT freedesktop DOT org>
+    Description=This Example theme gives the User Interface an olive-greenish look.
+    License=GPL;Creative-Commons
+
+    [xfwm4]
+    Authors=John Doe Jr. <john_jr AT freedesktop DOT org>
+    Description=This Example theme provides window-decoration with round borders.
+    License=Creative-Commons
+
+    [metacity]
+    Name=Existing Theme
+    Authors=John Doe Jr. <john_jr AT freedesktop DOT org>
+    Description=This Example theme provides window-decoration with round borders.
+    License=Creative-Commons
+    
+    [icons]
+    Authors=John Doe <john AT freedesktop DOT org>
+    License=Public Domain
+"""]]
