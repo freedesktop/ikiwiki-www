@@ -1,0 +1,65 @@
+= Upstream Guidelines =
+
+Distributions should have a strong focus on not deviating from upstream as much as possible in all the different software it includes in the repository.  The following is a general set of best practice guidelines on why this is a good idea, tips for sending your patches upstream, and the potential exceptions any distribution might make. The primary goal is to share the benefits of a common codebase for end users and developers while simultaneously reducing unnecessary maintenance efforts.
+
+'''upstream''' (noun) In free and open source projectas, the ''upstream'' of a program or set of programs is the project that develops those programs.  Any Linux distribution is ''downstream'' of those projects.  This term comes from the idea that water and the goods it carries float downstream and benefit those who are there to receive it.
+
+'''to upstream''' (verb) A short-hand way of saying "push changes to the upstream project".
+
+== Credit ==
+
+These guidelines are a more generalized version of the original Fedora Project guidelines at http://fedoraproject.org/wiki/PackageMaintainers/WhyUpstream
+
+== Why Upstream ==
+
+* '''Common Benefit And Reduced Maintenance Burden''' - When a distribution carries patches that are specific to one or deviations from upstream projects, those patches are not shared by every distribution.  This puts the burden of maintaining those patches on that distribution, which includes keeping those patches in a functional state by rewriting or forward-porting them for every upstream release. This effort can quickly add up to be overwhelming, while not being in the spirit of sharing the benefits (as well as the effort in maintaining) free and open source software.
+
+* '''Documentation''' - Upstream projects are documented formally (in the form of man/info pages and longer guides) and informally in many user forums or mailing lists as answers to user questions. Deviations from upstream projects can thus confuse end users when those patches cause changes in behavior that are distribution specific and not documented properly, even where the formal documentation (such as man pages) are also patched to describe the changes.
+
+* '''Translations''' - Maintaining translations upstream gains the advantage of established translation communities, which are most likely more experienced with the project terms.  Downstream projects benefit when using those translations. In addition, it lifts the burden of hosting, and of the need to merge often from upstream to downstream and back again.  To make sure translation work continues upstream, Fedora developed [[https://fedorahosted.org/transifex/ | Transifex]] , which helps translators contribute directly to upstream projects. Any string changes that were introduced by patches should be maintained by the downstream community.
+
+* '''Upstream Acceptance''' -  A Linux distribution is typically downstream of many thousands of software projects. Much of this software is packaged by maintainers who are not programmers or lack expertise in the language(s) the software is written in.  In some cases the software has a large and complex codebase (such as the kernel or openoffice.org) and the package maintainers might not have the level of understanding in all areas compared to subsystem maintainers or upstream developers. For this and other reasons, any linux distribution needs the acceptance of upstream software developers.  These developers may view any significant patches as a fork or refuse to take bug reports from particular users due to the differences in the codebase.  Any Linux distribution as a project must strive to be welcoming and cooperative with upstream developers as much as possible. We must avoid Linux distribution specific patches and any patches that are useful should be sent upstream to these developers via mailing lists, bug trackers, or direct email.
+
+* '''Quality Assurance''' - Patches that are accepted upstream are usually reviewed or tested by many people including developers and testers.  This includes testing by other GNU/Linux distributions. A deviation from the common codebase used by many is a potential chance of introducing a regression that is specific to a distribution.
+
+* '''Security''' - A special case of the "Quality Assurance" issue is that changes that have surprising security implications are more likely to be detected by upstream (who often have deeper knowledge of the program).
+
+* '''Fast incremental improvements''' - Staying close to upstream versions is helpful when doing version bumps for updates that bring in new features.  This prevents tedious backporting of only security and bug fixes. Deviations from upstream can significantly hamper the speed of delivering improvements from new versions to end users.
+
+* '''ABI or API Deviations''' - Patches that introduce a new application binary interface (ABI) or application program interface (API) must be especially avoided, even if the ABI/API changes are planned to land upstream. When these patches get upstream (if ever), upstream developers might introduce changes in the ABI/API during the code review process before merging the code.  This could break other software in the repository that makes use of the distribution-patched ABI/API.
+
+* '''Direct End User Feedback''' - When users run into problems with any software that is in a Linux distribution, they can report the problems directly upstream.  By not deviating from upstream, it remains a central location for all bug reports on that software, leaving package maintainers to concentrate on good packaging instead of acting in between users and upstream issues.
+
+== Tips On Upstreaming Patches ==
+
+* Talk to upstream: Maintaining a regular flow of communication with the upstream project is helpful in understanding the upstream developers well, and encourages them to be more responsive to your requests. It also helps in understanding technical issues, such as how they prefer patches to be submitted.
+
+* Make the patches generic enough to be maintained by upstream developers.  Explain the need for your patches, that is, what bugs they fix or what features they add. Any references to bugzilla reports or user requests can be quite useful for the developers who receive your patches.
+
+* Divide patches into small and independent chunks that remain functional, so they can be understood, reviewed, and accepted or rejected individually.
+
+* If the patch introduces new strings or changes existing ones, make the changes as generic as possible.
+
+* Fix your coding style to match the upstream project's guidelines. This might seem trivial but many upstream projects insist on following their guidelines so that their codebase looks internally self consistent and is more maintainable.
+
+* Test your changes as throughly as you can before you send them upstream. Broken patches leave a long-lasting bad impression.
+
+* Be patient and cooperative. If feedback is offered, discuss changes, answer questions, and provide revisions that fix any problems. Don't flame or argue unnecessarily with upstream developers. The goal is to get your patches committed upstream and not to demonstrate "who is better."
+
+== Some Examples Of Exceptions ==
+
+* '''Severe Security Issues Or Major Bug Fixes''' - For any major issues, waiting on a new release from upstream for a fix can be too much of a delay. In these instances, it may be better to backport those fixes from upstream and do an update. If you are writing a new patch, send it upstream so that all Linux distributions shares the benefits and avoid deviations in new releases that follow. Due to differences in release schedules between upstream projects and distribution releases, maintainers would have to keep in mind feature and development freezes in distributions and fix problems accordingly.
+
+* ''' Non-free or patent encumbered software''' - If upstream projects include software that is non-free or has known patent issues, such software might not meet the distribution licensing guidelines. In many instances, such code is optional in the form of plugins that simply does not need to included in its software repository. In other cases, it might be possible to work with upstream on making it optional or patch specific portions.
+
+* '''Dead Or Unresponsive Upstream Projects''' -  In cases where upstream projects are either dead or unresponsive, it might be acceptable to patch the software. If upstream is dead, you might want to consider sharing patches with other distributions or taking over maintenance if you have the time, skills, and interest. Be wary of maintaining software with no upstream since all the burden of maintaining the codebase as well as packaging issues are with you. If upstream is unresponsive and many distributions are deviating significantly, it might be a opportunity for a cross distribution fork (Similar to XFree86 and Xorg).
+
+* '''Patches Heading Upstream''' - Any patches that are known to be headed upstream ''might'' be patched temporarily in a Linux distribution for a high benefit addition of new features to end users.  If this is done, maintenance effort of the patches should be low impact for the small amount of time until upstream merges the patches and does a new release.
+
+* '''Distribution Integration''' - There are features that are critical or very good to have for a particular distribution but not been significant enough for various upstream projects to accept related enhancements just yet. Use your discretion carefully when choosing to integrate any such patches since there is a trade off between upstream acceptance and distribution integration and associated costs/benefits.
+
+== References ==
+
+ * https://fedoraproject.org/wiki/Packaging/Guidelines#All_patches_should_have_an_upstream_bug_link_or_comment
+ * http://fedoraproject.org/wiki/PackageMaintainers/TrackingUpstream
+ * http://fedoraproject.org/wiki/PackageMaintainers/TrackingDownstream
