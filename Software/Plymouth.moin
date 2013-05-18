@@ -1,0 +1,40 @@
+= What is Plymouth? =
+Plymouth is an application that runs very early in the boot process (even before the root filesystem is mounted!) that provides a graphical boot animation while the boot process happens in the background.
+
+It is designed to work on systems with [[http://dri.freedesktop.org/wiki/DRM|DRM]] modesetting drivers.  The idea is that early on in the boot process the native mode for the computer is set, plymouth uses that mode, and that mode stays throughout the entire boot process up to and after X starts.  Ideally, the goal is to get rid of all flicker during startup.
+
+For systems that don't have DRM mode settings drivers, plymouth falls back to text mode (it can also use a legacy /dev/fb interface).
+
+In either text or graphics mode, the boot messages are completely occluded.  After the root file system is mounted read-write, the messages are dumped to /var/log/boot.log.  Also, the user can see the messages at any time during boot up by hitting the escape key.
+
+Plymouth isn't really designed to be built from source by end users.  For it to work correctly, it needs integration with the distribution.  Because it starts so early, it needs to be packed into the distribution's initial ram disk, and the distribution needs to poke plymouth to tell it how boot is progressing.
+
+plymouth ships with two binaries: /sbin/plymouthd and /bin/plymouth .
+
+The first one, plymouthd, does all the heavy lifting. It logs the session and shows the splash screen. The second one, /bin/plymouth, is the control interface to plymouthd.
+
+It supports things like plymouth show-splash, or plymouth ask-for-password, which trigger the associated action in plymouthd.
+
+Plymouth supports various "splash" themes which are analogous to screensavers, but happen at boot time.  There are several sample themes shipped with plymouth, but most distributions that use plymouth ship something customized for their distribution. 
+
+Plymouth isn't done yet.  It's still under active development, but is used in several popular distros already, including Fedora, Mandriva, Ubuntu and others.  See the [[http://www.freedesktop.org/wiki/Software/Plymouth/Distributions|distributions]] page for more information.
+
+= Mailing List & Bugzilla =
+Plymouth has a fairly low traffic mailing list at plymouth@lists.freedesktop.org.  It's a useful place to send patches or discuss distribution integration issues.
+
+Bugs should be filed at http://bugs.freedesktop.org. Bugzilla is also a good staging area for patches that need more than one iteration before they are ready.
+
+= Download =
+Plymouth tarball releases are available at http://www.freedesktop.org/software/plymouth/releases/.  Note, since Plymouth requires integration with the distribution to be useful, you normally would get Plymouth through your distributor and not from tarballs.  http://www.freedesktop.org/software/plymouth/releases/ is primarily for distributions to get the latest release.
+
+= Source =
+Plymouth is managed in git.  See http://cgit.freedesktop.org/cgit/plymouth/.   To get at the code, you can run:
+
+ git clone git://git.freedesktop.org/git/plymouth
+
+For general information about using git, visit http://book.git-scm.com
+
+= External Resources =
+ * A very nice write up about Plymouth can be found at http://blog.fpmurphy.com/2009/09/project-plymouth.html.
+ * Charlie Brej has done a four part series on theme starting at http://brej.org/blog/?p=158
+ * Ray Strode did a blog post discussing the transition from Plymouth to X at http://blogs.gnome.org/halfline/2009/11/28/plymouth-⟶-x-transition/
