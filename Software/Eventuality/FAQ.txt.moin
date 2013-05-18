@@ -1,0 +1,152 @@
+== FAQ ==
+
+1) What is Eventuality?
+
+    Eventuality is general framework, designed to replace and supersede
+    traditional crond-like type apps for running pre-scheduled jobs. It is
+    however much more flexible and powerful, and can achieve whole sort
+    of things that were hard or impossible to do with cron, as well as
+    things that simply never were meant to be done with cron. It is a bit
+    of desktop- and system-wide scripting framework, that allows defining
+    arbitrary actions and activating them on various conditions, as well
+    as flexible control of actual execution. There are many possibilities
+    just waiting to be explored.
+
+    NOTE: There seems to be slightly similar thing in prerelease of MacOS X
+    10.4 "Tiger", called Automator. Eventuality however isn't in any way 
+    inspired, nor modelled after Automator, in fact it was first proposed 
+    and thought out before anyone has heard about Tiger.
+
+2) How does Eventuality achieve all these cool things?
+
+   Eventuality is designed to fully leverage on latest-and-greatest
+   technologies in F/LOSS world, particularly D-BUS, Evolution Data Server,
+   and GNotify. We hope to be able to shift as much hard work as possible on
+   others ;), thus avoiding reinventing the wheel and running into risk of
+   creating yet-another-incompatible-framework. We want to do what wasn't
+   done before, and once again show that F/LOSS world is truly innovative.
+
+3) Is Eventuality GNOME-specific? Desktop-specific? Linux-specific?
+
+   No. The only hard dependency of Eventuality is D-BUS. Any other
+   dependency is specific to given implementation, be it GNOME, KDE or
+   console-based one for sysadmin's pleasure. Eventuality is framework,
+   and defines mostly set of conventions, much less the actual implementation
+
+
+
+==== Architecture Overview ====
+
+
+0) D-BUS
+   All communication inside framework is done exclusively using D-BUS.
+   It is primary way of all IPC, as well as mechanism that provides much
+   of actual capabilities. Whenever there is appropriate D-BUS feature
+   that can be exploited to achieve some goal, it will be preferred over
+   any ad-hoc, proprietary way. Conceptually, D-BUS (usually in its bus 
+   mode of operation) sits in the center of star-shaped structure, and
+   all of following items connect to it.
+   
+
+1) Registry
+   Registry is kind of DB-like storage, that stores all registered
+   actions and provides access to them. It's possible to ask registry
+   to store an action instance, and to activate it, given ID obtained
+   on registration
+
+2) Triggers
+   Triggers are what actually cause events to happen. One possible
+   trigger is time-driven scheduler, like original crond, or E-D-S
+   in current GNOME. Another one is panel, which can embed number
+   of action buttons causing some of predefined actions to happen.
+   This way you can have button that fires up RB with given song
+   and volume, as well as you can do that from Evo alert, all using
+   the same code. Note however, that contrary to initial design, and
+   to what could be expected from crond replacement, scheduler (ie.
+   time-driven trigger) is NOT part of framework, just a "well known"
+   instance of trigger, and as such you cannot rely on it being
+   available in all installations. Similarly, protocol defined for
+   communication with such scheduler is fully up to it to define, and
+   is of no interest whatsoever to framework itself. That said, you
+   can of course expect it to be present on most systems, and require
+   any particular trigger for proper operation, it's a dependency as
+   any other that needs to be fulfilled.
+   Triggers don't actually do much wrt to activation of actions, just
+   ask registry to do it and pass it ID registered before. This is
+   similar to calling g_signal_emit(registry, ID). Much more interesting
+   in any given trigger is logic that decides when to trigger.
+   Note: triggering may be actually implemented using D-BUS signals,
+   depending on their exact capabilities. To be investigated
+
+3) Event handlers
+   Or synonymously dispatchers, are analogous to GLib signal handlers
+   (callbacks). Mechanism of dispatching is also similar, although not
+   completely identical, due to slightly different nature of events and
+   handlers registration. Basic idea is that handlers are called
+   sequentially, from most specific ones to most generic ones, similarly
+   to how exceptions are propagated in programming languages. Just as in
+   GLib, event emission stops when one of handlers claims it's fully
+   handled. One possible addition may be priority level, for example for
+   logging facilities that want to be run for every event (and thus are
+   very general), yet they need to make sure no other handler stops
+   emission before they get to see it. Most of system flexibilty is
+   achieved through use of different handlers, that can be plugged
+   dynamically (so that for example, when watching fullscreen movie,
+   all notifications are intercepted and held back until user is
+   available, or depending on whether user is considered AFK (there is
+   screensaver running) notification is either displayed onscreen or
+   sent through SMS)
+
+4) Actions
+   Actions are (like classes) general types of things that can be launched
+   which are then turned into specific instances upon registration. Example
+   action may be "Action.Totem.PlayMovie", which has attributes such as
+   "Movie name" (URI), "Volume" (Int<1,100>), "Fullscren" (Boolean).
+   See UI discussion below. Also, if D-BUS services turn out to be suitable
+   to do this, all actions may be actually purely D-BUS services, just
+   gathered under common "Action" namespace. This would have advantage of
+   using existing .service files mechanism for registration of available
+   actions.
+
+
+==== Details ====
+
+
+1) UI
+   One particularly tricky area is UI for definig new actions. As we want
+   to be independent from any particular GUI toolkit, or even GUI altogether,
+   it's important to provide way to specify needed parameters in UI-agnostic
+   way. This is valuable for example for sysadmins, who may want to schedule
+   actions using console-only environment, or even through headless setup, 
+   like may be the case when initiating action based on received email. Past 
+   experiences show however, that it is very hard to achieve while not using 
+   least-common-denominator approach and providing decent UI in each case. 
+   In particular, while autogenerating layout based on set of values to obtain
+   is relatively straightforward task, it is much harder to ensure that proper
+   constraints are executed and data integrity is preserved (for example, 
+   percentage obviously cannot be more than 100, and it doesn't make much sense
+   to ask if playlist should be shuffled on play, if only there's single file 
+   selected). For that, one possible solution is that each action, in addition
+   to simple listing of needed values, also has associated code snippet in 
+   chosen language (like, say, Python), that is consulted on given input.
+   This is however more advanced question, and won't be initially considered,
+   for the time being, hard-coded, "client side" UI is good enough.
+
+2) OAF
+   In order to be able to perform robust service activation and matching, we
+   need framework similar to OAF (later known as Bonobo-Activation) sported by
+   Bonobo component framework for GNOME. Although Bonobo in general didn't meet
+   its goals, and was rather complex and poorly documented, OAF was one cool part
+   of it (second one was monikers, unfortunately they never caught up enough to 
+   actually matter), providing very powerful query capabilities to service
+   activation. OAF lets you do SQL-like queries, so you can for example ask for 
+   things like:
+       "(repo_ids.has_all (['IDL:Bonobo/Control:1.0',
+		     'IDL:Nautilus/ContentView:1.0']) OR
+         repo_ids.has_one (['IDL:Bonobo/Control:1.0',
+                     'IDL:Bonobo/Embeddable:1.0'])) AND
+         repo_ids.has('IDL:Bonobo/PersistFile:1.0') AND
+	 foo:bar.defined()"
+   This is extremely important for Eventuality, as main part of its working is matching
+   and glueing various events together into working structure. Not to mention that query
+   capabilities are useful to D-BUS in general.
