@@ -1,0 +1,81 @@
+
+Xgl was an X server architecture layered on top of OpenGL. It was abandoned by its authors several years ago and has been removed from the Xorg sources. The following is for historical reference only and the instructions will no longer work (X.Org moved from cvs to git years ago for example). 
+
+
+
+---
+
+ 
+
+[[[[!img http:/~jonsmirl/model.png]|http:/~jonsmirl/model.png]] 
+
+Xegl is built on many layers that you will need to get from several different places.  
+
+Currently only Radeon R200 hardware under Linux is functioning. 
+
+* [[fbdev - Linux framebuffer console graphics|http://linuxconsole.sourceforge.net/]] fbdev provides the mode list, mode setting, scanout configs, hardware cursor, and panning. It is part of the Linux kernel. Very recent, 2.6.13-rc5 or better, kernels have all the needed patches. There are fbdev changes planned that may require patches in the near future. Xegl depends on sysfs support from fbdev. Look in /sys/class/graphics/fb0 to see fbdev's sysfs attributes. 
+* [[DRM - Direct Rendering Manager|http://dri.freedesktop.org/wiki/DRM]] DRM provides an interface to the 3D portion of the graphics chip. Currently Xegl only works on the r200 DRM driver. The r200 DRM driver in the kernel does not contain the needed changes, you will need to compile the driver from GIT. [[!format txt """
+git clone git://anongit.freedesktop.org/git/mesa/drm
+"""]]Xegl is designed to run without needing root privilege. The DRM code currently in CVS still requires that run as root to use DRM. You can either choose to run everything as root or apply this patch which opens up DRM for non-root use: [[drm_no_root.patch|http://dri.freedesktop.org/~jonsmirl/drm_no_root.patch]] Change directory to drm/linux-core and make 
+* [[Mesa - Open source OpenGL|http://mesa3d.sourceforge.net/]] 
+* [[DRI - Direct Rendering Infrastructure|http://dri.freedesktop.org/wiki/]] Mesa and DRI are in the same source code tree. Login as an anonymous user: [[!format txt """
+git clone git://anongit.freedesktop.org/git/mesa/mesa
+"""]]Next build libGL.so, r200_dri.so, libEGL.so, libEGLdri.so and some other libraries.  [[!format txt """
+$ cd mesa
+$ make linux-dri USING_EGL=1
+"""]]When done you will have libGL which is the generic OpenGL code, libEGL the generic EGL code, r200_dri the r200 chip specific DRI driver, libEGLdri an EGL driver for DRI. There are some sample programs in progs/egl. 
+* [[Cairo/glitz - Cairo running on OpenGL|Software/glitz]] Glitz implements [[X Render|http://www.keithp.com/~keithp/render/protocol.html]] using OpenGL. This serves two purposes, glitz can be a backend for the Cairo drawing library and it can also be a backend for an X server. Xegl uses glitz as its backend library for drawing. [[!format txt """
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo login
+CVS password: <hit return>
+$ cvs -d:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo co glitz
+"""]]You will need to pick somewhere to install glitz and other libraries that are built later. The install location is controlled with --prefix on ./configure [[!format txt """
+$ cd glitz
+$ ./autogen.sh --enable-egl --prefix=/opt/xegl 
+$ make
+$ make install
+"""]]
+* [[Modularized X libraries|http://wiki.x.org/wiki/ModularDevelopersGuide]] To check out the modular tree, you will need to check out each of the modules: [[!format txt """
+$ mkdir xorg
+$ cd xorg
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
+CVS password: <hit return>
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg -f co app data doc driver font lib proto util xserver
+"""]]Note the `-f` option, which will override your current `.cvsrc` defaults.  This is necessary to make sure that you do not use the `-P` option to remove empty directories, which will cause problems with the symlink script.  Also note that if other people add directories to a module and you already have that module checked out, you need to run `cvs -f update -d` to make sure that new and possibly empty directories will be created. After checking out the modular tree, you will also need to check out a monolithic tree, if you don't already have one checked out.  This tree is required by the symlink script. [[!format txt """
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co xc
+"""]]Once you have both the modular and monolithic trees checked out, you can use the symlink script, `util/modular/symlink.sh`, to link the source files as follows: [[!format txt """
+$ util/modular/symlink.sh /insert-full-path/xorg/xc .
+"""]]Note that the symlink script requires a full path to the modular tree. Now that you have a modular tree ready to use in `xorg`, the proto module components can be built, installed and packaged as follows: [[!format txt """
+$ cd proto/X11
+$ ./autogen.sh --prefix=/opt/xegl
+$ make install
+$ make distcheck
+"""]]There is nothing to make in the proto module components since there are only header files that need to be installed.  `make install` will create the directories in `/opt/egl` as needed and then install the headers and the pkgconfig metadata file.  Creating the packages for the various components is very easy with the autotools -- simply run `make dist` or `make distcheck`.  I would recommend using `distcheck` since it will both create the package as well as test it to make sure that it builds properly. You need to build all the modular components, a script has been developed to run the steps medded for each module in the order required by their various interdependencies.   It can be found in the modular tree in `modular/util/build.sh`. It requires the path to the `prefix` directory (opt/xegl) you want all the modules to be installed under as it's first argument. Go get a cup of coffee, this is going to take a couple of hours to build.  [[!format txt """
+$ cd xorg
+$ PATH=/opt/xegl/bin:$PATH ./util/modular/build.sh /opt/xegl
+"""]]You can save an hour off the build by editing out components that Xegl does not need. Remove them from the end of util/modular/build.sh. [[!format txt """
+build_proto
+build_lib
+#build data bitmaps
+#build_app
+#build_xserver
+#build_driver
+#build_data
+#build_font
+# build_doc
+"""]]
+* [[Xgl - X running on OpenGL|Software/Xgl]] The Xegl server is built as part for the Xserver/kdrive project.  [[!format txt """
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xserver login
+CVS password: <hit return>
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xserver co xserver
+"""]][[!format txt """
+$ export PKG_CONFIG_PATH=/opt/xegl/lib/pkgconfig
+$ ./autogen.sh --prefix=/opt/egl --enable-xglserver
+$ make
+$ make install
+"""]]The next page tells how to [[run and debug Xegl|Xegl-run]] 
+
+
+---
+
+ 
+#### Jon Smirl - Aug 8, 2005
