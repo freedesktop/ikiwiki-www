@@ -1,0 +1,47 @@
+{i} This page state about a scanner service in freedesktop. This document was started off a discussion at xdg mailing list : http://lists.freedesktop.org/archives/xdg/2007-January/009074.html
+
+== Goals ==
+
+ * Monitor buttons
+ * Share devices
+
+These feature imply that the software own the device handle, this is why the software expose acquisition API.
+
+ * Acquire image
+
+== Achievement ==
+
+This can be done through a dbus system wide daemon.
+
+== DBus API ==
+
+This is a rough draft of an API -- EtienneBersac <<DateTime(2007-01-28T22:21:45Z)>>
+
+ * device_list GetDeviceList
+ * string GetDeviceInfo (device)
+ * option_list GetDeviceOptions (device)
+ * ShareDevice (device, boolean)
+ * job StartScan (device, settings)
+ * StopScan (job)
+ * GetImage (job)
+
+/!\ How to monitor ? How to get buttons events ? How should the image be transferred back to the client?
+ A file descriptor or device node might be one way for transferring the image quickly (sending it directly over D-BUS definitely wouldn't work).
+
+Signals :
+
+ * device-plugged (device)
+ * device-unplugged
+ * button-pressed (device, button)
+ * job-done (job)
+
+== Scanner access ==
+
+Scanner access is done through the famous SANE library. Hope that HAL & SANE will work better together in the future in order to get devices from HAL.
+
+== Sharing ==
+
+SANE has a net scanning protocol. However, it shows some limitation (basically, it's too slow for huge image). What to do ?
+
+ It would be nice to come up with a new protocol for this like the D-BUS one, maybe with some kind of
+ compression, like bzip2.  I wouldn't worry about breaking compatibility. -- DonaldStraney
