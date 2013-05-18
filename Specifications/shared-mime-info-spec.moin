@@ -1,0 +1,128 @@
+<<TableOfContents>>
+
+'''Download:''' [[Software/shared-mime-info|Download the MIME database package]]
+
+=== Overview ===
+
+Many programs and desktops use the MIME system to represent the types of files. Frequently, it is necessary to work out the correct MIME type for a file. This is generally done by examining the file's name or contents, and looking up the correct MIME type in a database.
+
+For interoperability, it is useful for different programs to use the same database so that different programs agree on the type of a file, and new rules for determining the type apply to all programs.
+
+Here you will find:
+
+	* A specification which describes how the new system works.
+
+	* A package containing a large number of common MIME types, created by converting the existing KDE and GNOME databases to the new format and merging them together, and software for updating the database.
+
+The system allows the following types of operation:
+
+	* A single place for applications to register information about MIME types:
+		* A '''text/html''' file should be described as an '''HTML Page''' in '''English'''.
+
+	* A way for applications to extend the rules for guessing the type of a file:
+		* Files with names matching '''*.html''' are '''text/html''' files.
+		* Files with '''<html>''' near the start are '''text/html''' files.
+
+
+	* The system is extensible, so other specifications can define extra information that can be added to a type:
+		* This '''.desktop''' file provides a way to view '''text/html''' files.
+
+The system does not provide a mechanism for storing user preferences (Bob likes to view text/html files in Mozilla). See the
+[[Specifications/mime-actions-spec| MIME actions specification]] for that.
+
+=== Shared MIME database package ===
+
+The core database and the '''update-mime-database''' program for extending it are available from the
+[[Software/shared-mime-info|software pages]].
+
+If you have added types that should go in the common freedesktop.org base list of types, you should create an enhancement request
+on [[https://bugs.freedesktop.org/buglist.cgi?product=shared-mime-info&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED|the MIME bugtracker]] with your new XML file.
+
+=== Tutorials ===
+
+Application authors and users who want to extend the database should read the [[Specifications/AddingMIMETutor| Adding to the database tutorial]]. This explains how to add information to the database such as:
+
+ * '''image/png''' can be '''edited''' using the '''Gimp'''.
+ * '''image/png''' should be '''described''' in '''English''' as '''"Portable Network Graphics file"'''.
+ * Files whose '''names''' end in '''.png''' should have the type '''image/png'''.
+
+If you want to ''read'' the database instead (eg, to work out the MIME type of a file, or find a textual description of a type) then you should use one of the various libraries listed in the '''Current implementors''' section below, or read the full specification.
+
+=== Mailinglist ===
+
+Discussion of this specification should occur on [[http://www.freedesktop.org/mailman/listinfo/xdg|xdg]].
+
+=== Git ===
+
+The [[Infrastructure/git|Git]] module for this code is [[http://cgit.freedesktop.org/xdg/shared-mime-info/|xdg/shared-mime-info]]. 
+
+=== Current status ===
+
+The specification is now quite stable and not expected to change in incompatible ways. Integration with icon themes has not been finalised (and is not currently part of the specification).
+
+	* ROX has used the system since ROX-Filer 1.3.3 (July 2002).
+	* GTK has support since version 2.4 (Mar 2004).
+	* GNOME uses the system since version 2.8 (Sep 2004).
+	* XFCE uses the system since version 4.2.0 (Jan 2005).
+	* KDE uses the system since version 4.0 (Jan 2007).
+	* LXDE has used the system since the initial release of PCManFM (2005).
+	* EDE uses the system since version 2.0-alpha (Apr 2009, but implemented in May 2007).
+
+Current issues keeping this as 'draft' are:
+
+	* The Desktop Base Directory Specification, which this relies on, is still a draft.
+
+=== Full specification ===
+
+	* Version 0.11 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.11.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.11/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.11.xml|xml]]
+	* Version 0.12 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.12.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.12/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.12.xml|xml]]
+	* Version 0.13 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.13.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.13/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.13.xml|xml]]
+	* Version 0.14 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.14.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.14/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.14.xml|xml]]
+	* Version 0.15 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.15.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.15/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.15.xml|xml]]
+	* Version 0.16 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.16.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.16/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.16.xml|xml]]
+	* Version 0.17 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.17.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.17/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.17.xml|xml]]
+	* Version 0.18 - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.18.html|html (one page)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/0.18/|html (multiple pages)]] - [[http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-0.18.xml|xml]]
+
+	* [[Specifications/OtherSystems| History and related systems]]
+
+=== Current implementors ===
+
+	[[http://cgit.freedesktop.org/xdg/xdgmime/|xdgmime]]: Reference implementation of the spec.  It is dual licensed under the GNU-LGPL and AFL v2.0.  It has no dependencies and is written in straight C.  It is intended to be included by other libraries that want to support the standard.
+
+	[[https://github.com/vilkov/libxdg/wiki|libxdg]]: This is a fork of the xdgmime library with additional implementation of [[Specifications/mime-actions-spec| MIME actions specification]], [[Specifications/desktop-entry-spec| Desktop entry specification]], [[Specifications/icon-theme-spec| Icon theme specification]] and [[Specifications/icon-naming-spec| Icon naming specification]].  It is dual licensed under the GNU-LGPL and AFL v2.0.  It has no dependencies and is written in straight C.  It is intended to be included by other libraries that want to support the standard.
+
+	[[http://www.memecode.com/libsharedmime.php|libsharedmime]]: Another shared library to query the database.
+
+	[[http://www.kde.org/|KDE]]: The KDE libraries implement the MIME spec to provide MIME information to all KDE applications.
+
+	[[http://www.gtk.org/|GTK+ file selector]]: The new file selector in GTK+-2.4 uses the MIME spec to determine icons in it.
+
+	[[http://rox.sourceforge.net/desktop/MIME-Editor|MIME-Editor]]: Graphical editor with a GTK interface, written in python.
+
+	[[http://search.cpan.org/search?query=File%3A%3AMimeInfo&mode=module|Perl module File::MimeInfo]](CPAN): Provides a simple Perl interface to query the database.
+
+	[[http://www.liacs.nl/~dvbeelen/MIME.php.txt|PHP library]]: Provides a simple PHP5 interface to query the database.
+
+	[[http://rox.sourceforge.net/desktop/ROX-Lib|ROX-Lib]]: Provides a Python module to query the database.
+
+	[[http://rox.sourceforge.net/desktop/ROX-Filer|ROX-Filer]]: Graphical file manager which uses the database to match filenames and provide textual descriptions for each type.
+
+	[[http://www.gnome.org/|gnome-vfs]]: The GNOME VFS library provides mime information to all GNOME applications.
+
+	[[http://code-monkey.de/?mime_info_rb|Ruby library]]: A Ruby module to query the database.
+
+	[[http://hedges.net/archives/2006/11/08/java-shared-mime-info/|jmimeinfo]]: A Java library to query the database.
+
+	[[http://pcmanfm.sourceforge.net/|PCManFM]]: Lightweight graphical file manager with tab-browsing which uses the database for all mime-type handling of files. There is a small GPL'd lib called libmimetype included in the source code of PCManFM.
+
+	[[http://equinox-project.org|EDE]]: EDE library (edelib) provides mime information to all EDE specific applications.
+
+=== Links to other specifications ===
+
+	[[Specifications/basedir-spec| Base directory specification]]: This is used to locate the MIME database. It lets the user override the system settings, and the system settings override the distribution settings.
+
+	[[Specifications/mime-actions-spec| MIME actions specification]]: This specification describes how applications should be associated with MIME types. This covers both recording that an application is capable of opening files of a particular type, and configuring which application should be the default.
+
+	[[Specifications/desktop-entry-spec| Desktop entry specification]]: There needs to be a way to indicate which applications can handle a file of a particular type. In the future, this will probably take the form of a link to a .desktop file, as shown in the tutorial above.
+
+	[[Specifications/icon-theme-spec| Icon theme specification]]: This can be used to locate an icon to represent a given MIME type. The icon name is of the form '''media-subtype''' (for example: '''text-plain'''). If no specific icon is found, fallback to '''media-x-generic''' (eg, '''text-x-generic'''). See also the [[Specifications/icon-naming-spec| Icon naming specification]]. MIME type icon naming follows the proposal outlined in [[http://thread.gmane.org/gmane.comp.freedesktop.xdg/6680|this thread]].  [[http://thread.gmane.org/gmane.comp.freedesktop.xdg/669/focus=832|A previous proposal]] included a colon character which would have been problematic on Windows and MacOS X file systems.
