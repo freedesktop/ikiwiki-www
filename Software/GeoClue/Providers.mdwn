@@ -1,0 +1,135 @@
+[[!table header="no" class="mointable" data="""
+  |  [[!toc ]] 
+"""]]
+
+
+# Geoclue providers listed by interface
+
+
+## Position
+[[!table header="no" class="mointable" data="""
+**Provider** | **Accuracy** | **signals** | **Requires**
+[[Hostip|Software/GeoClue/Providers]] | 3 (locality) | No¹ | network
+[[Plazes|Software/GeoClue/Providers]] | 5 (street) | No¹ | network
+[[Gsmloc|Software/GeoClue/Providers]] | 4 (postalcode) | No | network, cell
+[[Gpsd|Software/GeoClue/Providers]] | 6 (detailed) | Yes | GPS
+[[Gypsy|Software/GeoClue/Providers]] | 6 (detaild) | Yes | GPS
+"""]]
+
+1) these providers do support signals when used through Geoclue Master 
+
+
+## Address
+[[!table header="no" class="mointable" data="""
+**Provider** | **Accuracy** | **signals** | **Requires**
+[[Hostip|Software/GeoClue/Providers]] | 3 (locality) | No¹ | network
+[[Plazes|Software/GeoClue/Providers]] | 5 (street) | No¹ | network
+[[Localnet|Software/GeoClue/Providers]] | 5 (street) | No¹ | 
+[[Manual|Software/GeoClue/Providers]] | 5 (street) | Yes | 
+"""]]
+
+1) these providers do support signals when used through Geoclue Master 
+
+
+## Velocity
+[[!table header="no" class="mointable" data="""
+**Provider** | **Accuracy** | **signals** | **Requires**
+[[Gpsd|Software/GeoClue/Providers]] | 6 (detailed) | Yes | GPS
+[[Gypsy|Software/GeoClue/Providers]] | 6 (detaild) | Yes | GPS
+"""]]
+
+
+## Geocode
+[[!table header="no" class="mointable" data="""
+**Provider** | **Accuracy** | **Requires**
+[[Yahoo|Software/GeoClue/Providers]] | 5 (street) | network
+[[Geonames|Software/GeoClue/Providers]] | 4 (postalcode) | network
+"""]]
+
+
+## ReverseGeocode
+[[!table header="no" class="mointable" data="""
+**Provider** | **Accuracy** | **Requires**
+[[Geonames|Software/GeoClue/Providers]] | 4 (postalcode) | network
+"""]]
+
+
+# Provider Details
+
+<a name="Hostip"></a> 
+## Hostip
+
+This provider uses [[http://www.hostip.info|http://www.hostip.info]] to get current position and address based on the current public IP address. Dynamic IPs are potentially mis-located, but locations can be edited at the web site. Note that when the website says that a location is "guessed", it is exactly that -- geoclue will not use guessed data. See [[http://api.hostip.info/|http://api.hostip.info/]] for the actual data. 
+
+<a name="Plazes"></a> 
+## Plazes
+
+This provider uses [[http://plazes.com|http://plazes.com]] to get current position and address based on current router mac address. New locations (router mac addresses with coordinates and address) can be added by logged in Plazes users. Official Plazes client is unfortunately not available for Linux. For testing purposes one can add a "Plaze" with the web interface and then edit the mac address with curl:  
+
+* [[!format txt """
+curl -u 'PLAZES_USERNAME:PLAZES_PASSWORD' -H 'Accept: application/xml' 'http://plazes.com/presences' -F presence[plaze_id]=PLAZES_ID -F presence[status]='hacking geoclue' -F presence[mac_address]=MAC_ADDRESS
+"""]]
+<a name="Manual"></a> 
+## Manual
+
+This provider exists to let the user specify the current address. The intention is that there "a geoclue panel applet" or any suitable application can provide the UI for this and use the D-Bus interface to update Manual provider address. The interface includes a "valid-for" variable: if it is used, the address will turn invalid after the specified time. 
+
+<a name="Localnet"></a> 
+## Localnet
+
+This provider does not strictly speaking require an internet connection, but it does require a connection to a router: it uses the current router mac address and a local keyfile to provide Address data. New addresses can be added through d-Bus. Example: 
+
+* [[!format txt """
+dbus-send --print-reply --type=method_call \
+          --dest=org.freedesktop.Geoclue.Providers.Localnet \
+          /org/freedesktop/Geoclue/Providers/Localnet \
+          org.freedesktop.Geoclue.Localnet.SetAddressFields \
+          string: "" string:"Finland" string: "" string:"Helsinki" \
+          string: "" string: string:"Solnantie 24" 
+"""]]
+After running the above command, Localnet provider will provide that address every time the same router is used. Localnet is especially useful for often visited places (home,office), since it's super fast and low resource but requires adding the address manually. 
+
+A geoclue control UI (or any application) could use this provider and Manual provider in the same user interface: 
+[[!format txt """
++------------------------------+
+| Street:  _____________       |
+| City:    _____________       |
+| Country: _____________       |
+|                              |
+| [X] Remember this location   |
+|                              |
+|                        [OK]  |
++------------------------------+
+"""]]
+(Checking 'remember' would mean location would get saved with Localnet) 
+
+<a name="Gsmloc"></a> 
+## Gsmloc
+
+This provider uses the [[Gammu library|http://www.gammu.org/]] and [[http://opencellid.org/|http://opencellid.org/]] to provide position data. It gets cell identification data (MCC, MNC, LAC, CID) from Gammu and queries a position from opencellid with that data.  
+
+There are a couple of problems with this provider: First, a compatible phone and a working .gammurc file are needed. Second, the database does not have a lot of cell locations. Third, a bluetooth query can take a long time if the phone is actually not available. 
+
+<a name="Gypsy"></a> 
+## Gypsy
+
+Gypsy is a gps multiplexing daemon with a D-Bus interface. Gypsy provider requires the option _org.freedesktop.Geoclue.GPSDevice_ to be set. Valid values are GPS bluetooth mac addresses (e.g. _00:02:76:C5:81:BF_) and device names (_/dev/pgps_). For the master provider the gconf key _/apps/geoclue/master/org.freedesktop.Geoclue.GPSDevice_ should be used. 
+
+On systems with D-Bus 1.1.2 or newer Gypsy service autostarts when Geoclue tries to use it. With older D-Buses it needs to be started manually. 
+
+<a name="Gpsd"></a> 
+## GPSd
+
+GPSd is a gps daemon that uses TCP sockets for communication. The daemon must be running when the provider starts.  
+
+The provider accepts two options _org.freedesktop.Geoclue.GPSDevice_ and _org.freedesktop.Geoclue.GPSHost_. If these options are not defined, the default GPSd port and localhost will be used. 
+
+<a name="Yahoo"></a> 
+## Yahoo
+
+This provider uses the [[Yahoo geocoding web service|http://developer.yahoo.com/maps/rest/V1/geocode.html]] to provide Position data based on given address. 
+
+<a name="Geonames"></a> 
+## Geonames
+
+This provider uses the [[Geonames web service|http://www.geonames.org/export/web-services.html]] to provide geocoding/reverse geocoding service. At the moment reverse geocoding is done using _findNearby_ and geocoding is done using _postalCodeSearch_ and _Geonames search_ 
