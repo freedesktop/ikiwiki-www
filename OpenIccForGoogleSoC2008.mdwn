@@ -1,0 +1,372 @@
+
+OpenIccForGoogleSoC2008 Wiki is intended to collect ideas for possible projects participating in [[Googles Summer of Code program|http://code.google.com/soc/2008/]]. They are mentored by members of [[OpenIcc|OpenIcc]] projects. 
+
+
+# About the Group
+
+[[OpenIcc|OpenIcc]] consist of the members of the OpenICC email list. It was started by Scribus members to better support introduction of colour management into applications and discuss general issues. List contributors are application and CMS developers as well as colour management specialists and users, no matter whether commercial, open source and both.   The main focus of this group is to expand the level of support for color management on open source software systems. 
+
+[[!toc 2]] 
+
+
+# Project Suggestions
+
+
+## ICC support for HDR Images
+
+* Available open source colour management libraries like the popular lcms do not support HDR imaging. The work would be a great benefit for existing applications like Krita, CinePaint, Pixel, future Gimp/GEGL  and others to support [[ICC|http://www.color.org]] style colour conversions of HDR images. 
+
+### Expectations
+
+* study basic colour management concepts, [[ILM/OpenEXR's|http://www.openexr.org]] GPU based [[CTL|http://www.openexr.com/documentation.html]] 
+* decide for a implementation concept 
+   * create a ICC profile <-> CTL converter and build an simple API for later inclusion in the Oyranos framework, build a Oyranos plugable Colour Matching Module (CMM) around it 
+   * wrap the [[SampleICC|http://sourceforge.net/projects/sampleicc/]] CMM API into the Oyranos CMM API, optimise SampleICC, allow unbound HDR conversions 
+* work on existing code and integrate your implementation using most of the already available functionality, extent where needed 
+* basic documentation for users - should be very few 
+
+### Skills
+
+* basic communication 
+* basic mathematical skills like matrix operations 
+* portable C (lcms) or C++ and probably OpenGL shader programming 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] > 
+* [[OpenIcc|OpenIcc]] / [[OpenEXR|http://www.openexr.com/mailinglist.html]] email lists 
+
+### Optional
+
+* build a small sample application for demonstration 
+
+## HDR Tonemapping
+
+* Tonemapping is needed to represent HDR images on monitors and print media. HDR images often easily exceed traditional monitor and printer capabilities. Colours need to be compressed into the medias gamut depending on the intensities of the neighbor pixels. A simple logarithmic approach often yields non satisfactory results. Many algorithms where suggested but often lack a natural look or robustness for various content. 
+The project would continue the last years work. 
+### Expectations
+
+* enhance and work on algorithms to create pleasing and highly natural representations of HDR content 
+* work on a concept to include parameters into ICC or CTL colour profiles for later universal reproduction and standardisation 
+
+### Skills
+
+* good communication 
+* basic to good mathematical skills, evaluate, combine and possibly modify existing tonemapping algorithms 
+* portable C 
+* OpenGL shader implementation (possibly make suggestion how to integrate into CTL) 
+
+### Contact
+
+* Mentor: Cyrille Berger < [[cberger@cberger.net|mailto:cberger@cberger.net]] > 
+
+## ICC Examin Library
+
+* ICC Examin is a profile analysing tool and colour visualiser. Many widgets are interesting to other applications. But they are written in FLTK and would be needed in an other toolkit in a modular fashion. This project instroduces in the process of effectively presenting various data in easy understandable form. 
+
+### Expectations
+
+* reorganise, modularise and rewrite parts of the existing project 
+* create an easy to use API and build an example application from it 
+* create at least one wrapper in a scripting language for basic widgets, Python 
+* user documentation inline 
+
+### Skills
+
+* good code (re)organisation 
+* portable C, C++,  Java/Python/? 
+* OpenGL, threads 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] > 
+
+### Optional
+
+* support profile editing 
+* support plug-ins, to display reports and various graphs 
+* support spectral data 
+
+## Simple Toolkit Abstraction
+
+* The Oyranos colour management system is in parts only a thin layer between imaging applications and advanced moduls or plug-ins. To deploy these plug-ins flexible and maintain toolkit independency the plug-ins must present their data in a own language. Goal is to create a simple and highly flexible GUI system, which allows easy creation of dialogs including callback meachanisms. This project lets you explore concepts like W3C XForms/DOM, and how to adapt it to traditional event driven programming. The result should be something simple and powerful enough to use for a wide range of applications not limited to Oyranos. Possibly this will result in a stand alone project. 
+
+### Expectations
+
+* design and implement a minimalistic widget set, which allows easy implementation, exchange and processing (create a XForms profile, interact with DOM) 
+* C API for various basic widgets (groups, lists, sliders, buttons, text box, drawing area) 
+* allow some basic events and C callbacks 
+* serialise and deserialise with XML 
+* write interpreter for console applications 
+* write one or more toolkit dependent interpreter(s) (Gtk, Qt, Fltk ...) 
+* write a backend for Html output for documentation 
+* good documentation 
+* simple examples 
+
+### Skills
+
+* clear and highly modular API design 
+* design of interactive applications 
+* good abstraction 
+* C, (C++), XML, DOM 
+* good communication 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] >, Advisor: Jon A. Cruz 
+
+### Optional
+
+* script bindings to Java/Python/? 
+* build a colour chooser based on the above widgets and callbacks 
+
+## Control Panel for Colour Management
+
+* The KDE desktop needs integration of colour management settings in desktop configuration UI's. 
+
+### Expectations
+
+* create and integrate a settings panel for the KDE desktop 
+* inline documentation 
+* user documentation 
+
+### Skills
+
+* good communication skills 
+* portable C, C++ 
+
+### Contact
+
+* Mentor: Jon A. Cruz 
+
+### Optional
+
+* combine with parts of the Colour Chooser project to create a basic toolkit independent layer 
+* a web interface with proper authentication would be a great plus [07/03/27] 
+Joseph Simon works on [[this|http://code.google.com/p/google-summer-of-code-2008-openicc/downloads/list]] project. 
+
+
+## Oyranos Device Settings to ICC profile layer
+
+* Devices need to be introduced to a colour management system, in order to control the devices colour behaviour. For instance different drivers may produce different colour on a otherwise identical device. A CMS needs some mechanism to connect colur influental device settings a particular profile reflecting this behaviour. The ICC and the Oyranos maintainer provide several data blobs to integrate the device information into a ICC profile. 
+
+### Expectations
+
+* extent the evolving Oyranos colour management system 
+* implement the provided data formats for embedding into ICC profiles 
+* design and discuss an API to access the above ICC profile data and map it to existing device driver API's 
+* apply your API's to different device driver API's, for instance in Gutenprint, libopenraw, Sane to study 
+* document the API usage 
+
+### Skills
+
+* portable C 
+* be fit in compiling various libraries and applications 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] > + Robert Krawitz, ... 
+
+## Color Management near X
+
+* The Linux/BSD desktop needs some form of colour management to give it a consitent colour feel. A concern are multi monitor systems, with obviously different  colorimetry. A laptop with an external monitor is a good example. Both monitor devices can display colours to some degree satisfactory. But a  precondition is clear placing the colour transformation onto the right  monitor plane. A layer near X will best know about such  geometric details. Be prepared, we have no Xorg team member to help with special knowledge. 
+
+### Expectations
+
+* implement a colour management layer on top of Xorg to colour match window regions, possibly inside a composite manager 
+* use Oyranos API's to do the colour transformations 
+* discuss the best way to route color informations from the application to reach your implementation 
+* document design concept with pros and cons, API, usage 
+* hint to further optimisation paths inside and outside your implamentation 
+* document inline and externals, create schema graphics 
+* optimise the colour transformation path, possibly in a Oyranos OpenGL module 
+
+### Skills
+
+* flexible API usage 
+* Xorg code insights 
+* conceptual strength 
+* able to work for the Xorg part alone, or get help yourself 
+* portable and effective C, OpenGL, Shader, threads 
+* profiling 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] > 
+Tomas Carnecy works on [[this|http://www.freedesktop.org/wiki/OpenIcc/ColorManagementNearX]] project. 
+
+
+## Oyranos Tonemapping Integration
+
+HDR images needs to be displayed as consitently as any other colour content. There are few expeciences how to do this on a system level. This is a project to design and work on the behaviour of future imaging. With a sensible eye for natural colours and artistic effects you might have fun with this project. 
+### Expectations
+
+* discuss, port and optimise existing algorithms to the Oyranos colour management system 
+* create and optimise GUI layouts for the plug-in options 
+* serialise and deserialise the options 
+* document option effects and usage of the various tonemapping plug-ins 
+* create a simple sample application using Oyranos deploying the new capabilities 
+
+### Skills
+
+* code organisation talent 
+* basic C and C++ 
+* adapting code to different API's 
+* basic artistic sensibility 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] > 
+
+### Optional
+
+* create plug-ins to external libraries 
+
+## Oyranos ICC spec Basics Implementation
+
+* The Oyranos colour management system provides parsing and writing profile capabilities. The data and structures handled in this project are the important base for many higher level stuff. This projects helps in understanding basic and nested data structures and their serialisation and deserialisation. 
+
+### Expectations
+
+* parse and write profile tags inside the Oyranos CMS 
+* document the usage 
+* write a test application to verify robustness and speed of the implementation 
+
+### Skills
+
+* code organisation and porting 
+* basic C and C++/STL 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de> 
+
+## Extending the Oyranos Colour Conversion Framework
+
+* The colour management system Oyranos provides high level means to render colours in a generic way. The advantage is, application developers can rely on Oyranos services without understanding the often complicated details. This project lets you create and optimise verious underpinnings of sytem level to advanced graphic tools. This project is a collection of many small and very versatile tasks. You can freely   create a own plan what to do or will be guided according to your level of expertise. 
+
+### Expectations
+
+* implement efficient pixel conversion between arbitrary buffer types (low level C) 
+* implement object observation to automatically update to data changes (object oriented C) 
+* adapt Oyranos to catch outside events (X, dbus, ...) 
+* implement OS specific CMS connectors to [[ColorSync|ColorSync]] and WCS (cross platform) 
+* extent the Oyranos command line tools set (build upon Unix/Posix) 
+* build a small shiny graphical sample application (didactical GUI) 
+* agreed upon parts shall be finalised, substitution is possible 
+
+### Skills
+
+* dependent on what we agree to cover 
+* code organisation 
+* conceptual fitness 
+* good communication 
+* work under different OSes 
+* basic to good C 
+* understanding object oriented designs is helpful 
+
+### Contact
+
+* Mentor: Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] > 
+
+## LProf - Finalize Qt4 port
+
+* LProf is an open source ICC profiler.  It has recently been ported to Qt4 from Qt3.  Although the port is working it still needs to have Qt3 support library calls removed. 
+
+### Expectations
+
+* Systematically remove [[Qt3Support|Qt3Support]] calls from the LProf code base and replace these with pure Qt4 code.  This is a significant undertaking and involves changes to just about every part of the UI code base for LProf. 
+
+### Skills
+
+* General C++ programming skills 
+* Experience with C++ object oriented programming 
+* Experience with Qt a plus but not required (OJT) 
+
+### Contact
+
+* Mentor: Hal V. Engel < [[hvengel@astound.net|mailto:hvengel@astound.net]] > 
+
+## LProf - Add DDC/CI and USB HID Monitor Controls for Monitor Calibration
+
+* LProf is an open source ICC profiler.  This project will add DDC/CI and HID USB monitor controls support to the current monitor calibration functionality.  This will allow the software to automatically make monitor adjustments during calibration so that  users do not have to make manual adjustments to their monitors. 
+
+### Expectations
+
+Implement DDC/CI and/or USB HID Monitor Control support in LProf.  This will need to work in a broad range of platforms including *nix/X11, Windows (2000 and later) and OS/X. 
+### Skills
+
+* General C/C++ programming skills 
+* Some background in EDID and/or DDC 
+* Ability to work in a cross platform environment.  This will need to work for *nix/ Windows and OS/X machines. 
+
+### Contact
+
+* Mentor: Hal V. Engel < [[hvengel@astound.net|mailto:hvengel@astound.net]] > 
+
+## LProf - Add a Regression Analysis  Based Monitor Profiling.
+
+* LProf is an open source ICC profiler.  LProf now has the ability to use various measurement instruments to take measurements for profiling monitors of various types.  Currently the profiling algorithms are very simple ones and this needs to be corrected. 
+
+### Expectations
+
+This project will implement a regression analysis algorithm for monitor profiling. 
+### Skills
+
+* General C/C++ programming skills 
+* An understanding of 3D regression anaysis 
+* An understanding of ICC profiles 
+
+### Contact
+
+* Mentor: Hal V. Engel < [[hvengel@astound.net|mailto:hvengel@astound.net]] > 
+
+## LProf - Create a Robust Interative Video Card LUT Creation Algorithm.
+
+* LProf is an open source ICC profiler.  LProf now has the ability to use various measurement instruments to take measurements for profiling monitors of various types.  Currently the video card LUT creation algorithms are very simple ones and this needs to be corrected. 
+
+### Expectations
+
+This project will implement a robust interative video card LUT calibration algorithm and will be integrated into the LProf UI. 
+### Skills
+
+* General C/C++ programming skills 
+* An understanding of 3D regression anaysis 
+* An understanding of ICC profiles 
+
+### Contact
+
+* Mentor: Hal V. Engel < [[hvengel@astound.net|mailto:hvengel@astound.net]] > 
+
+# Alternative Ideas
+
+Feel free to propose and discuss your ideas. 
+
+
+# Requirements
+
+
+## License
+
+BSD, LGPL extended by allowing for static linking are preferred licenses for libraries.  GPL and other open source licenses are acceptable for other projects but in most cases the project mentor will specify the license to be used for the project. 
+
+
+## Skills
+
+Both good project and coding skills are expected, in order to set up our complex open source projects. We know it is sometimes difficult to talk to people you do not know, especially when they are not visible like over the internet. Never the less the mentors of these OpenICC projects want an open dialog with anyone interested in working on these projects. This is an important part of open software development and it is even more important for these Google Summer of Code Projects.    Please feel free to contact any of the mentors listed above at any time.  The earlier a candidate contacts us the better. 
+
+
+## Developers Environment
+
+You are free to select whatever build environment you like as long as the project is targeted at that platform.  Many of the above projects are targeted at Unix like systems and a few are fully cross platform.   Our experience for cross platform projects is that some build environments are more difficult to setup than others.  You will also likely find that these projects are significantly more complex than your school projects.   For example, the LProf code base is now almost 100,000 lines of C and C++ code. 
+
+In order to help candidates be successful in completing their projects it is important that anyone selected is prepared to start actual project work at the project startup date.  Please be prepared to have your development environment ready long before the project starts.   This means that project mentors will want you to be to able to build and run the base system you are working on well before the project start date.  For example,  if you are working on one of the LProf projects you should be able to build and run LProf on your development machine at least a month before the project startup date.   Windows build environments, in particular, have proven to be particularly difficult to setup and it is common for GSoC mentors to comment about how often the single biggest difficultly for students working on Wndows machines is getting a fully functional build environment setup. 
+
+Many open source developers use a unix like environment (IE. Linux, BSD ...) in part because setting up a working build environments is much simpler.  This also means that there is a high likely hood that your mentor will not have much experience working in Windows or OS/X and may not be able to provide much assistance to help you get your builds working in those environments.  So take this very seriously. On the other hand using a Unix like system like BSD/Linux/osX/Solaris can be a great learning experience for any student who has not worked on one of these in the past.  Many big projects run on *nix systems deploying unix concepts and some of the projects listed above are *nix only projects that can not be worked on using a Windows machine. On request we simply expect the programmer to switch to BSD, Linux or osX. The installation should be no issue. 
+
+
+# Communication
+
+The [[OpenIcc|OpenIcc]] list and the mentors for the above projects are all open for having contact with any prospective candidate. We will create a additional public list dedicated to the GSoC projects communication. IRC: freenode#openicc 
+
+If in doubt about how to proceed please contact Kai-Uwe Behrmann < [[ku.b@gmx.de|mailto:ku.b@gmx.de]] >. 
