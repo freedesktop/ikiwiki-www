@@ -1,0 +1,138 @@
+##language:en
+
+=== News ===
+
+ * Sep 20'12 -- All new software releases will from now on be available from http://www.freedesktop.org/software/vaapi/
+ * Mar 26'10 -- Add H.264 decoding to Intel Ironlake (HD Graphics) platforms (libVA i965_h264 branch)
+ * Jul 13'09 -- libVA mailing list was created on fd.o (http://lists.freedesktop.org/mailman/listinfo/libva)
+ * Jul 01'09 -- libVA news on LWN (http://lwn.net/Articles/339349/)
+ * Jul 01'09 -- Add MPEG-2 VLD driver into libVA for Intel integrated G45 graphics chip
+ * Jun 12'09 -- Update VA-API to version 0.30 to include encode support
+ * Sep 13'07 -- Create libVA git repository on freedesktop.org
+
+
+=== About ===
+The main motivation for VA-API (Video Acceleration API) is to enable hardware accelerated video decode/encode at various entry-points (VLD, IDCT, Motion Compensation etc.) for the prevailing coding standards today (MPEG-2, MPEG-4 ASP/H.263, MPEG-4 AVC/H.264, and VC-1/VMW3). Extending XvMC was considered, but due to its original design for MPEG-2 MotionComp only, it made more sense to design an interface from scratch that can fully expose the video decode capabilities in today's GPUs.
+
+The current video decode/encode interface is window system independent, so that potentially it can be used with graphics sub-systems other than X. In a nutshell it is basically a scheme to pass various types of data buffers from the application to the GPU for decoding or encoding. Feedback on the API is greatly welcomed, as this is intended to be a community collaborative effort.
+
+=== Download ===
+
+The latest releases of libva software can be found at:
+http://www.freedesktop.org/software/vaapi/
+
+=== Git ===
+
+libva an implementation of VA-API for Linux, is now available via git from the following location (http://cgit.freedesktop.org/libva/):
+{{{
+    git clone git://anongit.freedesktop.org/git/libva}}}
+
+The gstreamer-vaapi elements are available at:
+https://gitorious.org/vaapi/gstreamer-vaapi
+
+{{{
+git clone git://gitorious.org/vaapi/gstreamer-vaapi.git}}}
+
+=== Specification ===
+
+Latest VA-API decode/encode specification can be found at http://cgit.freedesktop.org/libva/tree/va/va.h, 
+
+Post-processing interface can be found at http://cgit.freedesktop.org/libva/tree/va/va_x11.h
+
+
+=== Drivers (back-ends) that implement VA-API ===
+
+ * Broadcom Crystal HD (work-in-progress):
+   <[[http://gitorious.org/crystalhd-video]]>
+
+ * Intel Embedded Graphics Drivers (IEGD):
+   <[[http://edc.intel.com/Software/Downloads/IEGD/]]>
+
+ * Intel Embedded Media and Graphics Drivers (EMGD):
+   <[[http://edc.intel.com/Software/Downloads/EMGD/]]>
+
+ * Intel GMA500 driver (OEM only):
+   <[[https://launchpad.net/~ubuntu-mobile/+archive/ppa]]>
+
+ * Intel integrated G45 graphics chips:
+   <[[http://cgit.freedesktop.org/vaapi/intel-driver]]>
+
+ * IMG VXD375/385 and VXE250/285 video engines:
+   <[[http://cgit.freedesktop.org/vaapi/pvr-driver/]]>
+
+ * VDPAU back-end for NVIDIA and VIA chipsets:
+   <[[http://cgit.freedesktop.org/vaapi/vdpau-driver/]]>
+
+ * VIA / S3 Graphics Accelerated Linux Driver:
+   <[[http://www.s3graphics.com/en/index.aspx]]>
+
+ * XvBA / ATI Graphics Backend (for proprietary driver only)
+   <[[http://cgit.freedesktop.org/vaapi/xvba-driver/]]>
+
+Other back-ends are currently under development.
+
+=== Decoding Hardware with no backend available ===
+
+ * NONE FOR NOW
+
+=== Software using VA-API ===
+
+ * Clutter toolkit (through {{{clutter-gst}}}, thus GStreamer):
+   <[[http://clutter-project.org/]]>
+
+ * FFmpeg (upstream SVN tree >= 2010/01/18 / version 0.6.x and onwards):
+   <[[http://ffmpeg.org/]]>
+
+ * Fluendo video codec pack for Intel Atom (GStreamer):
+   <[[http://www.fluendo.com/]]>
+
+ * Gnash flash player:
+   <[[http://wiki.gnashdev.org/Hardware_Video_decoding]]>
+
+ * GStreamer:
+   <[[http://gitorious.org/vaapi/gstreamer-vaapi]]>
+
+ * Lightspark flash player:
+   <[[http://lightspark.sourceforge.net/]]>
+
+ * MPlayer/VAAPI:
+   <[[http://gitorious.org/vaapi/mplayer]]> ({{{hwaccel-vaapi}}} branch)
+
+ * MythTV (work-in-progress):
+   <[[http://www.mythtv.org/wiki/VAAPI]]>
+
+ * RealPlayer for MID:
+   <[[https://community.helixcommunity.org/Licenses/realplayer_for_mid_faq.html]]>
+
+ * Totem movie player (simply requires GStreamer VA-API plug-ins):
+   <[[http://projects.gnome.org/totem/]]>
+
+ * VideoLAN - VLC media player:
+   <[[http://www.videolan.org/]]>
+
+ * XBMC:
+   <[[http://www.xbmc.org/]]>
+
+ * Xine:
+   <[[https://github.com/huceke/xine-lib-vaapi/tree/vaapi]]>
+
+=== libVA sample code ===
+
+ * Hardware video decoding acceleration demos:
+   <[[http://gitorious.org/hwdecode-demos/]]>
+
+ * Decode sample program: 
+   <[[http://cgit.freedesktop.org/libva/tree/test/decode/mpeg2vldemo.c]]>
+
+ * Encode sample program:
+   <[[http://cgit.freedesktop.org/libva/tree/test/encode/h264encode.c]]>
+
+ * Post-processing sample program:
+   <[[http://cgit.freedesktop.org/libva/tree/test/putsurface/putsurface.c]]>
+
+=== Architecture ===
+{{attachment:Linux_vaAPI.gif}}
+
+
+=== Contact ===
+Jonathan Bian (jonathan.bian@intel.com); Austin Yuan (shengquan.yuan@intel.com)
