@@ -1,0 +1,468 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] 
+
+
+# Frequently Asked Questions
+
+**Some of the answers need updating! ** Also, some questions are too long for the outline, and they get truncated. 
+
+
+
+---
+
+ [[!toc 3]] 
+
+---
+
+ 
+
+
+## Uncategorized questions
+
+
+### How does PulseAudio compare with ESOUND/aRts/NAS?
+
+      * PulseAudio is sound daemon similar to ESOUND and NAS, but much more powerful. aRts is a realtime-synthesizer-cum-sound-server, i.e. it does much more than PulseAudio. However, I believe that PulseAudio does what it does much better than any other free sound server. 
+
+### Is PulseAudio a GNOME program?
+
+      * No, PulseAudio has no dependency on GNOME/GTK/GLIB. All it requires is a UNIX-like operating system and very few dependency libraries. However, the accompanying GUI tools are written with gtkmm, i.e. require both GLIB and GTK. 
+
+### I want to write a new driver for PulseAudio, are there any docs?
+
+      * Support for audio backends is added by writting a new module. Currently, only the client API is documented with doxygen, for module development you have to use the internal API of [[PulseAudio|PulseAudio]]. Read the source and base your work on a simple module like `module-pipe-sink`, `module-oss` or `module-virtual-{sink,source`}. See [Software/PulseAudio/Documentation/Developer#[[DevelopingModules|DevelopingModules]] [[DevelopingModules|DevelopingModules]]] for more information. 
+
+### How does PulseAudio acquire realtime capabilities?
+
+      * PulseAudio activates SCHED_FIFO scheduling if the user passes `--high-priority=1`. For the root user this will succeed. For normal users `rtkit` is used to give PulseAudio realtime priviliges. 
+
+### What environment variables does PulseAudio care about?
+
+      * The client honors: 
+            * `$PULSE_SINK` (default sink to connect to) 
+            * `$PULSE_SOURCE` (default source to connect to) 
+            * `$PULSE_SERVER` (default server to connect to, like `ESPEAKER`, see [[Server Strings|Software/PulseAudio/Documentation/User/ServerStrings]] for an explanation of the format) 
+            * `$PULSE_BINARY` (the binary to start when autospawning a daemon) 
+            * `$PULSE_CLIENTCONFIG` (path to the client configuration file). 
+            * `$PULSE_PROP` (A space seperated list of properties of the form 'media.role=event' to set for all streams) 
+            * `$PULSE_PROP_xxxx` (Set property xxx for all streams) 
+      * The daemon honors: 
+            * `$PULSE_SCRIPT` (default CLI script file run after startup) 
+            * `$PULSE_CONFIG` (default daemon configuration file) 
+            * `$PULSE_DLPATH` (colon separated list of paths where to look for modules) 
+            * `$PULSE_NO_SIMD` (disable SIMD optimizations. i.e. MMX, SSE, NEON) 
+
+### How do the PulseAudio libraries decide where to connect to?
+
+      * The following rule applies: (see [[Server Strings|Software/PulseAudio/Documentation/User/ServerStrings]] for an explanation of the format of server specifications) 
+      * If the the application using the library specifies a server to connect to it is used. If the connection fails, the library fails too. 
+      * If the environment variable `$PULSE_SERVER` is defined the library connects to that server. If the connection fails, the library fails too. 
+      * If `$DISPLAY` is set, the library tries to connect to that server and looks for the root window property `PULSE_SERVER` for the host to connect to. If `PULSE_COOKIE` is set it is used as authentication cookie. 
+      * If the client configuration file (`~/.pulse/client.conf` or `/etc/pulse/client.conf`) sets the server address, the library connects to that server. If the connection fails, the library fails too. 
+      * The library tries to connect to the default local UNIX socket for PulseAudio servers. If the connection fails, it proceeds with the next item. 
+      * The library tries to connect to the default local TCP socket for PulseAudio servers. If the connection fails, it proceeds with the next item. 
+      * If `$DISPLAY` is set, the library tries to connect to the default TCP port of that host. If the connection fails, it proceeds with the next item. 
+      * The connection fails. 
+
+### Why the heck does libpulse link against libX11?
+
+      * The PulseAudio client libraries look for some X11 root window properties for the credentials of the PulseAudio server to access. You may compile PulseAudio without X11 for disabling this feature. 
+
+### Why did you rename Polypaudio to PulseAudio?
+
+      * Please read this [[blog story|http://0pointer.de/blog/projects/pulse.html]] for an explanation. 
+
+## Compatibility with other software
+
+
+### What about ESOUND compatibility?
+
+      * PulseAudio is a drop in replacement for ESOUND. That means: you can load a esound compatibility module which implements an ESOUND compatible protocol which allows you to use most of the classic ESOUND compatible programs (including the command line programs like `esdcat`). 
+
+### Can I integrate PulseAudio in my GLIB/GTK/GNOME application?
+
+      * Yes! PulseAudio comes with a GLIB main loop adapter. You can embed both the client library and the daemon (!) into your GLIB based application. 
+
+### Can I integrate PulseAudio in my Qt/KDE application?
+
+      * Yes! PulseAudio uses a main loop abstraction layer that allows you to integrate PulseAudio in any program that supports main loops. Unfortunately there is no adapter for Qt publicly available yet. 
+
+### What about compatibility with NAS?
+
+      * Is not available (yet?). It is doable, but noone has implemented it yet. 
+
+### What about compatibility with aRts?
+
+      * Is not available. Since aRts is as synthesizer application you'd have to reimplement very much code for PulseAudio. It should be easy to implement limited support for libartsc based applications. Noone has done this yet. It is probably a better idea to run arts on top of PulseAudio (through a PulseAudio driver for aRts, which nobody has written yet). Another solution would be to embed PulseAudio in the aRts process. 
+
+### Can I get OSS and ALSA applications to work with PulseAudio?
+
+      * Yes, you can! OSS applications are handled using the `padsp` utility shipped with PulseAudio: 
+
+[[!format txt """
+padsp myapp <arguments to myapp>
+"""]]
+      * ALSA applications are handled using the PulseAudio backend for alsa-lib. Documentation and the backend itself are shipped in the alsa-plugins package as part of the ALSA project. 
+
+### Is there a Win32/Windows driver that act like a PulseAudio client?
+
+      * Not exactly, but there use to be a ESoundD driver like that, and [[PulseAudio|PulseAudio]] can connect to a ESoundD client.  
+ This project is [[WinESD|http://www.clingman.org/winesd/]] at [[WinESD|http://www.clingman.org/winesd/]]. This software was developped for NT4 and Windows 2000. It has been reported to work under Windows XP connected to a [[PulseAudio|PulseAudio]] server (One computer under Microsoft Windows XP using WinESD, connected to another computer under Microsoft Windows XP using [[PulseAudio|PulseAudio]]). This project looks unmaintained and last version was "pre-alpha". It still works, but with restrictions :  
+      * Sometimes, the sound is "broken". It look like it's when two processes try to emit sounds in the same time. Perhaps it's different from one computer to another. 
+      * There is no easy installers as for July 2007, neither for WinESD nor [[PulseAudio|PulseAudio]] for Win32/Windows. It's a "Let's play with configuration by hands" installation. 
+      * You need to unactivate your sound card if you already have one on the computer running WinESD. This will need a reboot. This is undocumented on the [[WinESD site|http://www.clingman.org/winesd/]]. 
+      * Switching from one driver to another will need to play with Activate/Unactivate drivers, which will cause reboot. 
+
+## Troubleshooting
+
+
+### I get this error message: "Connection refused"
+
+      * It is a network level error, which is caused by libpulse trying to connect to the daemon. The most likely reason for this error is that pulseaudio isn't running. 
+
+### I get this error message: "Invalid argument"
+
+      * A likely reason for this is that no devices have been loaded. Stop pulseaudio (run "pulseaudio -k"), and start it again with "pulseaudio -vv". That will print verbose output of the daemon startup. If you can't figure out what might go wrong yourself, send a link to the whole output of the command to the irc channel (see [[Community|Software/PulseAudio/Documentation/User/Community]]). (Help is not guaranteed. Patience is a virtue.) 
+
+### I often hear noises when playing back with PulseAudio, what can I do?
+
+      * There are two possible solutions: run PulseAudio with argument `--high-priority=1` and make yourself member of the group `pulse-rt`, or increase the fragment sizes of the audio drivers. The former will allow PulseAudio to activate `SCHED_FIFO` high priority scheduling (root rights are dropped immediately after this). Keep in mind that this is a potential security hole! 
+
+### I have a surround sound card, but PulseAudio uses just the front speakers!
+
+      * Many people have a surround card, but have speakers for just two channels, so PulseAudio can't really default to a surround setup. To enable all the channels, edit `/etc/pulse/daemon.conf`: uncomment the `default-sample-channels` line (i.e. remove the semicolon from the beginning of the line) and set the value to 6 if you have a 5.1 setup, or 8 if you have 7.1 setup etc. After doing the edit, restart pulseaudio. 
+
+### When sending multicast RTP traffic it is recieved on the entire LAN but not by the sender machine itself!
+
+      * Pass `loop=1` to the sender module! 
+
+### Hmm, tcpwrap (aka /etc/hosts.allow, /etc/hosts.deny) support doesn't work properly for me!
+
+      * Have you compile [[PulseAudio|PulseAudio]] with tcpwrap support? Are you using the right tcpwrap service name? PA uses five different names for its five protocols: 
+
+[[!format txt """
+pulseaudio-native
+pulseaudio-simple
+pulseaudio-cli
+pulseaudio-http
+esound
+"""]]
+
+### Why doesn't the system-wide mode detect my default.pa file? Or, why does the system-wide daemon exit telling me there are no modules?
+
+As of [[PulseAudio|PulseAudio]] 0.9.11, the system-wide daemon looks for a separate pa file by default: /etc/pulse/system.pa 
+
+If you want to continue using default.pa for system-wide mode, just symlink /etc/pulse/default.pa to /etc/pulse/system.pa. 
+
+
+### Why do I not see remote sinks in control applications?
+
+Sending a stream to a remote server is done through control apps such as pavucontrol or padevchooser (marked obsolete). The streams to choose from are selected using zeroconf (avahi) publishing and discovering of services. If pavucontrol or padevchooser does not list a sink on a remote server the problem can be that the server is not reachable or the zeroconf mechanism is not working. 
+
+1. Make sure your host is reachable, firewall allows connections, cables are plugged in, whatever, ... 
+
+2. Check if you can reach the remote server using the PULSE_SERVER environment variable from CLI: run a pulseaudio configured application like this: 
+[[!format txt """
+$ PULSE_SERVER=<hostname> <command>
+"""]]
+If your host does not start playing you need to fix the network protocols supported by your server. Refer to protocol sections in the [[Modules|Software/PulseAudio/Documentation/User/Modules]] page, refer to [[Server Strings|Software/PulseAudio/Documentation/User/ServerStrings]] page, refer to FAQ item [[How do I use PulseAudio over the network?|Software/PulseAudio/FAQ]]. 
+
+Assuming that your host started playing we can probably limit the problem to zeroconf. 
+
+3. Check that module-zeroconf-publish is loaded on the remote server using paman: 
+[[!format txt """
+$ PULSE_SERVER=<hostname> paman
+"""]]
+and that module-zeroconf-discover is loaded on the local server, also using paman. 
+
+If either are not, load them and see if the sink is discovered. 
+
+4. Check, using avahi-browse (in avahi-utils for debian based distros), that services are discovered okay. Use following command on both the local and the remote end to dump all (-a) services found on the network and the terminate (-t) the avahi-browse process after dumping: 
+[[!format txt """
+$ avahi-browse -ta
+"""]]
+If in this step the remote end does not show the PulseAudio services locally then check avahi configuration for things like disabled publishing for example. Consider restarting the avahi process. Make sure firewalls allow the avahi traffic. ... 
+
+
+### alsmamixer doesn't work since making the pulse plugin the alsa default
+
+Normally, volume can be adjusted in alsamixer using the Up/Down Arrow keys.  After [[making ALSA use PulseAudio by default|Software/PulseAudio/Documentation/User/PerfectSetup]], the mixer/control/slider presented as PulseAudio in alsamixer doesn't respond to the up/down arrow keys. 
+
+The up/down are actually working, incrementing or decrementing the volume by 1 unit, but the pulse alsa plugin provides about 65k (16 bits of) volume levels, so you won't notice a 1/65,536 adjustment.  Remember this too when passing hardware values to amixer. 
+
+You can adjust the volume in alsamixer from 0 to 90% in 1/9 increments with the number keys 0-9. 
+
+
+### Sound doesn't work when switching users
+
+PulseAudio works with a single user, but when an additional user logs in ([[fast user switching|http://en.wikipedia.org/wiki/Fast_user_switching]]), sound/audio does not work for the additional user. 
+
+Check that no users are part of the "audio" [[group|http://en.wikipedia.org/wiki/Group_identifier_%28Unix%29]]. 
+
+In simple setups (e.g. singe user, without PulseAudio), users must be a member of the "audio" group to access the sound devices (/dev/snd/* (which have group "audio" write permissions)).  Switching users will not automatically stop programs using those sound devices though, so those sound devices will not be accessible to a new (faster user switched) user's programs. 
+
+By removing all users from the "audio" group (the PulseAudio server still runs in the "audio" group), PulseAudio is able manage access to sound devices (/dev/snd/*) amongst multiple users with the help of [[ConsoleKit|http://www.freedesktop.org/wiki/Software/ConsoleKit]]. 
+
+
+## I want to do this specific thing...
+
+
+### I want to run PulseAudio only when it is needed, how do I do this?
+
+      * Set `autospawn = yes` in `client.conf`. That configuration file may be found either in `/etc/pulse/` or in `~/.pulse/`. 
+
+### How do I list all PulseAudio modules installed?
+
+
+[[!format txt """
+pulseaudio --dump-modules
+"""]]
+      * Add `-v` for terse usage instructions. 
+
+### How do I use PulseAudio over the network?
+
+See the wiki page about [[Network Setup|Software/PulseAudio/Documentation/User/Network]]. 
+
+
+### I saw that {{{SIGUSR2}}} provokes loading of the module {{{module-cli-protocol-unix}}}. But how do I make use of that?
+
+      * A brilliant guy named Lennart Poettering once wrote a nifty tool for that purpose: [[bidilink|http://0pointer.de/lennart/projects/bidilink/]]. To connect to a running PulseAudio daemon try using the following commands: 
+
+[[!format txt """
+killall -USR2 pulseaudio
+bidilink unix-client:/tmp/pulse-$USER/cli
+"""]]
+      * _BTW: Someone should package this great tool for Debian! _   
+ **New:** There's now a tool `pacmd` that automates sending `SIGUSR2` to the daemon and running a bidilink like tool for you. 
+
+### Can I use PulseAudio to playback music on two sound cards simultaneously?
+
+      * Yes! Use `module-combine` for that. 
+
+[[!format txt """
+load-module module-alsa-sink device="front:Intel" sink_name=output0
+load-module module-alsa-sink device="front:HDA" sink_name=output1
+load-module module-combine sink_name=combined slaves=output0,output1
+set-sink-default combined
+"""]]
+      * This will combine the two sinks `output0` and `output1` into a new sink combined. Every sample written to the latter will be forwarded to the former two. PulseAudio will make sure to adjust the sample rate of the slave device in case it deviates from the master device. You can have more than one slave sink attached to the combined sink, and hence combine even three and more sound cards. 
+Much fancier is to use the automatic mode. To make use of that simply check the "Simultaneous Output" checkbox in paprefs. 
+
+
+### Can I use PulseAudio to combine two stereo soundcards into a virtual surround sound card?
+
+      * Yes! You can use use `module-combine` for that. 
+
+[[!format txt """
+load-module module-oss-mmap device="/dev/dsp" sink_name=output0 channel_map=left,right channels=2
+load-module module-oss-mmap device="/dev/dsp1" sink_name=output1 channel_map=rear-left,rear-right channels=2
+load-module module-combine sink_name=combined master=output0 slaves=output1 channel_map=left,right,rear-left,rear-right channels=4
+"""]]
+      * This is mostly identical to the previous example. However, this time we manually specify the channel mappings for the sinks to make sure everything is routed correctly.  
+ Please keep in mind that PulseAudio will constantly adjust the sample rate to compensate for the deviating quartzes of the sound devices. This is not perfect, however. Deviations in a range of 1/44100s (or 1/48000s depending on the sampling frequency) can not be compensated. The human ear will decode these deviations as minor movements (less than 1cm) of the positions of the sound sources you hear. 
+
+### How can use my Windows box to play the sound from my Linux box?
+
+      * Download the windows binary of pulseaudio from the download page. 
+      * In the pulseaudio directory, create a file **default.pa** whith a content similar to this one (you may have to adjust the auth-ip-acl to reflect your network's settings): 
+
+[[!format txt """
+load-module module-waveout
+
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
+"""]]
+      * In pulseaudio applet: PA applet -> Default Server -> Other -> Enter the hostname or ip of your windows box. 
+
+### How can I reverse my left and right speaker channels?
+
+This is the same as "reverse stereo", where the left and right channels are to be swapped. 
+
+      * cat /proc/asound/cards and use the name string for the device you wish to use (the one in square brackets) 
+      * Edit /etc/pulse/default.pa and comment out module-hal-detect and module-detect lines. 
+      * Search for the commented-out line that starts "#load-module module-alsa-sink", uncomment it and change it to  
+
+[[!format txt """
+load-module module-alsa-sink device=hw:[answer from step 0] channel_map=right,left
+"""]]
+      * Restart the pulseaudio deamon by running `pulseaudio -k; pulseaudio -D` 
+
+### How do I record stuff?
+
+(Question added 2009-03-14) 
+
+
+#### Selecting the input device
+
+Most recording programs use ALSA. In those cases you need to set the input device in the recording program to be either "default" (if you have PulseAudio set up as the default ALSA device) or whatever name you or your distribution has set up for the pulse plugin for ALSA. If the recording program offers input devices that have a more descriptive name, including the sound card name or something like that, don't choose those, because in those cases the recording program will access the sound card directly (that may not be such a bad thing, actually, if you don't have any real reason to record through PulseAudio). 
+
+If the recording program uses ALSA, and you configure it to use the pulse plugin (as described in the previous paragraph), then the real device you will use depends on which source (source is a PulseAudio term for input devices, physical or virtual) is the default. If you're not happy with the default, you can change the default for example with pavucontrol, but there's another way to choose the device. When the PULSE_SOURCE environment variable is set when starting the recording program, the environment variable will be used to select the source. So, if we assume that you want to use the fictious myrecordingapp program, you would start it in the console like this: 
+
+
+[[!format txt """
+PULSE_SOURCE=<source_name> myrecordingapp
+"""]]
+<source_name> is of course the name of the source you want to use, but how to find out what the name is? This command lists all available sources: 
+
+
+[[!format txt """
+LANG=C pactl list | grep -A2 'Source #' | grep 'Name: ' | cut -d" " -f2
+"""]]
+The names can be rather cryptic, but hopefully you can figure out which name identifies which source. 
+
+
+#### Which program to use for recording
+
+I don't do any recording myself, so I'm not an expert on what is available, but here is some information anyway. If you know more, please edit this! The situation for PulseAudio support in GUI programs doesn't look too good. Audacity is quite nice, but getting it to work can currently be a hassle. See [[Perfect Setup|Software/PulseAudio/Documentation/User/PerfectSetup]]#Audacity for more information. I gave Jokosher 0.9 a quick try recently, but didn't get it to work properly. In my experience, command line programs work much better (you can of course edit the file with any program you want after recording it). The two programs I have tested are arecord (comes with ALSA) and parec (comes with PulseAudio). I'll give an example command for both: 
+
+parec: 
+
+
+[[!format txt """
+parec --device=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 --format=s16le --rate=44100 --channels=2 | sox --type raw -s2L --rate 44100 --channels 2 - --type wav output.wav
+"""]]
+As you can see, in addition to parec, we use sox. That is done because parec generates only raw data, which is not nice to work with. sox is used to add the WAV header to the file. For information about parec and sox parameters, see `parec --help` and `man sox`, respectively. 
+
+arecord: 
+
+
+[[!format txt """
+PULSE_SOURCE=alsa_input.usb_device_46d_990_BF15FF18_if2_alsa_capture_0 arecord --format=S16_LE --rate=44100 --channels=2 output.wav
+"""]]
+That command assumes that PulseAudio is the default ALSA device. If that's not the case, but instead PulseAudio is assigned a device name "pulse", add `-D pulse` somewhere to the command (see `man arecord` for more information about the parameters). 
+
+And the arecord command seems to not be working because the PULSE_SOURCE seems to be out of order. But the parec is working. 
+
+
+### How do I record other programs' output?
+
+(Question added 2009-03-14) 
+
+After reading the answer to the previous question, all you need to know is that every sink automatically has a monitor source, which you can use for recording. To list all monitor source names, run 
+
+
+[[!format txt """
+pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2
+"""]]
+
+### How do I play sounds from my chroot to my host's Pulseaudio daemon?
+
+(Question added 2009-04-29) 
+
+First, ensure that pulseaudio is working and playing audible sound within your host. If it is not, look through the rest of this wiki and make sure it works. 
+
+Setup of the chroot is outside the scope of this wiki, and should be done in whatever manner is recommended by your distro. Pulseaudio then needs to be installed within the chroot. A default install should be sufficient, no need to run the daemon or change any of the .conf files. Finally, Pulseaudio needs access to certain folders within the host system, the following list should enable all functionality on a default Pulseaudio install. 
+
+
+[[!format txt """
+/var/lib/dbus
+~/.pulse
+/tmp
+/dev/shm
+"""]]
+/var/lib/dbus contains a reference to the machine-id which pulse uses to identify the local instance of the daemon. ~/.pulse contains various files created by the daemon, one of them, named <id_number>:runtime, symlinks to a folder in /tmp, hence both these folders should be accessible. /dev/shm is needed for proper running of pulseaudio, to prevent audio glitches. 
+
+Most guides to setting up chroots (for example, 32-bit chroots in a 64-bit host) will already have /home and /tmp mounted, at least. Some would include /dev/shm, but very few, if any, would include /var/lib/dbus. You can manually mount the appropriate directories using the following commands, where /path/to/chroot is the path to your chroot. 
+
+
+[[!format txt """
+mount --bind /var/lib/dbus /path/to/chroot/var/lib/dbus
+mount --bind /home /path/to/chroot/home
+mount --bind /tmp /path/to/chroot/tmp
+mount --bind /dev/shm /path/to/chroot/dev/shm
+"""]]
+If you use a helper app for your chroot, such as schroot, you will need to change the mount options for that helper app instead. Here is an example of a /etc/schroot/mount-<name_of_chroot> file, including the necessary options for Pulseaudio within the chroot:- 
+
+
+[[!format txt """
+# mount.defaults: static file system information for chroots.
+# Note that the mount point will be prefixed by the chroot path
+# (CHROOT_PATH)
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+/proc           /proc           proc    defaults        0       0
+/proc/bus/usb   /proc/bus/usb   none    rw,bind         0       0
+/dev            /dev            none    rw,bind         0       0
+/dev/pts        /dev/pts        none    rw,bind         0       0
+/dev/shm        /dev/shm        none    rw,bind         0       0
+/sys            /sys            none    rw,bind         0       0
+/tmp            /tmp            none    rw,bind         0       0
+/var/lib/dbus   /var/lib/dbus   none    rw,bind         0       0
+/home           /home           none    rw,bind         0       0
+"""]]
+
+### How do I change the default sink or source?
+
+(Question added 2009-11-14) 
+
+This is answered on a separate page: [[Default Device|Software/PulseAudio/Documentation/User/DefaultDevice]]. 
+
+
+### How do I connect an input source to an output sink?
+
+Load the loopback module. 
+
+The following example maps the output of a USB TV Tuner to the main sink. 
+[[!format txt """
+pactl load-module module-loopback source="alsa_input.usb-Hauppauge_WinTV_HVR-950_4034194782-01-U0x20400x7200.analog-stereo" sink="alsa_output.pci-0000_00_08.0.analog-stereo"
+"""]]
+
+### How do I switch the default sound card, moving all applications?
+
+(Question added 2011-02-02) 
+
+The simple answer is to use pavucontrol, click on the 'default' button, and move the apps individually. To do the same from the CLI, read the 'Command Line Interface' article. 
+
+Here's a quick script (which you can bind to a shortcut key of your choice) to accomplish the above. Deleting the second half means it will only change default sound card without moving apps. Remember, unless you have set restore_device=false on module-stream-restore, all currently playing apps will be permanently moved to the new sound card till the next time you move them. 
+
+
+[[!format txt """
+#/bin/bash
+# paswitch 2011-02-02 by Ng Oon-Ee <ngoonee@gmail.com>
+# I can't remember where I found this script, can't locate the original author.
+# Please inform me if you know, so that I can give proper attribution.
+# CHANGES: Added auto-move all inputs to new default sound card.
+# WAS: Pulse Audio Sound Card Switcher v1.0 2010-01-13
+#   Switches between soundcards when run. All streams are moved to the new default sound-card.
+
+# $totalsc: Number of sound cards available
+totalsc=$(pacmd "list-sinks" | grep card: | wc -l) # total of sound cards: $totalsc
+if [ $totalsc -le 1 ]; then # Check whether there are actually multiple cards available
+  notify-send -u critical -t 5000 "Nothing to switch, system only has one sound card."
+  exit
+fi
+# $scindex: The Pulseaudio index of the current default sound card
+scindex=$(pacmd list-sinks | awk '$1 == "*" && $2 == "index:" {print $3}')
+# $cards: A list of card Pulseaudio indexes
+cards=$(pacmd list-sinks | sed 's|*||' | awk '$1 == "index:" {print $2}')
+PICKNEXTCARD=1 # Is true when the previous card is default
+count=0 # count of number of iterations
+for CARD in $cards; do
+  if [ $PICKNEXTCARD == 1 ]; then
+# $nextsc: The pulseaudio index of the next sound card (to be switched to)
+    nextsc=$CARD
+    PICKNEXTCARD=0
+# $nextind: The numerical index (1 to totalsc) of the next card
+    nextind=$count
+  fi
+  if [ $CARD == $scindex ]; then # Choose the next card as default
+    PICKNEXTCARD=1
+  fi
+  count=$((count+1))
+done
+pacmd "set-default-sink $nextsc" # switch default sound card to next 
+
+# $inputs: A list of currently playing inputs
+inputs=$(pacmd list-sink-inputs | awk '$1 == "index:" {print $2}')
+for INPUT in $inputs; do # Move all current inputs to the new default sound card
+  pacmd move-sink-input $INPUT $nextsc
+done
+# $nextscdec: The device.description of the new default sound card
+# NOTE: This is the most likely thing to break in future, the awk lines may need playing around with
+nextscdesc=$(pacmd list-sinks | awk '$1 == "device.description" {print substr($0,5+length($1 $2))}' \
+                         | sed 's|"||g' | awk -F"," 'NR==v1{print$0}' v1=$((nextind+1))) 
+notify-send "Default sound-card changed to $nextscdesc"
+exit
+# Below text was from original author and remains unaltered
+# CC BY - creative commons
+# Thanks God for help :) and guys lhunath, geirha, Tramp and others from irc #bash on freenode.net
+"""]]
