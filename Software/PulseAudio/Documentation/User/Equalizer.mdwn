@@ -1,0 +1,123 @@
+
+The equalizer is available in pulseaudio's master git branch so instead of the git repository below, you may just want to compile from there. 
+
+
+## Getting the equalizer
+
+Binary packages are available for the following platforms:. 
+
+**openSUSE 11.2 and factory**: 
+
+
+[[!format txt """
+http://download.opensuse.org/repositories/home://jenewton/
+"""]]
+**Ubuntu 9.10**: 
+
+
+[[!format txt """
+Add the following to your sources.list:
+deb http://ppa.launchpad.net/nevion/ppa/ubuntu/ karmic main
+Add the following PPA key:
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5291C76F
+You may have to force these packages to be installed (synaptic->package->force version to the jenewton build).
+"""]]
+Unfortunately due to dependencies within pulseaudio, older platforms are not available. 
+
+Up to date sources are available here: 
+[[!format txt """
+git clone git://gitorious.org/pulseaudio-equalizer/pulseaudio-equalizer.git pulseaudio-equalizer
+cd pulseaudio-equalizer && git checkout -t origin/master
+"""]]
+
+## Getting the GUI (pqaeq):
+
+Note that currently, qpaeq is included in the pulseaudio source tree under src/utils and will be installed alongside the equalizer module to /usr/bin/qpaeq in most setups automatically. Qpaeq is still maintained in the below repositories, however. 
+[[!format txt """
+Git: git clone git://gitorious.org/qpaeq/qpaeq.git
+Direct qpaeq single file download of git:  http://gitorious.org/qpaeq/qpaeq/blobs/raw/master/qpaeq.py
+Releaseish form here: http://sourceforge.net/projects/qpaeq/
+
+"""]]
+**Git versions are usually much more up to date, so give them a try first.** 
+
+
+## Compiling (for those without packages provided above)
+
+You will then need to install all normal pulseaudio devel dependencies and fftw3 and dbus devel packages (ex dbus-1-devel / libdbus-1-dev). I prefer a local installation but this will still overwrite your old configurations in /etc/pulse, be sure to back up! You can probably use the following commands: 
+
+
+[[!format txt """
+cd pulseaudio-equalizer.git
+./autogen.sh
+CFLAGS="-O0 -ggdb -mtune=native -fno-strict-aliasing" ./configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access --libdir=/usr/local/lib64 --sysconfdir=/etc
+make
+sudo make install
+sudo ldconfig
+"""]]
+(32bit users will want to use lib instead of lib64 in the above) 
+
+
+## Disabling tsched
+
+**You probably won't need to do this** but if things are messing up, it's something to try (in /etc/pulse/default.pa): 
+
+
+[[!format txt """
+### Automatically load driver modules depending on the hardware available
+.ifexists module-udev-detect.so
+load-module module-udev-detect tsched=0
+.else
+### Alternatively use the static hardware detection module (for systems that
+### lack udev support)
+load-module module-detect tsched=0
+.endif
+"""]]
+
+## Configuring
+
+**Update**:  The module now automatically makes itself the default sink, so for most users, simply load module-dbus-protocol and module-equalizer-sink. See below for a reference snippet. 
+
+You will need to find out the name of your current sink. You can use a gui (paman) for this or perform this command: 
+
+
+[[!format txt """
+pacmd list-sinks|grep 'name:'
+"""]]
+The names should be in between the < >.  You will probably only have one. 
+
+Put something **like** the following in your default.pa (a few lines are added for context): 
+
+
+[[!format txt """
+.ifexists module-esound-protocol-unix.so
+load-module module-esound-protocol-unix
+.endif
+.ifexists module-dbus-protocol.so
+load-module module-dbus-protocol
+.endif
+load-module module-native-protocol-unix
+load-module module-equalizer-sink sink_name=equalized master=alsa_output.pci-0000_00_1b.0.analog-surround-51 set_default=true
+set-default-sink equalized
+"""]]
+Make sure the dbus module is also loaded as above and that you replace the master=alsa part with master=YOURSINKNAME or it will use the default sink.  You can set set_default=false if you do not want the new sink to be the default. 
+
+
+## GUI and Equalizing:
+
+You will need **python, pyqt4, and python-dbus** to launch the gui (qpaeq). Debian packages for those are **python, python-dbus, python-qt4 and python-qt4-dbus**. 
+
+Launch the GUI via: 
+
+
+[[!format txt """
+qpaeq (if you installed from git or opensuse packages)
+--or--
+python qpaeq.py
+"""]]
+If the frequency bands in there aren't good enough for you, add in your own (in order) inside qpaeq.py, its under the variable named DEFAULT_FREQUENCIES.  Restart the gui and voilà.  The equalizer also automatically subdivides frequency ranges depending on the width of the window and supports presets. 
+
+
+## Questions/Comments/Problems
+
+Drop phish3 a line in the irc channel on freenode or join the [[mailing list|http://pulseaudio.org/wiki/Community#MailingLists]]. 
