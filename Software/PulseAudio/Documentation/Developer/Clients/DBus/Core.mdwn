@@ -1,0 +1,417 @@
+
+
+# D-Bus Interface: General Server Functionality
+
+[[(Back to the toplevel D-Bus Interface page)|Software/PulseAudio/Documentation/Developer/Clients/DBus]] 
+
+Objects and their interfaces: 
+
+* /org/pulseaudio/core1 
+      * - org.PulseAudio.Core1 - org.freedesktop.DBus.Properties - org.freedesktop.DBus.Introspectable 
+
+## org.PulseAudio.Core1
+
+
+### Properties
+
+
+#### !InterfaceRevision
+
+* Type: Uint32 
+* Access: read 
+The "major" version of the main D-Bus interface is embedded in the interface name: org.PulseAudio.Core1. When changes are made that break compatibility between old clients and new servers the major version is incremented. This property tells the "minor" version, that is, when new features are added to the interface, this version number is incremented so that new clients can check if the server they talk to supports the new features. This documentation defines revision 0. Extensions are versioned separately (i.e. they have their own major and minor version numbers). 
+
+
+#### Name
+
+* Type: String 
+* Access: read 
+The server name. At the time of writing no competing implementations have appeared, so the expected name is "pulseaudio". 
+
+
+#### Version
+
+* Type: String 
+* Access: read 
+The server version string, for example "0.9.17". 
+
+
+#### !IsLocal
+
+* Type: Boolean 
+* Access: read 
+This per-client property can be used to find out whether the client is connected to a local server. 
+
+
+#### Username
+
+* Type: String 
+* Access: read 
+The username that the server is running under. 
+
+
+#### Hostname
+
+* Type: String 
+* Access: read 
+The hostname of the machine the server is running on. 
+
+
+#### !DefaultChannels
+
+* Type: [Uint32] 
+* Access: read/write 
+The default channel map that is used when initializing a device and the configuration information doesn't specify the desired channel map. The default channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] for the list of possible channel position values. 
+
+
+#### !DefaultSampleFormat
+
+* Type: Uint32 
+* Access: read/write 
+The default sample format that is used when initializing a device and the configuration information doesn't specify the desired sample format. See [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] for the list of possible values. 
+
+
+#### !DefaultSampleRate
+
+* Type: Uint32 
+* Access: read/write 
+The default sample rate that is used when initializing a device and the configuration information doesn't specify the desired sample rate. 
+
+
+#### Cards
+
+* Type: [ObjectPath] 
+* Access: read 
+All currently available cards. 
+
+
+#### Sinks
+
+* Type: [ObjectPath] 
+* Access: read 
+All currently available sinks. 
+
+
+#### !FallbackSink
+
+* Type: ObjectPath 
+* Access: read/write 
+When a new playback stream is created and there is no other policy about to which sink the stream should be connected, the fallback sink is selected. This property doesn't exist if there's no sink selected as the fallback sink. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if the fallback sink is not set. 
+
+#### Sources
+
+* Type: [ObjectPath] 
+* Access: read 
+All currently available sources. 
+
+
+#### !FallbackSource
+
+* Type: ObjectPath 
+* Access: read/write 
+When a new record stream is created and there is no other policy about to which source the stream should be connected, the fallback source is selected. This property doesn't exist if there's no source selected as the fallback source. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if the fallback source is not set. 
+
+#### !PlaybackStreams
+
+* Type: [ObjectPath] 
+* Access: read 
+All current playback streams. 
+
+
+#### !RecordStreams
+
+* Type: [ObjectPath] 
+* Access: read 
+All current record streams. 
+
+
+#### Samples
+
+* Type: [ObjectPath] 
+* Access: read 
+All currently loaded samples. 
+
+
+#### Modules
+
+* Type: [ObjectPath] 
+* Access: read 
+All currently loaded modules. 
+
+
+#### Clients
+
+* Type: [ObjectPath] 
+* Access: read 
+All currently connected clients. 
+
+
+#### !MyClient
+
+* Type: ObjectPath 
+* Access: read 
+This property has a different value for each client: it tells the reading client the client object that is assigned to its connection. 
+
+
+#### Extensions
+
+* Type: [String] 
+* Access: read 
+All available server extension interfaces. Each extension interface defines an unique string that clients can search from this array. The string should contain a version part so that if backward compatibility breaking changes are made to the interface, old clients don't detect the new interface at all, or both old and new interfaces can be provided. 
+
+The string is specific to the D-Bus interface of the extension, so if an extension module offers access through both the C API and D-Bus, the interfaces can be updated independently. 
+
+The strings are intended to follow the structure and restrictions of D-Bus interface names, but that is not enforced. The clients should treat the strings as opaque identifiers. 
+
+
+### Methods
+
+
+#### !GetCardByName
+
+* Arguments: name : String 
+      * - name: Card name 
+* Returns: card : ObjectPath 
+      * - Card: card object 
+Find the card with the given name. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NotFoundError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if no such card is available. 
+
+#### !GetSinkByName
+
+* Arguments: name : String 
+      * - name: Sink name 
+* Returns : sink : ObjectPath 
+      * - sink: Sink object 
+Find the sink with the given name. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NotFoundError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if no such sink is available. 
+
+#### !GetSourceByName
+
+* Arguments: name : String 
+      * - name: Source name 
+* Returns:  source : ObjectPath 
+      * - source: Source object 
+Find the source with the given name. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NotFoundError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if no such source is available. 
+
+#### !GetSampleByName
+
+* Arguments: name : String 
+      * - name: Sample name 
+* Returns: sample : ObjectPath 
+      * - sample: Sample object 
+Find the sample with the given name. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NotFoundError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if no such sample is loaded. 
+
+#### !UploadSample
+
+* Arguments: name : String, sample_format : Uint32, sample_rate : Uint32, channels : [Uint32], default_volume : [Uint32], property_list : {String -> [Byte]}, Data : [Byte] 
+      * - name: Sample name - sample_format: Sample format, see [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] - channels: Channel map as an array of channel positions, see [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] - default_volume: The volume at which the sample should be played if the volume isn't given at the time of playing. The volume elements in the array must match the channel positions in the channels array, or alternatively an empty array may be given, in which case the server decides the default volume (this is often a good choice). Volume elements should normally be between 0 (muted) and 65536 (normal). Any bigger values amplify the signal digitally, which very often causes clipping. - property_list: Proplist for the sample - data: Audio data 
+* Returns: sample : ObjectPath 
+      * - sample: Added sample object 
+Loads a sample. If there is already a sample loaded with the same name, the old sample is replaced. 
+
+
+#### !LoadModule
+
+* Arguments: name : String, arguments : {String -> String} 
+      * - name: Module name (e.g. "module-alsa-sink"). - arguments: Module arguments. Keys are argument names and values are argument values. Keys must be ASCII only without any whitespace. When loading modules in some other way than by using this D-Bus interface, quoting and escaping needs to be usually applied, but when using this interface you don't need to care about that. 
+* Returns: module : ObjectPath 
+      * - module: Loaded module object 
+Loads a module. 
+
+* Errors: 
+      * - org.freedesktop.DBus.Error.AccessDenied if the server is configured to disallow module loading. 
+
+#### Exit
+
+Shuts down the server. 
+
+* Errors: 
+      * - org.freedesktop.DBus.Error.AccessDenied if the server is configured to disallow exiting. 
+
+#### !ListenForSignal
+
+* Arguments: signal : String, objects : [ObjectPath] 
+      * - signal: The signal name containing the interface, for example "org.PulseAudio.Core1.Device.ActivePortUpdated" - objects: If non-empty, only signals originating from the listed objects are sent 
+By default the server doesn't send any signals to clients, but a client can use this method to inform the server about the signals that the client is interested in. 
+
+If the objects argument is an empty list, then all signals of the given type are sent, otherwise the signals are filtered based on the emitting object. If this method is called more than once for the same signal, the latest call always replaces the previous object list. 
+
+In order to support clients that want to receive absolutely all signals, an empty string can be given as the signal name. In that case all previous signal filters are discarded. The objects parameter can still be used to limit the signals to certain objects. If this method is called after giving the "all-pass" filter, the "all-pass" filter is discarded, so the resulting state is equal to as if there weren't any previous filters. 
+
+Note that no error is returned if the signal name or an object path is unknown to the server. This is because an extension could be loaded at any time that would start sending the given signal, or create the object. 
+
+
+#### !StopListeningForSignal
+
+* Arguments: signal : String 
+      * - signal: Signal name containing the interface, for example "org.PulseAudio.Core1.Device.ActivePortUpdated" 
+Tells the server to stop sending signals of the given type. Empty signal name means that no signals should be sent anymore. If the client has previously called ListenForSignal with an empty signal argument, calling this method with a non-empty signal argument does nothing. 
+
+
+### Signals
+
+
+#### !NewCard
+
+* Parameters: card : ObjectPath 
+      * - card: Added card object 
+A card was added. 
+
+
+#### !CardRemoved
+
+* Parameters: card : ObjectPath 
+      * - card: Removed card object 
+A card was removed. 
+
+
+#### !NewSink
+
+* Parameters: sink : ObjectPath 
+      * - sink: Added sink object 
+A sink was added. 
+
+
+#### !SinkRemoved
+
+* Parameters: sink : ObjectPath 
+      * - sink: Removed sink object 
+A sink was removed. 
+
+
+#### !FallbackSinkUpdated
+
+* Parameters: sink : ObjectPath 
+      * - sink: New fallback sink 
+The fallback sink was changed. When the fallback sink becomes unset, [[FallbackSinkUnset|Software/PulseAudio/Documentation/Developer/Clients/DBus/Core]] is emitted instead of this signal. 
+
+
+#### !FallbackSinkUnset
+
+The fallback sink became unset. 
+
+
+#### !NewSource
+
+* Parameters: source : ObjectPath 
+      * - source: Added source object 
+A source was added. 
+
+
+#### !SourceRemoved
+
+* Parameters: source : ObjectPath 
+      * - source: Removed source object 
+A source was removed. 
+
+
+#### !FallbackSourceUpdated
+
+* Parameters: source : ObjectPath 
+      * - source: New fallback source 
+The fallback source was changed. When the fallback source becomes unset, [[FallbackSourceUnset|Software/PulseAudio/Documentation/Developer/Clients/DBus/Core]] is emitted instead of this signal. 
+
+
+#### !FallbackSourceUnset
+
+The fallback source became unset. 
+
+
+#### !NewPlaybackStream
+
+* Parameters: playback_stream : ObjectPath 
+      * - playback_stream: Added playback stream object 
+A playback stream was added. 
+
+
+#### !PlaybackStreamRemoved
+
+* Parameters: playback_stream : ObjectPath 
+      * - playback_stream: Removed playback stream object 
+A playback stream was removed. 
+
+
+#### !NewRecordStream
+
+* Parameters: record_stream : ObjectPath 
+      * - record_stream: Added record stream object 
+A record stream was added. 
+
+
+#### !RecordStreamRemoved
+
+* Parameters: record_stream : ObjectPath 
+      * - record_stream: Removed record stream object 
+A record stream was removed. 
+
+
+#### !NewSample
+
+* Parameters: sample : ObjectPath 
+      * - sample: Loaded sample object 
+A sample was loaded. 
+
+
+#### !SampleRemoved
+
+* Parameters: sample : ObjectPath 
+      * - sample: Unloaded sample object 
+A sample was unloaded. 
+
+
+#### !NewModule
+
+* Parameters: module : ObjectPath 
+      * - module: Loaded module object 
+A module was loaded. 
+
+
+#### !ModuleRemoved
+
+* Parameters: module : ObjectPath 
+      * - module: Unloaded module object 
+A module was unloaded. 
+
+
+#### !NewClient
+
+* Parameters: client : ObjectPath 
+      * - client: Connected client object 
+A new client connected. 
+
+
+#### !ClientRemoved
+
+* Parameters: client : ObjectPath 
+      * - client: Disconnected client object 
+A client disconnected. 
+
+
+#### !NewExtension
+
+* Parameters: extension : String 
+      * - extension: Added extension name 
+An extension was added. 
+
+
+#### !ExtensionRemoved
+
+* Parameters: extension : String 
+      * - extension: Removed extension name 
+An extension was removed. 
