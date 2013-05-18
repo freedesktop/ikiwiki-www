@@ -1,0 +1,127 @@
+
+
+## Install
+
+
+### Requirements
+
+The core components of scim-lib generally depends on ``NOTHING``: if you have a c++ compiler, you would be able to compile it. However should you prefer Gtk GUIs, then Gtk2 is required. scim-lib comes with several config modules, one of which is `gconf` config module: you would need gconf (which is depend on other Gnome2 packages) to compile and make use of it. 
+
+(If you prefer KDE/Qt GUIs, then you would like to try [[Software.ScimKDE][skim|Software.ScimKDE][skim]].) 
+
+
+### Install scim-lib from source
+
+There are two choices to install scim-lib from source code:  One is using released tarballs, the other is checking out from !CVS.  The releases are relatively well tested and more stable, but may be a little outdated.  The !CVS checkout is very bleeding-edge, but it's in heavy development, so more error-prone. 
+
+
+#### Install from releases
+
+After downloading and uncompressing the released tarballs: 
+[[!format txt """
+         $ ./configure --prefix`/usr --sysconfdir`/etc
+         $ make
+         # make install
+"""]]
+If you don't use options in `configure`, SCIM is going to be installed in `/usr/local`. 
+
+
+#### Install from !CVS
+
+First, checkout the source from !CVS 
+[[!format txt """
+         $ export CVS_RSH="ssh"
+         $ cvs -z3 -d:ext:anoncvs@savannah.nongnu.org:/cvsroot/scim checkout -P scim-lib
+         $ cd scim-lib
+"""]]
+After checking out the source: 
+[[!format txt """
+         $ ./bootstrap
+         $ ./configure --prefix`/usr --sysconfdir`/etc
+         $ make
+         # make install
+"""]]
+If you prefer KDE, you can checkout [[Software.ScimKDE][skim|Software.ScimKDE][skim]], the procedure is just the same as above, you only need to replace scim-lib with skim. 
+
+
+#### Gentoo
+
+All the SCIM packages are included in the official portage, so all you have to do is 
+[[!format txt """
+         # emerge scim
+"""]]
+If you want Pinyin (Simplified Chinese) input method, please emerge `scim-chinese`; If table based (including Simplified/Traditional Chinese, Japanese, Russian etc.) input method is prefered, please emerge `scim-table`; If you are the users of `[[Software.uim][UIM]]`, then `scim-uim` (and/or `scim-m17n`) is (are) what you want. 
+
+(Do not forget to specify the `ACCEPT_KEYWORDS`"~x86"= before you emerge anything in SCIM if the latest versions are desired) 
+
+If `-gtk` (and/or `-gnome`) is included in your `USE` variable, or *KDE/Qt* is prefered, then probably you should also emerge `[[Software.ScimKDE][skim]]`. 
+
+-- Main.[[LiuCougar|LiuCougar]] - 18 Jul 2004 
+
+
+## Configure locales
+
+On many systems, it will also be necessary to configure the locales.   
+
+For some versions of the locales package, you should edit the file (as user `root`) 
+[[!format txt """
+        /etc/locale.gen
+"""]]
+and for at least locales version 2.3.18, you should edit such a file as 
+[[!format txt """
+        /var/lib/locales/supported.d/zh
+"""]]
+(or "/jp", depending on the language) to include a locale and encoding appropriate for your purposes.   For example, to use Simplified Chinese  with Unicode encodings, insert the line 
+[[!format txt """
+        zh_CN.UTF-8 UTF-8
+"""]]
+See `/usr/share/i18n/SUPPORTED` for a list of locales supported on your system. 
+
+Then create and install the locales in your system by running 
+[[!format txt """
+        locale-gen
+"""]]
+See `man locale` for more information on locales. 
+
+
+## Environment
+
+If your system is set up for a language other than the target language, an application to be used with  SCIM will need to run in an environment set up for the target language. 
+
+For example, in a terminal running the `bash` shell, type 
+[[!format txt """
+        export XMODIFIERS=@im=SCIM
+        export LC_CTYPE=zh_CN.UTF-8
+"""]]
+Now if SCIM is running, you can run, say, `gedit` from this terminal session, and use SCIM within that application to type Simplified Chinese. 
+
+To use the SCIM input methods in GTK applications (and in Gnome generally) 
+[[!format txt """
+        export GTK_IM_MODULE=scim
+"""]]
+To use the SCIM input methods in Qt applications (KDE desktop) 
+[[!format txt """
+        export QT_IM_SWITCHER=imsw-multi
+        export QT_IM_MODULE=scim
+"""]]
+Of course, one can simplify this process by writing scripts that set the environment and run the desired application at once.  For example, put the following in a file named "chinese", and make the file executable, and put it in your `PATH`. 
+[[!format txt """
+#!/bin/bash
+# Launches argument program in an environment appropriate to use
+# with SCIM Chinese input method.  Launches scim as daemon if it
+# doesn't find it running.
+export XMODIFIERS=@im=SCIM
+export GTK_IM_MODULE=scim
+export QT_IM_SWITCHER=imsw-multi
+export QT_IM_MODULE=scim
+export LC_CTYPE=zh_CN.UTF-8
+
+scim_running=`ps cax | grep -c ' scim'`
+
+if [ $scim_running == 0 ]; then
+        scim -d
+fi
+
+exec $@
+"""]]
+Then for example the command `chinese gedit` will bring up gedit with everything set up properly. 
