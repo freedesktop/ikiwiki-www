@@ -1,0 +1,156 @@
+= Creating new XKeyboardConfig compat/geometry/keycodes/keymap/rules/semantics/symbols/types =
+(Warning this guide is incomplete, you might also want to check the links at [[Software/XKeyboardConfig|the main page]].)
+
+== Basics ==
+
+=== What does XKeyboardConfig do ? ===
+XKeyboardConfig (also referred to as xkb) is responsible for making sure your pressed key on your keyboard produces the desired letter or symbol. For example, if I press the 'A' key I wish for a 'A' to appear on my screen and not a 'Q'.
+
+=== xkb concepts ===
+When a key is pressed on a keyboard it generates a code. The codes it generates are called the keycode.
+
+The keycodes have to be translated to symbols such as: A @ Ω. This information is stored in the symbol files.
+
+Keyboards have different layouts, keys, key shapes and key location. This information is stored called geometry.
+
+Finally a keymap is a set of symbols, modifiers, geometry to form a working keyboard.
+
+(The following terms are missing from this introduction: types, compatibility maps, rules and semantics)
+
+=== Testing configurations ===
+There are a few methods to load a keyboard config:
+ * By command line:
+   * setxkbmap
+ * By a gui:
+  * Gnome
+  * KDE
+(Note: the above list might not be complete.)
+
+Be warned: it is possible to load a broken keymap, preventing you to type. And easy way to prevent this is loading 2 keymaps at the same time.
+
+=== Location the xkb config files ===
+On this page the location of theses files will be referred to as $xkbdir$.
+The typical directories are:
+ * /usr/share/X11/xkb/
+(Note: the above list needs completion.)
+
+If all fails you can try to locate them by your favorite search application. Search for "semantics.dir".
+
+== Keycodes ==
+
+== Symbols ==
+
+We will make a new symbols configuration. We will name it $custom$ (for example 'test').
+The next steps will be taken:
+ * Create a new symbol file.
+ * Write the content of the file.
+ * Add the file to the list.
+ * Load the file.
+
+=== Creating a new symbol map ===
+Create a new symbol file "$xkbdir$/symbols/$custom$".
+In our example case it would be the file "/usr/share/X11/xkb/symbols/test".
+
+=== Writing a symbol file ===
+
+=== Adding the file to the list ===
+There are 2 files you need to update:
+ * $xkbdir$/rules/xorg.lst
+ * $xkbdir$/rules/xorg.xml
+
+==== xorg.lst ====
+This is the most simple and least complex file to update.
+Open the file and look for the string "! layout".
+Below that you see a list of layouts. Add your layout to it:
+{{{
+  $custom$   $custom_full_name"
+}}}
+For example:
+{{{
+  test       My test layout"
+}}}
+
+==== xorg.xml ====
+This file is slightly more complex.
+Open the file and look for the string "<layoutList>" add your own layout here.
+(The variantlist and alternate language descriptions can be omitted.)
+{{{
+    <layout>
+      <configItem>
+        <name>$custom$</name>
+        <shortDescription>$shortdescription$</shortDescription>
+        <shortDescription xml:lang="$languagecode$">$shortdescription_in$</shortDescription>
+        <description>$description$</description>
+        <description xml:lang="$languagecode$">$description$</description>
+      </configItem>
+      <variantList>
+        <variant>
+          <configItem>
+            <name>$custom_variant$</name>
+            <description>$description$</description>
+            <description xml:lang="$languagecode$">$description_in$</description>
+          </configItem>
+        </variant>
+      </variantList>
+    </layout>
+}}}
+ * $shortdescription$ = A short description of your layout,for example: "USA".
+ * $languagecode$ = the language code, for example "fr".
+ * $shortdescription_in$ = Same as $shortdescription$ but in another language.
+ * $description$ = A longer description of your layout, for example: "U.S. English"
+ * $description_in$ = Same as $description$ but in another language.
+
+=== Loading the symbols ===
+
+==== Using command line ====
+It's recommend to enable choosing between keyboards.
+If you haven't done so in your xorg.conf file you can still do it now.
+Run the command:
+{{{setxkbmap -option grp:ctrls_toggle}}}
+Possible alternative are:
+ * grp:toggle
+ * grp:alt_shift_toggle
+ * grp:alts_toggle
+ * grp:caps_toggle
+ * grp:ctrl_alt_toggle
+ * grp:ctrl_shift_toggle
+ * grp:ctrls_toggle
+ * grp:lalt_toggle
+ * grp:lctrl_toggle
+ * grp:lshift_toggle
+ * grp:lwin_toggle
+ * grp:menu_toggle
+ * grp:rctrl_toggle
+ * grp:rshift_toggle
+ * grp:rwin_toggle
+ * grp:shift_caps_toggle
+ * grp:shift_toggle
+
+Now you can run the next command safely (without having to fear loosing your ability to type):
+{{{
+setxkbmap -layout $your_default$,$custom$
+}}}
+(And example of $your_default$ would be 'us'.)
+
+To get more error reports use:
+{{{
+setxkbmap -layout $your_default$,$custom$ -v10
+}}}
+or
+{{{
+setxkbmap -layout $your_default$,$custom$ -print | xkbcomp - $DISPLAY
+}}}
+
+=== FAQ ===
+
+== Geometry ==
+
+== Keymap ==
+
+== Rules ==
+
+== Semantics ==
+
+== Types ==
+
+== Compat ==
