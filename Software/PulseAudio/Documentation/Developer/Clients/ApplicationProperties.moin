@@ -1,0 +1,85 @@
+= Setting Application Properties =
+
+!PulseAudio allows setting of all kinds of properties for clients and streams. They are roughly modelled after X11 window properties, however typeless: usually formatted UTF-8 strings and sometimes binary. These properties can be used for a variety of purposes: for enhancing volume control UIs by showing icons/application names for clients/streams, for doing policy decisions (i.e. route 'phone' streams to a different device than 'music' streams) as well as effects (i.e. if we know which X11 window a stream belongs to we can implement 'volume-follows-focus'). 
+
+The complete list of currently known client/stream properties is defined in [[http://0pointer.de/lennart/projects/pulseaudio/doxygen/proplist_8h.html|proplist.h]]. The list will be extended in the future. Some of these properties can be and are deduced automatically from the process environment, however others cannot and aren't.
+
+Only applications that directly call into the PA API or the libcanberra API may set those properties directly (for now at least). However, only the minority of code interfaces directly with those APIs. To allow setting the properties for other applications as well here are a few hints. For now this only describes how to set PA_PROP_APPLICATION_NAME, PA_PROP_APPLICATION_ICON_NAME, and PA_PROP_MEDIA_ROLE which are the most important ones and which are currently already being used in PulseAudio.
+
+'''Please note that none of the hints listed here requires you to add an explicit dependency on PA to your application in any way! ''' Adding these lines will not influence the portability to other sound systems. In fact at least the Gtk+ related functionality listed here is something everyone should probably do, not just the folks doing audio/media programming.
+
+== The 3-Line Summary for Gtk+ applictions ==
+
+{{{
+int main(int argc, char *argv[]) {
+        ... 
+        gtk_init(&argc, &argv);
+        ... 
+        g_set_application_name(_("Totem Movie Player"));
+        gtk_window_set_default_icon_name("totem");
+        g_setenv("PULSE_PROP_media.role", "video", TRUE);
+        ...
+}}}
+
+== PA_PROP_APPLICATION_NAME ==
+
+This property should contain a human readable, localized application name, e.g. "Totem Media Player", or suchlike.
+
+In GLib applications the PA client libraries will automatically use the application name that may be set via the GLib function g_set_application_name(). Hence make sure to call this function very early when starting up:
+
+{{{
+g_set_application_name(_("Totem Movie Player"));
+}}}
+
+In applications that do not use GLib you may instead set the environment variable PULSE_PROP_application.name:
+
+{{{
+setenv("PULSE_PROP_application.name", _("Foobar Music Player"), 1);
+}}}
+
+Please note that setting environment variables like this is a bit problematic: they are usually inherited by child processes, they are not particularly 'directed' and use awkward memory allocation. But it should be good enough for most cases at least for now. The PulseAudio client libraries will look for all env variables starting with PULSE_PROP to initialize the properties that are sent to the PA server.
+
+== PA_PROP_APPLICATION_ICON_NAME ==
+
+This property should contain an XDG icon name, e.g. as used in the .desktop file of your program.
+
+In Gtk applications the PA client libraries will automatically use the application icon name that may be set via the Gtk function gtk_window_set_default_icon_name(). Hence make sure to call this function very early when starting up:
+
+{{{
+gtk_window_set_default_icon_name("totem");
+}}}
+
+Again, in non-Gtk applications use an environment variable:
+
+{{{
+setenv("PULSE_PROP_application.icon_name", "foobar", 1);
+}}}
+
+== PA_PROP_MEDIA_ROLE ==
+
+This property should contain a short string that describes the role of a media stream, where role is one of: 
+
+ 1. "video": for movie/video streams from media players
+ 2. "music": for music streams from media players
+ 3. "game": for audio from games
+ 4. "event": for event sounds (i.e. button clicks, ...)
+ 5. "phone": for phone data (i.e. voip speech audio)
+ 6. "animation": for animations (i.e. Flash)
+ 7. "production": for audio production applications.
+ 8. "a11y": accessibility applications (i.e. screen readers, ...)
+
+This is a property of the actual streamed data, not so much the application. However usually it is still safe to simply set a process-global environment variable.
+
+For Glib applications:
+
+{{{
+g_setenv("PULSE_PROP_media.role", "video", TRUE);
+}}}
+
+And for non-GLib applications:
+
+{{{
+setenv("PULSE_PROP_media.role", "music", 1);
+}}}
+
+
