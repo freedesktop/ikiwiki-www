@@ -1,0 +1,100 @@
+
+**This is an RFC and does not necessarily represent the final implementation** 
+
+---
+
+ 
+
+
+# Goal
+
+Get all the passthrough support to the point where things work automagically or with minimal user input, for AC3/DTS over S/PDIF or MP3 over Bluetooth. This develops on Pierre-Louis Bossart's patches on the mailing list and subsequent discussion between Pierre and Tanu Kaskinen. 
+
+
+# Broad idea
+
+When a client creates a new stream, it gives a list of formats that it can provide. The list must cover all formats that the client can support (usually the list contains only one tuple with only fixed parameters). The daemon routes the stream to some sink, and then the daemon takes an intersection of the sink formats and the stream formats. 
+
+If the resulting set contains exactly one fixed format, then that is used for the stream. If the set contains more options than one fixed format, then the daemon decides the "best" format using some unspecified algorithm. If the set is empty, then the stream creation fails. 
+
+In the future, we can make it so that the API stops at an intermediate ROUTED state if the client does not provide any formats. The client can then query what formats are available and set the one it prefers. 
+
+If the user switches to a different sink, one of 3 scenarios can occur: 
+
+1. Switch from PCM to compressed format: e.g. a switch to BT headset b. Switch from compressed to PCM format e.g. switch back to sound card c. Stay on current format 
+Switching from one compressed format to another (e.g. MP3 -> AC3) does not make sense, so need not be supported. It is assumed that all sinks support playing some PCM format (and that PA will convert as appropriate). 
+
+When switching to a new format a format lost event is emitted and the client must close its current stream and open a fresh stream in order to set things up for the new format. 
+
+
+# API changes
+
+
+## Formats
+
+We add a new enum type to represent various encoding formats. For now, we do not worry about VBR streams since all the use cases we're working with are IEC61937 formatted and have a fixed bytes-to-us conversion. The formats we add for now are:  
+
+
+[[!format txt """
+typedef enum pa_encoding_t {
+    PA_ENCODING_PCM,
+    PA_ENCODING_AC3_IEC61937,
+    PA_ENCODING_EAC3_IEC61937,
+    PA_ENCODING_DTS_IEC61937,
+    PA_ENCODING_MPEG1_L3_IEC61937,
+    PA_ENCODING_MPEG2_L3_IEC61937,
+    PA_ENCODING_ANY,
+} pa_encoding_t;
+"""]]
+This isn't exhaustive, and more formats can be added as they are actually tested. 
+
+
+[[!format txt """
+typedef struct pa_format_info {
+    pa_encoding_t encoding;
+    pa_proplist   *plist;
+    /* `-- allow attaching arbitrary info, such as a priority, bitrate, ... */
+} pa_format_info; 
+"""]]
+
+## Stream API
+
+The stream API gets an alternative version that uses pa_format_info instead of pa_sample_spec: 
+
+
+[[!format txt """
+/* format is an array of formats the client can offer */
+pa_stream* pa_stream_new_extended(pa_context     *context,
+                                  const char     *name,
+                                  const pa_format_info * const *formats,
+                                  pa_proplist    *plist);
+
+"""]]
+When making the connection, routing is performed and the selected format can be queried when the stream goes to the PA_STREAM_READY state 
+
+
+[[!format txt """
+/* Returns a NULL-terminated list of formats (for now, containing only one item
+ * - the negotiated format */
+const pa_format_info* pa_stream_get_format_info(pa_stream *s);
+"""]]
+
+[[!format txt """
+/* This is implicit in the format, but still convenient to have, and
+ * effectively deprecates the PA_SINK_INPUT_PASSTHROUGH flag */
+int pa_format_info_is_pcm(const pa_format_info *f);
+"""]]
+
+## Others
+
+We still need to make a volume/mute disabled notification for sinks and sink inputs when they are operating in passthrough mode. Currently, volume changes are ignored in passthrough mode. 
+
+
+# Credit
+
+This RFC is based on Pierre's previous work and discussion on-/off-list with: 
+
+* Pierre-Louis Bossart 
+* Tanu Kaskinen 
+* Wim Taymans 
+* Arun Raghavan 
