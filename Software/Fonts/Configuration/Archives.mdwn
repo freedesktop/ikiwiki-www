@@ -1,0 +1,2229 @@
+
+
+## Discussion #1
+
+
+### Announcement
+
+Here is the announcement 
+[[!format txt """
+Dear All,
+
+I would like to announce an IRC meeting that will take place tomorrow
+Friday, 14th July 2006, at 20:00 GMT, at #freedesktop on Freenode (IRC).
+
+To find the exact local time for your country, see
+http://www.timeanddate.com/worldclock/fixedtime.html?year=2006&month=7&day=14&hour=20&min=0&sec=0
+For example, if you are in Paris, the meeting is on Friday at 10:00pm.
+If you are in Asia/Australia, it will probably be inconvenient. Please
+mail me about it. If there is enough interest (>5 e-mails), we can
+arrange a repeat meeting. Tell me what time is suitable for you. This is
+particularly important for Indic/CJK/etc font issues.
+
+The expected duration is 1 hour. Based on interest and support, we may
+arrange extra sessions. 
+
+The agenda includes:
+1. discussion on basic issues on fonts; font licenses; 
+2. building a list of 'desirable' FLOSS fonts for each language/script;
+tell us your preference; promote your preference
+3. build an 'optimal' fonts.conf file (+ suggest
+snippets for fonts.d/); LSB common font repository
+4. discuss the proposed fontconfig patch for granular font selection,
+http://lists.freedesktop.org/archives/fontconfig/2006-June/002332.html
+5. discuss on writing a patch for fontconfig to disregard glyphs from
+fonts in a very low level (as if the font did not have those glyphs in
+the first place)
+
+The webpage of this discussion is at
+http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+
+The discussion (irclog) will be saved at the above URL as well.
+
+Extra reading
+1. Call to test the DejaVu fonts
+http://fedoraproject.org/wiki/Fonts/DejavuFeedbackCall
+2. The Open Font License (OFL) by SIL International
+http://scripts.sil.org/OFL
+3. Fonts page on the Freedesktop Wiki
+http://wiki.freedesktop.org/wiki/Software_2fFonts
+4. OpenFonts page on the Ubuntu Wiki
+https://wiki.ubuntu.com/OpenFonts
+5. Fonts management
+https://wiki.ubuntu.com/FontManagement
+6. Font issues across distros
+http://fedoraproject.org/wiki/Fonts/FontMusings
+7. Enhancing pango/fontconfig to help solve font issues
+http://sourceforge.net/mailarchive/message.php?msg_id=18518811
+8. re: fontconfig support to exclude glyphs from fonts
+http://lists.freedesktop.org/archives/fontconfig/2006-June/002332.html
+9. Open source casts new mold for type design (recent font article)
+http://news.com.com/2102-7344_3-6092398.html?tag=st.util.print
+
+A similar IRC meeting took place last week, on input methods and
+multilingual writing support in Xorg; the discussion is available at
+http://wiki.freedesktop.org/wiki/KeyboardInputDiscussion
+
+Please forward this announcement where you feel appropriate.
+"""]]
+
+### IRC Log #1 - 2006.07.14 20:00 GMT Friday, Freenode, #freedesktop
+
+I would like to thank everyone for taking part in the discussion. It was fruitful and we are bound to repeat it in a more regular way. 
+
+* raph is Raph Levien, and Inconsolata is at: [[http://www.levien.com/type/myfonts/inconsolata.html|http://www.levien.com/type/myfonts/inconsolata.html]] 
+* simosx is Simos Xenitellis 
+* mathrick is Maciej Katafiasz 
+* moyogo is Denis Moyogo Jacquerye, of [[DejaVu|DejaVu]] fonts 
+* eimai is Ben Laenen, also of [[DejaVu|DejaVu]] fonts 
+* wl is Werner Lemberg 
+* jhobson Jay Hobson 
+* glasseyes is Daniel Glassey 
+* alexbligh is Alex Bligh, Xara LX, intending to lurk 
+* dumol is Misu Moldovan, aka [[dumol@gnome.ro|mailto:dumol@gnome.ro]], contributor to the [[DejaVu|DejaVu]] fonts 
+* alanc is Alan Coopersmith, but I'm mostly lurking 
+* Hin-Tak Hin-Tak Leung, busy-body with some printing stuff 
+* behdad is Behdad Esfahbod, Pango maintainer, Fedora Core [[DejaVu|DejaVu]] packager, cairo and fontconfig developer 
+* yosch is Nicolas Spalinger, SIL volunteer, OFL, Ubuntu fonts team 
+
+[[!format txt """
+**** ÎÎ¡Î§Î Î¤ÎÎ£ ÎÎÎ¤ÎÎÎ¡ÎÎ¦ÎÎ£ Î£Î¤ÎÎ£ Fri Jul 14 21:00:00 2006
+
+Jul 14 21:00:11 <simosx>        Hello everybody! The time is 20:00 GMT. Let the session start.
+Jul 14 21:00:35 <simosx>        The URL with the session details + agenda is 
+http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+Jul 14 21:01:14 *       nim-nim Î¬Î»Î»Î±Î¾Îµ ÏÎ¿ Î¸Î­Î¼Î± ÏÎµ: Font meeting now - simosx is our fearless leader | 
+Important wiki things: MigrationPlan, AccountRequests | see also #hal, #dbus, #xcb | 7.1 Loves You
+Jul 14 21:01:27 <simosx>        The first thing to chat is about font licenses.
+Jul 14 21:01:40 *       wl (n=wl@ip232.170.1211H-CUD12K-04.ish.de) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:01:44 <simosx>        There are several font licenses, most notably
+Jul 14 21:01:53 <simosx>        1. GNU GPL with Font exception
+Jul 14 21:02:18 <simosx>        2. Vera-style, used for Bitstream vera, derivatives and a few independent fonts.
+Jul 14 21:02:18 <yosch> Hi simosx
+Jul 14 21:02:24 <yosch> hello everyone
+Jul 14 21:02:42 <raph>  I have studied the available licenses and chosen OFL for my Inconsolata release.
+Jul 14 21:02:51 <simosx>        3. The Open Font Licence, an initiative by SIL (http://scripts.sil.org/OFL)
+Jul 14 21:03:00 <simosx>        hi yosch
+Jul 14 21:03:14 <raph>  The main reasoning behind my choice is that the SIL folks seem to have thought through the 
+issues more thoroughly than anyone else.
+Jul 14 21:03:33 <yosch> :-D
+Jul 14 21:03:41 <nim-nim>       hi yosh - simos, maybe we can take the time to present ouselves before starting?
+Jul 14 21:03:58 <yosch> check out the FAQ for more details about the working model of the license 
+http://scripts.sil.org/OFL-FAQ_web
+Jul 14 21:04:04 *       alexbligh (n=abligh@host-212-18-243-153.static.mailbox.co.uk) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ 
+#freedesktop
+Jul 14 21:04:28 <simosx>        nim-nim: okay, that would be good. I just realised that yosch is Nicolas :)
+Jul 14 21:04:30 *       raph is Raph Levien, and Inconsolata is at: http://www.levien.com/type/myfonts/inconsolata.html
+Jul 14 21:04:40 *       simosx is Simos Xenitellis
+Jul 14 21:04:43 *       glasseyes (n=glasseye@MTL-HSE-ppp201097.qc.sympatico.ca) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:04:48 <yosch> yep good point
+Jul 14 21:04:52 <edtrager>      I certainly don't know many on this chat, but there are 5 main agenda items to cover in 
+only one hour ...
+Jul 14 21:04:58 *       mathrick is Maciej Katafiasz
+Jul 14 21:04:58 <wl>    yep
+Jul 14 21:05:11 <nim-nim>       nim-nim is Nicolas Mailhot, Fedora extras DejaVu maintainer
+Jul 14 21:05:17 <mathrick>      do we have Denis here?
+Jul 14 21:05:18 *       moyogo is Denis Moyogo Jacquerye, of DejaVu fonts
+Jul 14 21:05:19 *       simosx notes: to announce yourselves, type  /me is <your name>
+Jul 14 21:05:28 *       prokoudine Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Ex-Chat")
+Jul 14 21:05:35 *       eimai is Ben Laenen, also of DejaVu fonts
+Jul 14 21:05:38 *       wl is Werner Lemberg
+Jul 14 21:05:52 *       jhobson Jay Hobson
+Jul 14 21:05:54 *       glasseyes is Daniel Glassey
+Jul 14 21:05:54 <Hin-Tak>       Simos: there are also a lot of variations of the same fonts (with extra cmap, glyph, 
+etc) which people somewhat calously modify, without documenting, etc. The scandal with watanabe-* japanese fonts.
+Jul 14 21:05:58 *       yosch is Nicolas Spalinger, aspiring font guy, co-author of the OFL with Victor Gaultney, 
+http://scripts.sil.org/OFL
+Jul 14 21:06:07 <wl>    scandal?
+Jul 14 21:06:08 *       alexbligh is Alex Bligh, Xara LX, intending to lurk
+Jul 14 21:06:34 *       dumol is Misu Moldovan, aka dumol@gnome.ro, contributor to the DejaVu fonts
+Jul 14 21:06:35 <wl>    maybe confusion...
+Jul 14 21:06:41 <Hin-Tak>       stolen copyright bitmaps from a commercial font for some glyphs, apparently.
+Jul 14 21:06:42 <edtrager>      Hi, Yosch ... had no clue you were Nicolas
+Jul 14 21:06:56 <wl>    AFAIK, bitmap fonts can't be copyrighted
+Jul 14 21:07:16 <yosch> hi raph, hi nim-nim, hi edtrager :-D
+Jul 14 21:07:28 <raph>  wl: that is a reasonable first approximation, almost certainly true in the US at least.
+Jul 14 21:07:29 <Hin-Tak>       bitmaps in a truetype font.
+Jul 14 21:07:34 <moyogo>        Hin-Tak: yeah there are a lot of those, some fonts even use FLOSS glyphs without 
+respecting the rights :-(
+Jul 14 21:07:39 *       prokoudine (n=pro@217.12.240.78) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:07:45 <wl>    hmmm
+Jul 14 21:07:48 <wl>    even then
+Jul 14 21:07:49 *       alanc is Alan Coopersmith, but I'm mostly lurking
+Jul 14 21:07:57 <raph>  For new, from-scratch fonts intended for use in a free desktop, I recommend the OFL.
+Jul 14 21:08:20 <mathrick>      wl: why can't bitmaps be copyrighted?
+Jul 14 21:08:25 <moyogo>        raph: OFL is probably the best choice for new fonts indeed
+Jul 14 21:08:34 <raph>  mathrick: hold, I'll get a url
+Jul 14 21:08:35 <wl>    because it's just a collection of 0s and 1s
+Jul 14 21:08:45 <mathrick>      that's just like outline fonts
+Jul 14 21:08:55 <wl>    there must be some intellectual properties which can be copyrighted
+Jul 14 21:09:01 *       davelab6 (n=user@jgbunsens.com) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:09:02 *       davelab6 Î»Î­Î³ÎµÏÎ±Î¹ ÏÏÏÎ± dave`
+Jul 14 21:09:07 <edtrager>      I had a discussion with Clytie Siddall and was only wondering whether some font authors 
+might not like OFL because they want to maintain artistic control, and the OFL might not permit them that
+Jul 14 21:09:14 <nim-nim>       probably, or else a photo can't be protected
+Jul 14 21:09:17 <yosch> the trouble is that this copyrightability is not the same across countries
+Jul 14 21:09:25 <yosch> hi dave :-D
+Jul 14 21:09:30 <raph>  http://www.faqs.org/faqs/fonts-faq/part2/ is a good general discussion of font copyrightability
+Jul 14 21:09:34 <dave`> re
+Jul 14 21:09:39 *       dave` Î»Î­Î³ÎµÏÎ±Î¹ ÏÏÏÎ± davelab6
+Jul 14 21:09:44 <nim-nim>       I think we can safely assumed bitmaps are protected one way or another;)
+Jul 14 21:09:52 *       raph wishes not to go too deeply into this question, though. It's a snarl.
+Jul 14 21:10:11 <simosx>        Those fonts that are in the "gray area", under what license are they distributed?
+Jul 14 21:10:17 *       yosch agrees with raph
+Jul 14 21:10:27 <wl>    ok
+Jul 14 21:10:30 *       Hin-Tak Hin-Tak Leung, busy-body with some printing stuff
+Jul 14 21:10:36 <davelab6>      lo nick, ed, raph :)
+Jul 14 21:10:41 <edtrager>      I agree : certainly bitmaps are arguably copyrightable, best to move on perhaps ..
+Jul 14 21:10:49 *       simosx considers that mostly public domain fonts would be in the gray area.
+Jul 14 21:10:52 <edtrager>      Hi Dave
+Jul 14 21:11:00 *       davidz Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Leaving")
+Jul 14 21:11:01 <yosch> Victor Gaultney has done some good research in the area for UNESCO : 
+http://scripts.sil.org/UNESCO_Font_Lic
+Jul 14 21:11:11 <wl>    has someone collected a list of *really* free fonts?
+Jul 14 21:11:16 <moyogo>        simosx: I've seems a few fonts under GPL with either proprietary or Bitstream Vera 
+glyphs
+Jul 14 21:11:19 <wl>    This is, fonts which have been designed from scratch?
+Jul 14 21:11:20 *       [AD]Ska Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("OpenVG to OpenGL ( http://www.amanithvg.com )")
+Jul 14 21:11:50 <raph>  wl: several such lists exist, one is at http://typophile.com/wiki/Good%20Libre%20Fonts
+Jul 14 21:12:24 <simosx>        moyogo: there is the added issue that one cannot easily mix glyphs from two fonts that 
+are distributed with different FLOSS licences.
+Jul 14 21:12:33 <nim-nim>       Do we need every free and open font under the sun?
+Jul 14 21:12:50 <yosch> wl: ed's site is good resource too: http://www.unifont.org/fontguide/
+Jul 14 21:12:55 <nim-nim>       Shouldn't we focus on a core of "good" fonts first?
+Jul 14 21:12:56 <edtrager>      Some of you may have noticed that I have started putting license "icons" next to fonts 
+listed on http://unifont.org/fontguide
+Jul 14 21:12:57 <raph>  nim-nim: no, that is why one of the criteria on that wiki page is that the font is "pretty good"
+Jul 14 21:13:51 <yosch> simosx: that's one the key issues: being able to branch/exchange patches between projects
+Jul 14 21:13:57 <raph>  simosx: yes, which is why I'd _love_ to see a convergence, rather than profusion, of font 
+licenses
+Jul 14 21:14:04 <edtrager>      So now most of the truly GPL'ed, Vera, Magenta Open, and OFL fonts are clearly marked 
+as such.  Clicking on the license "icon" will bring up the actual license
+Jul 14 21:14:19 <yosch> raph: I agree
+Jul 14 21:14:45 *       raph is thinking especially of auxiliary glyphs such as currency symbols that generally don't 
+need to be redrawn for each font style
+Jul 14 21:15:00 <Hin-Tak>       there are a few on sourceforge.jp (mikachan, and the replacement for the 
+watanabe-mincho)
+Jul 14 21:15:06 <raph>  edtrager: btw, "Magenta Open" is copies of proprietary fonts, which seems gray-area to me
+Jul 14 21:15:13 <simosx>        I feel there is a general view that we get existing fonts re-released under the OFL 
+licence. With a common licence, further derivatives are able to mix.
+Jul 14 21:15:19 <yosch> IMHO the hard question is: what kind of model do we want: non-copyleft or copyleft?
+Jul 14 21:15:20 <Hin-Tak>       forgot its name, but it is on fedora core 5 these days.
+Jul 14 21:15:31 <wl>    Well, for currency symbols and similar things we can go the `gnulib' way
+Jul 14 21:15:43 <wl>    a collection of useful C functions
+Jul 14 21:15:44 <mathrick>      Hin-Tak: watanabe mincho is continued by Kochi project, and except for naga10, they are 
+all DFSG-free
+Jul 14 21:15:45 <moyogo>        raph: that is the only issue OFL might have, it only allow one license for derivatives, 
+so imported glyphs must be OFL
+Jul 14 21:15:47 <wl>    to be used everywhere
+Jul 14 21:16:02 <simosx>        raph: MgOpen (Magenta) are fonts that previously were proprietary but got released as 
+open-source with the Vera-style licence. The same was with Bitstream Vera. The commercial name is Bitstream Prima.
+Jul 14 21:16:08 <yosch> SIL made the choice to go for a copyleft model, in order to foster equal collaboration, and not 
+deter designers to participate
+Jul 14 21:16:12 <raph>  wl: you're suggesting releasing a "library" of such fonts under public-domain so they can be 
+relicensed to anything?
+Jul 14 21:16:32 *       rillian (n=giles@mist.thaumas.net) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:16:45 <wl>    not really, I suggest to provide, say, glyphs in fontforge's sfd format which can be 
+incorporated into other fonts
+Jul 14 21:16:59 <yosch> one way of retaining some artistic integrity and not getting your glyphs/smart behaviour put 
+into proprietary fonts
+Jul 14 21:17:05 <raph>  simosx: there is yet a distinction; prima was an original design by bitstream, while 
+"Cosmetica" is a copy of Optima
+Jul 14 21:17:13 *       J5 Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Ex-Chat")
+Jul 14 21:17:15 <nim-nim>       wl: that is a very important aspect
+Jul 14 21:17:28 <raph>  i meant: library of such _symbols_
+Jul 14 21:17:37 <nim-nim>       license may be goods but if the font tools are not common there's no way to work on 
+fonts
+Jul 14 21:17:54 <raph>  nim-nim: I plan on making that situation more complicated soon
+Jul 14 21:18:04 <wl>    yep
+Jul 14 21:18:08 <nim-nim>       how?
+Jul 14 21:18:13 <yosch> nim-nim: yep, we need to work on both the licensing layer and the font design toolkit
+Jul 14 21:18:15 *       davidz (n=davidz@nat-pool-bos.redhat.com) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:18:16 <raph>  by releasing my own tools for font creation
+Jul 14 21:18:21 <wl>    aaaah
+Jul 14 21:18:28 <Hin-Tak>       argh...
+Jul 14 21:18:29 <wl>    URL, please
+Jul 14 21:18:31 <yosch> :-D
+Jul 14 21:18:41 <simosx>        raph: I do not know if the fonts are identical. The company released them officially as 
+open-source. If there is a problem, it's not near our side.
+Jul 14 21:18:43 <nim-nim>       you'll providesfd import, right?
+Jul 14 21:18:45 *       raph is not ready to make a big public announcement yet
+Jul 14 21:18:53 <moyogo>        raph: please add support for ttx format and xgridfit :-)
+Jul 14 21:18:57 <edtrager>      Will your tools be web-based or thick-client? I'd like to see web-based collaboration 
+...
+Jul 14 21:18:57 <wl>    hehe
+Jul 14 21:19:16 <yosch> we heard the rumors about some brilliant curve breakthrough...
+Jul 14 21:19:32 <raph>  the tools are based on entirely new technology, not compatible with anything
+Jul 14 21:19:44 <raph>  there will be a batch process to convert fonts in my format to truetype
+Jul 14 21:19:48 <wl>    raph: can you lift the veil a tiny bit?
+Jul 14 21:19:59 <yosch> moyogo: yep a common non-binary source format would be great
+Jul 14 21:20:02 <raph>  not really, i'm sorry
+Jul 14 21:20:08 <wl>    sigh
+Jul 14 21:20:09 *       simosx notes that the general view is to license (or relicense) fonts in the Open Font Licence. 
+Is someone against this?
+Jul 14 21:20:15 <nim-nim>       raph: as vera proved you need to do it the other way too
+Jul 14 21:20:38 <wl>    I have no opinion w.r.t font licenses
+Jul 14 21:20:42 <raph>  i'm saying this now just to suggest that nailing down the toolkit now may be painful later
+Jul 14 21:21:06 <nim-nim>       simosx: We need 1. compatible licenses 2. compatibles tools 3. some way to communicate 
+(on bugs even)
+Jul 14 21:21:32 <moyogo>        as long as we generate and can work with ttf files
+Jul 14 21:21:39 *       raph will be ready to give great details in about a month
+Jul 14 21:21:46 <yosch> let me just point out that at the GUADEC I talked with some GNOME foundation members about 
+upstream relicensing of Vera. See where that goes (was originally a suggestion of Jim Gettys himself)
+Jul 14 21:21:48 <edtrager>      Relicensing to OFL is a good idea.  Should try to get buy-in on the OFL from other 
+major font producers, such as THDL, KhmerOS, TLWG etc
+Jul 14 21:21:59 <nim-nim>       like every major font project is on sf, or f.d.o, or savannah, I don't care where but 
+i'm tired of relaying boogs
+Jul 14 21:22:57 <nim-nim>       long silence :)
+Jul 14 21:22:58 *       mathrick wishes to be poked when the discussion reaches fonts.conf stage, ie. after licensing 
+stuff
+Jul 14 21:23:05 <moyogo>        nim-nim: maybe the open font library could help
+Jul 14 21:23:17 <simosx>        One thing we can do, is make a pledge to get fonts to be re-licenced using the OFL 
+licence.
+Jul 14 21:23:25 <wl>    raph: please announce your stuff on the freetype list also
+Jul 14 21:23:32 *       simosx pledges to get the MgOpen fonts relicensed to OFL
+Jul 14 21:23:33 <edtrager>      Note that I and Clytie Siddall have had some conversations on how in many parts of the 
+world people don't have a clue about these licenses, and the licenses are not translated into local languages.
+Jul 14 21:24:09 <raph>  wl: of course, i will spam the globe
+Jul 14 21:24:14 <wl>    good!
+Jul 14 21:24:21 <nim-nim>       You have the smae effect as the GPL: people hate licenses, they want the smallest 
+number of licenses they can, so they only need to understand a few of them
+Jul 14 21:24:40 <yosch> btw, back at the LibreGraphicsMeeting I talked with Andy Fitzimon, author of ubuntu-title and 
+Fedora infinity and he liked the OFL too
+Jul 14 21:24:49 <moyogo>        yosch: are GNOME foundation members going to ask Bitstream to relicense Vera under OFL?
+Jul 14 21:25:10 <yosch> moyogo: it's their call of course :-D
+Jul 14 21:25:17 *       prokoudine Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Ex-Chat")
+Jul 14 21:25:29 <yosch> but I made the suggestion to go for an FSF-recognized license
+Jul 14 21:25:40 <simosx>        moyogo: Jim Gettys mentioned that a new version of Vera is coming out, and he suggested 
+to get relicensed to the OFL. However, if no new Vera comes out, we are kind of stuck.
+Jul 14 21:25:56 *       cp_ (n=christof@192.18.61.132) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:27:10 *       J5 (n=johnp@nat-pool-bos.redhat.com) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:27:11 *       richeros Î±ÏÎ¿ÏÏÏÎ·ÏÎµ (Read error: 104 (Connection reset by peer))
+Jul 14 21:27:14 <wl>    is OSF approved by the FSF?
+Jul 14 21:27:17 *       _yannick (n=yannick@lns-bzn-58-82-251-211-156.adsl.proxad.net) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ 
+#freedesktop
+Jul 14 21:27:20 <yosch> simosx: yeah, we'd have to negociate directly with them for a grant regarding Dejavu I guess
+Jul 14 21:27:21 *       richeros (n=richeros@ti400720a080-8918.bb.online.no) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:27:21 *       simosx adds a TODO point; ask Jim Gettys (jg) about the relicensing of Vera to the OFL.
+Jul 14 21:27:41 <Hin-Tak>       wl: you mean OFL?
+Jul 14 21:27:49 <simosx>        wl: OFL is approved by the FSF
+Jul 14 21:27:51 <yosch> wl: http://www.fsf.org/licensing/licenses/index_html#Fonts
+Jul 14 21:28:20 <wl>    fine, thanks!
+Jul 14 21:28:22 <glasseyes>     simosx: I think in his email jg mentioned that he doesn't have time himself to get into 
+Vera relicencing since he is doing all the OLPC stuff
+Jul 14 21:28:31 <yosch> rms, Eben Moglen and David Turner recognized the license as free
+Jul 14 21:28:52 <edtrager>      Any plans to translate the OFL into other languages?  That would be a big help over in 
+Asia ...
+Jul 14 21:29:14 <simosx>        glasseyes: can you contact Bitstream as SIL on this issue?
+Jul 14 21:29:14 <nim-nim>       the OFL and a layman FAQ
+Jul 14 21:29:18 <moyogo>        It'd be nice to contact the devs of Farsiweb fonts, Junicode, Arab Eyes, etc. to ask 
+them to "switch" from GPL to OFL
+Jul 14 21:29:44 *       kmaraas_ Î»Î­Î³ÎµÏÎ±Î¹ ÏÏÏÎ± kmaraas
+Jul 14 21:29:53 <yosch> edtrager: yes there are plans, but low priority for now. As Clytie probably mentionned there 
+was a problem with unofficial translation not being marked as such and the review process being bypassed....
+Jul 14 21:30:15 <simosx>        yosch: which mailing list do you recommend to manage the process of contacting and 
+getting fonts to switch to the OFL? Is one available on sil.org?
+Jul 14 21:30:28 <jg>    glasseyes: that's correct.
+Jul 14 21:30:30 <edtrager>      Yes, Also contact TLWG, KhmerOS, OpenMM (Myanmar), THDL to get them interested in OFL
+Jul 14 21:30:35 <yosch> but getting any user and designer to understand the license is the goal, we just don't want to 
+create significant legal risk doing it
+Jul 14 21:31:19 <yosch> simosx: various people have already gotten in touch with Bitstream: dave for example
+Jul 14 21:31:26 <yosch> also Victor Gaultney
+Jul 14 21:31:44 <simosx>        yosch: is there a result on this?
+Jul 14 21:31:58 <yosch> simosx: not yet :-(
+Jul 14 21:32:06 *       Sonderblade (n=meh@c-fb58e353.131-1-64736c10.cust.bredbandsbolaget.se) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ 
+ÏÏÎ¿ #freedesktop
+Jul 14 21:32:12 <yosch> dave: anything on your side?
+Jul 14 21:32:21 <davelab6>      hang on, let me review the mails
+Jul 14 21:33:03 <yosch> simosx: sorry but the ofl-discuss list is down right now :-( (server worries)
+Jul 14 21:33:25 <davelab6>      i asked if vera would be licensed under ofl; jim lyles said a formal reply 'considered 
+thoughtfully' would be forthcoming
+Jul 14 21:33:39 <yosch> I'm thinking a personal email suggesting the various font team consider the license on their 
+own mailing-list is probably more appropriate
+Jul 14 21:33:58 <yosch> :-D
+Jul 14 21:34:29 <davelab6>      he suggested that gnome people may be concerned about a license switch
+Jul 14 21:34:32 <nim-nim>       yosh: after a summary of this discussion with full ogs is posted somewhere
+Jul 14 21:34:43 <yosch> btw, we also had good interest from Adobe and Apple about the OFL.
+Jul 14 21:35:21 <simosx>        yosch: I would like to see at least a page on wiki.freedesktop.org that keeps track of 
+these font relicensing efforts. I am adding this point to the TODO list. Any objectsion?
+Jul 14 21:35:39 <yosch> simosx: exactly what I was going to suggest
+Jul 14 21:35:53 *       [AD]Turbo Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("www.amanithvg.com - OpenVG implementation in pure OpenGL and 
+OpenGL|ES sauce")
+Jul 14 21:36:02 <yosch> ed can also consider reflecting that on his very nice fontguide
+Jul 14 21:36:59 <edtrager>      I will add a page on http://unifont.org about OFL and OFL relicensing.  Maybe I will 
+get some "unofficial" translations too, if possible ...
+Jul 14 21:37:22 <davelab6>      ive just emailed jim again.
+Jul 14 21:37:35 <simosx>        edtrager: that's great!
+Jul 14 21:37:39 *       _yannick Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Leaving...")
+Jul 14 21:37:41 <yosch> davelab6: excellent, thanks for doing that :-D
+Jul 14 21:37:47 <davelab6>      np
+Jul 14 21:38:12 <simosx>        Is there something else that's important to discuss on font licensing?
+Jul 14 21:38:57 <nim-nim>       you can probably contact the CeCILL people for an opinion on how OFL fits in french and 
+european law
+Jul 14 21:39:10 <yosch> if any of you has comments about the OFL, thoughts ideas. please send them, we're love to hear 
+what you think
+Jul 14 21:39:59 *       simosx notes that the official OFL page is http://scripts.sil.org/OFL
+Jul 14 21:40:26 <simosx>        At this point, we can go to the next level; making a representative list of fonts that 
+cover somewhat all languages.
+Jul 14 21:40:30 <moyogo>        simosx: distributions might want to remove fonts breaking licenses, somebody should 
+check all fonts are koscher
+Jul 14 21:40:33 <yosch> nim-nim: ideally we'll follow the FSF model of one global license based on copyright law + 
+future unofficial explanations in various languages
+Jul 14 21:41:15 <nim-nim>       yosh: that's why asking them before they do a CeCILL-for-OFL is good
+Jul 14 21:41:37 <yosch> nim-nim: true
+Jul 14 21:41:42 *       yosch mentions that the BoF summaries are available at http://live.gnome.org/fonts
+Jul 14 21:42:37 <wl>    simosx: I think this is next to impossible
+Jul 14 21:42:58 <simosx>        wl: why is that?
+Jul 14 21:43:05 <yosch> davelab6: the long stalled font roadmap thoughts post-LGM got distilled there and in the Ubuntu 
+wiki
+Jul 14 21:43:10 <edtrager>      Yes, I agree.  I think Clytie Siddall is contemplating translating the OFL into 
+Vietnamese -- I suppose "unofficial" translation -- Either way, I'd like to put those unofficial xlations on 
+unifont.org once I write an OFL page
+Jul 14 21:43:12 *       Drago5 Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("The revolution will not be televised, we've posted a torrent.")
+Jul 14 21:43:13 *       asdx (n=diego@200.61.236.175) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 21:43:17 <moyogo>        wl: it will only be possible for 'major' languages at this point
+Jul 14 21:43:24 <wl>    simosx: you mean fonts that fit optically, right?
+Jul 14 21:43:54 <mathrick>      wl: no, a list of fonts considered good for given language
+Jul 14 21:44:00 <wl>    ah, ok
+Jul 14 21:44:27 <nim-nim>       so do a partial list, it'll get bigger over time
+Jul 14 21:44:28 <simosx>        wl: I mean having a representative font for each language, so that multilingual text 
+shows rather ok.
+Jul 14 21:44:35 <yosch> simos has started the list here: http://wiki.freedesktop.org/wiki/Software_2fFonts
+Jul 14 21:44:44 <glasseyes>     debian has started something like that - choosing fonts for the languages in the 
+installer http://wiki.debian.org/DebianInstaller/GUIFonts
+Jul 14 21:45:05 <wl>    hmmm
+Jul 14 21:45:15 <wl>    even this is quite difficult
+Jul 14 21:45:42 <simosx>        we want a good coverage, with at least one representative font for each language.
+Jul 14 21:45:47 <nim-nim>       that's why it can only be done at a neutral cross-distro level
+Jul 14 21:45:50 <mathrick>      wl: I wanted to do optically fitting fonts at one point, but this is much, much, much 
+more advanced and not directly related
+Jul 14 21:46:25 <nim-nim>       simosx: and we want to be able to teach fontconfig this list afterwards
+Jul 14 21:46:33 <wl>    the very problem is not only fonts but the font engine also
+Jul 14 21:46:48 <wl>    since Unicode doesn't cover all possible combinations
+Jul 14 21:46:56 <yosch> we need to define criteria for this common set I guess: quality, unicode block coverage, 
+freeness, smart feature when needed
+Jul 14 21:46:56 <mathrick>      wl: ?
+Jul 14 21:46:57 <simosx>        nim-nim: precicely. so we know what the requirements from fontconfig are
+Jul 14 21:46:58 <raph>  wl: by "font engine" do you mean at the freetype level or at the pango level?
+Jul 14 21:47:02 <wl>    pango
+Jul 14 21:47:13 <wl>    sorry
+Jul 14 21:47:17 <wl>    so it's the layout engnie
+Jul 14 21:47:24 *       davelab6 has to pop out, brb15
+Jul 14 21:47:29 <raph>  right
+Jul 14 21:47:39 <yosch> OK, np
+Jul 14 21:47:49 <mathrick>      wl: I'm not sure I see what you're getting at
+Jul 14 21:47:52 <edtrager>      OK, If we are on the topic of fonts good for a given script -- speaking in the context 
+of FontConfig -- I want to first point out that the concept in FontConfig of "Sans" vs "Serif" is itself based on 
+Western typographical concepts
+Jul 14 21:48:04 <wl>    mathrick: just consider accent stacking
+Jul 14 21:48:13 <simosx>        see this image that shows gedit showing text in different languages. It could be a bit 
+better: http://static.flickr.com/46/124448744_3cac32be47_o.png
+Jul 14 21:48:30 <mathrick>      wl: sure, you mean something like thai accents on hebrew letters?
+Jul 14 21:48:31 <yosch> nim-nim: yes at GUADEC we agreed that the best way would be upstream fonts.conf.in in 
+fontconfig cvs
+Jul 14 21:48:50 <wl>    mathrick: no, ordinary stacking of accents
+Jul 14 21:49:00 <mathrick>      wl: ok?
+Jul 14 21:49:09 <wl>    mathrick: for example, Unicode allows an arbitrary stacking depth
+Jul 14 21:49:11 <edtrager>      "Sans" should really -- in a global script context -- be called "Unmodulated" .  
+"Serif" -- in the same global script context-- should be called "Modulated" .
+Jul 14 21:49:16 <moyogo>        wl: use a font that has the accents then, no?
+Jul 14 21:49:22 *       simosx advertises the page http://wiki.freedesktop.org/wiki/Software_2fFonts_2ffonts_2econf 
+with existing fonts.conf files. If you have a new one, please add.
+Jul 14 21:49:22 <yosch> edtrager: true, we have to bear that in mind
+Jul 14 21:49:24 <raph>  edtrager: those concepts are approximate in any case
+Jul 14 21:50:00 <nim-nim>       edtrager: we can rename it to whatever we want, only please find more pleasing names
+Jul 14 21:50:01 <raph>  there isn't agreement on the names even in the western tradition - for example, many 
+typographers prefer the term "lineale" to "sans"
+Jul 14 21:50:07 <nim-nim>       fontconfig aliases are cheap
+Jul 14 21:50:21 <wl>    the only try I know of to get a harmonized design between latin, arabic, and greek is the Omega 
+fonts from Yannis Haralambous
+Jul 14 21:50:29 <raph>  my feeling is that "sans" and "serif" are the best known (i.e. principle of least surprise) 
+names for this very crude categorization
+Jul 14 21:50:36 <wl>    and cyrillic
+Jul 14 21:50:43 <nim-nim>       wl: (DejaVu)
+Jul 14 21:50:53 <wl>    nim-nim: yep
+Jul 14 21:51:05 <wl>    nim-nim: it's getting better, fortunately
+Jul 14 21:51:37 <wl>    nim-nim: so please contribute proper script modules for FreeType's autohinter :-)
+Jul 14 21:51:57 <nim-nim>       I only contribute bug reports;)
+Jul 14 21:52:01 <wl>    hehe
+Jul 14 21:52:18 <moyogo>        besides sans and serif are used in standards
+Jul 14 21:52:38 <edtrager>      Yes, I don't want to be pedantic -- and it is hard to be pedantic on IRC channels -- 
+but it helps if everyone accepts that Fontconfig's nomenclature of "Sans" and "Serif" can really be used to mean 
+"Unmodulated" and "Modulated" so that we can then get on with discussing which Chinese, Korean, Arabic, etc. fonts best 
+fit the bill for those two categories respectively.  And we can largely ignore "Monospaced" as it hardly applies to 
+most s
+Jul 14 21:52:51 <wl>    BTW, do we discuss screen fonts or fonts for printing?
+Jul 14 21:52:58 <wl>    this makes a big difference
+Jul 14 21:53:06 <nim-nim>       maybe we can create more aliases alongside sans and serif ?
+Jul 14 21:53:21 <wl>    For example, I *hate* unmodulated fonts on paper
+Jul 14 21:53:28 <raph>  wl: the primary usage of fonts.conf is for screen use
+Jul 14 21:53:49 <nim-nim>       raph: untrue
+Jul 14 21:54:02 <nim-nim>       you expose font aliases in OO.o people use them
+Jul 14 21:54:20 <yosch> IMHO the split between LGC (Latin Greek Cyrillic) and other scripts (like for Dejavu) is a good 
+thing. AFAIK harmonizing different styles properly is very hard
+Jul 14 21:54:39 <raph>  and the secondary usage is for print, in apps such as Oo.o and (dunno if they use fc) scribus
+Jul 14 21:54:59 <wl>    has there been an investigation how to split fonts sensibly?
+Jul 14 21:55:07 <wl>    I mean w.r.t typographical issues
+Jul 14 21:55:09 <simosx>        would it make sense if fontconfig defined different lists for screen and print usage?
+Jul 14 21:55:28 <nim-nim>       simosx: this would trive people crazy
+Jul 14 21:55:39 <wl>    the `LGC' block, for example, misses a whole bunch of other, similar scripts like Georgian
+Jul 14 21:55:40 <edtrager>      Yes, I think the Chinese will certainly agree to differentiating screen fonts vs. print 
+fonts
+Jul 14 21:55:49 <simosx>        nim-nim: in the wysiwyg sense, yes :)
+Jul 14 21:55:52 <raph>  wl: that's a good question; if f.c is really good at combining fonts to provide wide coverage, 
+then that would seem to reduce the need for individual megafonts that have thousands of glyphs across multiple scripts
+Jul 14 21:56:00 <alexbligh>     Also, define "screen use". Much "screen use" (e.g. OO.o) is making things right for 
+printing to paper
+Jul 14 21:56:05 <moyogo>        wl: there are different schools of thought for classification of fonts
+Jul 14 21:56:19 <wl>    hmm, I don't really mean `classification' in the normal sense
+Jul 14 21:56:19 <alexbligh>     Give people better font selection widgets and they will use them.
+Jul 14 21:56:21 <raph>  to what extent should fonts be classified at all?
+Jul 14 21:56:29 <wl>    it's rather one level higher
+Jul 14 21:56:33 <simosx>        nim-nim: I find that OOo with DejaVu Sans Condensed looks cute.
+Jul 14 21:56:46 <wl>    a meta-level, so to say
+Jul 14 21:56:48 <raph>  fc's idea of "sans" and "serif" is useful for providing good defaults in cases where more 
+detailed choice of fonts is not realistic
+Jul 14 21:56:54 <mathrick>      edtrager: why's that?
+Jul 14 21:56:55 <edtrager>      How about defining "screen use" as "what you need to read a web page in a browser" ?
+Jul 14 21:57:06 *       abauer Î±ÏÎ¿ÏÏÏÎ·ÏÎµ (Remote closed the connection)
+Jul 14 21:57:10 <raph>  in particular, most desktops will default to "sans" for the ui text, and most web browsers will 
+default to "serif"
+Jul 14 21:57:30 <raph>  it might make more sense to think of those aliases as nothing more than the sensible default in 
+those cases
+Jul 14 21:57:36 <nim-nim>       raph: every user I know redefines its browser to sans
+Jul 14 21:57:37 <moyogo>        edtrager: :D
+Jul 14 21:57:45 <wl>    for example, we should make a distinction between connected and not-connected scripts (Arabic 
+vs. Hebrew, say)
+Jul 14 21:58:02 <nim-nim>       browser config is another point on my list
+Jul 14 21:58:36 <raph>  and perhaps these aliases should not be present in the ui for font choosing
+Jul 14 21:58:44 <wl>    the rendering issues are completely different for those `groups'
+Jul 14 21:58:46 <moyogo>        wl: so adding aliases for Arabic, Hebrew, etc?
+Jul 14 21:59:00 <nim-nim>       raph: please no
+Jul 14 21:59:04 <wl>    I don't know exactly what the term `aliasing' means w.r.t. fc
+Jul 14 21:59:07 <edtrager>      Mathrick: Chinese Hanzi are composed of many more "strokes" than most other scripts -- 
+Autohinting fails: the WenQuanYi project is therefore creating bitmap glyphs for good screen viewing.
+Jul 14 21:59:15 <nim-nim>       users will ask continuously where is the nice font they use in gui
+Jul 14 21:59:45 <raph>  nim-nim: well, there is that
+Jul 14 21:59:49 <nim-nim>       we need less confusion, not more and that means unified font list in every context
+Jul 14 21:59:58 <raph>  but I _am_ arguing that there should not be a profusion of such aliases
+Jul 14 22:00:04 <nim-nim>       I know it's not the technically easy way
+Jul 14 22:00:18 <mathrick>      edtrager: I know about hanzi principles (I know japanese), but not so much about 
+autohinting
+Jul 14 22:00:19 <raph>  especially when you get entries that map to more or less the same results
+Jul 14 22:00:41 <raph>  ie, if the text is "sans" and the user changes the font to "dejavu", there won't be any change
+Jul 14 22:00:48 <wl>    autohinting has a set of `rules' which are applied to glyphs based on Unicode ranges
+Jul 14 22:00:52 *       prokoudine (n=prokoudi@217.12.240.78) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 22:00:57 <wl>    (this is autohinting in FreeType)
+Jul 14 22:00:58 <mathrick>      edtrager: however, bitmap fonts are loathed at least in Japanese, and are generally 
+banned from fonts.conf
+Jul 14 22:01:13 <wl>    for example, rules for CJK fonts have been added
+Jul 14 22:01:17 <mathrick>      wl: yeah, but what kind of rules are these?
+Jul 14 22:01:19 <wl>    rules for Arabic are missing
+Jul 14 22:01:23 <raph>  edtrager: is there any effort towards making grayscale bitmap fonts for hanzi?
+Jul 14 22:01:56 <moyogo>        fonts should be browseable by script, language support or classification
+Jul 14 22:02:05 <moyogo>        that would be more useful than aliases
+Jul 14 22:02:14 <raph>  (and if every user changes the browser font to "sans", then why is there a "serif" alias at 
+all? I ask half-seriously)
+Jul 14 22:02:20 <wl>    mathrick: unfortunately, those rules are very complicated; for example, the CJK stuff is a 42k 
+C source code file
+Jul 14 22:02:37 <edtrager>      Raph: I have not investigated the details -- Wen Quan Yi has both Chinese and English 
+web pages : http://wqy.sourceforge.net/cgi-bin/enindex.cgi
+Jul 14 22:03:08 <wl>    mathrick: part of the `autofit' module in Freetype
+Jul 14 22:03:31 <wl>    mathrick: those rules are of heuristic nature; there is always room to improve them
+Jul 14 22:03:40 <yosch> moyogo: I agree, that's why the smart grouping from in the font widget proposal sounds very 
+good:  http://www.unifont.org/fontdialog/ what do you think?
+Jul 14 22:05:30 <edtrager>      Moyogo: I really would like to find the time to code at least most of the non-GUI 
+functionality that I proposed in http://www.unifont.org/fontdialog/.
+Jul 14 22:05:38 <nim-nim>       yosh: I think what would be a killer would be to add an icon before each font name
+Jul 14 22:05:41 <raph>  edtrager: the samples shown are bilevel only
+Jul 14 22:06:06 <nim-nim>       trees are nice but users want flat-level
+Jul 14 22:06:22 <edtrager>      Raph: What do you mean by "bilevel" only? You mean only two levels of nesting of 
+categories?
+Jul 14 22:06:22 <mathrick>      nim-nim: what would this icon do?
+Jul 14 22:06:33 <yosch> nim-nim: there's so much useful metadata we could flag up from the binary fields in the fonts
+Jul 14 22:06:45 <nim-nim>       and that means putting the info about a font (hinted or not, suitable for printing) 
+newt to it
+Jul 14 22:06:50 <raph>  grayscale bitmaps are a good technical way to compromise between sharpness and smoothness, but 
+they are poorly supported; i think the _real_ reason for this is that nobody in the proprietary world ever did 
+grayscales, possibly due to lack of copyrightability
+Jul 14 22:06:50 <moyogo>        yosch: it would be the right place to start :)
+Jul 14 22:06:51 <alexbligh>     yosch, one of the big problems with drop down lists is they are effective with machines 
+with (say) 50 font families on, but not for machines with 500 font families on.
+Jul 14 22:07:03 <raph>  ed: bilevel = black and white only, no gray
+Jul 14 22:07:26 <nim-nim>       yosh : at the simplest level associate an icon to each cartegory in your classifier and 
+just put the icon next to fonts in a flat list
+Jul 14 22:07:46 <wl>    BTW, FreeType supports grayscale bitmaps
+Jul 14 22:07:57 <nim-nim>       you can keep the tree view in the font manager
+Jul 14 22:08:20 <nim-nim>       for the font selector in OO.o for example, it's way overkill
+Jul 14 22:08:21 <edtrager>      Raph: OK, sorry I misunderstood.  So Wen QuanYi are Black and White only.  Well, that 
+is certainly easier to do ... I think those bitmaps are manually-tuned.
+Jul 14 22:08:47 <moyogo>        are we still on topic?
+Jul 14 22:08:52 *       orospakr Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Leaving")
+Jul 14 22:08:57 *       agd5f (n=deuchera@65.242.105.130) Î±ÏÎ¿ÏÏÏÎ·ÏÎµ Î±ÏÏ #freedesktop
+Jul 14 22:09:10 <yosch> yep, this is where the fontmanager would allow you to create sets to make the fontlist more 
+manageable
+Jul 14 22:09:31 <moyogo>        ok... :) I got lost
+Jul 14 22:09:42 <simosx>        moyogo: we got sidetracked :)
+Jul 14 22:10:02 *       codergeek42 (n=peter@gentoo/developer/codergeek42) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 22:10:13 *       simosx notes we passed the one hour. We continue, however towards the second hour.
+Jul 14 22:11:26 <raph>  wl: that is good news indeed
+Jul 14 22:11:34 <raph>  perhaps that information is not as widely known as should be
+Jul 14 22:11:39 *       victory747 (n=vic@adsl-69-214-218-159.dsl.emhril.sbcglobal.net) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ 
+#freedesktop
+Jul 14 22:11:49 <moyogo>        so would that "fontmanager" be at a different layer than fontconfig?
+Jul 14 22:12:10 <raph>  if people _are_ going to pour development effort into bitmap fonts, then perhaps they should be 
+aiming for the more ambitious goal of quality graymaps
+Jul 14 22:12:57 <nim-nim>       How about : we use a MRU in a simple 20-entries drop-down with icons which show font 
+categories, with another widget (+) lanching the big font manager?
+Jul 14 22:13:15 <edtrager>      And only on topic #2 : In order to discuss which fonts are best for which scripts, I 
+first would like to ask what is the state of including the Graphite Module in Pango now : Is this a fait accompli so 
+the next release of Pango ?
+Jul 14 22:14:05 <mathrick>      edtrager: behdad said he sees no problem with reviewing the patch soon, that was at 
+GUADEC
+Jul 14 22:14:11 <mathrick>      dunno the status right now
+Jul 14 22:14:42 <mathrick>      one (minor) requirement was to drop the libpangographite
+Jul 14 22:14:46 <simosx>        edtrager: I have seen demos of Graphite (ping yosch), it looks good. I suppose we need 
+more widespread testing and evaluation.
+Jul 14 22:14:57 <yosch> both behdad and glasseyes will be at the desktopcon in Ottawa. Pretty sure they'll work it out 
+there
+Jul 14 22:16:33 <glasseyes>     it's pretty worked out, I just need to get the work done
+Jul 14 22:16:52 <edtrager>      I will certainly try to provide my opinions on how to fill in the chart at 
+http://wiki.freedesktop.org/wiki/Software_2fFonts for which fonts are best for which scripts.  I will assume that 
+Graphite support will be coming soon enough so that, for example, Padauk can be the Unmodulated (i.e. "Sans") default 
+for Myanmar.
+Jul 14 22:17:54 <nim-nim>       BTW, sans and serif suck, modulated/unmodulated are versy user-unfriendly, how about 
+simple and complex?
+Jul 14 22:17:57 *       davidz Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Leaving")
+Jul 14 22:18:14 <glasseyes>     afaiu at least the pango-query-modules part of the patch will be in the next unstable 
+release, and the rest should be as well, as long as I get it done in time
+Jul 14 22:18:24 <glasseyes>     (pangographite that is)
+Jul 14 22:19:23 *       cp_ Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ()
+Jul 14 22:19:24 <alexbligh>     I think there are probably two font interfaces needed. A drop-down, and some sort of 
+"finder" type interface that copes with families.
+Jul 14 22:19:29 <simosx>        glasseyes: that's great. I suppose it will mean that adding the graphite module, one 
+can easily get Graphite in their existing system.
+Jul 14 22:19:32 *       adia Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Sorry...")
+Jul 14 22:19:42 <yosch> just a little patience then folks :-D
+Jul 14 22:20:02 <simosx>        :)
+Jul 14 22:20:31 <edtrager>      Note that the Prahita (http://sourceforge.net/projects/prahita) project has released a 
+Pango module for Myanmar which works with the author's Masterpiece Uni Sans font : I hope this Prahita Myanmar module 
+also makes it very soon into the Pango release.
+Jul 14 22:21:11 <glasseyes>     simosx: yes, and it will be up to the distros whether they include it in their packages 
+or not
+Jul 14 22:22:02 <simosx>        glasseyes: thanks
+Jul 14 22:22:22 <simosx>        I think at this point we can go on to agenda items 3 and 4, dealing with the fonts.conf 
+file.
+Jul 14 22:22:45 <simosx>        Currently, fonts.conf does not offer a flexible way to deal with competing fonts;
+Jul 14 22:23:23 <prokoudine>    greetings, is there any work ongoing on http://www.unifont.org/fontdialog/ ?
+Jul 14 22:24:20 *       yosch just wanted to mention ideas around font management proposed here: 
+https://wiki.ubuntu.com/FontManagement
+Jul 14 22:26:00 <simosx>        Some background on the fonts.conf file: among others, it specifies the aliases with a 
+bias towards western languages.
+Jul 14 22:26:16 <edtrager>      Prokoudine: A few minutes ago I mentioned that I, having written the 
+http://www.unifont.org/fontdialog/ stuff, have thought a lot about writing some of the non-GUI parts of the 
+functionality in C++.  But my problem is not having enough time and having too many projects.  I don't know of anyone 
+else working on  it ...
+Jul 14 22:26:56 <jhobson>       The idea of aliases is that it provides a fallback mechanism for when a glyph is not 
+found in one font. It can then drop down the list and find the glyph in another font.
+Jul 14 22:27:01 <simosx>        fonts.conf also specifies "preference" lists for each alias; glyphs come from the fonts 
+in the preference list; if the top font has glyphs missing, fontconfig searches the second in the list, and so on.
+Jul 14 22:28:19 <simosx>        there is also the mechanish of "orthographies"; if a font has partial support for a 
+language, it is ignored in this type of matching.
+Jul 14 22:28:33 <jhobson>       One issue with this mechanism is that if two different fonts contain the same two 
+seperate languages, and you want to use font 1 for one language and font 2 for the other, you will be unable to do so 
+with fontconfig as it stands.
+Jul 14 22:28:47 <nim-nim>       but fontconfig also assumes fonts are nicely limited to single scripts, when in 
+practice they cover as many scripts as they can to avoid recreating common glyphs
+Jul 14 22:29:09 <simosx>        for this to work well, one needs to make sure the "orthography" files are up to date 
+for a language; but not too strict so that it rejects all fonts.
+Jul 14 22:29:51 *       MrB (n=MrB@ppp-128-202.adsl.restena.lu) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 22:30:21 <yosch> simosx: what might be useful is a little GUI to handle the order of that prefer list
+Jul 14 22:30:37 <raph>  jhobson: it sounds like the functionality you desire is to select not a single named font, but 
+a list of preferred fonts in priority order
+Jul 14 22:30:46 <MrB>   lo
+Jul 14 22:31:16 <simosx>        The "preference" selection takes place when you select the alias, currently "sans", 
+"serif", "monospace".
+Jul 14 22:31:16 <nim-nim>       yosh: you can check easily that fontconfig does not allow expressing some natural 
+things now
+Jul 14 22:31:36 <jhobson>       Actually, what I need is a mechanism to allow me to place fonts in a font config alias 
+and have it pick my prefered font even when a font above it supports that language.
+Jul 14 22:31:39 <nim-nim>       like use A B C fonts for greeks and B A C for cyrillic
+Jul 14 22:31:54 <jhobson>       nim-nim: exactly
+Jul 14 22:32:09 <yosch> nim-nim: spot on
+Jul 14 22:32:22 <simosx>        yosch: I would think that the preference list would be set on a low level; that the 
+user would not have to worry about it.
+Jul 14 22:33:39 <nim-nim>       simosx: in fact the first step is make the default settings suck less, user-level GUI 
+is the second one
+Jul 14 22:33:56 <jhobson>       On the agenda I submitted a patch to fontconfig that allows fontconfig to hide language 
+out of fonts. It does not go to the level of unicode ranges, but I think it is easier to understand for end users.
+Jul 14 22:33:59 <simosx>        the current mechanism for font preferences is to use the "language" field in fonts.conf.
+Jul 14 22:34:32 <edtrager>      jhobson and nim-nim: I'm trying to understand what you want: You want to be able to 
+specify distinct font preference lists for each script and/or maybe even each language?
+Jul 14 22:35:06 <jhobson>       simosx: Yes, but that mechanism will find the first match, which is not necessarily the 
+best match for that font, given that it may be there to support a different language
+Jul 14 22:35:09 <davelab6>      lo MrB :)
+Jul 14 22:35:11 <simosx>        nim-nim, yosch: yeah, we have big issues with the default settings. the user-level gui 
+is desirable.
+Jul 14 22:35:16 <MrB>   hi davelab6
+Jul 14 22:35:23 <wl>    sorry, I have to leave--mother nature is asking for sleep
+Jul 14 22:35:28 <wl>    happy talking!
+Jul 14 22:35:33 <yosch> keithp mentionned at the GUADEC that he was looking at per block filtering
+Jul 14 22:35:38 *       wl Î±ÏÎ¿ÏÏÏÎ·ÏÎµ (Remote closed the connection)
+Jul 14 22:36:06 <simosx>        jhobson: I suppose you mention what I said about orthographies above. Indeed, that's a 
+side mechanism, not the main one.
+Jul 14 22:36:23 <victory747>    what nim-nim is proposing would also be important for Chinese
+Jul 14 22:36:34 <nim-nim>       edtrager: actually, what I personnaly want is for fontconfig to manipulate blocks-of 
+glyphs whithin fonts instead of full fonts
+Jul 14 22:37:09 <nim-nim>        jhobson's proposal does maybe 80% of that
+Jul 14 22:37:30 <simosx>        yosch: indeed, keithp said he would be happy to receive a patch that clearly blocks a 
+section of glyphs from a designated font (defined in fonts.conf), so that we do not have to create forks of fonts to 
+get the same functionality.
+Jul 14 22:37:32 <nim-nim>       which is ok than 0% now
+Jul 14 22:38:20 <simosx>        to the best of my knowledge, noone is working yet on the functionality that keithp 
+suggested.
+Jul 14 22:38:25 <keithp>        yosch: not per-block filtering, but the ability to mark sections (by unicode) of fonts 
+as if they didn't exist at all
+Jul 14 22:38:28 <nim-nim>       simosx: keithp's suggestion is good for blacklisting terminally ill glyphs
+Jul 14 22:38:45 <nim-nim>       not sorting somewhat-ok glyphs
+Jul 14 22:38:53 <victory747>    except with chinese the problem is often style - traditional and simplified character 
+sets overlap but often have a different style.
+Jul 14 22:38:54 <keithp>        nim-nim: yeah, the other question is whether we can do per-language 'not so good' 
+measurements
+Jul 14 22:39:08 <keithp>        victory747: that's handled by language tags already
+Jul 14 22:40:07 <jhobson>       keithp: actually it is not, we have fonts with Japanese characters that are used in 
+Chinese text output. It really iritates the Chinese.
+Jul 14 22:40:23 <mjg59> Unicode is awkward that way
+Jul 14 22:40:25 <keithp>        jhobson: then your chinese fonts are broken
+Jul 14 22:40:28 <victory747>    it's even worse in a text file where you have no meta-information
+Jul 14 22:40:33 <keithp>        mjg59: that's why we tag fonts for language support
+Jul 14 22:40:43 <nim-nim>       keithp: I'm sure we can collect enough user feedback so we can sort fonts per language 
+manually
+Jul 14 22:40:48 <mjg59> keithp: But an arbitrary unicode file doesn't contain a flagged language
+Jul 14 22:41:04 <mjg59> It's not just Japanese/Chinese where this is a problem
+Jul 14 22:41:05 <keithp>        mjg59: so we fall back to locale in that case
+Jul 14 22:41:07 <jhobson>       The Japanese font claims to support Chinese, and has a subset of those characters
+Jul 14 22:41:18 <mjg59> keithp: So how do you handle a mixed chinese/japanese document?
+Jul 14 22:41:25 <nim-nim>       the problem is how to teach fontconfig the local preferences once we know them
+Jul 14 22:41:31 <victory747>    yeah, the order for substitution needs to change based on locale, but even that is not 
+perfect
+Jul 14 22:41:44 <mjg59> It's not actually just chinese/japanese
+Jul 14 22:41:48 <raph>  mjg: in that case, you clearly need language tags in the doc
+Jul 14 22:42:10 <mjg59> You get somewhat similar problems with gaelic
+Jul 14 22:42:19 <keithp>        mjg59: you either have language tags for doc sections, or you pick one. Any better 
+plans?
+Jul 14 22:42:27 <raph>  and devanagari - the rules for which ligs you select vary from language to language
+Jul 14 22:42:34 <nim-nim>       raph: the word processor needs to now the language anyway to do spell checking correctly
+Jul 14 22:42:40 <mjg59> keithp: I'd have preferred Unicode to have tackled this properly
+Jul 14 22:42:46 <mjg59> I'm not blaming fontconfig :)
+Jul 14 22:42:49 <keithp>        mjg59: so would the Japanese :-)
+Jul 14 22:42:49 <raph>  mjg59: a little late for that :)
+Jul 14 22:43:18 <mjg59> AIUI, there are language metadata codepoints in Unicode, but they're deprecated?
+Jul 14 22:43:28 <raph>  mjg59: yes
+Jul 14 22:43:45 <mjg59> Yeah. I think that's somewhat short sighted
+Jul 14 22:43:54 <jhobson>       Providing a unicode range blocking mechanism for fontconfig would be great, but other 
+than people on this IRC, I don't know anyone that could work in that environment effectively.
+Jul 14 22:44:06 <raph>  the philosophy is that you have a markup layer that specifies the language tag as well as all 
+other presentation-layer stuff, like bolding and so on
+Jul 14 22:44:23 <mjg59> It gets a bit into "Damnit, I know what this specification is for" at the expense of actually 
+being useful
+Jul 14 22:44:33 <nim-nim>       I think that for gui we just use the user locale info, for browser the language tags, 
+for office suite the word processor info
+Jul 14 22:44:33 <simosx>        jhobson: the blocking mechanish is for distributions to provide an adequate default for 
+their users.
+Jul 14 22:44:43 <nim-nim>       sucks for plain text users though
+Jul 14 22:44:51 <raph>  mjg59: it breaks stuff like cut-n-paste; it's not hard to see why they chose what they did
+Jul 14 22:45:09 <MrB>   simosx: assuming the fonts the user has has the glyphs in the right areas..
+Jul 14 22:45:12 <mjg59> raph: Hm. Interesting point.
+Jul 14 22:45:15 <jhobson>       If it is only for distributions to handle, then it kinda sucks to allow users to add 
+new fonts.
+Jul 14 22:46:33 <nim-nim>       jhobson: well, allowing them to add fonts nevertheless is better than forbidding them 
+to add fonts
+Jul 14 22:46:46 <mathrick>      raph: lang codepoints or lack thereof breaks c&p?
+Jul 14 22:47:01 <nim-nim>       and font distributors can learn to provide fontconfig info to fump in ~/fonbts
+Jul 14 22:47:07 <jhobson>       Exactly, users should be able to add new fonts, but they also need a mechanism to get 
+around the problems we are looking at.
+Jul 14 22:47:10 <raph>  i think there are two ease-of-use issues that are worth considering - _installing_ a new font, 
+and configuring your defaults so that your new font is selected in aliases such as "sans"
+Jul 14 22:47:25 <raph>  mathrick: lang codepoints. sorry for being unclear
+Jul 14 22:47:50 *       simosx wonders what "charset" refers to in fontconfig. Does it show the font coverage? 
+(example:     fc-list : family charset)
+Jul 14 22:47:50 <nim-nim>       raph: have you configured fonts for every language in firefox like their UI allows?
+Jul 14 22:48:06 <edtrager>      Fontconfig should not just have a "Unicode range blocking" mechanism -- It should 
+really have an Arbitrary Range Blocking mechanism -- why limit it only to the Unicode ranges?
+Jul 14 22:48:18 <mathrick>      nim-nim: it doesn't actually allow that, it crashes and burns horribly when you 
+actually attempt that
+Jul 14 22:48:25 <raph>  nim-nim: no, i almost never touch configuration, as a matter of principle. 90+% of users won't 
+either
+Jul 14 22:48:55 <nim-nim>       raph: so you see getting the default distribution setup right is the most important 
+problem
+Jul 14 22:49:06 <raph>  nim-nim: i absolutely agree
+Jul 14 22:49:07 <nim-nim>       mathrick: just proves my point
+Jul 14 22:49:07 <simosx>        edtrager: "unicode range" as set of codepoints; it is not limited to a "Unicode block", 
+like all of Greek.
+Jul 14 22:49:08 <mathrick>      nim-nim: in fact, I had to reset config after I tried that once, because setting it to 
+anything broke things in a bad way
+Jul 14 22:49:15 <yosch> nim-nim: very true
+Jul 14 22:49:16 <Hin-Tak>       I do - I have more than one chinese fonts and more than one japanese fonts on my system 
+usually, and I have my preferences.
+Jul 14 22:49:36 <raph>  hin-tak is in a small minority :)
+Jul 14 22:49:47 <Hin-Tak>       mostly I want to use one font with sufficient coverage.
+Jul 14 22:50:03 <mathrick>      firefox simply isn't what we want to follow when it comes to effective FC utilisation
+Jul 14 22:50:15 *       cp_ (n=christof@192.18.61.132) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 22:50:25 <Hin-Tak>       rather than let firefox mix-and-match and having sentences starting in one font and 
+ending in another.
+Jul 14 22:50:33 <nim-nim>       hin-tak: but did you change settings for greek or armenian?
+Jul 14 22:50:45 <Hin-Tak>       no :-).
+Jul 14 22:50:51 <Hin-Tak>       can't read them/
+Jul 14 22:50:58 <nim-nim>       if you didn't you're only doing normal-case "changing the defaults for my language"
+Jul 14 22:51:19 <nim-nim>       not the insane stuff moz people want us to do
+Jul 14 22:51:59 <mathrick>      also, now that discussion has slowed down a bit, I want to see who's up to the hard 
+task, ie. reviewing all of different distros' fonts.confs (and most importantly, their snippets), deciding what's worth 
+it, folding into one recommended config and pushing to distros
+Jul 14 22:52:10 <mathrick>      there are several levels at which it works:
+Jul 14 22:52:11 <Hin-Tak>       blending is tricky.
+Jul 14 22:52:31 <nim-nim>       mathrick: we have a fearless leader :-D
+Jul 14 22:52:50 <simosx>        we got a page already with material
+Jul 14 22:52:58 <mathrick>      simosx: it's incomplete\
+Jul 14 22:53:03 <mathrick>      1) fonts.conf -- here pretty much everyone just uses stock file from keithp, give or 
+take few entries on aliases list as appropriate for fonts shipped by the distro
+Jul 14 22:53:20 <simosx>        mathrick: it's a wiki, please add more, 
+http://wiki.freedesktop.org/wiki/Software_2fFonts_2ffonts_2econf
+Jul 14 22:53:36 <mathrick>      simosx: I will, but it's easier to type here atm
+Jul 14 22:54:00 <mathrick>      2) snippets -- autohinting, embedded bitmaps etc. They're generally single settings 
+that are usually of toggle nature
+Jul 14 22:54:34 <mathrick>      3) locale-specific additions -- the tricky and nasty part we want to kill, present at 
+least in Ubuntu, not sure about others
+Jul 14 22:55:11 <yosch> mathrick: what is wrong with 3)?
+Jul 14 22:55:23 <mathrick>      the whole thing with 3) is that those are long snippets combining many desirable 
+adjustments for various languages, however, it ONLY works in a given locale
+Jul 14 22:55:27 <mathrick>      which is fundamentally wrong
+Jul 14 22:55:29 <edtrager>      Hey, everyone, as mentioned, I'll take a few stabs at filling out the 
+http://wiki.freedesktop.org/wiki/Software_2fFonts with the idea of providing a basis for figuring out an appropriate 
+fonts.conf file when I get a chance ... As for now, I have to go ... Goodbye !
+Jul 14 22:55:39 <mathrick>      yosch: this is the bit I have talked about at BoF
+Jul 14 22:55:48 <simosx>        Thanks Ed. See you latter!
+Jul 14 22:56:01 <yosch> edtrager: thanks a lot Ed. see you latter
+Jul 14 22:56:04 <MrB>   2 Qs if i may throw in the conversation.. a) how will this influence users using fonts but not 
+"installing" them.. b) using font packages in the sense of having an active 20 or so fonts that are used for certain 
+tasks but not normally available..
+Jul 14 22:56:28 *       edtrager Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("leaving")
+Jul 14 22:57:22 *       simosx notes that Mandrake uses DejaVu for "sans", "monospace", while for "serif" uses BPG 
+Glaho. BPG Glaho?
+Jul 14 22:57:35 <mathrick>      anyway, those locale snippets are hopelessly stupid, because they essentially capture 
+desirable per *language* settings, but only enable them per *locale*
+Jul 14 22:58:05 <nim-nim>       MrB: A means the desktop will mostly be configured by default correctly font-wise
+Jul 14 22:58:06 <mathrick>      the effect is that when I read Japanese on a Polish desktop, I get something completely 
+different from when I read it on a Japanese one
+Jul 14 22:58:41 <nim-nim>       mathrick: this is a direct effect of fontconfig lack of locale awareness
+Jul 14 22:58:55 <mathrick>      nim-nim: no, you _don't_ want to use locale for that
+Jul 14 22:59:00 *       behdad assumed the meeting is over
+Jul 14 22:59:04 <mathrick>      maybe for preference lists
+Jul 14 22:59:07 <mathrick>      nothing else
+Jul 14 22:59:25 <nim-nim>       hi behdad
+Jul 14 22:59:31 *       behdad is Behdad Esfahbod, Pango maintainer, Fedora Core DejaVu packager, cairo and fontconfig 
+developer
+Jul 14 22:59:33 <behdad>        hi all
+Jul 14 22:59:33 <mathrick>      nim-nim: I don't want to see embedded bitmaps when I read Japanese, no matter what 
+locale I'm in
+Jul 14 22:59:34 <MrB>   nim-nim: well im not thinking for the GUI, im thinking for providing information to apps, like 
+Scribus, where we allow a user to use a font from any dir in a doc, and its nto isntalled for the system
+Jul 14 22:59:35 <yosch> hi behdad
+Jul 14 22:59:43 *       simosx notes we reached two hours :).
+Jul 14 22:59:43 <behdad>        I thought it's over and was reading the log
+Jul 14 22:59:49 <moyogo>        hi behdad
+Jul 14 22:59:55 *       Amidamaru Î±ÏÎ¿ÏÏÏÎ·ÏÎµ (Client Quit)
+Jul 14 23:00:24 <mathrick>      so, I only know about Ubuntu. Does anyone know if someone else (Fedora, MDK, SuSE?) use 
+anything equivalent?
+Jul 14 23:00:24 <Hin-Tak>       I agree to a certain extent. I think openoffice uses some sort of block coverage 
+heristics (i.e. scanning a few characters and try to work out what unicode range one is in).
+Jul 14 23:00:27 <nim-nim>       behdad, I note you've decided to make simosx happy
+Jul 14 23:00:51 <mathrick>      in Ubuntu it's managed by language-selector, which is completely Ubuntu-specific
+Jul 14 23:00:57 <nim-nim>       mathrick: sure it's a problem with land/script/locale awareness
+Jul 14 23:01:21 <nim-nim>       Japanese and Polish people can not limit the settings they want to their locale
+Jul 14 23:01:21 <mathrick>      nim-nim: you shouldn't confuse locale with language, really
+Jul 14 23:01:23 <simosx>        Hin-Tak: OpenOffice has a VCL.xcu file that has similar functionality to fonts.conf. 
+However, with the current fontconfig integration in OOo, I am not sure if it is actually used.
+Jul 14 23:01:25 *       Med (n=mederic@wikipedia/med) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 23:01:28 <mathrick>      nim-nim: yes
+Jul 14 23:01:29 <mathrick>      exactly
+Jul 14 23:01:32 <behdad>        nim-nim: not sure what that means
+Jul 14 23:01:48 <nim-nim>       behdad: "Fedora Core DejaVu packager"
+Jul 14 23:02:28 <nim-nim>       mathrick: it's actually a locale thing because many countries may use the same language 
+but with different conventions
+Jul 14 23:02:30 <behdad>        nim-nim: yes, we are packaging DejaVu LGC to replace Bitstream Vera.
+Jul 14 23:02:35 <Hin-Tak>       simosx: doesn't work too well - wanna see OO.o change font mid-sentence ? :-)
+Jul 14 23:02:44 <mathrick>      nim-nim: so what we need to do is to review all those locale snippets, see if there are 
+any conflicts, resolve them intelligently, and then convert that into normal fonts.conf that then gets pushed upstream
+Jul 14 23:02:51 <mathrick>      nim-nim: no
+Jul 14 23:02:51 <simosx>        Hin-Tak: screenshot me.
+Jul 14 23:03:05 <behdad>        mathrick: what are those locale snippets?
+Jul 14 23:03:26 <nim-nim>        behdad: and you've decided to make me unhappy. Oh well
+Jul 14 23:03:29 <simosx>        behdad: he is refering to the files that go in fonts.d
+Jul 14 23:03:36 <yosch> behdad: the ones that go into fonts.d
+Jul 14 23:03:36 <mathrick>      simosx: nope
+Jul 14 23:03:42 <mathrick>      those are different
+Jul 14 23:04:08 <mathrick>      behdad: those are normal fontconfig snippets, with the difference they only get applied 
+when locale matches. So my desktop for instance includes only files called ja_JP and "none"
+Jul 14 23:04:19 <mathrick>      they are distinct from fonts.d
+Jul 14 23:04:24 <mathrick>      and reside in...
+Jul 14 23:04:25 *       mathrick checks
+Jul 14 23:04:38 <behdad>        mathrick: is it some distro specific magic?
+Jul 14 23:04:46 <yosch> mathrick: you mean the fontconfig-voodo thing from Michael Vogt then?
+Jul 14 23:04:58 *       simosx corrects himself, it's /etc/fonts/conf.d 
+Jul 14 23:04:59 <mathrick>      yosch: yes
+Jul 14 23:05:13 <mathrick>      mathrick@megumi:~$ ls /usr/share/language-selector/fontconfig/
+Jul 14 23:05:13 <mathrick>      ja_JP  ko_KR  none  zh_CN  zh_HK  zh_SG  zh_TW
+Jul 14 23:05:19 <mathrick>      here they are
+Jul 14 23:05:28 <Hin-Tak>       simosx: got a pdf in my work computer - I'll e-mail that on monday.
+Jul 14 23:05:37 <simosx>        Hin-Tak: ack
+Jul 14 23:05:42 <behdad>        mathrick: that's kinda stupid
+Jul 14 23:05:46 <mathrick>      behdad: sure it is
+Jul 14 23:05:52 <mathrick>      that's why I want to kill it
+Jul 14 23:06:01 <behdad>        mathrick: which distro is it?
+Jul 14 23:06:04 <mathrick>      Ubuntu
+Jul 14 23:06:07 <raph>  mathrick: so language-selector copies that file into /etc/fonts/conf.d/ or some such?
+Jul 14 23:06:08 <behdad>        geer
+Jul 14 23:06:21 <mathrick>      raph: no, I think it's a patched fontconfig or something
+Jul 14 23:06:29 <mathrick>      it gets decided at runtime
+Jul 14 23:06:52 *       J5 Î±ÏÎ¿ÏÏÏÎ·ÏÎµ ("Ex-Chat")
+Jul 14 23:07:12 <yosch> no AFAIK, it's just a python script handling fontconfig settings for a number of CJK locales
+Jul 14 23:07:19 <mathrick>      behdad: snippets themselves contain very useful knowledge, but because Michael couldn't 
+usefully decide what goes where, they created that side-step system
+Jul 14 23:07:47 <behdad>        mathrick: indeed.
+Jul 14 23:07:52 <simosx>        +  Load local ubuntu-specific language custom file
+Jul 14 23:07:52 <simosx>        +-->
+Jul 14 23:07:52 <simosx>        +       <include ignore_missing="yes">language-selector.conf</include>
+Jul 14 23:07:52 <simosx>        +
+Jul 14 23:07:58 <behdad>        mathrick: the should be wrapped in correct matches
+Jul 14 23:08:01 <raph>  it looks like a symlink from /etc/fonts/language-selector.conf to a file in 
+/usr/share/language-selector/fontconfig
+Jul 14 23:08:24 <behdad>        but the snippets should be really valuable.  are there readily available on web?
+Jul 14 23:08:28 <mathrick>      I believe from his responses that someone stepping up for the job and folding that into 
+non-locale-specific conffiles would be accepted
+Jul 14 23:08:44 <mathrick>      behdad: not sure, probably only in source .debs
+Jul 14 23:08:55 <victory747>    it may also be something to get CJK somewhat usable at the last minute before dapper 
+release
+Jul 14 23:09:03 <mathrick>      and FD.o wiki is really silly, not useful for working with files
+Jul 14 23:09:39 <mathrick>      victory747: nope, it's been in place before, they just didn't sort it out, and it was 
+indeed convenient for "quick fix, no think" patches
+Jul 14 23:09:51 <behdad>        mathrick: we really want to push those upstream.  I think this should be continued on 
+fontconfig-list.
+Jul 14 23:10:05 <mathrick>      I should subscribe to all those lists
+Jul 14 23:10:07 <behdad>        or on fonts@gnome.org, cleaned up, pushed to fontconfig later
+Jul 14 23:10:13 <yosch> mathrick we could ask for an svn module on f.d.o to hold this maybe?
+Jul 14 23:10:22 <mathrick>      yosch: good idea
+Jul 14 23:10:29 <behdad>        yosch: I'm sure we can host them in fontconfig cvs
+Jul 14 23:10:34 <behdad>        as a separate module initially
+Jul 14 23:10:43 <yosch> behdad: OK
+Jul 14 23:10:46 <behdad>        but when done, they can just go in real fontconfig upstream.
+Jul 14 23:11:09 <mathrick>      and then we want to make sure distros don't patch their fonts.conf at all
+Jul 14 23:11:34 <simosx>        mathrick: you cannot force distros not to change their default fonts.conf
+Jul 14 23:12:00 <Hin-Tak>       distro probably will - based on what fonts they ship, etc.
+Jul 14 23:12:16 <mathrick>      fuck, I missed IME meeting last week, I only noticed it now
+Jul 14 23:12:26 *       mathrick regrets
+Jul 14 23:12:39 <Hin-Tak>       same here. would have liked to listen in...
+Jul 14 23:12:50 <mathrick>      simosx: well, we really want them not to mess with it
+Jul 14 23:13:03 <mathrick>      that's why we want to have universal defaults
+Jul 14 23:13:26 <Hin-Tak>       e.g. Turbolinux in the far-east have a couple of commercially licensed fonts bundled, I 
+think.
+Jul 14 23:13:30 <nim-nim>       if the defaults are good they won't touch them
+Jul 14 23:13:33 <simosx>        the phrasing should be towards "we suggest a good default that has these advantages and 
+you are free to choose".
+Jul 14 23:14:23 <simosx>        Hin-Tak: "non-free" distros may elect to include commercial fonts, no issue about that.
+Jul 14 23:14:46 <mathrick>      Hin-Tak: that doesn't change anything. Lack of a given font shouldn't change 
+correctness in any way
+Jul 14 23:15:20 <Hin-Tak>       what I mean is, distro will always tweak their fonts.conf.
+Jul 14 23:15:27 <mathrick>      and by "make sure" I mean "make it so that it'd be stupid to mess with defaults"
+Jul 14 23:16:29 <mathrick>      Hin-Tak: why should they? If font A is better than B, then we just put it higher. If 
+distro X doesn't ship A, then it'll simply use B, no matter where A is in the list
+Jul 14 23:16:48 <mathrick>      *higher in preference lists
+Jul 14 23:16:56 *       jg Î±ÏÎ¿ÏÏÏÎ·ÏÎµ (Connection timed out)
+Jul 14 23:16:56 <simosx>        Hin-Tak: we can get the upstream fonts.conf used by distros if we talk with the people 
+responsible with the fontconfig package of said distro; listen to their views. for example, behdad for fedora :)
+Jul 14 23:17:23 <yosch> getting consistent behaviours shouldn't have to totally rule out some flexibility in 
+configuration. Surely some equilibrium can be found don't you think?
+Jul 14 23:17:34 <Hin-Tak>       yes, but then your are punishing the majority of "free" people of taking a small hit 
+having to go through the fonts they don't have first.
+Jul 14 23:17:36 <behdad>        Hin-Tak: not really.  Fedora for example doesn't touch fonts.conf that much.
+Jul 14 23:17:48 <behdad>        and for Mandriva, fcrozat is himself a fontconfig hacker
+Jul 14 23:17:52 <behdad>        we all like to push upstream
+Jul 14 23:18:04 <simosx>        we don't have a contact with Madrake, which they use DejaVu plus a non typical font for 
+the Sans alias.
+Jul 14 23:18:10 <behdad>        only those distros with packagers that are not fontconfig hackers go ahead and touch 
+fonts.conf, because they are lazy.
+Jul 14 23:18:25 <behdad>        simosx: we do.  fcrozat on #gnome-hackers
+Jul 14 23:19:03 <simosx>        behdad: okay, frederic for mandriva. do we know who is with SUSE linux?
+Jul 14 23:19:28 <yosch> fcrozat was at GUADEC, we just forgot to invite him to the BoF :-(
+Jul 14 23:19:28 <behdad>        no idea.  shouldn't be hard to figure out.
+Jul 14 23:19:40 <behdad>        yosch: yeah, I didn't know and didn't even meet him.
+Jul 14 23:20:00 *       J5 (n=johnp@nat-pool-bos.redhat.com) ÏÏ
+Î½Î´Î­Î¸Î·ÎºÎµ ÏÏÎ¿ #freedesktop
+Jul 14 23:20:10 <behdad>        another problem at this point is that fontconfig is partially unmaintained
+Jul 14 23:20:18 <yosch> behdad: I talked to him briefly about getting the SIL stack included in Mandriva
+Jul 14 23:20:20 <behdad>        we need to have someone make regular releases for it
+Jul 14 23:20:22 <Hin-Tak>       :-).
+Jul 14 23:20:26 <behdad>        it may as well be me. :)
+Jul 14 23:20:45 <behdad>        yosch: we can get it in Fedora Extras too, if not Core.
+Jul 14 23:20:46 <behdad>        or is it?
+Jul 14 23:21:53 <Hin-Tak>       was fairly hard finding anything to do with fontconfig (docs, toturials, etc) on the 
+web. I probably am upsetting a lot of people here.
+Jul 14 23:21:54 <mathrick>      yosch: oh, he was there?
+Jul 14 23:22:02 <Hin-Tak>       :-p.
+Jul 14 23:22:32 *       simosx still cannot decipher what "fc-list : family charset" lists for the charset.
+Jul 14 23:22:33 <behdad>        Hin-Tak: unfortunately it's hard, yeah.
+Jul 14 23:22:39 <yosch> behdad: AFAIK, most Graphite fonts are already in Extras, someone has rpms of Graphite ready. 
+things are underway
+Jul 14 23:22:42 <behdad>        Hin-Tak: but there /are/ docs.
+Jul 14 23:23:02 <behdad>        yosch: great.  so we just need glasseyes to submit final patches for pango
+Jul 14 23:23:20 <behdad>        glasseyes: which remind me to tell you: I've got to release Pango 1.14.0 on August 7
+Jul 14 23:23:34 <behdad>        glasseyes: and a devel release around July 23 IIRC
+Jul 14 23:23:47 <behdad>        glasseyes: so, buys you six months if you are fast
+Jul 14 23:24:05 *       JakubS_ Î±ÏÎ¿ÏÏÏÎ·ÏÎµ (Read error: 113 (No route to host))
+Jul 14 23:24:09 *       victory747 (n=vic@adsl-69-214-218-159.dsl.emhril.sbcglobal.net) Î±ÏÎ¿ÏÏÏÎ·ÏÎµ Î±ÏÏ 
+#freedesktop
+Jul 14 23:24:10 <behdad>        (and I really like to have the graphite module in 1.14
+Jul 14 23:24:17 <glasseyes>     behdad: ok, thanks, I'll certainly have it done by the end of next week (earlier if I 
+get my talk finished first)
+Jul 14 23:24:35 <behdad>        glasseyes: oh I forgot.  yeah, lets look into it together next week.
+Jul 14 23:24:39 <behdad>        glasseyes: you stay for OLS?
+Jul 14 23:24:52 <behdad>        glasseyes: if not, when's your talk?
+Jul 14 23:24:55 <glasseyes>     I'll still be in Ottawa then though not at OLS
+Jul 14 23:25:40 <glasseyes>     behdad: Mon morning 1130 - I guess I'll have time later on Mon then ;)
+Jul 14 23:25:43 <behdad>        glasseyes: monday afternoon suites me well
+Jul 14 23:25:45 <behdad>        yeah, checked.
+Jul 14 23:25:50 <behdad>        perfect
+Jul 14 23:25:57 <glasseyes>     :)
+Jul 14 23:26:04 *       yosch grins happily too
+Jul 14 23:26:59 <behdad>        glasseyes: if you eat dinner late like me, we can meet at 5
+Jul 14 23:27:06 *       simosx notes he will be cutting off the irclog around here.
+
+"""]]
+
+## Discussion #2
+
+
+### Announcement
+
+This is the announcement of the meeting, and was sent to dejavu-fonts, desktop-hackers (GNOME), gnome-i18n, linux-utf8, openfontlibrary, fedora-i18n, xdg (freedesktop) and a few more. 
+
+
+[[!format txt """
+Dear All,
+I would like to announce that there will be an IRC meeting on Tuesday, 1st August 2006, to
+discuss issues about fonts for free and open-source software.
+
+The agenda includes
+1. discussion on availability of free & open-source fonts for different scripts/languages. 
+2. discussion on free & open-source font licenses; importance to converge to a common license.
+3. consult users from Asia for the local preference of fonts. 
+
+The meeting takes place on Tuesday, 1st August 2006, at 12:00 UTC (GMT/Zulu).
+This is morning for the US, early in the afternoon for Europe and afternoon/evening for Asia/Australia.
+Visit 
+http://www.timeanddate.com/worldclock/fixedtime.html?year=2006&month=8&day=1&hour=12&min=0&sec=0
+to view the exact time for your area.
+
+The meeting takes place on IRC, at the Freenode network, on channel ##fonts.
+Notice the channel name, it is "##fonts", with two pound signs. Unfortunatelly, 
+the channel with one pound sign has already been registered for non-free font discussions.
+
+If you have not used IRC before, you can use the IRC client "XChat" 
+that is provided with your Linux distribution. You can also install XChat for Windows.
+XChat is also available from http://www.xchat.org/
+
+For more, please see
+http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+
+The discussion logs will be made available after the meeting, at
+http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+
+Fonts are very important to distributions, desktop environments (GNOME, KDE, etc), 
+as well as to individual cross-platform applications. The end-user
+would typically blame the application if the fonts do not appear well. 
+At the same time, the process of choosing suitable fonts for different 
+languages and scripts is complex enough for a single project to handle.
+
+At the same time I would like to announce that there is interest 
+to have more regular discussions on IRC on issues pertaining to fonts.
+Therefore, if you would like to discuss free and open-source fonts, 
+feel free to pop by ##fonts on Freenode.
+
+Feel free to forward this announcement to other relevant lists.
+
+Thanks,
+Simos
+"""]]
+
+### IRC Log
+
+
+[[!format txt """
+--> mpsuzuki (n=sssa@P061198128118.ppp.prin.ne.jp) a rejoint ##fonts
+<clytie> It's exciting to see people here from so many different projects. :)
+<moyogo> hi all
+<mpsuzuki> hiho
+<edtrager> Hi, Clytie! Hi Yosch!
+<moyogo> It's meeting time
+<clytie> Hiya Ed :)
+ Everybody turn off their mobile phones...
+<moyogo> first things first: simos is on a plane
+<yosch> clytie: yes indeed
+<moyogo> so eimai and I will try to conduct the meeting :)
+<clytie> drat, we lost simos again
+<eimai> try to...
+<clytie> You'll do a great job :)
+ I just think we should remember where we put simos last...
+<eimai> if you haven't read it, meeting details are at http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+<moyogo> thanks :-) we can start by shortly introducing ourselves
+ so people know who they are talking to
+* moyogo is Denis Moyogo Jacquery from the DejaVu fonts
+<rahul> yes thats a good idea
+* eimai is Ben Laenen from DejaVu fonts
+<ralfs> is Ralf Stubner. I do font development mainly in the TeX world.
+<clytie> is Clytie Siddall from the Vietnamese Free Software Translation Team (pan-project)
+* yosch is Nicolas Spalinger, aspiring font guy, OFL, SIL - Ubuntu fonts team
+ rahul working on Indic Fonts. Developed Samyak font series and maintaining Lohit fonts
+ uniscrip1 is from SIL in Asia, Padauk, Font::TTF (usually uniscript)
+ ingwa is from Koffice.
+ ThrainNB is Emanuele Tamponi, just an interested fonts user :)
+ slef is MJ Ray, gnustep webmaster, gobolinux chipper, debian developer, probably other stuff.
+<edtrager> Quick note: I did contact Mike Fabian from SuSE DE and he forwarded email to Dirk Mueller @ kde.org ... Don't know if Mueller can attend : said to please add kde-core-devel@kde.org to mailing list, this one on short notice (which is my fault)
+--> jg_ (n=jg@c-24-218-178-107.hsd1.ma.comcast.net) a rejoint ##fonts
+<jhcambo> is Jens Herden from KhmerOS project
+* rahul also working on Gnome translations for mr_IN
+<bradh> \me is Brad Hards - sometime KDE developer and poppler developer.
+--> dirk (n=dirk@kde/mueller) a rejoint ##fonts
+<ingwa> edtrager: Just forwarded your question
+<mpsuzuki> mpsuzuki is suzuki toshiya from Japan, working around FreeType and PostScript
+* Med is MÃ©dÃ©ric Boquien, small contributor to the DejaVu fonts
+--> varsis (n=var@ppp216-186.lns1.adl2.internode.on.net) a rejoint ##fonts
+<edtrager> Hi, Dirk, glad you could join and sorry about such short notice on the meeting
+--> simosx (n=Simos@pppd-2670.otenet.gr) a rejoint ##fonts
+* zrusin is Zack Rusin , KDE, Xorg, Trolltech
+<fundawang> is a bug hunter and patch maker, focused in CJK field, especially the encoding and the fonts.
+<moyogo> yeah simosx is there :D
+<yosch> yeah simos is back :)
+<Med> simosx: just on time :)
+<dirk> hi everyone
+<edtrager> Hi, Simos
+<clytie> we found simos!
+<dirk> hi edtrager
+<eimai> simosx: we're still in the introduction stage :-D
+<clytie> I knew we just had to look around...
+* simosx is happy to have made it (dialup atm). :)
+<dirk> edtrager: np, I was just surprised to see that there was already a meeting two weeks ago :)
+<jg_> morning all.
+<yosch> hi jg_
+* simosx is back at home in nice Greece :) Hello All!
+<jg_> I work on OLPC, and negotiated the Bitstream Vera fonts.
+--> kartik (n=kart_@ss2.magnet-i.com) a rejoint ##fonts
+ tronical (n=simon@kde/hausmann) a rejoint ##fonts
+<jg_> (and X.org BOD member, former Gnome BOD member)
+<-- pritisd a quittÃ© ("Leaving")
+<edtrager> Introducing self: Ed Trager is responsible for unifont.org
+--> FangQ (n=FangQ@c-71-192-98-42.hsd1.ma.comcast.net) a rejoint ##fonts
+<rahul> hi simosx
+<fundawang> FangQ: hi.
+<rahul> hello kartik
+<FangQ> hi fundawang
+<kartik> rahul, hi
+<fundawang> FangQ is the coordinator of WenQuanYi Chinese font projects.
+<clytie> Great to see so many people here representing Asian languages. :D
+* simosx is advocating the use of free fonts, will be contacting to get vera released as OFL on behalf of gnome foundation.
+<simosx> rahul: hello!
+* dirk is KDE developer, former KHTML developer and knows about bidi, font issues
+--> subhransu (n=Subhrans@202.41.228.162) a rejoint ##fonts
+<FangQ> hello everyone, sorry for a little bit late
+--> ThomasZ (n=zander@kde/zander) a rejoint ##fonts
+* kartik just curious and wanna be Free font developer for Gujarati language
+<edtrager> Hi, FangQ, I love the WenQuanYi project :-)
+<clytie> Curious is good. "That's why we're here, isn't it?" (TNG)
+* slef has reservations about OFL because it seems to forbid derivatives from being drop-in replacements, last he saw.
+<clytie> OFL being revised, please participate.
+<FangQ> thank you, Ed
+<bradh> Who is going to run this meeting?
+<slef> clytie: how/where?
+<clytie> On SIL site
+ Updating it, taking community feedback, like with the GPL.
+* rahul is curious about OFL
+<eimai> bradh: simosx I guess, now he's back
+<uniscrip1> http://scripts.sil.org/ofl
+<moyogo> but we should probably start, unless some people still want to introduce themselves :)
+--> kanou (n=kanou@gw01.atlas.jp) a rejoint ##fonts
+* clytie looks under the bed
+<clytie> Nope.
+<simosx> moyogo: indeed, if there are any latecomers, please introduce yourself with a one-liner, "/me is xxxxyyyy".
+<simosx> I think the next thing to discuss is any issues/reservations on the OFL license.
+* varsis will be a main coder for the wordforge project for the next 5 months
+<moyogo> it should be in the topic then ;-)
+<mpsuzuki> Kanou-san, now it is self-introducing time.
+<yosch> simosx: SIL is is the final stages of reviewing community feedback for version 1.1
+<simosx> just above there was a comment by slef, "has reservations about OFL because it seems to forbid derivatives from being drop-in replacements, last he saw.". we should talk about these.
+<clytie> What's the status of the review, for further feedback?
+<ingwa> I would be interested in a quick summary of what was said in the last meeting.
+<yosch> feel free to send your thoughts, suggestions, etc
+<slef> SIL site says review finished in May.  If that's incorrect, can it be updated?
+* HrocH is David JeÅ¾, contributor for DejaVu project
+<HrocH> hi
+<kanou> I am localizer of  FontForge (to Japanese) and is co-developer of M+ Japanese fonts, maintainer of Sazanami-font.
+<yosch> ingwa: look at the logs on the freedesktop wiki
+<uniscrip1> slef: It's not a hard deadline, very relaxed in fact
+<eimai> ingwa: there is a summary at the bottom of http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+* clytie waves to another FontForge localizer
+<yosch> slef: 1.1 review date was until June: http://scripts.sil.org/OFL_review
+<ingwa> eimai: thanks
+<slef> yosch: ok, thanks. May is in http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL_review&_sc=1
+<clytie> Nothing in print yet, so feedback at this time is useful.
+<yosch> we're extending the deadline, if you have good suggestions we'd love to hear from you
+<simosx> I think the general consensus is that the OFL is a license specifically designed for fonts; and in addition, having the basic group of fonts distributed with OFL will allow to mix and choose better. Currently, if you have a GPL font and another free font, you cannot mix together.
+<slef> I would like to see clause 3 relaxed, to allow fonts to include configurations (fontconfig or whatever) for themselves as low priority replacements for the original.
+--> Administrator (i=Administ@222.130.185.115) a rejoint ##fonts
+<yosch> slef: clause 3 does not cover fontconfig configuration
+<slef> yosch: how do you reason that?
+<FangQ> Simos, what do you mean by "can not mix" GPL with other free font together?
+<yosch> it says "stored in the font software": your local.conf is a font
+ sorry correcting mysefl: your local.conf is NOT a font
+<slef> yosch: the Font Software is defined to include all data files in the work.
+<slef> yosch: how is a /etc/fonts/conf.d/myfont.conf in the work not covered by it?
+<ralfs> FangQ, one may not copy glyphs from a OFLed font to a GPLed font. Same for other GPL incompatible licenses.
+<edtrager> Yes, I can't see any problem with clause 3.
+<simosx> FangQ: If you have two fonts which have a free* license and you want to make a derivative work, you have trouble to choose what the resulting license will be. For example, GPL and Vera-style license, or perhaps public-domain fonts.
+<fundawang> I think fontconfig configuration could be defined as _data files_
+<rahul> why  /etc/fonts/conf.d/myfont.conf  should be covered in font?
+<yosch> most fonts under OFL do not ship fontconfig snippet
+<FangQ> I think it should be no problem mixing GPL with GPL compitible fonts, say, MIT license, BSD or public domain fonts
+<slef> rahul: it's easier if you only have to use one licence.  Licensing sucks, but copyright's defaults suck more.
+<yosch> like we discussed in the last meeting a common font licensing layer is a good thing
+<clytie> So FangQ and simos, you could release two fonts together, even if one were OFL and the oter GPL?
+<slef> yosch: packages derived from them will want to, for most distributions, else users have to configure them manually.
+<clytie> s/oter/other
+<edtrager> I think FangQ is probably correct that technically one can mix GPL with GPL compatible, but having  OFL just for fonts will be useful
+<yosch> the fact is that SIL chose a copyleft model for the Open Font License to give designers a chance to not get their work "locked up" in restricted fonts based on their contributions
+<moyogo> we should probably come up with all those questions relative to the OFL on the ofl mailing list
+<yosch> two copyleft licenses can't mix
+<FangQ> my concerns is, a non-GPL compatible license could create a bittle bit trouble when a GPL program want to include. however, a dual-licensing is always an option
+<slef> I think SIL is a pretty good idea for a font licence, but still buggy.
+<yosch> slef: please send your suggestions to ofl-discuss
+<slef> moyogo: I will send mine later today now I know about it, as long as someone approves my subscription.
+<slef> unless ofl-discuss is open-posting?
+<jg_> FangQ: that's just a normal aggregate work.
+<-- ThomasZ (n=zander@kde/zander) est parti ##fonts
+* simosx reminds that the Open Font License (OFL) mailing lists, with archives, are available at http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL_list
+<jg_> FangQ: the individual pieces still have their own copyrights and terms.
+<Med> zrusin dirk : is there a plan to rewrite the KDE character selector for KDE 4. To get for instance something similar to the selector of scribus, or gucharmap? Bonus would be be that it handles advanced opentype features like alternate characters
+<jg_> FangQ: the GPL only speaks about what happens when you aggregate stuff together.
+* yosch gives the direct link to ofl-discuss: http://openlists.sil.org/mailman/listinfo/ofl-discuss
+<slef> jg_: do you mean combine, not aggregate?
+<uniscrip1> Med: I agree features is a key issue
+<FangQ> I mean in the case when the program want to have native font support, linking the font in the program. I agree with you, that in many other cases, there is no hard limit on the bundled font
+<yosch> and the FAQ is there: http://scripts.sil.org/OFL-FAQ_web
+<jg_> slef: if you take glyphs from two different fonts, that's combine; if you have two different fonts, they are independent.
+<dirk> Med: you mean the font selection dialog?
+<clytie> FangQ and jg_: so the program could be GPL, and the bundled font OFL?
+<Med> dirk: kcharselect
+<jg_> clytie: sure.
+<clytie> That's a useful flexibility.
+<rahul> jg_, sound good
+<jg_> the aggregate is covered by GPL; but you can still take the font and use it elsewhere under the OFL.
+<yosch> clytie: yes the OFL is designed to be aggregated even with restricted software while still retaining its own license
+ so it inherits the license but can be bundled with anything
+<dirk> Med: It is not planned afaik, but I can put it on TODO
+<slef> jg_: mere aggregation doesn't make the font covered by the GPL, does it?
+<jg_> no,.
+<moyogo> slef: no
+<jg_> how could it?
+<dirk> Med: is the scribus one the one you're 100% satisfied with or do you have better ideas?
+<slef> dunno but "<jg_> the aggregate is covered by GPL"
+<jg_> under copyright law, the license is what dictates the terms, and each piece has its own license.
+ And you can't modify the license without being the owner of the copyright.
+<clytie> to aggregate is defined as "to gather in a mass, sum, or whole", or does it have a more specific legal definition?
+<-- bradh (n=bradh@CPE-61-9-204-42.nsw.bigpond.net.au) est parti ##fonts ("Kopete 0.11.1 : http://kopete.kde.org")
+<jg_> clytie: as in a Linux distribution.
+<clytie> Ah, thanks.
+<FangQ> based on my knowledge, every part of GPL software is GPLed, but if a component is not essential for the program to function, then that component could not be part of the software
+<clytie> An identifying whole.
+<Med> dirk: the scribus one would be a first step on the good direction. But it doesn't handle OT features IIRC. moyogo may have more precise idea about this kind of thing.
+<jg_> it has lots of code, of lots of licenses; but together, the GPL requires that if you distribute the binaries for the whole, you have to distribute everything that was included.
+--> Riddell (i=jr@kde/jriddell) a rejoint ##fonts
+<yosch> Med: font features is something we need to think about for the free desktop
+--- ChanServ donne le statut opÃ©rateur de canal Ã  simosx
+ simosx a changÃ© le sujet en : Discussing now FLOSS font issues; newcomers: introduce yourself; choose OFL (http://scripts.sil.org/OFL); Unifont (http://www.unifont.org/); Discussion log (http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration)
+<jg_> The GPL can't speak to the licenses of other items at all; it can speak to redistribution of GPL'ed code in combination with other copyrighted material.
+<clytie> Font licensing often seems to have been an afterthought, where it probably needs to be considered earlier in the project.
+<FangQ> but anyway, what I want to know is the impact of OFL to the existing licenses? could a derived work be licensed as another popular open-license?
+<jg_> FangQ: you cannot change the copyright of a work,
+ you can *add* a copyright of your own if you've done significant work on the derivative.
+<dirk> Med: which OT features are you interested in?
+<uniscrip1> FangQ: but you could bundle the font into something with an open license
+<clytie> jg_: Tell Rosetta that.
+<moyogo> actually an OFL derivative has to be OFL
+ it cannot be OFL+something else
+<FangQ> that's what I though
+<jg_> moyogo: that's a term of the OFL; not something required by copyright law.
+<yosch> FangQ: it is up to the author to choose the most appropriate license, the more readable and non-jargony it is the better
+<edtrager> This raises an important issue ... For example, if the WenQuanYi project wanted to switch from GPL to OFL, can they just do it, or is it more complicated?
+<clytie> Can a more specific licence be seen as a subset of a more general licence?
+<FangQ> yosch, I agree. it is actually a nice license
+<moyogo> edtrager: if they are the original copyright holders, it's no problem
+<jg_> edtrager: so long as they own the copyrights on WenQuanYi, they can change, spindle, mutilate, or issue the same material under as many copyrightas as they like.
+<FangQ> edstranger: I think if all the copyright holder agree to switch, then WenQuanYi can release our font to OFL
+<uniscrip1> moyogo: a derivative work means you unbundle the OFL package, change it and repackage. That must be OFL. If you take an OFL bundle and aggregate it, then the bundle is still OFL while the aggregate may be a different license
+<FangQ> however, if we want to add existing font, such as those released under APL, or GPL, then we might not to be able to do that again
+<moyogo> uniscrip1: yes
+<clytie> FangQ: are you talking about licensing your fonts separately, or as a collection?
+<FangQ> unless, all the major font developers dual-licensing their font to their old license and OFL
+<yosch> be aware that there is no requirement to give your font sources with the OFL: you're free to branch but you need to redistribute under the same license
+<edtrager> That's why I brought up WenQuanYi as an example, since it has APL material in there too.
+<FangQ> I guess if I put all font data into one file, then it is A font, not a bundle
+<FangQ> no, we don't ahve apl
+--> umesh (n=umesh@125.22.3.167) a rejoint ##fonts
+<FangQ> firefly, a guy from Taiwan, released his bitmap font under GPL/APL dual-license
+<edtrager> Sorry, I thought there was, but I'm wrong.
+<FangQ> we took the GPL branch
+<clytie> FangQ: so you're talking about adding extra glyphs from another font?
+<FangQ> yes
+<fundawang> clytie: Like something from Unifont
+<FangQ> you mean unifonts? by Arne?
+<fundawang> GNU Unifont :)
+<yosch> FanQ: IMHO dual-licensing may add to the complexity: contributors may get confused. You need a font specific license: one that does not use concepts related to compiled software
+<jg_> please remember that with Fontconfig, aggregating glyphs from different fonts into a single font may result in *worse* results than keeping them separate.
+<clytie> It's important to know the licensing conditions for that situation.
+<jg_> this has to do with linespacing.
+<clytie> Or it might discourage people from adding glyphs.
+<Med> dirk: salt and aalt would be nice. Also a substitution according to the locale of the document would be nice. More on the Qt side though. See http://www.trolltech.com/developer/task-tracker/index_html?method=entry&id=121283
+<jg_> For example, if you put Thai into a regular font, you'll find lots of software that "does the wrong thing".
+<clytie> jg_: true, but some of us represent languages which require uncommon glyphs, so supporting us tends to be an afterthought, requiring glyphs added. This happened for my language recently with DejaVu, via Verajja.
+ So if DejaVu had been unable to add the Verajja glyphs, my language would not be supported now.
+<mpsuzuki> Med: how do you think about whether salt/aalt support should be supported via HarfBuzz, or out of HarfBuzz?
+<clytie> And DV is currently the only pan-Unicode font that displays my language anything like readably.
+<slef> I'm told that GNUstep has problems using fontconfig because it doesn't handle PostScript font names. Is that a basic design difference?
+<dirk> Med: ok, noted it down, thanks.
+<jg_> clytie: sure.
+<yosch> FangQ: satisfying the GPL and LGPL requirements is confusing in the context of fonts
+<uniscrip1> clytie: what about font linking
+<edtrager> Clytie: But when Verajja VN glyphs were added to DejaVu, did DejaVu increase linespacing to accomodate VN?  Would it be better to just have a separate, but ideal, VN font?
+<jg_> I just wanted to make sure people understand that randomly aggregating full fonts is a very bad idea.
+<clytie> Of course, but would it be distributed with the big distros?
+<moyogo> mpsuzuki: support for these OT features should be in harfbuzz
+<mpsuzuki> slef: please let me know more about GNUstep issue
+<Med> harfbuzz would benefit to both Qt and GTK
+<FangQ> yosch, I know, GPL is not a good choice for font, but the problem is there are so many fonts are GPL, if you want to take advantage of those, then you need to decide your license accordingly.
+<clytie> edtrager: having at least one Pan-Unicode font which displays your language is a useful fall-back for a default install.
+<jg_> even ignoring the embedded issues with having huge fonts for languages not being used.
+<moyogo> edtrager: right now dejavu lowered the VN diacritics and adjusted them
+<Med> also another *great* feature would be to have BASE support
+<jg_> clytie: all we need is a "set" of fonts with full unicode coverage.
+<jg_> we don't need a unicode font.
+<fundawang> Agree with jg_
+<clytie> jg_: True, that would work well.
+<moyogo> edtrager: the best right now is probably to have specialized fonts if metrics really don't fit together, but support for BASE table could allow a single font to be more flexible
+<tronical> Med: the use of opentype on x11 also for latin/greek/cyrillic is something we're seriously considering for the next Qt release
+<yosch> clytie: that's what our review effort on the freedesktop wiki is about:  finding the best font per locale, and tweaking fontconfig the best we can
+<clytie> As long as we can ensure that with each distro.
+<umesh> simosx: i'd like to give some suggestions about indic fonts (kannada,devanagari)
+<edtrager> So, the dejaVu VN glyph set is never going to be ideal for VN.  I agree with jg_ 100% that we don't need a pan unicode font.
+<slef> mpsuzuki: apparently GS has problems with human-readable names which cannot be mapped to/from postscript names for printing, RTF and so on.  The xlib backend uses fontconfig, but has problems with RTF and printing because of it.  The libart backend uses its own font system.
+<mpsuzuki> Med: yes, I wish if HarfBuzz covers all OT features, but I'm not sure if Qt/Pango/etc want HalfBuzz to be "more than Unicode text layout engine".
+<slef> mpsuzuki: some docs at http://gnustep.made-it.com/BuildGuide/#FONTS and I'm trying to find more now.  I don't know how this compares to what Apple's Cocoa does.
+<mpsuzuki> slef: thanks!
+<ralfs> tronical: that would be great. How about typographic features like 'smcp' or 'onum'? I am adding these in my fonts.
+* yosch agress with edtrager and jg_
+<slef> mpsuzuki: actually, that links through to the nfont specification after a few screens.
+<clytie> yosch, jg and edtrager: just make sure the set of fonts covers all the languages required, and I support it.
+<moyogo> do we have more to say about font licenses?
+<clytie> But I'd hate to be a left-out language (again... ;) ).
+<Med> dirk tronical mpsuzuki : http://dejavu.sourceforge.net/wiki/index.php/Renderer_support
+<mpsuzuki> Med: thanks!
+<uniscrip1> how are people storing font feature information?
+ are there plans to add features to the font selector dialog?
+<slef> moyogo: are Reserved Font Names desirable or necessary?
+<eimai> tronical: yes, please make Qt use OpenType in latin/greek/cyrillic, there are so many advantages if it did
+-- simosx enlÃ¨ve le statut operator de canal de simosx
+<yosch> clytie: how is the Vietnamese with Gentium? (it's in main)
+<tronical> Med: ah, great, thanks for that link.
+<clytie> yosch: not good, some diacritics not showing at all, and others unreadable :(
+ Needs work.
+<edtrager> Clytie: I think our communal goal is exactly that: to make sure no languages / scripts are left out.  Unifont.org exists to promote that kind of goal.
+<clytie> I can send a detailed feedback if that would help.
+<moyogo> slef: yes reserved font names are necessary, unless the orginal author allow a derivative to have the same name
+ slef: you don't want a font with the same name to look different everywhere
+<slef> Do Reserved Font Names stop someone issuing Gentium+Vietnamese configured to run as Gentium?
+<slef> s/stop/hinder/
+<edtrager> Clytie: and, as we've discussed, we need to get some good VN fonts under clear licenses, hopefully OFL.
+<clytie> edtrager: good to hear. More and more languages will need to be supported, so making sure they are all covered will be a challenging task.
+ edtrager: Still working on it... ;)
+ edtrager: currently I'm getting the "Maybe she'll think I've changed my email address or left the planet" polite way of avoiding the question.
+<slef> moyogo: indeed, but I also don't want to have to rename all the font references in a document, or manually configure the font system. Just uninstall Gentium and install Gentium+Vietnamese.
+<ralfs> clytie: How about the VN in Charis SIL? Especially with VN language feature enabled?
+<clytie> edtrager: they're scared of legal issues :(
+<fundawang> clytie: Don't forget there are problems regarding the shape of certain glyphs.
+<clytie> ralfs: haven't looked at Charis recently. I'll send you some feedback on that, too. Don't know how to enable that feature under OSX.
+<moyogo> slef: true, there are two possibilities, alias Gentium+VN in you fonts.conf :( or send the fix upstream :)
+<slef> moyogo: and when upstream dies/goes away?
+<clytie> fundawang: always
+<edtrager> clytie: That's interesting.  So the font authors would rather have murky, unclear, unspecified license terms instead of making it clear?
+<ralfs> clytie: Language feature is possbile with XeTeX.
+<clytie> edtrager: they'd rather not think about it
+ My job is to get them to think about it.
+<moyogo> slef: that's a real problem :(
+<clytie> My community has passive avoidance down to a fine art.
+<yosch> slef: we have found that the reversed font name mechanism is the best way to allow branching while not messing things up, you can always tweak your fontconfig if needed
+<uniscrip1> slef: you fork the project
+<edtrager> clytie: So, maybe it's like the young man who likes the girl, but is still scared of marrying her ...
+<clytie> edtrager: I don't know if the OFL has those kind of attractions... ;)
+<slef> yosch: only because you do not have enough unresponsive/hostile upstreams yet.
+<slef> uniscrip1: you cannot fork and be compatible with the Reserved Font Name :(
+<moyogo> slef: if upstream dies, a fork will eventually take over
+<uniscrip1> well with the project dead, you aren't going to get much help upstream are you. Bad cases make bad law
+<FangQ> on OFL, what's the differences between font file/data file and source file?
+<clytie> fundawang: my language suffers from being a CJK language trying to express itself in Roman script. We still think, and read in ideographs, assimilating the entire character separately. So we still share a lot of font issues, especially the importance of exact placement of each part of the character.
+<slef> moyogo: and all documents have to be rewritten or all font configurations hacked :(
+<yosch> slef: you wouldn't want anyone taking GNUstep, and making a bad fork and still calling it and advertising it GNUstep. This naming things is the key point for a font designer to keep artistic integrity.
+<ralfs> clytie: Are there any published texts on how to do VN fonts properly?
+<clytie> Each gnu step having its own name.
+<yosch> moyogo: exactly
+<clytie> I don't know, ralfs. It's a new area.
+<slef> yosch: but they could advertise it as fully-GNUstep-compatible *if* it is fully GNUstep-compatible.
+<uniscrip1> I think one of the key issues for fonts in Asia is smarts
+<clytie> I could do some research in the printing area... it's a good idea, thankyou!
+<slef> yosch: there's a difference between reserving the name of the project and reserving all the API names, yes?
+<moyogo> slef: if the upstream font isn't good why should it be used in documents in language x anyway?
+<jg_> yosch: and to protect the trademarks of the font designer's employer.
+<uniscrip1> Where are we at to have good smarts available in all apps where text is entered?
+<slef> moyogo: for example, the original in a language it does work for is turned into a parallel text, which provokes language x enthusiasts to improve its glyphs.
+<clytie> uniscrip1: doesn't that depend very much on the text rendering engine used?
+<slef> jg_: trademarks should not be enforced using copyright licences.  Use trademark licences for them.
+<uniscrip1> yup it does, and the availability of that engine in apps
+ e.g. ubuntu doesn't ship with firefox built using gtk, why is that?
+--> pedamado (n=chatzill@87-196-23-140.net.novis.pt) a rejoint ##fonts
+<jg_> slef: yes, except that so few programmers know a damn thing about copyright law.
+ Belt and suspenders, to keep people out of lawsuits.
+<moyogo> uniscrip1: using pango you mean?
+<uniscrip1> right
+<yosch> slef: what do you mean with a font API? I think the comparison between lib APIs and a font name is not helpful.
+<moyogo> uniscrip1: it runs 3 times faster without pango
+<jg_> also, the font designer should have approval to additions that go out under their name.
+<fundawang> uniscrip1: the smarts will come out after the layout engines support RTL and TTB layouts :(
+<uniscrip1> I'm also interested in where kde are at with this stuff, and whether we have any hope of getting graphite in there
+<uniscrip1> moyogo: but it doesn't render stuff properly
+<moyogo> uniscrip1: yup... apparently they don't care about that
+<yosch> jg_: very true: it's their way to keep artistic integrity: their work is linked its name
+<slef> yosch: you started comparing OFL'd fonts with a LGPL'd development system.  Don't you now complain that the comparison is not helpful!
+<eimai> uniscrip1: it's also buggy when you use pango, like the ligatures bug
+<slef> jg_: yes, the derived project should have to have a different name.  That's fine IMO.
+<moyogo> uniscrip1: instead of solving the problem, they remove it
+<clytie> uniscrip1: Unicode support is still very uneven in g t k
+<Med> eimai: FF developpers will fix this bug â¦ someday
+<eimai> uniscrip1: (which was so serious that we had to disable ligatures in dejavu especially for it)
+--> behdad (n=behdad@CPE000fb55e466d-CM014250035807.cpe.net.cable.rogers.com) a rejoint ##fonts
+<uniscrip1> clytie: what's uneven about it? VN is well supported isn't it?
+<mpsuzuki> moyogo: the speed and the buggy-layout, which is important for Ubuntu developers?
+<behdad> morning
+<yosch> hi behdad
+<clytie> or similar: look at keyboard accelerators. We can translate strings, but the underlying software doesn't necessarily support UTF8 all through.
+ behdad, welcome :)
+<moyogo> hi behdad
+<slef> yosch: although I'd be unhappy with a gnustep-derivative being called gnustep, it could still allow applications to call it with all the gnustep function and message names.  Similarly, a derived font should be allowed to let applications call it with the parent font's names, if it chooses.
+* ArneGoetje is the CJK-Unifonts maintainer
+<-- eimai a quittÃ© (Remote closed the connection)
+<mpsuzuki> when I built firefox with gtk-1.2.x, SVG rendering via cairo does not work well
+<yosch> slef: and the GNUstep users will be very happy with things falling apart because they pick from one project thinking it is the other one :-(
+<FangQ> hi Arne
+--> eimai (n=eimai@208-59.240.81.adsl.skynet.be) a rejoint ##fonts
+<uniscrip1> mpsuzuki: so where do we go from here, gtk is the best we have for smart rendering (please correct me folks) so we want it everywhere we can
+<edtrager> So, is there a problem with Pango being slow, or are Ubuntu developers more focused on speed and performance?  I wish that the distributors would always provide pango-enabled Firefox.
+<slef> yosch: no, the other project must have a different name, else it's a type of fraud.
+<clytie> uniscrip1: I'm not picking especially on gtk, just using it as an example: there is still a lot of software that needs rewriting for full Unicode support. You don't know where the holes are until you try using it in different ways.
+<edtrager> Is GTK the best for smart rendering?  How does it really compare with QT?
+<yosch> slef: there is provision for a font designer to grant permission to reuse of his font name if he wished to but it shouldn't be the default. I don't understand why this anti-collision mechanism sounds bad to you particularly.
+<uniscrip1> clytie: I couldn't agree more, and VN is on the trivial end of the spectrum when it comes to Unicode support :)
+<clytie> uniscrip1: it breaks a lot of Unicode support ;)
+<slef> yosch: because it hinders improvements when upstream is not responsive enough; and it hinders packaging for distributions.
+<uniscrip1> clytie: So if VN breaks stuff, how much more do things like Khmer, Burmese, etc.
+<ArneGoetje> FangQ: hi... sorry I'm late... had some probs with the Wireless AP here...
+<clytie> uniscrip1: I don't know. I do know that VN has turned out to break a lot of things that previously hadn't been reported. Just lucky, I guess. ;)
+<simosx> edtrager: there are issues with pango support in firefox that are being addressed slowly :(. It appears it's just an issue of getting enough people to work on it.
+<mpsuzuki> I feel strong sympathy with the pointing-out that pango and gtk2 is slow, but I'm afraid that many softwares are moving to gtk2 even if developers don't care Unicode text layout.
+<edtrager> Good point.  More the reason to have separate font projects for VN, Khmer, Burmese, etc.  At least if the font designers have tested their fonts, that helps eliminate the fonts themselves as the obstacle.
+<edtrager> That "Good point" was in reference to Clytie's comment
+<yosch> slef: we better take this conversation somewhere else and focus on the other agenda items
+<clytie> Thankyou, Ed.
+<slef> yosch: make the project name have to be different, but don't ban the new project from including the old font name for compatibility when appropriate.
+<clytie> Your point about testing also taken.
+<clytie> edtrager: this is something we hope to eliminate with licensing: the casual font design that hasn't been well-tested, hasnt,
+<mpsuzuki> when I've visited NECTEC of Thai, Linux developers in Thai says Ubuntu is enough to use Thai script by installing font and setting default locale. when I visited Cambodia, KhmerOS people show demos by SUSE.
+<clytie> really been publicly used.
+<-- Riddell (i=jr@kde/jriddell) est parti ##fonts
+<clytie> mpsuzuki: different free CDs?
+<uniscrip1> Thai is pretty advanced in its support
+ although if I use sans for Thai in Firefox the rendering is bad (FWIW)
+<yosch> slef: read the license again, it doesn't forbid using substitution via systems like fontconfig. You're free to do that in a branch but don't abuse users telling them your branch works like the trunk or another branch when it doesn't.
+<edtrager> Supporting Thai (or Lao which is almost the same as Thai) is not as difficult as supporting Khmer or Burmese
+<mpsuzuki> clytie: ah, I slipped to check their installation process...
+--> vlaad (n=vlaad@prgy-npn2.prodigy.com) a rejoint ##fonts
+<clytie> :D
+<uniscrip1> edtrager: tell me about it!!
+<slef> yosch: you didn't explain why an included fontconfig data file wouldn't be considered part of the Font Software.
+<mpsuzuki> Thai and Lao could be supported without real TrueType, without OpenType/TrueType GX feature
+<pedamado> Hello Everyone. I'm sorry being late, but after trying to follow up the discussion, it seemsyou've been discussion build technical issues. What about the OFL implementtation?
+<slef> yosch: the licence says it's black, you say it's white, so I say this zebra crossing is useless.
+<clytie> mpsuzuki: it's amazing how often people's OS/distro choices have been almost accidental, historical or just never thinking of trying something else.
+<dirk> uniscrip1: what is the evidence for gtk being the best for unicode font rendering?
+<clytie> That
+<mpsuzuki> so, I suppose, Firefox without CTL can be enough for Thai (and Lao) script.
+<clytie> s where the free CDs can help.
+--> andred (i=bnc@62.75.169.150) a rejoint ##fonts
+<dirk> uniscrip1: I think most of the problems come from applications not written with all the unicode issues in mind, rather than one particular toolkit
+<FangQ> I believe CJK users have enough "negative" experience on how rendering engines re-act on non-lantin fonts, missing characters, blurry, double shadowing, mouse flicking etc, I hope the developers, gtk, pango etc, should have a systematic way of testing the code with non latin fonts
+<clytie> dirk: That has been my experience with Unicode bugs.
+<edtrager> mpsuzuki: yes, I think Firefox without CTL almost works for Thai and Lao, except for the line-breaking / word-breaking problem as there are no spaces between words in those languages.
+<dirk> clytie: that==what? apps not being written with unicdoe in mind?
+<uniscrip1> dirk: I agree, although if you layer on a good toolkit it can do much of the lifting for you. I see pango as the winner and the plugability of pango
+<fundawang> FangQ: I think you may rethink it under newer version of gtk/pango/cairo :)
+<clytie> dirk: yes
+<dirk> uniscrip1: well, Qt 4 shares code with pango afaik so its not really tied to gtk
+<clytie> dirk: or written with quick fixes
+<moyogo> dirk: but that's about to change as qt4 uses harfbuzz, right?
+<mpsuzuki> clytie: although there is TLE (Thai Language Environment) which is special localized version for Thai script, but people say Ubuntu is very popular because it provides "modern" application :-). They said Debian is too slow to provide "modern" application.
+<FangQ> fundawang: I heard the latest cairo is problematic too,  missing latin this time
+<clytie> dirk: Unicode as an extra layer, not the main structure
+<dirk> clytie: I agree :)
+<uniscrip1> dirk: does that give me hope of getting graphite into QT4?
+<fundawang> dirk: Like the bug I submitted, CJK characters are being used as shortcut keys .
+ FangQ: That is another problem with cairo's caching system, which has no relation with unicode support.
+<clytie> mpsuzuki: I also hear new users saying Ubuntu is easier to set up, so that's definitely a consideraton when you're trying to encourage people to try computing.
+<uniscrip1> clytie: if you don't design with unicode in mind from the ground up, you are destined to rip up the foundations of your building at a later point
+<dirk> fundawang: forgive me, there is apparently a lot of context I'm missing, so I don't know which bug you're talking about
+<mpsuzuki> edtrager: oops, I slipped the word breaking issue!
+<clytie> uniscrip1: I agree wholeheartedly. I think I have stubbed my VN toe on a lot of those bad foundations.
+<simosx> slef: on "data file"; a font config is not a "data file" but rather a font system configuration file.
+<-- andred (i=bnc@62.75.169.150) est parti ##fonts ("Konversation terminated!")
+<clytie> fundawang: I think that's the same bug, or a similar one, to the one I mentioned about acceleraor keys and Unicode support.
+<-- subhransu (n=Subhrans@202.41.228.162) est parti ##fonts ("à¬à¬¸à­à¬à¬¿")
+<clytie> We had a thread about it on gnome-i18n.
+<FangQ> simos: do we want to proceed with the next item in the agenda?
+* simosx tries to draw some "deliverables" for the issue of font licensing. Currently, if there are any issues on the OFL, one can check the OFL list archives for previous discussion; one can join the list and raise the issues they think are important.
+<pedamado> anyone here to discuss OFL or the Unicode Project?
+<edtrager> It would be nice to have a *single* library for Unicode text layout.  One that both GTK and QT used.  A library not tied to underlying GTK or QT libraries, but independent.  Then that library could get it right the first time.  Include Graphite from day one.  Get Indic Open Type support correct from day one.  Be built from day one with VERTICAL CJK support in mind ... Maybe I am just dreaming too much ...
+<yosch> simosx: one issue was the Vera release. Anything new on that front?
+<clytie> edtrager: I like this dream!
+<tronical> edtrager: that's indeed a lot of dreaming there :)
+<clytie> pedamado: what do you want to discuss?
+<pedamado> FangQ and Simos: Lets disscuss the next topic
+<dirk> edtrager: get "what" right?
+* uniscrip1 looks wistfully into the distance with edtrager
+<simosx> FangQ: Indeed, I would like to pass to the second item, discuss font availability (ping umesh). But we need some positive response to the OFL :)
+<slef> simosx: if a font system configuration file is derived from the Font Software, but cannot be covered by OFL, then we don't have permission to derive configurations from fonts.  I don't see how claiming configuration is not data helps. :-(
+<dirk> edtrager: I think the main issue is that there is no full descriptions or testcases of all the issues involved, which you could certify your implementation against
+<Med> edtrager: isn't it the aim of harfbuzz?
+<pedamado> I've been late but i'd like to discuss the OFL implementation on Open SOurce packages
+<umesh> I have a suggestion for some change in fontconfig file for kn_IN.
+<simosx> yosch: vera, not yet, will contact soon :)
+<dirk> edtrager: also, a lot of individual application stupidity (like most complex apps like OOo and firefox redoing most of the font stuff on their own)
+<slef> pedamado: I'll be raising Reserved Font Names on ofl-discuss later, so OK to skip that one?
+<slef> (unless I see a silver bullet answer here ;-) )
+<clytie> pedamado: earlier on, we discussed a similar issue: that fonts licensed under the OFL could be bundled with other software, and the overall bundle licensed, for example, under the GPL, without that affecting the font's licence.
+<umesh> I feel we should include kedage family instead of the sampige family. This is much cleaner and preferred by kn_IN users
+<pedamado> ok. I'll be here
+<yosch> slef: deriving configuration? you're trying hard to misread the license.
+<mpsuzuki> edtrager: I've ever heard that a Japanese hacker tried to implement vertical writing mode for gtk2, but gtk maintainers told him that it is listed in future issue, so he didn't push his vertical writing mode patch
+<simosx> okay, so we get any issues on the OFL license more to the ofl-discuss list. See links on the /topic for more.
+* simosx is happy with the OFL.
+<edtrager> dirk, Med: Yes, lack of test cases is a problem.  And OOo and Firefox doing it their own way is a huge problem.
+<FangQ> sure, I think OFL is a great one, some details might need to be more consise, like the definition of data file/source file, the naming consistancies and compatiblities. I am interested in sending more feedbacks later on after I read it again
+<yosch> simosx: did you get the email from Vincent Untz? The GNOME board was positive about the move to OFL
+<umesh> It is under GPL. Checkout  http://brahmi.sourceforge.net/
+<clytie> yosch: perhaps if we get a lot of feedback on one or more issues, they could be added to the OFL FAQ.
+<yosch> clytie: yes an update to the FAQ is underway
+<simosx> yosch: yep, i got it. am traveling these days so am a bit slow with replies :)
+<dirk> edtrager: I think it is part of the issue that there are not enough test cases ;)
+<edtrager> mpsuzuki: And since GTK was never designed with vertical layout in mind, it might be difficult ...
+<slef> yosch: no, just reasonable expectation of what some licensors will do.  Remember PINE and cdrecord (to name just two).
+<yosch> simosx: no problems :-)
+<moyogo> umesh: do you have urls for those fonts?
+<slef> clytie: I'd rather the licence was clarified.
+<moyogo> umesh: oh thanks :) didn't see it
+<Med> dirk: DejaVu is a good testcase, we often exhibit problems :)
+<clytie> slef: you can do that on ofl-discuss, then the revised licence will be improved.
+<mpsuzuki> edtrager: yes, I think so, I'm not sure if patching to gtk2 is enough to support vertical writing mode. I'm afraid that modification of X11 is required.
+<yosch> slef: I can assure you we don't have the same motives as the others of pine of cdrecord!
+<umesh> moyogo: Also, the whole l10n initiative seems to prefer it checkout http://kn.wikipedia.org/wiki/Wikipedia:Kannada_Support#GNU.2FLinux_and_FreeBSD
+<clytie> mpsuzuki: X11 certainly still has some Unicode bugs :(
+<slef> clytie: the FAQ is not much help unless the particular licensor states they agree with it.
+<mpsuzuki> clytie: still! :-(
+<clytie> slef: still useful to answer questions, so lots of feedback on one issue might make extra FAQ items helpful to users.
+<rahul> I think autohinting should be disabled for Indic fonts in fontconfig
+* yosch reminds everyone that we have moved the next agenda item: no more licensing bits please
+<clytie> mpsuzuki: yes, getting better, but still some.
+<slef> yosch: no, it's not about you.  It's getting a good clarity/aims match that the world can't subvert.
+--- ChanServ donne le statut opÃ©rateur de canal Ã  simosx
+<fundawang> rahul: I think you should consider looking at autofit feature of freetype2
+<mpsuzuki> rahul: do you have any screenshot comparing with or without autohinting against Indic script?
+<simosx> Discussing now FLOSS font issues - available free fonts in your script; newcomers: introduce yourself; choose OFL (http://scripts.sil.org/OFL); Unifont (http://www.unifont.org/); Discussion log (http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration)
+<rahul> i have one with hinting enabled
+ http://www.gnowledge.org/Gnoware/localization/Samyak_Devanagari.htm
+<rahul> the same font looks better without hints
+<clytie> fundawang:  I have seen bad results with combined diacritics and hinting. I need to keep more accurate records...
+* slef uses latin-[13] whose fonts most people will know
+<yosch> slef: it's also getting a licensing model readable by designers and users and not just debian-legal folks
+<rahul> same is the case with most other indic fonts
+<simosx> Is there a list of prefered Indic fonts that one can put at http://wiki.freedesktop.org/wiki/Software_2fFonts
+<moyogo> rahul: are there native hinted fonts for devanagari?
+<simosx> Or Khmer, Thai, Burmese, etc?
+<rahul> moyogo, no
+<uniscrip1> Padauk has been hand hinted
+<rahul> none of the indic fonts are hinted so far
+<clytie> simosx: and if so, are many of them licensed yet?
+<moyogo> rahul: are there any efforts to hint them?
+<mpsuzuki> IndiX fonts are either non-hinted?
+<clytie> I'm wondering if other communities have the same proportion of unlicensed fonts as ours does. It would be interesting to compare.
+<slef> yosch: aye. I'd love a doublespeak-free OFL.
+<yosch> slef: :-D
+<simosx> clytie: indeed, there is little "publicity" on font availability for those Asian languages; if you do not speak them, you have no idea what's good or not, and things change too slowly.
+<behdad> simosx: I don't think hinting makes much sense for indic
+<rahul> moyogo, not in my knowledge, it appear a much difficult job
+<clytie> Because I think licensing gives developers the freedom to publish their fonts, get a lot more public feedback and recognition.
+<mpsuzuki> rahul: which is best among: (1) with both of hint/anti-alias (2) with hint and without anti-alias (3) without hint and with anti-alias (4) none of hint and anti-alias
+<behdad> simosx: just saying from experience as it doesn't make much sense about arabic either
+<moyogo> behdad: bitmap is better?
+<fundawang> rahul: it looks like you've turn off the anti-alias option, too. so it might be nothing to do with hinting nor autohint.
+<FangQ> alright, let me start with CJK font, I think Arne and fundawang also can fit in here.
+<mpsuzuki> ah, FreeType2's autohinting does not use TrueType hint information, I think.
+<clytie> simosx: that's certainly been the case, with fonts being available privately and informally. That situation doesn't go well with quality control: although there are some excellent fonts. I'd be happier to see my people using licences, coming out of the shadows, so to speak.
+<mpsuzuki> FangQ: please add Kanou into the list :-)
+<behdad> moyogo: not really.
+<rahul> mpsuzuki, I'm not sure about the anti-alias, but the autohints are certainly bad
+<fundawang> mpsuzuki: truetype hinting is sth patent.
+<behdad> moyogo: for persian, I like the simple autohinting output
+<mpsuzuki> rahul: thanks
+<FangQ> I think the CJK fonts are reaching a point that are usable, not perfect, but good for screen rendering and printing. Arne's project focus on the true-type part, and WenQuanYi focused on the bitmap part
+<behdad> moyogo: unless you are talking about grayscale bitmaps
+<rahul> a list of Indic fonts can be seen here http://www.indlinux.org/wiki/index.php/IndicFontsList
+<mpsuzuki> rahul: thank you
+<edtrager> Everyone should please help fill in http://wiki.freedesktop.org/wiki/Software_2fFonts.  It's a good place to start and get everyone on the same page regarding which fonts might serve as good defaults.
+<fundawang> I think the biggest problem in CJK area is Unicode itselft :(
+<FangQ> the coverage are good, the Unicode Unified CJK ideographics and Extension A are now complete, which are about 30000 characters
+<umesh> edtrager: I will do it
+<edtrager> Note that on http://wiki.freedesktop.org/wiki/Software_2fFonts the Japanese and Indic sections really need review and filling-in.
+<umesh> edtrager: sure I will look into whatever can be done by me
+<mpsuzuki> ah
+ Kochi families should be removed
+<clytie> fundawang: so until the software is improved, the fonts built on top of it can't?
+<ArneGoetje> FangQ: I'm currently trying to convert the CJK-Unifonts into CID fonts and hope to cover the shape variants for the different CJK regions too. Let's see it it works.. :)
+<clytie> Do other Asian language users find monospace practical in any quantity?
+<fundawang> clytie: no. There is something wrong within Unicode itselft, not the software.
+<FangQ> I believe those are good enough for daily use. Bitmap are used for screen rendering on normal pc, maybe for embed devices, the true-type are good for printing and for big-screen geeks who want to see AA characters
+<mpsuzuki> Kanou: should we recommend Sazanami as a replacement of Kochi?
+<clytie> fundawang: thanks for clearing that up. What do you see that is wrong with Unicode?
+<behdad> we ship the Lohit family in fedora
+<moyogo> behdad: I guess truetype hinting would need to be very well done to be as good as greyscale bitmaps
+<FangQ> Arne: the CJK basic part is not totally filled, is that correct? how much work left?
+<fundawang> clytie: both we chinese hackers and japanese hackers are doing extra work to solve the problem of unicode in unformal way.
+<eimai> behdad: if the autohinter produces better results than, I'd say it just bad hinting instructions in the font
+<ArneGoetje> FangQ: that is correct... but I hope to finish this soon...
+<clytie> fundawang: it's important work, and will help a lot of people.
+<moyogo> actually many fonts come with hinting that was automatically generated
+<behdad> eimai: lemme check.  I may be wrong.  we may be turning autohinter off
+<FangQ> yes, shape-variants is a nice feature we want to have, good work
+<kanou> mpsuzuki: yes, except that the quality of outline glyphs are very poor...
+<mpsuzuki> BTW: FreeType2 has 3 hinting methods: (1) patended hinting algorithm (2) unpatented rasterization algorithm of hinting information in TrueType (3) (unpatented)rasterization algorithm without hinting information in TrueType font
+<behdad> yeah, my bad.  we turn autohinter off too
+<fundawang> mpsuzuki: do you have any idea on the variants of certain glyphs? i.e., the glyphs are no the same in Chinese and Japanese.
+<umesh> behdad:  for kn_IN, we need to replace sampige family. Any better font like kedage or lohit kannada is welcome
+<edtrager> mpsuzuki, Kanou: For Japanese, shouldn't Sazanami replace Kochi for now? And there needs to be an effort to get IPA to release IPA japanese fonts under OFL.  But I don't know how IPA really would compare next to Sazanami.
+<FangQ> the hinting algorithm for Chinese characters definitely need to work out if we are following the trend, use AA of vector font on screen. AFAIK, no hinting instructions available in all open CJK true-type font
+<-- Sho_ (i=unknown@konversation/developer/hein) est parti ##fonts ("Stop leaking memory like it's running out of fashion.")
+<mpsuzuki> fundawang: yes
+<ArneGoetje> FangQ: hinting is patented... that's why we don't have it...
+<fundawang> that would be a great problem in globalized distribution.
+<mpsuzuki> well known example might be... oops, let me dig a book...
+<kanou> mpsuzuki: Yes. It have no licence problem (outline glyphs are automatically generated from WadaLab's combination data).
+<FangQ> then, I guess we need a new format which do something similar, but no confliction
+<fundawang> FangQ: we have freetype 2.2.1, which is the best result we current have.
+<FangQ> fundawang, you mean autohint?
+<uniscrip1> the hinting patent was granted in 1991 how long does a patent last? How many countries have ratified US software patents?
+<fundawang> FangQ: autohint has been replaced with autofit already.
+<Med> those patents are not valid in europe
+<mpsuzuki> however, I have to note: even if CJK Unifont has all "Japanese" shape for all Japanese codepoint, most of Japanese Linux users don't use it for common use. Japanese Linux users want to use "Mincho" or "Gothic". Arphic font design is different.
+ kartik kanou
+<slef> uniscrip1: up to 21 years IIRC; a few countries with bilateral and 'free trade area' agreements AIUI.
+<clytie> mpsuzuki: is that choice historic or based on quality?
+<fundawang> mpsuzuki: I know, but that do is the problem I mentioned.
+<uniscrip1> slef: last I looked it was 17 or 19 it keeps going up. one day it will be for life. So much for a short competitive advantage, sigh
+<slef> uniscrip1++
+<kanou> I think font design conventions are comparable to the difference of spellings in different nation's authography.
+<edtrager> Just to clarify for CJK: Is Unicode really the problem, or is it instead the problem of not being able to select Japanese- or Chinese-specific glyph form?
+<ArneGoetje> mpsuzuki: Mincho is the same style like Ming in TW or Song in CN
+* simosx excuses himself (has to go, moyogo/eimai take over as discussion advocates).
+<-- simosx a quittÃ© ("Leaving")
+<fundawang> edtrager: That is difficult to tell.
+--> till (n=till@ezoffice.mandriva.com) a rejoint ##fonts
+<FangQ> I guess if the shape-variant problem can be solved, then CN, TW and JP can use many overlapped code-point
+<mpsuzuki> Arne: about the meaning of word, yes, "Mincho" correspoinds to Ming in TW, but I'm not sure about Song in CN
+<ArneGoetje> edtrager: I don't see any problem with the shapes, as the function can be implemented in Unicode... even if only using Variation Selectors
+<uniscrip1> which comes back to features
+<fundawang> edtrager: because unicode just define the character, especially the meaning of certian character. unicode have no idea about how the glpyh should look like.
+<ArneGoetje> mpsuzuki: It is the same style... just called different
+<-- till a quittÃ© (Client Quit)
+<uniscrip1> unicode consciously unified the 3 scripts
+<clytie> fundawang: so the Unicode definitions need improving?
+<fundawang> clytie: only if we think different writing style of same characters should be seperated.
+<uniscrip1> clytie: the answer is that you need to know what writing system all text is in. that's a big job
+<kanou> Japanese uses traditional stroke combination style, derived from Kangxi dictionary. Inflected strokes tends to look like two strokes.
+<FangQ> the problem of unicode is the difficulties of encoding shape-variants, but seems this can be worked out
+<edtrager> fundawang, mpsuzuki, et al: I've been thinking the last few days that what we will need is to create reference fontconfig configuration files that are different for certain locales.  Fonts.conf for Chinese locales will have to be different from fonts.conf for Japanese locales.  This will provide a way to enforce default display of either Chinese-style or Japanese-style glyphs from appropriate fonts.
+<fundawang> edtrager: like ubuntu?
+<-- umesh a quittÃ© ("Leaving")
+<clytie> fundawang and uniscrip1: but that could be added to the Unicode information?
+<uniscrip1> the answer is features or language tagging or some such out of band information
+ Unicode isn't a glyph encoding. It's not about encoding glyph variants
+<ArneGoetje> Unicode introduced the Variation Selectors to cope with the different shape problem... so, this can be solved.
+<uniscrip1> No variation selectors is not the answer
+<clytie> Unicode was defined widely, to allow for future development.
+<mpsuzuki> edtrager: yes, at least, under ja_JP.XXX locale, glyph from "Japanese" TTF should be prioritized than that from "Chinese" TTF.
+<ArneGoetje> It is one possibility
+<uniscrip1> since all variation selector sequences have to be explicitly defined as part of Unicode
+<kanou> TW and CN styles both use the style where '<'-shaped strokes connected as one stroke.
+<clytie> edtrager: that would solve a number of problems for different languages.
+<uniscrip1> either that or one chooses a font to give the default rendering one desires given no other locale information to help
+<fundawang> edtrager: that will be a big job for fontconfig, because fontconfig should be considered as locale independent.
+<ArneGoetje> uniscrip1: I'm currently focussing on that
+<FangQ> Arne: I found opentype have the contextual variant feature, but not locale sensitive, is CID a good solution to the variant problem?
+<uniscrip1> the core principle is that you can't really render perfectly if you don't nkow the writing system of the text you are rendering
+<clytie> fundawang: so should this additional font information be part of the locale?
+<mpsuzuki> Arne: do you think HarfBuzz will support variation selector?
+<edtrager> Exactly like ubuntu, or any distribution.  Currently fontconfig doesn't address Chinese vs. Japanese glyph preferences at all.  So one solution that is available today is to ship free *nx distributions with multiple "authorative" fonts.conf files.  Variation selectors or language tagging: I'm not convinced.  Anyway, I'm trying to figure out a solution that works today.
+<ArneGoetje> FangQ: honestly, I don't know... I will have to try if it can solve the problem or not
+<fundawang> clytie: of course not.
+<clytie> fundawang: then fontconfig will have to handle it one way or another.
+<mpsuzuki> CID is languages specific (e.g.: Adobe-CNS1, Adobe-GB1, ...) and often it illitates people looking for pan-CJK Unicode solution.
+<-- Administrator a quittÃ© ("Leaving")
+<uniscrip1> I think careful use of fonts.conf files will help a lot
+<ArneGoetje> mpsuzuki: what is HarfBuzz?
+<kanou> Not all ideographs are affected by this difference of convetion, but about 50% or more glyphs may differ in somewhere.
+<uniscrip1> we need more macro fonts like sans
+<mpsuzuki> HarfBuzz is OpenType renderer for Pango & Qt.
+<fundawang> the problem is, how do the apps know which font should be used?
+<ArneGoetje> mpsuzuki: you are looking at the Adobe CMap files... I introduce my own ones!
+<uniscrip1> all text is rendered using *some* font
+<mpsuzuki> I think, HarfBuzz can support IVS, but, most applications won't pass language specific information to the layer.
+<uniscrip1> even if that font links in a dozen more
+<fundawang> for instance, if i'm visiting a japanese website, i would prefer rendering with japanese font, which has no relatio with locale or the font.
+<clytie> fundawang: true
+<rahul> fundawang, there isn't a way to declare locales info in the font itself
+<FangQ> kanou and mpsuzuki, could you say a few words on Japanese font availibilities?
+<-- varsis (n=var@ppp216-186.lns1.adl2.internode.on.net) est parti ##fonts ("sleep time, was interesting")
+<edtrager> I'll have to look at HarfBuzz.  First time I've heard of it.  But it is only an OpenType renderer: does it add graphite? Or CTL layout?
+<FangQ> true-type, bitmap, and different font styles
+<clytie> fundawang: so we need a separation between general language-specific information, and personal preferences.
+<mpsuzuki> FangQ: yes.
+<moyogo> edtrager: harfbuzz is a part of pango and can be used in qt4
+<fundawang> clytie: that will make the users more confused  :|
+<behdad> edtrager: yeah, harfbuzz is just an implementation detail of pango and qt
+<kanou> fundawang: C, J, or K specific fonts will include font name or other name string only in its supporting language (and English).
+<clytie> fundawang: but we can't expect the app, or any part of the system, to know what you would prefer.
+<behdad> but yeah, we don't currently pass language to it
+ that's a pango bug
+<ArneGoetje> rahul: locale info is not the solution... as even people with a ZH or EN locale might want to have a JP font for certain occasions.
+<uniscrip1> behdad: is there a way to pass feature information as well to pango?
+<clytie> fundawang: we can predict common situations, and build them into the fontconfig or a font library of data, but the user will have to modify something if they have other ideas.
+<mpsuzuki> For first, about TrueType font, the real free font for Japanese is only Sazanami, I think. there are a few derivatives of Sazanami, but I'm questionable if they are sustainable projects. Also Japanese "IPA" font becomes popular, but its current license is not free.
+<fundawang> behdad: indeed. It is the responsibility of layout engine.
+<kanou> mpsuzuki'
+<slef> ArneGoetje: if I didn't have a JP font, a big chunk of my spam would have blank Subject lines!
+<clytie> slef: imagine what you'd be missing!
+<kanou> mpsuzuki: currently. And for kana subset, you have mplus.
+<ArneGoetje> slef: :D
+<kanou> IPA has
+<behdad> uniscrip1: not yet.  but there's a bug open for it :-D.  the way it should be done is by adding new pango attributes.  input about the syntax and details is appreciated
+<clytie> slef: we had to collect multilingual moderators for one of the linuxchix lists, so we could sort the spam. ;)
+<edtrager> fundawang: Maybe browsers like Firefox need a little button to toggle between "ä¸­" and "æ¥".
+<uniscrip1> behdad: you got a bug number for that I can follow up?
+<mpsuzuki> clytie: possibly, removing ISO-2022-JP encoded posts is effective :-)
+<ArneGoetje> edtrager: actually between, CN, HK, TW, JP and KR... :)
+<fundawang> edtrager: if pango could deal such things perfectly, the button is of no use :)
+<kanou> Currently. But there is no guarantee IPA is non-free forever.
+<clytie> edtrager: some browsers already allow you to set site-specific prefs, including fonts and CSS in general.
+<moyogo> kanou: do you have an URL for IPA?
+<mpsuzuki> yes, some rumours say as if Japanese "IPA" font will be free in future
+<clytie> mpsuzuki: we got on in Turkish none of us could read. It's almost an occupation in itself. ;)
+<edtrager> ArneGoetje: yes.
+<slef> clytie: parts of linuxchix ban all males. Please don't mention that sexist group to me.
+<clytie> slef: I think you misunderstand the group. You're welcome to discuss this separately.
+<mpsuzuki> clytie: I've ever received ISO-2022-JP encoded English posts from foreigners: Mike Fabian (often) and a Turkish Qt hacker.
+<clytie> Since I don't think it's on-topic, apart from our multilingual posts.
+<edtrager> I discussed with Simos and Nicolas Spalinger about creating an official letter to "invite" groups to switch over to OFL.  One of the targets will be IPA and the IPA fonts.
+<kanou> Yes, I am hoping it and am abstaining from pay an effort which will be waste of time if IPA font is released as free.
+<clytie> mpsuzuki: that's the problem. We do get genuine emails in many languages, so you can't just filter out a whole language group.
+<mpsuzuki> http://www.grass-japan.org/FOSS4G/readme-grass-i18n-ipafonts.eucjp.htm
+* uniscrip1 wonders about fonts
+<moyogo> mpsuzuki: thanks
+<edtrager> I suggested that letter have multiple supporting sponsors, like FreeDesktop, Unifont.org, SIL, Gnome, and KDE.
+<clytie> edtrager: good idea.
+<fundawang> mpsuzuki: do you know what is ipamona?
+<mpsuzuki> Japanese "IPA" font is a part of a software "grass", you cannot redistribute IPA font separately.
+<moyogo> ok we should wrap up if possible
+<kanou> mpsuzuki: thank you.
+<yosch> edtrager: yes it makes a lot of sense to do that. I should be able to submit a draft in the next few days.
+<edtrager> mpsuzuki: That's true under current licensing.  But it seems to me people can change licenses if they are motivated to do so.
+<mpsuzuki> I think, IPA-mona is a font whose metrics are tuned to be compatible with "MS P Gothic".
+<FangQ> what's the coverage of ipa?
+<clytie> yosch: the more publicity, the better. People often respond better if they've absorbed the same information from different sources, in different ways.
+<mpsuzuki> I've not checked the coverage of Japanese IPA font, I suppose JIS X 0208:1990.
+<edtrager> yosch: Well, I too thought I'd write a draft letter, but I got too busy with other work.  So no progress ...
+<yosch> clytie: this is so true
+<kanou> FangQ: IPA supports ASCII, JIS X 0201 and JIS X 0208, and so-called IBM-extended Kanji.
+<mpsuzuki> kanou: cp932?
+<kanou> Yes.
+<yosch> edtrager: no problems. If it's ok with you I can start a draft for other .orgs to review
+* ArneGoetje has to go now... coffee shop is kicking me out... will be online later again.
+<mpsuzuki> IPA-mona is a font to browse ASCII-ART of Japanese BBS.
+<edtrager> clytie: Yes, I agree.  That's why we want to have a good invitational letter, a good-looking and informative page (I volunteered to put one on unifont.org), and probably also print the letter on real paper when having to deal with government organizations like IPA.
+<FangQ> does any one hav the preference of have a single pan-east-asian font? with CN/HK/TW/JP/KR support?
+<yosch> ArneGoetje: thanks. bye.
+<edtrager> yosch: Excellent.  I have other project deadlines for this week at work, so I doubt I would get to it.
+<uniscrip1> edtrager: Wouldn't it be better coming from a Japanese group?
+<fundawang> FangQ: which will be impossible, unless our layout engines support vairants...
+<mpsuzuki> FangQ: it should be locale-independent?
+<FangQ> yes, locale-dependent variant selector
+<ArneGoetje> for CJK-Unifonts related issues, I have a channel on freenode and oftc: cjkunifonts
+<edtrager> Yes, I thought of that.  The letter needs to be presented / co-signed / or co-sponsored by a representative from the target script / language group. For example, we recruit Clytie for the VN community.  And I know Clytie won't refuse :-)
+ So for IPA, we need a volunteer representative who can maybe even present the letter in Japanese if it works better that way.
+<clytie> Happy to help, Ed. :)
+<eimai> okay, the meeting is going on for two hours now, I think we can make an end to it now
+<clytie> I'm out of time. Thankyou very much for all your wisdom. In particular, it's been wonderful to meet so many other Asian language volunteers. Till next time. :)
+<mpsuzuki> FangQ: if you mean OpenType variant selector, it's not reasonable, I'm afraid.
+<-- clytie a quittÃ© ("Bye-bye ;)")
+<ArneGoetje> fundawang: variant selectors can be handled by the font with the liga tag... :) ( I know it's a dirty hack... ;) )
+<ArneGoetje> ok bye now.. cu later
+<FangQ> my question was, I am proposing constructing a variant chart that unify the shapes branches based on glyphs semantics
+<edtrager> See you Clytie.  Thanks for your insightful input.
+<mpsuzuki> FangQ: please tell me more
+<FangQ> I mean a stroke-based database could server this well, as I am doing now for simplified and traditional Chinese
+<moyogo> FangQ: I like the idea, but I don't know much about CJK
+<rahul> thanks all
+<-- rahul (n=rbhalera@202.41.228.162) est parti ##fonts ("Leaving")
+<edtrager> Ok, I need to go to work now too. Bye all!
+<mpsuzuki> Hmm, there's standard data format for stroke-based glyph representation? SVG?
+<FangQ> I want to know any similar effort, or plan of doing that for japanese and Korean
+<-- ralfs (n=ralf@tfkp12.physik.uni-erlangen.de) est parti ##fonts
+<yosch> bye edtrager, thanks again :-)
+<FangQ> bye edtrager
+<mpsuzuki> for rasterized database, http://www.cse.cuhk.edu.hk/~irg/ :-)
+<fundawang> FangQ: some variants are caused by font family, not writing style.
+--- ChanServ donne le statut opÃ©rateur de canal Ã  eimai
+<-- tronical (n=simon@kde/hausmann) est parti ##fonts
+<mpsuzuki> fundawang: excellent pointing-out.
+<kanou> Wadalab glyph skeleton data include stroke endpoint data.
+<eimai> okay, we stop the meeting at this point, logs will be made available at http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+<edtrager> Wish I had more time to talk more, especially to the CJK discussion issues. Bye all!
+<eimai> if you have time, you can contribute to a summary on the page as well
+<-- edtrager (n=edtrager@ppp-69-222-52-123.dsl.sfldmi.ameritech.net) est parti ##fonts ("Leaving")
+<mpsuzuki> oops
+* yosch just wanted to remind folks to put links about recommended openf fonts for Asian scripts in the freedesktop wiki at http://wiki.freedesktop.org/wiki/Software/Fonts
+--> RunLoop (n=stoian@gold.kvazar-micro.com) a rejoint ##fonts
+<mpsuzuki> yosch: ok
+<kanou> http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/efont/wadalab-fontkit/primdata/ (sorry encoding is EUC-JP)
+<FangQ> ok, I came across that before, but it seems no stroke type tags in the database
+--- eimai a changÃ© le sujet en : Fonts discussion forum; Discussion logs at http://wiki.freedesktop.org/wiki/Software_2fFonts_2fConfiguration
+"""]]
+
+## Discussion #3
+
+
+### Announcement
+
+
+[[!format txt """
+(1) GLASGOW TEXT LAYOUT SUMMIT IRC PLANNING MEETING TODAY !!!
+
+Planning Meeting on IRC TODAY Thursday 2007.06.28
+
+Meeting on Thursday 2007.06.28 at 2100UST in the channel ##fonts on FreeNode.
+See http://www.timeanddate.com/worldclock/fixedtime.html?year=2007&month=6&day=28&hour=21&min=0&sec=0
+for your local time.
+
+Take a look at the "Agenda Items" to see what we have in planning so far:
+
+http://freedesktop.org/wiki/TextLayout2007/
+
+
+(2) TEXT LAYOUT SUMMIT PAPER/PRESENTATION SUBMISSION DEADLINE IS JUNE 30
+
+The stated "Deadline" for the Text Layout Seminar paper/presentation
+submissions is June 30th which is coming up in just two days ...
+
+Send presentations to Ed Trager and I'll put them up on the web.
+"""]]
+
+### IRC Log 2007.06.28 21:00 UST Thursday, Freenode, #freedesktop
+
+
+[[!format txt """
+Jun 28 22:59:21 <glasseyes>     let's open the chat to discuss the text layou=
+t 2007 meeting in Glasgow next week
+Jun 28 22:59:44 <glasseyes>     please name yourselves if you are here and in=
+terested in the discussion
+Jun 28 22:59:51 <glasseyes>     glasseyes: Daniel Glassey
+Jun 28 23:00:25 *       eimai Ben Laenen
+Jun 28 23:00:40 *       uniscript Martin Hosken
+Jun 28 23:01:13 *       moyogo : Denis Moyogo Jacquerye
+Jun 28 23:01:14 <eimai> mmm... maybe with introduction who we are...
+Jun 28 23:01:20 <courtjester>   courtjester Doug Rintoul (just lurking)
+Jun 28 23:01:27 *       eimai Ben Laenen - DejaVu fonts
+Jun 28 23:01:42 <moyogo>        indeed, DejaVu fonts
+Jun 28 23:02:17 *       uniscript SIL, Graphite, lurking
+Jun 28 23:02:29 <courtjester>   KMFL
+Jun 28 23:02:33 *       mrdocs Scribus listening
+Jun 28 23:02:52 <glasseyes>     glasseyes graphite, kinda wanting to lurk ;)
+Jun 28 23:03:00 <yosch> yosch: Nicolas Spalinger: OFL, Debian and Ubuntu =
+fonts team, OFLB
+Jun 28 23:03:16 *       behdad has quit ("Leaving.")
+Jun 28 23:04:09 <edtrager>      Hi, everyone, I just got back from trying to f=
+ix a server ...
+Jun 28 23:05:10 <yosch> edtrager: hi :)
+Jun 28 23:05:29 <glasseyes>     edtrager: phew, hope it is working now
+Jun 28 23:06:03 <edtrager>      Let's wait a few more minutes to see if anyone=
+ else joins and then we can get started with the agenda which is to work =
+out the schedule for the Summit
+Jun 28 23:06:33 *       avox has quit (Read error: 113 (No route to host))
+Jun 28 23:06:55 <mrdocs>        a topic i would like to have mentioned is making=
+ one of the future layout summits at LGM in 2008
+Jun 28 23:07:07 <mrdocs>        no need to decide now, just a topic for the summ=
+it
+Jun 28 23:07:27 <ThomasZ>       mrdocs: that would be in NL, righ?
+Jun 28 23:07:30 <ThomasZ>       That'd be nice :)
+Jun 28 23:07:42 <glasseyes>     that's a good idea since we'll have done gnom=
+e and kde and need somewhere neutral :)
+Jun 28 23:07:58 <mrdocs>        looks like Poland for 2008
+Jun 28 23:08:01 <yosch> mrdocs: sounds very good :)
+Jun 28 23:08:04 <eimai> ThomasZ: I thought it would either be Wrok=C3=85=C2=
+=82aw in Poland or a place in Germany
+Jun 28 23:08:05 *       ThomasZ notes (since I spoke up) that my name is Thomas=
+ Zander / KWord.   But I won't be able to make it to the summit.
+Jun 28 23:08:33 <yosch> mrdocs: and IIRC maybe Brisbane in 2009?
+Jun 28 23:08:56 <mrdocs>        Wroklaw has stepped up with a site, organizer an=
+d sponsoring Unu
+Jun 28 23:08:58 <mrdocs>        Uni
+Jun 28 23:09:16 <mrdocs>        yosch: yep Oz in 2009
+Jun 28 23:09:24 <mrdocs>        Andy Fitz already has the logo :)
+Jun 28 23:09:36 <yosch> mrdocs: neat!
+Jun 28 23:10:07 <edtrager>      glasseyes: Well we had to reboot to to the old=
+ kernel ... new kernel wouldn't load network ... weird
+Jun 28 23:10:26 <mrdocs>        FYI, for those not aware #lgm has been a good ha=
+ngout even after LGM
+Jun 28 23:11:59 <glasseyes>     sharon is trying to get here but having probl=
+ems connecting
+Jun 28 23:14:19 <edtrager>      It is now 15 past the hour.  Is it OK if we st=
+art?  Hopefully Sharon and others will be able to connect
+Jun 28 23:15:25 <glasseyes>     yes, let's start
+Jun 28 23:15:41 *       ChanServ gives channel operator status to eimai
+Jun 28 23:15:59 <moyogo>        glasseyes: btw I can't make it to the summit, un=
+less I figure something out really quick ;-)
+Jun 28 23:16:12 <edtrager>      One issue is Behdad won't arrive until 2PM or =
+so on Wednesday.  But I think we have a lot to do, and earlier today sugg=
+ested that perhaps we could start on Wed with a very brief "keynote" then=
+ turn it over to Simon Hausmann for HarfBuzz Status
+Jun 28 23:17:20 <edtrager>      After a "State of HarfBuzz" talk, I was thinki=
+ng of having presentations by Sharon Correll on Graphite, Eric Mader on I=
+CU, and Kenichi Handa on m17n.
+Jun 28 23:17:23 *       eimai has changed the topic to: FLOSS Fonts discussion =
+forum | Meeting about next Text Layout Summit taking place now, please in=
+troduce yourself | http://www.freedesktop.org/wiki/TextLayout | 2007 Text=
+ Layout Summit at aKademy in Glasgow, July 4-6 http://www.freedesktop.org=
+/wiki/TextLayout2007 | Discussion logs at http://wiki.freedesktop.org/wik=
+i/Software_2fFonts_2fConfiguration
+Jun 28 23:19:01 <glasseyes>     I'm torn, it would be good for Behdad to be t=
+here for the graphite, ICU, and m17n talks but it is probably unavoidable=
+
+Jun 28 23:19:26 <glasseyes>     particularly the graphite and m17n talks so h=
+e can understand them better wrt pango
+Jun 28 23:19:35 <eimai> we have Thursday morning and Friday too :-)
+Jun 28 23:21:06 <glasseyes>     edtrager: would it be better to start general=
+ discussion and questions on harfbuzz after the state of harfbuzz
+Jun 28 23:21:49 <edtrager>      Exactly.  We want to have Behdad there for the=
+se important talks.  So the other option would be to rearrange the schedu=
+le and just do some of what I would call "brief" talks on IM-BUS, IPA Fon=
+ts, any DejaVu update talk if Ben or Moyogo want to do that.
+Jun 28 23:21:50 <glasseyes>     and have the ICU presentation before lunch an=
+d the other 2 after behdad gets there
+Jun 28 23:22:40 <edtrager>      Plus I could also add a brief talk on "fontima=
+" which is a nascent font management library project for the Free Desktop=
+
+Jun 28 23:23:30 <glasseyes>     yes, I think we should do those before lunch
+Jun 28 23:23:55 <glasseyes>     I guess I could do an update on OFLd fonts fr=
+om yosch
+Jun 28 23:25:02 <edtrager>      And do we also do Eric Mader's talk before lun=
+ch?  Is it the case that Behdad already knows a fair amount about ICU so =
+him missing it would not be a large loss?
+Jun 28 23:26:31 <edtrager>      I haven't heard eimai or moyogo say anything y=
+et about update on DejaVu fonts ... Do you guys want to present something=
+?
+Jun 28 23:26:35 <eimai> edtrager: I didn't plan to give some update on de=
+javu (nothing really important since boston), but we can have a discussio=
+n about the "pan-unicode fonts" if other people are interested, but we co=
+uld do that outside the meeting as well of course
+Jun 28 23:27:45 <edtrager>      eimai: So perhaps a discussion on "pan-unicode=
+" and how DejaVu plans to package fonts in the future?
+Jun 28 23:28:02 <eimai> edtrager: we can do that
+Jun 28 23:28:53 <edtrager>      eimai: How long do you see for a discussion on=
+ the "pan-unicode" font issues?
+Jun 28 23:29:28 <edtrager>      eimai: Let's not forget that such discussion c=
+an also take us into fontconfig discussions ...
+Jun 28 23:29:38 <eimai> edtrager: tough question, we've been discussing i=
+t for more than a year :-p
+Jun 28 23:30:00 <moyogo>        it could cover some fontconfig or base table stu=
+ff
+Jun 28 23:31:15 <eimai> you can easily fill an hour with it, but don't kn=
+ow if people want to discuss it that long :-)
+Jun 28 23:31:26 <eimai> so take the time that's left in the morning :-p
+Jun 28 23:32:02 <glasseyes>     sharon still can't connect and has to go now
+Jun 28 23:34:00 <eimai> edtrager: anyway, such a talk would be a little i=
+ntroduction and then discussing it
+Jun 28 23:34:17 *       avox (i=3Dvox@ip-13-17.travedsl.de) has joined ##fonts
+Jun 28 23:34:36 <glasseyes>     edtrager: would you be able to review what we=
+ did at the meeting in October, particularly for the benefit of the folks=
+ that weren't there?
+Jun 28 23:35:13 <avox>  lo
+Jun 28 23:35:40 <edtrager>      glasseyes: Sharon also wants to know how long =
+her presentation should be.  I was thinking 40 minutes + 5 minutes for qu=
+estions.  The initial "state of HarfBuzz", ICU, and m17n talks should be =
+the same (45 min total).  Maybe we should keep "pan unicode" discussion a=
+lso to a total of 45 minutes -- for all of these we can envision addition=
+al "in depth" discussion later.
+Jun 28 23:38:28 <eimai> btw, is the textlayout wiki page updated while we=
+'re having this meeting now?
+Jun 28 23:38:42 <edtrager>      For a sense of the October meeting in Boston, =
+please review Avery Vox's blog at http://rants.scribus.net/2006/10/31/bos=
+ton-text-layout-summit/
+Jun 28 23:39:08 <glasseyes>     edtrager: I think 30 minutes is long enough t=
+o talk for, concentration starts wavering after that
+Jun 28 23:39:10 *       avox notices his change of first name...
+Jun 28 23:39:35 <glasseyes>     s/Avery/Andreas/
+Jun 28 23:40:20 <edtrager>      avox:  Oops, Sorry Andreas.  I stand corrected=
+=2E  I mistype it like that a lot ...
+Jun 28 23:40:37 <avox>  nm
+Jun 28 23:40:57 <edtrager>      avox: Maybe you have a bipolar personality :)
+Jun 28 23:41:30 <glasseyes>     I'm hoping I can see the room at the weekend =
+when I'm there, and I'll ask around about audio and networking and stuff
+Jun 28 23:41:40 <glasseyes>     but I don't think we'll be able to have video=
+
+Jun 28 23:41:58 <glasseyes>     unless we can borrow a video camera from some=
+one there
+Jun 28 23:41:59 <ThomasZ>       at least in the weekend there should be streami=
+ng
+Jun 28 23:42:35 <edtrager>      OK, I agree with glasseyes that we should, for=
+ the purposes of planning, have the major talks set to 30 minutes.  Then =
+we'll see how bad we run over ...
+Jun 28 23:42:44 <ThomasZ>       I guess at #akademy you can find more knowledga=
+ble people...
+Jun 28 23:43:22 *       hdu_home (n=3Dhdu@e176090240.adsl.alicedsl.de) has join=
+ed ##fonts
+Jun 28 23:44:25 <glasseyes>     we could set the time for 45 mins, 30 mins of=
+ talk, 5 mins questions, 5 mins overrun, and 5 for inbetween breaks
+Jun 28 23:45:42 <eimai> glasseyes: sounds good to me
+Jun 28 23:46:30 *       ThomasZ looks forward to the oggs you guys post of the =
+meeting ;)
+Jun 28 23:46:42 <ThomasZ>       I'm off now; its midnight already
+Jun 28 23:46:50 <avox>  any chance to provide a live cast?
+Jun 28 23:46:58 <edtrager>      glasseyes: OK, sounds good to me too so the ma=
+jor talks will be 45 min.  thomasZ: bye
+Jun 28 23:47:01 *       ThomasZ has quit ("zZz")
+Jun 28 23:48:41 <glasseyes>     avox: we'll do our best, but after seeing oth=
+ers battle with live video streaming I'm not optimistic
+Jun 28 23:49:39 <edtrager>      We can also have 1 hour total for a series of =
+"Lightning Talks" on (1) IM-Bus, (2) IPA Fonts (3) Update on OFL'ed Fonts=
+ and (4) Fontima -- still room to add 1 or 2 more "Lightning Talks" if ea=
+ch is kept to not more than 10 minutes
+Jun 28 23:50:10 <yosch> if we can just get audio recording it will be gre=
+at
+Jun 28 23:50:43 <edtrager>      "Lightning Talks" were something that was done=
+ at DAM4 and seemed to work very well for short summaries to bring everyo=
+ne up-to-date on various projects.
+Jun 28 23:52:35 <glasseyes>     I'll send an email to the akademy participant=
+ list to see if anyone has any ideas
+Jun 28 23:53:27 <edtrager>      yosch:  You mean live audio streaming, right? =
+ It would be nice if it were live or nearly-live.
+Jun 28 23:53:41 <avox>  yes
+Jun 28 23:55:03 <yosch> edtrager: indeed it would be very useful for remo=
+te attendees (like me). but if not, post-conference recording is always u=
+seful too;
+Jun 28 23:58:53 <eimai> edtrager: do you put a preliminary schedule somew=
+here?
+Jun 28 23:59:10 <eimai> so we can keep track of how much time is needed e=
+tc
+Jun 28 23:59:53 <edtrager>      Give me just one second .. . I type slow, but =
+think even more slowly ...
+Jun 29 00:00:18 <eimai> :-)
+Jun 29 00:00:48 <edtrager>      Start of schedule for Wednesday is on http://f=
+reedesktop.org/wiki/TextLayout2007
+Jun 29 00:02:03 <edtrager>      I put Eric Mader's talk before lunch under the=
+ assumption that Behdad could miss that one ... not sure if that's a good=
+ assumption?  Any comments?
+Jun 29 00:04:59 <edtrager>      BTW, everyone should please try to get draft p=
+resentations to me by June 30 "official" deadline.  Presentations can be =
+found at http://unifont.org/TextLayout2007/
+Jun 29 00:06:34 <yosch> I'm thinking maybe a quick lightning talk giving =
+an update on where the open font design toolkit is now would be useful to=
+o (fontforge scripting, spiro, hinting-viewer, etc)
+Jun 29 00:06:56 <yosch> I can provide notes if anyone wants to do it
+Jun 29 00:07:10 <eimai> yosch: something about OFLB perhaps?
+Jun 29 00:07:36 <yosch> eimai: would be very useful too IMHO
+Jun 29 00:08:35 <eimai> (OFLB =3D Open Font Library btw for people who do=
+n't know it)
+Jun 29 00:09:13 <edtrager>      Got it ... So that's 6 "lightning talks" now s=
+hown on the schedule on the wiki ...
+Jun 29 00:09:42 *       yosch mentions that only the wiki of OFLB is up at this=
+ stage: http://www.openfontlibrary.org  hoping to get the rest back up so=
+on
+Jun 29 00:10:18 *       yosch points out that the LGM2007 and Debconf2007 slide=
+s about open fonts are available on http://yosch.org/conferences/lgm07/ a=
+nd http://yosch.org/conferences/DebConf2007/
+Jun 29 00:10:28 <edtrager>      Will someone who will be present volunteer to =
+present for yosch ?
+Jun 29 00:11:25 <eimai> I could do it
+Jun 29 00:11:30 *       unmadindu has quit (Remote closed the connection)
+Jun 29 00:12:01 <edtrager>      eimai: Great, Ben, you've got it
+Jun 29 00:12:29 <yosch> eimai: thanks! I'll send you the notes tomorrow
+Jun 29 00:12:39 <eimai> great :-)
+Jun 29 00:13:59 <yosch> edtrager: glasseyes will probably do the status o=
+f the various OFL'ed fonts out there as he know what's happenned and he's=
+ been a great help getting the fonts packaged :)
+Jun 29 00:14:03 <edtrager>      yosch & eimai: After you've figured it out, ei=
+ther send notes to me or provide a URL to me too.
+Jun 29 00:14:17 <yosch> edtrager: yep willdo.
+Jun 29 00:14:45 <eimai> edtrager: okay
+Jun 29 00:15:06 <glasseyes>     yosch: yep, though please remind me ;)
+Jun 29 00:15:50 <yosch> glasseyes: willdo as well.
+Jun 29 00:16:20 <yosch> thanks a lot for standing in while I can't be in =
+Glasgow.
+Jun 29 00:16:34 <edtrager>      Also, does anyone want to volunteer to present=
+ IM-BUS or IPA Font updates -- otherwise I have to do it -- assuming I ge=
+t some notes from James Su (IMBUS) and Hiroshi Miura (IPA)
+Jun 29 00:16:42 <eimai> yosch: just correct us when you're on IRC at the =
+moment :-p
+Jun 29 00:16:44 *       pjr1 (n=3Dpmoulder@ppp121-44-224-8.lns2.mel4.internode.=
+on.net) has joined ##fonts
+Jun 29 00:20:24 <pjr1>  Is the correct URL for the logs http://wiki.freede=
+sktop.org/wiki/Software/Fonts/Configuration ?
+Jun 29 00:20:58 <edtrager>      pjr1: I don't think so ...
+Jun 29 00:21:28 <avox>  looks old
+Jun 29 00:21:36 <eimai> http://wiki.freedesktop.org/wiki/Software/Fonts/C=
+onfiguration/Archives
+Jun 29 00:21:45 <pjr1>  ta
+Jun 29 00:22:45 <pjr1>  btw, I'm actually pjrm (still logged in as pjrm at=
+ work), a.k.a. Peter Moulder.  Only just received the e-mail about the IR=
+C meeting now (I've just got up).
+Jun 29 00:23:41 <pjr1>  edtrager: We've been working on software to choose=
+ where to place floating figures, if you recall.
+Jun 29 00:24:02 <pjr1>  Still doesn't do all one would like, but I just ho=
+oked up libcroco yesterday, which makes a difference.
+Jun 29 00:24:18 <edtrager>      pjrm: So do you want to present on this at the=
+ Summit?
+Jun 29 00:24:31 <pjr1>  We're using your paper from last year as one of th=
+e examples :) .
+Jun 29 00:25:43 <pjr1>  We've been focussing on doing unpaged but multi-co=
+lumn layout, suitable for online use.
+Jun 29 00:26:11 <avox>  hi peter
+Jun 29 00:26:36 <pjr1>  Allowing pages shouldn't be too hard: a page break=
+ is just like a column break except that floats aren't allowed to span th=
+at break.
+Jun 29 00:26:44 <pjr1>  hi avox, behdad-home, others
+Jun 29 00:26:46 <edtrager>      pjrm: Cool, sounds very good.  How about prese=
+nting at the Summit on this ?
+Jun 29 00:27:16 <pjr1>  my impression was that the text summit is still fo=
+cussing on relatively low-level stuff.
+Jun 29 00:27:39 <pjr1>  so i intend to follow remotely, but not attend thi=
+s year
+Jun 29 00:28:05 <edtrager>      pjrm: Oh, I see ... no problem.
+Jun 29 00:31:56 <pjr1>  I'm quite happy about adding the libcroco stuff ye=
+sterday.  It makes a big difference from a user's perspective -- even tho=
+ugh there are a couple of important things that we don't yet support (we =
+support bullets but not numbered lists yet; and no paragraph spacing or p=
+aragraph indent yet).
+Jun 29 00:32:29 <edtrager>      OK, everyone, I've got a draft schedule up for=
+ Wednesday:
+Jun 29 00:33:02 <edtrager>      Everyone feel free to contribute and tweak it =
+=2E..
+Jun 29 00:33:10 <edtrager>      8:30 - 9:00 Coffee/ Setup / Seating
+Jun 29 00:33:17 <edtrager>      # 9:00 - 9:30 Intro / Keynote
+Jun 29 00:33:34 <edtrager>      9:30-10:30 Series of "Lightning Talks":
+Jun 29 00:33:43 <edtrager>      * OFL'ed Font Update * IPA Font Update * IM-BU=
+S * Fontima (Trager) * Open Font Design Toolkit Update (yosch) * OFLB (Op=
+en Font Library) Update
+Jun 29 00:33:58 <edtrager>      10:30-11:15 "Pan Unicode" Font Discussion
+Jun 29 00:34:09 <edtrager>      11:15-11:30 Break
+Jun 29 00:34:18 <edtrager>      11:30-12:15 Design Features in ICU (Eric Mader=
+)
+Jun 29 00:34:24 <edtrager>      12:15-13:30 Lunch
+Jun 29 00:34:40 <edtrager>       13:30-14:15 State of HarfBuzz (including AAT =
+integration) - Simon Hausmann (and Behdad if he arrives early)
+Jun 29 00:34:49 <edtrager>      14:15-15:00 Graphite - Sharon Correll, SIL
+Jun 29 00:34:57 <edtrager>      15:00-15:45 m17n - Kenichi Handa
+Jun 29 00:35:06 <edtrager>      15:45-16:00 New OpenType features in Pango (Br=
+ief talk by Behdad)
+Jun 29 00:35:29 <edtrager>      (I'm just guessing that this talk by Behdad wi=
+ll be brief)
+Jun 29 00:35:38 <edtrager>      16:00-17:00 - HarfBuzz Development and Integra=
+tion Discussion
+Jun 29 00:35:51 <edtrager>      This is the first big HarfBuzz discussion
+Jun 29 00:36:01 <edtrager>      17:00+ Continue discussions over dinner ...
+Jun 29 00:36:07 <edtrager>      ...
+Jun 29 00:36:24 <edtrager>      Any comments, suggestions, criticisms?
+Jun 29 00:36:52 *       reinterpret_cast (n=3DHashif@d199-126-195-9.abhsia.telu=
+s.net) has joined ##fonts
+Jun 29 00:37:24 <edtrager>      I see Thursday morning as a good time to conti=
+nue the HarfBuzz Design/Development/Integration discussion
+Jun 29 00:37:32 <glasseyes>     ok, looks good, post it to the harfbuzz list =
+and known participants that might not be on list (i.e. not behdad, simon,=
+ me, sharon)
+Jun 29 00:37:48 <glasseyes>     I need to head off now, early train to catch
+Jun 29 00:38:01 <glasseyes>     see you in Glasgow :)
+Jun 29 00:38:02 <edtrager>      Then Friday is set aside for Coding (as alread=
+y stated on the wiki)
+Jun 29 00:38:12 <eimai> by glasseyes
+Jun 29 00:38:15 <eimai> bye*
+Jun 29 00:38:23 <yosch> glasseyes: bye, have a good trip
+Jun 29 00:38:25 <edtrager>      The entire schedule is already on the wike at =
+http://freedesktop.org/wiki/TextLayout2007
+Jun 29 00:38:40 <glasseyes>     could someone post the chatlog to the wiki?
+Jun 29 00:38:40 <edtrager>      glasseyes: Bye and thanks for all the help
+Jun 29 00:39:09 <glasseyes>     np
+Jun 29 00:39:13 *       glasseyes has quit ("Leaving")
+Jun 29 00:39:13 <edtrager>      Yes, please someone as I am using a new irc cl=
+ient and not sure about where the log is ...
+Jun 29 00:40:13 <edtrager>      OK, I'm going to officially close the meeting =
+in 4 minutes at 45 past the hour as we have already met for an hour and 4=
+5 minutes...
+Jun 29 00:40:22 *       reinterpret_cast (n=3DHashif@d199-126-195-9.abhsia.telu=
+s.net) has left ##fonts ("Leaving")
+Jun 29 00:40:40 <yosch> edtrager: I can post the log=20
+Jun 29 00:41:23 <edtrager>      Thanks, yosch!
+Jun 29 00:41:57 <yosch> edtrager: np
+Jun 29 00:42:55 <edtrager>      One more thing I haven't got on the schedule y=
+et: there was a discussion about an Open Chinese Hei-style font recently.=
+  If I get info from the relevant participants, we can have a 10 minute l=
+ightning talk about that too.
+Jun 29 00:44:21 <edtrager>      OK, everyone, thanks so much for participating=
+ today.  I think we'll officially close the Summit planning meeting now. =
+ Please contribute by fixing the wiki as needed.  Thanks all!
+"""]]
