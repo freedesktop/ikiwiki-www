@@ -1,0 +1,227 @@
+= D-Bus Interface: Streams =
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus|(Back to the toplevel D-Bus Interface page)]]
+
+Objects and their interfaces:
+ * /org/pulseaudio/core1/playback_streamX
+   - org.!PulseAudio.Core1.Stream
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+ * /org/pulseaudio/core1/record_streamX
+   - org.!PulseAudio.Core1.Stream
+   - org.freedesktop.DBus.Properties
+   - org.freedesktop.DBus.Introspectable
+
+
+== org.PulseAudio.Core1.Stream ==
+
+=== Properties ===
+
+==== Index ====
+
+ * Type: Uint32
+ * Access: read
+
+The stream index. Playback and record stream indices are separate, so it's perfectly normal to have two streams with the same index: the other stream is a playback stream and the other is a record stream.
+
+
+==== Driver ====
+
+ * Type: String
+ * Access: read
+
+The driver that implements the stream object. This is usually expressed as a source code file name, for example "protocol-native.c".
+
+
+==== !OwnerModule ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The module that owns this stream. It's not guaranteed that any module claims ownership; in such case this property does not exist.
+
+ * Errors:
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if this stream is not owned by any module.
+
+
+==== Client ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The client whose stream this is. Not all streams are created by clients, in those cases this property does not exist.
+
+ * Errors:
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if this stream is not created by a client.
+
+
+==== Device ====
+
+ * Type: !ObjectPath
+ * Access: read
+
+The device this stream is connected to.
+
+
+==== !SampleFormat ====
+
+ * Type: Uint32
+ * Access: read
+
+The sample format of the stream. See [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Sampleformats|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]] for the list of possible values.
+
+
+==== !SampleRate ====
+
+ * Type: Uint32
+ * Access: read
+
+The sample rate of the stream.
+
+
+==== Channels ====
+
+ * Type: [Uint32]
+ * Access: read
+
+The channel map of the stream. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Channelpositions|[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|D Bus Interface →  Enumerations]]]] for the list of possible channel position values.
+
+
+==== Volume ====
+
+ * Type: [Uint32]
+ * Access: read/write
+
+The volume of the stream. The array is matched against the Channels property: the first array element is the volume of the first channel in the Channels property, and so on.
+
+There are two ways to adjust the volume. You can either adjust the overall volume by giving a single-value array, or you can precisely control the individual channels by passing an array containing a value for each channel.
+
+The volume can only be written if [[#VolumeWritable|VolumeWritable]] is true.
+
+ * Errors:
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if the stream doesn't have volume (record streams don't currently have volume at all).
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.BadStateError|org.PulseAudio.Core1.BadStateError]] if trying to set a read-only volume.
+
+
+==== !VolumeWritable ====
+
+ * Type: Boolean
+ * Access: read
+
+Whether or not the [[#Volume|Volume]] property can be set. Note that read-only volumes can still change, clients just can't control them.
+
+
+==== Mute ====
+
+ * Type: Boolean
+ * Access: read/write
+
+Whether or not the stream is currently muted. Record streams don't currently support muting, so this property exists for playback streams only for now.
+
+ * Errors:
+   - [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]] if this is a record stream and the server doesn't implement volume for record streams.
+
+
+==== !BufferLatency ====
+
+ * Type: Uint64
+ * Access: read
+
+The length of buffered audio in microseconds that is not at the device yet/anymore.
+
+
+==== !DeviceLatency ====
+
+ * Type: Uint64
+ * Access: read
+
+The length of buffered audio in microseconds at the device.
+
+
+==== !ResampleMethod ====
+
+ * Type: String
+ * Access: read
+
+The resampling algorithm that is used to convert the stream audio data to/from the device's sample rate.
+
+
+==== !PropertyList ====
+
+ * Type: {String -> [Byte]}
+ * Access: read
+
+The stream's property list.
+
+
+
+=== Methods ===
+
+==== Move ====
+
+ * Arguments: device : !ObjectPath
+   - device: The device to move to
+
+Moves the stream to another device.
+
+
+==== Kill ====
+
+Kills the stream.
+
+
+
+=== Signals ===
+
+==== !DeviceUpdated ====
+
+ * Parameters: device : !ObjectPath
+   - device: The new device
+
+The stream was moved to another device.
+
+
+==== !SampleRateUpdated ====
+
+ * Parameters: sample_rate : Uint32
+   - sample_rate: The new sample rate
+
+The stream's sample rate was changed.
+
+
+==== !VolumeUpdated ====
+
+ * Parameters: volume : [Uint32]
+   - volume: The new volume values
+
+The stream's volume was modified.
+
+
+==== !MuteUpdated ====
+
+ * Parameters: muted : Boolean
+   - muted: The new mute state
+
+The stream was muted or unmuted.
+
+
+==== !PropertyListUpdated ====
+
+ * Parameters: property_list : {String -> [Byte]}
+   - property_list: The new property list
+
+The stream's property list was modified.
+
+
+==== !StreamEvent ====
+
+ * Parameters: name : String, property_list : {String -> [Byte]}
+   - name: Event name
+   - property_list: Additional event parameters
+
+This signal is emitted when the server sends an event to a stream. Currently two stream events are defined:
+
+ * "request-cork"
+   - An application should cork a specific stream. This can be sent for example if the server implements a policy that when a phone call starts, all music streams shall pause. The property list doesn't contain any additional parameters.
+ * "request-uncork"
+   - Opposite of "request-cork". The property list doesn't contain any additional parameters.
