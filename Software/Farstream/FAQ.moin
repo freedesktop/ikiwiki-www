@@ -1,0 +1,16 @@
+'''Will Farsight2 work with older versions of GStreamer than the ones mentionned in the README?'''
+
+No, it won't.
+
+'''When I run tests/gui/fs2-gui.py, I have a deadlock.'''
+
+This is a known bug in pygobject, details are in  [[http://bugzilla.gnome.org/show_bug.cgi?id=530935|gnome bug #530935]] which has a [[http://bugzilla.gnome.org/attachment.cgi?id=110244|patch]].
+
+'''I run Debian and when I try to start a video session, the "codecs-ready" property never turns to TRUE?'''
+
+Debian maintainers think they're smarter then the upstream maintainers and use their own copy of ffmpeg instead of the one provided by gst-ffmpeg. They forgot to disable ffenc_libtheora (which is broken). They know about this problem, but have yet to fix it. Solution: use a better distribution or remove the gstreamer0.10-ffmpeg package.
+
+
+'''I run Gentoo and my application crashes when I enable video?'''
+
+Avoid gst-plugins-farsight 0.10.5, use 0.10.4 or 0.10.6
