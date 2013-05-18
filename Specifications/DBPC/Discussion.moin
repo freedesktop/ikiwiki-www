@@ -1,0 +1,67 @@
+[[Specifications/DBPC|DBPC]]
+
+Open you brain,
+
+Discussion about DBPC can take place here.
+
+
+---------
+I would like to help to develop DBPC.
+Can we have a mailling list for it?
+LuisMatos
+-------
+=== about DBPC server ===
+ * plugin driven development: dbpc server only provides a way to achieve communication. It does not provides one.;
+ * it must be lightweight so it can be used for in any kind of embedded system;
+ * it has to have control over communication with the plugins, so that the communication can be organized (request for a bunch of data once, instead of a lots of connections and low data).;
+ * have an event driven api, so that the clients don't ask for changed data, but the server provides the changed data.;
+
+LuisMatos
+
+Not sure about what you mean. I imagine a server more like a daemon than a plugin..?
+
+Yes, no problem, Dbus is lightweight enough.
+
+Yes, it is better fetching an array than one request for each bit. Server must also have methods for control its behavior and troubleshooting.  
+
+Yes it must be a fine if servers may pool PLC values only when there is a subscription to the corresponding item and return events when values changed. D-BUS is event based, so DBPC client can easily subscribe to DBPC events. Nevertheless I did not find a way to inform the server about event subscription and release. DBus Events seems to be only some kind of broadcast. 
+
+As an optimization we should pool PLC values only when needed. DBPC server can act like a proxy. If several applications access to the same item at the same time, we will not update item value every time but only if value is outdated.      
+
+Rey Cyril 23.06.2009
+
+"Not sure about what you mean. I imagine a server more like a daemon than a plugin..?"
+
+DBPC is a daemon, but it only manages data and connections.
+connection types and data getting must be managed by plugins.
+For example, one DBPC server, plugin for modbus, profibus, etc
+
+Luis Matos
+
+
+---------
+= Configuration files =
+
+using [[http://www.hyperrealm.com/libconfig/ | libconfig ]] ? [[ http://www.hyperrealm.com/libconfig/test.cfg.txt | Example ]]
+
+or ... a XML file?
+
+bad, bad example:
+
+<sources>
+    <source name="controller1" plugin="modbus" >
+          <param1>192.168.0.1</param>
+    </source>
+</sources>
+
+<tags>
+     <tag source="controller1" tagname="tag" address="M101.0" type="bit"/>
+</tags>  
+
+
+grep tag : returns all tag names
+grep source: all sources
+grep tag, remove all names and " you can get an array of tagname, address and datatype.
+
+
+Luis Matos
