@@ -1,0 +1,39 @@
+
+
+# How to Use OProfile for Profiling PulseAudio
+
+1. Install OProfile. It's available readily packaged on all relevant distributions. 
+1. Tell OProfile about your kernel: 
+
+[[!format txt """
+opcontrol --vmlinux=/path/to/vmlinux
+"""]]
+* In case you don't have your uncompressed vmlinux image lying around, you can disable kernel-level profiling like this: 
+
+[[!format txt """
+opcontrol --no-vmlinux
+"""]]
+* Note that since our task is to profile [[PulseAudio|PulseAudio]] (and not the kernel) passing --no-vmlinux has no practical limitation. 
+* Start profiling: 
+
+[[!format txt """
+opcontrol --start 
+"""]]
+1. Play around with [[PulseAudio|PulseAudio]] and execute the code paths you want to profile. It is advisable to pass --no-cpu-limit to [[PulseAudio|PulseAudio]] or set no-cpu-limit=yes in daemon.conf to deactivate the  CPU load limiter in PA and make sure that if PA starts to spin in some loop it will continue to do that and it really shows up in the profiling output. 
+1. Generate a per-symbol break down of the profile data: 
+
+[[!format txt """
+opreport -l /usr/bin/pulseaudio
+"""]]
+1. If you have the sources of PA lying around (i.e. installed debuginfo packages or built PA yourself) you may also generate an annotated source code: 
+
+[[!format txt """
+mkdir -p /home/lennart/pa-annotated-sources
+opannotate --source --output-dir=/home/lennart/pa-annotated-sources /usr/bin/pulseaudio
+"""]]
+1. Send me the per-symbol break down and on request some of the annotated sources. 
+If you are building and running PA from the source tree then make sure to set dl-search-path in your daemon.conf to the src/.libs subdirectory of your source tree (libtool likes to put the built shared objects there). Also note that you need to pass .../src/.libs/lt-pulseaudio as binary name to opreport/opannotate. 
+
+Also see the cheat sheet on [[The OProfile documentation pages|http://oprofile.sourceforge.net/docs/]]. 
+
+While you run PA under oprofile make sure to disable the load limiter (pass --no-cpu-limit) so that PA continues to run after entering an endless loop and that it actually becomes possible to track down which loop that is. 
