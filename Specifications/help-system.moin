@@ -1,0 +1,125 @@
+= Help System =
+== Discussion ==
+
+If you have ideas you want to suggest but don't want to edit this main document, please go to the [[/Discussion|Discussion Page]].
+
+== GUADEC Discussion ==
+
+Using .desktop files for documentation metatdata, standard location using XDG base directory spec.  Search XDG dirs for .desktop files for language subdirectories.  $XDG_DATA_DIRS/help/$path/$lang/...  Desktop entry basename as ID.  Included directories have same structure.
+
+Use category codes together with the XDG menu specification to categorize application help files.
+
+We need to extend the .desktop specification for inclues.
+
+Persons at the meeting (add your nick here, if you're not listed):
+
+ * shaunm
+ * jpr
+ * danilo
+ * cornelius
+ * physaro
+ * acuster
+ * romanofski
+ * damiend
+
+
+== clahey's suggested standard ==
+
+=== Locating a given help file ===
+
+There are a few sections to this standard.  The first is a method for finding a file on the file system given a help uri.
+
+The list of languages to search for is decided by the environment.  Help browsers MUST set a list of languages.  Help browsers SHOULD set the list of languages as locale, locale truncated to 2 characters, en_US, en.  If the environment has a list of multiple preferred languages, help browsers MAY use that list, with en appended to the end, or some similar scheme.
+
+Help browsers SHOULD support the "man:" and "info:" URIs (these URI schemes are not registered by the IETF):
+* "man:" URIs have the form "man:command-name", "man:command-name(section)", or "man:command-name#section". This refers to reference pages in "man" format. The command name can optionally be followed by a parenthesis and section number; see man(7) for more information on the meaning of the section numbers.  An example is "man:ls(1)".
+* "info:" URIs have the form "info:virtual-filename", "info:virtual-filename#nodename", "info:(virtual-filename)", or "info:(virtual-filename)nodename". This scheme refers to online info reference pages (generated from texinfo files), a documentation format used by programs such as the GNU tools.  The first two formats are the GNOME format; in nodenames all spaces are written as underscores. The second two formats are the KDE format; spaces in nodenames must be written as %20 (URI escaped). If the form without the nodename is used the nodename is "Top". Examples are "info:gcc", "info:gcc#G++_and_GCC>, "info:(gcc)", and "info:(gcc)G++ and GCC".
+
+See url(7) at http://www.die.net/doc/linux/man/man7/url.7.html for more information about URIs for man pages and info pages.
+
+Given a uri starting with help:, we take everything after the : and before the # and call it the $path.  Now we search for the file.  In language order, we search for $XDG_DATA_DIRS/help/$lang/$path/$filename.  Search $XDG_DATA_DIRS for each language in turn.  I.e., assuming standard $XDG_DATA_DIRS and a non en locale, /usr/share/help/$locale/$path/$filename takes precedence over $HOME/.share/help/en/$path/$filename.
+
+If we find the file, we look at the type:
+* If it's html, the # refers to a standard html lookup.
+* If it's docbook, the # refers to the blockid and the help browser needs to display that blockid.  If the help browser displays the docbook file as multiple pages, it MUST display the page containing the given blockid and SHOULD scroll to the given block.
+* If it's a man page, the # refers to the section name; it SHOULD scroll to the given section.
+* If it's an info page, the # refers to the node name.
+
+
+If the type is a folder, we then look for an index file.  First we check for index.html, then for index.docbook and then treat them as above if found.
+
+If the file is found but can not be handled by the help browser (unknown type or directory with no index,) the help browser MAY continue searching the $XDG_DATA_DIRS with the different languages in the order specified above.
+
+=== Indexing help files ===
+
+The help browser SHOULD display a table of contents.  The contents are described by the menu spec.  The root is help.menu.  This file SHOULD include a link to the main applications.menu file.
+
+This spec adds two new tags to .desktop files.  The first is DocPath.  This is the uri for the help to display.  If this uri is a directory, the table of contents SHOULD check the contents and include the contents of the help file in the TOC if appropriate.  This expansion will be described later.
+
+The second is DocDir.  This is a path to a directory of .desktop files.  The contents are displayed as children of the element in the TOC.  This is to be used if an app has more than one doc.  This way a single entry in the launch menus can correspond to a directory of documentation.
+
+This can also be used for apps that are internally extensible.  Any extensions to the app can add help files to the given DocDir.
+
+Each file in the DocDir SHOULD be checked for including the contents of the help file in the TOC if appropriate.  This expansion will be described later.
+
+DocPath and DocDir are mutually exclusive.
+
+When a document specified by an external uri is given, the TOC should be searched for a reference to that uri and that line in the TOC should be selected and displayed (expanding parents if necessary.)
+
+==== Expanding the contents of each document ====
+
+If a help uri is a directory or an index.html, then the help browser TOC SHOULD check if it will be handled by an index.docbook file.  If so, that index.docbook file SHOULD be parsed for internal structure.  This structure should be included in the TOC as children of the given desktop file.
+
+The structure MUST correspond to the internal structure of chapters, sections, and subsections.  Chapters should be toplevels, as should sections that are not inside chapters.  Subsections and sections that are inside chapters should be children of their parent nodes.
+
+Links should be to help: uris corresponding to the given chapter, section, or subsection.  This may include a reference inside a single .html file if it contains multiple chapters, sections, or subsections.
+
+This expansion MAY be delayed until a given uri is displayed in the display area, but in this case, when an index.docbook file is processed, the TOC should be checked for uris that point to the top level inside the index.docbook.
+
+If displaying a URI from an external source, make sure to do this expansion before selecting the URI in the TOC because otherwise the URI might not be in the TOC.
+
+== Locating Help Files ==
+=== GNOME ===
+Currently, Gnome uses ScrollKeeper to install, register, and
+locate help files.  Packages install OMF files along with
+their documentation and call scrollkeeper-install to register
+them with the system.
+
+Many other systems also use a separate metadata file, and
+this approach tends to work well.  We need to decide on a
+metadata file format (probably .desktop files), where they
+are to be installed, and whether or not we need to call any
+installation scripts.
+
+=== TheGIMP ===
+The helpbrowser in GIMP uses an xml mapping file provided by the documentation package. Each language has his own XML mapping file, which is generated beside the generation of the HTML pages for the helpbrowser. A line in a mapping file looks like the following example:
+{{{<help-item id="introduction" ref="ch01.html" title="Introduction"/>}}}
+The mapping maps each unique id to a HTML file. The actual language dependend content is distinguished by the language variable set in the system.
+
+== Identifying Help Files ==
+
+Documents need to have a unique identifier.  For instance,
+the German and English translations of a document need to
+be identifiable as the same document, so that only one is
+presented to the user.  Furthermore, document identifiers
+are necessary for invoking particular help files, either
+from applications, or from hyperlinks in other help files.
+
+Here are a number of proposals for identifiers:
+
+ * Functional namespacing:
+   All applications manuals would have identifiers such
+   as app.*appname*.*docname*.  Other manuals would live
+   in top-level namespaces such as desktop or system.
+ * Reverse-DNS namespacing:
+   Identifiers would begin with the reverse domain name
+   of the group that produced the document.  So the Gnome
+   User Guide might be org.gnome.user-guide.
+ * Canonical URIs:
+   Identifiers would simply be the URI of a canonical
+   location of the document.  The Gnome User Guide would
+   be identified by http://www.gnome.org/learn/users-guide/
+
+How to avoid namespace clashes?
+
+ * drop duplicated registrations?
