@@ -1,0 +1,30 @@
+== Introduction ==
+
+{{attachment:aes2550_device_2.jpg|AES2550 device from AuthenTec|align=right}}
+
+The `aes2550` driver supports devices based on the AuthenTec AES2550 and AES2810 chipsets.
+
+aes2550 is part of [[../../libfprint|libfprint]] and is developed by Vasily Khoruzhick.
+
+== Supported devices ==
+
+Driver supports AES2810 and AES2550 (which is cryptoless version of AES2810). These sensors can be found in some standalone USB devices, and also in laptops (commonly Lenovo). Even when embedded in this way, these devices just sit on the regular USB bus.
+
+== Driver history ==
+
+In June, 2012 Greg Kerr from AuthenTec [[http://lists.freedesktop.org/archives/fprint/2012-June/000154.html|announced]] that they are willing to support opensource development. Vasily Khoruzhick contacted AuthenTec support and received external USB reader with AES2550 sensor and datasheets for
+AES2550 and AES2810 devices. Driver was written using those reader and datasheets.
+
+== Device operation ==
+
+This is a swipe-type device which is similar to other AuthenTec devices (AES1610, AES2501). Each frame is 192x8 pixels in size.
+
+== Security notes ==
+
+The fingerprint is always sent unencrypted over the USB bus. Crypto engine which is present in AES2810 is not supported.
+
+== Imaging performance ==
+
+For my AES2550 scanner image quality is brilliant and imaging perfomance is good. MINDTCT finds over 40 minutiae on image.
+
+Scanning technique is same as for other swipe sensors: don't scan too fast, don't scan too slow, don't put too much pressure on the sensor.
