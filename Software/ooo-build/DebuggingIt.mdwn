@@ -1,0 +1,416 @@
+
+[[!toc ]] 
+
+
+## Start debugging
+
+You need a _linked_ build - please have a look at the [[HackingIt|Software/ooo-build/HackingIt]] pages, and install either using the `make dev-install`, or `bin/ooinstall -l`.  Then you can start your debugging session like: 
+
+
+[[!format txt """
+# change directory to the installation provided by make dev-install
+cd build/install/program
+source ooenv
+# start the debugger
+gdb --tui ./soffice.bin
+(gdb) run -writer
+"""]]
+You soon realize that you have no debugging symbols in your build.  Let's say, you need symbols for the module `vcl` - then you need to completely rebuild `vcl` using `build debug=true`, instead of `build`, like: 
+[[!format txt """
+cd build/ooo320-m12/vcl
+# remove the old build
+rm -r unxlngi6.pro
+# setup the build environment
+source ../LinuxX86Env.Set.sh
+# and build
+build debug=true
+"""]]
+We have the _linked_ build, right?  So now just start `gdb --tui ./soffice.bin` again, and this time, you have the symbols for the rebuilt module. 
+
+
+## gdb Tips & Tricks for OOo
+
+These instructions are mostly Linux (gdb) related, for Windows, you might consult [[this page|http://wiki.services.openoffice.org/wiki/Windows_Debugging]].  gdb is a powerful tool, but it pays off to get familiar with it a bit. 
+
+
+### Recommended .gdbinit file
+
+You can define macros that help you eg. examine OOo strings in your `~/.gdbinit` file, so that they are always available.  We recommend at least the following contents: 
+[[!format txt """
+set history filename ~/.gdbhistory
+set history save on
+
+handle SIGPWR nostop noprint
+handle SIGXCPU nostop noprint
+handle SIG33 nostop noprint
+
+tabset 4
+
+# define "pu" command to display sal_Unicode *
+define pu
+  set $uni = $arg0
+  set $len = $arg1
+  set $i = 0
+  printf "\""
+  while (*$uni && $i++<$len && $i<255)
+    if (*$uni < 0x80)
+      printf "%c", *(char*)$uni++
+    else
+      printf "\\x%x", *(short*)$uni++
+    end
+  end
+  printf "\"\n"
+end
+
+# define "pus" command to display rtl_uString
+define pus
+  if ($arg0.buffer)
+    pu $arg0.buffer $arg0.length
+  else
+    print "Invalid/non-initialized rtl_uString."
+  end
+end
+
+# define "pou" command to display rtl::OUString
+define pou
+  if ($arg0.pData)
+    pus $arg0.pData
+  else
+    print "Invalid/non-initialized OUString."
+  end
+end
+
+# define "ptu" command to display tools (Uni)String
+define ptu
+  if ($arg0.mpData)
+    pu $arg0.mpData->maStr $arg0.mpData->mnLen
+  else
+    print "Invalid/non-initialized tools String."
+  end
+end
+
+# define "ps" command that will autodetect the type of the string,
+# and call a function accordingly
+define ps
+  if ($arg0.pData)
+    pou $arg0
+  else
+    if ($arg0.mpData)
+      ptu $arg0
+    else
+      if ($arg0.buffer)
+        pus $arg0
+      else
+        set $len = $arg1
+        if ($len)
+          pu $arg0 $len
+        else
+          # first 20 (unicode) chars
+          pu $arg0 20
+        end
+      end
+    end
+  end
+end
+document ps
+ps somestring [len]
+
+Print the content of pretty much any OpenOffice.org string.
+The length parameter is only used for sal_Unicode* strings: if not 
+provided, the first 20 characters will be printed for those kinds 
+of strings.
+end
+"""]]
+If you want to define your own macros, please remember that gdb only has global variables, so be careful to choose different names. 
+
+
+### Text user interface
+
+One of the less known gdb features is its text user interface.  Instead of plain `gdb`, use `gdb --tui` every time you want to debug.  You will be able to see the context of what are you debugging all the time.  Useful commands: 
+
+* **Ctrl-l** - refresh screen (when something prints there, etc.) 
+* **Ctrl-x s** - single key mode.  In this mode `n` means `next`, `s` `step`, `r` `run`, and few more.  To get the 'normal' gdb input line, press `space`, and start typing, like ` print whatever_variable`.  `q` exits the single key mode 
+
+### Intercepting exceptions
+
+When you want your code to stop whenever an exception is raised, do: 
+[[!format txt """
+(gdb) catch throw
+"""]]
+Alternatively, you can do `break __cxa_throw`.  More info in [[Kohei's blog|http://kohei.us/2009/12/22/setting-break-point-where-an-exception-is-thrown/]]. 
+
+
+### Examining strings
+
+As we have already seen in [[HackingIt|Software/ooo-build/HackingIt]], OOo has its own set of string classes, none of which gdb understands.  The recommended `.gdbinit` allows you to examine them using the `ps` macro.  Let's say, you have `rtl::OUString aString;`, and you want to know its value in gdb: 
+[[!format txt """
+(gdb) ps aString
+"the value"
+"""]]
+Simple as that.  But there are other possibilities if the above fails from some reason, like: 
+[[!format txt """
+(gdb) print dbg_dump(aString)
+"""]]
+This works on all UniString/ByteString/rtl::OUString/rtl::OString regardless of the type when debugging C++ code. See Caolan's [[write-up|http://www.skynet.ie/~caolan/TechTexts/GdbUnicodePrinting.html]] for details. 
+
+In case the functions `dbg_dump()` are not available in gdb due to linking, just copy them in your current source file from '/sal/rtl/sourc/debug_print' and add the associated includes `#include <rtl/strbuf.hxx> #include <rtl/ustring.hxx>`. gdb should recognize them then. 
+
+
+### It crashes, but only in gdb
+
+What fun - you symlinked desktop/unxlngi4.pro/bin/soffice to soffice.bin in your install tree didn't you. That works fine if you just run it, but it seems gdb unpacks the symlink and passes a fully qualified path as argv[0], which defeats the hunting for the binary in the path, so it assigns the program base path as `/opt/OpenOffice/OOO_STABLE_1/desktop/unxlngi4.pro/bin` and starts looking for (eg. applicat.rdb) in there. Of course when it fails to find any setup information, it silently crashes somewhere else yards away from the original problem. 
+
+
+### It crashes, but doesn't crash
+
+For various reasons signal handlers are trapped and life can get rather confusing; thus it's best for builders to apply something like this: 
+[[!format txt """
+--- sal/osl/unx/signal.c
++++ sal/osl/unx/signal.c
+@@ -188,6 +188,8 @@ static sal_Bool InitSignal()
+             bSetILLHandler = sal_True;
+        }
+ 
++       bSetSEGVHandler = bSetWINCHHandler = bSetILLHandler = bDoHardKill = sal_False;
++
+        SignalListMutex = osl_createMutex();
+ 
+        act.sa_handler = SignalHandlerFunction;
+"""]]
+
+### I can't find the code from the trace
+
+Some methods, are described as having a special linkage, such that they can be used in callbacks; these typically have a prefix: `LinkStub`, so search for the latter part of the identifier in a freetext search. eg. the following builds the '[[LinkStubImplHandlePaintHdl|LinkStubImplHandlePaintHdl]]' method: 
+[[!format txt """
+IMPL_LINK( Window, ImplHandlePaintHdl, void*, EMPTYARG )
+"""]]
+
+### It always crashes in sal_XErrorHdl
+
+You are a victim of asynchronous X error reporting.  Before you start gdb, do: 
+[[!format txt """
+export SAL_SYNCHRONIZE=1
+"""]]
+It will make all the X traffic synchronous, and report the error by the method that caused it, it'll also make OOo far slower, and the timing different. 
+
+
+### The trace shows a crash in 'poll'
+
+OO.o is a fairly threaded program, you're probably just looking at the wrong thread: there are not likely to be bugs in poll. Use 
+[[!format txt """
+(gdb) thread apply all backtrace
+"""]]
+to get a backtrace of all threads - this will most likely fail. When it does do: `thread 1` then `bt` - most crashers occur in the 'main' thread. 
+
+
+### What does this trace mean ?
+
+There are several typical stack-traces that come up again and again, one would be: 
+[[!format txt """
+    #15 0x4164a501 in raise () from /lib/tls/libc.so.6
+#16 0x4164bcd9 in abort () from /lib/tls/libc.so.6
+#17 0x415fb5a5 in std::set_unexpected ()
+   from /home/mnagashree/m72install/program/libstdc++.so.5
+#18 0x415fb5e2 in std::terminate ()
+   from /home/mnagashree/m72install/program/libstdc++.so.5
+#19 0x415fb69c in __cxa_rethrow ()
+"""]]
+This section of trace means (essentially) that an exception was thrown - but there was no-one trying to catch it. Often this means there was a missing 'try {} catch()' clause in one of the calling frames. 
+
+A great way to debug exceptions is to add a breakpoint in catch/throw, do this with `catch throw` or `catch catch` in gdb - see Intercepting Exceptions above. 
+
+
+### Useful places to put breakpoints
+
+If you have compiled with debugging enabled: `build debug=true` it is possible that you get some nice churning debug / assertion failure - and you want to get a pleasant & detailed stack-trace: to do that do `break osl_assertFailedLine`. 
+
+
+## How to re-build just the relevant pieces
+
+Often when you run gdb on a build without debugging symbols, you get an unhelpful gdb trace, but yet you can't afford the time/space to recompile all of OO.o with debugging symbols. Thus we have created a small perl helper, which will hunt for and touch files containing the symbols from your trace. This sub-set can then be re-built with debugging enabled for a better trace next time around: 
+[[!format txt """
+    gdb ./soffice.bin
+    ...
+    bt
+#0  0x40b4e0a1 in kill () from /lib/libc.so.6
+#1  0x409acfe6 in raise () from /lib/libpthread.so.0
+#2  0x447bcdbd in SfxMedium::DownLoad(Link const&amp;) () from ./libsfx641li.so
+#3  0x447be151 in SfxMedium::SfxMedium(String const&amp;, unsigned short, unsigned char, SfxFilter const*, SfxItemSet*) ()
+   from ./libsfx641li.so
+#4  0x448339d3 in getCppuType(com::sun::star::uno::Reference<com::sun::star::document::XImporter> const*) () from ./libsfx641li.so
+...
+    quit
+    cd base/OOO_STABLE_1/sfx2
+    ootouch SfxMedium
+    build debug=true
+"""]]
+Thus, all files referencing or implementing anything with [[SfxMedium|SfxMedium]] will be touched, and hence rebuilt with  debugging symbols.  ootouch is available in `bin/oootouch`. 
+
+If you want to recompile the code in just your current directory, you can use the `killobj` dmake target to remove the object files: 
+[[!format txt """
+dmake killobj
+dmake
+"""]]
+
+## Getting the build order right
+
+The build dependencies of the modules are clearly crucial to getting a clean build. When you type 'build' in a module, first build examines prj/build.list, eg. `neon/prj/build.lst`: 
+[[!format txt """
+xh      neon  :  soltools external expat NULL
+"""]]
+This specifies that 'soltools', 'external' and 'expat' have to be satisfactorily built and delivered before neon can be built.  Occasionally these rules get broken, and people don't notice for a while. 
+
+
+## What is a debug console ?
+
+So OO.o contains some hefty debugging infrastructure that you get by using `--enable-dbgutil` switch during `configure`. Note that libraries from product and non-product builds are usually incompatible, so don't mix them in the same installation. 
+
+For available tools in such builds, have a look at the various `DBG_foo` macros in `tools/debug.hxx`, or, if you already are knowledgeable about this, let others participate by writing your knowledge down here. 
+
+To actually fire up the debug settings dialog, press <ctrl><alt><shift>-D. 
+
+
+## Writer-specific hints
+
+
+### It silently fails to load my word file
+
+Caolan suggests: put breakpoints in ww8par.cxx top and tail of SwWW8ImplReader::[[LoadDoc|LoadDoc]], and confirm that the document gets as far as the import filter. 
+
+A handy human place to put a breakpoint is in SwWW8ImplReader::[[ReadPlainChars|ReadPlainChars]], you can see chunks of text as they are read in. Alternatively SwWW8ImplReader::[[AppendTxtNode|AppendTxtNode]] as each paragraph is inserted. 
+
+
+### Dumping SfxItemSet objects:
+
+
+[[!format txt """
+define dump_pSfxItemSet
+   printf "count=%i\n", $arg0->_nCount
+   set $is_i=0
+   set $is_k=0
+   while($arg0->_pWhichRanges[$is_i]!=0)
+      printf "[%i; %i]\n", $arg0->_pWhichRanges[$is_i], $arg0->_pWhichRanges[$is_i+1]
+      set $is_j=$arg0->_pWhichRanges[$is_i]
+      while($is_j<=$arg0->_pWhichRanges[$is_i+1])
+         if ($arg0->_aItems[$is_k]!=0)
+            printf "%i %i %p\n", $is_k, $is_j, $arg0->_aItems[$is_k]
+         end
+         set $is_j++ 
+         set $is_k++
+      end
+      set $is_i=$is_i+2
+   end
+end
+"""]]
+
+### Dumping the nodes structure
+
+This functions doesn't seem to be friendly with _set print object_ or _set print pretty_. 
+[[!format txt """
+define pIndent
+  set $level = $arg0
+  set $iLevel = 0
+  while ( $iLevel < $level )
+    printf "\t"
+    set $iLevel = $iLevel + 1
+  end
+end
+
+define pNodeType
+    if ($sw_node->nNodeType==1)
+        printf "ND_ENDNODE "
+    end 
+    if ($sw_node->nNodeType==2)
+        printf "ND_STARTNODE "
+    end
+    if ($sw_node->nNodeType==6)
+        printf "ND_TABLENODE "
+    end
+    if ($sw_node->nNodeType==8)
+        printf "ND_TEXTNODE "
+    end
+    if ($sw_node->nNodeType==0x10)
+        printf "ND_GRFNODE "
+    end
+    if ($sw_node->nNodeType==0x20)
+        printf "ND_OLENODE "
+    end
+    if ($sw_node->nNodeType==0x38)
+        printf "ND_CONTENTNODE "
+    end
+    if ($sw_node->nNodeType==0x30)
+        printf "ND_NOTXTNODE "
+    end
+    if ($sw_node->nNodeType==0x42)
+        printf "ND_SECTIONNODE "
+    end
+end
+
+
+define dump_pSwUndo
+  set $su_i=0
+  while ($su_i<$arg0->nA)
+    set $su_n=((SwUndo**)($arg0->pData))[$su_i]
+    printf "%i %p %i\n", $su_i, $su_n, $su_n->nId
+    set $su_i++
+  end
+end
+
+define pNodesArr
+  set $sw_size = $arg0->nSize
+  set $iNodes = 0
+  set $indent = 0
+  while ( $iNodes++<$sw_size && $iNodes<255 )
+    set $sw_node=$arg0[$iNodes-1]
+
+    if ( $sw_node->nNodeType == 1 )
+        set $indent = $indent - 1
+    end
+
+    pIndent $indent
+
+    printf "%d ", $iNodes - 1
+    pNodeType
+
+    if ( $sw_node->nNodeType == 2 || $sw_node->nNodeType == 6 )
+        printf ", EoS: %d", $sw_node->GetStartNode( )->pEndOfSection->nOffset
+        set $indent = $indent + 1
+    end
+    
+    if ( $sw_node->IsTxtNode( ) )
+        printf ", Text: "
+        set $sw_txt = $sw_node->GetTxtNode( )->aText
+        ptu $sw_txt
+    else
+        printf "\n"
+    end
+  end
+end
+"""]]
+
+## Calc-specific hints
+
+
+### Excel Interop debugging
+
+To dump the contents of binary MS Excel files while loading them into [[OpenOffice|OpenOffice]].org, first get a local copy of the code module "oox". Then: 
+
+* XLS files (BIFF2-BIFF8): define the environment variable `OOO_BIFFDUMPER` pointing to [[file://..../oox/source/dump/biffdumper.ini|file://..../oox/source/dump/biffdumper.ini]] (full path needed). Then run `soffice.bin foo.xls` and you should get a foo.xls.dump directory in the same directory with the debug data in it. The new directory will contain the complete storage structure with all original streams, and the decoded streams with ".dump" suffix. 
+* XLSX, XLSM, XLSB files: define the environment variable `OOO_XLSBDUMPER` pointing to [[file://..../oox/source/dump/xlsbdumper.ini|file://..../oox/source/dump/xlsbdumper.ini]] (full path needed). Then run `soffice.bin foo.xlsb`. XML streams will be pretty-printed, and known binary streams (e.g. the VBA project, and the streams used in XLSB format) are decoded. 
+* also PPTX, PPTM files are supported: define the environment variable `OOO_PPTXDUMPER` pointing to [[file://..../oox/source/dump/pptxdumper.ini|file://..../oox/source/dump/pptxdumper.ini]] (full path needed). Then run <code>soffice.bin foo.pptx</code>. 
+Note: this requires a debug build of the `oox` module.  To easily get such a build, execute the following within your `sc` directory: 
+[[!format txt """
+build -- killobj ; build debug=true
+"""]]
+
+## Impress-specific hints
+
+
+### Draw/Impress text edit debugging
+
+When running a build configured with `--enable-dbgutil`, live edit mode in Draw/Impress text boxes has an extra debug hotkey: pressing <ctrl><alt>-F2 writes information about the currently edited text into a debug.log file (currently Windows-only). 
+
+
+### PPTX import
+
+See the Excel Interop Debug above for information about `OOO_PPTXDUMPER` variable. 
