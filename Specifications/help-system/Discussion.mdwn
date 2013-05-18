@@ -1,0 +1,138 @@
+
+Just starting the discussion page. 
+
+Don't forget to sign your entries with your wiki name and to split entries. 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+The initial discussion started on the freedesktop.org mailing list. [[Shaun's first post|https://listman.redhat.com/archives/xdg-list/2003-December/msg00040.html]] contains a great summary of the goals of a common documentation standard. See also [[my follow-up|http://lists.freedesktop.org/archives/xdg/2004-February/003293.html]] summarizing what we agreed on.  
+
+[[CorneliusSchumacher|CorneliusSchumacher]] 
+
+
+
+---
+
+ 
+
+There's a number of possibilities for how we find help files.  This is all about coming up with a mapping from URIs to file names. 
+
+The first question is what we use for URIs.  There're basically two possibilities here.  The first is to use https URLs that resolve to actual files on the internet.  We then create some sort of local mapping to find those files on the local box.  Let's call this local cache mapping. 
+
+The second possibility is to have a specific URI domain that things map to.  For example, we could map help:gnumeric/gnumeric.xml to $XDG_DATA_DIRS/help/C/gnumeric/gnumeric.xml (using the XDG base directory spec.)  Of course, the app would look under different languages based on what locale the user was in.  A variation on this is what KDE uses. 
+
+There are a number of issues that have to be dealt with in both cases, as well as issues specific to one method or the other. 
+
+The first issue I think of is the fact that a single docbook file often maps to multiple pages of data.  This is the case in how help is displayed in both Gnome and KDE.  I'm not sure how yelp solves this problem, but khelpcenter, if it can't find the given url, searches the directory given for an index.docbook file and uses that to generate the required html file.  It saves this information to a cache file and just loads from that cache file if it exists.  This solution works quite well. 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+I've thought of three possibilities for local cache mapping.  Let's call them methods 1, 2, and 3. 
+
+Methods 1 and 2 have in common that they're an arbitrary mapping from URL to filename.  Method 1 is to have a database mapping the information and method 2 is to have individual files (probably .desktop file format) each one describing a single document.  With method 2, you can have a database with a cache of all the information, but it's not the cononical source. 
+
+For packaging purposes, method 2 is very clearly preferred to method 1.  It's much easier for a distro to install an extra file than to modify a file that's already there.  This is the reason, for example, that the menu spec allows you to search a directory and add any menu files found to the current menu. 
+
+Method 3 is to have a specified mapping from URL to file name.  For example, [[http://www.clahey.net/docs/present.html|http://www.clahey.net/docs/present.html]] might map to /usr/share/docs/www.clahey.net/docs/present.html with a backup to look for present.docbook or something like that. 
+
+Of these 3, my favorite is method 2.  However, I don't actually like any of them.  I don't want a local cache mapping. 
+
+First, it has the conceptual problem that a URL is variable whereas the docs on a particular distro are not.  Or at the very least, they're variable in different dimensions. 
+
+For example, if a distro makes changes to a program that lead to changes in documentation, that particular version of the doc is different from the one at the "cononical" source.  Theoretically, you could put the docs in a different place, but there could be links all over the place to those docs.  For instance, if docs for another program refer to docs for this program, when the user clicks on that link, you want them to get the docs for the version of the program that they will run, not the docs for some theoretical upstream version. 
+
+Whereas online docs change in a different dimension, that of time.  Say someone is using the upstream version of a program.  They want the docs for their version, not the ones for the latest version.  However, the link is to the online version which is going to be the latest version.  Yes, it's going to try to map to the local copy, but which is the correct version of the document? 
+
+The reason using online mappings like this works for DTDs is that they're defining something which isn't nearly as variable.  Yes, the language described by the DTD changes over time, but you'll also note that the URL changes when the DTD does, and the documents described by the old DTD still point to the old URL as they should. 
+
+That makes sense because DTDs are about describing the type of the current document.  But that's not what links in help docs are for.  They're for referring to other help, which should change, even if the referencing document doesn't.  Having versioned URLs for the help means a huge maintenance pain keeping the links up to date. 
+
+Local cache mapping is also a problem if a project doesn't have a web space of their own.  Or say that the web space is small and won't handle high bandwidth.  No matter whether we put the cache in or not, people will sometimes link to it.  Or say that the web space is some awful URL.  All in all, it seems like an odd requirement to have a web space to be able to link to your docs. 
+
+Finally, perhaps we can come up with some sort of database of information about where the cononical docs are kept and include that in the docs themselves.  Perhaps in some metadata.  That way we make the cononical version an optional thing instead of a requirement that doesn't really make sense anyway. 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+I like the idea of having a help: URI namespace.  We should really use the XDG data dirs standard for this.  We should map <help:/path/to/file.ext> to <$XDG_DATA_DIRS/help/$lang/path/to/file.ext>.  I'm totally fine with namespacing the path/to/file.ext with the project name, for example.  Having all gnome docs be in <help:/gnome/> would be 100% fine with me.  We could also have a <help:/common/> section for css and stuff like that. 
+
+As far as pages inside a file, I'm fairly happy with the behavior that KDE has.  <help:/path/to/file.ext> first checks for the given file.  It then looks in the same directory for a file called index.docbook and sees if processing that file gives the file being looked for and uses that output if it does.  This file isn't generated, but is stored in a cache index.cache.bz2 (that can be shipped so that it uses the cache on the first viewing.) 
+
+One of the advantages of using XDG_DATA_DIRS is that we get the ability for user installed apps to have help very easily.  The user can also do things like put a file in $XDG_DATA_HOME/help/common/default.css to change their stylesheet for accessibility or style reasons. 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+The next problem we need to solve is the table of contents of help (TOC). 
+
+KDE's solution is to use the menu system and just put a reference to the help in the desktop files.  This has the advantage that the help is arranged in the same way as the menus, so if the user knows how to find the app, they can find the help for it. 
+
+KDE has the menu system as a subdirectory and keeps some other docs in a different hierarchy, but this is overly complicated.  Instead, the help TOC should be a .menu file of its own with the main menu file as a subdirectory. 
+
+One of the things that can be done is to match other elements of the menu system in the TOC.  For instance, if a DE adds recently used apps to the menus, those apps can have a special section in the help TOC. 
+
+Gnome uses scrollkeeper.  One thing to note about scrollkeeper is that it requires keeping a database which takes up a bit of time every time we install.  This also allows for the categories of help to be completely distinct from the applications themselves.  This is a problem, since repeating the structure of the menus here means that the user only has to learn one location for a particular app.  It would be possible to do the same thing with scrollkeeper, but it would add a whole lot of maintenance work to keep the two structures in sync. 
+
+The one thing I'm not sure how to handle is an app with multiple help files, or even an extendable set of help files. 
+
+For multiple help files, I suppose you could just list them all in the desktop file, but an extendable set of help files creates problems.  The example I'm thinking of here is control center.  In Novell's Gnome, control center is a single app, but the docs for it are split up into a bunch of bits.  Does anyone have any suggestions for this problem? 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+The next thing I want to discuss is links to outside materials.  I assume there's already a way to link to web pages, for instance.  The main thing I'm curious about is the concept of launching applications and doing actions in them.  For instance, the help manual for a particular app might be able to pull up that particular app or open a specific dialog in that app. 
+
+I think the right way to do this is the simple way.  Just support a url scheme that lets you execute code.  Perhaps shell: or something like that.  This is simple and should work. 
+
+One thing that's important is the security issues here.  If you're going to support this link type, you need to make sure that it comes from local documentation, and not a website. 
+
+An alternative to this is to just have a predefined set of actions that are possible.  Say a specific directory full of desktop files for help docs to execute.  The help doc just specifies the name of the desktop file.  This way, even if a website does include such a link, all that happens is one of the predefined actions.  (Note, the link shouldn't be allowed to pass arguments to the desktop file for security reasons.  I think we need a separate desktop file for each possible thing the help doc might want to do.) 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+I've started writing up all the ideas here in the parent document as a specification. 
+
+[[ChrisLahey|ChrisLahey]] 
+
+
+
+---
+
+ 
+
+I went in and boldly edited the parent document, recommending simple support for man and info.  There are LOTS of documents in these formats; if we support them directly, then we have an integrated system for handling them.  Forcing everyone to store man and HTML files makes no sense in many circumstances; best to do the translation on the fly, in which case a "man" convention helps. 
+
+[[DavidWheeler|DavidWheeler]] 
