@@ -1,0 +1,117 @@
+
+
+# Shared default keyboard shortcuts
+
+Sharing default keyboard shortcuts is being discussed at freedesktop.org in [[this thread|http://listman.redhat.com/archives/xdg-list/2003-July/msg00265.html]], continuing [[here|http://listman.redhat.com/archives/xdg-list/2003-August/msg00012.html]]. 
+
+A good source of keyboard shortcuts in different systems is now in Wikipedia:  [[Table of keyboard shortcuts|http://en.wikipedia.org/wiki/Table_of_keyboard_shortcuts]]. Its origin comes from  [[http://people.mandriva.com/~fcrozat/shortcuts/shortcuts2.gnumeric|http://people.mandriva.com/~fcrozat/shortcuts/shortcuts2.gnumeric]] (gnumeric spreadsheet). 
+
+We are currently gathering requirements for a specification to handle this. Please add comments. 
+
+
+## Points to address
+
+
+### What types of keys are being considered?
+
+The most important aspect for consistency is to make sure that everything works the same within a session. So, all my applications should use *Ctrl-S* for Save, for example, whether they are from GNOME, KDE or whatever. Having the same key for "Open home directory" if I select KDE from the session menu rather than GNOME is perhaps less important. 
+
+
+### What specific keys should be in the "global key name registry"?
+
+These correspond loosly to the stock items (Save, Delete, New, etc), except that you can only use each one once per menu. 
+
+
+### What is the intended set of user interfaces that this supports? Can keys be changed from the UI of individual apps rather than just globally?
+
+We still need to be able to bind application specific keys. This spec is about letting the user bind eg *Help* to *Ctrl+H* everywhere (non-English users often use the function keys for accents). Rebinding Help from a single application could either be prevented, or should only affect that application. 
+
+
+### For application accelerators, how does conflict resolution work? If I change File/Save to something other than Control-S, it's pretty likely to conflict with other accelerators in many applications.
+
+A good idea (from KDE) is to allow the same key for multiple actions. When pressed, a menu of all possible actions is presented to the user, who can then either choose one or, possibly, change the bindings on some of them. 
+
+
+### Where are the settings saved? How are updates managed?
+
+Owen suggests using Havoc's [[config-spec][newconf|config-spec][newconf]]: 
+
+                     * Per-directory change notification 
+                     * Network transpareny 
+                     * Centralised caching 
+                     * Potential ability to do atomic changes of multiple keys 
+Problem: newconf doesn't exist, and won't for a year or two. Going through three processes (newconf, dbus, application) to get every config setting could be very slow. 
+
+Also, it won't work if dbus isn't running. Storing config in XDG_CONFIG_DIRS and using dbus for update notification is fast and works pretty well even if dbus isn't running. But, it's not network-transparent. 
+
+
+### seperation of Shortcuts by targets
+
+Seperate key shortcuts for diffenrent targets. Some shortcuts should be only used by programms, some for the environment(eg. Desktop System(KDE, Gnome), [[WindowManager|WindowManager]], ...), default task(eg. open/start programms/deamons/... or check for mails), get System infos, reboot/logoff/...) 
+
+
+### shortcuts Programm association
+
+The shortcuts should be saved in a per programm file for system defaults and user settings, where user settings have preference. There should be a layer that check the input and fetch the none programm shortcuts and give them the environments(eg. bash, [[WindowManager|WindowManager]]), system(eg. for reboot) or start a programm for Systeminfos, ... .  
+
+If there is no shortcut description as system default or users setting for the active programm(on console the forground or if there are only backgroundprogramms the one with the lowest bg no., and on visualsystems(eg. X Window) the top programm) only the absolut basic system shortcuts should be interpreted(eg. change vitual terminal, change programm, reboot, ...) With the per program and user descript a nationalization is possible(use shortcuts that are possible withe users keybord(the key differ on systems, some keybords have not so much Fx key as a PC one) and the language(some key have other positions(eg. non aphanumeric key can be the main/default for a key or only accessible with key combinations. Which make some key combination impossible). On this way the user can define shortcuts that make a better association of the shortcut and what it does, or which is better to input, or make the use of alternate input device possible(needed for people with disablities(eg. one hand people) or remote controls for multimedia systems). 
+
+
+## Existing systems
+
+
+### KDE
+
+This would probably be quite easy from the KDE side.  We currently have all the general shortcuts (i.e., not those specific to a single application) in `~/.kde/share/config/kdeglobals`, but there would be nothing preventing us from reading and writing to another location or with another format. 
+
+
+#### What types of keys are being considered?
+
+Currently KDE distinguishes between default _Global Shortcuts_ and default _General Application Shortcuts_.  Globals are for such things as switching between applications or desktops.  Generals are the Open, Close, Copy sort of actions. 
+
+
+#### What is the intended set of user interfaces that this supports? Can keys be changed from the UI of individual apps rather than just globally?
+
+KDE allows the default keyboard shortcuts to be defined in the KControl application; however, users can change the *Help* shortcut (for example) to whatever else they want in any KDE application. 
+
+
+#### For application accelerators, how does conflict resolution work?
+
+If I change File/Save to something other than Control-S, it's pretty likely to conflict with other accelerators in many applications. 
+
+I think it's to give the users a selection of which action to execute, as we do in KDE. If there's a shortcut conflict, any decision we'd make as programmers about which one to execute will be dangerous for the user. 
+
+
+#### Where are the settings saved? How are updates managed?
+
+                     * Regarding saving: we save the defaults in a single file.  The kde libraries read the default shortcuts from that file. 
+                     * Regarding updates: for a running application, the old shortcuts continue to be effective until the next program start.  If we wanted to update them in running programs we could send out a global DCOP message that the default shortcuts have been changed.  The kde library would capture the message and updates its shortcuts against the kdeglobals file.  Very easy. 
+(Ellis Whitehead) 
+
+
+### GNOME
+
+GNOME does various different things: 
+
+                     * A large number of specific key shortcuts are configurable through GConf; things like launching the panel menu or (?) 
+                     * There is the notion of a "key-theme" for GTK+ that configures widget bindings. You can switch the current key theme through   XSETTINGS, but you have to (restart the applications?) 
+                     * Application shortcuts (Save) are not generally configurable in GNOME apps. GTK+ has a mechanism for doing this for individual apps which is generally turned off in GNOME. 
+(Owen Taylor) 
+
+Gnome keyboard interaction is documented here: [[http://developer.gnome.org/projects/gup/hig/2.0/input-keyboard.html|http://developer.gnome.org/projects/gup/hig/2.0/input-keyboard.html]] 
+
+
+### ROX
+
+ROX allows all keybindings to be changed dynamically, but doesn't provide any shared defaults. 
+
+
+### Mozilla
+
+For a discussion about keyboard shortcuts in Mozilla, see [[http://www.mozilla.org/access/keyboard/|http://www.mozilla.org/access/keyboard/]] 
+
+Mozilla uses Control as modifier key, but this is [[customizable|[http://www.mozilla.org/unix/customizing.html]]]. 
+
+Keybindings in the XPToolkit of Mozilla [[http://www.mozilla.org/xpfe/xptoolkit/keys.html|http://www.mozilla.org/xpfe/xptoolkit/keys.html]] 
+
+-- Main.[[ThomasLeonard|ThomasLeonard]] - 08 Mar 2004 
