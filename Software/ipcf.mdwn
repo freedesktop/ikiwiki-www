@@ -1,0 +1,18 @@
+
+IPCF - The [[InterPersonal|InterPersonal]] Communication Framework project 
+
+The aim of this project is to provide a framework that unifies all forms of real time conversations, including, but not limited to, instant messaging, IRC and voice and video over IP. It aims to provide an interface to client applications allowing them to implement, in a minimal number of lines of code, real time communication over any implemented protocol. 
+
+This diagram provides a good overview (corrections, modifications and ideas most welcome): [[http://farsight.sourceforge.net/convframework.dia|http://farsight.sourceforge.net/convframework.dia]] 
+
+Core components are: 
+
+Presence manager - signals when the methods of communication available for known people change. should this also manage account information? 
+
+Conversation manager - provides a unified conversion api over dbus for all known protocol types, this includes text communication, state change requests, service access request (e.g. voicemail retrieval, retrieval of stored messages, call transfer, etc.). Should have a plugin system for supported protocols. 
+
+Multimedia Manager - handles realtime multimedia handling. controlled by conversation manager, but will often need to be in the clients process to allow for embedding of video, etc. Should there be a way this can be out of process, say using XEmbed? 
+
+The core units of communication is a Person or a Room. A Conversation can take place with a Person, a group of Persons, or everyone in a Room. For any given conversion there will be none, one or more methods available for holding that conversion. These methods can be identified by a protocol type, or by a set of capabilities. (e.g. IRC/[text,file transfer], MSN/[text/icons/file transfer/voice/video]) 
+
+Open Questions: What about when there's multiple ways of fulfilling a given capability? (e.g. msn video conferencing/msn video conversations/msn webcam) The user should be able to specify, if she cares, or the the best available should be chosen if she doesn't. 
