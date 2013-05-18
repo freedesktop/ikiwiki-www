@@ -1,0 +1,104 @@
+<<TableOfContents>>
+
+== Getting the sources ==
+
+ooo-build sources are stored in [[http://git-scm.com/|git]].  To clone the latest version of ooo-build, please use:
+{{{
+git clone git://anongit.freedesktop.org/git/ooo-build/ooo-build
+}}}
+
+Registered developers should use the following command to enable writing to the repository:
+{{{
+git clone ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build
+}}}
+
+If you [[Software/ooo-build/AccountRequestCheatSheet|asked for your account]], but did not get one yet, just clone from the anonymous repository, you can commit and update (`git pull -r`) immediately, and push the changes later when you have the read/write access.  You can also [[Software/ooo-build/Contributing#mailthechanges|send the changes by mail]].  To change your anonymous clone into a read/write (after you got the write access), change the URL in .git/config from the anonymous URL to the read/write.
+
+To learn how to build your fresh ooo-build clone, continue with the [[Software/ooo-build/BuildingIt|BuildingIt]] pages.
+
+== Basic instructions ==
+
+Please check our '''[[Software/ooo-build/SVNToGitCheatSheet|SVN to git cheat sheet]]''' for quick reference.  You might be also interested in [[http://mercurial.selenic.com/wiki/GitConcepts#Command_equivalence_table|git/hg cheat sheet]] if you are more a Mercurial person, or if you want to up-stream something.
+
+== Getting a particular branch ==
+
+When you have cloned the repository, you can switch to any branch you need.  The bleeding edge development happens in ''master'', which is what you get when you clone the repository.  To switch eg. to branch ''ooo-build-3-2-1'', do:
+{{{
+git checkout -b ooo-build-3-2-1 origin/ooo-build-3-2-1
+}}}
+
+This exactly means "please create a local branch ooo-build-3-2-1 that tracks what's happening in the remote branch ooo-build-3-2-1".  You can get a list of all the available remote branches using ''git branch -r''.
+
+Once you have created the branch(es), you can switch between them using ''git checkout'':
+{{{
+git checkout master
+git checkout ooo-build-3-2-1
+}}}
+
+''Note: You might want to keep the older ooo-build branches in separate locations.  When you have cloned ooo-build master to eg. ~/ooo-build, you can use the --reference feature of git clone to save bandwidth:''
+{{{
+git clone --reference ~/ooo-build \
+    ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build ooo-build-3-2-1
+cd ooo-build-3-2-1
+git checkout -b ooo-build-3-2-1 origin/ooo-build-3-2-1
+}}}
+
+''We recommend you to have the branch you are interested in as the only branch there:''
+{{{
+# remove the master branch in this repository, we are interested only in ooo-build-3-2-1
+git branch -D master
+}}}
+
+== Getting a particular tag ==
+
+To switch your local repository to the given tag, use the following command:
+{{{
+# let's say we want the tag OOO_BUILD_3_0_99_3
+git checkout -b tag-OOO_BUILD_3_0_99_3 OOO_BUILD_3_0_99_3
+}}}
+
+This exactly means "please create a local branch tag-OOO_BUILD_3_0_99_3 that shows the state of the sources when the tag OOO_BUILD_3_0_99_3 was created".  For the operations like diff, log, etc. you don't have to create the branch; just directly do
+{{{
+git log OOO_BUILD_3_0_99_3
+git diff OOO_BUILD_3_0_99_3 master
+}}}
+
+The tags are created for released sources, branches or some specific commits.  To list them all, use:
+{{{
+# ensure that you have all the tags from the remote repository
+git pull -t
+# show the tags
+git tag
+}}}
+
+== Getting the latest updates ==
+
+We use the same git workflow as described in the [[Infrastructure/git/Developers|common freedesktop.org git instructions]].  The reasoning is simple - using just the ''git pull'' (without the ''-r'') tends to create too many unnecessary 'merge' commits when there are more people working on one repository - and this is what we want to avoid.
+
+So, to get the updates, use
+{{{
+git pull -r
+}}}
+
+Please, '''do not forget the ''-r'' !''' - ''-r'' means that instead of merging, ''git pull'' rebases your local changes against the changes from the remote repository.  See also the [[#pushthechanges|Pushing the changes]] section.
+
+''Note: Using rebase might be dangerous, and can lead to a situation when you seemingly lose a commit.  Don't worry, nothing is lost with git - after the finished git pull -r do the following:''
+{{{
+# let git search for the lost commits
+git fsck --lost-found
+# show them all, together with the patches
+git show `cat .git/lost-found/commit/*`
+# find the commit ID in the git show, and create a temporary branch
+git checkout -b tmpbranch the_ID_you_just_found
+# now you have the commit in tmpbranch, and you can do what you need
+# (eg. another rebase, or something)
+}}}
+
+== More info ==
+
+ * [[Software/ooo-build/|I have the ooo-build sources. What next?]]
+ * [[http://git-scm.com/|git home page]]
+ * [[Software/ooo-build/SVNToGitCheatSheet|ooo-build SVN to git cheat sheet]]
+ * [[Infrastructure/git/Developers|freedesktop.org git instructions]]
+ * [[Infrastructure/git/RepositoryAdmin|freedesktop.org git repo administration]] - personal repositories, etc.
+ * [[http://progit.org/book/|Pro Git]] - the Git book
