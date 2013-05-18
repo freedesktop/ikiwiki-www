@@ -1,0 +1,189 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[!inline pages="DevelopingModulesTOC" quick="yes" raw="yes"]] 
+
+
+# Interface of `pa_core`
+
+From [[pulsecore/core.h|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/core.h]]: "The core structure of PulseAudio. Every PulseAudio daemon contains exactly one of these. It is used for storing kind of global variables for the daemon." 
+
+`pa_core` doesn't have any interesting functions associated with it, it is just a central collection of all the components and globally relevant variables. You're not supposed to modify the fields, at least not directly. 
+
+Actually, in addition to being a variable collection, there are two interesting enumerations too. 
+
+The most important field is perhaps `mainloop`. That can be used for communicating with the daemon mainloop, see [[Daemon Mainloop|Software/PulseAudio/Documentation/Developer/MainLoop]]. 
+
+
+## `struct pa_core`
+`parent` 
+: 
+      * `pa_core` is a subclass of `pa_msgobject`, which implies that the first field of `pa_core` is of type `pa_msgobject`. It means also that `pa_core` can receive messages, see "The unnamed enumeration" later on this page. At some point in the future I may write a page about the [[object system|Software/PulseAudio/Documentation/Developer/ObjectSystem]] used inside PulseAudio. I think documenting the [[pa_msgobject API|Software/PulseAudio/Documentation/Developer/MsgobjectAPI]] would be useful too. 
+
+`cookie` 
+: 
+      * A random value which may be used to identify this instance of PulseAudio. Not cryptographically secure in any way. 
+
+`mainloop` 
+: 
+      * Pointer to the mainloop API. 
+
+`clients` 
+: 
+      * Currently connected clients. If you're not familiar with the `pa_idxset` type, see the [[header|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/idxset.h]]. 
+
+`sinks`, `sources` 
+: 
+      * Currently existing sinks and sources. 
+
+`sink_inputs`, `source_outputs` 
+: 
+      * Currently existing sink inputs and source outputs. 
+
+`modules` 
+: 
+      * Loaded modules. 
+
+`scache` 
+: 
+      * The sample cache. The contained items are of type `pa_scache_entry`. 
+
+`namereg` 
+: 
+      * All sink, source and sample names are stored in this hashmap. The hashmap ensures the uniqueness of the names. This is accessed through the [[namereg interface|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/namereg.h]]. 
+
+`shared` 
+: 
+      * Modules can share variables through this "shared hashmap". Instead of using the hashmap functions directly, this variable should be accessed through a [[separate interface|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/shared.h]]. 
+
+`default_source_name`, `default_sink_name` 
+: 
+      * Pretty self-explanatory, but do not access these directly, but through `pa_namereg_set_default`, `pa_namereg_get_default_sink_name` and `pa_namereg_get_default_source_name` that are defined in [[pulsecore/namereg.h|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/namereg.h]]. 
+
+`default_sample_spec` 
+: 
+      * When in need of a default format for an audio stream, you'll find it here. 
+
+`default_n_fragments`, `default_fragment_size_msec` 
+: 
+      * The default buffering settings that should be used by sinks and sources when opening a hardware device. 
+
+`module_auto_unload_event` 
+: 
+      * The module system uses this to poll for modules that should be unloaded. Not for you. 
+
+`module_defer_unload_event` 
+: 
+      * The module system uses this to make mainloop unload modules. Not for you. 
+
+`subscription_defer_event` 
+: 
+      * The subscription system uses this to make mainloop inform the subscribers about an event. Not for you. (What subscription system? See [[Catching Events|Software/PulseAudio/Documentation/Developer/CatchingEvents]].) 
+
+`subscriptions` 
+: 
+      * Head of the list of existing subscriptions. Not for you. 
+
+`subscription_event_queue` 
+: 
+      * Head of the list of unprocessed events. Not for you. 
+
+`subsrciption_event_last` 
+: 
+      * Last item of the list of unprocessed events. Not for you. 
+
+`mempool` 
+: 
+      * The memory pool. You may need this as an argument to some functions. 
+
+`exit_idle_time` 
+: 
+      * The time in seconds between the moment the last client has left and the moment pulseaudio exits, if automatic exiting is used. 
+
+`module_idle_time` 
+: 
+      * The time in seconds between the moment the last client has stopped using a module and the moment the module gets unloaded, if the module is set to be automatically unloaded. 
+
+`scache_idle_time` 
+: 
+      * The time in seconds between the moment a sample has been fired last time and the moment the that the sample gets unloaded, if the sample is loaded as "lazy". 
+
+`quit_event` 
+: 
+      * If the daemon is told to exit after a period of idleness, it uses this to track the idle time. Not for you. 
+
+`scache_auto_unload_event` 
+: 
+      * The sample cache uses this to track the time that the lazy samples have been unused. Not for you. 
+
+`disallow_module_loading` 
+: 
+      * Controls whether modules can be loaded (and unloaded) or not. 
+
+`running_as_daemon` 
+: 
+      * If pulseaudio is daemonized, this is one, otherwise zero. 
+
+`resample_method` 
+: 
+      * The resample method that the user has chosen. 
+
+`is_system_instance` 
+: 
+      * This indicates whether pulseaudio is running as a per-user or a system-wide daemon. 
+
+`high_priority` 
+: 
+      * One, if pulseaudio has made itself a high-priority process (i.e. is running with the SCHED_FIFO scheduling class), zero otherwise. 
+
+`hooks` 
+: 
+      * The hooks that can be used to catch events in core, see [[Catching Events|Software/PulseAudio/Documentation/Developer/CatchingEvents]]. 
+
+
+
+## `enum pa_core_hook`
+
+The enumeration contains all the events that can be catched synchronously, see [[Catching Events|Software/PulseAudio/Documentation/Developer/CatchingEvents]]. 
+
+
+## The unnamed enumeration
+
+There's this enumeration, that has only two elements: `PA_CORE_MESSAGE_UNLOAD_MODULE` and `PA_CORE_MESSAGE_MAX`. It contains all the messages that can be sent from outside the daemon mainloop thread to the core, and currently there is only one such message. 
+
+`PA_CORE_MESSAGE_UNLOAD_MODULE` causes a module (give the pointer as userdata to pa_asyncmsgq_post) to get unloaded. The difference between using this message and calling `pa_module_unload_request()` is that the latter may only be called using the daemon mainloop, the message can be sent from other threads. 
+
+For information on how to use the inter-thread message passing system, see [[Messaging System|Software/PulseAudio/Documentation/Developer/MessagingSystem]], or while waiting for that to materialize, try [[Software/PulseAudio/Documentation/Developer/Threading|Software/PulseAudio/Documentation/Developer/Threading]]. 
+
+
+## Functions and macros
+
+As mentioned earlier, the functions `pa_core` has associated with it, are not interesting for module writers. I'll list them here anyway for completeness's sake. 
+`pa_core_new` 
+: 
+      * Creates a new core that will use the given mainloop. The parameter `shared` is a boolean indicating whether the created mempool should be shared or not. 
+
+`pa_core_check_quit` 
+: 
+      * Updates the quit_event field, called by the client system when clients come and leave. 
+
+
+`PA_DECLARE_CLASS(pa_core)` in the header causes the following functions to become available (they are explained in the [[Object System|Software/PulseAudio/Documentation/Developer/ObjectSystem]] page): 
+`pa_core_isinstance` 
+: 
+
+`pa_core_cast` 
+: 
+
+`pa_core_ref` 
+: 
+
+`pa_core_unref` 
+: 
+
+`pa_core_refcnt` 
+: 
+
+`pa_core_assert_ref` 
+: 
+
+
+And then there is the `PA_CORE` macro, that is just an alias for `pa_core_cast`. 
