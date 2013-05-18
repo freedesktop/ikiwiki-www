@@ -1,0 +1,56 @@
+
+
+## Migrating a CVS module to Git.
+
+This page provides some instructions on how to migrate a module from CVS to git using the parsecvs utility (which desperately needs UI work). 
+
+
+### Prepare the community
+
+The first thing to do is pick a reasonable time to make the transition. A week before a major release of either X.org or the module itself is probably not the best plan. With a timeframe in mind, coordinate with other major maintainers of the module and select a target date. Send mail to your mailing list announcing your intention and include the proposed schedule. You should also remind developers of the expected sequence of events so no-one is surprised (or at least the surprise will be their fault for skipping over your carefully delivered email). Here's the usual sequence of events: 
+
+1. Send migration warning email (this mail) 
+1. Wait for selected date 
+1. Make the CVS tree read-only 
+1. Convert the tree using parsecvs 
+1. Stick warning signs in CVS 
+1. Push exported tree to kemper 
+
+### Make CVS tree read-only
+
+Ask an admin to make the CVS tree read-only on kemper, and make you a tarball of the repository. 
+
+
+### Convert tree using parsecvs
+
+OK, this tool is primitive, but handles our broken CVS bits better than git-cvsimport. 
+
+1. Ensure edit-change-log (from parsecvs) is in your path. This script takes [[ChangeLog|ChangeLog]]-style commit messages and converts them to  plain text. 
+1. Create a directory for the module, cd to it. 
+1. Create an Authors file, similar to xorg-Authors in the parsecvs tree. 
+1. Run the import process: 
+   * find cvsrepodir/ -name '*,v' | parsecvs 
+1. Verify the results 
+   * gitk --all 
+   * git-checkout master 
+   * diff -r . <checkout of CVS head> 
+1. Prepare the git tree for publication 
+   * chmod +x .git/hooks/post-update 
+   * fix up the update hook, chmod +x .git/hooks/update 
+
+### Stick warning signs in CVS
+
+1. Edit configure.ac in the CVS version, adding this just before the final AC_OUTPUT call: 
+
+[[!format txt """
+AC_MSG_ERROR([The $module is now maintained at:]
+[    git://git.freedesktop.org/git/reponame]
+[Please use that repository.]
+"""]]
+1. Temporarily make CVS writeable 
+1. Commit change 
+
+### Export git tree
+
+1. Get the admins to create a [[new git repository|Infrastructure/git/RepositoryAdmin]] for you. 
+1. `git push --force --all ssh://git.freedesktop.org/git/reponame` 
