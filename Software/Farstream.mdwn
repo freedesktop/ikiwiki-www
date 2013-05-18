@@ -1,0 +1,95 @@
+
+
+# Farstream - Audio/Video Communications Framework
+
+The Farstream (formerly Farsight) project is an effort to create a framework to deal with all known audio/video conferencing protocols. On one side it offers a generic API that makes it possible to write plugins for different streaming protocols, on the other side it offers an API for clients to use those plugins. 
+
+The main target clients for Farstream are Instant Messaging applications. These applications should be able to use Farstream for all their Audio/Video conferencing needs without having to worry about any of the lower level streaming and NAT traversal issues. 
+
+Farstream forms an integral part of the [[Telepathy|http://telepathy.freedesktop.org/]] framework. It is used by [[Empathy|http://live.gnome.org/Empathy]] through the Telepathy-Farstream library. The Telepathy-Farstream library binds it to the Connection Managers via [[D-Bus|http://dbus.freedesktop.org]] and the [[Telepathy Media Stream Spec|http://telepathy.freedesktop.org/spec.html]] and is used for all their streaming requirements. 
+
+Telepathy and Farstream constitute the first implementation of the [[Jingle XMPP|http://www.xmpp.org/extensions/xep-0166.html]] protocol. 
+
+Farstream deals with all the streaming specific parts of the protocol and leaves the signaling to the clients. The Farstream plugin API is heavily influenced by the ICE (Interactive Connectivity Establishment) RFC draft. This API allows for an easy interaction between the signaling and streaming parts of the sessions. 
+
+Farstream uses [[GStreamer|http://gstreamer.freedesktop.org]] for all it's media streaming needs. A large part of the project is to provide the required elements and improvements to GStreamer in order to deal with streaming protocols such as RTP. 
+
+Farstream will also be using the [[GstFilters|Software/GstFilters]] library to make it easier to build the GStreamer filter-like pipelines. 
+
+Farstream is written in C using GLib and uses GObjects extensively. Versions before 0.2 provide python bindings, version 0.2 and later uses [[GObject Introspection|https://live.gnome.org/GObjectIntrospection]] to provides bindings, it is known to work with Python, but other GObject Introspection based bindings should also work. 
+
+This project is sponsored by [[[[!img http://www.collabora.com/]|http://www.collabora.com/]] 
+
+
+## License
+
+Farstream is licensed under the [[GNU Lesser General Public License, version 2.1|http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html]] or later. 
+
+
+## Documentation
+
+The core API documentation is available for [[Farstream|http://www.freedesktop.org/software/farstream/apidoc/farstream/]] and its [[plugins|http://www.freedesktop.org/software/farstream/apidoc/farstream-plugins/]]. 
+
+There is a [[Software/Farstream/FAQ|Software/Farstream/FAQ]] and some videos/slides from [[Software/Farstream/Talks|Software/Farstream/Talks]] about Farstream. 
+
+The H263/H263+/H263++ RTP fiasco is explained in [[Software/Farstream/H263Jungle|Software/Farstream/H263Jungle]]. 
+
+A almost up to date page documenting the RTP design for GStreamer : [[Software/Farstream/GstRtpDesign|Software/Farstream/GstRtpDesign]]. The Farstream API is being discussed [[Software/Farstream/Design|Software/Farstream/Design]] and the list of left todo [[Software/Farstream/Todo|Software/Farstream/Todo]] 
+
+The old core API documentation is available for [[Farsight2|http://www.freedesktop.org/software/farstream/apidoc/farsight2/]] and its [[plugins|http://www.freedesktop.org/software/farstream/apidoc/farsight2-plugins/]]. 
+
+
+## Available Plugins
+
+* rtp : RTP 
+* msn webcam : MSN Webcam 
+* raw plugin: For protocols where the media processing is done in the application. Allows using Farstream solely for the networking part. 
+
+## Available Transmitters
+
+Transmitters are plugins that are used by Farstream plugins in order to implement lower level connectivity establishment methods such as ICE or GTalk-P2P. 
+
+* raw udp : This is a raw udp transmitter with external IP detection using STUN, and can also open up ports with UPnP 
+* multicast : Multicast UDP 
+* nice ([[libnice|http://nice.freedesktop.org/]]) : This is a transmitter that uses libnice to do ICE (as defined in the [[RFC 5245|http://tools.ietf.org/html/rfc5245]]), as well as Google Talk and MSN compatible ICE-like protocols 
+* shm: Shared memory plugin for IPC between processes using shmsrc/shmsink from GStreamer. 
+
+
+---
+
+ 
+## Git repositories
+
+[[Browse|http://cgit.collabora.com/git/farstream.git/]] the Farstream development tree.   
+ Fetch it using: git clone git://git.collabora.co.uk/git/farstream.git 
+
+---
+
+ 
+## Releases
+
+[[http://freedesktop.org/software/farstream/releases|http://freedesktop.org/software/farstream/releases]] 
+
+
+
+---
+
+ 
+## Mailing list and IRC
+
+You can reach the developers and other users of Farstream at our [[mailing list|http://lists.freedesktop.org/mailman/listinfo/farstream-devel]] or in the #farstream channel on [[freenode|http://freenode.net/]]. 
+
+
+
+---
+
+ 
+## Misc Pages and Links
+
+Please report bugs in the [[freedesktop.org bugzilla|https://bugs.freedesktop.org/enter_bug.cgi?product=Farstream]]. 
+
+
+
+---
+
+ 
