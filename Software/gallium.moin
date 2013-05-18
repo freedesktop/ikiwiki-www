@@ -1,0 +1,120 @@
+= Gallium3D Technical Overview =
+
+Gallium3D is a new architecture for building 3D graphics drivers.  Initially supporting Mesa and Linux graphics drivers, Gallium3D is designed to allow portability to all major operating systems and graphics interfaces.
+
+[[http://www.freedesktop.org/wiki/Software/gallium/GAOnlineWorkshop|Additional slides, videos and examples are online]] for learning the internals of the Gallium3D architecture are available.
+
+Compared to existing Linux graphics drivers, Gallium3D will:
+
+ * Make drivers smaller and simpler.
+  Current DRI drivers are rather complicated.  They're large, contain duplicated code and are burdened with implementing many concepts tightly tied to the OpenGL 1.x/2.x API.
+
+ * Model modern graphics hardware.
+  The new driver architecture is an abstraction of modern graphics hardware, rather than an OpenGL->hardware translator.  The new driver interface will assume the presence of programmable vertex/fragment shaders and flexible memory objects.
+
+ * Support multiple graphics APIs.
+  The reduced OpenGL 3.1+ APIs will be much smaller than OpenGL 1.x/2.x.  We'd like a driver model that is API-neutral so that it's not tied to a specific graphics API.
+
+ * Support multiple operating systems.
+  Gallium drivers have no OS-specific code (OS-specific code goes into the "winsys/screen" modules) so they're portable to Linux, Windows and other operating systems.
+
+This document describes the software components of the Gallium3D architecture.  The intended audience is graphics software developers.
+
+== Building Gallium3D Reference Drivers ==
+
+Gallium3D is designed to support multiple API's, multiple GPU's, and Multiple OS and windowing systems.  The following reference drivers are specific to certain environments.  Here are the build instructions for each of the reference drivers:
+
+ * [[http://www.freedesktop.org/wiki/Software/gallium/EGLReferenceDrivers|OpenGL and OpenVG Gallium Softpipe Drivers for EGL/Linux Environment]]
+
+== The Gallium3D Interface ==
+
+The public interface of a Gallium3D driver is described by the src/gallium/include/*.h header files.
+
+The pipe_context structure (in p_context.h) is an abstract base class with per-context methods for:
+
+ * Setting rendering state (texture sampler state, blending state, rasterization state, vertex array info, drawing surfaces, etc.)
+ * Setting shader state, using the TGSI binary shader representation.
+ * Vertex array and indexed vertex array drawing.
+
+The p_state.h file defines data structures for things such as:
+
+ * Graphics state (blending, texture sampling, rasterization)
+ * Texture and surface resources
+ * Vertex array layout
+
+The pipe_screen structure is an abstract base class with context-independent methods for:
+
+ * Creating textures (and drawing surfaces)
+ * Getting "views" into textures
+ * Hardware queries (number of texture units, max texture size, etc).
+ * Creating generic memory buffers
+ * Mapping/unmapping buffers
+ * Fencing
+
+By abstracting OS and window system services, pipe drivers are portable to other platforms (e.g. embedded devices).
+
+Additional [[gallium_interface|Gallium3D interface]] information.
+
+
+== State Trackers ==
+
+The Mesa state tracker is the piece which interfaces core Mesa to the
+Gallium3D interface.  It's responsible for translating Mesa state (blend
+modes, texture state, etc) and drawing commands (like glDrawArrays and
+glDrawPixels) into pipe objects and operations.
+
+Traditional fixed-function OpenGL components (such as lighting and
+texture combining) are implemented with shaders.  OpenGL commands such
+as glDrawPixels are translated into textured quadrilateral rendering.
+Basically, any rendering operation that isn't directly supported by
+modern graphics hardware is translated into a hardware-friendly form.
+
+Future state trackers will be created for OpenGL 3.0 and OpenGL-ES 2.x.
+
+
+== Ancillary Modules ==
+
+A number of ancillary modules are available to Gallium3D drivers:
+
+1. The [[Software/gallium_draw|Draw]] module provides point/line/polygon rendering services such as vertex transformation, polygon culling and clipping.  It will be used by drivers for hardware which lacks vertex transformation (such as the i915/i945).  It may also be instantiated and used directly by the state tracker to implement some API functionality that doesn't map well to hardware capabilities.
+
+2. The TGSI module provides a universal representation of shaders
+and CPU-based execution of shaders.  All Mesa vertex/fragment programs
+and shaders are translated into the TGSI representation before being
+passed to the driver.  In turn, the driver will convert the TGSI
+instructions into GPU-specific instructions.  For hardware that lacks
+vertex or fragment shader support, the TGSI's executor can be used.
+The TGSI executor includes support for SSE code generation.  Support
+for other processors (such as Cell) will be added in the future.
+
+3. The RTASM module provides support for Run-Time Assembly/Machine code generation.
+There are sub-modules for X86/SSE, PPC and Cell machine code generation.
+
+4. The CSO module provides support for Constant State Objects.  CSOs help
+to filter out redundant state changes from getting sent to the driver.  State
+changes can be expensive and we want to avoid them whenever possible.
+
+5. The util module has code for debugging, image manipulation, hashing,
+math and miscellaneous helper routines.
+
+
+== Drivers ==
+
+As of fall 2011 there are approximately 10 gallium drivers in the source tree.  Most are mature and work pretty well.
+
+
+== Deprecated Drivers ==
+
+The Intel i965 driver, the Cell driver and the failover drivers were removed from the Mesa/gallium source tree in November 2011 since they were unmaintained.  If someone is interested in reviving a driver the code can be recovered from git.
+
+
+See the [[http://www.x.org/wiki/GalliumStatus|Gallium status page]] for more information.
+
+
+== References ==
+
+[[attachment:gallium3d-xds2007.pdf|Gallum3D talk from XDS 2007]]
+
+[[http://people.freedesktop.org/~jrfonseca/gallium/|Cross-referenced source code]]
+
+[[attachment:tgsi-specification.pdf| TGSI specification]]
