@@ -1,0 +1,69 @@
+==== What is libfprint? ====
+
+libfprint is an open source software library designed to improve the usability of consumer fingerprint scanners on Linux. It aims to provide a simple API to the developer, hiding the nasty details of the hardware that the user is using. It also aims to support a lot of devices and have a nice internal API for drivers.
+
+==== How does libfprint relate to other open source fingerprint projects? ====
+
+Most previous open source fingerprint projects have managed to retrieve images from the devices they support, but have stopped there. Examples include [[http://dpfp.berlios.de|dpfp]] and [[http://gkall.hobby.nl/authentec.html|various Authentec driver projects]]. Not only does libfprint act as replacement these projects by allowing applications to retrieve images from the devices, it goes a step further and actually processes the images to allow fingerprint verification, leading to functionality such as fingerprint-based login.
+
+libthinkfinger from [[http://thinkfinger.sourceforge.net/|ThinkFinger]] is the only other project that offers fingerprint verification capabilities for the devices it supports. libfprint can also act as a libthinkfinger replacement, as it supports these devices in the [[../libfprint/upekts|upekts]] driver which was based on ThinkFinger code anyway.
+
+Even though libfprint may have borrowed code (with permission) from other open source fingerprint projects, it is standalone and does not require other fingerprint libraries to be installed.
+
+==== How well does it work on my hardware? ====
+
+See [[../libfprint/Driver quality]].
+
+==== Why does libfprint keep saying that my fingerprints do not match?  ====
+
+See [[../libfprint/Imaging performance]].
+
+==== Does libfprint require BioAPI? ====
+
+No. (more on this below)
+
+==== Does libfprint require any special kernel drivers? ====
+
+No. libfprint has drivers internally, based in userspace, using [[http://www.libusb.org|libusb]] for device I/O.
+
+==== Which devices does libfprint support? ====
+
+See [[../libprint/Supported devices|supported devices]] and [[../libfprint/Unsupported devices|unsupported devices]].
+
+==== Tell me more about the image processing code? ====
+
+libfprint includes [[http://fingerprint.nist.gov/NBIS/index.html|NBIS]] and uses it for the image processing (mindtct) and later comparison of new images against previously enrolled prints (bozorth3). bozorth3 is not available on NISTs server due to export control concerns, which I have found [[../US export control|do not apply]] to this project.
+
+This code is fast -- mindtct takes approx 0.15 seconds for a 384x289 image on my 2ghz dual core laptop [only using one core], and bozorth3 takes about 0.1 seconds to compare 2 of those prints. From my testing so far, it appears to be impressively accurate too - I have yet to find a false acceptance.
+
+==== Why can't I get images from my fingerprint scanner? ====
+
+Chances are it is not an imaging device, and does image processing in hardware. Hardware driven by the [[../libfprint/upekts|upekts]] driver falls into this category.
+
+==== Why no BioAPI? ====
+
+At first glance, [[http://www.bioapi.org/|BioAPI]] is a nice idea. It basically aims to standardize an API for access to biometric devices.
+
+There are a few reasons why BioAPI is not used in libfprint.
+ * BioAPI is closed. There does not seem to be any way to provide input for API design, unless you are a member.
+ * BioAPI is not free. While a 6-year old version of the standard can be freely downloaded, the latest version must be purchased.
+ * BioAPI adoption seems to be very low. I only know of a single freely downloadable software product which uses BioAPI, and that one is closed source: UPEKs own Linux fingerprint drivers.
+ * BioAPI is vague and complex. It turns out that designing API's to drive biometric hardware in general is a hard problem, and I don't really agree with their approach on things. Actually, I don't feel that I have a complete understanding of it either, despite spending a long time looking at it. Another reason for avoidance.
+ * BioAPI doesn't do as much as people think. For example it has no image processing code, it just describes an API for how such code might be driven.
+ * libfprint started as a university project, with a core component being abstraction handling and library design. So at least in the context of the academic project, I had to "reimplement" the kind of thing BioAPI tries to achieve anyway.
+
+I may be wrong, and BioAPI may be a good system. However, I believe libfprint's flexibility should make it possible and realistic for someone to slot in libfprint into the BioAPI chain. I would happily endorse and host such a project if someone is up for the challenge.
+
+Additionally, in some ways, it almost makes sense for libfprint to be separate. BioAPI looks at all kinds of biometric applications (including fingerprints), libfprint targets fingerprint scanners exclusively. BioAPI or equivalent almost feels well suited to be a natural 'parent' of libfprint, alongside potential projects like libirisscan, libfacerecognition, etc :)
+
+==== Aren't fingerprints insecure? ====
+
+See [[../Security notes]] for discussion. Short answer: libfprint is secure enough for your average user, but overall libfprint is not secure, and neither is typing passwords into your computer. Did I mention you're reading this site over an unencrypted protocol?
+
+==== How can I help? ====
+
+See [[Project needs]].
+
+==== Where do I go for help? ====
+
+User support happens on the [[../Mailing list|mailing list]].
