@@ -1,0 +1,67 @@
+{{http://www.reactivated.net/fprint/img/UPEK_Eikon.jpg|UPEK Eikon Reader|align=right}}
+
+The `upekts` driver supports devices based on the [[http://www.upek.com/solutions/pc_and_networking/chipsets_sensors.asp|UPEK TouchStrip chipset]]. These devices were originally engineered and manufactured by [[http://www.st.com|SGS Thomson Microelectronics]] but they [[http://eu.st.com/stonline/products/support/touchip/|split the business and formed UPEK]] in 2004.
+
+upekts is part of [[../|libfprint]] and is developed/maintained by Daniel Drake.
+
+== Supported devices ==
+
+This driver supports devices found in IBM/Lenovo ThinkPad laptops, and can also be found embedded into some Dell and Toshiba laptops (amongst other devices). It is also found in the standalone [[http://www.upek.com/solutions/eikon/default.asp|Eikon fingerprint reader]].
+
+These devices, although often embedded into laptops, are actually USB devices sitting on the USB bus.
+
+The driver does not support the TouchStrip fingerprint reader with USB ID's 147e:2016 found in some of the newer ThinkPads. This version of the device is just a sensor (no biometric coprocessor) and is instead supported by the [[../upeksonly|upeksonly]] driver.
+
+This driver does not support devices based on the UPEK TouchChip (0483:2015). Such hardware is supported by the [[../upektc|upektc]] driver instead.
+
+This driver does not work with fingerprint readers integrated into Sony laptops, even though they have the usual 0483:2016 ID. See [[../Unsupported_devices]]
+
+== Driver history ==
+
+This driver was based on code from the [[http://thinkfinger.sourceforge.net/|thinkfinger project]], developed by Timo Hoenig. Timo's work was an adaption of [[http://lkml.org/lkml/2006/8/2/237|Pavel Machek's reverse engineering efforts]].
+
+Pavel's efforts were based on bus traffic analysis of [[http://www.upek.com/support/downloads/drivers/linux.asp|UPEK's own closed-source drivers]].
+
+== Device operation ==
+
+After initial inspection of UPEK's BioAPI-based Linux driver software and analysis of the corresponding bus traffic, Pavel observed that these devices must do image processing in hardware. The enrollment process for a single finger is approximately as follows:
+
+ 1. Initialise enrollment mode
+ 1. Swipe finger 3 times
+ 1. Receive about 200 bytes of data from the device, save to a file
+
+Then, later, the verification process of that single finger is approximately:
+
+ 1. Initialise verification mode
+ 1. Upload previously-saved fingerprint data to device (approx 200 bytes)
+ 1. Swipe finger once
+
+The device then gives a "yes" or "no" answer to the computer, as to whether the finger matched or not.
+
+This mode of operation is ''vastly'' in contrast to other supported devices, which typically just present images to the host computer and leave the problem of processing and matching fingerprints to the software. On the other hand, it made reverse engineering these devices relatively easy.
+
+The simplicity of the software-level driver code makes for other interesting applications too. For example, most ThinkPads can use the fingerprint scanner as a power-on password. This wouldn't be realistic for a device that requires software to do image processing.
+
+Like UPEK's system and thinkfinger, `upekts` operates the device as detailed above. I have made a visible effort in upekts to understand the command format and command flow in more detail than thinkfinger goes into, and as such, the code flows in a more linear fashion. However, there are still a lot of unknowns.
+
+== Security notes ==
+
+After enrollment, the fingerprint data mentioned above is stored on disk. The format of this data is unknown, but '''I have demonstrated that the device does not record further information internally and that this data is enough to uniquely identify your fingerprint'''. I did this by enrolling my finger on one device, saving the data to disk, then uploading that data to a second device and successfully verifying my finger on that one.
+
+In other words, we store data on disk that can probably be used somehow to reconstruct certain elements of your fingerprint.
+
+Bus traffic is not encrypted (not that we understand the data format anyway).
+
+== Other capabilities ==
+
+I briefly tested an Eikon device under windows, and was very impressed at it's wide range of capabilities (which are not available on the UPEK Linux driver). I assume all these capabilities are also present on the other devices you can find the TouchStrip in.
+
+ * Early on, the Windows software asks you if you'd like to store the fingerprints in the device or on the computer.
+ * If you choose to store on the device, it informs you that you can store 21 fingerprints there. Just in case you have 21 fingers. It also gives you functionality to delete them all off the device at any time.
+ * '''The device can operate as an imaging device!''' The Windows software includes a 'tutorial' mode where you can scan your finger and view it on-screen to check your swiping technique. The image quality looks fantastic here.
+ * I'm not sure if "storing on the computer" is similar to what happens above (just saving a small 200ish bytes of data) or actually storing the images on disk and doing software-based fingerprint image processing/matching.
+ * There is some encryption feature where the data stored on-disk can optionally be encrypted, based on a key that the device gives you only after you have successfully scanned your finger against one stored in hardware (or something like that). Interesting.
+ * One drawback of the way that the UPEK-linux/thinkfinger/upekts operate the device is that they can only verify a specified single finger at any one time (you can't ask it to identify one-of-ten enrolled scans, for example). This limits our horizons with upekts. However, at various points, the Windows driver asked me to "scan any finger" and it accepted any of them. They had all been enrolled "in hardware". So, these devices DO support identification somehow.
+ * The windows software also offers you the ability to scroll with the sensor.
+
+The above suggests that the Windows driver operates the device in a very different way from the way the Linux options operate. Indeed, the bus traffic is rather different, but it doesn't seem easy to immediately dig further and reverse-engineer this functionality: after a few commands, the bus traffic seems to become encrypted or scrambled. I guess this can become a future project :)
