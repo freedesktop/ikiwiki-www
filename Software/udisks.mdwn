@@ -1,0 +1,57 @@
+
+
+# udisks
+
+The udisks project provides: 
+
+* a daemon, udisksd, that implements well-defined D-Bus interfaces that can be used to query and manipulate storage devices. 
+* a command-line tool, udisksctl, that can be used to query and use the daemon 
+The actions that a user can perform using udisks are restricted using [[polkit|Software/PolicyKit]]. 
+
+
+## Download
+
+The latest version can be downloaded from the [[here|http://udisks.freedesktop.org/releases/]]. 
+
+
+## Documentation
+
+There is [[online documentation|http://udisks.freedesktop.org/docs/latest/]] available, which documents the D-Bus API and the command-line tools provided by udisks. 
+
+
+## Bugs
+
+When [[filing bugs against udisks|http://bugs.freedesktop.org/enter_bug.cgi?product=udisks]], please include 
+
+* the output of 'udisksctl dump' 
+* the output of 'udevadm info --export-db' (as root) 
+* the output of 'cat /proc/self/mountinfo' 
+* the output of 'cat /etc/fstab' 
+* the version of udisks, gvfs and libatasmart 
+      * On Fedora/RHEL this is the output of 'rpm -q udisks2 gvfs libatasmart' 
+If the bugs is related to the GNOME desktop please also include 
+
+* the output of 'gvfs-mount -li' captured from the desktop session as the user (not root) 
+If the bug happens when plugging in a device or activating a device also include 
+
+* the output of 'udisksctl monitor' 
+* the output of 'gvfs-mount -oi' captured from the desktop session as the user (not root) 
+* the output of 'udevadm monitor --udev --property' (as root) 
+while plugging in or activating the device. 
+
+If the bug is related to ATA SMART include (replace /dev/sda with the device for the disk in question) 
+
+* the output of 'skdump /dev/sda' (as root) 
+* the binary file skdump-output obtained via 'skdump --save=skdump-output /dev/sda' (as root) 
+
+## Hacking
+
+Join the [[mailing list|http://lists.freedesktop.org/mailman/listinfo/devkit-devel]] to get involved with feature development. 
+
+Development happens in [[git|GettingInvolved]], in the udisks module.  There is a [[web interface|http://cgit.freedesktop.org/udisks]] to the repository. 
+
+
+
+---
+
+ [[CategoryHalReplacement|CategoryHalReplacement]] 
