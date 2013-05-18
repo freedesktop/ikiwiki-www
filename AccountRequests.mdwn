@@ -1,0 +1,60 @@
+
+
+# How to request a freedesktop.org account
+
+To obtain an account for a project hosted by freedesktop.org, you must follow these rules. Failure to do so will probably result in your request getting dropped on the floor. Don't take it personally if it does, the rules are there to make sure it doesn't happen, so if they aren't followed ... 
+
+
+## What you need
+
+Passwords are not used for the accounts at freedesktop.org. Instead, SSH keys are used. Therefore, you will need to have you SSH key at hand when requesting an account. Also, you must have a GPG key available so that you can identify yourself for future account maintainance requests. 
+
+If you already have an account, and these key are already in place, then you don't need to supply them with your request. 
+
+
+## Requesting a New Account
+
+
+### What you do
+
+* go to [[http://bugs.freedesktop.org|http://bugs.freedesktop.org]] 
+* Create a bug asking for an account. Select the Product that corresponds to the Project for which you are requesting access.  If there's no product in bugzilla for the project in question, file it against the freedesktop.org product, in the New Accounts component. 
+* You MUST include your real name, email address, and a preferred account name. 
+* You MUST attach both your SSH (RSA only -- no DSA!) and GPG public keys to this bug.  Please attach them as text/plain.  Please make sure you add them as attachments, not inline in the bug. 
+* Verify that your GPG key is visible via subkeys.pgp.net: 
+
+[[!format txt """
+gpg --keyserver subkeys.pgp.net --send-keys 0xdeadbeef
+"""]]
+(replace `0xdeadbeef` with your key id; note also that the server is subkeys.**pgp**.net, not subkeys.gpg.net) 
+
+To generate a GPG key, run gpg --gen-key, and gpg --export -a <your email address> to export the public key in a format suitable for attaching.  You MUST keep your private key secure; anyone with your private key can now get access to fd.o machines, and potentially compromise source code!  A strong passphrase is recommended, as is not keeping it on any public machines.  If a private key is found on a freedesktop.org machine, it will be removed from the keyring, and a new one will have to be created. 
+
+To generate an SSH key, run ssh-keygen -t rsa -f ~/.ssh/mykey-fdo.  Key type **must** be 'rsa': neither DSA nor RSA1 keys will be accepted.  This will put your new public key in ~/.ssh/mykey-fdo.pub; to use it, add -i ~/.ssh/mykey-fdo to your SSH command line (e.g. ssh -i ~/.ssh/mykey-fdo annarchy.freedesktop.org), or create a stanza in ~/.ssh/config like so: 
+
+
+[[!format txt """
+Host *.freedesktop.org
+    User myusername
+    IdentityFile ~/.ssh/mykey-fdo
+"""]]
+Mac users should see [[MacGPG|http://macgpg.sourceforge.net/]] for information about running GPG on Mac.  Windows users should see [[PuTTY|http://www.chiark.greenend.org.uk/~sgtatham/putty/]] for information on using SSH clients in Windows, including key generation. 
+
+_DO NOT ATTACH YOUR PRIVATE SSH KEY.  DOUBLE CHECK THAT IT IS A ONE-LINE PUBLIC KEY, AND NOT A PRIVATE KEY._ 
+
+
+### What the Project Leader does
+
+* Review and approve the request for an account & access to your project. 
+* Reassign the bug to the **freedesktop.org** Product with the Component set to **New Accounts**, Make sure the owner is changed to ** [[sitewranglers@lists.freedesktop.org|mailto:sitewranglers@lists.freedesktop.org]] **. 
+If everything is in order, and all of the data is provided, then the account will be created, usually within a few days, with possible exceptions around holidays and major conferences.  Don't freak out if it ends up taking longer than this: we're all humans, sometimes we're busy humans.  Your request isn't being ignored or forgotten, it's just that no-one has the time to get to it right now. 
+
+
+## Requesting Modifications
+
+If you want to add a GPG key to your account or get added to another project, this requires manual intervention.  Go to [[Bugzilla|https://bugs.freedesktop.org/enter_bug.cgi]] and file a new bug.  If you need to add a GPG key, assign it to freedesktop.org, component Account Changes; if you need to be added to a new project, assign it to that project (not freedesktop.org) for approval by the project maintainer.  Project leaders will follow the same procedure as above to approve an addition request. 
+
+
+# Account Maintenance
+
+For details on how to change your SSH keys, email address, etc, see [[AccountMaintenance|AccountMaintenance]]. 
