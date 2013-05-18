@@ -1,0 +1,292 @@
+
+
+# D-Bus Interface: Devices (Sinks and Sources)
+
+[[(Back to the toplevel D-Bus Interface page)|Software/PulseAudio/Documentation/Developer/Clients/DBus]] 
+
+Objects and their interfaces: 
+
+* /org/pulseaudio/core1/sinkX 
+      * - org.PulseAudio.Core1.Device - org.PulseAudio.Core1.Sink - org.freedesktop.DBus.Properties - org.freedesktop.DBus.Introspectable 
+* /org/pulseaudio/core1/sourceX 
+      * - org.PulseAudio.Core1.Device - org.PulseAudio.Core1.Source - org.freedesktop.DBus.Properties - org.freedesktop.DBus.Introspectable 
+
+## org.PulseAudio.Core1.Device
+
+
+### Properties
+
+
+#### Index
+
+* Type: Uint32 
+* Access: read 
+The device index. Sink and source indices are separate, so it's perfectly normal to have two devices with the same index: the other device is a sink and the other is a source. 
+
+
+#### Name
+
+* Type: String 
+* Access: read 
+The device name. 
+
+
+#### Driver
+
+* Type: String 
+* Access: read 
+The driver that implements the device object. This is usually expressed as a source code file name, for example "module-alsa-card.c". 
+
+
+#### !OwnerModule
+
+* Type: ObjectPath 
+* Access: read 
+The module that owns this device. It's not guaranteed that any module claims ownership; in such case this property does not exist. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if this device is not owned by any module. 
+
+#### Card
+
+* Type: ObjectPath 
+* Access: read 
+The card that this device belongs to. Not all devices are part of cards; in those cases this property does not exist. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if this device is not part of any card. 
+
+#### !SampleFormat
+
+* Type: Uint32 
+* Access: read 
+The sample format of the device. See [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] for the list of possible values. 
+
+
+#### !SampleRate
+
+* Type: Uint32 
+* Access: read 
+The sample rate of the device. 
+
+
+#### Channels
+
+* Type: [Uint32] 
+* Access: read 
+The channel map of the device. The channel count can be inferred from this. The channel map is expressed as a list of channel positions, see [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] for the list of possible channel position values. 
+
+
+#### Volume
+
+* Type: [Uint32] 
+* Access: read/write 
+The volume of the device. The array is matched against the Channels property: the first array element is the volume of the first channel in the Channels property, and so on. 
+
+There are two ways to adjust the volume. You can either adjust the overall volume by giving a single-value array, or you can precisely control the individual channels by passing an array containing a value for each channel. 
+
+
+#### !HasFlatVolume
+
+* Type: Boolean 
+* Access: read 
+Whether or not the device is configured to use the "flat volume" logic, that is, the device volume follows the maximum volume of all connected streams. Currently this is not implemented for sources, so for them this property is always false. 
+
+
+#### !HasConvertibleToDecibelVolume
+
+* Type: Boolean 
+* Access: read 
+If this is true, the volume values of the Volume property can be converted to decibels with pa_sw_volume_to_dB(). If you want to avoid the C API, the function does the conversion as follows: 
+
+* If input = 0, then output = -200.0 
+* Otherwise output = 20 * log10((input / 65536)<sup>3</sup>) 
+
+#### !BaseVolume
+
+* Type: Uint32 
+* Access: read 
+The volume level at which the device doesn't perform any amplification or attenuation. 
+
+
+#### !VolumeSteps
+
+* Type: Uint32 
+* Access: read 
+If the device doesn't support arbitrary volume values, this property tells the number of possible volume values. Otherwise this property has value 65537. 
+
+
+#### Mute
+
+* Type: Boolean 
+* Access: read/write 
+Whether or not the device is currently muted. 
+
+
+#### !HasHardwareVolume
+
+* Type: Boolean 
+* Access: read 
+Whether or not the device volume controls the hardware volume. 
+
+
+#### !HasHardwareMute
+
+* Type: Boolean 
+* Access: read 
+Whether or not muting the device controls the hardware mute state. 
+
+
+#### !ConfiguredLatency
+
+* Type: Uint64 
+* Access: read 
+The latency in microseconds that device has been configured to. 
+
+
+#### !HasDynamicLatency
+
+* Type: Boolean 
+* Access: read 
+Whether or not the device latency can be adjusted according to the needs of the connected streams. 
+
+
+#### Latency
+
+* Type: Uint64 
+* Access: read 
+The length of queued audio in the device buffer. Not all devices support latency querying; in those cases this property does not exist. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if the device doesn't support latency querying. 
+
+#### !IsHardwareDevice
+
+* Type: Boolean 
+* Access: read 
+Whether or not this device is a hardware device. 
+
+
+#### !IsNetworkDevice
+
+* Type: Boolean 
+* Access: read 
+Whether or not this device is a network device. 
+
+
+#### State
+
+* Type: Uint32 
+* Access: read 
+The current state of the device. See [[[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations|Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations]]]] for the list of possible values. 
+
+
+#### Ports
+
+* Type: [ObjectPath] 
+* Access: read 
+All available device ports. May be empty. 
+
+
+#### !ActivePort
+
+* Type: ObjectPath 
+* Access: read/write 
+The currently active device port. This property doesn't exist if the device does not have any ports. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if this device doesn't have any ports. 
+
+#### !PropertyList
+
+* Type: {String -> [Byte]} 
+* Access: read 
+The device's property list. 
+
+
+### Methods
+
+
+#### Suspend
+
+* Arguments: suspend : Boolean 
+      * - suspend: True to suspend, false to unsuspend 
+Suspends or unsuspends the device. 
+
+
+#### !GetPortByName
+
+* Arguments: name : String 
+      * - name: Port name 
+* Returns: port : ObjectPath 
+      * - port: Device port object 
+Find the device port with the given name. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NotFoundError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if no such port is available. 
+
+### Signals
+
+
+#### !VolumeUpdated
+
+* Parameters: volume : [Uint32] 
+      * - volume: The new volume values 
+The device's volume was modified. 
+
+
+#### !MuteUpdated
+
+* Parameters: muted : Boolean 
+      * - muted: The new mute state 
+The device was muted or unmuted. 
+
+
+#### !StateUpdated
+
+* Parameters: state : Uint32 
+      * - state: The new device state 
+The device's state changed. 
+
+
+#### !ActivePortUpdated
+
+* Parameters: port : ObjectPath 
+      * - port: Activated device port 
+The active device port was changed. 
+
+
+#### !PropertyListUpdated
+
+* Parameters: property_list : {String -> [Byte]} 
+      * - property_list: The new property list 
+The device's property list was modified. 
+
+
+## org.PulseAudio.Core1.Sink
+
+
+### Properties
+
+
+#### !MonitorSource
+
+* Type: ObjectPath 
+* Access: read 
+The monitor source object of this sink. 
+
+
+## org.PulseAudio.Core1.Source
+
+
+### Properties
+
+
+#### !MonitorOfSink
+
+* Type: ObjectPath 
+* Access: read 
+The sink of which monitor source this source is. If this source is not a monitor source, this property does not exist. 
+
+* Errors: 
+      * - [[org.PulseAudio.Core1.NoSuchPropertyError|Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors]] if this source isn't a monitor source. 
