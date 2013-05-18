@@ -1,0 +1,72 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] 
+
+
+# Flash Player 9: Experimental PulseAudio support
+
+**Update:** Please note that there's now a newer implementation of libflashsupport.so available from the [[PulseAudio|PulseAudio]] developers: [[gitweb|http://git.0pointer.de/?p=libflashsupport.git;a=summary]], `git-clone http://git.0pointer.de/repos/libflashsupport.git/`. Please make sure to use this version for better results.  
+
+_This page describes how to solve the Flash Player 9 problem by building and installing an experimental plugin, libflashsupport.so, which adds support for ESD and [[PulseAudio|PulseAudio]]._ 
+
+This guide is aimed at non-technical users of **Ubuntu 7.10 Gutsy Gibbon** (and previous Ubuntu releases) or other **Debian**-based distributions. 
+
+
+## Installation
+
+Make sure you have the following packages installed, additional to [[PulseAudio|PulseAudio]] 
+
+* build-essential 
+* automake1.9 
+* autoconf 
+* libtool 
+* libesd0-dev 
+* libpulse-dev 
+* libssl-dev 
+Start a terminal and run this command: 
+[[!format txt """
+sudo aptitude install build-essential automake1.9 autoconf libtool libesd0-dev libpulse-dev libssl-dev
+"""]]
+(You can start the terminal by pressing Alt+F2 and typing `gnome-terminal` or `x-terminal-emulator`) 
+
+
+### Download source
+
+To compile the plugin, you need to get the latest version using `git clone http://git.0pointer.de/repos/libflashsupport.git/` 
+
+
+### Compiling and installing
+
+In a terminal, go into the directory you moved the downloaded files into and: 
+[[!format txt """
+cd libflashsupport
+"""]]
+_Ubuntu 7.10 ships with libpulse 0.9.6 while the current (7 feb 2008) configure script requires at least version 0.9.7. Edit the **configure.ac** file and change in the line_  
+ 
+
+`PKG_CHECK_MODULES(PULSE, [ libpulse >= 0.9.7 ])`  
+ 
+
+_the version number to 0.9.6 and follow the rest of the instructions. This did the trick for me._ 
+
+Now compile the plugin: 
+[[!format txt """
+./bootstrap.sh
+make
+sudo make install
+"""]]
+(Note that it cannot be installed in /usr/local as flash won't find it there) 
+
+Hopefully it should all go well. Restart Firefox and check if it works. 
+
+If something goes wrong (like Firefox crashes), this is how to uninstall it again: 
+
+
+### Uninstalling
+
+Close all instances of Firefox (or anything that uses Flash). 
+
+Open a terminal and run this command: 
+[[!format txt """
+sudo rm /usr/lib/libflashsupport.*
+"""]]
+The plugin is now removed. 
