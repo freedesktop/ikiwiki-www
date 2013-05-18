@@ -1,0 +1,39 @@
+##META:TOPICINFO{author`"JimGettys" date`"1076536260" format`"1.0" version`"1.1"}%
+##META:TOPICPARENT{name="xlibs"}%
+= Xft - the X Font library =
+
+== About Xft ==
+
+	The current version of Xft (2.0) provides a client-side font API for X applications. It uses [[http://www.fontconfig.org/|FontConfig]] to select fonts and the X protocol for rendering them. When available, Xft uses the Render extension to accelerate text drawing. When Render is not available, Xft uses the core protocol to draw client-side glyphs. This provides completely compatible support of client-side fonts for all X servers.
+
+	Drawing anti-aliased text with the core protocol involves fetching pixels from the destination, merging in the glyphs and shipping them back. This can be a performance problem when the latency between client and server is high. Drawing non-AA text with the core protocol can be done by just sending the glyphs from the client to the server. This eliminates any latency effects and makes rendering speed depend only on bandwidth. Careful protocol selection can make the bandwidth scale linearly with the pixel size of the glyphs, so performance is acceptable, even with relatively large glyphs.
+
+	When using legacy X servers (those without Render support) across a network, disabling anti-aliased text will improve text performance so that applications are reasonably usable even if completely dependent on client-side fonts.
+
+=== The many faces of Xft ===
+	
+	There are three very different libraries name Xft. The original 1.0 Xft library shipped with XFree86 4.0.2 and included a private configuration mechanism via the !XftConfig file. For X servers without the Render extension, Xft 1.0 used core X fonts instead of client-side fonts. This was supposed to allow applications to code to a common API and run with all X servers.
+	
+	Early in the deployment of Xft 1.0, it became abundantly clear that another custom X-specific font configuration mechanism was a really bad idea. Both KDE and Pango ended up stealing pieces of Xft to configure fonts. KDE created a GUI Xft configuration tool by stealing the !XftConfig parsing code, Pango stole most of Xft so that the !XftConfig file could be shared between the Xft and !FreeType2 backends. Fontconfig was designed to solve both of these problems.
+		
+	The other problem in Xft 1.0 was the use of core X fonts when the server wasn't blessed with the Render extension. This meant that applications couldn't count on client-side fonts when using the high-level Xft APIs. As client-side fonts provide significant value beyond anti-aliased glyphs, it again became obvious that this design was flawed.
+
+	The Xft 1.0 API abstracted configuration details sufficient to permit a binary compatible version, Xft 1.1, to be developed which replaces the !XftConfig configuration file with calls in to the Fontconfig library. Unfortunately, the Xft 1.0 API didn't sufficiently hide the rendering details making it impossible to provide for client-side fonts in servers without the Render extension. This means that Xft 1.1 shares font configuration, but isn't really usable on servers without Render.
+
+== Source Releases ==
+
+Xft source tarballs are released via the X.Org source archives, such as in [[http://xorg.freedesktop.org/releases/individual/lib/]] ([[http://www.x.org/wiki/Releases/Download|mirrors]])
+
+== Mailing List ==
+
+All Xft discussion is currently on [[http://lists.freedesktop.org/mailman/listinfo/xorg|xorg@lists.freedesktop.org]].
+
+== Git repository ==
+
+Specification and implementation are in module libXft in freedesktop's [[http://cgit.freedesktop.org/xorg/lib/libXft/|git repository]].
+
+== Documentation ==
+	* [[Software/XftToDo|Xft To Do List]]
+
+
+-- Main.JimGettys - 11 Feb 2004
