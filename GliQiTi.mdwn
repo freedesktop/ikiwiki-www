@@ -1,0 +1,26 @@
+
+
+## Project GLiQiTi
+
+The idea of this project is to be able to completely replace qt widgets with new widgets which are drawn using openGL. But the qt api for widgets is to be respected as closely as possible.  
+
+
+## Where to start from
+
+More than just recompiling existing qt applications for the exact same use, we can imagine using them inside of 3d worlds, games for example, or futuristic user interfaces. Currently there are quite a few differences to be aware of to write a gliqiti compatible application. 
+
+                     * namespaces have not yet been defined so the equivalents of QWidget is GLQWidget, for QScrollview it's GLQScrollview and so forth. It's just a matter of renaming, no big deal. 
+                     * application launching is not centered inside the exec() method. In place of this, you must use some other library (or possibly qt) to connect user events to qt callbacks, for instance QWidget::mouse*Event() methods. The basic demonstration set makes use of glut's callback methods to redirect to GLQApplication-specific methods : mousePressEvent, mouseReleaseEvent, mouseMoveEvent. 
+                     * keyboard events are not yet handled, but it's only a matter of time. The mouse seemed much more of an issue so it has been managed before. 
+                     * displaying and refreshing have been redesigned. Since openGL cannot redraw only part of the screen (in fact it can, but only for rectangular viewports, which would not help anyway) everything has to be redrawn when at least one widget has to be redrawn. The QWidget::update() method has been rewritten, and now there is a QApplication::needRefresh() which basically says whether there is a need to redraw the whole application window. 
+-- Main.[[BenoitCasoetto|BenoitCasoetto]] - 25 Jul 2004 
+
+You can checkout the sourcecode at [[https://gliqiti.helian.org/svn/|https://gliqiti.helian.org/svn/]] using a regular subversion client 
+
+Two screenshots to show you what it looks like : [[!img http://www.purebasic.com/gliqiti/gliqitiscrollview.png] [[!img http://www.purebasic.com/gliqiti/gliqitiscrollview2.png] 
+
+Current work in progress includes GLQStyle and GLQPainter On my way to getting textures to work properly. Here is how it now looks like Note that the sides aren't textured yet, but they will ! [[!img http://www.purebasic.com/gliqiti/gliqitiscrollview5.jpg] 
+
+Outdated tarballs too : [[http://www.purebasic.com/gliqiti/demoscrollview.tar.gz|http://www.purebasic.com/gliqiti/demoscrollview.tar.gz]] [[http://www.purebasic.com/gliqiti/gliqiti.tar.gz|http://www.purebasic.com/gliqiti/gliqiti.tar.gz]] 
+
+-- Main.[[BenoitCasoetto|BenoitCasoetto]] - 01 Oct 2004 
