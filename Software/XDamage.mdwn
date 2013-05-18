@@ -1,0 +1,43 @@
+
+
+## XDamage Extension
+
+The X Damage Extension allows applications to track modified regions of drawables. 
+
+[[Protocol document from git repository|http://cgit.freedesktop.org/xorg/proto/damageproto/plain/damageproto.txt]] 
+
+
+### Goals
+
+                     * Minimize latency for using damage information 
+                     * Minimize bandwidth used by damage tracking 
+
+### Basic Plan
+
+                     * Send simple 'window is damaged' events, optionally stop until application responds. 
+                     * Accumulate damage in server-side region objects 
+                     * Application can copy damage region to separate object and simultaneously erase the damage region 
+                     * Applications can also subtract rectangles from the damage region 
+
+### CVS Access
+
+The main implementation is done on the "xserver" cvs tree, the modular tree. As part of an ongoing effort to merge the modular and monolithic camps, DAMAGE and XFIXES have been merged onto the monolithic tree. The name of the branch is ``DAMAGE-XFIXES``. To try this, use: 
+
+
+[[!format txt """
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
+
+CVS password: <hit return>
+
+$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co -r DAMAGE-XFIXES xc
+
+"""]]
+The near term plan is to continue to add XeVIE and COMPOSITE to this branch and ultimately fold it to the head of the "xorg" code pool 
+
+/skk 
+
+-- [[KeithPackard|KeithPackard]] - 09 Oct 2003 [[!img http:/png/glider.png] 
+
+---
+
+ [[CategoryExtension|CategoryExtension]] 
