@@ -1,0 +1,88 @@
+<<Include(Software/PulseAudio/TOC)>>
+<<Include(DevelopingModulesTOC)>>
+
+= Interface of `pa_module` =
+
+When you write a module, it can be thought as a subclass of `pa_module`, if you're familiar with the object oriented programming concepts. `pa_module` with its associated functions define some basic functionality that all the different modules include and refine. Let's see if there's any useful stuff in that basic functionality.
+
+I'll walk you through the interface, see [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/module.h|pulsecore/module.h]] for a more compact reference, and also for the complete definitions, as I won't repeat the field and function types here.
+
+== `struct pa_module` ==
+
+ `core`::
+   Here you have a pointer to the core that the module is connected to.
+
+ `name`::
+   The name that was used when loading the module, i.e. the first argument to the "load-module" command.
+
+ `argument`::
+   The whole argument string that was given with the "load-module" command. You could parse this yourself, but it's better to use the available helper functions. See [[Software/PulseAudio/Documentation/Developer/ModuleArgumentsAPI|[[Software/PulseAudio/Documentation/Developer/ModuleArgumentsAPI|Modargs A P I]]]].
+
+ `index`::
+   Every loaded module is assigned an index in the core that is used as an unique identifier. If you're ever going to need the index for any purpose, note that it is set only after `pa__init` returns, so its value is undefined during the initialization.
+
+ `dl`::
+   Handle through which the module's symbols are loaded. You can probably ignore this.
+
+ `init`::
+   Pointer to the `pa__init` function.
+
+ `done`:: 
+   Pointer to the `pa__done` function.
+
+ `userdata`::
+   This is initially NULL. This field belongs completely to you, you store a pointer to your custom data in this variable and you take care of freeing it too.
+
+The next three fields are part of the [[Software/PulseAudio/Documentation/Developer/ModuleAPI#Automaticunloading|automatic unloading]] functionality, and you need to care about only one of them (`n_used`), and you can ignore that too, if you don't want to support the functionality.
+
+ `n_used`::
+   Number of current "users". If you allow automatic unloading, value 0 is a precondition for automatic unloading to happen. Initialized to -1. Don't change this directly, use `pa_module_set_used` instead.
+
+ `auto_unload`::
+   This is managed by the autoload system, don't modify. 0 means that automatic unloading is off and 1 means on.
+
+ `last_used_time`::
+   This gets updated whenever you change `n_used` to 0 with `pa_module_set_used`. Not initialized until the first zeroing of `n_used`!
+
+ `unload_requested`::
+   This is set to 1 when someone (might be you) wants to unload the module. Initialized to 0. Don't change this directly, use `pa_module_unload_request` instead.
+
+== Functions and macros ==
+
+Loading and unloading functions are primarily for the daemon, except `pa_module_unload_request`, but if you want to do some module management, feel free.
+
+ `pa_module_load`::
+   Loads a module and returns a pointer to it. If module loading is disallowed in the core or loading otherwise fails, NULL is returned.
+
+ `pa_module_unload`::
+   Unloads one module instance.
+
+ `pa_module_unload_by_index`::
+   Same as `pa_module_unload`, but uses an index for identification instead of a `pa_module` pointer.
+
+ `pa_module_unload_all`::
+   Unloads all modules.
+
+ `pa_module_unload_unused`::
+   Unloads those modules that allow automatic unloading and have been unused at least for the time specified in `pa_core`'s `module_idle_time`.
+
+ `pa_module_unload_request`::
+   Ask the core to unload a module instance. The actual unloading doesn't happen immediately. If you'd like to call this outside the mainloop thread, don't do that, but instead send a `PA_CORE_MESSAGE_UNLOAD_MODULE` message to the core, see [[Software/PulseAudio/Documentation/Developer/CoreAPI#Theunnamedenumeration|[[Software/PulseAudio/Documentation/Developer/CoreAPI|Core A P I]]]].
+
+ `pa_module_set_used`::
+   Updates the number of module users.
+
+ `PA_MODULE_AUTHOR`::
+ `PA_MODULE_DESCRIPTION`::
+ `PA_MODULE_USAGE`::
+ `PA_MODULE_VERSION`::
+   See [[Software/PulseAudio/Documentation/Developer/Modules|Writing Modules]]#Optionalfunctions.
+
+ `pa_module_get_info`::
+   Returns a structure that holds the information you provide with the functions described in [[Software/PulseAudio/Documentation/Developer/Modules|Writing Modules]]#Optionalfunctions. For details, see [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/modinfo.h|pulsecore/modinfo.h]].
+
+== Automatic unloading ==
+
+Automatic unloading is part of the autoload feature of !PulseAudio. The modules that the user has told the system to load automatically are also unloaded automatically, if they support it.
+
+If you want your module to support automatic unloading, keep the `n_used` field updated by calling `pa_module_set_used` in right places. What are the "right places", is fully up to you. Setting the user count to zero causes an unload if the counter isn't reset to some other value quickly.
