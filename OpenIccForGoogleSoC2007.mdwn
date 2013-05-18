@@ -1,0 +1,266 @@
+
+OpenIccForGoogleSoC2007 Wiki is intended to collect ideas for possible projects participating in Googles Summer of Code. The are mentored by members of [[OpenIcc|OpenIcc]] projects. 
+
+
+# About the Group
+
+[[OpenIcc|OpenIcc]] consist of the members of the so named email list. It was started by Scribus members to better support introduction of colour management into applications and discuss general issues. List contributors are application and CMS developers as well as colour management specialists and users, no matter whether commercial, open source and both together. 
+
+[[!toc 2]] 
+
+
+# Project Suggestions
+
+
+## ICC support for HDR Images
+
+* Available open source colour management libraries like the popular lcms do not support HDR imaging. The work would be a great benefit for existing applications like Krita, CinePaint, Pixel, future Gimp/GEGL  and others to support [[ICC|http://www.color.org]] style colour conversions of HDR images. 
+
+### Expectations
+
+      * study basic colour management concepts, [[ILM/OpenEXR's|http://www.openexr.org]] GPU based [[CTL|http://www.openexr.com/documentation.html]] 
+      * decide for a implementation concept 
+            * extent littleCMS (lcms), or alternatively 
+            * create an ICC profile -> CTL converter and build an simple API for later inclusion in the Oyranos framework 
+      * work on existing code and integrate your implementation using most of the already available functionality, extent where needed 
+      * basic documentation for users - should be very few 
+
+### Skills
+
+      * basic communication 
+      * basic mathematical skills like matrix operations 
+      * portable C (lcms) or C++ and probably OpenGL shader programming (CTL) 
+
+### Contact
+
+      * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de> 
+      * [[OpenIcc|OpenIcc]] / [[OpenEXR|http://www.openexr.com/mailinglist.html]] email lists 
+
+### Optional
+
+      * combine with the HDR Tonemapping project 
+
+## HDR Tonemapping
+
+* Tonemapping is needed to represent HDR images on monitors and print media. HDR images often easily exceed traditional monitor and printer capabilities. Colours need to be compressed into the medias gamut depending on the intensities of the neighbor pixels. A simple logarithmic approach often yields non satisfactory results. Many algorithms where suggested but often lack a natural look or robustness for various content. 
+
+### Expectations
+
+      * enhance and work on algorithms to create pleasing and highly natural representations of HDR content 
+      * work on a concept to include parameters into ICC or CTL colour profiles for later universal reproduction and standardisation 
+
+### Skills
+
+      * good communication 
+      * basic to good mathematical skills, evaluate, combine and possibly modify existing tonemapping algorithms 
+      * portable C 
+      * OpenGL shader implementation (possibly make suggestion how to integrate into CTL) 
+
+### Contact
+
+      * Mentor: Cyrille Berger <cberger @ cberger.net> 
+
+### Results
+
+      * Shaine Joseph site: [[http://www.umsl.edu/~sj550/myweb/downloads.htm|http://www.umsl.edu/~sj550/myweb/downloads.htm]] You need P7ZIP from [[http://p7zip.sourceforge.net|http://p7zip.sourceforge.net]] to decompress some of the files on unix. 
+
+## ICC Examin Library
+
+* ICC Examin is a profile and colour visualiser. Many widgets are interesting to other applications. But they are written in FLTK and would be needed in an other toolkit in a modular fashion. 
+
+### Expectations
+
+      * reorganise, modularise and rewrite parts of the existing project 
+      * create an easy to use API and build an example application from it 
+      * create at least one wrapper in a scripting language for basic widgets, Python 
+      * user documentation inline 
+
+### Skills
+
+      * good code (re)organisation 
+      * portable C, C++, Java/Python/? 
+      * OpenGL, threads 
+
+### Contact
+
+      * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de> 
+
+### Optional
+
+      * support profile editing 
+      * support plug-ins, to display reports and various graphs 
+      * support spectral data 
+
+## Cross Toolkit Colour Chooser for Linux/BSD
+
+* Linux/BSD operating systems need a standard colour chooser. Imaging applications would benefit from a common advanced colour chooser with extended capabilities and easy data exchange. 
+
+### Expectations
+
+      * colour selection C API to ask for colours from applications and sharing among them 
+      * representation of native colour spaces and standard sRGB/CIE*Lab 
+      * support for HDR values, not plain monitor representation 
+      * plug-ins for third party colour selectors 
+      * unified toolkit independent C API 
+      * basic inline documentation 
+
+### Skills
+
+      * writing highly modular code 
+      * handling of various native toolkits, including Qt, Gtk, FLTK, MFC, Carbon 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Kai-Uwe Behrmann <ku.b @ gmx.de> 
+
+### Optional
+
+      * C API for various basic widgets (window, tab, group, pack layout, list chooser, message box, buttons, drawing area, slider with value input) 
+      * allow some basic events and C callbacks 
+      * layout representable in XML including a parser 
+      * dump layout out to XML/Html for documentation 
+      * scriptability, Java/Python/? 
+
+## Control Panel for Colour Management
+
+* The KDE desktop needs integration of colour management settings in desktop configuration UI's. 
+
+### Expectations
+
+      * create and integrate a settings panel for the KDE desktop 
+      * inline documentation 
+      * user documentation 
+
+### Skills
+
+      * good communication skills 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Boudewijn Rempt 
+
+### Optional
+
+      * combine with parts of the Colour Chooser project to create a basic toolkit independent layer 
+      * a web interface with proper authentication would be a great plus [07/03/27] 
+
+## LProf - Add checking for and user feedback for clipped patches
+
+* Right now LProf does not do much checking for issues related to the quality of the profiling target image. 
+
+### Expectations
+
+      * add checks to the profiler to look for and flag clipped patches 
+      * if clipped patches are found display a message to the message console indicating how significant the problem is 
+      * inline documentation 
+      * user documentation 
+
+### Skills
+
+      * good communication skills 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Hal Engel 
+
+## LProf - Add DDC support
+
+* Use DDC to get monitor chromaticity values (monitor primaries). 
+
+### Expectations
+
+      * implement DDC to get monitor chromaticity values for the rough monitor profiler to set the monitor primaries.  
+      * inline documentation 
+      * user documentation 
+
+### Skills
+
+      * good communication skills 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Hal Engel 
+
+## LProf - Add DDC/CI support
+
+* Use DDC/CI to set monitor hardware controls to allow for automated adjustment of white point, black level, black offset, gain and other monitor controls during calibration. 
+
+### Expectations
+
+      * implement DDC/CI to set monitor controls.  
+      * create a library for this functionality  
+      * inline documentation 
+      * user documentation 
+
+### Skills
+
+      * good communication skills 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Hal Engel 
+
+## LProf - Add support for the HTC profiling target
+
+* Support for the HTC profiling target would be a useful addition to LProf. 
+
+### Expectations
+
+      * implement reference file installer functionality to handle HTC target reference files.  
+      * implement reference file installer functionality to create HTC pick template files based on information in the reference file   
+      * inline documentation 
+      * user documentation 
+
+### Skills
+
+      * good communication skills 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Hal Engel 
+
+### Results
+
+      * LProf [[SourceForge|SourceForge]] News: [[http://sourceforge.net/forum/forum.php?forum_id=740238|http://sourceforge.net/forum/forum.php?forum_id=740238]] 
+
+## LProf - Add support for vcgt tags
+
+* Add support for vcgt tags to the LProf monitor profiler and the UI. 
+
+### Expectations
+
+      * implement support for vcgt tags in the monitor profiler.  
+      * add needed widgets to the UI for users to specify a CGATS file for the vcgt data.  
+      * inline documentation 
+      * user documentation 
+
+### Skills
+
+      * good communication skills 
+      * portable C, C++ 
+
+### Contact
+
+      * Mentor: Hal Engel 
+
+# Alternative Ideas
+
+Feel free to propose and discuss your ideas. 
+
+
+# Required License
+
+BSD and LGPL extended by allowing for static linking are preferred licenses. 
+
+
+# Communication
+
+The [[OpenIcc|OpenIcc]] list and the according mentors are all open for getting in contact. We may create a additional public list dedicated to the SoC projects communication.  
+
+If in doubt, which way is right, write to Kai-Uwe Behrmann <ku.b @ gmx.de>. 
