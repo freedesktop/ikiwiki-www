@@ -1,0 +1,162 @@
+##META:TOPICINFO{author`"JamesHenstridge" date`"1087378800" format`"1.0" version`"1.5"}%
+##META:TOPICPARENT{name="Home"}%
+##TOC%
+
+= Introduction =
+
+JHBuild is a program that can be used to pull a number of modules from a variety of sources (CVS, Subversion, Git, Bazaar, tarballs...) and build them in the correct order.  Unlike some build scripts, JHBuild lets you specify what modules you want built and it will then go and build those modules plus dependencies.
+
+Although JHBuild was originally developed to build [[http://www.gnome.org/|GNOME]], it is now able to build a number of the modules in freedesktop.org CVS.  Extending it to handle new modules is usually trivial (assuming the build infrastructure matches the other modules it handles).
+
+Uptodate [[http://library.gnome.org/devel/jhbuild/unstable/|JHBuild Documentation]] is available on [[http://library.gnome.org|GNOME Library]].  There is also useful contents in the [[http://live.gnome.org/Jhbuild|Jhbuild]] page of GNOME wiki.
+
+= Installation =
+To install JHBuild, you will need to check it out of Gnome git.  I recommend checking it out into the directory where you will store the working copies of the modules you want to build.  This can be done with the following commands:
+
+{{{
+	 $ git clone git://git.gnome.org/jhbuild
+}}}
+
+Jhbuild can be installed to `~/bin` (which should be in your path) with the following commands:
+
+{{{
+	 $ cd jhbuild
+	 $ ./autogen.sh
+	 $ make
+	 $ make install
+}}}
+
+Before making use of JHBuild, you should make sure the required build tools are installed.
+
+= Prerequisites =
+
+To use JHBuild, you will need to install various build tools.  These include:
+	* [[http://www.python.org/|Python]] >= 2.0 with expat support (jhbuild needs the Python XML modules).
+	* [[http://www.gnu.org/software/autoconf/|autoconf]] 2.5x
+	* [[http://www.gnu.org/software/automake/|automake]] 1.4-p6, 1.7.x, 1.8.x and 1.9.x (these are parallel installable).
+	* [[http://www.gnu.org/software/libtool/|libtool]] >= 1.5
+	* [[http://www.gnu.org/software/gettext/|gettext]] >= 0.10.40
+	* [[Software/pkgconfig| pkgconfig]]
+
+Some packages won't require all of these tools, while others may have more prerequisites.
+
+On a Red Hat Linux 9 system, most of these prereqisites should be included with the distribution.  The remaining packages can be found in Rawhide.  I installed `automake-1.7.8`, `automake16-1.6.3`, `libtool-1.5` and `libtool-libs-1.5` RPMs from Rawhide over a fresh RH9 install to satisfy the prerequisites.
+
+Fedora Core 2 contains acceptable versions of the above tools.
+
+Slackware 12 contains acceptable versions of the above tools, 
+with the exception of automake, only version 1.9.6 is included.
+
+''Feel free to add notes about other distros as needed -- JamesHenstridge''
+
+= The Configuration File =
+
+JHBuild uses a configuration file to control what gets built.  The configuration file is `~/.jhbuildrc`, and uses standard Python syntax.  There are a few sample configuration files distributed with jhbuild.  Below is a sample configuration file suitable for building [[http://www.cairographics.org/|cairo]] and [[Software/dbus| dbus]]:
+
+{{{
+	 # what to build?
+	 moduleset = 'freedesktop'
+	 modules = [ 'cairo', 'dbus' ]
+
+	 # if you have write access to the repository, you can change
+	 # what cvsroot is used to check things out.  The default is
+	 # anonymous pserver access.
+	 cvsroots['cairo.freedesktop.org'] = ':ext:james@cvs.freedesktop.org:/cvs/cairo'
+	 
+	 # where should working copies go?
+	 checkoutroot = os.environ['HOME'] + '/cvs/freedesktop'
+	 # in what prefix should things be installed? (must be writable)
+	 prefix = os.environ['HOME'] + '/prefix'
+
+	 # extra arguments to pass to the autogen.sh script?
+	 autogenargs = '--enable-maintainer-mode --disable-static'
+
+	 # use an alternative install program that preserves the
+	 # mtime on header files if they haven't changed.  Speeds
+	 # up rebuilds.
+	 os.environ['INSTALL'] = os.environ['HOME'] + '/bin/install-check'
+}}}
+
+Here is a list of some of the variables that can be set in the `~/.jhbuildrc` file:
+
+	moduleset: the collection of modules containing the modules to be built.  The 'freedesktop'
+				  module set includes the freedesktop.org modules, so should be sufficient.  If you
+				  want to build some Gnome modules as well, set this to 'gnome-2.24'.  This can also
+				  be the URL of a modules file, which makes it possible to maintain module sets
+				  outside of Gnome Subversion.
+	modules:	a list of the modules to build.  The list of modules covered by the 'freedesktop'
+				  moduleset can be found in [[http://cvs.gnome.org/viewcvs/jhbuild/modulesets/freedesktop.modules?rev`HEAD&view`auto|jhbuild/modulesets/freedesktop.modules]].
+	skip:		a list of modules to skip.  Useful if you want to use the system version of some
+				  modules.
+	cvsroots:  a dictionary mapping CVS repository names to cvs roots.  Used to override the default
+				  cvs roots.
+	checkoutroot: where to store working copies of the modules that get checked out.
+	prefix:	 where to install things.  Must be writable by the user.
+	autogenargs: arguments to pass to all `autogen.sh` scripts.  `--disable-static` speeds up
+				  the build for many modules.
+	module_autogenargs: a dictionary of additional `autogen.sh` arguments, keyed by module name.
+	always_autogen: if set to `True`, then always run the `autogen.sh` script for a module before
+				  building.  The default is to only run `autogen.sh` if the toplevel makefile for a
+				  module is not present.
+	branches:  a dictionary of branch names, keyed by module name.  Useful if you are doing some
+				  development on a branch, and want jhbuild to build that branch instead of the
+				  default.
+
+= Checking Your Build Configuration =
+You can check whether your jhbuild configuration is okay by running the ``jhbuild sanitycheck`` command.  This is not guaranteed to find all possible problems, but can detect a number of common ones.
+
+Note that some errors the sanity check reports will only affect a subset of packages, so take the results with a grain of salt.
+
+= Using JHBuild =
+Once you have set up your JHBuild configuration file, you can start using it to build modules.  To build the list of modules listed in the configuration file (plus the dependencies), use the ``build`` command:
+{{{
+	 $ jhbuild build
+}}}
+
+If an error occurs during the build, a menu will be displayed so you can decide what to do.  Options include rerunning the build stage, ignoring the error and starting a shell.
+
+To build one or more modules not listed in the configuration file (plus their dependencies), use the ``build`` command, but with the module names as arguments:
+{{{
+	 $ jhbuild build fontconfig Xft
+}}}
+
+If you were part way through a jhbuild run and exited, you can restart the build at a particular module using the `--start-at` option:
+{{{
+	 $ jhbuild build --start-at=Xft
+}}}
+
+To build one or more modules without their dependencies, use the ``buildone`` command:
+{{{
+	 $ jhbuild buildone cairo
+}}}
+
+To see what modules would be built by the ``build`` command, use the ``list`` command:
+{{{
+	 $ jhbuild list
+}}}
+
+If you have the [[http://www.graphviz.org/|GraphViz]] software installed on your computer, you can generate a graph of the modules that jhbuild builds:
+{{{
+	 $ jhbuild dot | dot -Tps > dependencies.ps
+	 $ gv dependencies.ps
+}}}
+
+You can run a completely non-interactive build, and have the results saved to a set of files, together with an HTML index page with the ``tinderbox`` command:
+{{{
+	 $ jhbuild tinderbox -o outputdir
+}}}
+
+Note that in this mode that if a package fails to build, no package that depends on it will be built either.  The results of the build will be saved in `outputdir`.
+
+= Extending Jhbuild =
+JHBuild stores information about modules in simple XML files.  The [[http://cvs.gnome.org/viewcvs/jhbuild/modulesets/freedesktop.modules?view=markup|jhbuild/modulesets/freedesktop.modules]] file describes the freedesktop.org modules that are currently supported.  This list includes:
+	* fontconfig
+	* the X libraries
+	* the X server
+	* cairo
+	* dbus
+	* startup-notification
+
+Patches to support additional modules are welcome, and should be filed as bugs at [[http://bugzilla.gnome.org/|bugzilla.gnome.org]] under the `jhbuild` product.
+
+-- JamesHenstridge - 03 Nov 2003
