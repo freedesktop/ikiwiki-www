@@ -1,0 +1,30 @@
+
+[[DeviceKit|DeviceKit]] was the original name of the projects that [[are to replace parts|http://lists.freedesktop.org/archives/hal/2008-May/011560.html]] of the functionality of [[HAL|Software/hal]]: 
+
+* [[UPower|http://upower.freedesktop.org]], a D-Bus service for dealing with power management 
+* [[udisks|Software/udisks]], a D-Bus interface for dealing with storage devices 
+* [[media-player-info|Software/media-player-info]], information about portable media players 
+* [[urfkill|http://freedesktop.org/wiki/Software/urfkill]], a D-Bus service for dealing with [[RFKill|http://www.mjmwired.net/kernel/Documentation/rfkill.txt]] 
+Other parts of the stack should replace other things that HAL used to provide: 
+
+* Network: 
+      * [[NetworkManager|http://projects.gnome.org/NetworkManager]], [[Wicd|http://wicd.sourceforge.net/]], etc. for network information and control. 
+      * [[NTrack|https://launchpad.net/ntrack]] should be sufficient for most applications' needs. 
+* Audio: hardware enumeration should generally be done through the same interface that is used to interact with audio devices, whether that is [[PulseAudio|http://freedesktop.org/wiki/PulseAudio]], [[ALSA|http://www.alsa-project.org/]], [[GStreamer|http://www.gstreamer.net/]] or other libraries or platform-specific interfaces. 
+* Input: use [[XI2|http://www.x.org/wiki/XI2]] (which uses udev itself on Linux). 
+* Display: use X: [[XRandR|http://www.x.org/wiki/Projects/XRandR]] provides control over LCD backlights, for example. 
+* Processors: 
+      * Linux: Enumeration via udev.  Most of the info HAL provided (and more) is available via [[cpufreq|http://www.kernel.org/pub/linux/utils/kernel/cpufreq/cpufrequtils.html]].  Some information can currently only be obtained from `/proc/cpuinfo`, such as the processor model name. 
+      * FreeBSD: Use sysctl directly. 
+* Other: 
+      * On Linux, other hardware enumeration should be done directly through [[udev|http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html]], generally via [[libudev|http://www.kernel.org/pub/linux/utils/kernel/hotplug/libudev/]].  Work is under way to provide most of the "extra" information that HAL provided _(except quirks?)_ via udev rules; [[media-player-info|Software/media-player-info]] does this, and [[UPower|http://upower.freedesktop.org]] provides battery recall information via udev, for example. 
+      * On other platforms, native hardware enumeration systems should be used. 
+* Qt/KDE applications can make use of the [[Solid|http://solid.kde.org/]] library, which aims to provide a unified API for hardware enumeration across platforms and backends (Solid is Qt-only, but is distributed as part of kdelibs). 
+
+## Mailing List
+
+Announcements and discussion happen on the [[DevKit-devel mailing list|http://lists.freedesktop.org/mailman/listinfo/devkit-devel]]. 
+
+---
+
+ [[CategoryHalReplacement|CategoryHalReplacement]] 
