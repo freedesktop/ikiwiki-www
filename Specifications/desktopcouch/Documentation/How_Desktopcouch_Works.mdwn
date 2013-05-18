@@ -1,0 +1,55 @@
+
+
+# How desktopcouch works
+
+The process of giving every user a CouchDB for their applications to work with involves a number of engineering choices. This document explains how all those parts fit together and gives some indication as to why the decisions were made. 
+
+If you are using desktopcouch from your applications, or are looking at your desktop CouchDB in a web browser, you don't need to read this document (but go ahead if you want to). It's for people hacking on the core of desktopcouch or people trying to debug strange problems. 
+
+
+## Finding the desktopcouch port number
+
+The Desktop Couch CouchDB server runs on a randomly chosen port. This is because a fixed port would not make sense on a multi-user machine. Since the port is randomly generated, there has to be a way to discover the port; desktopcouch provides a D-Bus API to do so. You can discover the port from the command line with 
+
+
+[[!format txt """
+dbus-send --session --dest=org.desktopcouch.CouchDB \
+   --print-reply --type=method_call / \
+   org.desktopcouch.CouchDB.getPort
+"""]]
+Calling the D-Bus getPort API actually starts desktopcouch if it is not already running. This means that desktopcouch does not impact desktop startup time for people who don't use it. It also means that the API is the only reliable way to discover the port; do not grovel through the couchdb log files or `lsof` yourself to get it. 
+
+It is safe to call getPort if desktopcouch is already running; it will simply return the port of the running desktop CouchDB. 
+
+Libraries that wrap desktopcouch, such as `desktopcouch.records` and `couchdb-glib`, should call this API for their users. Users should not have to manually call the D-Bus API themselves, unless they're programming at a very low level.  
+
+The D-Bus getPort API is provided by `/usr/lib/desktopcouch/desktopcouch-service`. This script is run by D-Bus activation, and takes care of starting up desktopcouch if desktopcouch is not already running. 
+
+Desktopcouch should never exit once it is running. However, it may crash; no software is perfect. Applications should be robust against desktopcouch crashing; if the port stops responding, call the D-Bus `getPort` API again, which will restart desktopcouch if crashed. Wrapper libraries such as `desktopcouch.records` should take care of this for applications and not expose this implementation detail where possible. 
+
+
+## The desktopcouch startup process
+
+All desktopcouch's files are stored in the appropriate folders according to the [[XDG BaseDirectory specification|http://standards.freedesktop.org/basedir-spec/basedir-spec-0.6.html]]. On a default machine, desktopcouch-service will look for a CouchDB ini settings file in `$HOME/.config/desktop-couch/desktop-couchdb.ini`. If this ini file does not exist it is created (most of this initialisation work is done in the desktopcouch Python library, specifically `local_files.py` and `start_local_couchdb.py`). Startup also looks for and uses ini files in `/etc/xdg/desktop-couch`; desktopcouch ships with `compulsory-auth.ini` in this folder which sets CouchDB to _require_ authentication for access. The distinction between these two places is that the user-specific ini file is regenerated if it doesn't exist, and contains user-specific data such as the user's OAuth tokens; ini files in `/etc/xdg/desktop-couch` are settings that apply to all desktop CouchDBs. 
+
+On first desktopcouch startup, when the new ini file is created, desktopcouch randomly generates a basic authentication username/password and an OAuth token and token secret, for controlling access to the user's desktop CouchDB. It also writes a "bookmark" file at `$HOME/.local/share/desktop-couch/couchdb.html`, which "forwards" the user to the Futon web  interface for their desktop CouchDB. This "forwarding" file is needed because CouchDB is running on a randomly chosen port and therefore Futon itself can't be bookmarked (as the port will change whenever desktopcouch is restarted). So the user can bookmark the "bookmark page" instead, at the `file:///home/USERNAME/.local/share/desktop-couch/couchdb.html` URL. 
+
+CouchDB writes out a logfile which can be used for troubleshooting to `$HOME/.cache/desktop-couch/desktop-couchdb.log`, and also writes its stdout and stderr to the same folder. See [[the Troubleshooting document|http://www.freedesktop.org/wiki/Specifications/desktopcouch/Documentation/Troubleshooting]] for details. 
+
+
+## Authentication
+
+Access to desktopcouch requires authentication, so that only the owner of the desktopcouch can see the data in it. Authentication is through two-legged OAuth. The OAuth token and token secret should be retrieved from the keyring when required; do not cache these tokens, but request them when needed. (They may change; if the ini file is deleted, it will be regenerated with new tokens and the keyring will be updated.) Libraries that access desktopcouch should seamlessly access these tokens and use them to OAuth-sign requests without bothering the user.  
+
+When the ini file is generated, an HTTP basic authentication username and password are also generated. Do not use basic auth to access desktopcouch from code; use OAuth. The basic auth username and password are generated so that the user can have web-browser access to Futon from the bookmark file; if web browsers did OAuth natively, this wouldn't be required. However, if browsers start doing OAuth natively, the basic-auth username/password will be removed; do not rely on them. Use OAuth. 
+
+
+## Replication
+
+The `desktopcouch-service` daemon also manages replication &mdash; this is how data is synced between "paired" desktop CouchDBs. Every ten minutes (time hardcoded in `desktopcouch/replication.py`), the daemon starts the replication process, replicating all databases to all paired servers. Paired servers are defined by a [[paired-server record|http://groups.google.com/group/desktop-couchdb/web/paired-servers]] in the `management` database. (The management database is one of the [[reserved databases|http://www.freedesktop.org/wiki/Specifications/desktopcouch#head-247e7700f376eac06430616efc17dac5b722ae9f]]; reserved databases are not replicated.) 
+
+A paired-server record can be added manually, or can be added by the `desktopcouch-pair` tool (available in the desktopcouch-tools package on Ubuntu). Paired servers come in two sorts; local servers and cloud servers. Local servers are those on your local network; this is used to set up synchronisation between two of your own machines without connecting to the wider internet. Cloud servers are servers on the internet. The distinction between the two is that for two local servers A and B, A holds a paired-server record for B and does [[CouchDB pull replication|http://books.couchdb.org/relax/reference/replication]] from B, and B holds a paired-server record for A and does pull replication from A. For a local server L paired with a cloud server C, L holds a paired-server record for C and does both [[push and pull replication|http://books.couchdb.org/relax/reference/replication]] from/to C. (A cloud server can't connect to a local server, since a local server is almost certainly NATted or behind a firewall or both.) 
+
+A cloud paired-server record contains a server address and port for the cloud server, and a service_name. This service_name corresponds to a Python module in `desktopcouch/replication_services`, which implements specific replication for this cloud service. 
+
+A local paired-server record contains the unique identifier for the paired server. Since desktopcouch runs on a randomly chosen port, and since local machines are usually issued IP addresses by DHCP, both the host and port may change at arbitrary intervals. So, if a desktopcouch is paired with other local desktopcouches, `desktopcouch-service` advertises the host and port with zeroconf, tagging the advertisement with that desktopcouch's unique identifier. (A given desktopcouch's unique identifier is defined in a server-identity record, in the management database, with `record_type='http://www.freedesktop.org/wiki/Specifications/desktopcouch/server_identity'`.) At replication time, `desktopcouch-service` walks through the list of paired servers, and if it finds a local server, looks to see if that local server is currently advertising via zeroconf; if it is not, it skips that record. If that local server is advertising, then `desktopcouch-service` uses the zeroconf advertisement to establish a host and port for the local server, and then does pull replication with it. 
