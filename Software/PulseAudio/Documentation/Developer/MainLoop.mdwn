@@ -1,0 +1,36 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[!inline pages="DevelopingModulesTOC" quick="yes" raw="yes"]] 
+
+
+# The daemon mainloop
+
+The daemon has one mainloop, and its API is available in `pa_core`'s `mainloop` field. All the daemon mainloop does is execute the short functions (_callbacks_) that all the different subsystems and modules give it for execution. The callbacks are short in duration, because the mainloop is single-threaded, so when a callback executes, everything else is stalled. Giving a function for execution is called creating an event. 
+
+There are three different ways to give a function to the mainloop, in other words there are three different kinds of events. 
+
+There is the "deferred event", which happens (the callback gets called) immediately in the sense that the mainloop doesn't wait for anything, but executes the function as soon as it can (there may be other events waiting for processing before yours). 
+
+Another event type is the "timed event". It happens after a fixed amount of time has passed since the event was created (or the timer reset). 
+
+The third event type is the "IO event". It's the only one that can be fired outside the mainloop thread. Creating an IO event registers a file descriptor in the mainloop, and then the mainloop polls that descriptor. So you can construct a pipe and give the reading end to the mainloop, and then you can from some other thread write to the pipe, and that will fire the event, i.e make the mainloop execute the function you gave it on the event creation. 
+
+The functions mentioned here are from the [[mainloop API|http://0pointer.de/lennart/projects/pulseaudio/doxygen/structpa__mainloop__api.html]]. For example, if you happen to have nothing but a pointer to your module's `pa_module` structure, and you want to create a deferred event with `defer_new()`, you could say 
+
+
+[[!format txt """
+pa_defer_event* e = module->core->mainloop->defer_new(module->core->mainloop, defer_cb, userdata);
+"""]]
+Remember: all calls of the mainloop functions must be done from the mainloop thread. 
+
+
+## Using deferred events
+
+There are two reasons the deferred event type exists (if you happen to have some other use cases, that's fine). Firstly, you might want to run some procedure (maybe cleanup) from multiple points in your code, but you don't want to call a function twice. You can enable a deferred event in those places, and when the control returns to the mainloop, the procedure will be run once only. The second case is when you need to escape your own stack frame. That may happen if some object needs to destruct itself and wants to make sure that noone in its execution stack accesses the object after it's been destroyed. This case can be avoided with proper refcounting. 
+
+In order to use a deferred event, the first thing you'll need is an event object, it's created with `defer_new`. You give it the callback and a parameter that will be passed on to the callback function. You will need to clean up the created events, so there should be a pointer for each event in your module's private data structure. You can create the event object just before you want it fired, or you can create it earlier, perhaps in the module initialization. 
+
+Deferred events can be enabled and disabled with `defer_enable`. If you don't disable the event in the callback, it will fire repeatedly. If you choose to create the event before you actually want it fired, you have to disable the event right after you have created it. 
+
+Deferred events are removed from the mainloop (and they'll have their memory freed too) with `defer_free`. If you need to do some cleanup yourself when the event is destroyed, you can set up a callback with `defer_set_destroy`. 
+
+_To be continued..._ 
