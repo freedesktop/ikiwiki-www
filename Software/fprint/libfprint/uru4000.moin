@@ -1,0 +1,77 @@
+{{http://www.reactivated.net/fprint/img/Microsoft_fingerprint_scanner.jpg|Microsoft Fingerprint Scanner|align=right}}
+
+The `uru4000` driver supports devices based on the [[http://www.digitalpersona.com/products/dpFingRead.php|DigitalPersona U.are.U 4000/4000B/4500 chipsets]].
+
+uru4000 is part of [[../|libfprint]] and is developed/maintained by Daniel Drake and Timo Teräs.
+
+== Supported devices ==
+
+This driver supports the fingerprint scanners found in Microsoft products. Additionally, it supports the standalone and "module" UrU4000/4000B devices that you can get from DigitalPersona, however these are hard to get hold of and are generally only privately sold to companies.
+
+The Microsoft devices are identical to the "official" ones, but DigitalPersona lock down their proprietary SDKs on a software level to only work with the DigitalPersona devices (i.e. you must pay extra and buy direct for the luxury of using SDKs). The uru4000 driver supports both devices equally.
+
+The drivers supplied by Microsoft for the Microsoft devices are only available for 32-bit Windows. fprint and uru4000 work on both 32-bit and 64-bit systems. '''Ironically, thanks to fprint, Linux is the only 64-bit OS that supports the Microsoft Fingerprint Reader products''' (Windows x64 users are [[http://forums.microsoft.com/TechNet/ShowPost.aspx?PostID=1542768&SiteID=17|out of luck]]).
+
+While this driver is believed to support the original DigitalPersona UareU 4000 device that was in circulation several years ago (the 4000B predecessor), my own device is semi-broken so I'm not able to say that it works for sure.
+
+In mid-2007, Microsoft released a new revision of their fingerprint reader (USB ID 0453:00ca). This new revision includes some increased security where the device challenges the authenticity of the driver. Using the [[http://en.wikipedia.org/wiki/Clean_room_design|chinese wall]] method, we have successfully [[http://www.reactivated.net/weblog/archives/2007/12/libfprint-v005-supports-new-ms-hardware/|reverse engineered]] these new security measures for interoperability with the new devices. As a result, these devices are supported in libfprint from v0.0.5 onwards.
+
+== Driver history ==
+
+Daniel Drake reverse engineered the device protocol and formed the [[http://dpfp.berlios.de|libdpfp project]]. uru4000 is based on code from libdpfp, and libdpfp has been obsoleted by libfprint as a result.
+
+Timo Teräs reverse engineered the encryption cipher and implemented uru4500 support.
+
+== Device operation ==
+
+These devices are imaging devices: they simply present images of the user's fingerprint to the host computer. The hardware makes no attempt to enhance, process, or compare fingerprint images.
+
+It is up to the software to process the images and implement fingerprint matching/verification. libfprint handles this internally.
+
+The devices are capable of detecting when a finger has been placed on or removed from the sensor, and can also be asked to capture images at any time.
+
+The device is driven in a mode-based way: there are modes such as "wait for finger", "wait for finger removal", and "capture continuously". Capturing a fingerprint is therefore approximated to: set "wait for finger" mode, wait for interrupt, set "capture continuously" mode, wait for image, set "wait for finger removal" mode, ...
+
+The device protocol is mostly understood, but there are still some unknowns. The auxiliary image capture is not fully understood at this time.
+
+== Security notes ==
+
+Fingerprint images are encrypted over the USB bus. The encryption scheme is not strong, so it is possible to decrypt the image from USB traces. All control messages are unencrypted.
+
+In 2006, Mikko Kiviharju wrote a paper about the security of these devices and presented it at Black Hat Europe 2006. His [[http://www.blackhat.com/presentations/bh-europe-06/bh-eu-06-Kiviharju/bh-eu-06-kiviarju.pdf|slides]] and [[http://www.blackhat.com/presentations/bh-europe-06/bh-eu-06-Kiviharju/bh-eu-06-kiviharju-resources.zip|research paper]] are available for download.
+
+== Imaging performance ==
+
+uru4000 seems to perform very well with libfprint's image processing code. When scanning my index finger 5 times, each scan yielded a healthy count of 43.6 minutiae on average.
+
+Against an enrolled print of 49 minutiae, scanning the same finger again a further 3 times results in a bozorth match scores of 118, 145, and 145. Anything above 40 represents a match. Scanning the other fingers on the same hand yields scores of 8, 6, 6, and 16.
+
+== Other capabilities ==
+
+The Microsoft devices have an oval shape red light panel around the sensor (separate from the bright red scanning lights that illuminate your finger). The brightness of this can be set by the driver, for scan feedback and interesting visual effects. This feature is not present on DigitalPersona's own packaging of the device. libfprint currently does not support this feature.
+
+The devices have an alternative fingerprint illumination mode, much dimmer with light solely originating from the CCD area, and it only captures a small portion of the fingerprint. The Microsoft/DigitalPersona drivers capture an image in this mode immediately after every scan, this is why you see the device 'blink' when scanning your finger using their drivers. The purpose of this mode is not entirely understood. uru4000 currently does not support this feature.
+
+{{http://www.reactivated.net/fprint/img/Uru4000_default_illumination.jpg|Default illumination}} {{http://www.reactivated.net/fprint/img/Uru4000_alternative_illumination.jpg|Alternative illumination}}
+
+== Image info and optical behaviour ==
+
+In the default illumination mode, the scanner sends a 384x289 image separated into 2 USB transactions (prepended by a 64 byte header). Each pixel is represented as 1 byte, so rendering it as standard greyscale data yields the following:
+
+{{http://www.reactivated.net/fprint/img/Uru4000_raw_scan.jpg}}
+
+Some points to note:
+ * You can see some of the scanner internals (or a reflection of them) in the top right of the image
+ * The raw image quality is impressive - the fingerprint ridges are shown in bright white on a near-black background.
+ * There are two vertical columns of black at the very left and very right of the image. These were a big help in figuring out the image format and dimensions.
+ * The sensor is one of the larger ones I have seen, and you can see it captures a big region of my finger.
+
+However, the image is upside down, back to front, and we generally deal with images of negated colours, here's the same image flipped around and with the colours inverted:
+
+{{http://www.reactivated.net/fprint/img/Uru4000_flipped_negated.jpg}}
+
+During earlier development, several people commented that the Windows API's and whatnot produce larger images which show more of the finger. This isn't entirely correct - the optical characteristics of the device result in your finger being distorted in the raw images, so the software simply stretches the image so that it has the correct proportions. uru4000 doesn't currently do this, but will integrate [[http://lists.berlios.de/pipermail/dpfp-dev/2007-May/000309.html|Paulo Marques' anti-distortion code]] at some point in the future.
+
+The image is also distorted in that there is a reflection of the [http://en.wikipedia.org/wiki/Charge-coupled_device CCD] itself in the underside of the glass, resulting in a white square towards the center of each scan. This can easily be seen in a raw scan where no finger is present:
+
+{{http://www.reactivated.net/fprint/img/Uru4000_raw_clear_sensor.jpg}}
