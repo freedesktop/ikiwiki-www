@@ -1,0 +1,27 @@
+= D-Bus Interface: Ladspa Extension =
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus|(Back to the toplevel D-Bus Interface page)]]
+
+When module-ladspa-sink is loaded, it creates a virtual sink with a ladspa filter, and any streams played to that sink will get their audio processed by the filter. The filter parameters can be queried and modified using the interface described here.
+
+Objects and their interfaces:
+ * /org/pulseaudio/core1/sinkX
+   - org.!PulseAudio.Ext.Ladspa1
+
+The Ladspa interface is implemented by the sink object that is created by module-ladspa-sink. In order to use the Ladspa interface, the client needs to know the object path of the ladspa sink. That can be provided by the user, or the application can scan all sink objects and look which ones look like ladspa sinks.
+
+
+== org.PulseAudio.Ext.Ladspa1 ==
+
+=== Properties ===
+
+==== AlgorithmParameters ====
+
+ * Type: ([Double], [Boolean])
+ * Access: read/write
+
+The filter parameters are stored in a struct with two arrays. The first array contains the parameter values and the second array contains the "use default" flags, one flag for each value. (If you're thinking that it would make more sense to have an array of structs, each struct containing the parameter value and the corresponding "use default" flag, you're right.)
+
+The meaning of each parameter is defined by the ladspa plugin. There's currently no support for querying any information beyond the current value about the parameter, such as its name, so this interface is pretty much limited to cases where the client knows via some other means what plugin it's dealing with.
+
+The "use default" flag means that the default value of the parameter is in use (when reading the property) or should be used (when writing the property). When writing the property, if the "use default" flag is set for a parameter, the corresponding parameter value is ignored.
