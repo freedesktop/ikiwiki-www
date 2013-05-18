@@ -1,0 +1,153 @@
+
+PDF available at: [[http://gitweb.beryl-project.org/?p=users/racarr/architecture/.git;a=blob_plain;f=cmrds.pdf;hb=HEAD|http://gitweb.beryl-project.org/?p=users/racarr/architecture/.git;a=blob_plain;f=cmrds.pdf;hb=HEAD]] 
+
+Composite Manager Retained Drawing Protocol RFC 
+
+Robert Carr 
+
+02/28/07 
+
+Outline and justification: 
+
+Results from development in the creation of 'first  generation' mainstream composite window managers has  outlined the need for several reconsiderations in  regards to applications interacting and communicating  with the composite manager. Currently code can interact  with a composite manager in one of several fashions: 
+
+1. Composite managers can expose a plugin interface  enabling libraries functioning as plugins to  implement new functionality for a composite manager.  This is effective for many of the traditional window  manager functionalities, but has several weaknesses.  Slow code in the composite manager will make an  entire system feel sluggish, and furthermore under  existing and easily forseeable plugin architectures  plugins such as the Thumbnail plugin of Beryl and  Compiz waste an excessive amount of CPU even while  not doing anything interesting. Furthermore  applications requiring an excessive amount of user  interaction are cumbersome and difficult to write,  and attempts to do so often expose the problem of  slow code in a composite manager making the entire  system feel sluggish. Lastly applications requiring a  great deal of interaction with other components of  the desktop are not well suited to existing as a  plugin for a compositor, while they still might find  it useful to leverage some of the power of a  compositor.  
+1. Composite managers can communicate with client  applications through X window properties. This is a  suitable way to store simple information and flags,  but the use quickly breaks down when attempting to  traffic large (things such as Pixmaps or a vertex  array) amounts of information in a latency sensitive manner. 
+1. Composite managers can communicate with client  applications through an interprocess communications  protocol such as DBUS. This is a suitable way for  triggering actions, and a sort of 'scripting' but  suffers from similar issues to that of X properties  in leveraging the compositor for producing rich  client applications. 
+As a solution this document proposes the creation of a  low level protocol used to leverage the composite  manager for drawing purposes. Composite managers would  expose a struct in shared memory where client  applications could queue 'Requests' to specify specific  drawing operations and state changes. The proposed  protocol is lightweight and generic allowing for  implementation in a multitude of composite managers  while maintaining ABI compatibility. 
+
+Structure of implementation and low level protocol description 
+
+The protocol will be built upon Requests structured as  following:  
+
+1. An enumeration of named opcodes for each request. 
+1. For each opcode a structure representing any  parameters or attributes which the client application  must communicate to the compositor to complete the  specific request 
+1. A structure representing an entire request  containing the opcode, and a union of attribute  structures for all opcodes. Furthermore the request  structure will contain a pointer to the next and  previous request. 
+Composite managers will expose a struct in shared  memory (henceforth referred to as the transport) (TODO:  Best method to establish initial communication?) containing: 
+
+1. A doubly linked list of requests, client  applications will add requests to the end of this  list and the composite manager will clear requests  from the list upon executing them. 
+1. A struct representing the last executed request and  opcodes for any return information which this request  may have generated. The return information will be a  pointer to a struct made accessible of a type defined  by the particular request. 
+1. A lock on the structure to prevent issues with  multiple clients accessing the structure. Ideally  clients will interact with the protocol through a  higher level library. 
+Composite managers will be required to ensure that at  each paint all requests are cleared EXCEPT in the case  where a lock exists on the transport (Though adding a  request will not neccesarily trigger a paint) (TODO:  Damage attribute on transport/something?). Furthermore  the composite manager will be required to guarantee  that actions occur in the order they were added. (TODO:  Client attribute to requests to enable sorting of  requests when clients don't respect the lock?). Respect  of the lock on the transport must be observed at the  client level. 
+
+Opcodes 
+
+The first version of the CMRD protocol defines 13 opcodes. 
+
+Opcode 0: 
+
+         * Name: [[CompositeManagerQueryProtocolVersionRequest|CompositeManagerQueryProtocolVersionRequest]] Attributes: None Return attributes: 
+                                 * int major; int minor; Description and implementation notes: Returns the major  
+and minor version of the implemented protocol. 
+
+Opcode 1: 
+
+         * Name: [[CompositeManagerReadyRequest|CompositeManagerReadyRequest]] Attributes: None Return Attributes: 
+                              * int ready; Description and implementation notes: Indicates whether  
+the composite manager is ready and able to respond 
+
+drawing requests. 
+
+Opcode 2: 
+
+         * Name: [[CompositeManagerScreengrabLockExistsRequest|CompositeManagerScreengrabLockExistsRequest]] Attributes: TODO Return attributes: 
+                              * int exists; Description and implementation notes: The concept of a  
+'Screengrab Lock' is used to indicate whether a client  is using the composite manager for a fullscreen and  screengrabbing effect, where it would not be  appropriate for other clients to do the same. An actual  X grab may or may not be issued based on attributes. 
+
+Opcode 3: 
+
+      * Name: [[CompositeManagerPushScreengrabLockRequest|CompositeManagerPushScreengrabLockRequest]] Attributes: TODO Return attributes: 
+               * TODO Description and implementation notes: Pushes a  
+screengrab lock. 
+
+Opcode 4: 
+
+      * Name: [[CompositeManagerPopScreengrabLockRequest|CompositeManagerPopScreengrabLockRequest]] Attributes: None Return attributes: None Description and implementation notes: Pops the active  
+screengrab lock. 
+
+Opcode 5: 
+
+      * Name: [[CompositeManagerSetDrawingLevelRequest|CompositeManagerSetDrawingLevelRequest]] Attributes:  
+                        * Window level; int screen; Return attributes: None Description and implementation notes: Sets the current  
+drawing level, in that further drawing requests will be  rendered at the same level as the 'Window level'  attribute, or above all windows if 'Bool screen' is true. 
+
+Opcode 6: 
+
+      * Name: [[CompositeManagerSetDamageResponseRequest|CompositeManagerSetDamageResponseRequest]] Attributes:  
+                        * int respond; Return attributes: None Description and implementation notes: Temporarily  
+toggles the composite manager from repainting damaged areas. 
+
+Opcode 7: 
+
+      * Name: [[CompositeManagerSetActiveTextureFromWindowRequest|CompositeManagerSetActiveTextureFromWindowRequest]] Attributes:  
+               * Window window; Return attributes: None Description and implementation notes: Creates a texture  
+from the CURRENT drawable of the window and uses it for  future retained drawing operations. 
+
+Opcode 8: 
+
+      * Name: [[CompositeManagerSetActiveTextureFromPixmapRequest|CompositeManagerSetActiveTextureFromPixmapRequest]] Attributes: 
+               * Pixmap pixmap; Return attributes: None Description and implementation notes: BINDS a texture  
+from the passed pixmap and uses it for future retained  drawing operations. 
+
+Opcode 9: 
+
+      * Name: [[CompositeManagerSetRenderScreenOffscreenRequest|CompositeManagerSetRenderScreenOffscreenRequest]] Attributes: 
+               * int offscreen Return attributes: None Description and implementation notes: Based on the  
+value of offscreen begin rendering the screen to an  offscreen framebuffer object or GLXPBuffer (based on  availability of FBO), and set the active texture to a  texture generated from such rendering. 
+
+Opcode 10: 
+
+      * Name: [[CompositeManagerSetCurrentVertexArrayRequest|CompositeManagerSetCurrentVertexArrayRequest]] Attributes: 
+               * float * vertices; int nvertices; Return attributes: None Description and implementation notes: float * vertices  
+should be a 0 offset array of vertices in the format 
+
+      * x, y, z. This is used as the geometry for future drawn  
+objects. It is to be assumed that the vertices are in  screen coordinates, with 0, 0 (x, y) being the TOP LEFT  of the screen. 
+
+Opcode 11: 
+
+      * Name: [[CompositeManagerSetCurrentTextureArrayRequest|CompositeManagerSetCurrentTextureArrayRequest]] Attributes: 
+               * float * coords; int ncoords; Return attributes: None Description and implementation notes: Same format as  
+[[CompositeManagerSetCurrentVertexArray|CompositeManagerSetCurrentVertexArray]] without the z  coordinate. This is used as the texture coordinates for  future drawn objects. 
+
+Opcode 12: 
+
+      * Name: [[CompositeManagerDrawRequest|CompositeManagerDrawRequest]] Attributes: None Return attributes: None Description and implementation notes: Enable the  
+current retained drawing texture, and render the  geometry in the current vertex array with the texture  coordinates in the current texture array.  
+
+Opcode 13: 
+
+      * Name: [[CompositeManagerDamageScreenRequest|CompositeManagerDamageScreenRequest]] Attributes: None Return attributes: None Description and implementation notes: Force the  
+composite manager to redraw the screen. 
+
+Example Usage 
+
+Drawing a window thumbnail for Window id at 300, 300 on  a quad with width and height 100. 
+
+Requests: 
+
+[[CompositeManagerSetDrawingLevelRequest|CompositeManagerSetDrawingLevelRequest]] ( Window level =  0, screen = TRUE) 
+
+[[CompositeManagerSetActiveTextureFromWindowRequest|CompositeManagerSetActiveTextureFromWindowRequest]] (  Window id) 
+
+[[CompositeManagerSetCurrentVertexArrayRequest|CompositeManagerSetCurrentVertexArrayRequest]] ( float *  vertices = 300, 300, 0, 300, 400, 0, 400, 400, 0, 400,  300, 0 nvertices = 4) 
+
+[[CompositeManagerSetCurrentTextureArrayRequest|CompositeManagerSetCurrentTextureArrayRequest]] ( float *  coords = 0,0,0,1,1,1,1,0 ncoords = 4) 
+
+[[CompositeManagerDrawRequest|CompositeManagerDrawRequest]] 
+
+Drawing a thumbnail of what  the screen would look like on a different viewport at  300, 300 on a quad with width and height 100. 
+
+Requests:  
+
+[[CompositeManagerSetRenderOffscreenRequest|CompositeManagerSetRenderOffscreenRequest]] offscreen = 1 
+
+<span style="display:none">Set X property such that the viewport will be moved  to your desired viewport</span> 
+
+[[CompositeManagerDamageScreenRequest|CompositeManagerDamageScreenRequest]] 
+
+[[CompositeManagerSetCurrentVertexArrayRequest|CompositeManagerSetCurrentVertexArrayRequest]] ( float *  vertices = 300, 300, 0, 300, 400, 0, 400, 400, 0, 400,  300, 0 nvertices = 4) 
+
+[[CompositeManagerSetCurrentTextureArrayRequest|CompositeManagerSetCurrentTextureArrayRequest]] ( float *  coords = 0,0,0,1,1,1,1,0 ncoords = 4) 
+
+[[CompositeManagerDrawRequest|CompositeManagerDrawRequest]] 
