@@ -1,0 +1,83 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] 
+
+
+# Daemon
+
+
+## Command Line Arguments
+
+The PulseAudio daemon accepts several command line arguments: 
+
+
+[[!format txt """
+COMMANDS:
+  -h, --help                            Show this help
+      --version                         Show version
+      --dump-conf                       Dump default configuration
+      --dump-modules                    Dump list of available modules
+  -k  --kill                            Kill a running daemon
+      --check                           Check for a running daemon
+
+OPTIONS:
+      --system[=BOOL]                   Run as system-wide instance
+  -D, --daemonize[=BOOL]                Daemonize after startup
+      --fail[=BOOL]                     Quit when startup fails
+      --verbose[=BOOL]                  Be slightly more verbose
+      --high-priority[=BOOL]            Try to set high process priority
+                                        (only available as root)
+      --disallow-module-loading[=BOOL]  Disallow module loading after startup
+      --exit-idle-time=SECS             Terminate the daemon when idle and this
+                                        time passed
+      --module-idle-time=SECS           Unload autoloaded modules when idle and
+                                        this time passed
+      --scache-idle-time=SECS           Unload autoloaded samples when idle and
+                                        this time passed
+      --log-level[=LEVEL]               Increase or set verbosity level
+  -v                                    Increase the verbosity level
+      --log-target={auto,syslog,stderr} Specify the log target
+  -p, --dl-search-path=PATH             Set the search path for dynamic shared
+                                        objects (plugins)
+      --resample-method=[METHOD]        Use the specified resampling method
+                                        (one of src-sinc-medium-quality,
+                                        src-sinc-best-quality,src-sinc-fastest
+                                        src-zero-order-hold,src-linear,trivial)
+      --use-pid-file[=BOOL]             Create a PID file
+
+STARTUP SCRIPT:
+  -L, --load="MODULE ARGUMENTS"         Load the specified plugin module with
+                                        the specified argument
+  -F, --file=FILENAME                   Run the specified script
+  -C                                    Open a command line on the running TTY
+                                        after startup
+
+  -n                                    Don't load default script file
+"""]]
+
+### Example
+
+It is a good idea to run the daemon like this: 
+
+
+[[!format txt """
+pulseaudio -D
+"""]]
+This will run `/etc/pulse/default.pa` after startup. This should be a script written in the [[CLI language|Software/PulseAudio/Documentation/User/CLI]]. 
+
+
+## Signals
+
+The following signals are trapped specially: 
+
+SIGINT 
+
+   * The daemon is shut down cleanly. 
+SIGUSR1 
+
+   * The daemon tries to load the module `module-cli`, effectively providing a command line interface on the calling TTY. 
+SIGUSR2 
+
+   * The daemon tries to load the module `module-cli-protocol-unix`, effectively providing a command line interface on a special UNIX domain socket. 
+SIGHUP 
+
+   * The daemon logs the current server layout. 
