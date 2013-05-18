@@ -1,0 +1,35 @@
+= The Gallium3D Draw Module =
+
+[[Software/gallium|Gallium3D]] provides a helper module implementing the vertex fetch, vertex transformation and primitive assembly steps of the 3D pipeline. The interface of this module corresponds closely to the subset of the Gallium Driver Interface which is relevent to these steps in the pipeline. Specifically there are calls for:
+
+ * Vertex shader constant state objects
+ * Vertex buffer binding
+ * Vertex element layout (vertex fetch) constant state objects
+ * Drawing indexed and non-indexed vertex arrays
+ * Rasterizer constant state objects. 
+
+The Draw module is effectively the part of softpipe which is concerned with vertex processing, split off into a separate module so that it can be reused by drivers for rasterization-only hardware. As such it is also instantiated by the i915simple driver.
+
+The Draw module's pipeline implements clipping, culling, two-sided lighting selection, converting wide lines/points into triangles, etc. The final stage of the pipeline may either pass the point/line/tri primitives to the device driver for rasterization, or it may build vertex and index buffers. The vertex/index buffers can be allocated from graphics memory and match hardware-specific formats.
+
+Finally, there are cases in the Mesa/OpenGL state_tracker where transformed vertices are needed, yet it is anticipated that using hardware transformation would reduce performance, usually because the setup costs or latency are prohibitive. For this reason the Mesa state_tracker also instantiates a private copy of the Draw module for implementing glRasterPos, and GL_SELECT/GL_FEEDBACK rendering modes.
+
+
+== Code walk-through: glDrawElements ==
+
+glDrawElements basically maps to the pipe->draw_elements() method. Before it's called though, the state tracker code needs to tell the gallium context two things:
+
+1. The vertex format (which attributes, number of components and datatypes). This is described with the pipe_vertex_element type and calls to pipe->set_vertex_element().
+
+2. The location of the vertex arrays in memory (in buffer objects). The Mesa vbo module puts the array data into VBOs and the state tracker tells the gallium context about the buffers with the pipe_vertex_buffer type and calls to pipe->set_vertex_buffer().
+
+
+When pipe->draw_elements() is called that dispatches into the device driver. If you have full TnL hardware, you'll basically use the vertex format/buffer info to program the hardware and let it rip.
+
+For non-TnL hardware, the 'pipe/draw/' utility module comes into play. It does sw-based vertex transformation, primitive assembly, clipping, etc. emitting screen-coord points/lines/triangles at the end.
+
+The draw module transforms 4 vertices at a time (like we do "quads" of fragments) to allow SOA (or AOS) processing.
+
+There's also a vertex cache/buffer (32 verts) and primitive (point/line/tri) cache for efficient primitive assembly, etc.
+
+When the prim cache (or vertex cache) is full, we begin rendering a batch of primitives (points/lines/tris) by passing them through the "prim pipeline" which is a sequence of stages like clipping, front-back face determination, culling, glPolygonMode, glPolygonOffset, etc. The last stage of this pipeline (which actually renders the prim) is not in the 'draw' module. It's provided by the device driver (see sp_prim_setup.c or cell_render.c, for example). 
