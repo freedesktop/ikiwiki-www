@@ -1,0 +1,555 @@
+= PulseAudio's D-Bus interface =
+
+These pages should eventually contain the final D-Bus control interface specification. Currently it's just a draft, comments welcome.
+
+== Recent Changes ==
+
+ * 2012-12-15
+   * Add the Ladspa interface.
+
+ * 2012-11-09
+   * Add signals !NewProfile and !ProfileRemoved to the Card interface.
+
+ * 2012-02-15
+   * Change the !FallbackSink and !FallbackSource semantics so that they can be unset at any time, also when there are sinks and sources present.
+
+ * 2011-04-15
+   * Add property !VolumeWritable to the Stream interface.
+   * Add error !BadStateError.
+
+ * 2011-03-13
+   * Removed references to "user bus". We will use the session bus, which will behave like a user bus in most systems in the future, hopefully.
+   * Documented the fact setting stream or device volumes can always be done using a single-channel volume structure, regardless of the real channel map.
+
+ * 2010-04-15
+   * Change the !RestoreEntry property behavior so that changes are applied immediately to existing streams also.
+
+ * 2009-08-31
+   * Add signals !FallbackSinkUnset and !FallbackSourceUnset to the Core interface.
+   * Rename !IsMuted everywhere to Mute.
+
+ * 2009-08-18
+   * Change the volume type of Play and !PlayToSink methods in the Sample interface from [Uint32] to Uint32.
+
+ * 2009-08-15
+   * Add properties !PlaybackStreams and !RecordStreams to the Client interface.
+
+ * 2009-08-04
+   * Rename !AllMemblocks to !AccumulatedMemblocks in Memstats.
+
+ * 2009-08-03
+   * Add apply_immediately argument to !StreamRestore1.!AddEntry().
+
+ * 2009-08-02
+   * Add signals !DeviceUpdated, !VolumeUpdated and !MuteUpdated to the stream restore entry interface.
+   * Make properties Device, Volume and !IsMuted writable in the stream restore entry interface.
+   * Add !GetEntryByName method to the stream restore interface.
+
+ * 2009-07-31
+   * Change the non-extension object path prefix from /org/pulseaudio1/ to /org/pulseaudio/core1/. This way the core and the extensions have consistent object path prefix (/org/pulseaudio/).
+   * Add signals .Core1.!NewExtension and .Core1.!ExtensionRemoved.
+   * Rework the stream restore interface.
+
+ * 2009-07-15
+   * Remove the sink argument from Sample.Play() and add new method Sample.!PlayToSink().
+
+ * 2009-07-12
+   * Add Cards property to Core.
+
+ * 2009-07-09
+   * Rearrange the channel position enumeration so that the numbering matches the one used internally and with the C API.
+
+ * 2009-07-01
+   * Change the org.pulseaudio prefix to org.!PulseAudio.
+   * Replace the lookup service's !GetAddress method with the Address property.
+   * Remove sample loading methods that use files. Hide the difference between lazy and non-lazy samples.
+   * Add Sinks and Sources properties to Card.
+   * Prefix boolean properties with "Is" or "Has".
+   * Move !FlatVolume property from Sink to Device.
+   * Change enumeration types from Byte to Uint32.
+   * Remove the Self interface, move the functionality to Core and Client interfaces.
+   * Move everything in the !PlaybackStream interface to the Stream interface and remove !PlaybackStream.
+   * Add !StreamEvent to the Stream interface.
+   * Rename proplist -> property list.
+   * Change argument names to lowercase, as it seems to be the standard way (this statement is actually only based on that the D-Bus spec has them lowercase in the examples).
+
+
+== Overview ==
+
+Previously the only D-Bus services !PulseAudio provided were an implementation of the [[http://git.0pointer.de/?p=reserve.git;a=blob_plain;f=reserve.txt|Device Reservation spec]] for sound cards and reservation of the org.pulseaudio.Server name on the session or system bus for server tracking purposes. Those features remain untouched, and this document doesn't have anything to do with them.
+
+The new functionality consists of two parts: a server lookup service and the main control interface. When clients want to use the control interface, they have to first figure out where they should connect to. How to connect to the control interface is specified on the [[Software/PulseAudio/Documentation/Developer/Clients/DBus/ConnectingToServer|ConnectingToServer]] page. The main control interface is provided as a "D-Bus server". That is, it's not available on any bus, but instead clients make direct connections to !PulseAudio.
+
+
+== Open Questions ==
+
+ * Does it make sense for clients to save card names? If not, the .Core1.!GetCardByName method is probably unneeded.
+
+ * Same for .Core1.Card.!GetProfileByName.
+
+ * Same for .Core1.Device.!GetPortByName.
+
+ * Do error cases need better documentation? The current guideline has been that if an error can be returned even if the situation is more like a special case than an error, it is explicitly documented.
+
+
+== Control API ==
+
+The detailed descriptions are spread to separate pages, roughly one per object type. This page provides only a minimal reference and links to the details.
+
+
+=== Notation ===
+
+ * Arrays are written as [<type>]. For example, [Byte] is an array of bytes. 
+ * Dictionaries are written as {<type1> -> <type2>}. For example, {String -> [Byte]} is a dictionary with strings as keys and byte arrays as values.
+ * Structs are written as (<type1>, <type2>, ..., <typeN>). For example (Byte, Uint32) is a struct with two members: a byte and an unsigned 32 bit integer.
+ * On this page only, property access is denoted with (r) for read and with (rw) for read/write.
+ * The rest should be obvious.
+
+
+
+=== Property Lists ===
+
+Property lists (not to be confused with D-Bus properties) are dictionaries that are associated with many objects. The keys are utf-8 strings and the values are arbitrary data (usually they are utf-8 strings too, though). Property lists are used to attach many kinds of metadata to the objects: names, descriptions, intended roles and so on. For now the best source of information about available properties is the [[http://0pointer.de/lennart/projects/pulseaudio/doxygen/proplist_8h.html|proplist.h]] file documentation.
+
+
+
+=== General Server Functionality ===
+
+ * Object '''/org/pulseaudio/core1''' implements interface '''org.!PulseAudio.Core1'''.
+
+
+==== org.PulseAudio.Core1 ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#InterfaceRevision|InterfaceRevision]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Version|Version]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#IsLocal|IsLocal]]: Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Username|Username]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Hostname|Hostname]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#DefaultChannels|DefaultChannels]] : [Uint32] (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#DefaultSampleFormat|DefaultSampleFormat]] : Uint32 (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#DefaultSampleRate|DefaultSampleRate]] : Uint32 (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Cards|Cards]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Sinks|Sinks]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#FallbackSink|FallbackSink]] : !ObjectPath (rw) # Doesn't exist when the fallback sink is unset.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Sources|Sources]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#FallbackSource|FallbackSource]] : !ObjectPath (rw) # Doesn't exist when the fallback source is unset.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#PlaybackStreams|PlaybackStreams]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#RecordStreams|RecordStreams]]: [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Samples|Samples]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Modules|Modules]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Clients|Clients]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#MyClient|MyClient]] : !ObjectPath (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Extensions|Extensions]] : [String] (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#GetCardByName|GetCardByName]](in name : String ; out card : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#GetSinkByName|GetSinkByName]](in name : String ; out sink : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#GetSourceByName|GetSourceByName]](in name : String ; out source : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#GetSampleByName|GetSampleByName]](in name : String ; out sample : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#UploadSample|UploadSample]](in name : String, sample_format : Uint32, sample_rate : Uint32, channels : [Uint32], default_volume : [Uint32], property_list : {String -> [Byte]}, data : [Byte] ; out sample : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#LoadModule|LoadModule]](in name : String, arguments : {String -> String} ; out module : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Exit|Exit]]()
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#ListenForSignal|ListenForSignal]](in signal : String, objects : [!ObjectPath])
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#StopListeningForSignal|StopListeningForSignal]](in signal : String)
+
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewCard|NewCard]](card : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#CardRemoved|CardRemoved]](card : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewSink|NewSink]](sink : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#SinkRemoved|SinkRemoved]](sink : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#FallbackSinkUpdated|FallbackSinkUpdated]](sink : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#FallbackSinkUnset|FallbackSinkUnset]]()
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewSource|NewSource]](source : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#SourceRemoved|SourceRemoved]](source : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#FallbackSourceUpdated|FallbackSourceUpdated]](source : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#FallbackSourceUnset|FallbackSourceUnset]]()
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewPlaybackStream|NewPlaybackStream]](playback_stream : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#PlaybackStreamRemoved|PlaybackStreamRemoved]](playback_stream : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewRecordStream|NewRecordStream]](record_stream : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#RecordStreamRemoved|RecordStreamRemoved]](record_stream : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewSample|NewSample]](sample : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#SampleRemoved|SampleRemoved]](sample : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewModule|NewModule]](module : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#ModuleRemoved|ModuleRemoved]](module : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewClient|NewClient]](client : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#ClientRemoved|ClientRemoved]](client : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#NewExtension|NewExtension]](extension : String)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Core#ExtensionRemoved|ExtensionRemoved]](extension : String)
+
+
+
+=== Memory Statistics ===
+
+ * Object '''/org/pulseaudio/core1/memstats''' implements interface '''org.!PulseAudio.Core1.Memstats'''.
+
+
+==== org.PulseAudio.Core1.Memstats ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Memstats#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Memstats#CurrentMemblocks|CurrentMemblocks]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Memstats#CurrentMemblocksSize|CurrentMemblocksSize]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Memstats#AccumulatedMemblocks|AccumulatedMemblocks]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Memstats#AccumulatedMemblocksSize|AccumulatedMemblocksSize]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Memstats#SampleCacheSize|SampleCacheSize]] : Uint32 (r)
+
+
+
+=== Cards ===
+
+ * Objects '''/org/pulseaudio/core1/cardX''' implement interface '''org.!PulseAudio.Core1.Card'''.
+
+
+==== org.PulseAudio.Core1.Card ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Driver|Driver]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#OwnerModule|OwnerModule]] : !ObjectPath (r) # Does not exist with all cards.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Sinks|Sinks]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Sources|Sources]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Profiles|Profiles]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#ActiveProfile|ActiveProfile]] : !ObjectPath (rw) # Does not exist if there are no profiles.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#PropertyList|PropertyList]] : {String -> [Byte]} (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#GetProfileByName|GetProfileByName]](in name : String ; out profile : !ObjectPath)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#ActiveProfileUpdated|ActiveProfileUpdated]](profile : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#NewProfile|NewProfile]](profile : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#ProfileRemoved|ProfileRemoved]](profile : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Card#PropertyListUpdated|PropertyListUpdated]](property_list : {String -> [Byte]})
+
+
+
+=== Card Profiles ===
+
+ * Objects '''/org/pulseaudio/core1/cardX/profileY''' implement interface '''org.!PulseAudio.Core1.!CardProfile'''.
+
+
+==== org.PulseAudio.Core1.CardProfile ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Description|Description]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Sinks|Sinks]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Sources|Sources]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/CardProfile#Priority|Priority]] : Uint32 (r)
+
+
+
+=== Devices (Sinks and Sources) ===
+
+ * Objects '''/org/pulseaudio/core1/sinkX''' and '''/org/pulseaudio/core1/sourceX''' implement interface '''org.!PulseAudio.Core1.Device'''.
+
+ * Objects '''/org/pulseaudio/core1/sinkX''' implement interface '''org.!PulseAudio.Core1.Sink'''.
+
+ * Objects '''/org/pulseaudio/core1/sourceX''' implement interface '''org.!PulseAudio.Core1.Source'''.
+
+
+==== org.PulseAudio.Core1.Device ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Driver|Driver]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#OwnerModule|OwnerModule]] : !ObjectPath (r) # Does not exist for all devices.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Card|Card]] : !ObjectPath (r) # Does not exist with all devices.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#SampleFormat|SampleFormat]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#SampleRate|SampleRate]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Channels|Channels]] : [Uint32] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Volume|Volume]] : [Uint32] (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#HasFlatVolume|HasFlatVolume]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#HasConvertibleToDecibelVolume|HasConvertibleToDecibelVolume]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#BaseVolume|BaseVolume]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#VolumeSteps|VolumeSteps]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Mute|Mute]] : Boolean (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#HasHardwareVolume|HasHardwareVolume]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#HasHardwareMute|HasHardwareMute]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#ConfiguredLatency|ConfiguredLatency]] : Uint64 # usec
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#HasDynamicLatency|HasDynamicLatency]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Latency|Latency]] : Uint64 (r) # usec, does not exist with all devices.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#IsHardwareDevice|IsHardwareDevice]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#IsNetworkDevice|IsNetworkDevice]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#State|State]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Ports|Ports]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#ActivePort|ActivePort]] : !ObjectPath (rw) # Does not exist if there are no ports.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#PropertyList|PropertyList]] : {String -> [Byte]} (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Suspend|Suspend]](in suspend : Boolean)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#GetPortByName|GetPortByName]](in name : String ; out port : !ObjectPath)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#VolumeUpdated|VolumeUpdated]](volume : [Uint32])
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#MuteUpdated|MuteUpdated]](muted : Boolean)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#StateUpdated|StateUpdated]](state : Uint32)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#ActivePortUpdated|ActivePortUpdated]](port : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#PropertyListUpdated|PropertyListUpdated]](property_list : {String -> [Byte]})
+
+
+
+==== org.PulseAudio.Core1.Sink ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Properties1|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#MonitorSource|MonitorSource]] : !ObjectPath (r)
+
+
+
+==== org.PulseAudio.Core1.Source ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#Properties2|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Device#MonitorOfSink|MonitorOfSink]] : !ObjectPath (r) # Does not exist if this is not a monitor source.
+
+
+
+=== Device Ports ===
+
+ * Objects '''/org/pulseaudio/core1/sinkX/portY''' and '''/org/pulseaudio/core1/sourceX/portY''' implement interface '''org.!PulseAudio.Core1.!DevicePort'''.
+
+
+==== org.PulseAudio.Core1.DevicePort ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/DevicePort#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/DevicePort#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/DevicePort#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/DevicePort#Description|Description]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/DevicePort#Priority|Priority]] : Uint32 (r)
+
+
+
+=== Streams ===
+
+ * Objects '''/org/pulseaudio/core1/playback_streamX''' and '''/org/pulseaudio/core1/record_streamX''' implement interface '''org.!PulseAudio.Core1.Stream'''.
+
+
+==== org.PulseAudio.Core1.Stream ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Driver|Driver]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#OwnerModule|OwnerModule]] : !ObjectPath (r) # Does not exist with all streams.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Client|Client]] : !ObjectPath (r) # Does not exist with all streams.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Device|Device]] : !ObjectPath (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#SampleFormat|SampleFormat]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#SampleRate|SampleRate]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Channels|Channels]] : [Uint32] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Volume|Volume]] : [Uint32] (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#VolumeWritable|VolumeWritable]] : Boolean (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Mute|Mute]] : Boolean (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#BufferLatency|BufferLatency]] : Uint64 (r) # usec
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#DeviceLatency|DeviceLatency]] : Uint64 (r) # usec
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#ResampleMethod|ResampleMethod]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#PropertyList|PropertyList]] : {String -> [Byte]} (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Move|Move]](in device : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Kill|Kill]]()
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#DeviceUpdated|DeviceUpdated]](device : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#SampleRateUpdated|SampleRateUpdated]](sample_rate : Uint32)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#VolumeUpdated|VolumeUpdated]](volume : [Uint32])
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#MuteUpdated|MuteUpdated]](muted : Boolean)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#PropertyListUpdated|PropertyListUpdated]](property_list : {String -> [Byte]})
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Stream#StreamEvent|StreamEvent]](name : String, property_list : {String -> [Byte]})
+
+
+
+=== Samples ===
+
+ * Objects '''/org/pulseaudio/core1/sampleX''' implement interface '''org.!PulseAudio.Core1.Sample'''.
+
+
+==== org.PulseAudio.Core1.Sample ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#SampleFormat|SampleFormat]] : Uint32 (r) # Does not exist with all samples.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#SampleRate|SampleRate]] : Uint32 (r) # Does not exist with all samples.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Channels|Channels]] : [Uint32] (r) # Does not exist with all samples.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#DefaultVolume|DefaultVolume]] : [Uint32] (r) # Does not exist with all samples.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Duration|Duration]] : Uint64 (r) # usec, does not exist with all samples.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Bytes|Bytes]] : Uint32 (r) # Does not exist with all samples.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#PropertyList|PropertyList]] : {String -> [Byte]} (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Play|Play]](in volume : Uint32, property_list : {String -> [Byte]})
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#PlayToSink|PlayToSink]](in sink : !ObjectPath, volume : Uint32, property_list : {String -> [Byte]})
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Remove|Remove]]()
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Sample#PropertyListUpdated|PropertyListUpdated]](property_list : {String -> [Byte]})
+
+
+
+=== Modules ===
+
+ * Objects '''/org/pulseaudio/core1/moduleX''' implement interface '''org.!PulseAudio.Core1.Module'''.
+
+
+==== org.PulseAudio.Core1.Module ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Arguments|Arguments]] : {String -> String} (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#UsageCounter|UsageCounter]] : Uint32 (r) # Does not exist with all modules.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#PropertyList|PropertyList]] : {String -> [Byte]} (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Unload|Unload]]()
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Module#PropertyListUpdated|PropertyListUpdated]](property_list : {String -> [Byte]})
+
+
+
+=== Clients ===
+
+ * Objects '''/org/pulseaudio/core1/clientX''' implement interface '''org.!PulseAudio.Core1.Client'''.
+
+
+==== org.PulseAudio.Core1.Client ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#Driver|Driver]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#OwnerModule|OwnerModule]] : !ObjectPath (r) # Does not exist with all clients.
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#PlaybackStreams|PlaybackStreams]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#RecordStreams|RecordStreams]] : [!ObjectPath] (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#PropertyList|PropertyList]] : {String -> [Byte]} (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#Kill|Kill]]()
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#UpdateProperties|UpdateProperties]](in property_list : {String -> [Byte]}, update_mode : Uint32)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#RemoveProperties|RemoveProperties]](in keys : [String])
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#PropertyListUpdated|PropertyListUpdated]](property_list : {String -> [Byte]})
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Client#ClientEvent|ClientEvent]](name : String, property_list : {String -> [Byte]})
+
+
+
+=== Stream Restore Extension ===
+
+ * Object '''/org/pulseaudio/stream_restore1''' implements interface '''org.!PulseAudio.Ext.!StreamRestore1'''.
+
+ * Objects '''/org/pulseaudio/stream_restore1/entryX''' implement interface '''org.!PulseAudio.Ext.!StreamRestore1.!RestoreEntry'''.
+
+
+==== org.PulseAudio.Ext.StreamRestore1 ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#InterfaceRevision|InterfaceRevision]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Entries|Entries]] : [!ObjectPath] (r)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Methods|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#AddEntry|AddEntry]](in name : String, device : String, volume : [(Uint32, Uint32)], mute : Boolean, apply_immediately : Boolean ; out entry : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#GetEntryByName|GetEntryByName]](in name : String ; out entry : !ObjectPath)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Signals|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#NewEntry|NewEntry]](entry : !ObjectPath)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#EntryRemoved|EntryRemoved]](entry : !ObjectPath)
+
+
+
+==== org.PulseAudio.Ext.StreamRestore1.RestoreEntry ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Properties1|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Index|Index]] : Uint32 (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Name|Name]] : String (r)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Device|Device]] : String (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Volume|Volume]] : [(Uint32, Uint32)] (rw)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Mute|Mute]] : Boolean (rw)
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Methods1|Methods]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Remove|Remove]]()
+
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#Signals1|Signals]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#DeviceUpdated|DeviceUpdated]](device : String)
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#VolumeUpdated|VolumeUpdated]](volume : [(Uint32, Uint32)])
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/StreamRestore#MuteUpdated|MuteUpdated]](muted : Boolean)
+
+
+=== Ladspa Extension ===
+
+ * Objects '''/org/pulseaudio/core1/sinkX''', where X is the index of a ladspa sink, implement interface '''org.!PulseAudio.Ext.Ladspa1'''.
+
+
+==== org.PulseAudio.Ext.Ladspa1 ====
+
+[[Software/PulseAudio/Documentation/Developer/Clients/DBus/Ladspa#Properties|Properties]]:
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Ladspa#AlgorithmParameters|AlgorithmParameters]] : ([Double], [Boolean]) (rw)
+
+
+=== Enumerations ===
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Sampleformats|Sample formats]]
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Channelpositions|Channel positions]]
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Devicestates|Device states]]
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Enumerations#Updatemodes|Update modes]]
+
+
+=== Errors ===
+
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NotFoundError|org.PulseAudio.Core1.NotFoundError]]
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.NoSuchPropertyError|org.PulseAudio.Core1.NoSuchPropertyError]]
+ * [[Software/PulseAudio/Documentation/Developer/Clients/DBus/Errors#org.PulseAudio.Core1.BadStateError|org.PulseAudio.Core1.BadStateError]]
