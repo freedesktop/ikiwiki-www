@@ -1,0 +1,232 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[↩ Back to Developer Documentation|Software/PulseAudio/Documentation/Developer]] 
+
+
+# Writing Volume Control UIs
+
+In the following text you'll find a few hints for folks who want to write mixer/volume control type applications for [[PulseAudio|PulseAudio]]. This text however does not go into a step-by-step detailed list which API functions you should use to enumerate, manipulate and get information about PA objects. For that please consult the doxygen documentation. Instead it is just a rough list of things you should keep in mind and be aware of. 
+
+A lot of this applies only to PA >= 0.9.19. 
+
+For a low-level overview on what is happening underneath [[read this wiki page!|Software/PulseAudio/Documentation/User/PulseAudioStoleMyVolumes]] 
+
+
+## Nomenclatura
+Sink
+: An output device 
+
+Source
+: An input device 
+
+Sink input
+: A stream that is connected to an output device, i.e. an input for a sink. 
+
+Source output
+: A stream that is connected to an input device, i.e. an output of a source. 
+
+Client
+: An active client of the PA server, something that can create none/one/many sink inputs/source outputs on any sink/source the PA server has. A sink input/source output can thus be "owned" by a specific client. Sink inputs/sources however can also be "unowned", i.e. not owned by any client. Generally we can consider a client to be a collection of sink inputs/source outputs. 
+
+Card
+: A collection of sinks/sources that belong to a single hardware device. Not all sinks/sources must be assigned to a card. Usually this combines one source (for recording) and one sink (for playback) into a single object. 
+
+
+
+## Basics
+
+PA is very dynamic. Sinks/sources/sink inputs/source outputs/clients/cards can come and go. Hence make sure to  subscribe to changes in the server and always keep your UI up-to-date. 
+
+
+## Volumes
+
+In [[PulseAudio|PulseAudio]] volumes are stored in the pa_volume_t (a single integer) and pa_cvolume (an array of one pa_volume_t integer per channel) data types. The values range from 0 (silence) to 65536 ("maximum" sensible volume). In some situations volumes > 65536 are possible as well (see below). 
+
+Volumes stored in pa_volume_t/pa_cvolume should be considered opaque, i.e. arithmetic calculations like multiplication, addition, division should not be applied to them. Where possible pa_volume_t is chosen in a way that makes it suitable for showing in UI volume controls mapped linearly to pixels. 
+
+Sinks, sources and sink inputs have a volume attached. Source outputs do *not* have a volume attached! In addition a 'mute' boolean is available for the same objects. For normal playback first the sink input volume is applied  followed by the sink volume. For recording only the source volume matters. (Also note the part about "Flat volumes" below) 
+
+Generally pa_volume_t/pa_cvolume_t cannot be converted to linear factors or decibel values — except for some cases. These cases are the following: 
+
+* All volumes attached to sink inputs 
+* All sinks for which the PA_SINK_DECIBEL_VOLUME flag is set 
+* All sources for which the PA_SOURCE_DECIBEL_VOLUME flag is set 
+Conversion between linear factors, decibel values and pa_volume_t can be done via the following functions: 
+
+* pa_sw_volume_from_dB() 
+* pa_sw_volume_to_dB() 
+* pa_sw_volume_from_linear() 
+* pa_sw_volume_to_linear() 
+The relation of the volume values in the different formats is like this: 
+
+Silence ... 
+
+   * .. as pa_volume_t is PA_VOLUME_MUTED, i.e. 0 
+   * .. as linear volume is 0.0 
+   * .. as decibel value is something near -inf dB 
+"Maximum" applicable volume: 
+
+   * .. as pa_volume_t is PA_VOLUME_NORM, i.e. 65536 
+   * .. as linear volume is 1.0 
+   * .. as decibel volume is 0dB 
+Volumes between PA_VOLUME_MUTED and PA_VOLUME_NORM .. 
+
+   * .. as linear volume are > 0.0 and < 1.0 
+   * .. as decibel volume are negative dB values 
+Volumes > PA_VOLUME_NORM ... 
+
+   * .. as linear volume are > 1.0 
+   * .. as decibel volume are positive dB values 
+Please note that the latter only make sense in some situations. And always remember: the conversion between these formats is only valid in the few cases mentioned earlier — not in every case! 
+
+The actual mapping of the gradient of pa_volume_t in relation to the linear volume is hidden inside of PA. It's chosen in a way that makes a volume of 32768 actually feel "half as loud" as a volume of 65536. (Or at least we try to map it like this.) The actual algorithm is not considered part of the ABI. I take the freedom to change it any time. You should not assume that the mapping between linear/decibel volumes on one hand and pa_volume_t volumes on the other will always stay the same in future versions. 
+
+Generally all pa_sw_cvolume_xxx() and pa_sw_volume_xxx() functions (note the _sw_!) may only be called for volumes that may be converted to dB/linear volumes according to the rules listed above. Functions that do not include "_sw_" in the name may be called for all volumes. 
+
+For sinks/sources, the maximum hardware volume (i.e. maximum amplification) is identified with PA_VOLUME_NORM. For sink inputs PA_VOLUME_NORM is identified with "no volume adjustment". 
+
+If the underlying audio layer tells us what decibel values the mixer steps of the device relate to PA will extend the range of the mixer to the full dB range. That means even when the hardware mixer has only a limited dB range and only a few steps on the dB scale we will present the user a full and continuous dB scale. If the underlying audio layer does not tell us anything about the dB mapping of the mixer controls we are unable to do such a range extension and PA will only expose the same limited volume range and the same volume steps to the user the underlying mixer control exports. 
+
+
+## What to Present in the UI
+
+You probably should show sliders for each sink, source and sink input. 
+
+It might be a good idea to list source outputs in some way as well even if they do not have a volume themselves, to know "who's listening" and to allow them to be killed (see below). 
+
+Showing the list of clients in the UI is probably not a good idea, since it might confuse the user and brings not much additional value. 
+
+It probably is a good idea to show the list of cards to allow switching of different card profiles with the UI (see below, not necessarily in the main mixer window however). 
+
+
+## Presenting Volumes
+
+Generally you should present sliders that ranges from PA_VOLUME_MUTED to PA_VOLUME_NORM, possibly extending it beyond that. For sink inputs that slider should probably show no steps (although in fact you have 65537 steps due to the range of 0..65536 that is PA_VOLUME_MUTED..PA_VOLUME_NORM). For sinks and sources the same applies if PA_SINK_DECIBEL/PA_SOURCE_DECIBEL is set. If it is not set the n_volume_steps field will tell you how many steps the hardware actually supports that are between PA_VOLUME_MUTED and PA_VOLUME_NORM. If the flags are set the n_volume_steps field will be set to 65537. 
+
+Normal users probably prefer a a volume range in percent, i.e. 0%..100%. You should map that linearly to 0..65536 (i.e. PA_VOLUME_MUTED..PA_VOLUME_NORM). Advanced users probably prefer dB volumes. Hence it makes sense to present this volume format as well, similarly to how most better Hifi racks do it. It might be a good idea to hide them by default and only show them when you click somewhere or so. 
+
+There is no point in presenting raw pa_volume_t or even linear volumes to the users. They are either incomprehensible or give a wrong "feeling" of volume. 
+
+While generally it is a good idea to limit the volume slider to PA_VOLUME_MUTED..PA_VOLUME_NORM it makes sense to extend this further for sources (and possibly sinks). The reason for this is that some sound cards record audio in a very low bit depth and in the LSBs of the PCM samples and need digital amplification to produce a suitable signal for applications. To deal with these cases it makes sense to extend the volume range to PA_VOLUME_MUTED..PA_VOLUME_NORM*2 or something similar. For all volumes that are > PA_VOLUME_NORM (i.e. beyond the maximum volume setting of the hw) PA will do digital amplification. This works only for devices that have PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME set. For devices that lack this flag do *not* extend the volume slider like this, it will not have any effect. For playback devices it might be advisable to extend the scale beyond PA_VOLUME_NORM as well, because often enough digital amplification is useful on limited hardware. 
+
+Internally PA accepts any volume setting for all sinks/source/sink inputs. However devices with PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME unset might limit the actually settings to a certain subset. And for UI purposes you should only consider the aformentioned ranges. 
+
+Many underlying drivers provide us with the necessary information for the implementation of the PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME logic. However in many cases we do not have the information. Sometimes this situation is ameliorated with newer drivers. However some hardware (such as Bluetooth and some USB) does not include information about decibel mapping at all and hence will never be supported in the PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME logic. Due to that you need to make sure you handle both cases correctly: when the flag is set and when it is not. 
+
+
+## Base Volumes
+
+Sinks and sources carry information about a special volume setting, the "base volume". It is not clearly defined what this actually refers to and its meaning highly depending on the backend. Also in most case it will equal PA_VOLUME_NORM. 
+
+Confused now why this might useful? So here's the intended use: it is to be mapped to the volume where the analog output is at some kind of normalized, pre-defined voltage level.  I.e. in theory at this base volume all analog sound cards should produce the exact same voltage level (usually measured in dbV) that has a good 'default' volume. In reality however there are multiple established and not-so-established reference voltages around hence the actual meaning is dependant on the driver and hardware. However, generally if a "good default volume" is needed the base volume is the one to use, not PA_VOLUME_NORM! The reason for this is that — as we mentioned before — PA_VOLUME_NORM is mapped to maximum amplification on sound cards. For some cards which include a proper amplifier (such as my pair of USB speakers) PA_VOLUME_NORM is hence incredibly loud. Again, for many cards this value is actually unknown, and hence equals PA_VOLUME_NORM. For SPDIF card the base volume refers to the setting where the output PCM samples are unscaled. 
+
+The UI should probably show explicit markers on the sliders for PA_VOLUME_MUTED, PA_VOLUME_NORM and base_volume. Especially on SPDIF cards base_volume is very important. Also, on many newer cards hardware volume control is implemented digitally, and hence to get the full bit depth out of your DAC base_volume matters a lot, too. 
+
+Note that the base volume is purely a hint for the UI. It should not be used for any calculations. It's definition is very vague. 
+
+
+## Coloured volume sliders
+
+If you want to it might make sense to color certain ranges of the volume slider in green, yellow, red. The logic should probably look like this: 
+
+If base_volume > PA_VOLUME_MUTED and < PA_VOLUME_NORM then use: 
+
+* green for the range between PA_VOLUME_MUTED and base_volume 
+* yellow for the range between base_volume and PA_VOLUME_NORM 
+* red for the range beyond PA_VOLUME_NORM. 
+If base_volume is == PA_VOLUME_MUTED or >= PA_VOLUME NORM then use: 
+
+* green for the range from PA_VOLUME_MUTED to PA_VOLUME_NORM 
+* no yellow 
+* red for the range beyond PA_VOLUME_NORM 
+Or this scheme shown graphically (drawn with my limited graphical skills): 
+
+[[!img volume-slider.png]  
+
+This applies only for sinks/sources where PA_SINK_DECIBEL_VOLUME/PA_SOURCE_DECIBEL_VOLUME is set. Only for those we can extend the hw volume range in software. For those where this flag is not set you need to end the volume range at PA_VOLUME_NORM, i.e. show no red section. 
+
+In the graphic shown above having the slider end at 150% is quite arbitrarily chosen. It's up to you where you let it end. 
+
+To the user this hopefully points out the following: 
+
+* green: a suitable volume range, without any artifacts 
+* yellow: at the upper end of the hardware amplification possibilities, output level higher than ideal, possibly artifacts 
+* red: hardware amplification at its limit, software amplification, possibly artifacts 
+Of course, the technical background of all of this is hard to grasp and not obvious and probably no UI in the world could explain all this without being exceptionally bad. However, the green/yellow/red colouring should give the user a hint that he might drive his audio in ranges that are not ideal. 
+
+Also see [[this GNOME bug report|https://bugzilla.gnome.org/show_bug.cgi?id=582516]]. 
+
+
+## Flat Volumes
+
+As mentioned above for playback the final volume you hear is comprised of the sink and the sink input volume. Having these two volumes in series is of course confusing to the user. That's where the "flat volume" features comes into play. It's based on Vista's flat volume mechanism. Basically when this is enabled, the volume of the sink is always the maximum volume of all inputs connected to the sink. That means when you adjust a sink input volume it will directly influence the sink volume if it is the loudest of the streams connected to it. In reverse, if you manipulate the sink volume this will scale all sink input volumes equally. 
+
+Flat volumes are enabled on a per-sink basis. You can check for this with the PA_SINK_FLAT_VOLUME flag. Generally flat volumes are only available for sinks where PA_SINK_DECIBEL_VOLUME is also set. It might be a good idea to visually present the relation of the sink and the sink input volumes in some way when flat volumes are enabled. Vista does this by drawing a line that shows the connection of the loudest stream volume with the sink volume. 
+
+This also means that for sinks where flat volumes are supported it makes sense to show the base volume (see above) on the sink input sliders as well! 
+
+
+## Multichannel Volumes
+
+As mentioned pa_cvolume stores multiple pa_volume_t, one for each channel of a stream/device. It might not be a good idea to actually show all those separate volumes, especially if you have more than two channels. (Some users might want this however.) In this case showing a single volume slider plus (optionally) a balance slider might be a good idea. 
+
+For converting a pa_cvolume to a single pa_volume_t for presentation the best option is to use pa_cvolume_max() which will return the highest volume of all channels. For applying a single pa_volume_t on a pa_cvolume the best option is to use pa_cvolume_scale(). 
+
+For calculating a balance value from a pa_cvolume use pa_cvolume_get_balance(). It will return a float between -1.0 (sound only on left speakers, right speakers silent) and +1.0 (sound only on right speakers, left speakers silent). 0.0 is returned when left and right speakers have the same volume. This function does the "right thing" for streams/devices with more than two channels. You may adjust the balance of pa_cvolume with pa_cvolume_set_balance(). Of course, not in all cases you actually have channels that are "left" or "right". You can check for this with pa_channel_map_can_balance(). For sinks/sources/streams where this call returns 0, you should not show a balance slider at all. 
+
+Similar functionality is available for the fade value (i.e. balance between front and rear). 
+
+
+## Controlling Clients
+
+It is a good idea to allow the user to terminate certain sink inputs/source outputs form the mixer UI. Generally it might be a good idea to kill the entire client instead of just a sink input/source output. Hence the logic for killing should be: does this sink input/source output belong to a client? If yes, kill the client, if not, kill just the sink input/source output. 
+
+
+## Controlling Cards
+
+Cards can be used in different profiles. In different profiles a card may have a different number of sinks resp. sources in different configurations. For example, for cards that can do only simplex audio, there might be one profile for "Analog Stereo Input" (which will only create a single source when selected, no sink) and one for "Analog Stereo Output" (a single sink when selected, no source). For cards that do duplex there might be one additional profile "Analog Stereo Input + Analog Stereo Output" (one sink, one source). While stereo simplex cards might be a bit out of fashion these days many surround cards are still effectively simplex if you use them in surround mode. Profiles are also used to switch between analog and digital (i.e. SPDIF) output, and mono, stereo and surround mode. Profiles may be switched during runtime. If possible active streams are kept around even when the a stereo sink might be replaced by a surround sink or similar cases. 
+
+It is probably a good idea to present the user with a way to switch profiles of all present cards. If this should happen inside the volume control application, or in a different tool is left to you. 
+
+
+## The Default Devices
+
+When a new stream is created and the client does not specify a specific sink/source to connect it to and no device for that stream has been saved before PA will connect it to the 'default' sink resp. source. Due to the fact that PA tries to save/restore volumes for each stream the  default sink/source however acts more like a fallback sink/source, which is only relevant for streams where no data has been stored before. Hence it should probably be exposed as "Fallback Device" in the UI, not as "Default Device". 
+
+
+## Saved Volumes/Devices
+
+PA's module-stream-restore will automatically save/restore volumes/devices for streams. In the database of saved volumes/devices streams are identified by a string that is generated from the stream properties set by the application. The module will add the property "module-stream-restore.id" to each stream that contains this key. Generally more generic properties (such as "media.role") are preferred over more specific ones.  
+
+The database may be read and manipulated from clients. Use the APIs in ext-stream-restore.h for that. Why would you want to do this? Some types of sounds are very short in nature and hence might appear only for a very short time as a proper stream. That makes it difficult to control them in the volume control UI — before you can grab the slider the slider might already be gone again. Those short sounds are usually event sounds. It hence might make sense to add an explicit slider for event sounds that stays available all the time. To implement this simply manipulate the stream database for the "sink-input-by-media-role:event" key (assuming that your event sounds are properly tagged, like libcanberra properly does). You can even make this instant-apply. In future, if more streams are tagged properly you could even show an UI that always controls volume based on the role, and ignores dynamically created streams. i.e. one slider for "Telephony", another one for "Games" and so on.  
+
+This functionality can be used in other interesting ways as well. For example using the mentioned "module-stream-restore.id" property you can continue to show each slider for some time after a stream ended in which case it would not manipulate the stream volume itself anymore but simply the database entry. 
+
+And then, since not only the volume is stored in this database but also the device last used for a stream, you may use this to write an UI that allows you to edit preferred devices for certain streams, for example one dropdown box for selecting a device for all music playback, another one for all telephony, and so on. Again, this can also be made instant-apply. 
+
+
+## Monitoring PCM
+
+Sinks, Sources, Sink Inputs, Source Outputs may all be monitored for the PCM data that passes through them. This is especially useful for showing a volume meter next to each stream to give the user feedback which streams/devices currently receive audio. 
+
+To monitor a source, simple create a PA_STREAM_RECORD stream on it. To monitor a source output simply do the same for the source the source output is connected to. To monitor a sink do the same on the monitor source that is attached t the sink. You'll find the monitor source in pa_sink_info::monitor_source. To monitor a specific sink input connect to the monitor source of the sink the sink input is connected to and then use pa_stream_set_monitor_stream() to select the sink input you are interested in. 
+
+When you want to present a volume meter then it is highly recommended to use the PA_STREAM_PEAK_DETECT feature of pa_stream. This cuts down the traffic and processing time for each monitored stream immensely. 
+
+Please note that monitoring PCM like this will get you PCM data that is untouched by the hardware volume. That means that manipulating a sink's volume might not actually have any affect on the PCM stream your monitoring, or — when PA extends the volume range — a non-obvious effect. 
+
+
+## Information for the User
+
+When you present sinks/sources/sink inputs/source outputs it might be a good idea to show some information about them to make it easy for the user to map them to physical devices or running applications. To ease that this objects carry a set of "properties". Properties are usually UTF8 strings (with the exception of very few that carry raw data). All properties are optional, you should not rely on them being set. 
+
+A list of properties that may be useful to show in an UI is included in pulse/proplist.h. 
+
+Of particular interest are these non-obvious properties: 
+
+* PA_PROP_DEVICE_PROFILE_DESCRIPTION: Shows the "profile" asink/source is currently in. Informs the user if something is an analog or digital (SPDIF) output, which is very valuable information in many cases. 
+* PA_PROP_WINDOW_X11_xxx: Can be used to attach a stream to a specific X11 window. It might be a good idea to visually present the relation of streams in the mixer tool and windows on the screen in some way. 
+* PA_PROP_MEDIA_ICON(_NAME), PA_PROP_APPLICATION_ICON(_NAME): an icon to show next to a stream. 
+* PA_PROP_APPLICATION_PROCESS_MACHINE_ID: This contains the D-Bus machine UUID (as available in /var/lib/dbus/machine-id) of the client that registered the stream. Never forget that PA streams may not necessarily come from a local process! Hence make sure to use this property to identify hosts (and NOT the hostname since it might change at any time). 
+Please note that at this point in time only the fewest applications set more than the most basic properties. However this is a chicken-and-egg problem: if no one uses the properties applications won't set them. So please, make use of these properties in your mixer application. 
+
+That's all for now. As you might see writing a "perfect" mixer is not a trivial job. Sorry for that. 
