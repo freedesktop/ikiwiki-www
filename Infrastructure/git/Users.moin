@@ -1,0 +1,49 @@
+This is about one-way use of git.  For information on committing, merging, and pushing, please see [[Infrastructure/git/Developers|the developers page]].
+
+Also note the [[http://git.or.cz/gitwiki/GitDocumentation|documentation on the git wiki]].
+
+== Checking out a repository ==
+
+To check out any project repository on fd.o, run:
+{{{git clone git://anongit.freedesktop.org/git/name}}}, e.g. {{{git://anongit.freedesktop.org/git/cairo}}}.  A full list of projects is available on [[http://cgit.freedesktop.org|cgit]].
+
+To switch to a particular branch, use {{{git checkout branchname}}}; a list of branches is available with {{{git branch}}}.  If you want to use a particular tag, use {{{git checkout -b temp tagname}}}, e.g. {{{git checkout -b temp xorg-server-1.1.99.3}}}.  A list of tags is available with {{{git tag -l}}}.
+
+{{{git checkout master}}} will return to the main development branch ('trunk').
+
+== Keeping up to date ==
+
+{{{git pull}}} will download the latest changes.  Note that if you are on a branch, then you should type {{{git pull origin branchname:branchname}}}, otherwise you will merge the master branch, instead of simply keeping your current branch up to date.
+
+== Basic repository information ==
+
+{{{git log}}} will give you a list of all changes.  To see changes since a particular version, or between a particular version, use {{{version1..version2}}} as an argument; if version1 is unspecified (i.e. {{{..version2}}}), it is assumed as the first revision.  Conversely, if version2 is unspecified (i.e. {{{version1..}}}), it is assumed as the current revision (not necessarily the most recent in the repository, but the one you currently have checked out).  Examples:
+ * {{{git log xorg-server-1.2.0..}}} â changes since xorg-server 1.2.0
+ * {{{git log ..xorg-server-1.2.0}}} â changes up until xorg-server 1.2.0
+ * {{{git log xorg-server-1.2.0..xorg-server-1.2.1}}} â changes between xorg-server 1.2.0 and 1.2.1
+
+To examine a particular revision, including the diff, run {{{git show commitid}}}.  The commit ID does not have to be the full SHA1 sum, but only enough to be unambiguous; the first 6 characters are usually sufficient.
+
+== CVS cheat sheet ==
+
+ * cvs checkout: {{{git clone}}}
+ * cvs status: {{{git status}}}
+ * cvs diff: {{{git diff -a}}}
+ * cvs update: {{{git pull}}} (with caveats)
+
+== Bisecting ==
+
+Bisecting allows you to determine which commit introduced breakage, by iterative testing.  As an example, assume that the code worked one month ago, and now segfaults.
+
+First, run git log, to determine where you want to roll back to.  If it worked one month ago, say five weeks to be safe.  Find the sha1 sum of the commit where you think things last worked.  Take note of this (say it's 123456...).
+
+{{{git bisect start}}} â start the process
+{{{git bisect bad}}} â the current revision is broken
+{{{git bisect good 123456}}} â the revision starting with 123456 works
+
+You will get output something like:
+{{{Bisecting: 297 revisions left to test after this}}}
+
+Run make, and check if it works.  If it works, type {{{git bisect good}}}, else {{{git bisect bad}}}.  This will give you a new revision to try: run make, check if it works, and type bad/good, accordingly.
+
+If you are unable to compile a particular revision (say it's picked one that introduced a compile breakage), type {{{git bisect god/bad}}}, and then continue as usual.  The manpage for git-bisect has some more in-depth details, as does [[http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt|kernel.org]].
