@@ -1,0 +1,177 @@
+= Introduction =
+
+== Overview ==
+
+Bookmarks are widely-used part of the World Wide Web browsers. They are a mechanism through which a user can return to specific sites already visited, much like their book counterparts.
+
+Recently, bookmarks have become a feature for user with regards to browsing their file system, as a way to access recently used, or often used, places.
+
+Even the list of recently used files can be seen as being composed of short-lived bookmarks.
+
+== Objectives of this specification ==
+
+This specification aims to do the following things:
+
+ * Provide a standard mechanism for storing and accessing a list of bookmarks (in form of URI);
+ * Provide per-application and per-task bookmarks;
+ * Replace the [[Specifications/recent-file-spec|Recent Files Storage Specification]], providing a single specification for both bookmarks and recent files;
+
+Applications implementing the following specification will have the ability to access all, or just a part of, the bookmarks, which will be stored in a system-wide fashion instead of re-implementing their bookmark system. This way, all the bookmarks associated to an application will be available to each instance of said application, and to other applications performing the same tasks. Also, a notification mechanism should be implemented so that every change inside the bookmarks should be propagated to each application using the bookmarks.
+
+= Storage format =
+
+For different desktops and applications to have access to the same information, a protocol for storing the bookmarks list has to be determined.
+
+== Base layout ==
+
+A valid, UTF-8 encoded XML document will be used for storing the desktop bookmarks. The storage format will conform to the XBEL DTD  with custom meta-data; see the [[http://pyxml.sourceforge.net/topics/xbel/|XBEL]] specification for the contents of the bookmark, title, desc and info elements used in this specification.
+
+A valid desktop bookmark stream must conform to the 1.0 version of the XBEL Specification. The root element must be the {{{xbel}}} element, with its {{{version}}} attribute set to "1.0". No {{{folder}}} element should be used, as well as no {{{alias}}} and {{{separator}}} elements; if any of those elements are found, they should be ignored.
+
+Each bookmark must have the {{{bookmark}}} element as root node. The target URI of the bookmark must be stored in the {{{href}}} attribute of the bookmark element.
+
+Each {{{bookmark}}} element should have its {{{added}}}, {{{modified}}} and {{{visited}}} attributes set with date and time specified as a string conformant to the [[http://www.w3.org/TR/NOTE-datetime|ISO 8601]] specification. The time should be relative to UTC time; local time should be converted to UTC before encoding, and converted back after reading the attribute payload. 
+
+== Desktop Bookmarks meta-data ==
+
+The owner for all the meta-data elements defined in this specification must be Freedesktop.Org. Thus, the {{{owner}}} attribute of the meta-data element containing the following elements must be set to {{{http://freedesktop.org}}}. Other meta-data, enclosed inside a {{{metadata}}} element with another, or no owner, should be ignored.
+
+All meta-data defined in this specification belongs to a namespace, named {{{bookmark}}} whose URI is {{{http://www.freedesktop.org/standards/desktop-bookmarks}}}, except for the {{{mime-type}}} element, whose namespace is to be named {{{mime}}} and must have this URI: {{{http://www.freedesktop.org/standards/shared-mime-info}}}.
+
+Each {{{metadata}}} element might contain any combination of the following elements, in any order: 
+
+ * The {{{mime-type}}} element is mandatory. It must contain the MIME Type of the target pointed by the URI, as defined by the [[Specifications/shared-mime-info-spec|Shared MIME]] Database.
+
+ * The {{{groups}}} element contains a list of {{{group}}} elements, each containing a group name. See the Registered Group Names section for more details on the group names defined by this specification.  The groups element is not mandatory.
+
+ * The {{{applications}}} element contains a list of {{{application}}} elements, each referring to an application that has registered the bookmark.
+
+ * Each {{{application}}} element has a number of attributes: 
+
+ || '''Attribute''' || '''Required''' || '''Notes''' ||
+ || name || Yes || The name of the application that has registered the bookmark. It must a unique name for each application. Every application element must have this attribute set ||
+ || exec || Yes || The preferred command line to be used when launching the application; it might contain variables, see the list of valid exec attribute variables for more details. If no exec attribute has been provided, implementors should use the application name followed by the {{{%u}}} variable ||
+ || count || Yes || The number of times the application has registered the bookmark. If not count attribute has been defined, then implementors should assume that the total number of registrations is equal to one ||
+ || modified || Yes || The last time, expressed as a string conformant to the ISO 8601 specification and relative to UTC, that the application registered the bookmark. Each application element must have this attribute set
+ || timestamp ||	Yes || The last time, expresses in seconds from the system's Epoch, the application registered the bookmark. Each application  element must have this attribute set. '''This attribute has been deprecated since revision 0.8.5 of the specification, and should not be used by newly written code'''. ||
+
+ See the Applications section for the correct behaviour when handling duplicate application registrations.
+
+ The {{{applications}}} element is mandatory; every bookmark must have at least one valid {{{application}}} element. 
+
+ * The {{{icon}}} element, if present, specifies the icon that should be associated to the bookmark. The icon element must have the following attributes:
+
+ || '''Attribute''' || '''Required''' || '''Notes''' ||
+ || type || Yes || The MIME type, belonging to the image/*  family of MIME types, of the icon. If no type is set, implementors should use the application/octect-stream MIME type ||
+ || href || Yes || The URI to the icon file ||
+ || name || Yes || The name of the icon inside an icon theme, following the Icon Naming Specification ||
+
+ Implementors should use the file specified inside the href or the name attributes of the icon element when showing the bookmark.
+
+ If both the href and the name attributes are specified, the href element takes precedence.
+
+ * The {{{private}}} element, if present, alters the visibility of the bookmark. A bookmark should be considered private to the groups where it belongs and to the applications that have registered it. See the Visibility section.
+
+= Storage Files =
+
+Desktop bookmarks file might contain a variable number of bookmarks. Each bookmark file should contain at least one bookmark stored using the format described previously. The default extension for the desktop bookmarks file should be {{{xbel}}}. Imlementors should use the same ordering of the bookmarks stored inside the bookmarks file when displaying them, and should take care into storing the bookmarks inside a bookmarks file using the same order in which they are displayed.
+
+Implementors should also take care of avoiding concurrent accesses to these files; for instance, by using file locking techniques.
+
+== File location ==
+
+Standard locations for bookmark files defined in this specification are:
+
+|| '''File''' || '''Use''' ||
+|| $XDG_USER_DATA/recently-used.xbel ||	This file must be used for the bookmarks to recently used resources ||
+|| $XDG_USER_DATA/recent-applications.xbel || This file must be used for the bookmarks to recently used applications, in form of bookmarks to their [[Specifications/desktop-entry-spec|desktop entries]] ||
+|| $XDG_USER_DATA/shortcuts.xbel || This file must be used for bookmarks to user-defined folders ||
+
+Application specific desktop bookmark files should be stored under the $XDG_DATA_DIRS/desktop-bookmarks directory. Each directory in the search path should be used. When two desktop bookmark files have the same name, the one appearing earlier should be used. Only files with the {{{xbel}}} extension are used; other files are ignored. 
+
+== File encoding ==
+
+All text in the file should be stored in the UTF-8 encoding. Standard encoding rules for XML and XBEL documents applies the desktop bookmark files. No local paths are allowed in the URI tag; they should be converted to a valid URI with a "file" scheme. Items with the same URI are not allowed.
+
+== Change notification ==
+
+Notification should be accomplished by simply monitoring the files for changes. This can be done by either polling the file every so often, or using a libraries like FAM, d-notify or i-notify.
+
+= Registered meta-data =
+
+The meta-data associated to this spec will contain informations about the applications that have registered a bookmark, the groups to which a bookmark belongs and its visibility in relation to applications and groups.
+
+== Applications ==
+
+Bookmarks must have at least an application registration.
+
+Bookmarks might be registered by more than one application. For each application registering a bookmark, will be stored the application's name, the application's command line, the number of registrations for the application and the last time the application registered a bookmark, the timestamp (seconds from the system's epoch) of the registration time.
+
+If an application tries to register again a bookmark, that is: if there already is an application tag with its name attribute set to the same name passed by the application, then the application tag should have the content of the timestamp attribute updated, and the content of the count attribute increased by one. 
+
+=== List of valid exec attribute variables ===
+
+Each exec attribute of the application element may take a number of arguments which will be expanded by the implementor.
+
+Literal % characters must be escaped as %%. Each unrecognised variable should be left unexpanded.
+
+Recognised variables are as follows:
+
+|| %f || the path of the file/directory, retrieved from the URI ||
+|| %u || the literal URI for the bookmark ||
+
+== Groups ==
+
+Groups implement meta-classes of bookmarks. The bookmarks belonging to a group (or a set of groups) will be shared across each member of the group.
+
+For instance, each email client application could register its bookmarks under the group Mail, so that each other mail-related application could access those bookmarks.
+
+For a list of registered group names, see the Registered group names section.
+
+== Visibility ==
+
+The privacy hint of a bookmark is set using the private element. Each item with this hint set should be visible only for the groups and applications that registered it.
+
+= Appendix A: Implementation recommendations =
+
+Any implementor of this specification should conform to these recommendations:
+
+ * Implementors should use the command line inside the exec attribute of the application element, when launching a bookmark with a specific application. If no exec attribute was found, implementors should try the application's name stored inside the name attribute, followed by a space character and the bookmark's URI. If this fails, the default application for the bookmark's MIME type should be invoked using the bookmark's URI.
+
+ * No duplicate entries should be found inside a valid desktop bookmark data stream. If two or more applications register a bookmark to the same URI, implementors should update the modified attribute of the bookmark element; a new application element should be added for each application that is registering the bookmark; if any of the applications is also adding group names, all of these must be merged with the previously set group names; the private element should be set the first time an application requires it. If the same application registers the same bookmark, only the modified attribute of the bookmark element, the timestamp and count attributes of the application element with the same application's name set into the name attribute and the private element should be modified.
+
+ * If an icon for the bookmark item is shown, it should be taken from the image file stored inside the href attribute of the icon element; if no such element exists inside the meta-data for the bookmark item, the icon should be the thumbnail of the resource (if available), retrieved using the [[http://triq.net/~jens/thumbnail-spec/index.html|thumbnail managing specification]], or - if no thumbnail is present - the icon associated to the MIME type of the resource.
+
+= Appendix B: Registered group names =
+
+Remember, these are case-sensitive. When using a group name described in the list below it is strongly recommended to also include the group listed under Related Groups. If a group has multiple related groups the most suitable related group should be included.
+
+|| '''Group''' || '''Description''' || '''Related Groups''' ||
+|| Development || A bookmark related to a development environment || ||
+|| Office || A bookmark related to an office type document or folder || ||
+|| Database || A bookmark related to a database application || Office; Development ||
+|| Email || A bookmark related to an email application || Office ||
+|| Presentation || A bookmark related to a presentation application || Office ||
+|| Spreadsheet || A bookmark related to a spreadsheet application || Office ||
+|| !WordProcessor || A bookmark related to a word processing application || Office ||
+|| Graphics || A bookmark related to a graphical application || ||
+|| !TextEditor || A bookmark related to a text editor || ||
+|| Viewer || A bookmark related to any kind of file viewer || ||
+|| Archive || A bookmark related to an archive file || ||
+|| Multimedia || A bookmark related to a multimedia file or application || ||
+|| Audio || A bookmark related to an audio file or application || Multimedia ||
+|| Video || A bookmark related to a video file or application || Multimedia ||
+|| Photo || A bookmark related to a digital photography file or application || Multimedia; Graphics; Viewer ||
+|| Application || Special bookmark for application launchers || ||
+
+= Appendix C: How to add a new desktop bookmark file =
+
+In order to properly install a new desktop bookmark file, third party applications should:
+
+ * Install new desktop bookmark files inside $XDG_DATA_DIR/desktop-bookmarks for each desktop bookmark file. Please, namespace the filename, as in "vendor-foo.xbel", or use a subdirectory or $XDG_DATA_DIR/desktop-bookmarks so you have "vendor/foo.xbel." Please ensure all desktop bookmark entries are valid.
+
+----
+
+Author: Emmanuele Bassi
+
+Version: 0.8.5
