@@ -1,0 +1,220 @@
+
+
+# Simple Guide to using desktopcouch in your applications
+
+This document describes in basic terms how to store data to and retrieve data from desktopcouch for application developers. 
+
+
+## desktopcouch.records
+
+`desktopcouch.records` is the Python library for accessing desktopcouch from applications. Basic use is as follows (simple examples are also available offline in `/usr/share/doc/python-desktopcouch-records/api/records.txt`): 
+
+
+[[!format txt """
+>>> from desktopcouch.records.server import CouchDatabase
+>>> from desktopcouch.records.record import Record
+"""]]
+Create a database object. Your database needs to exist. If it doesn't, you can create it by passing create=True. 
+
+
+[[!format txt """
+>>> db = CouchDatabase('testing', create=True)
+"""]]
+Create a Record object. Records have a record type, which should be a URL.  The URL should point to a human-readable document which describes your record type. (This is not checked, though.) You can pass in an initial set of data. 
+
+
+[[!format txt """
+>>> r = Record({'a':'b'}, record_type='http://example.com/testrecord')
+"""]]
+Records work like Python dicts. 
+
+
+[[!format txt """
+>>> r['c'] = ['d','e','f']
+"""]]
+Save the record into the database with put_record: 
+
+
+[[!format txt """
+>>> record_id = db.put_record(r)
+"""]]
+Fetch existing records from the database by ID: 
+
+
+[[!format txt """
+>>> fetched = db.get_record(record_id)
+>>> print fetched['a']
+b
+>>>
+"""]]
+There is no ad-hoc query functionality. 
+
+For views, you should specify a design document for all calls. 
+
+Understanding views is the key to using desktopcouch. Do not think of a view as being like a SQL statement. Instead, a view should basically return all your records, with a key of the thing you care about. So, if you have a load of records which are about podcasts, and you want to get the record with a particular URL, then your view might look like: 
+
+
+[[!format txt """
+function(doc) { emit(doc.url, doc) }
+"""]]
+and you would then call this view and slice the result with the key you want: 
+
+
+[[!format txt """
+results = db.execute_view("myview", "myapp")
+results_i_care_about = results[url_i_care_about]
+"""]]
+The CouchDB book has much more about views at [[http://books.couchdb.org/relax/design-documents/views|http://books.couchdb.org/relax/design-documents/views]]. 
+
+The basics of creating and deleting views in desktopcouch: 
+
+
+[[!format txt """
+>>> design_doc = "application"
+"""]]
+To create a view: 
+
+
+[[!format txt """
+>>> map_js = """function(doc) { emit(doc._id, null) }"""
+>>> reduce_js = None
+>>> db.add_view("blueberries", map_js, reduce_js, design_doc)
+"""]]
+List views for a given design document: 
+
+
+[[!format txt """
+>>> db.list_views(design_doc)
+['blueberries']
+"""]]
+Test that a view exists: 
+
+
+[[!format txt """
+>>> db.view_exists("blueberries", design_doc)
+True
+"""]]
+Execute a view.  Results from execute_view() take list-like syntax to pick one or more rows to retrieve.  Use index or slice notation. 
+
+
+[[!format txt """
+>>> result = db.execute_view("blueberries", design_doc)
+>>> for row in result["idfoo"]:
+...     pass  # all rows with id "idfoo".  Unlike lists, may be more than one.
+"""]]
+Finally, remove a view.  It returns a dict containing the deleted view data. 
+
+
+[[!format txt """
+>>> db.delete_view("blueberries", design_doc)
+{'map': 'function(doc) { emit(doc._id, null) }'}
+"""]]
+For most operations (except testing existence), if the view you ask for does not exist, the function will throw a [[KeyError|KeyError]] exception. 
+
+There are also some introductory desktopcouch code snippets on the [[Quickly code snippets|https://wiki.ubuntu.com/Quickly/Snippets]] page. 
+
+
+## couchdb-glib
+
+`couchdb-glib` is a C library for accessing CouchDB servers, included desktopcouch. It heavily uses Glib's GObject to offer a nice API that easily integrates into GNOME/GTK applications. 
+
+To start using, first thing is to include the top-level header file 
+[[!format txt """
+#include <couchdb-glib/couchdb-glib.h>
+"""]]
+The entry point for the API is the _CouchDBSession_ object, which can be obtained as shown in the following example: 
+[[!format txt """
+CouchDBSession *couchdb;
+
+couchdb = couchdb_session_new ("http://localhost:5984");
+"""]]
+The only argument to _couchdb_session_new_ is the URL of the CouchDB instance to connect to. If NULL, it would use the system-wide CouchDB instance (located at [[http://localhost:5984|http://localhost:5984]]). If you want to connect to desktopcouch without having to know what port it is listening in, you can use the high-level object [[DesktopcouchSession|DesktopcouchSession]], which is available in desktopcouch-session.h: 
+[[!format txt """
+#include <desktopcouch-glib/desktopcouch-session.h>
+
+DesktopcouchSession *couchdb;
+
+couchdb = desktopcouch_session_new ();
+"""]]
+Once you have a _[[CouchdbSession|CouchdbSession]]_ object, you can do all the operations the API provides from it. Please note that most of the API functions have a _GError_ argument as the last parameter, which is used to return error information to the caller. 
+
+
+### Working with databases
+
+First, you can list the databases that are available: 
+[[!format txt """
+GSList *couchdb_session_list_databases (CouchdbSession *couchdb, GError **error);
+"""]]
+This would return a list of _[[CouchdbDatabaseInfo|CouchdbDatabaseInfo]]_ structures, which contain information (such as database name, number of documents, etc) for each database available on the CouchDB instance you're connecting to. If you already know the name of a database, you can easily obtain that information for that specific database with the following function: 
+[[!format txt """
+CouchdbDatabaseInfo *couchdb_session_get_database_info (CouchdbSession *couchdb, const char *dbname, GError **error);
+"""]]
+You can also create new databases: 
+[[!format txt """
+gboolean couchdb_session_create_database (CouchdbSession *couchdb, const char *dbname, GError **error);
+"""]]
+Or delete existing databases: 
+[[!format txt """
+gboolean couchdb_session_delete_database (CouchdbSession *couchdb, const char *dbname, GError **error);
+"""]]
+
+### Working with documents
+
+Once you know what database you'll be working with, you can use the documents part of the API. First, you need to obtain a reference to the database you want to use, which is done with _couchdb_session_get_database_: 
+[[!format txt """
+CouchdbDatabase *couchdb_session_get_database (CouchdbSession *couchdb, const gchar *dbname, GError **error);
+"""]]
+Then, the _[[CouchdbDatabase|CouchdbDatabase]]_ object offers access to the documents contained in that database: 
+[[!format txt """
+GSList          *couchdb_database_list_documents (CouchdbDatabase *database, const char *dbname, GError **error);
+"""]]
+This returns a list of _CouchDBDocumentInfo_, which is a struct that contains the unique identifier and last revision number for a specific document. This doesn't retrieve the actual document's contents, just information about them. You can retrieve all documents at once by calling: 
+[[!format txt """
+GSList          *couchdb_database_get_all_documents (CouchdbDatabase *database, GError **error);
+"""]]
+This returns a GSList of _[[CouchdbDocument|CouchdbDocument]]_s. Or, to get a a specific document: 
+[[!format txt """
+CouchDBDocument *couchdb_database_get_document (CouchdbDatabase *database, const char *docid, GError **error);
+"""]]
+This returns a _[[CouchdbDocument|CouchdbDocument]]_ object, which lets you read/modify a document in memory. You can also create an empty _[[CouchdbDocument|CouchdbDocument]]_ object in memory with the _couchdb_document_new_ function, for later saving it to the database. There are several functions you'd want to know for retrieving/setting fields' data on a document: 
+[[!format txt """
+gboolean         couchdb_document_has_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_remove_field (CouchdbDocument *document, const char *field);
+gboolean         couchdb_document_get_boolean_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_boolean_field (CouchdbDocument *document, const char *field, gboolean value);
+gint             couchdb_document_get_int_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_int_field (CouchdbDocument *document, const char *field, gint value);
+gdouble          couchdb_document_get_double_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_double_field (CouchdbDocument *document, const char *field, gdouble value);
+const char      *couchdb_document_get_string_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_string_field (CouchdbDocument *document, const char *field, const char *value);
+CouchdbStructField *couchdb_document_get_struct_field (CouchdbDocument *document, const char *field);
+void             couchdb_document_set_struct_field (CouchdbDocument *document,
+                                                    const char *field,
+                                                    CouchdbStructField *value);
+"""]]
+These functions allow you to check for the existence of a field in a document (_couchdb_document_has_field_), remove a field from it (_couchdb_document_remove_field_) and retrieve/set the value of a field in different formats (boolean, integer, double, string). A special mention is needed for the _couchdb_document_get_struct_field_ and _couchdb_document_get_struct_field_, which allow you to have object fields (or structs, if you find it easier to understand it that way) on your documents. Object fields can in turn contain other object fields, and they are manager by the _[[CouchdbStructField|CouchdbStructField]]_ object, which contains very similar methods to those of _[[CouchdbDocument|CouchdbDocument]]_ shown above: 
+[[!format txt """
+gboolean            couchdb_struct_field_get_boolean_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_boolean_field (CouchdbStructField *sf, const char *field, gboolean value);
+gdouble             couchdb_struct_field_get_double_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_double_field (CouchdbStructField *sf, const char *field, gdouble value);
+gint                couchdb_struct_field_get_int_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_int_field (CouchdbStructField *sf, const char *field, gint value);
+const char         *couchdb_struct_field_get_string_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_string_field (CouchdbStructField *sf, const char *field, const char *value);
+CouchdbStructField *couchdb_struct_field_get_struct_field (CouchdbStructField *sf, const char *field);
+void                couchdb_struct_field_set_struct_field (CouchdbStructField *sf, const char *field, CouchdbStructField *value);
+"""]]
+Once you have modified your document and want to save it to the database, you use the following function: 
+[[!format txt """
+gboolean couchdb_database_put_document (CouchdbDatabase *database, CouchdbDocument *document, GError **error);
+"""]]
+Also, you can remove documents, based on their unique ID: 
+[[!format txt """
+gboolean couchdb_database_delete_document (CouchdbDatabase *database, CouchdbDocument *document, GError **error);
+"""]]
+
+### Working with contacts
+
+couchdb-glib provide high-level API for dealing with _[[CouchdbDocument|CouchdbDocument]]_ that are contacts. For that, you can use desktopcouch-glib, which is part of couchdb-glib, and which provides high level classes to make it easier to deal with desktopcouch data. 
