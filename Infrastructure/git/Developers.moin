@@ -1,0 +1,143 @@
+#acl AdminGroup:read,write Publishers:read,write All:read
+
+Several projects have been moved to the git revision control system.  While there exist tutorials out there for using git, one of git's features is that it allows people to use many different workflows, so many of those tutorials won't apply to git as it's used in X.Org projects.  We might call what we usually do "shared central repository" mode.
+
+Things which are within the scope of this document:
+ * Checking out code
+ * Committing code
+ * Resolving conflicts
+ * Working on branches
+
+Things which are not within the scope of this document:
+ * Using the index for selective committing
+
+First note about git: there are many commands.  Each command exists as an argument to the git command ("git clone") and also as a hyphenated version to aid in tab-completion ("git-clone").
+
+The next thing to understand is that when you check out code from a remote git repository, you end up with a full-fledged git repository yourself.  When you diff, commit, etc. code, you are doing it against your local repository.  Clone, pull, and push are used to move changes between repositories.  Your local repository is stored in the .git directory at the top of the tree.
+
+== Checking out ==
+
+If you have an anonymously-checked out repository which you now wish to use to push, you can edit {{{.git/remotes/origin}}} and replace the contents of the {{{URL: }}} line (change git:// to ssh://, and anongit.fd.o to git.fd.o).
+
+If your username at freedesktop.org is different from local, the refspec becomes {{{ ssh://myusername@git.freedesktop.org/git/xorg/lib/libX11 }}}, or you can just add the following to ~/.ssh/config to tell ssh your default username for all of freedesktop.org:
+
+{{{
+Host *.freedesktop.org
+        User myusername
+}}}
+
+== Viewing diffs ==
+
+Now, you have a copy of the master branch of the tree.  Go ahead and build it and whatever else.  If you make some changes, you can see what files you would commit with
+{{{ git status -a }}}
+or get a diff of the local tree against the repository with
+{{{ git status -a -v}}}
+
+The {{{-a}}} flag means all local updates.  The git system actually has this concept of an "index", managed using git-update-index, which lets you selectively commit changes.  However, because this adds to confusion, I will leave learning about the index up to you to do later.
+
+== Getting the latest upstream code ==
+
+There are two ways to update your local repository. Which one to use depends on whether you have committed changes in the meantime.
+
+=== No changes: pull ===
+The command to update your local repository is:
+
+{{{git pull}}}
+
+It will pull down the latest repository information from the {{{origin}}} remote file (which points at where you initially cloned the repository from), then merge.  If the new changes don't conflict with anything locally, the merge will "fast-forward" your branch reference to the new head.  If new changes do conflict, it will try to do an automatic merge using a couple of different schemes, and then automatically commits the merge if it's satisfied.  If you notice that your pull resulted in a merge (in the output of pull), you might want to use {{{gitk}}} to see if the merge did what you expected it to.  If it isn't satisfied, then you have to resolve the conflict manually.
+
+=== You've made changes: fetch and rebase ===
+If you have committed local changes, then {{{git-pull}}} will create a spurious "Merge" commit, which will pollute the change list when you later push upstream. To avoid this, do these two commands:
+{{{
+git fetch
+git rebase origin
+}}}
+Instead of merging, this attempts to insert the changes you pull from the origin repository before your local changes, avoiding the merge message.
+
+== Dealing with conflicts ==
+If you get a serious conflict that can't be merged automatically, git will leave familiar conflict markers in the files, and {{{ git status }}} should say that you've got unmerged files.  Go edit them and fix your conflicts, and test.  After you do so, {{{git status}}} will still be noisy about unmerged files (since you haven't updated the index to say you've merged them), but you can still do
+
+{{{git commit -a}}}
+
+and commit your merge.  It hands you a default log message for the merge, and it will retain the information on the parents of the commit you did, so that branch history is maintained.
+
+== Reverting commits ==
+It may happen that you commit something you really didn't want to go into the repository.  This is not referring to broken changes, but things like mis-merges or getting branches confused.  If you haven't pushed the code upstream, then it's really easy to make it look like the commit didn't happen.  To reset to the immediate previous revision, you would run:
+
+{{{git reset --hard HEAD^}}}
+
+== Reverting code prior to commit ==
+git doesn't have a revert command like svn. Instead, just run {{{git checkout -- <yourfile>}}} to revert it to the last committed version. The {{{--}}} isn't necessary in most cases, but does provide extra insurance.
+
+== Committing code ==
+If you're satisfied with your diff, you could commit it with:
+{{{git commit -a}}}
+
+The commit message should have a one-line summary ('Add support for FooBazzle 700'), and then a longer explanatory paragraph, separated by a blank line, e.g.:
+{{{Add support for FooBazzle 700
+
+Add support for the FooBazzle 700, which is an interesting device in that
+it does not actually exist.  This is our first driver for an entirely
+ficticious device, and as such, it performs no rendering.}}}
+
+Your subject line should include the subsystem name (for example, 'KDrive: Fix keymap memory leak', not just 'Fix leak'), unless it's entirely redundant.
+
+After you enter your log message, it will quickly terminate.  You've now committed your diff to your local repository.  You could run:
+
+{{{gitk}}}
+
+to see your diff in the history now.  Note that the {{{gitk}}} output actually shows two branches: master and origin.  The "master" branch is the head of development in the local tree.  The "origin" branch is the last version from upstream.
+
+== Pushing your code upstream ==
+
+Now that you've resolved the conflicts (if any) with others upstream, you're ready to push your changes.  To do this, type
+
+{{{git push origin}}}
+
+This tells git to push every branch in a "Push:" line in the "origin" remote upstream (more on the Push: lines later).  Unlike git pull, git push does require you to specify the remote and doesn't have a default.
+
+== Emailing your code upstream ==
+
+If you do not have direct commit access or wish to get patch review, type:
+{{{git format-patch origin}}} (assuming you're on master)
+
+This will generate a few sequentially-numbered text files, one per patch (e.g. 0001-Add-support-for-FooBazzle-700.txt, 0002-Fix-memory-leak.txt), in mbox format.  These can be sent individually.  If part of a series, use the -n argument to git format-patch, so their subjects will be '[PATCH 1/7] Add support for FooBazzle 700', and so on, and so forth.
+
+Traditionally, a '[PATCH 0/7] FooBazzle-related enhancements' mail would be sent to the list first, giving a relatively long explanation of the patchset, as well as a very brief rundown of the individual patches.  You should then edit your patches before you send them, to include an In-Reply-To and References header listing the Message-Id of the 0th message, so it doesn't break threading.
+
+== Working on branches ==
+Now you've learned how to check out HEAD code, diff, update, commit, and push code back upstream.  The next thing to talk about is branching.
+
+You can see what branch you're on using "git branch" -- it should show "master" initially.  To switch branches in your current repository, do:
+
+{{{git checkout <branch>}}}
+
+If you've got local changes, there are flags to either throw out your local changes, or try to merge them across to the new branch.  By default it will just refuse to change.
+
+If you want to make a new branch, you can do:
+
+{{{git checkout -b <new-branch>}}}
+
+Now you've got a new branch.  However, git checkout doesn't set up the branch: branch-origin mapping that we want.  There's a rule in using git, which is: '''Never commit to the right side of a Pull line'''.  This is referring to the contents of .git/remotes/<remotename>.  The .git/remotes/origin (what you're using currently) file should currently have:
+{{{
+URL: git://anongit.freedesktop.org/git/whatever
+Pull: master:origin
+}}}
+
+This means that the current remote master is mapped to the local origin.  When working on a branch where you'll be committing code, add a few more lines:
+{{{
+Push: master:master
+Pull: new-branch:new-branch-origin
+Push: new-branch:new-branch
+}}}
+The first says "map the remote new-branch to new-branch-origin in the local repository".  The second says "when pushing code, push from new-branch locally into new-branch remotely".  If you haven't set any Push: lines, then git implies a "master:master" mapping for pushes.  Once we add our new-branch push line, we also have to add master:master if you intend to ever commit to master.
+
+Now, you're set up for committing and pushing the branch.  There's one more trick to know about.  When you do "git pull", it is now pulling the remote branches into what they're mapped to locally.  So, the latest new-branch upstream code is in new-branch-origin.  To merge it to your local new-branch code, do:
+
+{{{git pull . new-branch-origin}}}
+
+This means "merge the new-branch-origin code into the current working directory".  Like the other git pull command we mentioned, it will by default commit the merge, unless it runs into conflicts which aren't automatically resolvable.
+
+And, to push, you do it just like when you were working on master.
+
+{{{git push origin}}}
