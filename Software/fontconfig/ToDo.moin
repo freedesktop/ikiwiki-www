@@ -1,0 +1,18 @@
+##META:TOPICINFO{author`"JimGettys" date`"1076533980" format`"1.0" version`"1.1"}%
+##META:TOPICPARENT{name="fontconfig"}%
+== Fontconfig To Do List ==
+
+A directory of [[FreedesktopProjects|related Freedesktop.org To Do Projects]] is available. 
+
+[[Software/fontconfig|Fontconfig]] is a library with '''NO''' X Window System dependencies, for general use in discovering fonts that are present on the system for use with Freetype2 (or other font rasterizers). 
+
+Work on Fontconfig is almost complete, but there are a few loose ends, as documented below. Contact Main.KeithPackard about Fontconfig projects.
+
+|| '''Subproject''' || '''Type''' || '''Description''' || '''Diff/Size''' || '''Comp.''' ||
+|| CSS2 Support || code || Fontconfig already supports almost perfect CSS2 name subsitution, but this needs completion and conformance with that standard: if you are matching bitmap fonts, italic is not falling back properly to some other family with italic. || easy / small || 0% ||
+|| Font library || code / doc || Make the X system's font access library use Freetype2 and Fontconfig for core fonts. This will make font configuration between clients and servers uniform and much less error prone, and get rid of a pile of code to load bitmap fonts from the X server. This will simplify the X server (all implementations that use this library), the font server (if you are foolish enough to run one), and user's lives || mod. / small || 70% ||
+||TTF Conversion || code || Convert existing bitmap fonts to True Type format. Write a tool to get them out again. By converting bitmap fonts to True Type format and using Freetype2 to load them (Freetype also has the ability to load bitmap font formats), we save tons of files and disk space and removing the horrid Unicode mapping problem, and improve performance and footprint of the system. || mod. / mod || 70% ||
+|| Application retrofit || code || Pick your favorite application that doesn't yet use fontconfig and fix it. Some examples are Ghostscript and Motif. || easy / easy || 80% ||
+
+
+-- Main.JimGettys - 11 Feb 2004
