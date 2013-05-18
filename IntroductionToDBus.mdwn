@@ -1,0 +1,185 @@
+
+
+# This document
+
+The following text is _not_ a tutorial or a reference.  It will not show you how to use D-Bus (yet).  It won't tell you how to install D-Bus or how to program for it. 
+
+What you will find here is an explanation what D-Bus really _is,_ what the concepts behind it are and how they fit together, and what jargon you'll need to know to understand it all.  There will be no unnecessary technical detail, and no assumptions about what language you like to program in.  The idea is that you can read this before you move on to tutorials or how-to guides for whatever it is you want to use D-Bus for. 
+
+Reading all this first can be useful even if you have a good tutorial to work with.  There's a long list of words that have special meanings in the D-Bus world, and not all of them are completely standardized.  In this document we try to explain them from the ground up so you won't run into unexplained terms that will only become clear later.  We'll also try to give an overview of how different people's views of D-Bus overlap and differ.  A perfectly good explanation written from the perspective of one particular programming language can sometimes mislead a new user, or even an experienced user, when using another language. 
+
+
+# Introduction to D-Bus
+
+D-Bus is an inter-process communication mechanism—a medium for local communication between processes running on the same host.  (Inter-host connects may be added in the future, but that is not what D-Bus is meant for).  D-Bus is meant to be fast and lightweight, and is designed for use as a unified middleware layer underneath the main free desktop environments. 
+
+If you're familiar with many communication mechanisms, here's a quick rundown of this one.  Unlike more heavyweight conventional messaging middleware, D-Bus is non-transactional.  It is stateful and connection-based, however, making it "smarter" than low-level message-passing protocols such as UDP.  On the other hand, it does carry _messages_ as discrete items—not continuous streams of data as is the case with TCP.  Both one-to-one messaging and publish/subscribe communication are supported. 
+
+D-Bus has a structured view of the data it carries, and deals with data in binary form: integral numbers of various widths, floating-point numbers, strings, compound types, and so on.  Because data is not just "raw bytes" to D-Bus, messages can be validated and ill-formed messages rejected.  In technical terms, D-Bus behaves as an RPC mechanism and provides its own marshaling. 
+
+
+## Language Bindings
+
+Application Programming Interfaces for D-Bus, or _bindings,_ are available in several languages—typically one per language, but not necessarily.  Each presents its own API as suits the language, hiding the details of working with D-Bus from the programmer to different extents.  The ideal is to fit the D-Bus API into the native language and libraries as naturally as possible. 
+
+Using D-Bus should feel more like object-oriented programming than like communication.  In some bindings, a programmer may hardly notice that D-Bus is there at all.  When that happens, a program that uses D-Bus to communicate will for the most part look as if the counterparts it communicates with were regular components (libraries, modules, packages, objects, functions—whatever the language uses) of the program itself.  This is also why some aspects of D-Bus that may seem very basic can differ greatly depending on programming language. 
+
+D-Bus bindings are available for [[an increasing number of languages|http://www.freedesktop.org/wiki/Software/DBusBindings]].  There is a [[low-level C binding|http://dbus.freedesktop.org/doc/dbus/libdbus-tutorial.html]], but that is probably too detailed and cumbersome for anything but writing other bindings.  A more practical C binding is based on [[GLib|http://www.gtk.org/]].  There are also [[Java|http://dbus.freedesktop.org/doc/dbus-java/]], [[Perl|http://search.cpan.org/~danberr/Net-DBus-0.33.3/lib/Net/DBus.pm]] and [[Python|http://dbus.freedesktop.org/doc/dbus-python/doc/tutorial.html]] bindings.  There are also dbus [[notes and examples|DbusNotes]], and so on. 
+
+
+## Buses
+
+There are two major components to D-Bus: a point-to-point communication _`dbus` library,_ which in theory could be used by any two processes in order to exchange messages among themselves; and a _`dbus` daemon._  The daemon runs an actual _bus,_ a kind of "street" that messages are transported over, and to which any number of processes may be connected at any given time.  Those processes connect to the daemon using the library, and it probably wouldn't make much sense to use the library for anything else.  We'll be looking mostly at the situation where applications (or more generally, _clients_) connect to a full-blown bus. 
+
+Multiple buses may be active simultaneously on a single system.  D-Bus was first built to replace the CORBA-like component model underlying the GNOME desktop environment.  Similar to DCOP (which is used by KDE), D-Bus is set to become a standard component of the major free desktop environments for GNU/Linux and other platforms.  A GNOME environment normally runs two kinds of buses: a single _system bus_ for miscellaneous system-wide communication, e.g. notifications when a new piece of hardware is hooked up; and a _session bus_ used by a single user's ongoing GNOME session.  A session bus normally carries traffic under only a single user identity, but D-Bus is aware of user identities and does support flexible authentication mechanisms and access controls.  The system bus may see traffic from and to any number of user identities. 
+
+
+### Addresses
+
+Every bus has an _address_ describing how to connect to it.  A bus address will typically be the filename of a Unix-domain socket such as "`/tmp/.hiddensocket`," but it may also be a TCP port where a bus daemon is listening on an IP-domain socket, or conceivably a descriptor for some other low-level communications scheme.  The details of how to hook up to the bus daemon are, of course, completely hidden from the client process by the dbus library.  We'll just say that a client process opens and uses a _connection_ to the bus. 
+
+
+### Configuration and Startup
+
+Bus daemons are started using the `dbus-launch` command, which in turn runs `dbus-daemon`.  Both take an option `--config-file` option to indicate a _configuration file_ describing the bus being started.  The standard buses have `/etc/dbus-1/system.conf` and `/etc/dbus-1/session.conf` as their respective configuration files. 
+
+Configuration files are in a simple XML-based format called _busconfig._ 
+
+
+### Connections
+
+Every connection to a bus can be addressed on that bus under one or more names.  These names are known as the connection's _bus names._  (Note that bus names are the names of connections on the bus, not names of buses.)  Bus names consist of a series of identifiers separated by dots, e.g. "`com.acme.Foo`" and the identifiers themselves may contain letters, digits, dashes, and underscores.  The connection is said to _own_ its bus names. 
+
+When a connection is set up, the bus immediately assigns it an immutable bus name that it will retain for as long as the bus exists.  This bus name is called a _unique connection name,_ because no other connection will ever have that same name on the same bus--even if the connection is closed down and other ones are created.  It can be recognized by the fact that it starts with a colon, which is otherwise not possible: "`:34-907`" (the other parts of the name have no particular meaning). 
+
+A connection may also request additional names, e.g. to offer services under _well-known names_ that are agreed upon by convention.  These names must consist of two or more dot-separated elements: "`com.acme.PortableHole`".  Only one connection can hold a given name on the bus at any time, but except for unique connection names, bus names can be relinquished and grabbed by other clients.  (Whether a client currently holding it is willing to give it up is, of course, another question, but there are ways of arbitrating this.) 
+
+
+## Object Model
+
+Message exchange on protocols like TCP or UDP is symmetric; in those examples, data is always transferred from one "port" to another.  D-Bus presents a more sophisticated model where the sending and the receiving side of a message are never quite of the same type. 
+
+In the following we'll borrow from object-oriented terminology.  Many terms such as "object" and "method" have more specific meanings in the context of D-Bus, and may have nothing to do with whatever else is going on in client applications.  We'll write these terms _in italics_ when they are introduced.  All of them are used here only in their D-Bus specific sense, never for their general meanings. 
+
+
+### Objects
+
+One end of any exchange on a bus will always be a communications endpoint that in D-Bus parlance is called an _object._  An object is created by a client process and exists within the context of that client's connection to the bus.  The object is a way for the client process to offer its services on the bus--but one client may create any number of objects. 
+
+The bus imposes an object-centric view of communications, where any message carried by the bus is of one of three kinds: 
+
+1. Requests sent to objects by client processes. 
+1. Replies to requests, going from an object back to a requesting process. 
+1. One-way messages emanating from objects, broadcast to any connected clients that have registered an interest in them. 
+Thus at a higher level of abstraction, the bus supports two forms of communication that we could call "_1:1_ request-reply" going to an object, and "_1:n_ publish-subscribe" coming from an object. 
+
+Every bus has at least one object, representing the bus itself.  Clients can obtain information about the status of the bus by sending requests to this object.  As you'll see later on, it represents the bus in other useful ways as well. 
+
+
+### Proxies
+
+Objects on the bus can be accessed through references that we call _proxies._  We call them that because a proxy is a local representation inside your own program of an object that is really accessed through the bus, and typically lives outside your program: you literally access the object "by proxy."  Whether you need to know the difference between an object and a proxy depends on how you talk to D-Bus.  The Java binding hides the difference, making it look like you're dealing with the objects directly, but the GLib binding makes the existence of proxies very visible and even offers two kinds of proxies.  A proxy exists only inside your client, and the details of how it works depend entirely on the binding you use. 
+
+Objects have names, also called _paths_ because they look like Unix-style, slash-separated filesystem paths.  An object that represents a particular cell in a particular spreadsheet might be called "`/org/kde/kspread/sheets/3/cells/4/5`", for instance.  An object's name needs to be unique only within the context of its connection to the bus.  To obtain a proxy to that spreadsheet cell, you would ask the bus to look up object `/org/kde/kspread/sheets/3/cells/4/5` for you, to be found in the context of the spreadsheet's connection. 
+
+Since any object "lives within" the context of a connection, it takes a combination of that connection's bus name and the object's own name to find it.  Once you have found the object you want, if you'll be using it again soon, you'll usually want to keep a proxy to that object around as a variable in your program.  That will save you having to look up the object time and again. 
+
+Some bindings' proxies may support _failover._  If you have a proxy to an object exported by some client connected to the bus under a well-known bus name, and that client disconnects (removing the object), reconnects under the same well-known name, and revivies the object, your own program may continue to use the proxy without ever noticing that the object went away for a while.  Not all bindings support this, and of the two kinds of proxy in the GLib binding, only one does.  It is also not always desirable, e.g. when subsequent operations on an object are meant to be a whole, and it's not acceptable for the object to be disbanded and later reinstituted without your noticing.  In those cases, you may need to use a unique connection name in obtaining the proxy rather than a well-known one. 
+
+
+### Methods
+
+When a client sends a request to an object, it sees this request as invoking a _method_ on the object: the object is asked to perform a specific, named action.  Normally, if a client tries to invoke a method on an object that the object does not provide, this will raise an error. 
+
+The method's definition may require certain information to be passed with the request as arguments (_input parameters_).  For every request, a reply message carries the result back to the requester, along with either result data (_output parameters_) or, if the action could not be performed, _exception_ information.  Exceptions will contain at least an exception name and an error message. 
+
+Most D-Bus bindings make all this fit in with their environment's native mechanisms, hiding the finicky details of encapsulating parameters in messages and translating exception messages into exceptions (or whatever the native error-handling mechanism is).  For example, passing a string argument to a method of some remote object will look to your program just like passing a string argument to a function in your own program.  There is no need for tedious conversions and copying of the data into messages, and there is usually no need to concern yourself with the sending of the underlying message.  The binding takes care of all that; the work of encapsulating your data into the messages is called _marshalling._ 
+
+There is one interesting difference with conventional function calls: when sending a request to an object, you don't necessarily have to sit around and wait for a reply.  In more complex programs you'll usually find other useful things to do until the method completes.  You may want to be ready to handle user interaction, for example, or availability of data from a file or a network connection; you may even have multiple method invocations "in flight" and want to handle the results as they come in, rather than in some pre-defined order.  This style of invocation, where you go on to do other things while waiting for an answer, is called _asynchronous_ method invocation.  If you use the simple call-and-wait style (_synchronous_ invocation), any other messages that come in while you wait will be queued up and delivered to your program when it's ready for them. 
+
+
+### Signals
+
+The other form of communication also follows the object-oriented mould.  Called _signals,_ these one-way communications come from an object and go nowhere in particular.  Client processes can register an interest in signals of a particular name coming from a particular object.  Whenever an object emits a signal, all interested clients will receive a copy of the signal.  There may be one client receiving it, or there may be many--or nobody may be listening.  There are no replies to signals: the object emitting the signal would not know how many replies to expect, or where to expect them from. 
+
+Signals can carry parameters, just like method invocations.  Of course, since signals are a strictly one-way form of communication, signals do not have input and output parameters like methods do.  More recent versions of D-Bus also allow clients to restrict their interest to cases where certain of the signal's parameters match given values; they will only receive instances of the signal that match those expectations. 
+
+Signals are used to publish the occurrence of events that clients may be interested in, such as the closing of some other client's connection to the bus.  That particular kind of signal is sent by the object representing the bus itself.  Because of this, the event can be announced properly regardless of whether the departing client closed its connection in an orderly fashion, or was killed, or crashed spectacularly. 
+
+
+### Interfaces
+
+So every object supports particular methods and may emit particular signals.  These are known collectively as the object's _members._ 
+
+All of an object's members are specified in _interfaces._  Like their namesakes in the Java language, interfaces are sets of declarations.  "Implementing" an interface is tantamount to promising to provide all methods specified in the interface, and announcing the availability of its signals for listeners.  Each of these members must accept and/or provide parameters exactly as specified in the interface. 
+
+Any object may implement a given interface, just as in Java any number of classes may implement the same interface.  Conversely, a single object may implement any number of interfaces.  (With D-Bus it probably wouldn't make much sense to have an object that implemented no interfaces at all, though, which is perfectly normal with Java classes.)  The combination of all interfaces supported by the object is called the object's _type._ 
+
+When a client invokes a method or listens for a signal, it must indicate the object and the member it is referring to.  In addition to object and member, the client may also name the interface in which that member was specified.  This can be necessary in some cases.  If an object implements two interfaces, for example, that both specify a method named `foo`, then the object may have separate implementations for `foo` in the two interfaces.  When a client tries to invoke `foo` on the object without specifying which interface it had in mind, there is <ins>no guarantee</ins> as to which of the two `foo` methods will be invoked.  The D-Bus implementation may even refuse to carry the request message in the first place.  Similarly, you wouldn't want to receive signals that looked like what you're listening for but are really different ones that happened to have the same name.  Older versions of D-Bus also had a bug where request or signal messages could be lost if they failed to specify an interface. 
+
+Whether there is "overloading" of members within interfaces, i.e. whether multiple members of the same interface may have the same name, depends on the binding. 
+
+
+# Addressing
+
+Let's just recap how your program gets all the way from not even being connected to a bus, to finding a method it wants to call or a signal it wants to listen for.  Apart from the interface, which as we've seen can usually be omitted, each of these steps is a matter of identifying something that will be needed in the next step: 
+[[!table header="no" class="mointable" data="""
+ **A...**  |  **is identified by a(n)...**  |  **which looks like...**  |  **and is chosen by...** 
+ Bus  |  address  |  `unix:path=/var/run/dbus/system_bus_socket`  |  system configuration 
+ Connection  |  bus name  |  `:34-907` (_unique_) or `com.mycompany.TextEditor` (_well-known_)  |  D-Bus (_unique_) or the owning program (_well-known_) 
+ Object  |  path  |  `/com/mycompany/TextFileManager`  |  the owning program 
+ _Interface_  |  _interface name_  |  `org.freedesktop.Hal.Manager`  |  _the owning program_ 
+ Member  |  member name  |  `ListNames`  |  the owning program 
+"""]]
+
+Most of these identifiers are also structured as paths themselves: parts of addresses may be; well-known bus names are; object paths are; and interface names are, too.  This gets confusing sometimes, especially since related names are often chosen to look very similar--a connection `org.freedesktop.Hal` may provide an object `/org/freedesktop/Hal/Manager` that implements an interface `org.freedesktop.Hal.Manager`.  The use of slashes in some identifiers and dots in others also takes some getting used to. 
+
+
+# Message Ordering
+
+Requests from one connection to the same object are delivered in the same order in which they were sent.  The same goes for multiple replies from one object to the same client. 
+
+This does not mean that all messages are always delivered in sending order.  For example, if two client processes send requests to the same object around the same time, there is no documented guarantee that the object will receive them in the same order.  Even when one client sends two subsequent requests to the same object, then waits for both replies, it is possible that the reply to the second request comes in before the reply to the first request.  The "object" may really be a multithreaded server process with multiple requests being handled in parallel, or it may prioritize requests internally. 
+
+**TODO: Threading** 
+
+
+# Activation
+
+So far we've assumed that objects are created by active clients.  There is another way of offering services on the bus: the bus daemon can be instructed to start (or _activate_) clients automatically when needed.  Activation of a client can be triggered in two ways, both keyed by a well-known bus name that the activated client must obtain: 
+
+1. Through an explicit request to the object representing the bus itself. 
+1. By invoking a method on an object in the context of the client's well-known bus name. 
+The latter can be inhibited through an option in the method invocation message.  Some bindings may try to activate an appropriate client when you create a proxy on a well-known bus name that is not currently in use; others may defer this until you use the proxy to invoke the method.  The difference can matter if you listen for a signal coming from an object: if the client that should provide the object is not actually running, you could wait in vain! 
+
+To create a client that can be activated, describe it in a _service file._  A service file looks like a human-readable ".ini" file, line-based and encoded in UTF-8.  Its name must always end in "`.service`". 
+
+For example, you might want to register the fact that client program `/usr/local/bin/bankcounter` can be run to provide well-known bus names `com.bigmoneybank.Deposits` and `com.bigmoneybank.Withdrawals`.  To do that, you'd write a service file "`bankcounter.service`" (the name is arbitrary, so long as it ends with `.service`) looking like: 
+[[!format txt """
+# (Lines starting with hash marks are comments)
+
+# Fixed section header (do not change):
+[D-BUS Service]
+Names=com.bigmoneybank.Deposits;com.bigmoneybank.Withdrawals
+Exec=/usr/local/bin/bankcounter
+"""]]
+The `Names` line lists the well-known connection names that the client will provide, separated by semicolons (there may also be an extra semicolon at the end).  The `Exec` line gives the name of the program to execute in order to activate the client. 
+
+The service files go into a directory indicated in a `<servicedir>` block in the bus' configuration file; the default location is `/usr/share/dbus-1/services/`.  If you add service files while the bus is running, the bus daemon will notice and read them without any further prodding. 
+
+More detailed information about activation can be found in Raphaël Slinckx's [[DBus Activation Tutorial|http://raphael.slinckx.net/blog/documents/dbus-tutorial/]]. 
+
+
+# Future Work
+
+This document is still far from complete.  Some subjects still need to be covered: 
+
+* Implementing objects 
+* The special role of `org.freedesktop.DBus` (methods on a bus name, without objects!) 
+* Authentication ([[see here|http://www.redhat.com/magazine/003jan05/features/dbus/]] for a brief explanation) 
+* Introspection 
+
+# Other documentation
+
+* DBusGLibRoadmap 
+* Software/dbus 
