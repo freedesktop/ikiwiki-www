@@ -1,0 +1,27 @@
+
+The `upeksonly` driver supports devices based on the [[UPEK TouchStrip chipset|http://www.upek.com/solutions/pc_and_networking/chipsets_sensors.asp]] (sensor-only version). 
+
+upeksonly is part of [[libfprint|Software/fprint/libfprint]] and is developed/maintained by Daniel Drake. 
+
+
+## Supported devices
+
+This driver supports fingerprint readers found embedded into many commercial laptops, including some System76 laptops and IBM/Lenovo [[ThinkPads|ThinkPads]]. The device sits on the USB bus with USB ID 147e:2016. 
+
+The driver does **not** support the [[TouchStrip|TouchStrip]] variants which include a biometric co-processor. The co-processor variants have a different USB ID and are instead supported by the [[upekts|Software/fprint/libfprint/upekts]] driver. 
+
+
+## Driver history
+
+This driver was developed by Daniel Drake, based on bus traffic analysis of a pre-release of UPEK's BSAPI Linux SDK. The hardware was donated by [[System76|http://www.system76.com]] - thanks! 
+
+
+## Device operation
+
+[[!img Sample scanned image] 
+
+Being a sensor-only device, this is an imaging device. The device repeatedly sends greyscale image rows of width 288 pixels, sampled at very high frequency. The high frequency means that there is a lot of bus traffic generated and there is a lot of similarity between one row and the next. As a result of this, most rows are discarded by the driver - only ones that differ significantly from the previous one are kept. The combination of high frequency row sampling and driver-level change detection allows the resultant fingerprint image to be smooth and proportional even when finger swipe speed is significantly altered during the scan. 
+
+The hardware has finger-on-sensor detection which is used by this driver. I don't think there is any hardware-based finger removal detection, so the driver just looks for a significant number of blank lines before reporting finger removal. 
+
+There is some fuzz in the image, which could potentially be eliminated by some post-processing algorithms. 
