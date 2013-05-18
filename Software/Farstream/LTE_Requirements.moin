@@ -1,0 +1,36 @@
+Here is a list of things that are missing in Farstream and required by LTE. As specified in TS 26.114 version 9.3.0
+
+ * Support for the text in RTP as per ITU T.140
+  * Must support backspace
+  * Must support rate limiting (30 cps for LTE)
+ * Audio: 
+  * ECN may be used for speech adaptation (optional) according to ecn-capable-rtp SDP attribute
+  * Full support for AMR-NB/WB negotiation
+ * Video
+  * AVPF nack
+  * TMMBR/TMMBN
+ * Dynamic jitterbuffer
+
+Call interface requirement:
+ * Synchronization of streams is optional and specified over SDP with 3gpp_sync_info including grouping (using group: LS)
+ * Streams need to have groupable sync (possibly modifiable with a renegotiation) using group: LS
+ * Support for b=RS/RR
+
+GStreamer requirement:
+ * Implement Codec Mode Request (CMR) handling in pay/depay (and also in Farsight2 or something)
+ * Reduced size RTCP with rtcp-rsize (RFC 5506)
+
+Requirement for Telepathy Sofia-SIP:
+ * SDPCapNeg
+ * AVPF only with SDPCapNeg
+
+Codecs:
+ * Must
+  *  H.263 Profile 0 with Level 45, QCIF and sQCIF up to 128kbits/s and up to 15fps
+  * AMR-NB: redundancy, etc should be handled by the codec
+  * Should have packet loss concealement
+ * Should
+   * H.263 Profile 3 (Annexes D.1, F.2 (4MV), I, J, K, T)
+   * MPEG4 Part 2 Simple Profile Level 3: 
+   * H.264 Baseline Level 1.1 with constraint_set1_flag=1
+   * AMR-WB if 16khz is supported
