@@ -1,0 +1,42 @@
+= Components =
+== 2D driver ==
+The 2D driver, or the DDX, is called openchrome_drv.so and is responsible for 2D acceleration, X video (Xv), and for initializing the hardware to a working state. It also sets the output mode (screen resolution, refresh frequency, and colour depth) and is responsible for handling all the output components. For example, if TV-out is not working, this part is probably the one to blame. For setting up the hardware correctly, it is sometimes dependent on the BIOS of your computer. This driver also functions as a governor or source of information for other subsystems, such as [[http://en.wikipedia.org/wiki/Direct_Rendering_Infrastructure|DRI]] or XvMC. However, even if this driver thinks that everything is OK (it might, for example, say that direct rendering is enabled), there are other parts of these subsystems that must be configured correctly. The two subsystems that the DDX governs that have other special VIA hardware drivers are XvMC and DRI.
+
+== DRM and DRI ==
+The Direct Rendering Infrastructure ([[http://en.wikipedia.org/wiki/Direct_Rendering_Infrastructure|DRI]]) is a way for a client residing on the same computer as the X server to take control of some hardware (for example the display frame buffer and the video card command queue) and write to it directly. In order to know where to write and where not, the DRI can also transfer information about which windows overlap each other and which do not. To avoid different clients rendering at the same time, every DRI client needs to take a lock before it does something with the hardware. In the same way, the X server always takes the DRI lock when it does something with the hardware — if it is compiled to be DRI-aware. If for some reason a client dies while holding the lock, it might lock up the whole display system.
+
+The DRI has a kernel component, called the Direct Rendering Manager ([[http://en.wikipedia.org/wiki/Direct_Rendering_Manager|DRM]]). This is the part that is responsible for security checking, managing the video-card command queue, and checking that there are no invalid or security-violating commands. It also handles frame-buffer and AGP-memory management when DRI is active, and finally it takes care of display-card interrupts and direct memory access ([[http://en.wikipedia.org/wiki/Direct_memory_access|DMA]]). Some of these features, like interrupts and DMA, might be useful for the X server even if DRI is not to be used, so the DDX uses the DRM also for kernel-only activities that might optimize the display handling, if possible. The DRM consists of a parent module called 'drm.ko' and a card-specific module called 'via.ko'.  The X server and the DRI clients talk to the kernel modules through a special library called libdrm. This library is part of the X-server distribution or can be downloaded separately.
+
+DRI also has an X-server protocol with which the DRI clients talk to the X server when they need information. The X-server side of this protocol resides in an X-server module called libdri.so. This module is used only by the X server. The clients implement only the part of the protocol they need.
+
+So what is DRI used for? Really, it can be used for anything that requires direct access to the hardware, but usually it is used only for 3D acceleration. Note that, in theory, it is possible to have hardware-accelerated 3D without DRI, and it would be possible to have a 2D acceleration library using DRI. The DRI-enabled application is really [[http://en.wikipedia.org/wiki/Mesa_3D_(OpenGL)|Mesa]], which accelerates [[http://en.wikipedia.org/wiki/OpenGL|OpenGL]] 3D rendering using DRI. The Mesa driver for VIA chips is called unichrome_dri.so and is a client library. This driver is loaded by the OpenGL library libGL.so, which in turn is used by OpenGL-aware programs. The DDX tells libGL.so the name of the library to load. The driver is also used by the X server directly when [[http://en.wikipedia.org/wiki/AIGLX|AIGLX]] is enabled.
+
+=== See also: ===
+ * [[http://en.wikipedia.org/wiki/Direct_Rendering_Infrastructure|DRI]]
+ * [[http://en.wikipedia.org/wiki/Direct_Rendering_Manager|DRM]]
+ * [[http://en.wikipedia.org/wiki/AIGLX|AIGLX]]
+
+== XvMC MPEG acceleration ==
+Some of the Unichrome and Unichrome Pro chips contain mpeg2 accelerators that can help decode or accelerate mpeg decoding. There are two libraries, called libchromeXvMC.so and libchromeXvMCPro.so, which implement the acceleration for different chips. To do this, they need to talk to the hardware directly using DRI, so they are at the same time DRI clients and need a correct kernel module, DRM, to function. They do NOT use the OpenGL driver unichrome_dri.so, as this one is only for 3D acceleration. They have, however, copied some DRI protocol code from the OpenGL driver. Although the XvMC libraries can be linked directly with XvMC-aware applications, it would be better if this could be done automatically, since each display card has its own XvMC library. Enter the XvMC wrapper or libXvMCW.so. This piece of software is linked directly to an XvMC-aware application, for example Xine, MythTV, or patched Mplayer. It provides a common client interface. When it is used, it asks the DDX which client library it should load (chromeXvMC, chromeXvMCPRO, I810XvMC, or NVIDIAXvMC, and then loads it on behalf of the client. If the DDX  doesn't answer, it uses the file /etc/X11/XvMCConfig to determine what driver to load. Remember that the DDX governs and initializes the XvMC extension. If XvMC is not enabled in the DDX, it won't work.
+
+=== See also: ===
+ * [[http://en.wikipedia.org/wiki/X_video_extension|Xv]]
+ * [[http://en.wikipedia.org/wiki/XvMC|XvMC]]
+
+== 3D driver ==
+The 3D driver that complements the openchrome driver is part of the [[http://mesa3d.org|Mesa]] project and is normally already installed on your system, probably version 7.0.2 or later. The binary of this driver is called unichrome_dri.so. If you want to try the latest version from git, see the [[Openchrome/Installation|Installation]] page for info on how to compile it, but this is normally not necessary. If you cannot get it running, check the page on [[Openchrome/Troubleshooting|Troubleshooting]].
+
+The 3D driver for the unichrome chips is at present not being maintained and has seen several regressions, such as misplaced software fallbacks and slow texture rendering. Some bugs even result in lockups, particularly on the K8M800 hardware.
+Any bugs you find should be filed in the freedesktop.org bugzilla. Please check for known bugs there before filing a new one or asking on the mailing lists.
+
+=== AIGLX and Compiz ===
+Newer versions of Xorg support [[http://en.wikipedia.org/wiki/AIGLX|AIGLX]] (Accelerated Indirect GLX). With AIGLX the client program sends commands to the X server, which then does the actual rendering.  This is opposed to direct rendering, where the client program does the rendering itself. AIGLX is good for driving OpenGL displays over networks, and is needed for some of the new fancy compositing stuff.
+
+To run the new fancy compositing desktops that use OpenGL as a backend, you will need extensions and features that are not yet supported in the unichrome 3D driver. This includes, among other things, support for big textures and some blitting functions that are not yet accelerated. Efforts are underway in the DRI project (initially with the i915 driver) to create a general memory manager infrastructure on top of which these things can be built, but it will take quite some time before it can be implemented in the unichrome 3D driver — mainly because there is no maintainer of the driver.
+
+=== See also ===
+ * [[http://en.wikipedia.org/wiki/EDID|Extended display identification data]]
+ * [[http://en.wikipedia.org/wiki/Digital_Flat_Panel|DFP]]
+ * [[http://en.wikipedia.org/wiki/Digital_Visual_Interface|DVI]]
+ * [[http://en.wikipedia.org/wiki/I2c|Inter-Integrated Circuit]]
+ * [[http://en.wikipedia.org/wiki/Display_Data_Channel|DDC]]
