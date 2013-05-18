@@ -1,0 +1,74 @@
+
+
+## Translucent Windows in X
+
+
+### Screen Shots
+
+Here are some [[screenshots from Keith's laptop|http://freedesktop.org/~keithp/screenshots]] demonstrating translucent windows and other eye candy. 
+
+
+### History
+
+The first translucent X window experiments were performed while writing [[a paper for the 2000 Annual Linux Showcase|http://keithp.com/~keithp/talks/KeithPackardAls2000/index.html]].  The prototype developed there used image compositing as the fundmental primitive for constructing the screen representation of the window hierarchy contents.  Child window contents would be composited to their parent windows which would be incrementally composed to their parents until the final screen image was formed. 
+
+The problem with this simplistic model was twofold -- first, a naÃ¯ve implementation consumed enormous resources as each window required two complete offscreen buffers (one for the window contents themselves, and one for the window contents composited with the children) and took huge amounts of time to build the final screen image as it recursively composited windows together. 
+
+An architecture for exposing the same semantics with less overhead seemed almost possible, and pieces of it were implemented (miext/layer).  However, no complete system was fielded. 
+
+
+### But Mac OS X and !XDirectFB can do it
+
+Both Mac OS X and [[XDirectFB|http://www.directfb.org/xdirectfb.xml]] perform window-level compositing by creating off-screen buffers for each top-level window (well, in OS X, the window system is not nesting, so there aren't anything other than top-level windows).  The screen image is then formed by taking the resulting images and blending them together on the screen, presumably along with an off-screen copy of the desktop itself. 
+
+Without handling the nested window case, both of these systems provide the desired functionality with a very simple implementation.  Surely something similar could be done for X. 
+
+However, ignoring window nesting is a bit sloppy.  Some desktop environments nest the whole system inside a single top-level window to allow panning.  The fix is pretty easy -- allow an application to control which pieces of the window hierarchy are to be stored off-screen and which are to be drawn to their parent storage. 
+
+
+### How much does the X server really need to do, anyway.
+
+Once the idea of placing control over selecting which windows were to be placed in off-screen storage took hold, it wasn't long before the obvious (in retrospect) follow on idea was heard -- instead of building hard-coded semantics into the window system for how windows get composited, expose the off-screen storage to a new compositing manager application and give it complete control over how the screen contents are constructed from the constituent sub-windows and whatever other graphical elements are desired. 
+
+All of a sudden, the complexities surrounding precisely what semantics would be offered in window-level compositing within the X server were magically eliminated from the design of the underlying X extensions.  They were replaced by some concerns over the performance implications of using an external agent to execute the requests needed to present the screen image; remember that every visible pixel is under the control of another application, so screen updates are limited to how fast that application can get the bits painted to the screen. 
+
+
+### Splitting up the work: what extensions are needed.
+
+With the basic architecture in hand, the details of how to do work needed ironing out.  There are two separable pieces here, and another piece which was separated.  First designed was the Damage extension. 
+
+
+#### The X Damage Extension
+
+[[The X Damage extension|Software/XDamage]] tracks regions of drawables that have been modified by either application rendering or window manipulation.  This allows an external application to know which portions of the window contain new data, the compositing manager uses it to figure out what parts of the screen need repainting. 
+
+Other applications can also use this to perform screen scraping (like VNC) or other screen effects like a iconic view of the entire desktop with real application contents. 
+
+The Damage extension required a new datatype, the 'Region' to be stored inside the X server.  Regions are used throughout the X server to track two dimensional sets of pixel addresses, for clipping, visibility and even input processing.  Storing the Damage regions within the server eliminates most of the traffic involved in Damage notification, but more importantly, it eliminates significant latency in operating on the resulting information; the damage region is continuously updated within the server, so any update operations which reference that region can be performed on the newest data, rather than data sent to the client and back to the X server. 
+
+
+#### The XFixes Extension
+
+As the region datatype was already well supported within the server, and as it seemed generally useful for existing parts of the window system, the Region datatype and appropriate requests were added to the existing [[X Fixes Extension|Software/FixesExt]] rather than just being a part of the Damage extension. 
+
+XFixes is designed to hold small machine-independent changes to the window system that any X server can easily support; regions are clearly well within the scope of this mandate. 
+
+
+#### The Composite Extension
+
+Finally, with the ability to track drawable modification, our new compositing manager needs a way to move pieces of the window hierarchy into off-screen images so they can be blended together in forming the final screen presentation.  This requires a pretty simple to describe, but somewhat more difficult to implement extension that 'splits' the window tree and redirects the rendering for a branch into an off-screen buffer.  Nested windows within the branch will all be drawn within that single buffer, allowing the compositing manager to fetch bits from only one place. 
+
+The [[Compositing Extension|Software/CompositeExt]] has only five requests, none of which generate a reply and no new errors or events.  There are two basic operations; a request to 'redirect' a window and a request to 'unredirect' a window.  Multiple applications may request that a window be redirected; the redirection happens as long as any requests are still valid.  
+
+For applications that simply need access to the pixels and don't want to change their basic presentation on the screen, there is an 'automatic update' mode which has the server automatically paint any changes into the parent window at reasonable intervals.  This lets thumbnail or screen magnifier applications see the window contents without also needing to run the compositing process. 
+
+The compositing manager places the windows in 'manual update' mode which instructs the server to paint nothing into the parent window, complete control is given to the compositing manager.  Only one application may select manual mode on a given window to avoid conflicts among multiple compositing managers. 
+
+
+### So how does this give me translucent windows, anyway?
+
+As you can see, nothing in the fundamental design of the system indicates that it is used for constructing translucent windows; redirection of window contents and notification of window content change seems pretty far removed from the final goal.  However, the big trick here is that the compositing manger can use _whatever X requests it likes_ to paint the combined image, including requests from the Render extension which does know how to blend translucent images together.  Now that the final image is constructed programmatically, the possible presentation on the screen is limited only by the fertile imagination of the numerous eye-candy developers. 
+
+Oh, one more thing -- to allow applications other than the compositing manager to present alpha-blended content to the screen, a new X Visual was added to the server.  At 32 bits deep, it provides 8 bits of red, green and blue along with 8 bits of alpha value.  Applications can create windows using this visual and the compositing manager can take those contents and composite them right onto the screen. 
+
+-- Main.[[KeithPackard|KeithPackard]] - CRL, HP Labs - 11 Nov 2003 
