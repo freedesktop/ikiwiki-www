@@ -1,0 +1,30 @@
+This page describes the RFC mess with H263/+/++ RTP payloading and how Farsight deals with it.
+
+We have 4 relevant RFCs :T
+
+- 2190 - a "historic" RFC for payloading H263
+
+- 2429 - an obsolete one for payloading H263+ specifically 
+
+- 4629 - a new one that obsoletes 2429. Used for payloading H263/+/++ (nearly identical to 2429)
+
+- 4628 - makes 2190 historic
+
+RFC2429 and RFC4629 are nearly identical. The difference is that RFC4629 says that plain H263 (1996) SHALL use it for payloading. It also defines some new SDP registrations for H263-1998 and H263-2000.
+
+This means that all new implementations of plain H263 must use RFC4629 for payloading. It also says that when using RFC4629 for plain H263, we have to use H263-1998 without any optional annexes defined. If doing H263+, we have to use H263-1998 as encoding name and add the optional annexes we support. If we are using H263 payloaded with RFC2190, we have to use H263 as the encoding name.
+
+The main problem with this is that UAs who don't understand RFC4629 will think that H263-1998 without annexes is actually H263+ as defined in RFC2429, but based on RFC4629 it is H263. So this means that UAs that implement RFC4629 could be incompatible with UAs that don't.
+
+So we have the following encoding names :
+
+H263                   -> H263 with RFC2190
+
+H263-1998              -> H263 with RFC4629 or H263+ with RFC2429
+
+H263-1998 with annexes -> H263+ with RFC4629
+
+H263-2000              -> H263++ with RFC2429 payloading or H263++ with RFC4629
+
+
+Farsight deals with this by support RFC2190 for old implementations, and RFC4629. It will prioritize H263 over H263-1998 in order to maximize backwards compatibility with UAs that don't do RFC4629.
