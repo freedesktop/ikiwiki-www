@@ -1,0 +1,14 @@
+
+[[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]] 
+
+
+# Boot Loader Interface
+
+systemd can interface with the boot loader to receive performance data and other information. This is only supported on EFI systems. Data is transferred from the boot loader to systemd in EFI variables. All EFI variables use the vendor UUID `4a67b082-0a4c-41cf-b6c7-440b29bb8c4f`. 
+
+* The EFI Variable **LoaderTimeInitUSec** contains the timestamp in microseconds when the loader was initialized. This value is the time spent in the firmware for initialization, it is formatted as numeric, decimal string, in UTF-16. 
+* The EFI Variable **LoaderTimeExecUSec** contains the timestamp in microseconds when the loader finished its work and is about to execute the kernel. The time spent in the loader is the difference between `LoaderTimeExecUSec` and `LoaderTimeInitUSec`. This value is formatted the same way as `LoaderTimeInitUSec`. 
+* The EFI variable **LoaderDevicePartUUID** contains the partition GUID of the ESP the boot loader was run from formatted as UTF16 string, in normal GUID syntax. 
+If `LoaderTimeInitUSec` and `LoaderTimeExecUSec` are set, `systemd-analyze` will include them in its boot-time analysis.  If `LoaderDevicePartUUID` is set, systemd will mount the ESP that was used for the boot to /boot, but only if that directory is empty otherwise, and only if no other file systems are mounted there via user mount units or `/etc/fstab`. 
+
+This interface is currently implemented by [[Gummiboot|http://freedesktop.org/wiki/Software/gummiboot]]. 
