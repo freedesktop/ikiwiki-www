@@ -1,0 +1,108 @@
+<<Include(TroubleshootingTOC)>>
+
+''Note that this is a stub and needs some substantial work to get actually usable''
+
+= Troubleshooting =
+
+Now that more and more distros (e.g. Fedora, Mandriva, Ubuntu etc.) are switching to use PulseAudio by default, and also because nothing is perfect (except freshly made doughnuts!) this page will lead you through a few tests and processes to check your pulseaudio installation is working properly.
+
+
+== Is Pulseaudio running? ==
+
+This is the software equivalent of the "is it turned on at the wall" question! You can run the command {{{ps aux | grep pulseaudio}}} to see if there is a pulseaudio process currently running (ignore the grep command if it shows up in the list returned!). If pulseaudio is not running, you can start it by running {{{pulseaudio -D}}}, although it is probably better to understand '''why''' it is not running. Different distributions start pulseaudio in different ways, and, as of v0.9.11, pulseaudio will actually autospawn itself whenever anything needs to make use of it. Typically, to start pulse at X11 login and keep it running (so it can detect removable, bluetooth and network sound devices), an XDG ''.desktop'' file is used to run the script {{{start-pulseaudio-x11}}}. Please ask your distro support group for more info if you are interested in the startup procedure.
+
+== Pulse is running but I hear no sound ==
+
+OK, so we know that pulseaudio is running, but when you play something, you don't hear anything. Let's start with the basics:
+ * If you have a desktop computer, are your speakers plugged in correctly to the (usually) green socket?
+ * Do the speakers still work? (try plugging in your mp3 player to test!).
+ * Do you have multiple sound cards, and have you tried the speakers in all of them to make sure you're using the device you think you are?
+
+I know the above may be simple and obvious sounding, but please do check this and don't skip this check as it can (and does) happen to the best of us!
+
+OK, so we know sound is physically capable of coming out of our speakers. Now you should run {{{pavucontrol}}} and check under the "Output Devices" tab to see if your sound hardware is listed there. If pulseaudio cannot open the hardware device on startup (e.g. due to the device being "hogged" by some other application), then it will automatically load a "NULL sink" for you. This appears to your applications like everything is working correctly but will silently discard all the audio data. This is done because many applications do not like it when sound hardware is not present in pulseaudio. If you find that the "Output Devices" tab shows only the automatic NULL sink, you need to debug what other applications are using your sound hardware on startup or find out why pulse cannot open your hardware. Running {{{fuser /dev/snd/*}}} may give some clues as to what applications are hogging things, and failing any information from this, you can run {{{pulseaudio -k; pulseaudio -vvv}}}. The lines beginning with {{{E:}}} specifically may give some clues.
+
+
+== Pulse is running and has loaded my devices ==
+
+OK, so let's test a few things. First things first, make sure you can hear sound output directly to ASLA. The easiest way to do this is with mplayer. Find some music track (e.g. an MP3 or Ogg file) and run {{{mplayer -ao alsa:device=hw=0 yourchosentrack.mp3}}}. This should play your track and bypass pulseaudio completely. If you still hear nothing then the problem is at the level below pulse.
+
+
+
+== I don't hear any output from sound applications ==
+
+Open a terminal and try playing a sound with {{{paplay}}}:
+
+{{{
+$ paplay /usr/share/sounds/generic.wav
+$ 
+}}}
+
+In case you don't see any error message and hear the sound,
+your applications need to be configured to use PulseAudio.
+See [Software/PulseAudio/Documentation/User/PerfectSetup#ThirdPartyApplications the relevant section in [[Software/PulseAudio/Documentation/User/PerfectSetup|Perfect Setup]]].
+
+If you neither get an error message, nor hear the sound, check volume settings.
+For pulseaudio, use {{{pavucontrol}}} utlity. For ALSA use {{{alsamixer -c 0}}}.
+
+{{{
+$ paplay /usr/share/sounds/generic.wav
+Connection failure: Connection refused
+$ 
+}}}
+
+This most likely means that [[Software/PulseAudio/Documentation/Users/Troubleshooting#Soundserverdoesnotrun|your pulseaudio server is not running]].
+
+== Sound server is not running ==
+
+Check that it is enabled to be started up in your desktop environment.
+See relevant sections of [[Software/PulseAudio/Documentation/User/PerfectSetup|Perfect Setup]] for [Software/PulseAudio/Documentation/User/PerfectSetup#GNOME GNOME]
+and [Software/PulseAudio/Documentation/User/PerfectSetup#KDE KDE]. Note that your OS distribution may already
+take care of this via dedicated packages.
+
+Look into logs for reason why might pulseaudio startup have failed:
+{{{
+# grep pulseaudio /var/log/messages
+}}}
+
+Try to launch pulseaudio manually with verbose output enabled:
+(the output might be valuable to troubleshoot a potential bug)
+
+{{{
+$ pulseaudio -vvv
+}}}
+
+If your output seems like following, you might not have permissions to access the sound device:
+
+{{{
+D: alsa-util.c: Trying front:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM front:0
+I: alsa-util.c: Couldn't open PCM device front:0: Invalid argument
+D: alsa-util.c: Trying surround40:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround40:0
+I: alsa-util.c: Couldn't open PCM device surround40:0: Invalid argument
+D: alsa-util.c: Trying surround41:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround41:0
+I: alsa-util.c: Couldn't open PCM device surround41:0: Invalid argument
+D: alsa-util.c: Trying surround50:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround50:0
+I: alsa-util.c: Couldn't open PCM device surround50:0: Invalid argument
+D: alsa-util.c: Trying surround51:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround51:0
+I: alsa-util.c: Couldn't open PCM device surround51:0: Invalid argument
+D: alsa-util.c: Trying surround71:0...
+ALSA lib conf.c:3949:(snd_config_expand) Unknown parameters 0
+ALSA lib pcm.c:2145:(snd_pcm_open_noupdate) Unknown PCM surround71:0
+I: alsa-util.c: Couldn't open PCM device surround71:0: Invalid argument
+D: alsa-util.c: Trying hw:0 as last resort...
+ALSA lib pcm_hw.c:1207:(_snd_pcm_hw_open) Invalid value for card
+E: alsa-util.c: Error opening PCM device hw:0: No such device
+E: module.c: Failed to load  module "module-alsa-sink" (argument: "device_id=0 sink_name=alsa_output.pci_8086_284b_sound_card_0_alsa_playback_0"): initialization failed.
+}}}
+
+Check the permission with {{{getfacl /dev/snd/*}}}.
