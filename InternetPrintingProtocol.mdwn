@@ -1,0 +1,54 @@
+
+The Internet Printing Protocol is maintained by IEEE Print Working Group [[http://www.pwg.org|PWG]] 
+
+
+## Statements from the PWG Website
+
+
+### About the PWG
+
+The Printer Working Group (or PWG) is a Program of the IEEE Industry Standards and Technology Organization (ISTO) with member organizations including printer and multi-function device manufacturers, print server developers, operating system providers and print management application developers. The group is chartered to make printers, multi-function devices, and the applications and operating systems supporting them work together better. 
+
+
+### The Internet Printing Protocol IPP
+
+The IPP working group has developed a modern, full featured network printing protocol which is now the industry standard. IPP allows a print client to query a printer for its supported capabilities, features, and parameters to allow the selection of an appropriate printer for each print job. IPP also provides job information prior to, during, and at the end of job processing. 
+
+The IPP working group remains active for the maintenance of IANA registrations and PWG/ISTO standards, and to support current and future work items. 
+
+
+## Color Management and IPP
+
+The IPP specs are targeted to use cases both with invisible color management in the background or alternatively the option to specify complex color management printing actions.  
+
+Members of the PWG are active at the OpenICC mailing-list for dicussion color management related topics of IPP.  
+
+
+### Open ICC E-mail posting from from  Paul Tykodi Co-Chair - PWG IPP Working Group
+
+PWG has only recently had to consider how to describe ICC Profiles within a workflow. The document that explicitly mentions them is the current working draft of the IPP: Job and Printer Extensions - Set 3 specification: [[ftp://ftp.pwg.org/pub/pwg/ipp/wd/wd-ippjobprinterext3v10-20110330.pdf|ftp://ftp.pwg.org/pub/pwg/ipp/wd/wd-ippjobprinterext3v10-20110330.pdf]] 
+
+All of the color information contained within the document is probably somewhat relevant to the discussions currently taking place here on the OpenICC list, however the particular section to review is titled 5.5.16 printer-icc-profiles (1setOf collection). 
+
+Generally PWG best practices advocate keeping the user intent separate from the actual document or data stream that contains the information to be processed or rendered. At this time, the place where I believe the PWG specifications could turn out to be helpful in supporting work on color management is with our core semantic model, which is maintained by the MFD Working Group. The Semantic Model describes an abstracted view of the different functions performed by either a multi-function device or single-function device using standardized terms. The benefit to the standardization of the terms is that both the senders and the receivers within a workflow can declare their intents with a minimum of confusion. 
+
+As an open standards body, the PWG welcomes comments and suggestions. Please feel free to contact us directly or participate in PWG working group mailing lists should you want to provide input on how best to describe ICC Profile usage within PWG specifications. 
+
+Thanks for your interest in our work. 
+
+
+### Open ICC E-mail posting from from  Mike Sweet, PWG-Chair
+
+For IPP Everywhere (which is one project of the Printer Working Group), we have a specific goal to define a baseline IPP implementation that supports "driverless" printing from any platform. In support of that goal we have a minimal raster format (PWG Raster, a subset of CUPS Raster), JPEG (since most cameras produce it), and full PDF (which is the only standard format likely to provide full engine speed on high-end laser printers). 
+
+PWG Raster includes standard color spaces - sRGB, sGray (a grayscale version of sRGB), and AdobeRGB - as well as device color spaces such as DeviceRGB, DeviceK, DeviceCMYK, and the full set of DeviceN spaces (1 to 15 components). Printers advertise the color spaces and bit depths they support via IPP attributes. 
+
+JPEG includes support for standard color spaces (sRGB and AdobeRGB) as well as embedded ICC profiles. I suspect we we require support for sRGB and AdobeRGB and recommend support for embedded ICC profiles. 
+
+PDF includes support for standard and arbitrary color spaces, and a printer that supports PDF must also support PDF color spaces and embedded profiles. 
+
+It would be accurate to say that we want to support a common standard color space for basic printing, but we also want to support a fully-color-managed workflow including color proofing. Right now the answer for a standard color space is sRGB, although for photo printing we are seeing a lot more AdobeRGB as well these days. 
+
+For client-side color management, all of the formats under consideration support pass-through of device color, and the "printer-icc-profiles" attribute in the JPS3 specification supports color proofing and client use of vendor (device) color profiles. 
+
+Rendering intent, regardless of profile or format, is handled using the "print-rendering-intent" set of attributes. Right now this is a simple list of values (keywords), but we definitely want to capture any relevant information needed for a color-managed workflow. 
