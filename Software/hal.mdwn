@@ -1,0 +1,94 @@
+
+
+# HAL - Hardware Abstraction Layer
+[[!table header="no" class="mointable" data="""
+ HAL [[is in maintenance mode|http://lists.freedesktop.org/archives/hal/2008-May/011560.html]] - no new features are added. All future development focuses on [[udisks|Software/udisks]], [[upower|http://upower.freedesktop.org/]] and other parts of the stack.  See [[Software/DeviceKit|Software/DeviceKit]] for more information. 
+"""]]
+
+These pages attempt to provide a specification and an implementation of a hardware abstraction layer.  
+ For a good background on what a HAL does, see the [["Making Hardware Just Work"|http://www.ometer.com/hardware.html]]  article that motivated this work. 
+
+[[Frequently Asked Questions|Software/HalFAQ]] 
+
+
+## Source Code
+
+* View latest code on-line: [[http://cgit.freedesktop.org/hal/tree/|http://cgit.freedesktop.org/hal/tree/]] 
+* View latest changelog/commitlog online: [[http://cgit.freedesktop.org/hal/log/|http://cgit.freedesktop.org/hal/log/]] 
+* Building development tree: [[HAL Build Instructions|Software/HalBuildInstructions]] 
+* Tarballs are available at [[http://hal.freedesktop.org/releases/|http://hal.freedesktop.org/releases/]] 
+
+### GIT
+
+Git is now being used for HAL.  There is a [[nice tutorial for using git with freedesktop.org projects|http://freedesktop.org/wiki/UsingGit]]. There is also another tutorial at [[IBM Developerworks site|http://www-128.ibm.com/developerworks/linux/library/l-git/]]. You can also take a look at [[http://cgit.freedesktop.org/hal/tree/HACKING|http://cgit.freedesktop.org/hal/tree/HACKING]]. 
+
+
+### hal-info
+
+hal-info is a small hal sub-package that provides the hardware data and quirks. These quirks are currently things like what mice support reporting battery status, what music players are supported and what cameras are detected. 
+
+hal-info and hal should not be packaged together. When packaging hal, it should depend on hal-info, of any version. hal-info should also be checked out in the same level directory as hal if you intend to use ./run-hald.sh 
+
+There are no official tarball releases yet, but you can get the latest code from [[git|http://cgit.freedesktop.org/hal-info/]] and release tar.gz from [[http://hal.freedesktop.org/releases/|http://hal.freedesktop.org/releases/]]. See [[here|http://hughsient.livejournal.com/6702.html]] for more information. 
+
+
+### Dependencies
+
+            * Linux kernel 2.6.19 (or later) 
+            * util-linux 2.15 (or later) 
+            * udev 125 (or later) 
+            * dbus 0.61 (or later) 
+            * glib 2.6.0 (or later) 
+            * expat 1.95.8 (or later) 
+            * bash 2.0 (or later) 
+            * hal-info 20070402 (or later) 
+
+#### Optional Dependencies
+
+            * libusb >= 0.1.10a 
+            * pciutils >= 2.2.3 
+            * dmidecode >= 2.7 
+            * parted == 1.7.1, 1.8.0, 1.8.1, 1.8.2 or 1.86 
+            * cryptsetup-luks >= 1.0.1 
+            * libsmbios >= 0.13.4 
+
+## Bugs?
+
+* [[Guide to reporting HAL bugs|Software/HalTraces]] 
+
+## Communicate
+
+* Mailing lists: 
+      * [[!table header="no" class="mointable" data="""
+HAL Discussion              | [[hal@lists.freedesktop.org|http://lists.freedesktop.org/mailman/listinfo/hal]]              
+HAL commit notification | [[hal-commit@lists.freedesktop.org|http://lists.freedesktop.org/mailman/listinfo/hal-commit]]
+"""]]
+
+* IRC: 
+         * [[#hal|http://freenode.net]] on freenode.net 
+
+## HOWTOs
+
+* [[Guide to using powermanagement quirks to fix resume|http://people.freedesktop.org/~hughsient/quirk/quirk-suspend-index.html]] 
+* [[Guide to using keymap quirks to fix unknown scancodes|http://people.freedesktop.org/~hughsient/quirk/quirk-keymap-index.html]] 
+
+## Documentation
+
+* [[Latest HAL specification|http://people.freedesktop.org/~david/hal-spec/hal-spec.html]] 
+* [["System Integration and GNOME|http://people.freedesktop.org/~david/talks/system-integration-and-gnome-guadec2006-davidz.odp]] by David Zeuthen (GUADEC June 2006) - ODF 
+* [["System Integration and GNOME|http://people.freedesktop.org/~david/talks/system-integration-and-gnome-guadec2006-davidz.pdf]] by David Zeuthen (GUADEC June 2006) - PDF 
+* [["HAL reverse engineered" (for OpenSolaris)|http://opensolaris.org/os/project/tamarack/hal_re.html]] by Artem Kachitchkine (April 2006) 
+* [["Adding encryption support to HAL: A user's experience with Fedora development" (Red Hat Magazine)|http://www.redhat.com/magazine/012oct05/features/hal/]] by W. Michael Petullo (October 2005) 
+* [["Desktop and Hardware Configuration" (Red Hat Magazine)|http://www.redhat.com/magazine/003jan05/features/hal/]] by David Zeuthen (January 2005) 
+* [["Making Hardware Just Work"|http://www.ometer.com/hardware.html]] by Havoc Pennington (July 2003) 
+
+## External Resources
+
+* [[libhal++|http://projects.backtrace.info/index.php/Main/HAL]]: C++ wrapper for libhal and libhal-storage. As of now not supported by the HAL project/developers: bug reports/requests please to internalerror AT gmail.com (M.Derezynski) 
+* libhal++ has now been superceded by HAL/C++, a reimplementation of libhal and libhal-storage in C++. The project can be found at the same server, [[HAL/C++|http://projects.backtrace.info/index.php/Main/Halmm]] 
+* [[gnome-mount|http://www.linuxfromscratch.org/blfs/view/svn/gnome/gnome-mount.html]] 
+
+
+---
+
+ [[CategoryHardware|CategoryHardware]] 
