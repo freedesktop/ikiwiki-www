@@ -1,0 +1,27 @@
+<<Include(Software/PulseAudio/TOC)>>
+<<Include(DevelopingModulesTOC)>>
+
+= Interface of `pa_modargs` =
+
+The module's raw argument string is stored in `pa_module`'s `argument` field.
+
+The arguments should be given as key-value pairs so that the pairs are separated with whitespace and the key and the value are separated with '='. The value can be enclosed in ticks (') or double quotes (").
+
+Since the arguments are given with the rules specified above, you should parse them using the same rules. Obeying the rules has the additional advantage that you can use ready-made utilities for the parsing task.
+
+I'll walk you through the interface, see [[http://www.pulseaudio.org/browser/branches/lennart/src/pulsecore/modargs.h|pulsecore/modargs.h]] for the complete but compact reference.
+
+== `struct pa_modargs` ==
+
+The `pa_modargs` structure's fields are not your concern, so they don't appear in the header file either. (`pa_modargs` is currently really a `pa_hashmap`, in case you're curious.)
+
+== Functions ==
+
+ `pa_modargs_new`::
+   This returns the arguments split to key-value pairs (at this point the values are just strings). You can use `pa_module`'s `argument` field as the first parameter. The second parameter is a NULL-terminated array of the argument keys your module accepts. If the user gives any argument key is that is unknown, `pa_modargs_new` returns NULL, as is the case with generally malformed arguments too.
+
+ `pa_modargs_free`::
+   The `pa_modargs` destructor.
+
+ `pa_modargs_get*`::
+   I think the comments in the header file are quite sufficient. The functions that return an `int` return 0 on success and -1 on failure. Documentation for `pa_channel_map` and `pa_channel_map_def_t` is available [[http://0pointer.de/lennart/projects/pulseaudio/doxygen/channelmap_8h.html|here]] and for `pa_sample_spec` [[http://0pointer.de/lennart/projects/pulseaudio/doxygen/sample_8h.html|here]].
