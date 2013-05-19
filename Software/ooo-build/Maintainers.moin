@@ -1,0 +1,92 @@
+<<TableOfContents>>
+
+= Webpages =
+
+== Updating the webpages ==
+
+The go-oo pages are served by freedesktop.org, and are version controlled in git.  To do modifications:
+
+{{{
+git clone ssh://git.freedesktop.org/git/ooo-build/website
+cd website
+# edit what you need, for example
+cd developers
+vim index.php
+php index.php > index.html
+# check carefully
+git diff
+# commit & push
+git commit -a
+git push
+# Now we have to pull on annarchy.
+# Pushing to the website repo is not enough, no auto update is implemented.
+ssh annarchy
+cd /srv/ooo-build.freedesktop.org/www
+git pull -r
+}}}
+
+Note: Most of the pages are in 2 versions - .php, and .html.  .php is the source - edit that one, do `php index.php > index.html`, do `git diff` to check the changes, and '''commit both'''.
+
+And - when you look at the local copy of the page in a browser, don't be surprised if it does not look well at all - the css files that make the pages pretty are not found.
+
+= ooo-build git =
+
+== Tagging a release ==
+
+When you want to tag a release, you have to first create the tag, and then push it:
+
+{{{
+# create a tag, signed by the GPG key you configured using git config user.signingkey
+git tag -s <tag-name>
+# push the tags to the remote repository
+git push --tags
+}}}
+
+You can also create the tag using another key (git tag -u <key-id> <tag-name>), or create an unsigned tag (git tag -a <tag-name>); though you should avoid the unsigned tags.
+
+<<Anchor(createbranch)>>
+== Creating a release branch ==
+
+When there's a particularly good reason for a branch, such as a MWS is moved to the maintenance mode and we want open master for further development, one of the core ooo-build hackers will follow something like this:
+
+{{{
+# the branch is usually created from a beta release tag
+# checkout the tag OOO_BUILD_I_J_K into the new branch ooo-build-X-Y-Z
+git checkout -b ooo-build-X-Y-Z OOO_BUILD_I_J_K
+# alternatively, you might do the branch from the current master
+#   git checkout -b ooo-build-X-Y-Z master
+# modify the message printed at the end of 'configure.in'
+vim configure.in
+>    This is ooo-build-2-0-4 - the stable branch for the 2.0.4 release.
+>    If you want to build something cool, unstable, and risky, use master.
+# commit the changes and use the comment:
+git commit -a
+>    Branch ooo-build-X-Y-Z (stable branch for OOo-X.Y.Z)
+>    
+>    * branch ooo-build-X-Y-Z
+> 
+>    based on ooo-build, version I.J.K, tag OOO_BUILD_I_J_K
+# push the branch
+git push origin ooo-build-X-Y-Z:ooo-build-X-Y-Z
+}}}
+
+And there might be some changes needed in the original tree (master) too.
+
+{{{
+# switch back to the master
+git checkout master
+# if it is an important branch, such as for a minor OOo version, add
+# a line to the message printed at the end of 'configure.in'
+vim configure.in
+>    ooo-build-X-Y-Z  branch for X.Y.Z
+# commit the changes
+git commit -a
+# push the changes
+git push
+}}}
+
+= opengrok =
+
+The whole opengrok install is in {{{/usr/local/share/opengrok}}}, and the data are dropped in {{{/var/opengrok}}}. The index update is run each night at 0:30, but ooo-build user can run the update with the {{{update-opengrok}}} command. In order to fix file descriptor leaks, the patches for bug [[https://defect.opensolaris.org/bz/show_bug.cgi?id=17127|17127]] and [[https://defect.opensolaris.org/bz/show_bug.cgi?id=16692|16692]] have to be applied on the WAR file content.
+
+The {{{/usr/local/share/opengrok/lib/source.war.orig}}} file has to be kept as the war file distributed by opengrok. All the patches to apply on it should be located in the {{{patches}}} folder of the opengrok installation. Generating the new war file is done by running {{{/usr/local/share/opengrok/bin/apply-fixes}}}: it will be named source.war and land in the {{{lib}}} folder of the opengrok installation.
