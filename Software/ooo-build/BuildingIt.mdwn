@@ -1,0 +1,176 @@
+
+[[!toc ]] 
+
+
+## Building ooo-build
+
+If you need to know how to check out the ooo-build sources, please refer to the [[GettingIt|Software/ooo-build/GettingIt]] page. 
+
+In general, your build process goes like this: 
+[[!format txt """
+cd ooo-build
+./autogen.sh --with-distro=<distro name>
+./download
+make 
+"""]]
+where the _<distro name>_ refers to one of the distros (meaning either a Linux distribution, or a Windows build) that ooo-build supports.  If you don't know which distro to use, just run `./autogen.sh` without any parameters, and you will get a list of available distros.  Alternatively, you can list the content of the `distro-configs/` subdirectory. 
+
+Picking a distro determines what patches get applied when the build process starts, per rules specified in the `patches/dev300/apply` file.  Please note that _some distros are more tested than others, and picking the name of the distro that matches yours does not necessarily guarantee buildability on that platform_.  As of this writing, openSUSE and Debian are the most tested platforms, so you are advised to pick one of the two if you want a smoother build experience.  If you can cope with fixing some build issues on your own, you are free to pick any platform of your choice. 
+
+When your build successfully finished, continue with the [[HackingIt|Software/ooo-build/HackingIt]] pages. 
+
+
+## Building for different purposes
+
+There are some tricks that help people do build for different purposes. 
+
+
+### Development
+
+Developers usually want to start with the last state of the sources and contribute their changes back. The best way is to use the cloned git repos and either mail or commit/push their modifications. 
+
+Active developers often use the last active branch (master or branch-in-rc-phase). Newbies should rather always use a branch because the build in master is sometimes broken on different distros. 
+
+The proposed workflow is: 
+
+1. get ooo-build master or branch; either annonymous or with write access 
+1. **./autogen.sh --with-distro=<distro name>** 
+1. **./download** 
+1. **make** 
+When they want to merge their changes with the last state they do: 
+
+1. **git pull -r**        #update ooo-build 
+1. **bin/g pull -r**   #update ooo source repositories 
+Tips: 
+
+* Use **--with-git=/path-to-another-clone-dir** to use another clone as a reference to avoid the huge download (FIXME: is the local copy really used just as a reference?) 
+
+
+### Packaging Test Builds
+
+Packagers need to get source tarballs. They must create them from the cloned repos if they want test something not-yet-released. 
+
+The proposed workflow is: 
+
+1. Do the step 1.-3. as normal developers 
+1. **cd /path-to-package-sources** 
+1. **ooo-pack-sources --inc-version /path-to-ooo-build-clone** 
+1. update **--with-tag=** configure switch to the new ooo-build tarball version; FIXME: this is ugly, confusing and should not be needed 
+1. do not forget to use **--without-git** configure switch in the package sources 
+1. build packages 
+When they want to test the very last commits, they need to do: 
+
+1. **git pull -r**        #update ooo-build 
+1. **bin/g pull -r**   #update ooo source repositories 
+1. repeat from the 2nd step as described above 
+Tips: 
+
+* if there are no changes in the ooo source repos; you might use **ooo-pack-sources --no-ooo-pieces** and force the old ooo source tarballs using **--with-source-version** configure switch 
+* you might unpack the non-patched sources into single directory using the script **ooo-unpack-sources** 
+
+### Packaging Released Version
+
+The released packages should be based on released tarballs. The git clone is not needed in this case. 
+
+The proposed workflow is: 
+
+1. download _ooo-build-<version>.tar.gz_ 
+1. **tar -xzf ooo-build-<version>.tar.gz** 
+1. **cd ooo-build-<version>** 
+1. **./autogen --with-distro --without-git** 
+1. **./download** 
+1. copy new files into package sources 
+1. udpate the package meta data (spec file...) 
+1. build packages 
+
+## Building on specific platforms
+
+
+### openSUSE
+
+Building ooo-build requires that you install many additional packages that the ooo-build depends on.  To install all dependent packages in one step, run  
+[[!format txt """
+sudo zypper si -d OpenOffice_org-bootstrap
+"""]]
+which should automatically resolve and install all packages necessary to build ooo-build.  Note the command `si`, which is short for `source-install`.  In connection with the `-d` option, this means _install all the build dependencies of the specified package, but do not install the package itself_. 
+
+After having installed all necessary packages, run the following: 
+[[!format txt """
+./autogen.sh --with-distro=SUSE
+./download
+make
+"""]]
+to get the build going.  When the build finishes, proceed to the [[HackingIt|Software/ooo-build/HackingIt]] page. 
+
+
+### Debian
+
+To install all *-dev packages necessary to build ooo-build Debian, run  
+[[!format txt """
+apt-get build-dep openoffice.org
+"""]]
+
+### Ubuntu
+
+Building ooo-build on Ubuntu is somewhat tricky, since no one builds it frequently enough to ensure buildability on Ubuntu, especially if you are building the master branch.  So, if you are building ooo-build on Ubuntu, be prepared to fix build issues on your own.  You will likely not receive much help in case you have trouble building it. 
+
+
+### Fedora
+
+It's hard to get help on building ooo-build on Fedora since no one is actively maintaining it on that platform.  Because of this, we normally advise you to pick a distro that actively packages and ships ooo-build.   
+
+Having said that, we don't anticipate too many build issues on Fedora since the upstream build is tested on Fedora on a regular basis.  And if you would like to step up and maintain ooo-build on Fedora on your own, we would encourage you to do that.  If you decide to do so, please don't forget to share your knowledge with the rest of the world by adding build tips in this section. 
+
+
+## Build tips
+
+If you are building on a multi-core CPU, consider using the **--with-num-cpus=<num>** configure option to enable parallel build in order to speed up the build time.  Usually, specifying twice the number of your cores will yield optimum build performance. 
+
+When you have more machines around, we also recommend that you use icecream to further speed up the build.  Please read [[Michael's blog post detailing how to set up icecream|http://people.gnome.org/~michael/blog/icecream.html]], and specify **--with-gcc-speedup=icecream** to the `autogen.sh` script.  In an ideal case (more cores, and more machines around), the following would be the best for you: 
+[[!format txt """
+./autogen.sh --with-distro=<distro name> --with-num-cpus=<number of cores> --with-gcc-speedup=icecream
+"""]]
+If nothing of the above fits, consider using at least ccache.  To do so, specify **--with-gcc-speedup=ccache** to the autogen.sh script. 
+
+
+## FAQ
+
+
+### Someone told me to disable a patch.  But how?
+
+Rules on what patches get applied under which distro configuration are all specified in the **patches/dev300/apply** file.  To disable a patch, _search for the name of the patch you want to disable, and comment it out by placing a '#' in front of it_. 
+
+So, let's way you are having trouble getting the patch named ubuntu-sparc-hack.diff to get applied, and someone told you to disable that patch.  The first thing you do is open up the apply file mentioned above, and search for 'ubuntu-sparc-hack.diff.  Let's suppose you find the patch listed as below: 
+[[!format txt """
+...
+ubuntu-lpi.diff, i#64895, mklose
+ubuntu-sparc-hack.diff, mklose
+human-icons-add.diff, mklose
+static-libs-use-_pic.diff, rengelha
+...
+"""]]
+Now put a '#' in front of the patch name to disable it, like so: 
+[[!format txt """
+...
+ubuntu-lpi.diff, i#64895, mklose
+#ubuntu-sparc-hack.diff, mklose
+human-icons-add.diff, mklose
+static-libs-use-_pic.diff, rengelha
+...
+"""]]
+Now the patch is disabled.  Re-run make and see if you can get past this patch that previously failed to apply. 
+
+
+### How do I know when the build is finished?
+
+When your build process stops with the following output (or something similar to it): 
+[[!format txt """
+No EPM: do no packaging at this stage
+
+Multiprocessing build is finished
+Maximal number of processes run: 8
+rmdir /tmp/NF3ohfIE53
+Build succeeded ...!
+touch stamp/build
+"""]]
+then your build has successfully finished.  Time to proceed to the [[HackingIt|Software/ooo-build/HackingIt]] page. 
