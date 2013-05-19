@@ -1,0 +1,43 @@
+
+The complete account request information is available on [[AccountRequests|AccountRequests]] page, here is a short version. 
+
+Create a bug on [[http://bugs.freedesktop.org|http://bugs.freedesktop.org]] for product "freedesktop.org", component "New Accounts", named "Request for account for ooo-build" containing the following information: 
+
+* real name 
+* email address 
+* preferred account name 
+* GPG public key 
+* RSA SSH public key 
+Add kendy at suse cz to the CC:, so that I can approve your request. 
+
+
+## GPG key
+
+If you don't have one yet, do: 
+[[!format txt """
+gpg --gen-key # choose default values everywhere it asks you anything
+gpg --keyserver subkeys.pgp.net --send-keys 0xTHEIDENTIFICATION # to send it to the server
+gpg --export -a <your email address> # that's what you should send me
+"""]]
+**And keep your private key secure!** 
+
+We also need you to be reasonably connected to the GPG network, so please find someone who can sign your key - you'll probably have to do this in person. 
+
+
+## RSA SSH key
+
+You probably want to have a special key for the freedesktop.org account.  To create it: 
+[[!format txt """
+ssh-keygen -t rsa -f ~/.ssh/yourname-fdo
+# send ~/.ssh/yourname-fdo.pub to me
+# edit your ~/.ssh/config to contain:
+Host *.freedesktop.org
+    User yourusername
+    IdentityFile ~/.ssh/yourname-fdo
+"""]]
+**And keep your private key secure!** 
+
+
+## Further maintenance
+
+See [[AccountMaintenance|AccountMaintenance]]. 
