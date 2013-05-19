@@ -1,0 +1,17 @@
+##META:TOPICINFO{author`"JimGettys" date`"1069036004" format`"1.0" version`"1.3"}%
+##META:TOPICPARENT{name="xlibs"}%
+== Xlib ==
+
+There are quite a few projects needed to help out Xlib.
+
+These include:
+	* Hiding unused internal Xlib symbols.
+	* Replacing of the core library by a more modern equivalent , e.g. [[http://xcb.freedesktop.org/|XCB]]; this would be much easier if we:
+	* Separate unused parts into separate libraries (possibly hiding this by dynamic loading and/or versioned symbols.  For example CMS isn't used by much of anything.  Preliminary work has been done to allow people (particularly on embedded systems) to configure out CMS, local support, and Xkb support, with an over 600K savings.  But the rest could/should be done, as on desktops (some of) these may be needed for particular toolkits.
+	* convert the locale code to use iconv - this would save over 1/4 megabytes on everyone's machine.
+	* Signalling loss of connections to applications, to enable smooth  migration of applications and/or sessions. Main.JimGettys is about 2/3's through doing this - but the testing is an interesting open challenge.
+	* Demacrofication of internal locking inside the library.  This would certainly save space and probably improve performance (due to smaller cache footprint).  But may not be worth doing: quick tests is that it would save only 25K, and require alot of source changes.
+	* Convert the documents from troff and other formats to docbook so they are modern and work well with the rest of modern Linux documentation.  Esr has  tools he is testing out; but the docs actually have to get converted. More information about the [[http://catb.org/~esr/doclifter/|doclifter tool]] is available on Eric's website.
+
+
+-- Main.JimGettys - HP Labs - 15 Nov 2003
