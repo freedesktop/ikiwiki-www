@@ -1,0 +1,92 @@
+<<TableOfContents>>
+
+== Before you start ==
+
+Before you do any git work, please don't forget to setup your name and email:
+{{{
+git config --global user.email "your@email.address.com"
+git config --global user.name "Your Name"
+git config --global user.signingkey "0xKEY-ID"
+}}}
+
+If you want to setup these settings only for the ooo-build repository, you can omit the --global.
+
+We also recommend the following settings:
+{{{
+# implemented in git 1.6.3 and higher
+git config --global push.default tracking
+}}}
+
+== git equivalents of the SVN commands ==
+
+Please note that the git workflow is not completely 1:1 to SVN workflow thanks to the fact that the commits happen locally, and you have to additionally push the changes to the remote repository so that the changes are visible there - that's why I add ''git push'' in the table below everywhere it is necessary in order the changes appear in the remote repository.
+
+Generally though, it is usually better not to hurry with pushing the changes, and check eg. ''git log -p'' before you do that.
+
+||<:10%> '''What''' ||<:45%> '''How you used to do it in SVN''' ||<:45%> '''How you do it now in git''' ||
+|| Getting the repository (anonymous) || svn checkout http://.../trunk ooo-build || git clone git://anongit.freedesktop.org/git/ooo-build/ooo-build ||
+|| Getting the repository || svn checkout svn+ssh://.../trunk ooo-build || git clone ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build ||
+|| Getting a fresh branch || svn checkout svn+ssh://.../branches/ooo-build-3-0-1 || git clone ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build ooo-build-3-0-1<<BR>>cd ooo-build-3-0-1<<BR>>git checkout -t origin/ooo-build-3-0-1<<BR>>git branch -D master<<BR>># '''NOTE:''' If you already have any clone of the repository, use git clone ''--reference <the-repository>'' ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build to save bandwidth. ||
+|| Switching the repository to a branch || svn switch svn+ssh://.../branches/ooo-build-3-0-1 || git checkout ooo-build-3-0-1 ||
+|| Getting new changes || svn up || git pull -r ||
+|| Committing & publishing the changes || svn commit || git commit -a ; git push ||
+|| Adding files || svn add file1 file2 ; svn commit || git add file1 file2 ; git commit ; git push ||
+|| Removing files || svn rm file1 file2 ; svn commit || git rm file1 file2 ; git commit ; git push ||
+|| Moving files || svn mv source dest ; svn commit || git mv source dest ; git commit ; git push ||
+|| Copying files || svn cp source dest ; svn commit || cp source dest ; git add dest ; git commit ; git push ||
+|| Checking history of changes || less !ChangeLog (or svn log | less) || git log ||
+|| Checking status || svn status || git status ||
+|| Differences || svn diff || git diff ||
+|| Tagging a release || svn cp svn+ssh://.../trunk svn+ssh://.../tags/<tag-name> || git tag -s <tag-name > ; git push --tags ||
+|| Reverting uncommitted changes || svn revert || git checkout -f # everything<<BR>>git checkout file1 file2 fileN # just the selected files<<BR>># for committed, but not yet pushed changes see ''What if I committed something wrong'' in [[Software/ooo-build/GettingIt|GettingIt]] ||
+
+== ChangeLog ==
+
+No !ChangeLog is necessary in the git tree, it would just duplicate the information that you already have locally anyway.  Due to that, please be careful and provide nice commit messages, like:
+{{{
+First line roughly describing the change.
+
+Leave one empty line, and then follow with more detailed description
+what and why you changed.  It is really important to provide a good
+description on the first line, because some of the git tools (like
+gitk, git log --pretty=oneline, git rebase --interactive, etc.) show
+just the first line.  Also we don't have a ChangeLog any more, so
+git log is now your source of the information about the changes.
+
+Please do not forget to mention the bugzilla numbers, like i#12345 or
+bnc#234567.
+
+* file1: Did this and that.
+* file2: And something else here.
+}}}
+
+The commit hooks that get installed when you do ./autogen.sh should help you to create good commit messages.
+
+<<Anchor(example)>>
+== Example git session ==
+
+{{{
+# it is our first session, we have to clone the repository
+git clone ssh://[username@]git.freedesktop.org/git/ooo-build/ooo-build
+# develop something, now commit it
+git commit -a
+# continue developing, and commit it
+git commit -a
+# it is finished, patches apply, everything builds, let's check that we did not
+# forget uncommitted changes
+git status
+# looks fine, let's double check the diff
+git log -p
+# everything is perfect, let's push to the remote repository
+git push
+# oh, it failed! - somebody committed some changes in the meantime, let's update
+git pull -r
+# double check
+git log -p
+# everything is fine
+git push
+}}}
+
+== More info ==
+
+See [[Software/ooo-build/GettingIt]].
