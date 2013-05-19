@@ -1,0 +1,111 @@
+##META:TOPICINFO{author`"HeinrichWendel" date`"1091570847" format`"1.0" version`"1.6"}%
+##META:TOPICPARENT{name="xorg"}%
+
+== Introduction ==
+
+The debrix project is for work on making the X.Org X Server use automake and friends, and may be used for X.org development that's likely to require GDB (such as new integration work like Composite merging). It's in an arch repository hosted by daniels. You should get baz from your distribution or ''[[http://bazaar.canonical.com/|Download baz]]'' and follow the instructions below on how to to check out the repository.
+
+First, introduce yourself to arch, substituting your name/mail. You should need to do this if you will be committing code changes:
+
+{{{
+baz my-id "First M. Last <my@email.com>"
+}}}
+
+== Checking out an arch repository ==
+ 
+Tell baz about daniels's repository:
+{{{
+baz register-archive daniel@fooishbar.org http://arch.fooishbar.org/daniel@fooishbar.org
+}}}
+
+'''Note:''' ''Some users may get "webdav error: Could not resolve hostname `arch.fooishbar.org': Host not found"'' 
+
+To correct this, edit your /etc/hosts and add line:
+
+195.54.228.42  arch.fooishbar.org
+
+Check out the debrix Xserver, and drivers:
+
+{{{
+baz get -A daniel@fooishbar.org debrix--devel--0.1
+baz get -A daniel@fooishbar.org debrix-driver-ati--devel--0.1
+baz get -A daniel@fooishbar.org debrix-input-keyboard--devel--0.1
+baz get -A daniel@fooishbar.org debrix-input-mouse--devel--0.1
+}}}
+
+Change directory to the repository of your choice if you want to build it:
+ie, cd debrix--devel--0.1
+
+'''Note:''' ''Currently only the ATI driver, keyboard, and mouse driver are split from the monolithic tree and work with debrix.''
+
+If you want to see if there have been code changes in the repository, just run:
+{{{
+baz update
+}}}
+
+== Mirroring an arch repository ==
+
+You may want to make a mirror of daniels's repository, so you can look through revisions while you're on the plane. If so, then do the following.
+{{{
+baz register-archive daniel@fooishbar.org-SOURCE http://arch.fooishbar.org/daniel@fooishbar.org
+baz make-archive --mirror-from daniel@fooishbar.org-SOURCE /home/someone/arch/debrix
+baz archive-mirror daniel@fooishbar.org
+baz get -A daniel@fooishbar.org debrix--devel--0.1
+baz get -A daniel@fooishbar.org debrix-driver-ati--devel--0.1
+baz get -A daniel@fooishbar.org debrix-input-keyboard--devel--0.1
+baz get -A daniel@fooishbar.org debrix-input-mouse--devel--0.1
+}}}
+
+== How to setup a local branch ==
+
+One of the cool features of baz is that you can easily set up a local branch of the upstream archive.
+To do this, it's a good idea to first mirror daniels's archive locally as described above.
+Then create you own local archive which is a bit like a local !CVS repository. When you make your archive, please please [[http://wiki.gnuarch.org/moin.cgi/Signing_20Archives|sign your archive with GnuPG]].
+
+The example below checks out all of the debrix repositories. This will create a branch for each in your local archive and tag the upstream branch into them. When you commit to your local branch, your commit logs will show your name as set by 'baz my-id`:
+
+{{{
+baz my-id "First M. Name <myemailname@email.com>"
+baz register-archive http://arch.fooishbar.org/daniel@fooishbar.org
+baz make-archive myemailname@email.com /home/someone/arch/debrix
+baz my-default-archive myemailname@email.com
+
+cd /some/location/for/sources 
+
+baz get daniel@fooishbar.org/debrix--devel--0.1 debrix && cd debrix &&
+baz branch debrix--myemailname--0.1 && cd ..
+
+baz get daniel@fooishbar.org/debrix-driver-ati--devel--0.1 debrix-driver-ati &&
+cd debrix-driver-ati && baz branch debrix-driver-ati--myemailname--0.1 && cd ..
+
+baz get daniel@fooishbar.org/debrix-input-keyboard--devel--0.1 debrix-input-keyboard && 
+cd debrix-input-keyboard && baz branch debrix-input-keyboard--myemailname--0.1 && cd ..
+
+baz get daniel@fooishbar.org/debrix-input-mouse--devel--0.1 debrix-input-mouse && 
+cd debrix-input-mouse && baz branch debrix-input-mouse--myemailname--0.1 && cd ..
+}}}
+
+At this point you can check out your local branch and start hacking
+
+{{{
+baz get debrix--myemailname--0.1 mydebrix-current
+baz get debrix--driver-ati--myemailname--0.1 mydebrix--ati-current
+baz get debrix--input-keyboard--myemailname--0.1 mydebrix--keyboard-current
+baz get debrix--input-mouse--myemailname--0.1 mydebrix--mouse-current
+}}}
+
+If you want to merge in changes from the upstream branch use the star-merge command from the mydebrix-current directory: 
+
+{{{
+baz star-merge daniel@fooishbar.org/debrix--devel--0.1
+}}}
+
+You can do this for all the other modules checked out as well.
+
+== Resources/How to get involved ==
+
+'''Note:''' ''This project needs your help. You can find out more information on the xorg''[[http://xorg.freedesktop.org/wiki/XorgMailingLists|MailingLists]] ''The mailing list for debrix is xorg.
+
+You can also help by coming on IRC to '''irc.freenode.net''', ''channel'' '''#xorg-devel''' ''to get started!''
+
+More info about local branches can be found in the [[http://gnuarch.org/tutorial/html/elementary-branches.html#Elementary''Branches''--''Maintaining''Private''Changes|tla tutorial]].  The [[http://gnuarch.org/tutorial/html/shared-and-public-archives.html#Shared''and''Public''Archives|section on mirroring]] is useful if you want to share your local branch.
