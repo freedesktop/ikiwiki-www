@@ -1,0 +1,30 @@
+##META:TOPICINFO{author`"JameySharp" date`"1066859332" format`"1.0" version`"1.1"}%
+##META:TOPICPARENT{name="XCBToDo"}%
+There are currently two modules in CVS, `xcb` and `xcl`, with this structure.
+
+<pre>
+xcb
+xcb/doc
+xcb/src
+xcb/test
+xcl
+xcl/doc
+xcl/src
+</pre>
+
+In anticipation of someday integrating XCB and XCL into the XFree86 source tree, and to fix some build system bugs, these should be merged into a single CVS module, as follows.
+
+<pre>
+xcb/src -> xcb/lib/XCB
+xcl/src -> xcb/lib/XCL
+xcb/doc -> xcb/doc/specs/XCB
+xcl/doc (delete)
+xcb/test -> xcb/programs/xcbtests
+</pre>
+
+There is one exception: `xcb/test/hypnomoire.c` should be moved to `xcb/programs/hypnomoire/hypnomoire.c`.
+
+With the existing files in their new locations, the Imakefiles should be edited so that all the code builds again. The Imakefiles should be almost right where they exist, and should provide plenty of examples for any new Imakefiles that need to be created.
+
+-- Main.JameySharp - 01 Mar 2003
+
