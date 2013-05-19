@@ -1,0 +1,127 @@
+
+
+# How to startup Cygwin/X
+
+
+## Local usage
+
+
+### single clients
+
+Startup XWin 
+[[!format txt """
+XWin :0 -clipboard -multiwindow
+"""]]
+Start xterm 
+[[!format txt """
+DISPLAY=:0.0 xterm
+"""]]
+
+### Complete desktop
+
+Install [[KDE|http://kde-cygwin.sf.net]] or [[Gnome|http://cygnome.sf.net]] on cygwin 
+
+Startup XWin 
+[[!format txt """
+XWin :0 -clipboard
+"""]]
+Start KDE 
+[[!format txt """
+DISPLAY=:0.0 startkde
+"""]]
+Start Gnome 
+[[!format txt """
+DISPLAY=:0.0 gnome-session
+"""]]
+**Note:** This has not been tested. Check the pages mentioned above what they advise. 
+
+
+### use startx
+
+
+[[!format txt """
+startx /opt/gnome/bin/gnome-session -- :0 -clipboard
+"""]]
+
+## Remote usage
+
+
+### single clients
+
+The examples assumes you want to start `xterm` from the remote host `linuxserver` 
+
+Startup XWin 
+[[!format txt """
+XWin :0 -clipboard -multiwindow
+"""]]
+Use OpenSSH to connect to the remote host and start xterm 
+[[!format txt """
+DISPLAY=:0.0 ssh -f -Y linuxserver xterm
+"""]]
+**Commands explained** 
+[[!table header="no" class="mointable" data="""
+**command** | **description**
+XWin | Cygwin/X binary
+:0 | Display number
+-clipboard | Start with clipboard support
+-multiwindow | Show every X11 window in its own window
+ 
+DISPLAY=:0.0 | Tell which xserver to use. This matches with the display number from server startup
+ssh | Start OpenSSH
+-f | Do not show a remote shell. Just start the program
+-Y | Tunnel the X11 protocol in the ssh connection
+linuxserver | Name of the remote host
+xterm | Program to start. Just as you would start it locally
+"""]]
+
+
+### Complete desktop
+
+Startup XWin 
+[[!format txt """
+XWin :0 -clipboard
+"""]]
+Connect via OpenSSH and start KDE 
+[[!format txt """
+DISPLAY=:0.0 ssh -f -Y linuxserver startkde
+"""]]
+Connect via OpenSSH and start Gnome 
+[[!format txt """
+DISPLAY=:0.0 ssh -f -Y linuxserver gnome-session
+"""]]
+**Commands explained** 
+[[!table header="no" class="mointable" data="""
+**command** | **description**
+XWin | Cygwin/X binary
+:0 | Display number
+-clipboard | Start with clipboard support
+  | Here we omit the -multiwindow switch since we want the whole desktop to be displayed in one window
+ 
+DISPLAY=:0.0 | Tell which xserver to use. This matches with the display number from server startup
+ssh | Start OpenSSH
+-f | Do not show a remote shell. Just start the program
+-Y | Tunnel the X11 protocol in the ssh connection
+linuxserver | Name of the remote host
+startkde | Startup program for the desktop environment. You can use .xinitrc too. This will behave as if you had run startx locally
+"""]]
+
+
+### Use startx
+
+
+[[!format txt """
+startx /usr/bin/ssh -f -Y linuxserver startkde -- :0 -clipboard
+"""]]
+**Commands explained** 
+[[!table header="no" class="mointable" data="""
+**command** | **description**
+startx | program which starts the xserver and the xclients
+/usr/bin/ssh -f -Y linuxserver startkde | The client to start. Basicly the same as above
+-- | Tell startx that server options follow
+:0 -clipboard | Options for XWin
+"""]]
+
+
+### Problems
+
+If you get a message like `Could not open display` then check the [[FAQ|http://x.cygwin.com/docs/faq/cygwin-x-faq.html#q-ssh-no-x11forwarding]] about X11Forwarding 
