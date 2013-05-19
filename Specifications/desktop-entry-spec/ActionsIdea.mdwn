@@ -1,0 +1,60 @@
+
+
+# The problem
+
+There are a number of actions that can be performed by many different applications that a desktop user might want to choose a default application for. 
+
+Which program should be used to play CD's, which program should open webpages, etc. 
+
+Gnome currently has two programs to configure this: **gnome-volume-properties** and **gnome-default-applications-properties** 
+
+
+### gnome-volume-properties
+
+This program has no dropdown-menus, no idea about which programs are installed (?) and it is hard for all users to know if they should use %m or %d (and what they mean!) 
+
+
+### gnome-default-applications-properties
+
+This program tries to figure out which programs are installed from a hardcoded list and let's the user choose between those. It also allows the user to type a custom command. 
+
+
+# Actions
+
+
+### List of actions from the two programs above
+
+* Browse Web 
+* Read Email 
+* Play Multimedia 
+* Open Terminal 
+* Read Screen 
+* Play Audio CD 
+* Play DVD 
+* Manage Music Player Device 
+* Import Photos 
+* Edit Video 
+* Scan Image 
+
+# The solution
+
+
+## Idea 1: new properties in .desktop files
+
+Add something like 
+
+X-Action-[[BrowseWeb|BrowseWeb]]=firefox %s 
+
+to the .desktop files. 
+
+This would then be used by the appropriate settings programs to present a list of available applications to the user to choose from. 
+
+
+## Idea 2: depend on mime types
+
+Some of these actions have corresponding mime types, and fake/new mime types could be added to the .desktop-files which the appropriate settings programs would use to present a list of available programs to the user. 
+
+However, this would not allow the programs to specify in which way they should be called. 
+[[!table header="no" class="mointable" data="""
+ Browse Web  |  text/html 
+"""]]
