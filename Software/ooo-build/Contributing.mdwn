@@ -1,0 +1,268 @@
+
+[[!toc ]] 
+
+
+## How to contribute code or translations
+
+When you have developed something, you might want to see your changes included in ooo-build.  To be able to do so, you need to have a clone of the ooo-build repository - please check the [[GettingIt|Software/ooo-build/GettingIt]] pages - but you probably already have that. 
+
+Then just [[commit your changes|Software/ooo-build/Contributing]] to your local repository, and either [[mail the changes|Software/ooo-build/Contributing]] to [[ooo-build@lists.freedesktop.org|mailto:ooo-build@lists.freedesktop.org]] if you don't have the write access to the repository, or [[push them|Software/ooo-build/Contributing]] if you have it. 
+
+<a name="committhechanges"></a> 
+## Committing the changes
+
+With git, committing happens locally; you have to push your commits later so that they appear in the remote repository. 
+
+You probably want to use any of the following forms of committing 
+[[!format txt """
+# commit all the changed or removed files
+git commit -a
+# commit the specified files
+git commit file1 file2 file3 ... fileN
+# first mark the files that you want to commit, then commit them
+git add file1 file2 file3 ... fileN
+git commit
+"""]]
+Of course, there's also the usual: 
+[[!format txt """
+git rm file1 file2 # remove file
+git mv source dest # move file
+git commit         # commit the removes/moves
+"""]]
+Note that there is no _git cp_ - git detects the history for file moves/copies after the fact, so you should be OK with only using 
+[[!format txt """
+cp file1 file2
+git add file2
+git commit
+"""]]
+The commit logs should have the following form: 
+[[!format txt """
+First line roughly describing the change.
+
+Leave one empty line, and then follow with more detailed description
+what and why you changed.  It is really important to provide a good
+description on the first line, because some of the git tools (like
+gitk, git log --pretty=oneline, git rebase --interactive, etc.) show
+just the first line.  Also we don't have a ChangeLog any more, so
+git log is now your source of the information about the changes.
+
+Please do not forget to mention the bugzilla numbers, like i#12345 or
+bnc#234567.
+
+* file1: Did this and that.
+* file2: And something else here.
+"""]]
+You can leave out the '* file: Did this and that' part if the general description is descriptive enough, or leave out the general description, if you store all the info in '* file: XYZ' part, but please never ever forget to provide a good first line. 
+
+The commit hooks that get installed when you do ./autogen.sh should help you to create good commit messages. 
+
+<a name="mailthechanges"></a> 
+## Mailing the changes
+
+If you do not have the write permissions [yet ;-)], just develop like if you had one & commit the stuff to your local repository.  Then instead of 'git push' please mail the results of 
+[[!format txt """
+# if you are on the branch 'master', and want to mail the commits done there
+git format-patch origin/master
+# more verbose version, when you want to eg. mail changes committed on branch ooo-build-3-1
+git format-patch origin/ooo-build-3-1..ooo-build-3-1
+"""]]
+to the [[dev@lists.go-oo.org|mailto:dev@lists.go-oo.org]] mailing list.  One of the developers with the write access will review, and push them for you using 
+[[!format txt """
+# apply the patches from the mailing list
+git am 0001-the-first.patch 0002-the-second.patch 0003-the-third.patch
+# check them briefly
+git log
+# check them better
+git log -p
+# push
+git push
+"""]]
+<a name="pushthechanges"></a> 
+## Pushing the changes
+
+If you have write permissions to the remote repository, and want to publish your changes, push them to the repository using 
+[[!format txt """
+git push
+"""]]
+When it fails because somebody else has pushed something, update your repository using 
+[[!format txt """
+git pull -r
+"""]]
+as already described above.  Again, **don't forget the -r**! 
+
+_Note: If you used just 'git pull' instead of 'git pull -r' accidentally, you can still fix that by re-running **git pull -r**.  There is also a hook that warns about the plain 'git pull' usage, and instructs you what to do._ 
+
+_Note2: You might get warnings during git push when you have multiple branches to push in your repository (which happens when you eg. did not delete the master branch though it is recommended in 'Getting a particular branch').  These are just warnings, but if do not want to get them, use the full form of git push:_ 
+
+
+[[!format txt """
+# let's push just the branch 'ooo-build-3-0-1'
+git push origin ooo-build-3-0-1
+"""]]
+
+## What if I committed something wrong
+
+If you did not push it yet, all is fine.  Just use 
+[[!format txt """
+git rebase -i origin/master
+# [this supposes you are in the 'master' branch; for ooo-build-3-0-1
+# you would use origin/ooo-build-3-0-1]
+"""]]
+and edit the history.  The use of origin/master as the starting commit decreases the probability that you'll do something wrong. 
+
+'git rebase -i' presents you with a list of the commits and a small help; you can let the commit as it is, move it up/down, remove it, squash it together with the previous commit(s), or edit it. 
+
+After you save the list, each time there is a conflict, or when rebase finds a commit to edit, you get a shell, do your changes, _git add the.txt changed.txt files.txt_, and _git rebase --continue_.  After few iterations, and with a bit of luck, all will be as good as you wanted. 
+
+**However - if you pushed your changes already, don't you try to rebase them!  You have to commit the fixes and push them as completely new stuff.** 
+
+
+## Introducing a change in more branches
+
+To get commits from other branches, please use 
+[[!format txt """
+git cherry-pick <commit-id>
+"""]]
+It will take the changes introduced in <commit-id>, and commit them in the current branch. 
+
+We may allow full merges from other branches in the future, but so far we do not consider it safe on the branches automatically converted from the SVN. 
+
+
+## Managing translations (info for translators)
+
+_ooo-build_ includes two different .po files: 
+
+* _ooo-build/po/<lang>.po_ - used for the desktop menu entries in _ooo-build/desktop/*_; they are processed the GNOME way using the _intltools_ and are applied directly during the build 
+* _ooo-build/po/ooo-build-<lang>.po_ - used for new or modified strings from ooo-build patches; they are based on _ooo-build/po/ooo-build.pot_ file; they are not used directly during build but the _ooo-build-<lang>.sdf_ files are used instead; the _sdf_ files can be regenerated by the command: **make update-sdf**. 
+Translators need not take care of .pot or .sdf files. They are regenerated by ooo-build developers when necessary (before release). Any new or updated .po file can be either pushed directly to ooo-build (in case you have the fd.o account) or mailed to the mailing list. See [[Mailing the changes|Software/ooo-build/Contributing]] section on how to do it. 
+
+See also _ooo-build/po/README_. 
+
+
+## Managing patches
+
+ooo-build itself is in git - but as a set of patches, not the patched OOo sources themselves.  Working with patches is unfortunately not too straightforward and needs some training. 
+
+The patches are located in the `patches/` subdirectory, like `patches/dev300/`.  Additionally, there is a so-called `apply`-file, that defines which patches should be applied, and in what order. 
+
+
+### Patch name
+
+The patches in `patches/*/` should follow these conventions: 
+
+* They are required to have a `.diff` suffix (not '.patch') 
+* When there is more patches to implement one feature, we suggest a pattern like `<theme>-short-fix-description.diff`, where the _<theme>_ is eg. _warnigns_, _unittesting_, _speed_, etc. 
+* We suggest a pattern like `<module>-short-fix-description.diff` when the patch modifies only one source _<module>_, like _vcl_, _svx_, _sd_ 
+* A name like `cws-<name>.diff` should be used for CWS backports 
+* `short-fix-description.diff` is enough otherwise 
+
+### Patch format
+
+The patches are to be applied in the top source directory (eg. `build/ooo320-m12`) with `-P0`, so the content of the patch should look like the following: 
+[[!format txt """
+--- jvmfwk/plugins/sunmajor/pluginlib/gnujre.cxx.old    2007-08-10 17:32:26.0000
++++ jvmfwk/plugins/sunmajor/pluginlib/gnujre.cxx        2007-08-16 22:40:42.0000
+@@ -78,6 +78,7 @@ char const* const* GnuInfo::getJavaExePa 
+...
+"""]]
+
+### Patch location
+
+Most patches are located in `patches/dev300`, which follows the up-stream notion of _Master Workspace (MWS)_ - dev300 means the main development branch.  Bigger groups of patches might have their own thematic directory though.  For example: 
+[[!format txt """
+patches/dev300/sc-save-split-view.diff
+patches/dev300/warning-return-values-filter.diff
+
+patches/vba/vba-something-cxx.diff
+patches/vba/vba-something-hxx.diff
+"""]]
+
+### The apply file
+
+ooo-build allows to sort the patches into groups and apply them conditionaly by _distributions_. Therefore, each patch has to be mentioned in the right _section_ in the _apply file_. This file is usually located in the MWS-specific directory, these days mostly _patches/dev300/apply_.  The patch entry might look like: 
+[[!format txt """
+[ CalcFixes ]
+# Support Hungarian localized keywords for CELL and INFO functions.
+sc-celltrans-hungarian-keywords.diff, i#80299, kohei
+# Fix saving split-view information on 64-bit platforms.
+sc-save-split-view.diff, n#235131, i#81936, jonp
+"""]]
+The form is _name-of-the-patch.diff, <issue-number>, <developer-name>_.  Please do not forget to mention this information, it is necessary for further tracking. 
+
+NB. the patches are applied in the order in which they are listed in the apply file. If there are conflicts between the patches, it might be necessary to split a section, like: 
+[[!format txt """
+[ Fixes ]
+# make unzip command not ask when overwriting files
+unzip-command.diff, i#81087, fridrich
+
+[ CalcFixes ]
+#fix import filter for userforms with calc specific data ( rowsource ) 
+svx-filter-userform-rowsource.diff, i#73753
+
+[ Fixes ]
+# edit fields text displaying
+svx-sdrobjeditview-update-edit-area.diff, n#305205, rodo
+"""]]
+
+## Managing patches using git
+
+You can use `git` to do same of the heavy lifting for you, by adding a local git tracking of the patched OOo sources, like: 
+[[!format txt """
+make patch.apply
+cd build/oooABC-mXY
+git init
+../../bin/create-gitignores.sh
+# if you want to track just the 'sc' project
+git add sc
+# or instead track everything
+git add .
+git commit -m "initial"
+"""]]
+
+### Creating a new patch
+
+Now you can create a new patch like this: 
+[[!format txt """
+cd build/oooABC-mXY
+# create a branch for the development
+git checkout -b tempbranch
+# modify the file, eg sc/blah/bleh.cxx
+# and commit it
+git add sc/blah/bleh.cxx
+git commit
+# edit something else, commit, etc.
+# create the patch
+git diff --no-prefix master tempbranch > ../../patches/dev300/blah.diff
+# now switch back to master
+git checkout master
+# and add the patch to ../../patches/dev300/apply (as described below)
+"""]]
+
+### Update an existing patch
+
+To update an existing patch, you'll probably want to do something like this: 
+[[!format txt """
+# create a temporary branch
+cd build/oooABC-mXY
+git checkout -b tempbranch
+# unapply the patch
+patch -p0 -R < ../../patches/dev300/blah.diff
+# commit the revert
+git commit -am revert
+# apply the patch again to be able to edit it
+patch -p0 < ../../patches/dev300/blah.diff
+# edit it, commit the changes
+# when you are happy, find the commit id of the 'revert' commit
+git log
+# generate the patch
+git diff --no-prefix id-of-the-revert-commit > ../../patches/dev300/blah.diff
+# switch back to master
+git checkout master
+"""]]
+To remove the git tracking : 
+[[!format txt """
+rm -rf .git
+"""]]
+You can also think of more fancy use of git, like having a master branch for applying the patches, and other branches to track history of development you are doing, or use it to actually edit existing patches, to merge patches, etc. 
+
+Some people prefer stacked git (stg) over plain git when juggling with patches, after the initial `git init; git add .; git commit -a` do a `stg init` - and read the nice manual page. 
