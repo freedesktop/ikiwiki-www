@@ -1,0 +1,34 @@
+= Feature Notes for Major Revisions =
+
+This page lists the major changes that happened between different major versions of D-Bus. 
+
+== 1.0.x to 1.2.x (including 1.1.20) ==
+ * Features
+  * The system bus now supports starting services on demand. This uses a setuid helper program because system bus daemon runs as a nobody user, while services it launches may need to run as a different user.
+   * A design doc is available in doc/system-activation.txt
+  * The TCP address format has been enhanced, such that TCP may be actually usable.  
+   * The dbus-daemon man page describes the new elements in the address format.
+  * Support ANONYMOUS mechanism for authentication, which allows a client to authenticate as nobody in particular
+   * The ANONYMOUS support means you can now use D-Bus (without a bus daemon) as a protocol for a network service provided to anonymous Internet or LAN clients.
+  * Autolaunched busses now save their parameters in X11 if possible making them behave closer to busses launched through the normal mechanisms 
+  * inotify is now the default backend for watching configuration file changes
+  * Better thread support.
+  * The bus daemon now generates a globally-unique ID for itself. 
+   * Use this as a unique ID for a user's session, for example.
+  * Support for message serialization added for use with external transports like TUBES!!!
+  * Better eavesdropping support now picks up reply messages for debugging
+ * Library API additions
+  * dbus_connection_set_allow_anonymous() - allow the message stream to begin if the client auths as anonymous (otherwise, the client will be dropped unless they auth as a user).
+  * dbus_watch_get_unix_fd() - replaces dbus_watch_get_fd 
+  * dbus_watch_get_socket() - replaces dbus_watch_get_fd
+  * dbus_server_get_id() - available to access the unique ID of a particular address
+  * dbus_connection_get_server_id() - available to access the unique ID of a particular address
+  * dbus_message_marshal() - serializes a message into a byte array
+  * dbus_message_demarshal() - de-serializes a byte array into a message
+ * Library API deprecations
+  * dbus_watch_get_fd() - had unclear cross-platform semantics
+ * Protocol additions
+  * Argument path matching of the type arg0path='/aa/bb/' is now supported
+  * New error org.freedesktop.DBus.Error.ObjectPathInUse added
+  * ANONYMOUS auth support added
+  * GetAll call added to the properties interface for getting a list of properties an object exports
