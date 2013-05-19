@@ -1,0 +1,266 @@
+
+_**These instructions are for installing kdrive-based X Servers on your system.  This does not apply to X.Org at all.**_ 
+
+_**If you're looking for an X server with transparency support, you might consider X.Org since its transparency support is rapidly stabilizing._** 
+
+If  you have some other reason for using the kdrive based server covered here, I'm looking for a replacement maintainer for this page.... 
+
+It is surprisingly difficult to follow this type of instruction set. You'll have to concentrate and double-check yourself constantly. Good luck! 
+
+Unless you're planning to contribute code, you'll usually be better off using packages from your distribution if it has any.  Some do.  If yours is one of them, feel free and note it here or report it to me (see address at bottom of page.) 
+
+These instructions only go as far as the X server and xcompmgr (the eye-candy maker) and the things they require. 
+
+
+## Before You Build
+
+                     * `autoconf --version` must report 2.59 or later 
+                     * `automake --version` must report 1.9.x 
+                     * `libtool --version` must report 1.5 (available from [[http://ftp.gnu.org/gnu/libtool/|http://ftp.gnu.org/gnu/libtool/]] if your distribution doesn't have it) 
+                     * `pkg-config --version` must report 0.9.0 or later 
+
+## Troubleshooting
+
+If you're getting errors mentioning automake, check that your automake install is recent enough using the commands above. 
+
+If you're getting errors mentioning PKG_CHECK_MODULES(), install pkgconfig. 
+
+You might also try [[XserverBuildScript|XserverBuildScript]] which contains all these instructions in a runnable form. 
+
+The KDrive xserver isn't supported in FreeBSD. Anyone interested in porting it is welcome to do so, though. 
+
+Note that xcompmgr and window borders don't mix. Most window managers disable window borders but twm users may find that `BorderWidth 0` in ~/.twmrc helps. 
+
+In case you get an error while compiling such as this: 
+[[!format txt """
+checking for pkg-config... /opt/gnome2/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for XDMCP... yes
+checking for XdmcpWrap in -lXdmcp... yes
+checking for XEPHYR... yes
+checking for XSERVER... configure: error: Package requirements (randrproto renderproto fixesproto damageproto xextproto xfont xproto xtrans xau compositeproto resourceproto recordproto xdmcp xdmcp) were not met.
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+ 
+Alternatively you may set the XSERVER_CFLAGS and XSERVER_LIBS environment variables
+to avoid the need to call pkg-config.  See the pkg-config man page for
+more details.
+*** error during stage configure of xserver: could not configure module *** [32/38]
+"""]]
+You might want to try this workaround: 
+[[!format txt """
+cd /opt/fdo/lib/pkgconfig
+ln -s randr.pc randrproto.pc
+ln -s render.pc renderproto.pc
+ln -s fixesext.pc fixesproto.pc
+ln -s damageext.pc damageproto.pc
+ln -s xext.pc xextproto.pc
+ln -s compositeext.pc compositeproto.pc
+ln -s resourceext.pc resourceproto.pc
+ln -s recordext.pc recordproto.pc
+"""]]
+And rerun the build. It helped here, but it's just a workaround, the real problem is somewhere else. If anyone knows better please fix the real problem instead. 
+
+
+## Build Commands
+
+Script version of these commands: [[XserverBuildScript|XserverBuildScript]] 
+[[!format txt """
+cvs login is no longer required when using cvs.freedesktop.org.
+
+if [ -z "$PKG_CONFIG_PATH" ]; then
+export PKG_CONFIG_PATH=/opt/fdo/lib/pkgconfig
+else
+export PKG_CONFIG_PATH="/opt/fdo/lib/pkgconfig:$PKG_CONFIG_PATH"
+fi
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xproto
+pushd Xproto
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xdmcp
+pushd Xdmcp
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co XExtensions
+pushd XExtensions
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co xtrans
+pushd xtrans
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xau
+pushd Xau
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co X11
+pushd X11
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xext
+pushd Xext
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Randr
+pushd Randr
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Render
+pushd Render
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xrender
+pushd Xrender
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xrandr
+pushd Xrandr
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co FixesExt
+pushd FixesExt
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co DamageExt
+pushd DamageExt
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xfont
+pushd Xfont
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co ResourceExt
+pushd ResourceExt
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co RecordExt
+pushd RecordExt
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co CompositeExt
+pushd CompositeExt
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co xkbfile
+pushd xkbfile
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xserver co xserver
+pushd xserver
+./autogen.sh --prefix=/opt/fdo --enable-composite
+make
+sudo install -d /opt/fdo/bin
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xfixes
+pushd Xfixes
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xcomposite
+pushd Xcomposite
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xlibs co Xdamage
+pushd Xdamage
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+# http://cvs.freedesktop.org/xapps/
+wget http://www.freedesktop.org/xapps/release/xcompmgr-1.1.tar.gz
+tar zxf xcompmgr-1.1.tar.gz
+pushd xcompmgr-1.1
+./autogen.sh --prefix=/opt/fdo
+make
+sudo make install
+popd
+
+# to start server, try something like...
+sudo /opt/fdo/bin/Xvesa :1 & xterm -display :1
+
+# in xterm...
+export LD_LIBRARY_PATH="/opt/fdo/lib:$LD_LIBRARY_PATH"
+/opt/fdo/bin/xcompmgr
+
+"""]]
+I use pushd/popd instead of cd/cd .. because it protects against bugs in those install instructions that require directory changes. Fortunately, these are well behaved packages with simple installs. 
+
+
+## Interesting XServer Options
+
+                     * `-mouse /dev/psaux,5` enables the scroll wheel 
+                     * `-mouse /dev/input/mice,5` for a usb mouse with scroll wheel 
+                     * `-nolisten tcp` if you're getting xtrans errors about inet6 or other socket setup things. 
+                     * `-ac -nolisten tcp` if you're getting access denied errors when trying to start xterm. Beware this is a security risk, even with `-nolisten tcp`, so don't do it on a multi-user machine. I've heard some mention that you won't need this if your machine's hostname is set up correctly. 
+                     * `-listmodes` lists modes the VESA driver supports 
+                     * `-help` lists all these and more 
+                     * Don't forget the man pages `:)` 
+
+## Contacting the Author
+
+This page was originally written by [[SethKlein|SethKlein]] on 12-NOV-2003.  He no longer uses kdrive and so as of 29-DEC-2004 this page is unmaintained.  Please feel free to take up maintainership if you find it useful. 
+
+Updated by [[DiegoEscalante|DiegoEscalante]] on 10-FEB-2006 while trying to get Xgl working. 
