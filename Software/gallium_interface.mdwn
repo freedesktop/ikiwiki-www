@@ -1,0 +1,33 @@
+
+This page describes more details of the public Gallium3D interface. 
+
+
+# Gallium3D headers
+
+The p_context.h, p_screen.h and p_winsys.h are described on the [[main Gallium3D page|Software/gallium]]. 
+
+The p_state.h header defines all the state objects (such as polygon rasterization options, blend modes, etc) and resources (drawing surfaces, textures, memory buffers). The pipe interface uses "constant state" objects. That is, state objects are created once and are immutable. State objects are put into effect by binding them. This allows Gallium3D drivers to create corresponding hardware state objects which can be quickly handled. 
+
+The p_defines.h header defines numerous constants and tokens (blend modes, texture wrap modes, surface formats, etc. 
+
+The p_winsys.h header defines the window system and OS facilities which Gallium3D drivers rely upon. For example, memory allocation is typically a service the OS provides while window size/position information is provided by the window system. Pipe drivers use the winsys interface to handle these things. 
+
+The p_format.h header defines all supported texture and drawing surface formats, as well as functions for querying format attributes (like number of components, bits/component, etc) 
+
+
+# Interface Conventions
+
+When an object (such as a buffer, or texture, etc) is passed to the Gallium3D interface, the driver will copy or keep a reference to the object allowing the caller to free or dereference the object. 
+
+For example, after a pipe_shader_state has been passed to pipe->create_fs_state(), the shader can be freed because the driver will have copied the shader if needed. 
+
+Similarly for textures, vertex buffers, etc. 
+
+
+# Textures and Drawing Surfaces
+
+Drawing surfaces are actually allocated as textures. After a texture is created, a "surface view" can be created. A surface view provides 2D access to a texture mipmap level, cube face, or 3D texture slice. 
+
+The surface view can be used as a drawing target, or it may be mapped into user space for direct access. 
+
+If the Gallium hardware driver organizes textures in a tiled or twiddled layout, creating and mapping a surface view will "linearize" the memory into a normal raster layout. After the surface is unmapped, the linear data will be retiled/retwiddled into the hardware-specific format.  
