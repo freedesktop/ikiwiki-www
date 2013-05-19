@@ -1,0 +1,44 @@
+
+
+# Glucose
+
+In the spirit of being short and sweet, that fits very well with the concepts of Glucose: 
+
+* it's an OpenGL based acceleration architecture (as XAA and EXA); 
+* it uses [[Software/Xgl|Software/Xgl]] code, so it accelerates everything using exactly the same paths as [[Software/Xgl|Software/Xgl]] does, so there's no duplicate code/work; 
+* all driver code is limited to just initialising it (a call to _glucoseDriverInit_). 
+
+## Known issues
+
+* Xorg will crash if the number of clients reaches zero. 
+* Changes to the screen geometry via RandR extension are not yet supported. 
+
+## Source
+
+Source is only available from Git and for Intel cards. You need to follow the [[instructions to build a modular Xorg|http://www.x.org/wiki/ModularDevelopersGuide]], but using instead: 
+
+* _yuv-porting_ branch from _pixman_ module, 
+* _master_ of [[Software/glitz|Software/glitz]] module, 
+* _glucose-2_ branch from _xserver_ module, 
+* _glucose_ branch from _xf86-video-intel_ module. 
+Then add the following line to the _Device_ section of you _xorg.conf_: 
+[[!format txt """
+  Option  "AccelMethod"  "glucose"
+"""]]
+
+## Troubleshooting
+
+If things are slow check on the resulting _/var/log/Xorg.0.log_ for the following (or similar) lines: 
+[[!format txt """
+ ...
+ AIGLX: Loaded and initialized /usr/lib/dri/i915_dri.so
+ ...
+ intel(0): Using GLUCOSE for acceleration
+ ...
+"""]]
+If either is missing then you're either using glucose with GL software rendering, or no glucose at all. 
+
+
+## Links
+
+* [[Initial annoucement|http://lists.freedesktop.org/archives/xorg/2006-August/017393.html]] 
