@@ -1,0 +1,54 @@
+
+
+## Introduction
+
+Compiz is a compositing window manager for the X Window System. The window manager features take care of manipulating user-visible top-level windows of all applications, such as arranging them. Drawing the window decoration (borders and titlebars) and implementing buttons and menus in it is further separated into a desktop environment-specific _window decorator_. The compositing features direct window drawing to off-screen buffers and draw the buffers on-screen while applying various visual effects. They should also take care of input redirection in case the window is drawn in different geometry than the logical information in the X server, but this is not possible in the X Window System yet (perhaps sometime after X.Org 7.2). 
+
+Although the X Window System architecture would provide for the separation of the window manager and the compositing manager (see `xcompmgr`), the current practice is to combine them as their implementations are dependent. 
+
+
+## Project organization
+
+Compiz is implemented as a core application (directory `src/`) including the entry point `compiz` (`src/main.c`) and a low-level, shared-object plugin system (`src/plugin.c`), and the plugins themselves (directory `plugins/`). The `decoration` plugin communicates with the separate window decorator process (`gtk/window-decorator/gtk-window-decorator.c`). Another architecturally important plugin is `gconf` which implements configuration through gconf when loaded, and all the other plugins can be configured via gconf. The `dbus` plugin implements more general inter-process communication, allowing both configuration and action triggering. 
+
+The programming interface of Compiz (`include/compiz.h`) contains the interfaces of X, OpenGL, GLX etc. All the core parts and the plugins use the this interface plus any additional ones. The extension points are pointers to functions with `Proc` in their name, and plugins manipulate them with the WRAP and UNWRAP macros. Plugins can also register timeouts with `compAddTimeout` and file descriptors for I/O with `compAddWatchFd` (`src/display.c`). 
+
+In addition to the official plugins included in the Compiz repository, there are a number of third-party plugins. 
+
+
+## Data model
+
+One delicate issue is the synchronization of state between Compiz, the X server, the applications, and any window management tools such as pagers. Some data in Compiz is authoritative whereas some tries to reflect server state. Some data is updated only after server messages, some data is updated when a request is made. This means results of some actions are visible directly and some only after they have made a round-trip to the server. The `fade` plugin makes immediate changes by other plugins appear slow. Another issue is the huge amount of slightly different situations and their combinations, such as focus policy with respect to application windows, dialog windows, override-redirected windows, desktop windows, background windows, non-top-level windows... 
+
+The main global variable is `CompDisplay *compDisplays`. This is the root of a hierarchical data structure which reflects the X Window System model of a display with screens (represented by root windows) with (top-level) windows. For example, `CompDisplay` contains `Display *display` and `CompScreen *screens`. Each of `CompDisplay`, `CompScreen`, `CompWindow` contains `CompPrivate *privates` which the plugin macros (see below) use to store their additional data. 
+
+`CompTexture` represents a GLX texture and contains `CompMatrix matrix`. `CompScreen` contains `CompTexture backgroundTexture`, `CompWindow` contains `CompTexture texture`, and `CompIcon` contains `CompTexture texture`. 
+
+`CompIcon` represents an icon with width and height, and contains `CompTexture texture`. `CompScreen` contains `CompIcon *defaultIcon`, `CompWindow` contains `CompIcon **icon`. 
+
+
+## Plugin structure
+
+_See also [[A Simple Compiz Plugin Walkthrough|http://www.downwithnumbers.com/compiz_plugins.html]] for a concrete example._ 
+
+Each plugin includes `<compiz.h>` to get access to the application programming interface.  
+
+
+### Plugin information
+
+Compiz gets a handle to a plugin in a shared-object file (such as `/usr/lib/compiz/libscale.so` for `scale`) by calling its `getCompPluginInfo`, which returns a structure of information and further function pointers (a `vTable`). Via these function pointers, the plugin is initialized by a call to `init` and `initDisplay` each. For each screen and window, `initScreen` and `initWindow` are called respectively.  
+
+Conversely, `finiWindow`, `finiScreen`, `finiDisplay` and `fini` get called for cleanup. 
+
+If `gconf` is loaded, it follows calls to `initPluginForDisplay/Screen` with calls to `getDisplayOptions` and `getScreenOptions`. For each option, `gconf` then reports any initial deviation from the default value and subsequent changes with calls to `setDisplayOption` and `setScreenOption`. 
+
+Finally, `getVersion` is used to check that the plugin has been compiled for the right version of Compiz and thus returns the value of the constant `ABIVERSION`.  
+
+In addition to the function pointers, the plugin info contains an internal `name`, a user-visible `shortDesc`, and an explanatory `longDesc` for identification of the plugin. The fields `deps` and `nDeps` can express dependencies between loading of plugins. The fields `features` and `nFeatures` can provide a list of exclusive names that the plugin reserves from other plugins and provides to them. 
+
+
+### Plugin macros
+
+At `init`, a plugin can call `allocateDisplayPrivateIndex`, at `initDisplay` call `allocateScreenPrivateIndex`, and at `initScreen` call `allocateWindowPrivateIndex`. The indices can be used at the related initialization to set a pointer to an allocated structure of plugin-dependent information on each display, screen, and window.  
+
+The plugin code typically defines macros for getting the private structure for a given public structure, and for defining a fixed-name local variable pointing to the private structure. 
