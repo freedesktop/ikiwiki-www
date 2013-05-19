@@ -1,0 +1,122 @@
+##META:TOPICINFO{author`"AlexanderGottwald" date`"1090401537" format`"1.0" version`"1.15"}%
+##META:TOPICPARENT{name="CygwinX"}%
+'''Table of Contents'''
+<<TableOfContents>>
+
+If you have problems with [[CygwinX|Cygwin/X]] then you can try to find a solution on this page. Much more is
+covered in the [[http://x.cygwin.com/docs/faq/cygwin-x-faq.html|FAQ]] but the sections here will be filled 
+in the next weeks.
+
+If you have found a solution to a problem, feel free to add it to the appropriate section.
+
+= General =
+== Installation ==
+=== cygX11-6.dll not found after installation or upgrade ===
+
+Reinstall the `xorg-x11-bin-dlls` package. Make sure not to reinstall any `XFree-*` packages.
+Check if `/usr/X11R6/bin/cygX11-6.dll` does exist. Check if `$PATH` contains `/usr/X11R6/bin`. 
+
+== Clipboard ==
+== Keyboard ==
+If your keyboard layout is not configured correctly (eg you only get the us layout) please contact
+[[mailto:cygwin-xfree@cygwin.com|the Cygwin/X mailinglist]] and send your `/tmp/XWin.log` or at least the
+lines similar to these:
+{{{
+(--) winConfigKeyboard - Layout: "00010407" (00010407) 
+(--) Using preset keyboard for "German (Germany, IBM)" (10407), type "4"
+}}}
+
+With this information it is possible to add that entry to the list of known keyboard layouts. If you already 
+know which is the correct XKB layout code for your layout please state it in the mail. This will make things 
+quite easy me.
+
+== Cygwin/X Startup ==
+=== Cygwin/X freezes right after startup ===
+Zone Alarm (esp version 5) was reported to break Cygwin/X. Check the log file. The last line
+will say something about keyboard layouts. remove Zone Alarm to get rid of this.
+
+make sure /tmp is mounted in binmode
+
+=== Duplicate invocation error ===
+Most likely you have started XWin twice with startxwin.bat or startx or a similar script.
+You can't do this. You can only start XWin once. If you want another terminal window 
+(which in fact is just a convenient side effect of running startxwin.bat) you should do
+this by starting `xterm` from the cygwin shell or from the startmenu entries.
+
+=== Multiple Users, Multiple XWin ===
+If you want to start XWin multiple times, you have to assign each of them a unique display number
+eg `XWin :0 $OPTIONS` (this is the default) or `XWin :1 $OPTIONS`. 
+
+If you start XWin with different users and get access proplems in `/tmp/.X11-unix` then disable the 
+unix sockets connection scheme by starting the xserver with `XWin -nolisten unix $OPTIONS`. The
+`$DISPLAY` variable `:0.0` will not work anymore but can be replaced with `localhost:0.0`.
+
+=== The root window is not shown when starting XWin ===
+This is a small problem with run.exe. If you start XWin with -nodecoration, -multiwindow or -fullscreen 
+the window will come up normally.
+
+== Appearance ==
+=== X as default pointer in multiwindow mode ===
+
+To workaround this add the command `run xsetroot -cursor''name left''ptr -fg white -bg black` to 
+`startxwin.bat`
+
+== XTerm ==
+=== Resizing XTerm does not change linewidth in bash ===
+
+Try starting *resize*. See [[http://cygwin.com/ml/cygwin-xfree/2004-05/msg00171.html|mail]] for details.
+
+== Networking ==
+=== Personal Firewalls ===
+
+[[CygwinX|Cygwin/X]] requires properly working TCP/IP even for local connections. It listens on port 6000 + 
+display number (eg. 6002 for display :2.0). If you use the internal clipboard manager or the 
+multiwindow feature it creates network connections even if no other client is connected. 
+
+If you are running a personal firewall make sure you set a rule which allows XWin.exe to connect 
+to the port and a rule which allows it to accept connections on the port.
+
+If you are still experiencing problems try disabling the Personal Firewall.
+
+==== Zone Alarm ====
+
+There have been reports that programs are experiencing network problems when running [[CygwinX|Cygwin/X]] with Zone Alarm installed. This is because cygwin creates a new socket everytime select is called and the Zone Alarm networking stack will
+then kill connections which are already running on that port.
+
+= Remote Usage =
+== SSH X11 Forwarding ==
+=== Programs report strange errors ===
+
+See [[http://x.cygwin.com/docs/faq/cygwin-x-faq.html#q-ssh-no-x11forwarding|FAQ Entry]]
+
+== Cygwin/X reports AUDIT: client 1 rejected from IP ''remotehost'' ==
+
+By default remote connections are not allowed (security).  You can work around this by either of:
+ a. add `-ac` to your Xwin.exe arguments (e.g. in `\cygwin\bin\startxwin.bat`)
+ a. use the xhost program (you may need to run cygwin setup to install it) to allow access.
+   1. `xhost +`  to allow all hosts
+   1. `xhost +yourappserver` to allow just clients on ''yourappserver''.
+
+If you're using XDMCP then the problem may be wrong DNS resolution.
+Make sure your windows host has a hostname which is valid from linux too and an IP address which linux can resolve to that hostname.
+
+If you add a line 
+
+`192.168.26.1 myhost` 
+
+to `/etc/hosts` on the XDMCP server containing the IP address and the hostname of your windows host the name resolution should work.
+
+== Unix flavours ==
+=== Keys or mouse buttons not working on AIX, SUN Solaris, HPUX ===
+Disable !NumLock. Some programs treat !NumLock as a modifier like Control.
+
+A small program which will do this is available [[http://cygwin.com/ml/cygwin-xfree/2004-04/msg00307.html|here]]
+
+=== No keyboard input in Java ===
+Disable !NumLock. Same problem as above.
+
+=== Mouse buttons not working in Motif applications on SUN Solaris ===
+
+This is a bug in the Motif libraries from SUN. See [[http://support.wrq.com/techdocs/1717.html|details]]. There is a patch available from SUN: :[[http://sunsolve.sun.com/pub-cgi/retrieve.pl?doc=fpatches/108940|Patch 108940]].
+
+-- AlexanderGottwald - 21 Nov 2004
