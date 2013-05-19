@@ -1,0 +1,204 @@
+
+
+# Summary
+
+This is the project plan for the Google Summer of Code project "GeoClue for maemo". 
+
+The plan is divided into subprojects, which are presented in two groups: those which concern GeoClue generally and the maemo specific ones. After that division the subprojects are in a rough order of importance. Some subprojects have been discussed on the geoclue mailing list during June 2007. The plan will be updated as ideas get more structured, implemented or discarded.  
+
+The people involved in this project are  [[Jussi Kukkonen|http://koti.welho.com/jkukkone]] (author, GSoC coder), [[Henri Bergius|http://bergie.iki.fi]] (mentor) and anyone on the geoclue mailing list (thanks for the comments). Go ahead and make changes or contact me if there's something you'd like to add. 
+
+   * -- Jussi Kukkonen 
+[[!toc 2]] 
+
+
+# Schedule
+
+Estimating the development time and schedule (or sometimes even the scope of implementation) is very difficult, so be aware that this is rough and subject to sudden changes... The tasks/subprojects are approximately in the order that I believe I will be working in. 
+[[!table header="no" class="mointable" data="""
+**Task** | **Days    ** | **Done** | **Notes**
+ civic location                  |   5  |  20%  |  
+ precision information           |   3  |       |  
+ Maemo UI: Position Change Info  |   6  |       |  
+ Maemo UI: Manual position       |   6  |       |  
+ maemo packaging                 |   7  |  70%  |  
+ wiki/doc update                 |   3  |  30%  |  
+ Maemo: use the new GPS API      |   4  |       | (feature is still under consideration) 
+ Maemo UI: Desktop applet (demo) |   ?  |       | (feature is still under consideration) 
+ Maemo UI: Settings applet       |   ?  |       | (feature is still under consideration) 
+ backend selection               |  15? |       | (feature is still under consideration) 
+ privacy handling                |  15? |       | (feature is still under consideration) 
+"""]]
+
+(completion as of June 20th).  The first six tasks together make about 30 days (6 work weeks). Finishing them on schedule (+20% buffer) would mean first half of August... 
+
+
+# Modifications to GeoClue proper
+
+
+## Civic location support
+
+This is what I've been calling the kind of location information that includes data like street address, country name or post code. I rate civic location support a high priority issue for Geoclue for two reasons: 
+
+1. Lots of applications will want to use this data instead of lat/lon 
+1. Human readable location information makes demoing GeoClue easy 
+After a discussion on the mailing list, I have buried my original idea of a new interface: civic location API will be included in the position-interface (this means solving the backend selection -problem is even more important). The API should include methods to query specific data items (such as the post code) and methods to query human readable string representation(s) of the location (such as "Evergreen Terrace, Springfield, USA") and possibly convenience methods to query several common data items at once (e.g. street, city, country). 
+
+
+### Possible API elements
+
+IETF rfc 4119 lists these civic location elements, most geoclue supported elements can be picked from here: 
+[[!table header="no" class="mointable" data="""
+**Label** | **Description** | **Example**
+ country               |  The country (ISO 3166 code)          |  US                  
+ A1                    |  national subdivisions (state, region, province              |  New York            
+ A2                    |  county, parish,       |  King's County       
+ A3                    |  city, township,       |  New York            
+ A4                    |  city division, borough        |  Manhattan           
+ A5                    |  neighborhood, block   |  Morningside Heights 
+ A6                    |  street                |  Broadway            
+ PRD                   |  Leading street direction        |  N, W                
+ POD                   |  Trailing street suffix       |  SW                  
+ STS                   |  Street suffix         |  Avenue, Platz, Street     
+ HNO                   |  House number, numeric part only.        |  123                 
+ HNS                   |  House number suffix   |  A, 1/2              
+ LMK                   |  Landmark or vanity address   |  Low Library         
+ LOC                   |  Additional location information  |  Room 543            
+ FLR                   |  Floor                 |  5                   
+ NAM                   |  Name (residence, business or office occupant)     |  Joe's Barbershop    
+ PC                    |  Postal code           |  10027-0401          
+"""]]
+
+
+### TODO
+
+* define API 
+* implement 
+
+### Related links
+
+1. [[RFC 4119: A Presence-based GEOPRIV Location Object Format|http://www.ietf.org/rfc/rfc4119.txt]] 
+1. [[GEOPRIV PIDF-LO Usage Clarification, Considerations and Recommendations|http://tools.ietf.org/html/draft-ietf-geopriv-pdif-lo-profile]] 
+1. [[Revised Civic Location Format for PIDF-LO|http://tools.ietf.org/html/draft-ietf-geopriv-revised-civic-lo]] 
+
+## Backend selection
+
+Selecting the backend to use is not just a matter of choosing the default one, if using GeoClue is supposed to be easy for both the application developer and the user. Let's take a look at an example:  
+
+User has the following position backends installed 
+
+1. GPS 
+1. Hostip 
+Scenarios: 
+
+1. Application wants to know the city/country (assume civic location is now included in the position-interface). 
+1. An application wants coordinates. User does not have a GPS device with her (or she is indoors so there's no fix). 
+In both scenarios the default GPS backend is unusable. Problem in scenario 1 is something that could be avoided with having separate interfaces for civic/coordinate location, but that is just a special case. Scenario 2, and many other situations like it, would require the application to call get_all_position_providers() and try another backend if the current_position()-method of the first backend failed... This is not friendly at all. 
+
+Getting information from several backends should be as seamless as possible. I don't see why the selection of backends couldn't be totally abstracted in the bindings / wrapper library (assume there is a list of preferred backends in gconf instead of the current default backend): {{{If a method (e.g. current_position()) fails, and 
+
+         * if the current backend was initialized with the generic init-method and 
+                     * if there are backends still left on the list of backends 
+                                 * Initialize the next backend in the list and call the current_position method() on the new backend}}} 
+
+### TODO
+
+* get comments on mailing list 
+* if approved, implement the idea in the wrapper library 
+
+## Precision information for position-interface
+
+Positioning backends should report some kind of precision estimate if asked. Otherwise applications will have no idea if the accuracy is 10m (GPS) or 10km (hostip). This would also be useful if additional privacy measures (which might lower positioning accuracy, see notes on privacy) are implemented. 
+
+For reference, here is the Google geocode API accuracy chart: [[http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy|http://www.google.com/apis/maps/documentation/reference.html#GGeoAddressAccuracy]] 
+
+
+### TODO
+
+* Add a dbus method to position interface (and all positioning backends). 
+
+
+## Privacy handling
+
+Motivation: Location privacy is something that people take seriously, for good reasons. There should be a way for the user to set her preferences and this should definitely be handled by the platform (geoclue), not by individual applications.  
+
+This will be fairly tricky to get right. The UI has to be simple, but the issue itself is pretty complex. Something to remember while designing: geoclue cannot really prevent an application from accessing e.g. gpsd directly, so the privacy settings should be seen as a way for the user to tell well-behaving applications her preferences on this issue. With this in mind, I believe a lot of the complexity can be hidden: the applications should tell geoclue what default permissions they expect. 
+
+IETF GEOPRIV working group has some geolocation privacy documents (see the links section), and this is my current idea based on those:  
+
+* Two configuration items 
+      * list of privacy groups with simple access rules (it seems GEOPRIV considers these "meta policies"): 
+            * [[!format txt """
+world:      rules...
+colleagues: rules...
+family:     rules...
+me:         rules...
+"""]]
+      * list of entities and the group they belong to (not sure if this needs to be viewable for the user at all): 
+            * [[!format txt """
+maemomapper:                  me
+browser/default:              world
+browser/www.jaiku.com:        family
+instantmessenger/default:     world
+instantmessenger/bob@example: colleagues
+"""]]
+* Applications add themselves to the list of entities (with a sane default group). The list of groups is created by geoclue. 
+* The rules for the groups can internally include the condition/action/transformation-triplets from the IETF specs. This would leave the door open for location-conditions and other fancy rules. However, I believe a single slider is enough for the UI at least on maemo platform: This slider would indicate both the coordinate precision that will be presented to the applications in the group and the access they will have to different civic location types. Example values of both of those variables:  
+      * [[!format txt """
+         [100km]             [10km]       [1km]       [Exact position]
+[Country]       [Region]     [City]              [Full civic location]
+"""]]
+
+### Related links
+
+1. [[Geolocation Policy: A Document Format for Expressing Privacy Preferences|http://www.ietf.org/rfc/rfc4745.txt]] 
+1. [[Geolocation Policy: A Document Format for Expressing Privacy Preferences for Location Information|http://tools.ietf.org/html/draft-ietf-geopriv-policy]] 
+
+## Wiki / documentation update
+
+The wiki needs some loving: It's currently a fairly good collection of miscallaneous information, but it lacks focus. In my opinion it also also lacks a "Why should I care" -section for the application developers (something I've been promising to write).  
+
+
+### TODO
+
+Divide page into two or more pages. Some possibilities: 
+
+* Main page -- Intro, contact info, repository info 
+* Detailed Information -- Whatever passes as general architectural docs 
+* Development page -- links, ideas, etc. 
+
+# New things just for Maemo
+
+
+## Maemo packaging
+
+This is a must-have. The packages should be available from a common repository as early as possible (as soon as there's some kind of release of geoclue), otherwise application developers will not be interested in using geoclue. Creating Debian/Ubuntu packages might not be a large job on the side. 
+
+
+## Maemo: use the new GPS API
+
+There is a new maemo GPS API based on libgpsmgr and libgpsbt. Using that may be smart. 
+
+
+## Maemo UI: Position Change Information
+
+Use a notification (e.g. "New location: Helsinki") to inform user of new being in a new location. There should be an option to manually correct a wrong position (see "Maemo UI: manual position"). 
+
+The user may want to see the current location at other times too -- this would require a status bar applet. If the backend selection is not automatic (see _Backend Selection_), the status bar applet could be used to select  the backends too.  
+
+
+## Maemo UI: Desktop applet
+
+A small applet showing the current location as text. This would be a nice demo, but requires civic location support to really be useful. 
+
+
+## Maemo UI: Manual position widget
+
+A user may want to specify a position manually. Implementing a map widget is probably overkill, but this might work: 
+
+* A dialog with text input field for manual civic location input  
+* a link/button to a webmap site that lets the user select a location and returns the coordinates and/or civic location (Google mapplet perhaps?) 
+
+## Maemo UI: Settings applet
+
+The privacy settings (if implemented) and possibly the preferred backend order will require a Control Panel applet. The implementation is highly dependent on what geoclue features get implemented... 
