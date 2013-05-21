@@ -1,0 +1,246 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] 
+
+
+# Google Summer of Code: 2012
+
+
+## Dates
+
+[[Official timeline|http://www.google-melange.com/gsoc/events/google/gsoc2012]]. 
+
+The next important deadline is for students to apply: **April 6: 19:00 UTC** 
+
+
+## Important information
+
+
+### Reference
+
+The official website is at: [[http://www.freedesktop.org/wiki/Software/PulseAudio|http://www.freedesktop.org/wiki/Software/PulseAudio]] 
+
+API documentation is at: [[http://freedesktop.org/software/pulseaudio/doxygen/|http://freedesktop.org/software/pulseaudio/doxygen/]] 
+
+The code is at: [[http://cgit.freedesktop.org/pulseaudio/pulseaudio/|http://cgit.freedesktop.org/pulseaudio/pulseaudio/]] 
+
+
+### Contacts
+
+Feel free to contact us on IRC (#pulseaudio on Freenode) or via our [[mailing list|http://lists.freedesktop.org/mailman/listinfo/pulseaudio-discuss]]). We don't bite! (Note about IRC: there's no guarantee of a fast response. Some of us are present on the channel 24/7, but that doesn't mean that we pay attention all the time. So if you contact us via IRC and you don't get a quick reply, don't think that we're ignoring you, just hang around on the channel until you get an answer or try again later.) 
+
+* Arun Raghavan (Ford_Prefect on IRC, arun AT SPAMFREE accosted DOT net (admin, mentor) 
+* Colin Guthrie (coling on IRC, colin AT SPAMFREE guthr DOT ie) (backup admin, mentor) 
+* Tanu Kaskinen (tanuk on IRC, tanuk AT SPAMFREE iki DOT fi) (mentor) 
+* Peter Meerwald (??? on IRC, pmeerw AT SPAMFREE pmeerw DOT net) (mentor) 
+* João Paulo Rechi Vita (jprvita on IRC, [[jprvita@gmail.com]] (mentor) 
+
+## Applying
+
+Once you've looked at the ideas below (or have one of your own), feel free to drop by our mailing list or IRC if you'd like some help fleshing things out. Once you're done, write up a proposal. Having the following bits will likely help make a coherent proposal: 
+
+* A description of the project 
+* A break-down of the tasks involved and possibly what you will _not_ be covering (more detail is good) 
+* A schedule that describes how much you expect those tasks to take time 
+* What you will be finally delivering 
+* A _short_ note about yourself 
+* Any other notes such as related prior experience (not required, but a bonus), why you think your proposal should be selected, etc. (keep this _short_ as well!) 
+As a bonus, pick one of our [[easy bugs|https://bugs.freedesktop.org/buglist.cgi?quicksearch=product%3Apulseaudio keyword%3Alove]], fix it, submit a nice git formatted patch to the [[PulseAudio|PulseAudio]] mailing list. Include a link to your mailing list post from the [[list archives|http://lists.freedesktop.org/archives/pulseaudio-discuss/]] in your proposal so we don't miss it. 
+
+
+## Ideas
+
+These are some ideas that the community would like to see pursued, Feel free to contribute your own ideas! The initial list is rough ideas. Use the template in the next section for more concreted ideas. 
+
+* Improve RTP performance (Maarten?) [needs to be more concrete] 
+* Add "high priority" events (Arun) [these would preempt passthrough streams, possible notify on all outputs, ...] 
+* Efficient resampling (Peter) [esp. on embedded CPUs; maybe fixed ratio sample rate conversion] 
+
+[[!format txt """
+=== Project Title (template) ===
+
+'''Brief description:'''
+
+'''Expected results:'''
+
+'''Contact(s):''' <list of people to talk to about this idea, mark potential mentors distinctly>
+
+'''Necessary background:''' <if any, such as networking, assembly, ...>
+
+'''Mentor:'''
+"""]]
+
+[[!format txt """
+=== Configurable maximum volume for sinks and sources ===
+
+'''Brief description:'''
+
+Some outputs may be capable of producing louder sound than what is comfortable. The user should be able to set a limit for the maximum volume.
+
+Some inputs may need software amplification, while others don't. Software amplification is prone to cause clipping, so it should be avoided when possible. If software amplification is not needed, it's useful to be able to prevent it from ever happening by setting the source maximum volume accordingly.
+
+'''Expected results:'''
+
+Several stages, the more gets done, the better:
+
+ * Ability to configure volume limits with module parameters, and enforce those limits.
+ * Ability to configure the limits on the fly (without reloading any modules).
+ * Make the volume limit configuration persistent so that when Pulseaudio is restarted, the configuration is restored automatically.
+ * A GUI for configuring the volume limits.
+   * Preferably implemented by modifying the audio configuration tool of the desktop environment of your choice, or by modifying pavucontrol.
+ * Ability to set a global maximum volume to cap maxmimum s/w gain
+
+'''Contact(s):''' Tanu
+
+'''Necessary background:''' C. For the GUI part some experience from writing graphical applications would be useful. Pavucontrol is written in C++ using Gtk.
+
+'''Mentor:''' Tanu
+"""]]
+
+[[!format txt """
+=== Configurable latency for Bluetooth devices ===
+
+'''Brief description:'''
+
+Bluetooth's A2DP profile (the "high quality stereo mode") doesn't support latency information to be provided by the Bluetooth device to Pulseaudio. That's a limitation of the spec; we can't fix that. The effect of this limitation is that the audio-video synchronization ("lip-sync") is usually not very good. Pulseaudio currently uses the same hard-coded latency value for all Bluetooth devices. Assuming that the actual latency stays pretty much constant for any given device, but varies between different devices (how to verify this assumption?), it would make sense to make it possible to configure per-device latencies. This would potentially be useful for non-Bluetooth devices too, but I can't name any other concrete use cases right now. Anyway, the feature is general enough to not require any Bluetooth knowledge or hardware.
+
+'''Expected results:'''
+
+Several stages, the more gets done, the better:
+
+ * Ability to configure the "fixed latency" of devices with module parameters. (This is easier than it probably sounds. Applying the configured latency should be trivial.)
+ * Ability to configure the latency on the fly (without reloading any modules).
+ * Make the latency configuration persistent so that when Pulseaudio is restarted, the configuration is restored automatically.
+ * A GUI for configuring the volume limits.
+   * Preferably implemented by modifying the audio configuration tool of the desktop environment of your choice if the tool maintainers want such feature (this feature is quite rarely needed, so they might not want it), or by modifying pavucontrol. Since this feature is quite rarely needed, a custom configuration tool probably wouldn't be too bad either, though, if you don't like the prospect of modifying pavucontrol.
+
+'''Contact(s):''' Tanu
+
+'''Necessary background:''' C. For the GUI part some experience from writing graphical applications would be useful. Pavucontrol is written in C++ using Gtk.
+
+'''Mentor:''' Tanu, jprvita
+"""]]
+
+[[!format txt """
+=== Logging and testing overhaul ===
+
+'''Brief description:'''
+PulseAudio provides pretty extensive logging on the server-side, and some amount of the same on the client side. However, this could undergo significant improvement. We also have a fairly rudimentary set of tests, but these cover a very small part of the actual code.
+
+'''Expected results:'''
+
+Improvements to the logging infrastructure, including:
+
+ * The ability to modify the log level at runtime
+ * Support for log "categories" (see GStreamer logging for an example)
+ * Filtering of what log categories turn up based on, for example, a regex
+ * A log buffer to allow querying the last X lines of log
+
+Revamp the testing infrastructure
+
+ * Add the ability to run tests and assert on various conditions on a PA instance running from the build
+ * Run gcov and figure out how abysmal our coverage is
+ * Add some useful tests, develop a framework for writing tests rapidly
+
+'''Contact(s):''' Arun
+
+'''Necessary background:''' Mostly C, some bash for testing, hacking other systems with advanced logging/testing/CI a bonus
+
+'''Mentor:''' Arun
+"""]]
+
+[[!format txt """
+=== Better HDMI support ===
+
+'''Brief description:'''
+HDMI provides a number of nice features that we can use to make a better experience in PulseAudio. Part of it is coming with the new jack detection work, but there is still some room for improvement. This project is not very complex, however, and will likely take 1/2 the time give for SoC, so should be clubbed with some other task.
+
+'''Expected results:'''
+ * ELD parsing (can reuse some existing work for this)
+ * Set up sink formats based on this
+ * Set up sink # of channels, and channel map (possible?) based on this
+ * Parse latency information and expose this for A/V sync
+
+'''Contact(s):''' Arun
+
+'''Necessary background:''' C, access to a device with HDMI output and an HDMI receiver (TV, etc.)
+
+'''Mentor:''' Arun
+"""]]
+
+[[!format txt """
+=== Improved RAOP Support (Airtunes™) ===
+
+'''Brief description:'''
+Colin introduced initial RAOP support some time ago but the implementation still needs work to make it universally useful. This project would see an upgrade to the newer Airtunes2 protocol, a new timing and buffering model and support for additional hardware including newer models of the Airport Express, AppleTV and e.g. Denon 4311 or Phillips SoundCurve. Some initial work has been done by Christophe Fergeau (author/maintainer of libgpod) to investigate and update to Airtunes2 protocol. This work is far from complete, but could form a starting point. Analysis of existing solutions, including protocol analysis, will likely be needed as the protocol is mostly undocumented.
+
+'''Expected results:'''
+ * Analysis of the Airtunes2 protocol on existing implementations and creation of protocol documentation
+ * Convert code to use Airtunes2 protocol
+ * Implement a robust timing and buffering model for reduced latency.
+ * Ensure timing information is accurately relayed to applications such that GUIs showing song timing information, lyrics etc. are all in sync even if there is a higher overall latency.
+ * Become completely sick of the student's chosen test song that will no doubt be played repeatedly ad infinitum during testing.
+
+'''Contact(s):''' Colin
+
+'''Necessary background:''' C, Wireshark/Protocol Analysis, Access to Airtunes h/w - preferably several different models.
+
+'''Mentor:''' Colin
+"""]]
+
+[[!format txt """
+=== GUI Interaction/User Feedback ===
+
+'''Brief description:'''
+!PulseAudio is a daemon and thus GUI interaction is normally left for other people to integrate as they see fit. However, support for specific forms of GUI interaction could be facilitated more easily via a !PulseAudio module. Most Linux desktop environments now support the Desktop Notification specification which provides an infrastructure for showing passive/unobtrusive notifications to the user and for collecting simple feedback (i.e. answering basic questions).
+
+'''Expected results:'''
+ * Provide a mechanism to let the user know a new (never seen before device) has been plugged in and ask if they want to use it by default.
+ * Ensure that remote-sink detection modules (using zeroconf) are converted to offer an interactive mode (i.e. show the user they have found something but ask if they want to connect and, if necessary, prompt for authentication).
+ * Adjust volume control GUIs to know when Pass-through-mode is active for a given sink and thus volume controls are disabled.
+ * Integrate work appropriately into the Desktop Environments of GNOME and KDE
+ * ''Note'': Ubuntu uses a fork of the Desktop Notifications specification and uses a different feedback specification: Indicators. While it would be nice to support this variation, emphasis should be first placed on official upstream implementations. It would be nice if the final implementation was sufficiently flexible to work with both systems.
+
+'''Contact(s):''' Colin
+
+'''Necessary background:''' C, D-Bus, GTK, Qt, GUI/HCI
+
+'''Mentor:''' Colin
+"""]]
+
+[[!format txt """
+=== Extend HTTP Protocol ===
+
+'''Brief description:'''
+Web-centric desktops are more common place these days, as are home media solutions where control and command is performed via smart phones. Since Pass-through support was merged in !PulseAudio 1.0, we have used json-c which facilitates the used of JSON formatted data in some selective places. The HTTP protocol is currently quite simplistic, primary designed to push out audio for e.g. UPnP. It would be nice if the HTTP protocol could be updated to include a simpler level of "command and control" introspection as the native protocol (i.e. listing sinks, sources etc. with notification of changes and the ability to make changes to volume, move sinks etc.)
+
+'''Expected results:'''
+ * Review native protocol and design introspection parts of HTTP protocol and document.
+ * Implementation of HTTP protocol.
+ * Create a web based interface to control PA devices and volumes.
+
+'''Contact(s):''' Colin
+
+'''Necessary background:''' C, JSON, HTML/CSS/JavaScript, JQuery (JQuery Mobile) or similar and perhaps Web Sockets.
+
+'''Mentor:''' Colin
+"""]]
+
+[[!format txt """
+=== Configuration system ===
+
+'''Brief description:'''
+This is a much-needed core PulseAudio feature. We currenty store a lot of configuration in various places -- config files, databases for various things (volumes, properties, ...). We need a single configuration API that modules can use and clients can query and talk to as well. Some discussion on the merits of having notifications on changes to configuration would be required. dconf solves a lot of these problems already, but is not supported on sufficient platforms. One option is to use dconf where supported, and fallback to ini file-based configuration where it is not (so we lose the ability to be notified of changes on these platforms).
+
+Step one in this task would be to get consensus on the backend. Step two would be to write up documentation for an API if one needs to be designed, post to list, get consensus. Next is implementation, with test cases, and moving over config options to it. Finally, if time permits to hook up some common config options in pavucontrol. There is a work-in-progress [[[http://piratepad.net/BLGxYG2lf3]|discussion]] about this.
+
+This is a somewhat hard project, involving a lot of community interaction and pretty good software engineering skills from the start. On the other hand, this is core API and a great way to experience the Real Thing™ as far as open source development goes.
+
+'''Expected results:'''
+A configuration API that modules and clients can use, proper documentation for developers, automated test cases, and some implementation of actual use of this API.
+
+'''Contact(s):''' Arun, Colin, Tanu
+
+'''Necessary background:''' C, general configation mechanisms (simple databases like tdb/gdbm, ini files, gconf/dconf/ ...) would be useful too
+
+'''Mentor:''' Arun, Tanu
+"""]]
