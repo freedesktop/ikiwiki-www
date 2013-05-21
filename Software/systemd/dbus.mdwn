@@ -1,4 +1,3 @@
-
 [[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]] 
 
 
@@ -17,167 +16,184 @@ In contrast to most of the other services of the systemd suite PID 1 does not us
 
 The main entry point object is available on the fixed `/org/freedesktop/systemd1` object path: 
 
-
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1
-node /org/freedesktop/systemd1 {
-  interface org.freedesktop.systemd1.Manager {
-    methods:
-      GetUnit(in  s name,
-              out o unit);
-      GetUnitByPID(in  u pid,
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1
+    node /org/freedesktop/systemd1 {
+      interface org.freedesktop.systemd1.Manager {
+        methods:
+          GetUnit(in  s name,
+                  out o unit);
+          GetUnitByPID(in  u pid,
+                       out o unit);
+          LoadUnit(in  s name,
                    out o unit);
-      LoadUnit(in  s name,
-               out o unit);
-      StartUnit(in  s name,
-                in  s mode,
-                out o job);
-      StartUnitReplace(in  s old_unit,
-                       in  s new_unit,
-                       in  s mode,
-                       out o job);
-      StopUnit(in  s name,
-               in  s mode,
-               out o job);
-      ReloadUnit(in  s name,
-                 in  s mode,
-                 out o job);
-      RestartUnit(in  s name,
-                  in  s mode,
-                  out o job);
-      TryRestartUnit(in  s name,
+          StartUnit(in  s name,
+                    in  s mode,
+                    out o job);
+          StartUnitReplace(in  s old_unit,
+                           in  s new_unit,
+                           in  s mode,
+                           out o job);
+          StopUnit(in  s name,
+                   in  s mode,
+                   out o job);
+          ReloadUnit(in  s name,
                      in  s mode,
                      out o job);
-      ReloadOrRestartUnit(in  s name,
-                          in  s mode,
-                          out o job);
-      ReloadOrTryRestartUnit(in  s name,
-                             in  s mode,
-                             out o job);
-      KillUnit(in  s name,
-               in  s who,
-               in  i signal);
-      ResetFailedUnit(in  s name);
-      GetJob(in  u id,
-             out o job);
-      CancelJob(in  u id);
-      ClearJobs();
-      ResetFailed();
-      ListUnits(out a(ssssssouso) units);
-      ListJobs(out a(usssoo) jobs);
-      Subscribe();
-      Unsubscribe();
-      CreateSnapshot(in  s name,
-                     in  b cleanup,
-                     out o unit);
-      RemoveSnapshot(in  s name);
-      Reload();
-      Reexecute();
-      Exit();
-      Reboot();
-      PowerOff();
-      Halt();
-      KExec();
-      SwitchRoot(in  s new_root,
-                 in  s init);
-      SetEnvironment(in  as names);
-      UnsetEnvironment(in  as names);
-      UnsetAndSetEnvironment(in  as unset,
-                             in  as set);
-      ListUnitFiles(out a(ss) changes);
-      GetUnitFileState(in  s file,
-                       out s state);
-      EnableUnitFiles(in  as files,
-                      in  b runtime,
-                      in  b force,
-                      out b carries_install_info,
-                      out a(sss) changes);
-      DisableUnitFiles(in  as files,
-                       in  b runtime,
-                       out a(sss) changes);
-      ReenableUnitFiles(in  as files,
+          RestartUnit(in  s name,
+                      in  s mode,
+                      out o job);
+          TryRestartUnit(in  s name,
+                         in  s mode,
+                         out o job);
+          ReloadOrRestartUnit(in  s name,
+                              in  s mode,
+                              out o job);
+          ReloadOrTryRestartUnit(in  s name,
+                                 in  s mode,
+                                 out o job);
+          KillUnit(in  s name,
+                   in  s who,
+                   in  i signal);
+          ResetFailedUnit(in  s name);
+          SetUnitControlGroup(in  s name,
+                              in  s group,
+                              in  s mode);
+          UnsetUnitControlGroup(in  s name,
+                                in  s group,
+                                in  s mode);
+          GetUnitControlGroupAttribute(in  s name,
+                                       in  s attribute,
+                                       out as values);
+          SetUnitControlGroupAttribute(in  s name,
+                                       in  s attribute,
+                                       in  as values,
+                                       in  s mode);
+          UnsetUnitControlGroupAttributes(in  s name,
+                                          in  s attribute,
+                                          in  s mode);
+          GetJob(in  u id,
+                 out o job);
+          CancelJob(in  u id);
+          ClearJobs();
+          ResetFailed();
+          ListUnits(out a(ssssssouso) units);
+          ListJobs(out a(usssoo) jobs);
+          Subscribe();
+          Unsubscribe();
+          Dump(out s dump);
+          CreateSnapshot(in  s name,
+                         in  b cleanup,
+                         out o unit);
+          RemoveSnapshot(in  s name);
+          Reload();
+          Reexecute();
+          Exit();
+          Reboot();
+          PowerOff();
+          Halt();
+          KExec();
+          SwitchRoot(in  s new_root,
+                     in  s init);
+          SetEnvironment(in  as names);
+          UnsetEnvironment(in  as names);
+          UnsetAndSetEnvironment(in  as unset,
+                                 in  as set);
+          ListUnitFiles(out a(ss) files);
+          GetUnitFileState(in  s file,
+                           out s state);
+          EnableUnitFiles(in  as files,
+                          in  b runtime,
+                          in  b force,
+                          out b carries_install_info,
+                          out a(sss) changes);
+          DisableUnitFiles(in  as files,
+                           in  b runtime,
+                           out a(sss) changes);
+          ReenableUnitFiles(in  as files,
+                            in  b runtime,
+                            in  b force,
+                            out b carries_install_info,
+                            out a(sss) changes);
+          LinkUnitFiles(in  as files,
                         in  b runtime,
                         in  b force,
-                        out b carries_install_info,
                         out a(sss) changes);
-      LinkUnitFiles(in  as files,
-                    in  b runtime,
-                    in  b force,
-                    out a(sss) changes);
-      PresetUnitFiles(in  as files,
-                      in  b runtime,
-                      in  b force,
-                      out b carries_install_info,
-                      out a(sss) changes);
-      MaskUnitFiles(in  as files,
-                    in  b runtime,
-                    in  b force,
-                    out a(sss) changes);
-      UnmaskUnitFiles(in  as files,
-                      in  b runtime,
-                      out a(sss) changes);
-    signals:
-      UnitNew(s id,
-              o unit);
-      UnitRemoved(s id,
+          PresetUnitFiles(in  as files,
+                          in  b runtime,
+                          in  b force,
+                          out b carries_install_info,
+                          out a(sss) changes);
+          MaskUnitFiles(in  as files,
+                        in  b runtime,
+                        in  b force,
+                        out a(sss) changes);
+          UnmaskUnitFiles(in  as files,
+                          in  b runtime,
+                          out a(sss) changes);
+        signals:
+          UnitNew(s id,
                   o unit);
-      JobNew(u id,
-             o job,
-             s unit);
-      JobRemoved(u id,
+          UnitRemoved(s id,
+                      o unit);
+          JobNew(u id,
                  o job,
-                 s unit,
-                 s result);
-      StartupFinished(t firmware,
-                      t loader,
-                      t kernel,
-                      t initrd,
-                      t userspace,
-                      t total);
-      UnitFilesChanged();
-    properties:
-      readonly s Version = 'systemd 185';
-      readonly s Features = '+PAM +LIBWRAP +AUDIT +SELINUX +IMA +SYSVINIT +LIBCRYPTSETUP';
-      readonly s Tainted = '';
-      readonly t FirmwareTimestamp = 0;
-      readonly t FirmwareTimestampMonotonic = 0;
-      readonly t LoaderTimestamp = 0;
-      readonly t LoaderTimestampMonotonic = 0;
-      readonly t KernelTimestamp =1340822954124381;
-      readonly t KernelTimestampMonotonic = 0;
-      readonly t InitRDTimestamp = 1340822954724393;
-      readonly t InitRDTimestampMonotonic = 2431571;
-      readonly t UserspaceTimestamp = 1340822956472674;
-      readonly t UserspaceTimestampMonotonic = 4179853;
-      readonly t FinishTimestamp = 1340822966825952;
-      readonly t FinishTimestampMonotonic = 14533131;
-      readwrite s LogLevel = 'debug';
-      readwrite s LogTarget = 'kmsg';
-      readonly u NNames = 249;
-      readonly u NJobs = 0;
-      readonly u NInstalledJobs = 4;
-      readonly u NFailedJobs = 0;
-      readonly d Progress = 1.0;
-      readonly as Environment = ['SYSFONT=latarcyrheb-sun16', 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin', 'DRACUT_QUIET=yes', 'LANG=en_US.UTF-8', 'KEYTABLE=de-latin1'];
-      readonly b ConfirmSpawn = false;
-      readonly b ShowStatus = true;
-      readonly as UnitPath = ['/etc/systemd/system', '/run/systemd/generator', '/usr/lib/systemd/system'];
-      readonly s ControlGroupHierarchy = '/system';
-      readonly as DefaultControllers = ['cpu'];
-      readonly s DefaultStandardOutput = 'journal';
-      readonly s DefaultStandardError = 'inherit';
-      readwrite s RuntimeWatchdogUSec = 0;
-      readwrite s ShutdownWatchdogUSec = 600000000;
-      readonly s Virtualization = 'kvm';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+                 s unit);
+          JobRemoved(u id,
+                     o job,
+                     s unit,
+                     s result);
+          StartupFinished(t firmware,
+                          t loader,
+                          t kernel,
+                          t initrd,
+                          t userspace,
+                          t total);
+          UnitFilesChanged();
+        properties:
+          readonly s Version = 'systemd 204';
+          readonly s Features = '+PAM +LIBWRAP +AUDIT +SELINUX +IMA +SYSVINIT +LIBCRYPTSETUP +GCRYPT +ACL +XZ';
+          readonly s Tainted = '';
+          readonly t FirmwareTimestamp = 0;
+          readonly t FirmwareTimestampMonotonic = 0;
+          readonly t LoaderTimestamp = 0;
+          readonly t LoaderTimestampMonotonic = 0;
+          readonly t KernelTimestamp = 1368576716000000;
+          readonly t KernelTimestampMonotonic = 0;
+          readonly t InitRDTimestamp = 1368576727929204;
+          readonly t InitRDTimestampMonotonic = 11929204;
+          readonly t UserspaceTimestamp = 1368576737179655;
+          readonly t UserspaceTimestampMonotonic = 21179655;
+          readonly t FinishTimestamp = 1368548029484789;
+          readonly t FinishTimestampMonotonic = 112796891;
+          readwrite s LogLevel = 'info';
+          readwrite s LogTarget = 'journal-or-kmsg';
+          readonly u NNames = 292;
+          readonly u NJobs = 0;
+          readonly u NInstalledJobs = 2719773932;
+          readonly u NFailedJobs = 0;
+          readonly d Progress = 1.0;
+          readonly as Environment = ['BOOT_IMAGE=/vmlinuz-3.9.0-0.rc8.git0.2.fc19.x86_64', 'LANG=en_US.UTF-8', 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'];
+          readonly b ConfirmSpawn = false;
+          readonly b ShowStatus = true;
+          readonly as UnitPath = ['/etc/systemd/system', '/run/systemd/system', '/run/systemd/generator', '/usr/local/lib/systemd/system', '/usr/lib/systemd/system'];
+          readonly s ControlGroupHierarchy = '/system';
+          readonly as DefaultControllers = ['cpu'];
+          readonly s DefaultStandardOutput = 'journal';
+          readonly s DefaultStandardError = 'inherit';
+          readwrite t RuntimeWatchdogUSec = 0;
+          readwrite t ShutdownWatchdogUSec = 600000000;
+          readonly s Virtualization = '';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    }; 
 
 ### Security
 
@@ -262,15 +278,15 @@ Note that many of the calls exist twice: once on the Manager object, and once on
 
 **EnableUnitFiles()** may be used to enable one or more units in the system (by creating symlinks to them in /etc or /run). It takes a list of unit files to enable (either just file names or full absolute paths if the unit files are residing outside the usual unit search paths), and two booleans: the first controls whether the unit shall be enabled for runtime only (true, /run), or persistently (false, /etc). The second one controls whether symlinks pointing to other units shall be replaced if necessary. This call returns one boolean and an array with the changes made. The boolean signals whether the unit files contained any enablement information (i.e. an [Install]) section. The changes list consists of structures with three strings: the type of the change (one of _symlink_ or _unlink_), the file name of the symlink and the destination of the symlink. Note that most of the following calls return a changes list in the same format. 
 
-Similar, **DisableUnitFiles()** disables one or more units in the system, i.e. removes all symlinks to them in /etc and /run.  
+Similarly, **DisableUnitFiles()** disables one or more units in the system, i.e. removes all symlinks to them in /etc and /run.  
 
-Similar, **ReenableUnitFiles()** applies the changes to one or more units that would result from disabling and enabling the unit quickly one after the other in an atomic fashion. This is useful to apply updated [Install] information contained in unit files. 
+Similarly, **ReenableUnitFiles()** applies the changes to one or more units that would result from disabling and enabling the unit quickly one after the other in an atomic fashion. This is useful to apply updated [Install] information contained in unit files. 
 
-Similar, **LinkUnitFiles()** links unit files (that are located outside of the usual unit search paths) into the unit search path. 
+Similarly, **LinkUnitFiles()** links unit files (that are located outside of the usual unit search paths) into the unit search path. 
 
-Similar, **PresetUnitFiles()** enables/disables one or more units file according to the preset policy. See [[Presets|http://freedesktop.org/wiki/Software/systemd/Preset]] for more information. 
+Similarly, **PresetUnitFiles()** enables/disables one or more units file according to the preset policy. See [[Presets|http://freedesktop.org/wiki/Software/systemd/Preset]] for more information. 
 
-Similar, **MaskUnitFiles()** masks unit files, and **UnmaskUnitFiles()** unmasks them again. 
+Similarly, **MaskUnitFiles()** masks unit files, and **UnmaskUnitFiles()** unmasks them again. 
 
 
 ### Signals
@@ -321,103 +337,105 @@ Most properties simply reflect the respective options in `/etc/systemd/system.co
 
 All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface. Depending on the unit type they also implement one unit-type-specific interface, as described below. 
 
-
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice
-node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
-  interface org.freedesktop.systemd1.Unit {
-    methods:
-      Start(in  s mode,
-            out o job);
-      Stop(in  s mode,
-           out o job);
-      Reload(in  s mode,
-             out o job);
-      Restart(in  s mode,
-              out o job);
-      TryRestart(in  s mode,
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice
+    node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
+      interface org.freedesktop.systemd1.Unit {
+        methods:
+          Start(in  s mode,
+                out o job);
+          Stop(in  s mode,
+               out o job);
+          Reload(in  s mode,
                  out o job);
-      ReloadOrRestart(in  s mode,
-                      out o job);
-      ReloadOrTryRestart(in  s mode,
-                         out o job);
-      Kill(in  s who,
-           in  i signal);
-      ResetFailed();
-    signals:
-    properties:
-      readonly s Id = 'avahi-daemon.service';
-      readonly as Names = ['avahi-daemon.service'];
-      readonly s Following = '';
-      readonly as Requires = ['avahi-daemon.socket', 'systemd-journald.socket', 'dbus.socket', 'basic.target'];
-      readonly as RequiresOverridable = [];
-      readonly as Requisite = [];
-      readonly as RequisiteOverridable = [];
-      readonly as Wants = [];
-      readonly as BindsTo = [];
-      readonly as RequiredBy = [];
-      readonly as RequiredByOverridable = [];
-      readonly as WantedBy = ['multi-user.target', 'graphical.target'];
-      readonly as BoundBy = [];
-      readonly as Conflicts = ['shutdown.target'];
-      readonly as ConflictedBy = [];
-      readonly as Before = ['shutdown.target', 'multi-user.target'];
-      readonly as After = ['avahi-daemon.socket', 'systemd-journald.socket', 'dbus.socket', 'basic.target'];
-      readonly as OnFailure = [];
-      readonly as Triggers = [];
-      readonly as TriggeredBy = ['avahi-daemon.socket'];
-      readonly as PropagatesReloadTo = [];
-      readonly as ReloadPropagatedFrom = [];
-      readonly as RequiresMountsFor = [];
-      readonly s Description = 'Avahi mDNS/DNS-SD Stack';
-      readonly s SourcePath = '';
-      readonly as Documentation = [];
-      readonly s LoadState = 'loaded';
-      readonly s ActiveState = 'active';
-      readonly s SubState = 'running';
-      readonly s FragmentPath = '/usr/lib/systemd/system/avahi-daemon.service';
-      readonly s UnitFileState = 'enabled';
-      readonly t InactiveExitTimestamp = 1342738862998751;
-      readonly t InactiveExitTimestampMonotonic = 6799251;
-      readonly t ActiveEnterTimestamp = 1342738863176072;
-      readonly t ActiveEnterTimestampMonotonic = 6976573;
-      readonly t ActiveExitTimestamp = 0;
-      readonly t ActiveExitTimestampMonotonic = 0;
-      readonly t InactiveEnterTimestamp = 0;
-      readonly t InactiveEnterTimestampMonotonic = 0;
-      readonly b CanStart = true;
-      readonly b CanStop = true;
-      readonly b CanReload = true;
-      readonly b CanIsolate = false;
-      readonly (uo) Job = (0, '/org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice');
-      readonly b StopWhenUnneeded = false;
-      readonly b RefuseManualStart = false;
-      readonly b RefuseManualStop = false;
-      readonly b AllowIsolate = false;
-      readonly b DefaultDependencies = true;
-      readonly b OnFailureIsolate = false;
-      readonly b IgnoreOnIsolate = false;
-      readonly b IgnoreOnSnapshot = false;
-      readonly s DefaultControlGroup = 'name=systemd:/system/avahi-daemon.service';
-      readonly as ControlGroup = ['cpu:/system/avahi-daemon.service', 'name=systemd:/system/avahi-daemon.service'];
-      readonly a(sss) ControlGroupAttributes = [];
-      readonly b NeedDaemonReload = false;
-      readonly t JobTimeoutUSec = 0;
-      readonly t ConditionTimestamp = 1342738862978791;
-      readonly t ConditionTimestampMonotonic = 6779295;
-      readonly b ConditionResult = true;
-      readonly (ss) LoadError = ('', '');
-  };
-  interface org.freedesktop.systemd1.Service {
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+          Restart(in  s mode,
+                  out o job);
+          TryRestart(in  s mode,
+                     out o job);
+          ReloadOrRestart(in  s mode,
+                          out o job);
+          ReloadOrTryRestart(in  s mode,
+                             out o job);
+          Kill(in  s who,
+               in  i signal);
+          ResetFailed();
+        signals:
+        properties:
+          readonly s Id = 'avahi-daemon.service';
+          readonly as Names = ['avahi-daemon.service'];
+          readonly s Following = '';
+          readonly as Requires = ['avahi-daemon.socket', 'dbus.socket', 'basic.target'];
+          readonly as RequiresOverridable = [];
+          readonly as Requisite = [];
+          readonly as RequisiteOverridable = [];
+          readonly as Wants = [];
+          readonly as BindsTo = [];
+          readonly as PartOf = [];
+          readonly as RequiredBy = [];
+          readonly as RequiredByOverridable = [];
+          readonly as WantedBy = ['multi-user.target'];
+          readonly as BoundBy = [];
+          readonly as ConsistsOf = [];
+          readonly as Conflicts = ['shutdown.target'];
+          readonly as ConflictedBy = [];
+          readonly as Before = ['shutdown.target', 'multi-user.target'];
+          readonly as After = ['avahi-daemon.socket', 'systemd-journald.socket', 'dbus.socket', 'basic.target'];
+          readonly as OnFailure = [];
+          readonly as Triggers = [];
+          readonly as TriggeredBy = ['avahi-daemon.socket'];
+          readonly as PropagatesReloadTo = [];
+          readonly as ReloadPropagatedFrom = [];
+          readonly as RequiresMountsFor = [];
+          readonly s Description = 'Avahi mDNS/DNS-SD Stack';
+          readonly s SourcePath = '';
+          readonly as DropInPaths = [];
+          readonly as Documentation = [];
+          readonly s LoadState = 'loaded';
+          readonly s ActiveState = 'active';
+          readonly s SubState = 'running';
+          readonly s FragmentPath = '/usr/lib/systemd/system/avahi-daemon.service';
+          readonly s UnitFileState = 'enabled';
+          readonly t InactiveExitTimestamp = 1368576738559539;
+          readonly t InactiveExitTimestampMonotonic = 22561234;
+          readonly t ActiveEnterTimestamp = 1368576738648314;
+          readonly t ActiveEnterTimestampMonotonic = 22650009;
+          readonly t ActiveExitTimestamp = 0;
+          readonly t ActiveExitTimestampMonotonic = 0;
+          readonly t InactiveEnterTimestamp = 0;
+          readonly t InactiveEnterTimestampMonotonic = 0;
+          readonly b CanStart = true;
+          readonly b CanStop = true;
+          readonly b CanReload = true;
+          readonly b CanIsolate = false;
+          readonly (uo) Job = (0, '/org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice');
+          readonly b StopWhenUnneeded = false;
+          readonly b RefuseManualStart = false;
+          readonly b RefuseManualStop = false;
+          readonly b AllowIsolate = false;
+          readonly b DefaultDependencies = true;
+          readonly b OnFailureIsolate = false;
+          readonly b IgnoreOnIsolate = false;
+          readonly b IgnoreOnSnapshot = false;
+          readonly b NeedDaemonReload = false;
+          readonly t JobTimeoutUSec = 0;
+          readonly t ConditionTimestamp = 1368576738557978;
+          readonly t ConditionTimestampMonotonic = 22559674;
+          readonly b ConditionResult = true;
+          readonly (ss) LoadError = ('', '');
+      };
+      interface org.freedesktop.systemd1.Service {
+        ...
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
+
 
 ### Methods
 
@@ -481,122 +499,138 @@ node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
 
 All service unit objects implement the `org.freedesktop.systemd1.Service` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice
+    node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Service {
+        methods:
+          SetControlGroup(in  s group,
+                          in  s mode);
+          UnsetControlGroup(in  s group,
+                            in  s mode);
+          GetControlGroupAttribute(in  s attribute,
+                                   out as values);
+          SetControlGroupAttribute(in  s attribute,
+                                   in  as values,
+                                   in  s mode);
+          UnsetControlGroupAttribute(in  s attribute,
+                                     in  s mode);
+        signals:
+        properties:
+          readonly s Type = 'dbus';
+          readonly s Restart = 'no';
+          readonly s PIDFile = '';
+          readonly s NotifyAccess = 'main';
+          readonly t RestartUSec = 100000;
+          readonly t TimeoutUSec = 90000000;
+          readonly t WatchdogUSec = 0;
+          readonly t WatchdogTimestamp = 0;
+          readonly t WatchdogTimestampMonotonic = 0;
+          readonly t StartLimitInterval = 10000000;
+          readonly u StartLimitBurst = 5;
+          readwrite s StartLimitAction = 'none';
+          readonly a(sasbttuii) ExecStartPre = [];
+          readonly a(sasbttuii) ExecStart = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-s'], false, 0, 0, 0, 0, 0, 0, 0)];
+          readonly a(sasbttuii) ExecStartPost = [];
+          readonly a(sasbttuii) ExecReload = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-r'], false, 0, 0, 0, 0, 0, 0, 0)];
+          readonly a(sasbttuii) ExecStop = [];
+          readonly a(sasbttuii) ExecStopPost = [];
+          readonly as Environment = [];
+          readonly a(sb) EnvironmentFiles = [];
+          readonly u UMask = 18;
+          readonly t LimitCPU = 18446744073709551615;
+          readonly t LimitFSIZE = 18446744073709551615;
+          readonly t LimitDATA = 18446744073709551615;
+          readonly t LimitSTACK = 18446744073709551615;
+          readonly t LimitCORE = 18446744073709551615;
+          readonly t LimitRSS = 18446744073709551615;
+          readonly t LimitNOFILE = 4096;
+          readonly t LimitAS = 18446744073709551615;
+          readonly t LimitNPROC = 256963;
+          readonly t LimitMEMLOCK = 65536;
+          readonly t LimitLOCKS = 18446744073709551615;
+          readonly t LimitSIGPENDING = 256963;
+          readonly t LimitMSGQUEUE = 819200;
+          readonly t LimitNICE = 0;
+          readonly t LimitRTPRIO = 0;
+          readonly t LimitRTTIME = 18446744073709551615;
+          readonly s WorkingDirectory = '';
+          readonly s RootDirectory = '';
+          readonly i OOMScoreAdjust = 0;
+          readonly i Nice = 0;
+          readonly i IOScheduling = 0;
+          readonly i CPUSchedulingPolicy = 0;
+          readonly i CPUSchedulingPriority = 0;
+          readonly ay CPUAffinity = [];
+          readonly t TimerSlackNS;
+          readonly b CPUSchedulingResetOnFork = false;
+          readonly b NonBlocking = false;
+          readonly s StandardInput = 'null';
+          readonly s StandardOutput = 'journal';
+          readonly s StandardError = 'inherit';
+          readonly s TTYPath = '';
+          readonly b TTYReset = false;
+          readonly b TTYVHangup = false;
+          readonly b TTYVTDisallocate = false;
+          readonly i SyslogPriority = 30;
+          readonly s SyslogIdentifier = '';
+          readonly b SyslogLevelPrefix = true;
+          readonly s Capabilities = '';
+          readonly i SecureBits = 0;
+          readonly t CapabilityBoundingSet = 18446744073709551615;
+          readonly s User = '';
+          readonly s Group = '';
+          readonly as SupplementaryGroups = [];
+          readonly s TCPWrapName = '';
+          readonly s PAMName = '';
+          readonly as ReadWriteDirectories = [];
+          readonly as ReadOnlyDirectories = [];
+          readonly as InaccessibleDirectories = [];
+          readonly t MountFlags = 0;
+          readonly b PrivateTmp = false;
+          readonly b PrivateNetwork = false;
+          readonly b SameProcessGroup = false;
+          readonly s UtmpIdentifier = '';
+          readonly b ControlGroupModify = false;
+          readonly b ControlGroupPersistent = false;
+          readonly b IgnoreSIGPIPE = true;
+          readonly b NoNewPrivileges = false;
+          readonly au SystemCallFilter = [];
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly b SendSIGKILL = true;
+          readonly s DefaultControlGroup = 'name=systemd:/system/avahi-daemon.service';
+          readonly as ControlGroups = ['cpu:/system/avahi-daemon.service', 'name=systemd:/system/avahi-daemon.service'];
+          readonly a(sss) ControlGroupAttributes = [];
+          readonly b PermissionsStartOnly = false;
+          readonly b RootDirectoryStartOnly = false;
+          readonly b RemainAfterExit = false;
+          readonly t ExecMainStartTimestamp = 1368576738559537;
+          readonly t ExecMainStartTimestampMonotonic = 22561233;
+          readonly t ExecMainExitTimestamp = 1368576738559537;
+          readonly t ExecMainExitTimestampMonotonic = 22561233;
+          readonly u ExecMainPID = 666;
+          readonly i ExecMainCode = 0;
+          readonly i ExecMainStatus = 0;
+          readonly u MainPID = 666;
+          readonly u ControlPID = 0;
+          readonly s BusName = 'org.freedesktop.Avahi';
+          readonly s StatusText = 'Server startup complete. Host name is fedora.local. Local service cookie is 2431121142.';
+          readonly s Result = 'success';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservicenode /org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Service {
-    methods:
-    signals:
-    properties:
-      readonly s Type = 'dbus';
-      readonly s Restart = 'no';
-      readonly s PIDFile = '';
-      readonly s NotifyAccess = 'main';
-      readonly t RestartUSec = 100000;
-      readonly t TimeoutUSec = 90000000;
-      readonly t WatchdogUSec = 0;
-      readonly t WatchdogTimestamp = 0;
-      readonly t WatchdogTimestampMonotonic = 0;
-      readonly t StartLimitInterval = 10000000;
-      readonly u StartLimitBurst = 5;
-      readwrite s StartLimitAction = 'none';
-      readonly a(sasbttuii) ExecStartPre = [];
-      readonly a(sasbttuii) ExecStart = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-s'], false, 1342738862998611, 6799112, 0, 0, 338, 0, 0)];
-      readonly a(sasbttuii) ExecStartPost = [];
-      readonly a(sasbttuii) ExecReload = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-r'], false, 0, 0, 0, 0, 0, 0, 0)];
-      readonly a(sasbttuii) ExecStop = [];
-      readonly a(sasbttuii) ExecStopPost = [];
-      readonly as Environment = [];
-      readonly u UMask = 18;
-      readonly t LimitCPU = 18446744073709551615;
-      readonly t LimitFSIZE = 18446744073709551615;
-      readonly t LimitDATA = 18446744073709551615;
-      readonly t LimitSTACK = 18446744073709551615;
-      readonly t LimitCORE = 18446744073709551615;
-      readonly t LimitRSS = 18446744073709551615;
-      readonly t LimitNOFILE = 4096;
-      readonly t LimitAS = 18446744073709551615;
-      readonly t LimitNPROC = 29974;
-      readonly t LimitMEMLOCK = 65536;
-      readonly t LimitLOCKS = 18446744073709551615;
-      readonly t LimitSIGPENDING = 29974;
-      readonly t LimitMSGQUEUE = 819200;
-      readonly t LimitNICE = 0;
-      readonly t LimitRTPRIO = 0;
-      readonly t LimitRTTIME = 18446744073709551615;
-      readonly s WorkingDirectory = '';
-      readonly s RootDirectory = '';
-      readonly i OOMScoreAdjust = 0;
-      readonly i Nice = 0;
-      readonly i IOScheduling = 0;
-      readonly i CPUSchedulingPolicy = 0;
-      readonly i CPUSchedulingPriority = 0;
-      readonly ay CPUAffinity = [];
-      readonly t TimerSlackNS;
-      readonly b CPUSchedulingResetOnFork = false;
-      readonly b NonBlocking = false;
-      readonly s StandardInput = 'null';
-      readonly s StandardOutput = 'journal';
-      readonly s StandardError = 'inherit';
-      readonly s TTYPath = '';
-      readonly b TTYReset = false;
-      readonly b TTYVHangup = false;
-      readonly b TTYVTDisallocate = false;
-      readonly i SyslogPriority = 30;
-      readonly s SyslogIdentifier = '';
-      readonly b SyslogLevelPrefix = true;
-      readonly s Capabilities = '';
-      readonly i SecureBits = 0;
-      readonly t CapabilityBoundingSet = 18446744073709551615;
-      readonly s User = '';
-      readonly s Group = '';
-      readonly as SupplementaryGroups = [];
-      readonly s TCPWrapName = '';
-      readonly s PAMName = '';
-      readonly as ReadWriteDirectories = [];
-      readonly as ReadOnlyDirectories = [];
-      readonly as InaccessibleDirectories = [];
-      readonly t MountFlags = 1048576;
-      readonly b PrivateTmp = false;
-      readonly b SameProcessGroup = false;
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly s UtmpIdentifier = '';
-      readonly b ControlGroupModify = false;
-      readonly b ControlGroupPersistent = false;
-      readonly b PrivateNetwork = false;
-      readonly b IgnoreSIGPIPE = true;
-      readonly b NoNewPrivileges = false;
-      readonly au SystemCallFilter = [];
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly b SendSIGKILL = true;
-      readonly b PermissionsStartOnly = false;
-      readonly b RootDirectoryStartOnly = false;
-      readonly b RemainAfterExit = false;
-      readonly t ExecMainStartTimestamp = 1342738862998734;
-      readonly t ExecMainStartTimestampMonotonic = 6799234;
-      readonly t ExecMainExitTimestamp = 1342738862998734;
-      readonly t ExecMainExitTimestampMonotonic = 6799234;
-      readonly u ExecMainPID = 338;
-      readonly i ExecMainCode = 0;
-      readonly i ExecMainStatus = 0;
-      readonly u MainPID = 338;
-      readonly u ControlPID = 0;
-      readonly s BusName = 'org.freedesktop.Avahi';
-      readonly s StatusText = 'Server startup complete. Host name is epsilon.local. Local service cookie is 3963893972.';
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
 
 ### Properties
 
@@ -626,123 +660,125 @@ Most properties of the Service interface map directly to the corresponding setti
 All socket unit objects implement the `org.freedesktop.systemd1.Socket` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket 
-node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Socket {
-    methods:
-    signals:
-    properties:
-      readonly b BindIPv6Only = 'default';
-      readonly u Backlog = 128;
-      readonly t TimeoutUSec = 90000000;
-      readonly a(sasbttuii) ExecStartPre = [];
-      readonly a(sasbttuii) ExecStartPost = [];
-      readonly a(sasbttuii) ExecStopPre = [];
-      readonly a(sasbttuii) ExecStopPost = [];
-      readonly as Environment = [];
-      readonly u UMask = 18;
-      readonly t LimitCPU = 18446744073709551615;
-      readonly t LimitFSIZE = 18446744073709551615;
-      readonly t LimitDATA = 18446744073709551615;
-      readonly t LimitSTACK = 18446744073709551615;
-      readonly t LimitCORE = 18446744073709551615;
-      readonly t LimitRSS = 18446744073709551615;
-      readonly t LimitNOFILE = 4096;
-      readonly t LimitAS = 18446744073709551615;
-      readonly t LimitNPROC = 61434;
-      readonly t LimitMEMLOCK = 65536;
-      readonly t LimitLOCKS = 18446744073709551615;
-      readonly t LimitSIGPENDING = 61434;
-      readonly t LimitMSGQUEUE = 819200;
-      readonly t LimitNICE = 0;
-      readonly t LimitRTPRIO = 0;
-      readonly t LimitRTTIME = 18446744073709551615;
-      readonly s WorkingDirectory = '';
-      readonly s RootDirectory = '';
-      readonly i OOMScoreAdjust = 0;
-      readonly i Nice = 0;
-      readonly i IOScheduling = 0;
-      readonly i CPUSchedulingPolicy = 0;
-      readonly i CPUSchedulingPriority = 0;
-      readonly ay CPUAffinity = [];
-      readonly t TimerSlackNS;
-      readonly b CPUSchedulingResetOnFork = false;
-      readonly b NonBlocking = false;
-      readonly s StandardInput = 'null';
-      readonly s StandardOutput = 'journal';
-      readonly s StandardError = 'inherit';
-      readonly s TTYPath = '';
-      readonly b TTYReset = false;
-      readonly b TTYVHangup = false;
-      readonly b TTYVTDisallocate = false;
-      readonly i SyslogPriority = 30;
-      readonly s SyslogIdentifier = '';
-      readonly b SyslogLevelPrefix = true;
-      readonly s Capabilities = '';
-      readonly i SecureBits = 0;
-      readonly t CapabilityBoundingSet = 18446744073709551615;
-      readonly s User = '';
-      readonly s Group = '';
-      readonly as SupplementaryGroups = [];
-      readonly s TCPWrapName = '';
-      readonly s PAMName = '';
-      readonly as ReadWriteDirectories = [];
-      readonly as ReadOnlyDirectories = [];
-      readonly as InaccessibleDirectories = [];
-      readonly t MountFlags = 0;
-      readonly b PrivateTmp = false;
-      readonly b SameProcessGroup = false;
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly s UtmpIdentifier = '';
-      readonly b ControlGroupModify = false;
-      readonly b ControlGroupPersistent = false;
-      readonly b PrivateNetwork = false;
-      readonly b IgnoreSIGPIPE = true;
-      readonly b NoNewPrivileges = false;
-      readonly au SystemCallFilter = [];
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly b SendSIGKILL = true;
-      readonly u ControlPID = 0;
-      readonly s BindToDevice = '';
-      readonly u DirectoryMode = 493;
-      readonly u SocketMode = 438;
-      readonly b Accept = false;
-      readonly b KeepAlive = false;
-      readonly i Priority = -1;
-      readonly t ReceiveBuffer = 0;
-      readonly t SendBuffer = 0;
-      readonly i IPTOS = -1;
-      readonly i IPTTL = -1;
-      readonly t PipeSize = 0;
-      readonly b FreeBind = false;
-      readonly b Transparent = false;
-      readonly b Broadcast = false;
-      readonly b PassCredentials = false;
-      readonly b PassSecurity = false;
-      readonly i Mark = -1;
-      readonly u MaxConnections = 64;
-      readonly u NAccepted = 0;
-      readonly u NConnections = 0;
-      readonly x MessageQueueMaxMessages = 0;
-      readonly x MessageQueueMessageSize = 0;
-      readonly s Result = 'success';
-      readonly s SmackLabel = '';
-      readonly s SmackLabelIPIn = '';
-      readonly s SmackLabelIPOut = '';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket 
+    node /org/freedesktop/systemd1/unit/avahi_2ddaemon_2esocket {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Socket {
+        methods:
+        signals:
+        properties:
+          readonly b BindIPv6Only = 'default';
+          readonly u Backlog = 128;
+          readonly t TimeoutUSec = 90000000;
+          readonly a(sasbttuii) ExecStartPre = [];
+          readonly a(sasbttuii) ExecStartPost = [];
+          readonly a(sasbttuii) ExecStopPre = [];
+          readonly a(sasbttuii) ExecStopPost = [];
+          readonly as Environment = [];
+          readonly u UMask = 18;
+          readonly t LimitCPU = 18446744073709551615;
+          readonly t LimitFSIZE = 18446744073709551615;
+          readonly t LimitDATA = 18446744073709551615;
+          readonly t LimitSTACK = 18446744073709551615;
+          readonly t LimitCORE = 18446744073709551615;
+          readonly t LimitRSS = 18446744073709551615;
+          readonly t LimitNOFILE = 4096;
+          readonly t LimitAS = 18446744073709551615;
+          readonly t LimitNPROC = 61434;
+          readonly t LimitMEMLOCK = 65536;
+          readonly t LimitLOCKS = 18446744073709551615;
+          readonly t LimitSIGPENDING = 61434;
+          readonly t LimitMSGQUEUE = 819200;
+          readonly t LimitNICE = 0;
+          readonly t LimitRTPRIO = 0;
+          readonly t LimitRTTIME = 18446744073709551615;
+          readonly s WorkingDirectory = '';
+          readonly s RootDirectory = '';
+          readonly i OOMScoreAdjust = 0;
+          readonly i Nice = 0;
+          readonly i IOScheduling = 0;
+          readonly i CPUSchedulingPolicy = 0;
+          readonly i CPUSchedulingPriority = 0;
+          readonly ay CPUAffinity = [];
+          readonly t TimerSlackNS;
+          readonly b CPUSchedulingResetOnFork = false;
+          readonly b NonBlocking = false;
+          readonly s StandardInput = 'null';
+          readonly s StandardOutput = 'journal';
+          readonly s StandardError = 'inherit';
+          readonly s TTYPath = '';
+          readonly b TTYReset = false;
+          readonly b TTYVHangup = false;
+          readonly b TTYVTDisallocate = false;
+          readonly i SyslogPriority = 30;
+          readonly s SyslogIdentifier = '';
+          readonly b SyslogLevelPrefix = true;
+          readonly s Capabilities = '';
+          readonly i SecureBits = 0;
+          readonly t CapabilityBoundingSet = 18446744073709551615;
+          readonly s User = '';
+          readonly s Group = '';
+          readonly as SupplementaryGroups = [];
+          readonly s TCPWrapName = '';
+          readonly s PAMName = '';
+          readonly as ReadWriteDirectories = [];
+          readonly as ReadOnlyDirectories = [];
+          readonly as InaccessibleDirectories = [];
+          readonly t MountFlags = 0;
+          readonly b PrivateTmp = false;
+          readonly b SameProcessGroup = false;
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly s UtmpIdentifier = '';
+          readonly b ControlGroupModify = false;
+          readonly b ControlGroupPersistent = false;
+          readonly b PrivateNetwork = false;
+          readonly b IgnoreSIGPIPE = true;
+          readonly b NoNewPrivileges = false;
+          readonly au SystemCallFilter = [];
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly b SendSIGKILL = true;
+          readonly u ControlPID = 0;
+          readonly s BindToDevice = '';
+          readonly u DirectoryMode = 493;
+          readonly u SocketMode = 438;
+          readonly b Accept = false;
+          readonly b KeepAlive = false;
+          readonly i Priority = -1;
+          readonly t ReceiveBuffer = 0;
+          readonly t SendBuffer = 0;
+          readonly i IPTOS = -1;
+          readonly i IPTTL = -1;
+          readonly t PipeSize = 0;
+          readonly b FreeBind = false;
+          readonly b Transparent = false;
+          readonly b Broadcast = false;
+          readonly b PassCredentials = false;
+          readonly b PassSecurity = false;
+          readonly i Mark = -1;
+          readonly u MaxConnections = 64;
+          readonly u NAccepted = 0;
+          readonly u NConnections = 0;
+          readonly x MessageQueueMaxMessages = 0;
+          readonly x MessageQueueMessageSize = 0;
+          readonly s Result = 'success';
+          readonly s SmackLabel = '';
+          readonly s SmackLabelIPIn = '';
+          readonly s SmackLabelIPOut = '';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -750,7 +786,7 @@ Most of the properties map directly to the corresponding settings in socket unit
 
 **NAccepted** contains the accumulated number of connections ever accepted on this socket. This only applies to sockets with **Accept** set to _true_, i.e. those where systemd is responsible for accepted connections.  
 
-Similar **NConnections** contains the number of currently open connections on this socket, and also applies only to socket with **Accept** set to _true_. 
+Similarly **NConnections** contains the number of currently open connections on this socket, and also applies only to socket with **Accept** set to _true_. 
 
 **Result** encodes the reason why a socket unit failed if it is in _failed_ state (see **ActiveState** above). The values _success_, _resources_, _timeout_, _exit-code_, _signal_ and _core-dump_ have the same meaning as they have for the corresponding field of service units (see above). In addition to that the value **service-failed-permanent** indicates that the service of this socket failed continuously. 
 
@@ -760,24 +796,27 @@ Similar **NConnections** contains the number of currently open connections on th
 All target unit objects implement the `org.freedesktop.systemd1.Target` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/basic_2etarget 
-node /org/freedesktop/systemd1/unit/basic_2etarget {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Target {
-    methods:
-    signals:
-    properties:
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/basic_2etarget 
+    node /org/freedesktop/systemd1/unit/basic_2etarget {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Target {
+        methods:
+        signals:
+        properties:
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
+
 Target units have neither type-specific methods nor properties. 
 
 
@@ -786,25 +825,27 @@ Target units have neither type-specific methods nor properties.
 All device unit objects implement the `org.freedesktop.systemd1.Device` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice
-node /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Device {
-    methods:
-    signals:
-    properties:
-      readonly s SysFSPath = '/sys/devices/pci0000:00/0000:00:1f.2/ata2/host1/target1:0:0/1:0:0:0/block/sdb';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice
+    node /org/freedesktop/systemd1/unit/dev_2ddisk_2dby_5cx2did_2data_5cx2dSAMSUNG_5fHD501LJ_5fS0MUJ1KQ161445_2edevice {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Device {
+        methods:
+        signals:
+        properties:
+          readonly s SysFSPath = '/sys/devices/pci0000:00/0000:00:1f.2/ata2/host1/target1:0:0/1:0:0:0/block/sdb';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -817,101 +858,102 @@ Device units only expose a single type-specific property:
 
 All mount unit objects implement the `org.freedesktop.systemd1.Mount` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
-
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/home_2emount 
-node /org/freedesktop/systemd1/unit/home_2emount {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Mount {
-    methods:
-    signals:
-    properties:
-      readonly s Where = '/home';
-      readonly s What = '/dev/mapper/home';
-      readonly s Options = 'rw,relatime,rw,seclabel,data=ordered';
-      readonly s Type = 'ext4';
-      readonly t TimeoutUSec = 90000000;
-      readonly a(sasbttuii) ExecMount = [('/bin/mount', ['/bin/mount', '/dev/disk/by-uuid/59a54df8-d070-4907-a4a7-2e0ce05d5c2a', '/home', '-t', 'ext4'], false, 1357656124168977, 11158027, 1357656124274805, 11263855, 608, 1, 0)];
-      readonly a(sasbttuii) ExecUnmount = [];
-      readonly a(sasbttuii) ExecRemount = [];
-      readonly as Environment = [];
-      readonly u UMask = 18;
-      readonly t LimitCPU = 18446744073709551615;
-      readonly t LimitFSIZE = 18446744073709551615;
-      readonly t LimitDATA = 18446744073709551615;
-      readonly t LimitSTACK = 18446744073709551615;
-      readonly t LimitCORE = 18446744073709551615;
-      readonly t LimitRSS = 18446744073709551615;
-      readonly t LimitNOFILE = 4096;
-      readonly t LimitAS = 18446744073709551615;
-      readonly t LimitNPROC = 61434;
-      readonly t LimitMEMLOCK = 65536;
-      readonly t LimitLOCKS = 18446744073709551615;
-      readonly t LimitSIGPENDING = 61434;
-      readonly t LimitMSGQUEUE = 819200;
-      readonly t LimitNICE = 0;
-      readonly t LimitRTPRIO = 0;
-      readonly t LimitRTTIME = 18446744073709551615;
-      readonly s WorkingDirectory = '';
-      readonly s RootDirectory = '';
-      readonly i OOMScoreAdjust = 0;
-      readonly i Nice = 0;
-      readonly i IOScheduling = 0;
-      readonly i CPUSchedulingPolicy = 0;
-      readonly i CPUSchedulingPriority = 0;
-      readonly ay CPUAffinity = [];
-      readonly t TimerSlackNS;
-      readonly b CPUSchedulingResetOnFork = false;
-      readonly b NonBlocking = false;
-      readonly s StandardInput = 'null';
-      readonly s StandardOutput = 'journal';
-      readonly s StandardError = 'inherit';
-      readonly s TTYPath = '';
-      readonly b TTYReset = false;
-      readonly b TTYVHangup = false;
-      readonly b TTYVTDisallocate = false;
-      readonly i SyslogPriority = 30;
-      readonly s SyslogIdentifier = '';
-      readonly b SyslogLevelPrefix = true;
-      readonly s Capabilities = '';
-      readonly i SecureBits = 0;
-      readonly t CapabilityBoundingSet = 18446744073709551615;
-      readonly s User = '';
-      readonly s Group = '';
-      readonly as SupplementaryGroups = [];
-      readonly s TCPWrapName = '';
-      readonly s PAMName = '';
-      readonly as ReadWriteDirectories = [];
-      readonly as ReadOnlyDirectories = [];
-      readonly as InaccessibleDirectories = [];
-      readonly t MountFlags = 0;
-      readonly b PrivateTmp = false;
-      readonly b SameProcessGroup = true;
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly s UtmpIdentifier = '';
-      readonly b ControlGroupModify = false;
-      readonly b ControlGroupPersistent = false;
-      readonly b PrivateNetwork = false;
-      readonly b IgnoreSIGPIPE = true;
-      readonly b NoNewPrivileges = false;
-      readonly au SystemCallFilter = [];
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly b SendSIGKILL = true;
-      readonly u ControlPID = 0;
-      readonly u DirectoryMode = 493;
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/home_2emount 
+    node /org/freedesktop/systemd1/unit/home_2emount {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Mount {
+        methods:
+        signals:
+        properties:
+          readonly s Where = '/home';
+          readonly s What = '/dev/mapper/home';
+          readonly s Options = 'rw,relatime,rw,seclabel,data=ordered';
+          readonly s Type = 'ext4';
+          readonly t TimeoutUSec = 90000000;
+          readonly a(sasbttuii) ExecMount = [('/bin/mount', ['/bin/mount', '/dev/disk/by-uuid/59a54df8-d070-4907-a4a7-2e0ce05d5c2a', '/home', '-t', 'ext4'], false, 1357656124168977, 11158027, 1357656124274805, 11263855, 608, 1, 0)];
+          readonly a(sasbttuii) ExecUnmount = [];
+          readonly a(sasbttuii) ExecRemount = [];
+          readonly as Environment = [];
+          readonly u UMask = 18;
+          readonly t LimitCPU = 18446744073709551615;
+          readonly t LimitFSIZE = 18446744073709551615;
+          readonly t LimitDATA = 18446744073709551615;
+          readonly t LimitSTACK = 18446744073709551615;
+          readonly t LimitCORE = 18446744073709551615;
+          readonly t LimitRSS = 18446744073709551615;
+          readonly t LimitNOFILE = 4096;
+          readonly t LimitAS = 18446744073709551615;
+          readonly t LimitNPROC = 61434;
+          readonly t LimitMEMLOCK = 65536;
+          readonly t LimitLOCKS = 18446744073709551615;
+          readonly t LimitSIGPENDING = 61434;
+          readonly t LimitMSGQUEUE = 819200;
+          readonly t LimitNICE = 0;
+          readonly t LimitRTPRIO = 0;
+          readonly t LimitRTTIME = 18446744073709551615;
+          readonly s WorkingDirectory = '';
+          readonly s RootDirectory = '';
+          readonly i OOMScoreAdjust = 0;
+          readonly i Nice = 0;
+          readonly i IOScheduling = 0;
+          readonly i CPUSchedulingPolicy = 0;
+          readonly i CPUSchedulingPriority = 0;
+          readonly ay CPUAffinity = [];
+          readonly t TimerSlackNS;
+          readonly b CPUSchedulingResetOnFork = false;
+          readonly b NonBlocking = false;
+          readonly s StandardInput = 'null';
+          readonly s StandardOutput = 'journal';
+          readonly s StandardError = 'inherit';
+          readonly s TTYPath = '';
+          readonly b TTYReset = false;
+          readonly b TTYVHangup = false;
+          readonly b TTYVTDisallocate = false;
+          readonly i SyslogPriority = 30;
+          readonly s SyslogIdentifier = '';
+          readonly b SyslogLevelPrefix = true;
+          readonly s Capabilities = '';
+          readonly i SecureBits = 0;
+          readonly t CapabilityBoundingSet = 18446744073709551615;
+          readonly s User = '';
+          readonly s Group = '';
+          readonly as SupplementaryGroups = [];
+          readonly s TCPWrapName = '';
+          readonly s PAMName = '';
+          readonly as ReadWriteDirectories = [];
+          readonly as ReadOnlyDirectories = [];
+          readonly as InaccessibleDirectories = [];
+          readonly t MountFlags = 0;
+          readonly b PrivateTmp = false;
+          readonly b SameProcessGroup = true;
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly s UtmpIdentifier = '';
+          readonly b ControlGroupModify = false;
+          readonly b ControlGroupPersistent = false;
+          readonly b PrivateNetwork = false;
+          readonly b IgnoreSIGPIPE = true;
+          readonly b NoNewPrivileges = false;
+          readonly au SystemCallFilter = [];
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly b SendSIGKILL = true;
+          readonly u ControlPID = 0;
+          readonly u DirectoryMode = 493;
+          readonly s Result = 'success';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -927,27 +969,29 @@ Most of the properties map directly to the corresponding settings in mount unit 
 All automount unit objects implement the `org.freedesktop.systemd1.Automount` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount 
-node /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Automount {
-    methods:
-    signals:
-    properties:
-      readonly s Where = '/proc/sys/fs/binfmt_misc';
-      readonly u DirectoryMode = 493;
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount 
+    node /org/freedesktop/systemd1/unit/proc_2dsys_2dfs_2dbinfmt_5fmisc_2eautomount {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Automount {
+        methods:
+        signals:
+        properties:
+          readonly s Where = '/proc/sys/fs/binfmt_misc';
+          readonly u DirectoryMode = 493;
+          readonly s Result = 'success';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -961,26 +1005,28 @@ Most of the properties map directly to the corresponding settings in the automou
 All snapshot unit objects implement the `org.freedesktop.systemd1.Snapshot` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/foo_2esnapshot 
-node /org/freedesktop/systemd1/unit/foo_2esnapshot {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Snapshot {
-    methods:
-      Remove();
-    signals:
-    properties:
-      readonly b Cleanup = false;
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/foo_2esnapshot 
+    node /org/freedesktop/systemd1/unit/foo_2esnapshot {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Snapshot {
+        methods:
+          Remove();
+        signals:
+        properties:
+          readonly b Cleanup = false;
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Methods
 
@@ -997,27 +1043,29 @@ node /org/freedesktop/systemd1/unit/foo_2esnapshot {
 All timer unit objects implement the `org.freedesktop.systemd1.Timer` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer 
-node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Timer {
-      readonly s Unit = 'systemd-tmpfiles-clean.service';
-      readonly a(stt) TimersMonotonic = [('OnUnitActiveUSec', 86400000000, 173700033104), ('OnBootUSec', 900000000, 900000000)];
-      readonly a(sst) TimersCalendar = [];
-      readonly t NextElapseUSecRealtime = 0;
-      readonly t NextElapseUSecMonotonic = 173700033104;
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer 
+    node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Timer {
+          readonly s Unit = 'systemd-tmpfiles-clean.service';
+          readonly a(stt) TimersMonotonic = [('OnUnitActiveUSec', 86400000000, 173700033104), ('OnBootUSec', 900000000, 900000000)];
+          readonly a(sst) TimersCalendar = [];
+          readonly t NextElapseUSecRealtime = 0;
+          readonly t NextElapseUSecMonotonic = 173700033104;
+          readonly s Result = 'success';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -1029,7 +1077,7 @@ node /org/freedesktop/systemd1/unit/systemd_2dtmpfiles_2dclean_2etimer {
 
 **NextElapseUSecRealtime** contains the next elapsation point on the CLOCK_REALTIME clock in usec since the epoch, or 0 if this timer event does not include at least one calendar event. 
 
-Similar, **NextElapseUSecMonotonic** contains the next elapsation point on the CLOCK_MONOTONIC clock in usec since the epoch, or 0 if this timer event does not include at least one monotonic event. 
+Similarly, **NextElapseUSecMonotonic** contains the next elapsation point on the CLOCK_MONOTONIC clock in usec since the epoch, or 0 if this timer event does not include at least one monotonic event. 
 
 **Result** knows the values _success_ and _resources_ with the same meanings as the matching values of the corresponding property of the service interface. 
 
@@ -1039,95 +1087,98 @@ Similar, **NextElapseUSecMonotonic** contains the next elapsation point on the C
 All swap unit objects implement the `org.freedesktop.systemd1.Swap` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
 
-[[!format txt """
-$  gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/dev_2dsda3_2eswap 
-node /org/freedesktop/systemd1/unit/dev_2dsda3_2eswap {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Swap {
-    methods:
-    signals:
-    properties:
-      readonly s What = '/dev/sda3';
-      readonly i Priority = -1;
-      readonly t TimeoutUSec;
-      readonly a(sasbttuii) ExecActivate = [];
-      readonly a(sasbttuii) ExecDeactivate = [];
-      readonly as Environment = [];
-      readonly u UMask = 18;
-      readonly t LimitCPU = 18446744073709551615;
-      readonly t LimitFSIZE = 18446744073709551615;
-      readonly t LimitDATA = 18446744073709551615;
-      readonly t LimitSTACK = 18446744073709551615;
-      readonly t LimitCORE = 18446744073709551615;
-      readonly t LimitRSS = 18446744073709551615;
-      readonly t LimitNOFILE = 4096;
-      readonly t LimitAS = 18446744073709551615;
-      readonly t LimitNPROC = 61434;
-      readonly t LimitMEMLOCK = 65536;
-      readonly t LimitLOCKS = 18446744073709551615;
-      readonly t LimitSIGPENDING = 61434;
-      readonly t LimitMSGQUEUE = 819200;
-      readonly t LimitNICE = 0;
-      readonly t LimitRTPRIO = 0;
-      readonly t LimitRTTIME = 18446744073709551615;
-      readonly s WorkingDirectory = '';
-      readonly s RootDirectory = '';
-      readonly i OOMScoreAdjust = 0;
-      readonly i Nice = 0;
-      readonly i IOScheduling = 0;
-      readonly i CPUSchedulingPolicy = 0;
-      readonly i CPUSchedulingPriority = 0;
-      readonly ay CPUAffinity = [];
-      readonly t TimerSlackNS;
-      readonly b CPUSchedulingResetOnFork = false;
-      readonly b NonBlocking = false;
-      readonly s StandardInput = 'null';
-      readonly s StandardOutput = 'journal';
-      readonly s StandardError = 'inherit';
-      readonly s TTYPath = '';
-      readonly b TTYReset = false;
-      readonly b TTYVHangup = false;
-      readonly b TTYVTDisallocate = false;
-      readonly i SyslogPriority = 30;
-      readonly s SyslogIdentifier = '';
-      readonly b SyslogLevelPrefix = true;
-      readonly s Capabilities = '';
-      readonly i SecureBits = 0;
-      readonly t CapabilityBoundingSet = 18446744073709551615;
-      readonly s User = '';
-      readonly s Group = '';
-      readonly as SupplementaryGroups = [];
-      readonly s TCPWrapName = '';
-      readonly s PAMName = '';
-      readonly as ReadWriteDirectories = [];
-      readonly as ReadOnlyDirectories = [];
-      readonly as InaccessibleDirectories = [];
-      readonly t MountFlags = 0;
-      readonly b PrivateTmp = false;
-      readonly b SameProcessGroup = false;
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly s UtmpIdentifier = '';
-      readonly b ControlGroupModify = false;
-      readonly b ControlGroupPersistent = false;
-      readonly b PrivateNetwork = false;
-      readonly b IgnoreSIGPIPE = true;
-      readonly b NoNewPrivileges = false;
-      readonly au SystemCallFilter = [];
-      readonly s KillMode = 'control-group';
-      readonly i KillSignal = 15;
-      readonly b SendSIGKILL = true;
-      readonly u ControlPID = 0;
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/dev_2dsda3_2eswap 
+    node /org/freedesktop/systemd1/unit/dev_2dsda3_2eswap {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Swap {
+        methods:
+        signals:
+        properties:
+          readonly s What = '/dev/sda3';
+          readonly i Priority = -1;
+          readonly t TimeoutUSec;
+          readonly a(sasbttuii) ExecActivate = [];
+          readonly a(sasbttuii) ExecDeactivate = [];
+          readonly as Environment = [];
+          readonly u UMask = 18;
+          readonly t LimitCPU = 18446744073709551615;
+          readonly t LimitFSIZE = 18446744073709551615;
+          readonly t LimitDATA = 18446744073709551615;
+          readonly t LimitSTACK = 18446744073709551615;
+          readonly t LimitCORE = 18446744073709551615;
+          readonly t LimitRSS = 18446744073709551615;
+          readonly t LimitNOFILE = 4096;
+          readonly t LimitAS = 18446744073709551615;
+          readonly t LimitNPROC = 61434;
+          readonly t LimitMEMLOCK = 65536;
+          readonly t LimitLOCKS = 18446744073709551615;
+          readonly t LimitSIGPENDING = 61434;
+          readonly t LimitMSGQUEUE = 819200;
+          readonly t LimitNICE = 0;
+          readonly t LimitRTPRIO = 0;
+          readonly t LimitRTTIME = 18446744073709551615;
+          readonly s WorkingDirectory = '';
+          readonly s RootDirectory = '';
+          readonly i OOMScoreAdjust = 0;
+          readonly i Nice = 0;
+          readonly i IOScheduling = 0;
+          readonly i CPUSchedulingPolicy = 0;
+          readonly i CPUSchedulingPriority = 0;
+          readonly ay CPUAffinity = [];
+          readonly t TimerSlackNS;
+          readonly b CPUSchedulingResetOnFork = false;
+          readonly b NonBlocking = false;
+          readonly s StandardInput = 'null';
+          readonly s StandardOutput = 'journal';
+          readonly s StandardError = 'inherit';
+          readonly s TTYPath = '';
+          readonly b TTYReset = false;
+          readonly b TTYVHangup = false;
+          readonly b TTYVTDisallocate = false;
+          readonly i SyslogPriority = 30;
+          readonly s SyslogIdentifier = '';
+          readonly b SyslogLevelPrefix = true;
+          readonly s Capabilities = '';
+          readonly i SecureBits = 0;
+          readonly t CapabilityBoundingSet = 18446744073709551615;
+          readonly s User = '';
+          readonly s Group = '';
+          readonly as SupplementaryGroups = [];
+          readonly s TCPWrapName = '';
+          readonly s PAMName = '';
+          readonly as ReadWriteDirectories = [];
+          readonly as ReadOnlyDirectories = [];
+          readonly as InaccessibleDirectories = [];
+          readonly t MountFlags = 0;
+          readonly b PrivateTmp = false;
+          readonly b SameProcessGroup = false;
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly s UtmpIdentifier = '';
+          readonly b ControlGroupModify = false;
+          readonly b ControlGroupPersistent = false;
+          readonly b PrivateNetwork = false;
+          readonly b IgnoreSIGPIPE = true;
+          readonly b NoNewPrivileges = false;
+          readonly au SystemCallFilter = [];
+          readonly s KillMode = 'control-group';
+          readonly i KillSignal = 15;
+          readonly b SendSIGKILL = true;
+          readonly u ControlPID = 0;
+          readonly s Result = 'success';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -1142,30 +1193,31 @@ Most of the properties map directly to the corresponding settings in swap unit f
 
 All path unit objects implement the `org.freedesktop.systemd1.Path` interface (described here) in addition to the generic `org.freedesktop.systemd1.Unit` interface (see above). 
 
-
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/cups_2epath 
-node /org/freedesktop/systemd1/unit/cups_2epath {
-  interface org.freedesktop.systemd1.Unit {
-  };
-  interface org.freedesktop.systemd1.Path {
-    methods:
-    signals:
-    properties:
-      readonly s Unit = 'cups.service';
-      readonly a(ss) Paths = [('PathExistsGlob', '/var/spool/cups/d*')];
-      readonly b MakeDirectory = false;
-      readonly u DirectoryMode = 493;
-      readonly s Result = 'success';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/unit/cups_2epath
+    node /org/freedesktop/systemd1/unit/cups_2epath {
+      interface org.freedesktop.systemd1.Unit {
+        ...
+      };
+      interface org.freedesktop.systemd1.Path {
+        methods:
+        signals:
+        properties:
+          readonly s Unit = 'cups.service';
+          readonly a(ss) Paths = [('PathExistsGlob', '/var/spool/cups/d*')];
+          readonly b MakeDirectory = false;
+          readonly u DirectoryMode = 493;
+          readonly s Result = 'success';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Properties
 
@@ -1180,28 +1232,28 @@ Most properties correspond directly with the matching settings in path unit file
 
 Job objects encapsulate scheduled or running jobs. Each unit can have none or one jobs in the execution queue. Each job is attached to exactly one unit. 
 
-
-[[!format txt """
-$ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/job/1292 
-node /org/freedesktop/systemd1/job/1292 {
-  interface org.freedesktop.systemd1.Job {
-    methods:
-      Cancel();
-    signals:
-    properties:
-      readonly u Id = 1292;
-      readonly (so) Unit = ('slow.service', '/org/freedesktop/systemd1/unit/slow_2eservice');
-      readonly s JobType = 'start';
-      readonly s State = 'running';
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
-"""]]
+    $ gdbus introspect --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1/job/1292 
+    node /org/freedesktop/systemd1/job/1292 {
+      interface org.freedesktop.systemd1.Job {
+        methods:
+          Cancel();
+        signals:
+        properties:
+          readonly u Id = 1292;
+          readonly (so) Unit = ('slow.service', '/org/freedesktop/systemd1/unit/slow_2eservice');
+          readonly s JobType = 'start';
+          readonly s State = 'running';
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...
+      };
+      interface org.freedesktop.DBus.Peer {
+        ...
+      };
+      interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+    };
 
 ### Methods
 
