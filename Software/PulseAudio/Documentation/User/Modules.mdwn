@@ -1,4 +1,3 @@
-
 [[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] <span style="display:none">[[!inline pages="ModulesTOC" quick="yes" raw="yes"]]</span> [[!toc 3]] 
 
 
@@ -195,6 +194,36 @@ load-module module-alsa-sink sink_name=front_stereo device=hw:0 channels=4 chann
 
 load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels=2 master_channel_map=aux0,aux1 channel_map=front-left,front-right
 """]]
+
+
+### module-remap-source
+
+**Since 4.0.** This creates a virtual source ("remapped source") on top of another source ("master source"), with a different channel map.
+
+ * source_name
+    * Name for the remapped source.
+ * source_properties
+    * Extra properties for the remapped source.
+ * master
+    * Name or index of the master source.
+ * master_channel_map
+    * The master source's channels from which audio should be captured.
+ * format
+    * The remapped source sample format.
+ * rate
+    * The remapped source sample rate.
+ * channels
+    * The number of channels of the remapped source. This is rarely useful, because the number of channels is already implied by the channel_map and master_channel_map arguments, and the channels argument can't conflict with those other arguments. If neither channel_map nor master_channel_map is specified, then this can be used to control the channel count of the remapped source, but in that case the module is pretty useless, because no remapping will be done.
+ * channel_map
+    * The channel map of the remapped source. This must have the same number of channels as master_channel_map. The remapping happens so that the first channel in master_channel_map is copied to the first channel in channel_map etc.
+ * remix
+    * A boolean. This can be used for disabling remixing for the stream that is created between the master source and the remapped source. If this is set to "yes", the remixing behaviour will be the same as all other streams (which depends on configuration elsewhere). Remixing means that if the master source has channels that are not listed in master_channel_map, those channels may be mixed to the channels that are listed in master_channel_map. Likewise, if master_channel_map has channels that the master source doesn't actually have, then other channels may be used as a substitute for the missing channels. This is often undesirable when using module-remap-source, so it's a common thing to disable remixing.
+
+Here's an example for swapping the channels of a stereo source. We assume that the system has a stereo source named "alsa_input.pci-0000_00_1b.0.analog-stereo".
+
+    load-module module-remap-source master=alsa_input.pci-0000_00_1b.0.analog-stereo master_channel_map=front-left,front-right channel_map=front-right,front-left
+
+
 <a name="module-tunnel"></a> 
 ### module-tunnel-{sink,source}
 
