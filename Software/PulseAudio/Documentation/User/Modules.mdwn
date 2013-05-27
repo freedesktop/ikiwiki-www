@@ -517,18 +517,31 @@ PulseAudio implements both a sender and a receiver for RTP traffic. The sender a
 
 ### module-rtp-send
 
-This is the sender side of the RTP/SDP/SAP implementation. It reads audio data from an existing source and forwards it to the network encapsulated in RTP. In addition it sends SAP packets with an SDP session description. 
+This is the sender side of the RTP/SDP/SAP implementation. It reads audio data from an existing source and forwards it to the network encapsulated in RTP. In addition it sends SAP packets with an SDP session description.
 
-In combination with the monitor source of module-null-sink you can use this module to create an RTP sink. 
+In combination with the monitor source of module-null-sink you can use this module to create an RTP sink.
 
-   * source 
-         * The source to read the audio data from. If omitted defaults to the default source. format, rate, channels 
-         * Sample format to use, defaults to the source's. destination 
-         * Destination multicast group for both RTP and SAP packets, defaults to 224.0.0.56 port 
-         * Destination port number of the RTP traffic. If omitted defaults to a randomly chosen even port number. Please keep in mind that the RFC suggests to use only even port numbers for RTP traffic. mtu 
-         * Maximum payload size for RTP packets. If omitted defaults to 1280 loop 
-         * Takes a boolean value, specifying whether locally generated RTP traffic should be looped back to the local host. Disabled by default. ttl 
-         * TTL 
+ * source 
+    * The source to read the audio data from.
+ * format
+    * The sample format.
+ * channels
+    * The number of channels. 
+ * rate
+    * The sample rate.
+ * destination_ip
+    * **Since 4.0.** Destination multicast group for both RTP and SAP packets.
+ * source_ip
+    * **Since 4.0.** On a multi-homed system, you may wish RTP to be used only on a specific interface. The interface can be selected by specifying the source IP address.
+ * port
+    * Destination port number of the RTP traffic. Keep in mind that the RFC suggests to use only even port numbers for RTP traffic.
+ * mtu
+    * Maximum payload size for RTP packets.
+ * loop
+    * Takes a boolean value, specifying whether locally generated RTP traffic should be looped back to the local host.
+ * ttl
+    * The "time to live" value.
+
 
 ### module-rtp-recv
 
