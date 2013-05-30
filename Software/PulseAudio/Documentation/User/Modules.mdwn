@@ -1,199 +1,251 @@
-[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] <span style="display:none">[[!inline pages="ModulesTOC" quick="yes" raw="yes"]]</span> [[!toc 3]] 
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] <span style="display:none">[[!inline pages="ModulesTOC" quick="yes" raw="yes"]]</span> [[!toc 3]]
 
 
 # Loadable Modules
 
-To show all currently loaded modules with their arguments, run `pacmd` and enter the [[CLI|Software/PulseAudio/Documentation/User/CLI]] command `list-modules` . The following loadable modules are provided with the PulseAudio distribution: 
+To show all currently loaded modules with their arguments, run `pacmd` and enter the [[CLI|Software/PulseAudio/Documentation/User/CLI]] command `list-modules` . The following loadable modules are provided with the PulseAudio distribution:
 
 
 ## Device Drivers
 
-All device driver modules support the following parameters: 
+All device driver modules support the following parameters:
 
-   * sink_name, source_name 
-         * Name for the sink (resp. source). Allowed characters in the name are a-z, A-Z, numbers, period (.) and underscore (_). The length must be 1-128 characters. format 
-         * The sample format (one of u8, s16, s16be, s16le, float32, float32be, float32le, alaw, ulaw) (defaults to s16) rate 
-         * The sample rate (defaults to 44100) channels 
-         * Audio channels (defaults to 2) channel_map 
-         * Channel map. A list of comma-separated channel names. The currently defined channel names are: left, right, mono, center, front-left, front-right, front-center, rear-center, rear-left, rear-right, lfe, subwoofer, front-left-of-center, front-right-of-center, side-left, side-right, aux0, aux1 to aux15, top-center, top-front-left, top-front-right, top-front-center, top-rear-left, top-rear-right, top-rear-center, (Default depends on the number of channels and the driver) 
-**Since 0.9.8** 
+* sink_name, source_name
+   * Name for the sink (resp. source). Allowed characters in the name are a-z, A-Z, numbers, period (.) and underscore (_). The length must be 1-128 characters.
+* format
+   * The sample format (one of u8, s16, s16be, s16le, float32, float32be, float32le, alaw, ulaw) (defaults to s16)
+* rate
+   * The sample rate (defaults to 44100)
+* channels
+   * Audio channels (defaults to 2)
+* channel_map
+   * Channel map. A list of comma-separated channel names. The currently defined channel names are: left, right, mono, center, front-left, front-right, front-center, rear-center, rear-left, rear-right, lfe, subwoofer, front-left-of-center, front-right-of-center, side-left, side-right, aux0, aux1 to aux15, top-center, top-front-left, top-front-right, top-front-center, top-rear-left, top-rear-right, top-rear-center, (Default depends on the number of channels and the driver)
 
-   * format 
-         * The sample format can be signed 32 bit (s32, s32le, s32be) 
-**Since 0.9.15** 
+**Since 0.9.8**
 
-   * format 
-         * The sample format can be signed 24 bit, packed in 3 or 4 bytes (s24, s24le, s24be, s24-32, s24-32le, s24-32be) 
-**Since 0.9.16** 
+* format
+   * The sample format can be signed 32 bit (s32, s32le, s32be)
 
-   * sink_properties, source_properties 
-         * Set additional properties of the sink/source. For example, you can set the description directly when the module is loaded by setting this parameter. 
+**Since 0.9.15**
 
-[[!format txt """
-load-module module-alsa-sink sink_name=headphones sink_properties=device.description=Headphones
-"""]]
-         * This is the same as using the update-sink-proplist command after the sink is setup, either with `pacmd` or in `default.pa`. 
+* format
+   * The sample format can be signed 24 bit, packed in 3 or 4 bytes (s24, s24le, s24be, s24-32, s24-32le, s24-32be)
 
-[[!format txt """
-update-sink-proplist SINKNAME device.description="DESCRIPTION"
-"""]]
+**Since 0.9.16**
+
+* sink_properties, source_properties
+   * Set additional properties of the sink/source. For example, you can set the description directly when the module is loaded by setting this parameter.
+
+        load-module module-alsa-sink sink_name=headphones sink_properties=device.description=Headphones
+
+   * This is the same as using the update-sink-proplist command after the sink is setup, either with `pacmd` or in `default.pa`.
+
+        update-sink-proplist SINKNAME device.description="DESCRIPTION"
+
 
 ### module-pipe-sink
 
-Provides a simple test sink that writes the audio data to a FIFO special file in the file system. The sink name defaults to fifo_output. 
+Provides a simple test sink that writes the audio data to a FIFO special file in the file system. The sink name defaults to fifo_output.
 
-The following option is supported: 
+The following option is supported:
 
-   * file 
-         * The name of the FIFO special file to use. (defaults to: /tmp/music.output) 
+* file
+   * The name of the FIFO special file to use. (defaults to: /tmp/music.output)
 
 ### module-pipe-source
 
-Provides a simple test source that reads the audio data from a FIFO special file in the file system. The source name defaults to fifo_input. 
+Provides a simple test source that reads the audio data from a FIFO special file in the file system. The source name defaults to fifo_input.
 
-The following option is supported: 
+The following option is supported:
 
-   * file 
-         * The name of the FIFO special file to use. (defaults to: /tmp/music.input) 
+* file
+   * The name of the FIFO special file to use. (defaults to: /tmp/music.input)
 
 ### module-null-sink
 
-Provides a simple null sink. All data written to this sink is silently dropped. This sink is clocked using the system time. 
+Provides a simple null sink. All data written to this sink is silently dropped. This sink is clocked using the system time.
 
-This module doesn't support any special parameters 
+This module doesn't support any special parameters
 
 
 ### module-alsa-sink
 
-Provides a playback sink for devices supported by the Advanced Linux Sound Architecture (ALSA). The sink name defaults to alsa_output. 
+Provides a playback sink for devices supported by the Advanced Linux Sound Architecture (ALSA). The sink name defaults to alsa_output.
 
-You should (almost) never need to load this module manually. Let module-udev-detect look for the supported cards and then select the profile you want, that will make the right sinks show up. 
+You should (almost) never need to load this module manually. Let module-udev-detect look for the supported cards and then select the profile you want, that will make the right sinks show up.
 
-In addition to the general device driver options described above this module supports: 
+In addition to the general device driver options described above this module supports:
 
-   * device 
-         * The ALSA device to use. (defaults to "default") fragments 
-         * The desired fragments when opening the device. (defaults to 12) fragment_size 
-         * The desired fragment size in bytes when opening the device (defaults to 1024) tsched 
-         * **Since 0.9.11.** Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before. mmap name 
-         * String to prefix to the automatically determined sink name. device_id tsched_buffer_size, tsched_watermark ignore_dB 
-         * Ignore dB information from the device control 
-         * Name of mixer control namereg_fail 
-         * Boolean deferred_volume 
-         * Syncronize sw and hw volume changes in IO-thread fixed_latency_range 
-         * **Since 2.0.** Boolean. Normally when there's an alsa underrun, and timer based scheduling is used, the alsa sink will raise the minimum latency that applications can get to avoid further underruns. If this option is enabled, the minimum latency will stay constant even if underruns occur. 
+* device
+   * The ALSA device to use. (defaults to "default")
+* fragments
+   * The desired fragments when opening the device. (defaults to 12)
+* fragment_size
+   * The desired fragment size in bytes when opening the device (defaults to 1024)
+* tsched
+   * **Since 0.9.11.** Use system-timer based model (aka glitch-free). Defaults to 1 (enabled). If your hardware does not return accurate timing information (e.g. Creative sound cards) you can try to set tsched=0 to enable the interupt based timing which was used in 0.9.10 and before.
+* mmap name
+   * String to prefix to the automatically determined sink name.
+* device_id tsched_buffer_size, tsched_watermark ignore_dB
+   * Ignore dB information from the device
+* control
+   * Name of mixer control
+* namereg_fail
+   * Boolean
+* deferred_volume
+   * Syncronize sw and hw volume changes in IO-thread
+* fixed_latency_range
+   * **Since 2.0.** Boolean. Normally when there's an alsa underrun, and timer based scheduling is used, the alsa sink will raise the minimum latency that applications can get to avoid further underruns. If this option is enabled, the minimum latency will stay constant even if underruns occur.
 
 ### module-alsa-source
 
-Provides a recording source for devices supported by the Advanced Linux Sound Architecture (ALSA). The source name defaults to alsa_input. 
+Provides a recording source for devices supported by the Advanced Linux Sound Architecture (ALSA). The source name defaults to alsa_input.
 
-You should (almost) never need to load this module manually. Let module-udev-detect look for the supported cards and then select the profile you want, that will make the right sources show up. 
+You should (almost) never need to load this module manually. Let module-udev-detect look for the supported cards and then select the profile you want, that will make the right sources show up.
 
-This module supports device=, fragments=, fragment_size= and tsched= arguments the same way as module-alsa-sink. Also mmap, name, device, control, tsched_buffer_size, tsched_watermark, ignore_dB, namereg_fail, fixed_latency_range 
+This module supports device=, fragments=, fragment_size= and tsched= arguments the same way as module-alsa-sink. Also mmap, name, device, control, tsched_buffer_size, tsched_watermark, ignore_dB, namereg_fail, fixed_latency_range
 
 
 ### module-alsa-card
 
-Creates a PulseAudio card for an ALSA card. The "device_id" argument is mandatory, it tells PulseAudio which ALSA card to use. 
+Creates a PulseAudio card for an ALSA card. The "device_id" argument is mandatory, it tells PulseAudio which ALSA card to use.
 
-   * card_name 
-         * Name for the PulseAudio card. card_properties 
-         * Extra properties to be stored in the card's property list. sink_name 
-         * Name to be used by the card's sinks. If the card has any profiles that have multiple sinks, then this argument can't be used, because the sink names can't all be the same. sink_properties 
-         * Extra properties to be stored in the property lists of the card's sinks. source_name 
-         * Name to be used by the card's sources. If the card has any profiles that have multiple sources, then this argument can't be used, because the source names can't all be the same. namereg_fail 
-         * A boolean. If "true", loading the card will fail if there already exists a card with the same name. If "false", a suffix is added to the card name if there already exists a card with the same name. profile 
-         * The initial profile to activate when loading the module. profile_set 
-         * Profile set configuration file. Can be an absolute path, or relative to the standard profile-sets directory. device_id 
-         * The alsa card identifier. Can be the card index or the name. See `/proc/asound/cards` for the list of available cards and their identifiers. format 
-         * The sample format to be used by the card's sinks and sources. rate 
-         * The sample rate to be used by the card's sinks and sources. name 
-         * The "device_id" argument is used by default as a part of the card name (if "card_name" is not given), and also in the card's sink and source names. If you're not happy with that for some reason, this argument can be given to be a substitute for "device_id" in the card, sink and source names. tsched 
-         * A boolean. If "true", the sinks and sources of this card will use the timer-based scheduling. ignore_dB 
-         * A boolean. If "true", any decibel information given by the ALSA drivers will be ignored (useful if that information is wrong). fragments 
-         * The number of fragments to be used in the sink and source buffers. Only effective if the timer-based scheduling is disabled. fragment_size 
-         * The size of one fragment (in bytes) to be used in the sink and source buffers. Only effective if the timer-based scheduling is disabled. mmap 
-         * A boolean. If "true", PulseAudio will access ALSA using the mmap interface. tsched_buffer_size 
-         * The total sink and source buffer size in bytes. Only effective if the timer-based scheduling is enabled. tsched_buffer_watermark 
-         * The buffer fill level (in bytes) at which the sinks must refill the buffer. Only effective if the timer-based scheduling is enabled. deferred_volume 
-         * A boolean. If "true", PulseAudio will slightly delay hardware volume changes in order to synchronize the changes with software volume changes. fixed_latency_range 
-         * A boolean. Normally when there's an alsa underrun or overrun, and timer-based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur. use_ucm 
-         * A boolean. If "true", the card will use the ALSA Use Case Manager interface for configuration, if it's available. If "false", or if there's no UCM configuration for the card, PulseAudio's own profile and path configuration files will be used instead. 
+* card_name
+   * Name for the PulseAudio card.
+* card_properties
+   * Extra properties to be stored in the card's property list.
+* sink_name
+   * Name to be used by the card's sinks. If the card has any profiles that have multiple sinks, then this argument can't be used, because the sink names can't all be the same.
+* sink_properties
+   * Extra properties to be stored in the property lists of the card's sinks.
+* source_name
+   * Name to be used by the card's sources. If the card has any profiles that have multiple sources, then this argument can't be used, because the source names can't all be the same.
+* namereg_fail
+   * A boolean. If "true", loading the card will fail if there already exists a card with the same name. If "false", a suffix is added to the card name if there already exists a card with the same name.
+* profile
+   * The initial profile to activate when loading the module.
+* profile_set
+   * Profile set configuration file. Can be an absolute path, or relative to the standard profile-sets directory.
+* device_id
+   * The alsa card identifier. Can be the card index or the name. See `/proc/asound/cards` for the list of available cards and their identifiers.
+* format
+   * The sample format to be used by the card's sinks and sources.
+* rate
+   * The sample rate to be used by the card's sinks and sources.
+* name
+   * The "device_id" argument is used by default as a part of the card name (if "card_name" is not given), and also in the card's sink and source names. If you're not happy with that for some reason, this argument can be given to be a substitute for "device_id" in the card, sink and source names.
+* tsched
+   * A boolean. If "true", the sinks and sources of this card will use the timer-based scheduling.
+* ignore_dB
+   * A boolean. If "true", any decibel information given by the ALSA drivers will be ignored (useful if that information is wrong).
+* fragments
+   * The number of fragments to be used in the sink and source buffers. Only effective if the timer-based scheduling is disabled.
+* fragment_size
+   * The size of one fragment (in bytes) to be used in the sink and source buffers. Only effective if the timer-based scheduling is disabled.
+* mmap
+   * A boolean. If "true", PulseAudio will access ALSA using the mmap interface.
+* tsched_buffer_size
+   * The total sink and source buffer size in bytes. Only effective if the timer-based scheduling is enabled.
+* tsched_buffer_watermark
+   * The buffer fill level (in bytes) at which the sinks must refill the buffer. Only effective if the timer-based scheduling is enabled.
+* deferred_volume
+   * A boolean. If "true", PulseAudio will slightly delay hardware volume changes in order to synchronize the changes with software volume changes.
+* fixed_latency_range
+   * A boolean. Normally when there's an alsa underrun or overrun, and timer-based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
+* use_ucm
+   * A boolean. If "true", the card will use the ALSA Use Case Manager interface for configuration, if it's available. If "false", or if there's no UCM configuration for the card, PulseAudio's own profile and path configuration files will be used instead.
 
 ### module-oss
 
-Provides both a sink and a source for playback, resp. recording on Open Sound System (OSS) compatible devices. This module supports the following options: 
+Provides both a sink and a source for playback, resp. recording on Open Sound System (OSS) compatible devices. This module supports the following options:
 
-   * record, playback 
-         * Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1) device 
-         * The OSS device to use. (defaults to /dev/dsp), mmap 
-         * Accepts a boolean value for enabling (resp. disabling) memory mapped (mmap()) access to the input/output buffers of the audio device. This provides better latency behaviour but is less compatible. (defaults: to 1). fragments, fragment_size 
-         * As in module-alsa-sink. 
-The sink name (resp. source name) defaults to oss_output (resp. oss_input). 
+* record, playback
+   * Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1)
+* device
+   * The OSS device to use. (defaults to /dev/dsp),
+* mmap
+   * Accepts a boolean value for enabling (resp. disabling) memory mapped (mmap()) access to the input/output buffers of the audio device. This provides better latency behaviour but is less compatible. (defaults: to 1).
+* fragments, fragment_size
+   * As in module-alsa-sink.
+
+The sink name (resp. source name) defaults to oss_output (resp. oss_input).
 
 
 ### module-solaris
 
-Provides a sink and source for the Solaris audio device. 
+Provides a sink and source for the Solaris audio device.
 
-In addition to the general device driver options described above this module supports: 
+In addition to the general device driver options described above this module supports:
 
-   * record, playback 
-         * Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1) device 
-         * Audio device filename buffer_length 
-         * Record buffer length in ms. 
+* record, playback
+   * Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1)
+* device
+   * Audio device filename
+* buffer_length
+   * Record buffer length in ms.
 
 ### module-waveout
 
-Provides both a sink and source for the Win32 audio device. This module supports the following options: 
+Provides both a sink and source for the Win32 audio device. This module supports the following options:
 
-   * record, playback 
-         * Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1) device 
-         * Accepts an integer specifying the Windows audio device to be opened. If not set the [[WaveMapper|WaveMapper]] service is used. fragments, fragment_size 
-         * As in module-alsa-sink. 
-The sink name (resp. source name) defaults to wave_output (resp. wave_input). 
+* record, playback
+   * Accepts a boolean value for enabling the playback, resp. recording on this device. (defaults: to 1)
+* device
+   * Accepts an integer specifying the Windows audio device to be opened. If not set the [[WaveMapper|WaveMapper]] service is used.
+* fragments, fragment_size
+   * As in module-alsa-sink.
+
+The sink name (resp. source name) defaults to wave_output (resp. wave_input).
 
 
 ### module-combine
 
-Renamed to module-combine-sink in 1.0. See [[module-combine-sink|Software/PulseAudio/Documentation/User/Modules]] for the documentation for this module. 
+Renamed to module-combine-sink in 1.0. See [[module-combine-sink|Software/PulseAudio/Documentation/User/Modules]] for the documentation for this module.
 
 
 ### module-combine-sink
 
-**Since 1.0 (prior to 1.0 this same module was available with name "module-combine").** This combines two or more sinks into one. A new virtual sink is allocated. All data written to it is forwarded to all connected sinks. In equidistant intervals the sample rates of the output sinks is recalculated: i.e. even when the sinks' crystals deviate (which is normally the case) output appears synchronously to the human ear. The resampling required for this may be very CPU intensive. 
+**Since 1.0 (prior to 1.0 this same module was available with name "module-combine").** This combines two or more sinks into one. A new virtual sink is allocated. All data written to it is forwarded to all connected sinks. In equidistant intervals the sample rates of the output sinks is recalculated: i.e. even when the sinks' crystals deviate (which is normally the case) output appears synchronously to the human ear. The resampling required for this may be very CPU intensive.
 
-   * sink_name 
-         * The name for the combined sink. (defaults to "combined") sink_properties 
-         * **Since 0.9.15.** Property list for the combined sink. slaves 
-         * Name of sinks to link into the combined think, separated by commas. adjust_time 
-         * Time in seconds when to readjust the sample rate of all sinks. Zero means that readjustment should be disabled. Default: 10. resample_method 
-         * Resampling algorithm to use when adjusting to the sample rate differences between the slave sinks. TODO: Create a page, and add a link to it here, that explains all the different resamplers that are available. While waiting for that to happen, users can refer to `man pulse-daemon.conf`, more specifically the `resample-method` option documentation. format, rate, channels, channel_map 
-         * Parameters for the combined sink. See the [[Device Drivers section|Software/PulseAudio/Documentation/User/Modules]] at the top of this page for details. 
+* sink_name
+   * The name for the combined sink. (defaults to "combined")
+* sink_properties
+   * **Since 0.9.15.** Property list for the combined sink.
+* slaves
+   * Name of sinks to link into the combined think, separated by commas.
+* adjust_time
+   * Time in seconds when to readjust the sample rate of all sinks. Zero means that readjustment should be disabled. Default: 10.
+* resample_method
+   * Resampling algorithm to use when adjusting to the sample rate differences between the slave sinks. TODO: Create a page, and add a link to it here, that explains all the different resamplers that are available. While waiting for that to happen, users can refer to `man pulse-daemon.conf`, more specifically the `resample-method` option documentation.
+* format, rate, channels, channel_map
+   * Parameters for the combined sink. See the [[Device Drivers section|Software/PulseAudio/Documentation/User/Modules]] at the top of this page for details.
 
 ### module-remap-sink
 
-**Since 0.9.7.** This allows one to route streams' channels to arbitrary channels in a sink, for example to route stereo streams to rear channels. One common use case is to use one surround sound card as multiple virtual stereo cards. 
+**Since 0.9.7.** This allows one to route streams' channels to arbitrary channels in a sink, for example to route stereo streams to rear channels. One common use case is to use one surround sound card as multiple virtual stereo cards.
 
-In order to configure the remapped sink, you'll have to decide two things: what channels the new sink will accept, and where each of them will be relayed to. 
+In order to configure the remapped sink, you'll have to decide two things: what channels the new sink will accept, and where each of them will be relayed to.
 
-   * sink_name 
-         * The name for the new virtual sink. master 
-         * The name of the sink of which channels you're remapping. channels 
-         * Channel count of the new sink. channel_map 
-         * List of the channels that this sink will accept. master_channel_map 
-         * The channels in the master sink, where the channels listed in channel_map will be relayed to. channel_map and master_channel_map must have equal number of channels listed, because the channels will be mapped  based on their position in the list, i.e. the first channel in channel_map will be relayed to the first channel in master_channel_map and so on. remix 
-         * Allow remixing of the mono or stereo streams to multiple channels (default is yes; set to "no" if you don't want the stereo stream to be up-mixed to all channels except subwoofer and channels named aux0-aux15). 
-An example to split a surround sound card to two stereo devices (remember to disable automatic device configuration first, by commenting out `module-udev-detect` and `module-detect`): 
+* sink_name
+   * The name for the new virtual sink.
+* master
+   * The name of the sink of which channels you're remapping.
+* channels
+   * Channel count of the new sink.
+* channel_map
+   * List of the channels that this sink will accept.
+* master_channel_map
+   * The channels in the master sink, where the channels listed in channel_map will be relayed to. channel_map and master_channel_map must have equal number of channels listed, because the channels will be mapped  based on their position in the list, i.e. the first channel in channel_map will be relayed to the first channel in master_channel_map and so on.
+* remix
+   * Allow remixing of the mono or stereo streams to multiple channels (default is yes; set to "no" if you don't want the stereo stream to be up-mixed to all channels except subwoofer and channels named aux0-aux15).
 
+An example to split a surround sound card to two stereo devices (remember to disable automatic device configuration first, by commenting out `module-udev-detect` and `module-detect`):
 
-[[!format txt """
-# Use aux channels so that the channels won't be used for anything
-# else than the rear_stereo sink.
-load-module module-alsa-sink sink_name=front_stereo device=hw:0 channels=4 channel_map=front-left,front-right,aux0,aux1
+    # Use aux channels so that the channels won't be used for anything
+    # else than the rear_stereo sink.
+    load-module module-alsa-sink sink_name=front_stereo device=hw:0 channels=4 channel_map=front-left,front-right,aux0,aux1
 
-load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels=2 master_channel_map=aux0,aux1 channel_map=front-left,front-right
-"""]]
+    load-module module-remap-sink sink_name=rear_stereo master=front_stereo channels=2 master_channel_map=aux0,aux1 channel_map=front-left,front-right
 
 
 ### module-remap-source
@@ -224,109 +276,134 @@ Here's an example for swapping the channels of a stereo source. We assume that t
     load-module module-remap-source master=alsa_input.pci-0000_00_1b.0.analog-stereo master_channel_map=front-left,front-right channel_map=front-right,front-left
 
 
-<a name="module-tunnel"></a> 
+<a name="module-tunnel"></a>
+
 ### module-tunnel-{sink,source}
 
-Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. See [[Network Setup|Software/PulseAudio/Documentation/User/Network]] for reasons on whether to use a tunnel or direct connection to the remote server. 
+Tunnel a remote sink/source to a local "ghost" sink/source. Requires a running PulseAudio daemon on the remote server with module-native-protocol-tcp loaded. See [[Network Setup|Software/PulseAudio/Documentation/User/Network]] for reasons on whether to use a tunnel or direct connection to the remote server.
 
-   * server 
-         * The server to connect to source 
-         * The source on the remote server. Only available for module-tunnel-source. sink 
-         * The sink on the remote server. Only available for module-tunnel-sink. cookie 
-         * The authentication cookie file to use. 
+* server
+   * The server to connect to
+* source
+   * The source on the remote server. Only available for module-tunnel-source.
+* sink
+   * The sink on the remote server. Only available for module-tunnel-sink.
+* cookie
+   * The authentication cookie file to use.
 
 ### module-esound-sink
 
-Create a playback sink using an ESOUND server as backend. Whenever you can, try to omit this module since it has many disadvantages including bad latency and even worse latency measurement. 
+Create a playback sink using an ESOUND server as backend. Whenever you can, try to omit this module since it has many disadvantages including bad latency and even worse latency measurement.
 
-This module lacks the channel_map argument. 
+This module lacks the channel_map argument.
 
-   * server 
-         * The server to connect to cookie 
-         * The authentication cookie file to use. 
+* server
+   * The server to connect to
+* cookie
+   * The authentication cookie file to use.
 
 ## Protocols
 
 
 ### module-cli
 
-Provides the user with a simple [[command line interface|Software/PulseAudio/Documentation/User/CLI]] on the controlling TTY of the daemon. This module may not be loaded more than once. 
+Provides the user with a simple [[command line interface|Software/PulseAudio/Documentation/User/CLI]] on the controlling TTY of the daemon. This module may not be loaded more than once.
 
-   * exit_on_eof 
-         * Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0) 
-<a name="module-cli-protocol"></a> 
+* exit_on_eof
+   * Accepts a binary numerical argument specifying whether the daemon should exit after an EOF was received from STDIN (default: 0)
+
+<a name="module-cli-protocol"></a>
 ### module-cli-protocol-{unix,tcp}
 
-An implementation of a simple [[command line based protocol|Software/PulseAudio/Documentation/User/CLI]] for controlling the PulseAudio daemon. If loaded, the user may connect with tools like `netcat`, `telnet` or `bidilink` to the listening sockets and execute commands the same way as with module-cli. 
+An implementation of a simple [[command line based protocol|Software/PulseAudio/Documentation/User/CLI]] for controlling the PulseAudio daemon. If loaded, the user may connect with tools like `netcat`, `telnet` or `bidilink` to the listening sockets and execute commands the same way as with module-cli.
 
-**Beware:** Users are not authenticated when connecting to this service. 
+**Beware:** Users are not authenticated when connecting to this service.
 
-This module exists in two versions: with the suffix -unix the service will listen on an UNIX domain socket in the local file system. With the suffix -tcp it will listen on a network transparent TCP/IP socket. (Both IPv6 and IPv4 - if available) 
+This module exists in two versions: with the suffix -unix the service will listen on an UNIX domain socket in the local file system. With the suffix -tcp it will listen on a network transparent TCP/IP socket. (Both IPv6 and IPv4 - if available)
 
-This module supports the following options: 
+This module supports the following options:
 
-   * port (only for -tcp) 
-         * The port number to listen on (defaults to 4712) loopback (only for -tcp) 
-         * **Removed in 0.9.3**: Accepts a numerical binary value. If 1 the socket is bound to the loopback device, i.e. not publicly accessible. (defaults to 1) listen (only for -tcp) 
-         * The IP address to listen on. If specified, supersedes the value specified in loopback= socket (only for -unix) 
-         * The UNIX socket name (defaults to /tmp/pulse/cli) 
-<a name="module-simple-protocol"></a> 
+* port (only for -tcp)
+   * The port number to listen on (defaults to 4712)
+* loopback (only for -tcp)
+   * **Removed in 0.9.3**: Accepts a numerical binary value. If 1 the socket is bound to the loopback device, i.e. not publicly accessible. (defaults to 1)
+* listen (only for -tcp)
+   * The IP address to listen on. If specified, supersedes the value specified in loopback=
+* socket (only for -unix)
+   * The UNIX socket name (defaults to /tmp/pulse/cli)
+
+<a name="module-simple-protocol"></a>
 ### module-simple-protocol-{unix,tcp}
 
-An implementation of a simple protocol which allows playback by using simple tools like netcat. Just connect to the listening socket of this module and write the audio data to it, or read it from it for playback, resp. recording. 
+An implementation of a simple protocol which allows playback by using simple tools like netcat. Just connect to the listening socket of this module and write the audio data to it, or read it from it for playback, resp. recording.
 
-**Beware!** Users are not authenticated when connecting to this service. 
+**Beware!** Users are not authenticated when connecting to this service.
 
-See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module. 
+See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module.
 
-In addition to the options supported by module-cli-protocol-*, this module supports: 
+In addition to the options supported by module-cli-protocol-*, this module supports:
 
-   * rate, format, channels 
-         * Sample format for streams connecting to this service. playback, record 
-         * Enable/disable playback/recording sink, source 
-         * Specify the sink/source this service connects to 
-<a name="module-esound-protocol"></a> 
+* rate, format, channels
+   * Sample format for streams connecting to this service.
+* playback, record
+   * Enable/disable playback/recording
+* sink, source
+   * Specify the sink/source this service connects to
+
+<a name="module-esound-protocol"></a>
 ### module-esound-protocol-{unix,tcp}
 
-An implementation of a protocol compatible with the Enlightened Sound Daemon (ESOUND, esd). When you load this module you may access the PulseAudio daemon with tools like esdcat, esdrec or even esdctl. Many applications, such as XMMS, include support for this protocol. 
+An implementation of a protocol compatible with the Enlightened Sound Daemon (ESOUND, esd). When you load this module you may access the PulseAudio daemon with tools like esdcat, esdrec or even esdctl. Many applications, such as XMMS, include support for this protocol.
 
-See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module. 
+See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module.
 
-In addition to the options supported by module-cli-protocol-*, this module supports: 
+In addition to the options supported by module-cli-protocol-*, this module supports:
 
-   * sink, source 
-         * Specify the sink/source this service connects to auth-anonymous 
-         * If set to 1 no authentication is required to connect to the service auth-cookie 
-         * **New in 0.9.12:** Name of the cookie file for authentication purposes. Defaults to ".esd_auth". The homedir of the user running pulse is automatically prepended to non-absolute paths. auth-cookie-enabled 
-         * **New in 0.9.12:** enable/disable auth-cookie authentication, takes a boolean value (0 or 1). Defaults to 1. cookie 
-         * The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12. auth-ip-acl (only for -tcp} 
-         * **New in 0.9.3:** A semicolon separated list of IP address range to which anonymous access is allowed. Example: _auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8_ 
-<a name="module-native-protocol"></a> 
+* sink, source
+   * Specify the sink/source this service connects to
+* auth-anonymous
+   * If set to 1 no authentication is required to connect to the service
+* auth-cookie
+   * **New in 0.9.12:** Name of the cookie file for authentication purposes. Defaults to ".esd_auth". The homedir of the user running pulse is automatically prepended to non-absolute paths.
+* auth-cookie-enabled
+   * **New in 0.9.12:** enable/disable auth-cookie authentication, takes a boolean value (0 or 1). Defaults to 1.
+* cookie
+   * The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12.
+* auth-ip-acl (only for -tcp}
+   * **New in 0.9.3:** A semicolon separated list of IP address range to which anonymous access is allowed. Example: _auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8_
+
+<a name="module-native-protocol"></a>
 ### module-native-protocol-{unix,tcp}
 
-The native protocol of PulseAudio. 
+The native protocol of PulseAudio.
 
-See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module. 
+See module-cli-protocol-{unix,tcp} for more information about the two possible suffixes of this module.
 
-In addition to the options supported by module-cli-protocol-*, this module supports: 
+In addition to the options supported by module-cli-protocol-*, this module supports:
 
-   * auth-anonymous 
-         * If set to 1 no authentication is required to connect to the service auth-group (only for -unix) 
-         * members of the specified unix group may access the server without further authentication. **Changed in 0.9.3:** if the daemon is running in system-wide mode (`--system` passed when starting up) defaults to `pulse-access`, otherwise is disabled. auth-group-enable (only for -unix) 
-         * **New in 0.9.3:** enable/disable auth-group authentication, takes a boolean value (0 or 1). If `auth-group=` is specified or started in system-wide mode defaults to 1, otherwise 0. auth-cookie 
-         * **New in 0.9.12:** Name of the cookie file for authentication purposes. Defaults to ".pulse-cookie". The homedir of the user running pulse is automatically prepended to non-absolute paths. auth-cookie-enabled 
-         * **New in 0.9.12:** enable/disable auth-cookie authentication, takes a boolean value (0 or 1). Defaults to 1. cookie 
-         * The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12. auth-ip-acl (only for -tcp} 
-         * **New in 0.9.3:** A semicolon separated list of IP address range to which anonymous access is allowed. Example: _auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8_ 
+* auth-anonymous
+   * If set to 1 no authentication is required to connect to the service
+* auth-group (only for -unix)
+   * members of the specified unix group may access the server without further authentication. **Changed in 0.9.3:** if the daemon is running in system-wide mode (`--system` passed when starting up) defaults to `pulse-access`, otherwise is disabled.
+* auth-group-enable (only for -unix)
+   * **New in 0.9.3:** enable/disable auth-group authentication, takes a boolean value (0 or 1). If `auth-group=` is specified or started in system-wide mode defaults to 1, otherwise 0.
+* auth-cookie
+   * **New in 0.9.12:** Name of the cookie file for authentication purposes. Defaults to ".pulse-cookie". The homedir of the user running pulse is automatically prepended to non-absolute paths.
+* auth-cookie-enabled
+   * **New in 0.9.12:** enable/disable auth-cookie authentication, takes a boolean value (0 or 1). Defaults to 1.
+* cookie
+   * The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12.
+* auth-ip-acl (only for -tcp}
+   * **New in 0.9.3:** A semicolon separated list of IP address range to which anonymous access is allowed. Example: _auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8_
 
 ### module-native-protocol-fd
 
-This is used internally when auto spawning a new daemon. Don't use it directly. 
+This is used internally when auto spawning a new daemon. Don't use it directly.
 
 
 ### module-http-protocol-tcp
 
-A proof-of-concept HTTP module, which can be used to introspect the current status of the PulseAudio daemon using HTTP. Just load this module and point your browser to [[http://localhost:4714/|http://localhost:4714/]]. This module takes the same arguments as module-cli-protocol-tcp. 
+A proof-of-concept HTTP module, which can be used to introspect the current status of the PulseAudio daemon using HTTP. Just load this module and point your browser to [[http://localhost:4714/|http://localhost:4714/]]. This module takes the same arguments as module-cli-protocol-tcp.
 
 
 ## Saving/restoring settings
@@ -334,127 +411,144 @@ A proof-of-concept HTTP module, which can be used to introspect the current stat
 
 ### module-default-device-restore
 
-**Since 0.9.7.** Automatically restore the default sink and source (configuration is saved in a file) 
+**Since 0.9.7.** Automatically restore the default sink and source (configuration is saved in a file)
 
 
 ### module-card-restore
 
-Automatically restore profile of cards. 
+Automatically restore profile of cards.
 
 
 ### module-device-restore
 
-**Since 0.9.11.** Automatically restore the volume/mute state of devices (configuration is saved in a GDBM database) 
+**Since 0.9.11.** Automatically restore the volume/mute state of devices (configuration is saved in a GDBM database)
 
-   * restore_volume 
-         * Restore volume (default to true) restore_muted 
-         * Restore mute state (default to true) 
-**Since 0.9.16** 
+* restore_volume
+   * Restore volume (default to true)
+* restore_muted
+   * Restore mute state (default to true)
 
-   * restore_port 
-         * Restore port (default to true) 
+**Since 0.9.16**
+
+* restore_port
+   * Restore port (default to true)
 
 ### module-stream-restore
 
-**Since 0.9.11.** Automatically restore the volume/mute/device state of streams (configuration is saved in a GDBM database) 
+**Since 0.9.11.** Automatically restore the volume/mute/device state of streams (configuration is saved in a GDBM database)
 
-   * restore_volume 
-         * Restore volume (default to true) restore_muted 
-         * Restore mute state (default to true) restore_device 
-         * Restore the selected sink/source (default to true) on_hotplug 
-         * **Since 0.9.16.** Recheck streams when new device becomes available. (default to true) on_rescue 
-         * **Since 0.9.16.** Recheck streams when device becomes unavailable. (default to true) fallback_table 
-         * **Since 2.0.** File name for a fallback table, containing stream-restore entries (with volume only). The file name can be absolute or relative to the configuration directory. When module-stream-restore is loaded, each fallback entry is saved to the database if that entry didn't already exist. The original purpose was to have a way to configure initial volumes for streams already before the first boot. If this argument is not specified, "stream-restore.table" will be loaded if it happens to exist (by default it doesn't). The file format is explained in the [[example file|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/doc/stream_restore_fallback_table_example.table]]. 
+* restore_volume
+   * Restore volume (default to true)
+* restore_muted
+   * Restore mute state (default to true)
+* restore_device
+   * Restore the selected sink/source (default to true)
+* on_hotplug
+   * **Since 0.9.16.** Recheck streams when new device becomes available. (default to true)
+* on_rescue
+   * **Since 0.9.16.** Recheck streams when device becomes unavailable. (default to true)
+* fallback_table
+   * **Since 2.0.** File name for a fallback table, containing stream-restore entries (with volume only). The file name can be absolute or relative to the configuration directory. When module-stream-restore is loaded, each fallback entry is saved to the database if that entry didn't already exist. The original purpose was to have a way to configure initial volumes for streams already before the first boot. If this argument is not specified, "stream-restore.table" will be loaded if it happens to exist (by default it doesn't). The file format is explained in the [[example file|http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/doc/stream_restore_fallback_table_example.table]].
 
 ### module-device-manager
 
-**Since 0.9.20.** Implement a history of devices and a per-role device priority list routing scheme. This module was primary written to enable the routing system employed in KDE to work at a lower level. It is conditionally loaded via the start-pulsaudio-kde script which only runs when working with KDE sessions. The longer term goal for this module is for the functionality to be integrated into PA more fully. See Software/PulseAudio/RFC/PriorityRouting 
+**Since 0.9.20.** Implement a history of devices and a per-role device priority list routing scheme. This module was primary written to enable the routing system employed in KDE to work at a lower level. It is conditionally loaded via the start-pulsaudio-kde script which only runs when working with KDE sessions. The longer term goal for this module is for the functionality to be integrated into PA more fully. See Software/PulseAudio/RFC/PriorityRouting
 
-   * do_routing 
-         * Enable the routing mode. 
+* do_routing
+   * Enable the routing mode.
 
 ## X Window System
 
 
 ### module-x11-bell
 
-Intercepts X11 bell events and plays a sample from the sample cache on each occurence. 
+Intercepts X11 bell events and plays a sample from the sample cache on each occurence.
 
-   * display 
-         * X11 display to connect to. If ommited defaults to the value of $DISPLAY sample 
-         * The sample to play. If omitted defaults to x11-bell. Note that this is not a file name, but a name that is given to the sample when the sample is loaded. This module doesn't load any sample itself. Instead, use load-sample with pacmd or in default.pa. sink 
-         * Name of the sink to play the sample on. If omitted defaults to the default sink. 
+* display
+   * X11 display to connect to. If ommited defaults to the value of $DISPLAY
+* sample
+   * The sample to play. If omitted defaults to x11-bell. Note that this is not a file name, but a name that is given to the sample when the sample is loaded. This module doesn't load any sample itself. Instead, use load-sample with pacmd or in default.pa.
+* sink
+   * Name of the sink to play the sample on. If omitted defaults to the default sink.
 
 ### module-x11-publish
 
-Publishes the access credentials to the PulseAudio server in the X11 root window. The following properties are used: PULSE_SERVER, POYLP_SINK, PULSE_SOURCE, PULSE_COOKIE. This is very useful when using SSH or any other remote login tool for logging into other machines and getting audio playback to your local speakers. The PulseAudio client libraries make use of this data automatically. Instead of using this module you may use the tool pax11publish which may be used to access, modify and import credential data from/to the X11 display. 
+Publishes the access credentials to the PulseAudio server in the X11 root window. The following properties are used: PULSE_SERVER, POYLP_SINK, PULSE_SOURCE, PULSE_COOKIE. This is very useful when using SSH or any other remote login tool for logging into other machines and getting audio playback to your local speakers. The PulseAudio client libraries make use of this data automatically. Instead of using this module you may use the tool pax11publish which may be used to access, modify and import credential data from/to the X11 display.
 
-   * display 
-         * X11 display to connect to. If omitted defaults to the value of $DISPLAY sink 
-         * Name of the default sink. If omitted this property isn't stored in the X11 display. source 
-         * Name of the default source. If omitted this property isn't stored in the X11 display. cookie 
-         * Name of the cookie file of the cookie to store in the X11 display. If omitted the cookie of an already loaded protocol module is used. 
+* display
+   * X11 display to connect to. If omitted defaults to the value of $DISPLAY
+* sink
+   * Name of the default sink. If omitted this property isn't stored in the X11 display.
+* source
+   * Name of the default source. If omitted this property isn't stored in the X11 display.
+* cookie
+   * Name of the cookie file of the cookie to store in the X11 display. If omitted the cookie of an already loaded protocol module is used.
 
 ### module-x11-xsmp
 
-**Since 0.9.7.** Register to the X11 session manager 
+**Since 0.9.7.** Register to the X11 session manager
 
-   * session_manager 
-         * Session manager to connect to. If omitted defaults to the value of $SESSION_MANAGER display 
-         * X11 display to connect to. If omitted defaults to the value of $DISPLAY 
+* session_manager
+   * Session manager to connect to. If omitted defaults to the value of $SESSION_MANAGER
+* display
+   * X11 display to connect to. If omitted defaults to the value of $DISPLAY
 
 ## Volume Control
 
-Common options to both modules 
+Common options to both modules
 
-   * sink 
-         * The sink to control 
-**Since 1.0** 
+* sink
+   * The sink to control
 
-   * volume_limit 
-         * Volume limit. volume_step 
-         * Volume change step size 
+**Since 1.0**
+
+* volume_limit
+   * Volume limit.
+* volume_step
+   * Volume change step size
 
 ### module-mmkbd-evdev
 
-Adjust the volume of a sink when the special multimedia buttons of modern keyboards are pressed. 
+Adjust the volume of a sink when the special multimedia buttons of modern keyboards are pressed.
 
-   * device 
-         * Linux input device ("evdev", defaults to /dev/input/event0) 
+* device
+   * Linux input device ("evdev", defaults to /dev/input/event0)
 
 ### module-lirc
 
-Adjust the volume of a sink when the volume buttons of an infrared remote control are pressed (through LIRC). 
+Adjust the volume of a sink when the volume buttons of an infrared remote control are pressed (through LIRC).
 
-   * config 
-         * The LIRC configuration file appname 
-         * The application name to pass to LIRC (defaults to PulseAudio) 
-Here is a sample _~/.lircrc_ entry configured to forward signals to PulseAudio. Note that you may have to change the button names (Vol_Up, Vol_Down...) to match those in your _/etc/lirc/lircd.conf_. 
-[[!format txt """
-begin
-    prog = PulseAudio
-    remote = *
-    button = Vol_Up
-    config = volume-up
-    repeat = 5
-end
+* config
+   * The LIRC configuration file
+* appname
+   * The application name to pass to LIRC (defaults to PulseAudio)
 
-begin
-    prog = PulseAudio
-    remote = *
-    button = Vol_Down
-    config = volume-down
-    repeat = 5
-end
+Here is a sample _~/.lircrc_ entry configured to forward signals to PulseAudio. Note that you may have to change the button names (Vol_Up, Vol_Down...) to match those in your _/etc/lirc/lircd.conf_.
 
-begin
-    prog = PulseAudio
-    remote = *
-    button = Mute
-    config = mute-toggle
-end
-"""]]
-Available _config_s include: _volume-up_, _volume-down_, _mute_, _mute-toggle_ and _reset_. 
+    begin
+        prog = PulseAudio
+        remote = *
+        button = Vol_Up
+        config = volume-up
+        repeat = 5
+    end
+
+    begin
+        prog = PulseAudio
+        remote = *
+        button = Vol_Down
+        config = volume-down
+        repeat = 5
+    end
+
+    begin
+        prog = PulseAudio
+        remote = *
+        button = Mute
+        config = mute-toggle
+    end
+
+Available _config_s include: _volume-up_, _volume-down_, _mute_, _mute-toggle_ and _reset_.
 
 
 ## Bluetooth
@@ -462,57 +556,69 @@ Available _config_s include: _volume-up_, _volume-down_, _mute_, _mute-toggle_ a
 
 ### module-bluetooth-discover
 
-Detects available bluetooth audio devices using BlueZ. For each audio device, a module-bluetooth-device instance is loaded automatically. 
+Detects available bluetooth audio devices using BlueZ. For each audio device, a module-bluetooth-device instance is loaded automatically.
 
-Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW profiles). This is called the "SCO over PCM" mode. For such hardware, the alsa sink and source need to be specified with the "sco_sink" and "sco_source" arguments. 
+Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW profiles). This is called the "SCO over PCM" mode. For such hardware, the alsa sink and source need to be specified with the "sco_sink" and "sco_source" arguments.
 
-   * sco_sink 
-         * Name of the alsa sink that should be used in the "SCO over PCM" mode. sco_source 
-         * Name of the alsa source that should be used in the "SCO over PCM" mode. 
+* sco_sink
+   * Name of the alsa sink that should be used in the "SCO over PCM" mode.
+* sco_source
+   * Name of the alsa source that should be used in the "SCO over PCM" mode.
 
 ### module-bluetooth-device
 
-Creates a card for a bluetooth audio device. Normally module-bluetooth-device instances should be automatically loaded by module-bluetooth-discover, but it's also possible to load module-bluetooth-device manually. 
+Creates a card for a bluetooth audio device. Normally module-bluetooth-device instances should be automatically loaded by module-bluetooth-discover, but it's also possible to load module-bluetooth-device manually.
 
-The module needs to be given an identifier for the device so that it knows what device to talk to. Either the device address (such as 00:1E:DE:29:B7:3B) or the D-Bus object path (such as /org/bluez/2613/hci0/dev_00_1E_DE_29_B7_3B) can be used as the identifier. So, it's mandatory to give the "address" or the "path" argument when loading the module. 
+The module needs to be given an identifier for the device so that it knows what device to talk to. Either the device address (such as 00:1E:DE:29:B7:3B) or the D-Bus object path (such as /org/bluez/2613/hci0/dev_00_1E_DE_29_B7_3B) can be used as the identifier. So, it's mandatory to give the "address" or the "path" argument when loading the module.
 
-   * sink_name, source_name, card_name 
-         * The name for the sink/source/card. sink_properties, source_properties, card_properties 
-         * Extra properties for the sink/source/card. name 
-         * Automatic name prefix address 
-         * The device address. profile 
-         * The initial card profile: "a2dp", "a2dp_source", "hsp", "hfgw" or "off". path 
-         * The D-Bus object path of the device. auto_connect 
-         * Boolean, the default value is "true". What does this option do?? sco_sink, sco_source 
-         * See the documentation of module-bluetooth-discover. 
+* sink_name, source_name, card_name
+   * The name for the sink/source/card.
+* sink_properties, source_properties, card_properties
+   * Extra properties for the sink/source/card.
+* name
+   * Automatic name prefix
+* address
+   * The device address.
+* profile
+   * The initial card profile: "a2dp", "a2dp_source", "hsp", "hfgw" or "off".
+* path
+   * The D-Bus object path of the device.
+* auto_connect
+   * Boolean, the default value is "true". What does this option do??
+* sco_sink, sco_source
+   * See the documentation of module-bluetooth-discover.
 
 ### module-bluetooth-policy
 
-Takes care of any bluetooth specific policy. Currently two features are implemented: 
+Takes care of any bluetooth specific policy. Currently two features are implemented:
 
-* Switch the card profile automatically to "hfgw" or "a2dp_source" when the remote end starts playing audio. 
-* Load module-loopback automatically for A2DP and HFGW sources, so that the received audio is automatically played back to some output. 
-Supported arguments: 
+* Switch the card profile automatically to "hfgw" or "a2dp_source" when the remote end starts playing audio.
 
-   * a2dp_source 
-         * A boolean argument controlling whether the module-loopback loading should be enabled for A2DP sources. hfgw 
-         * A boolean argument controlling whether the module-loopback loading should be enabled for HFGW sources. 
+* Load module-loopback automatically for A2DP and HFGW sources, so that the received audio is automatically played back to some output.
+
+Supported arguments:
+
+* a2dp_source
+   * A boolean argument controlling whether the module-loopback loading should be enabled for A2DP sources.
+* hfgw
+   * A boolean argument controlling whether the module-loopback loading should be enabled for HFGW sources.
 
 ### module-bluetooth-proximity
 
-**Since 0.9.11** Bluetooth proximity volume control 
+**Since 0.9.11** Bluetooth proximity volume control
 
-   * sink 
-         * The sink to adjust the volume hci 
-         * hci device 
+* sink
+   * The sink to adjust the volume
+* hci
+   * hci device
 
 ## RTP/SDP/SAP Transport
 
-PulseAudio can stream audio data to an IP multicast group via the standard protocols RTP, SAP and SDP (RFC3550, RFC3551, RFC2327, RFC2327). This can be used for multiple different purposes: for sharing a single microphone on multiple computers on the local LAN, for streaming music from a single controlling PC to multiple PCs with speakers or to implement a simple "always-on" teleconferencing solution. 
+PulseAudio can stream audio data to an IP multicast group via the standard protocols RTP, SAP and SDP (RFC3550, RFC3551, RFC2327, RFC2327). This can be used for multiple different purposes: for sharing a single microphone on multiple computers on the local LAN, for streaming music from a single controlling PC to multiple PCs with speakers or to implement a simple "always-on" teleconferencing solution.
 
-The current implementation is designed to be used exclusively in local area networks, though Internet multicasting is theoretically supported. Only uncompressed audio is supported, hence you won't be able to multicast more than a few streams at the same time over a standard LAN. 
+The current implementation is designed to be used exclusively in local area networks, though Internet multicasting is theoretically supported. Only uncompressed audio is supported, hence you won't be able to multicast more than a few streams at the same time over a standard LAN.
 
-PulseAudio implements both a sender and a receiver for RTP traffic. The sender announces itself via SAP/SDP on the same multicast group as it sends the RTP data to. The receiver picks up the SAP/SDP announcements and creates a playback stream for each session. Alternatively you can use any RTP capable client to receive and play back the RTP data (such as mplayer, see [[How To Listen To The Rtp Stream|Software/PulseAudio/Documentation/User/Network/RTP]]). 
+PulseAudio implements both a sender and a receiver for RTP traffic. The sender announces itself via SAP/SDP on the same multicast group as it sends the RTP data to. The receiver picks up the SAP/SDP announcements and creates a playback stream for each session. Alternatively you can use any RTP capable client to receive and play back the RTP data (such as mplayer, see [[How To Listen To The Rtp Stream|Software/PulseAudio/Documentation/User/Network/RTP]]).
 
 
 ### module-rtp-send
@@ -521,12 +627,12 @@ This is the sender side of the RTP/SDP/SAP implementation. It reads audio data f
 
 In combination with the monitor source of module-null-sink you can use this module to create an RTP sink.
 
- * source 
+ * source
     * The source to read the audio data from.
  * format
     * The sample format.
  * channels
-    * The number of channels. 
+    * The number of channels.
  * rate
     * The sample rate.
  * destination_ip
@@ -545,124 +651,161 @@ In combination with the monitor source of module-null-sink you can use this modu
 
 ### module-rtp-recv
 
-This is the receiver side of the RTP/SDP/SAP implementation. It picks up SAP session announcements and creates an RTP playback stream for each. 
+This is the receiver side of the RTP/SDP/SAP implementation. It picks up SAP session announcements and creates an RTP playback stream for each.
 
-In combination with module-null-sink you can use this module to create an RTP source. 
+In combination with module-null-sink you can use this module to create an RTP source.
 
-   * sink 
-         * The sink to connect to. If omitted defaults to the default sink. sap_address 
-         * The multicast group to join for SAP announcements, defaults to 224.0.0.56. 
+* sink
+   * The sink to connect to. If omitted defaults to the default sink.
+* sap_address
+   * The multicast group to join for SAP announcements, defaults to 224.0.0.56.
 
 ## RAOP Sink (Wireless Network Sound aka Apple Airtunes)
 
-PulseAudio can stream audio data to products that support the RAOP protocol. 
+PulseAudio can stream audio data to products that support the RAOP protocol.
 
 
 ### module-raop-discover
 
-mDNS/DNS-SD Service Discovery of RAOP devices 
+mDNS/DNS-SD Service Discovery of RAOP devices
 
 
 ### module-raop-sink
 
-The main module used to create a virtual output device which pipes all audio to the RAOP device. 
+The main module used to create a virtual output device which pipes all audio to the RAOP device.
 
-   * sink_name 
-         * The name of the sink (see [[Modules|Software/PulseAudio/Documentation/User/Modules]]) server 
-         * The server to connect to sink_properties, format, rate, channels 
-         * All supported as per [[Modules|Software/PulseAudio/Documentation/User/Modules]] 
+* sink_name
+   * The name of the sink (see [[Modules|Software/PulseAudio/Documentation/User/Modules]])
+* server
+   * The server to connect to
+* sink_properties, format, rate, channels
+   * All supported as per [[Modules|Software/PulseAudio/Documentation/User/Modules]]
 
 ## JACK Connectivity
 
-PulseAudio can be hooked up to a JACK Audio Connection Kit server which is a specialized sound server used for professional audio production on Unix/Linux. Both a PulseAudio sink and a source are available. For each channel a port is created in the JACK server. 
+PulseAudio can be hooked up to a JACK Audio Connection Kit server which is a specialized sound server used for professional audio production on Unix/Linux. Both a PulseAudio sink and a source are available. For each channel a port is created in the JACK server.
 
 
 ### module-jack-sink
 
-This module implements a PulseAudio sink that connects to JACK and registers as many output ports as requested. 
+This module implements a PulseAudio sink that connects to JACK and registers as many output ports as requested.
 
-   * sink_name 
-         * The name for the PulseAudio sink. If omitted defaults to jack_out. server_name 
-         * The JACK server to connect to. If omitted defaults to the default server. client_name 
-         * The client name to tell the JACK server. If omitted defaults to PulseAudio. channel_map channels 
-         * Number of channels to register. If omitted defaults to the number of physical playback ports of the JACK server. connect 
-         * Takes a boolean value. If enabled (the default) PulseAudio will try to connect its ports to the physical playback ports of the JACK server 
+* sink_name
+   * The name for the PulseAudio sink. If omitted defaults to jack_out.
+* server_name
+   * The JACK server to connect to. If omitted defaults to the default server.
+* client_name
+   * The client name to tell the JACK server. If omitted defaults to PulseAudio.
+* channel_map channels
+   * Number of channels to register. If omitted defaults to the number of physical playback ports of the JACK server.
+* connect
+   * Takes a boolean value. If enabled (the default) PulseAudio will try to connect its ports to the physical playback ports of the JACK server
 
 ### module-jack-source
 
-This module implements a PulseAudio source that connects to JACK and registers as many input ports as requested. Takes the same arguments as module-jack-sink, except for sink_name which is replaced by source_name (with a default of jack_in) for obvious reasons. 
+This module implements a PulseAudio source that connects to JACK and registers as many input ports as requested. Takes the same arguments as module-jack-sink, except for sink_name which is replaced by source_name (with a default of jack_in) for obvious reasons.
 
 
 ### module-jackdbus-detect
 
-This module automatically adds JACK sinks and sources whenever the JACK server is started. For this to work, you need to use JACK 2, and enable JACK's D-Bus interface. 
+This module automatically adds JACK sinks and sources whenever the JACK server is started. For this to work, you need to use JACK 2, and enable JACK's D-Bus interface.
 
-   * channels 
-         * The number of channels to create for both module-jack-sink and module-jack-source. If omitted, the sink will use the number of physical output ports and the source will use the number of physical input ports registered in the JACK server. connect 
-         * Takes a boolean value. If enabled (the default) PulseAudio will try to connect its ports to the physical playback ports of the JACK server. 
+* channels
+   * The number of channels to create for both module-jack-sink and module-jack-source. If omitted, the sink will use the number of physical output ports and the source will use the number of physical input ports registered in the JACK server.
+* connect
+   * Takes a boolean value. If enabled (the default) PulseAudio will try to connect its ports to the physical playback ports of the JACK server.
 
 ## Filters
 
-These modules create a virtual sink and/or source on top of a given sink and source and filter the data flowing through. 
+These modules create a virtual sink and/or source on top of a given sink and source and filter the data flowing through.
 
 
 ### module-echo-cancel
 
-Used to perform acoustic echo cancellation between a designated sink and source. **Since 1.0** 
+Used to perform acoustic echo cancellation between a designated sink and source. **Since 1.0**
 
-   * source_name 
-         * Name to give the virtual source that is created source_properties 
-         * Properties to set on the virtual source source_master 
-         * Name of the source to filter sink_name 
-         * Name to give the virtual sink that is created sink_properties 
-         * Properties to set on the virtual sink sink_master 
-         * Name of sink to filter autoloaded 
-         * Set if this module is being loaded automatically. Don't set this manually unless you know what you're doing. use_volume_sharing 
-         * Whether to use volume sharing with master sink/source adjust_time 
-         * How often to readjust sync between sink and source (in seconds) adjust_threshold 
-         * **Since 2.0.** How much drift to readjust after (in milliseconds) format 
-         * The sample format of the virtual sink and source. rate 
-         * The sample rate of the virtual sink and source. channels 
-         * The number of channels of the virtual sink and source. channel_map 
-         * The channel map of the virtual sink and source. aec_method 
-         * Specific AEC implementation to use ("speex", "webrtc", "adrian" (not a very good canceller) or "null"). aec_args 
-         * Parameters for the AEC engine (to be documented) save_aec 
-         * If set, saves AEC data in /tmp/aec_* 
+* source_name
+   * Name to give the virtual source that is created
+* source_properties
+   * Properties to set on the virtual source
+* source_master
+   * Name of the source to filter
+* sink_name
+   * Name to give the virtual sink that is created
+* sink_properties
+   * Properties to set on the virtual sink
+* sink_master
+   * Name of sink to filter
+* autoloaded
+   * Set if this module is being loaded automatically. Don't set this manually unless you know what you're doing.
+* use_volume_sharing
+   * Whether to use volume sharing with master sink/source
+* adjust_time
+   * How often to readjust sync between sink and source (in seconds)
+* adjust_threshold
+   * **Since 2.0.** How much drift to readjust after (in milliseconds)
+* format
+   * The sample format of the virtual sink and source.
+* rate
+   * The sample rate of the virtual sink and source.
+* channels
+   * The number of channels of the virtual sink and source.
+* channel_map
+   * The channel map of the virtual sink and source.
+* aec_method
+   * Specific AEC implementation to use ("speex", "webrtc", "adrian" (not a very good canceller) or "null").
+* aec_args
+   * Parameters for the AEC engine (to be documented)
+* save_aec
+   * If set, saves AEC data in /tmp/aec_*
 
 ### module-equalizer-sink
 
-General purpose equalizer that can be applied over a given sink. **Since 1.0** 
+General purpose equalizer that can be applied over a given sink. **Since 1.0**
 
-   * sink_name 
-         * Name to give the virtual sink that is created sink_properties 
-         * Properties to set on the virtual sink sink_master 
-         * Name of sink to filter autoloaded 
-         * Set if this module is being loaded automatically. Don't set this manually unless you know what you're doing. use_volume_sharing 
-         * Whether to use volume sharing with master sink/source 
+* sink_name
+   * Name to give the virtual sink that is created
+* sink_properties
+   * Properties to set on the virtual sink
+* sink_master
+   * Name of sink to filter
+* autoloaded
+   * Set if this module is being loaded automatically. Don't set this manually unless you know what you're doing.
+* use_volume_sharing
+   * Whether to use volume sharing with master sink/source
 
 ### module-ladspa-sink
 
-Adds signal processing (for example equalizing) to a sink with a [[LADSPA|http://www.ladspa.org/]] plugin. 
+Adds signal processing (for example equalizing) to a sink with a [[LADSPA|http://www.ladspa.org/]] plugin.
 
-The module shows up as a separate sink. 
+The module shows up as a separate sink.
 
-   * sink_name 
-         * Name for this sink. sink_properties 
-         * Extra properties to be stored in the sink's property list. master 
-         * The sink where the processed audio is forwarded to. channels, rate, channel_map 
-         * Normal sink parameters. It's best to leave these unspecified, so that the master sink parameters will be used. plugin 
-         * The name of the .so file that contains the desired filter without the ".so" part. Specify only the file name, not the full directory path. The directories where the plugin files are searched from can be specified with the environment variable LADSPA_PATH. Multiple directories can be specified using colon (:) as the separator. If the environment variable isn't set, "$libdir/ladspa:/usr/local/lib/ladspa:/usr/lib/ladspa" is used instead ($libdir is specified at build time, so the default search path should include the directory where your distribution installs LADSPA plugins). label 
-         * One plugin file may contain multiple plugins, which are identified by a label. Specify it here. control 
-         * If the plugin has control input ports, you have to specify their values here. That is done by simply listing the numeric values using comma as the separator. Default values can be used by leaving the number out. Examples: Plugin with five control ports, leaving the third to the default value: `control=0.34,-2.3,,0.00346,5` Plugin with three control ports, leaving all to the default values: `control=,,` input_ladspaport_map 
-         * Comma separated list of input LADSPA audio port names. The list is matched with the sink channel map so that each LADSPA port in the list is assigned for the corresponding channel channel map. If this argument is not given, the ports are assigned in the order that the plugin lists them. output_ladspaport_map 
-         * Comma separated list of output LADSPA audio port names. The list is matched with the sink channel map so that each LADSPA port in the list is assigned for the corresponding channel channel map. If this argument is not given, the ports are assigned in the order that the plugin lists them. 
-An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin is in the `swh-plugins` package). 
-[[!format txt """
-load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_1197 label=mbeq control=11.621622,10,4.594594,2.702703,0,0,-1.621622,-0.270270,-5.405406,-3.513514,-8.648648,-5.675676,-4.054054,1.351351,9.189189
-"""]]
-The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [[JACK Rack|http://jack-rack.sourceforge.net/]] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page. 
+* sink_name
+   * Name for this sink.
+* sink_properties
+   * Extra properties to be stored in the sink's property list.
+* master
+   * The sink where the processed audio is forwarded to.
+* channels, rate, channel_map
+   * Normal sink parameters. It's best to leave these unspecified, so that the master sink parameters will be used.
+* plugin
+   * The name of the .so file that contains the desired filter without the ".so" part. Specify only the file name, not the full directory path. The directories where the plugin files are searched from can be specified with the environment variable LADSPA_PATH. Multiple directories can be specified using colon (:) as the separator. If the environment variable isn't set, "$libdir/ladspa:/usr/local/lib/ladspa:/usr/lib/ladspa" is used instead ($libdir is specified at build time, so the default search path should include the directory where your distribution installs LADSPA plugins).
+* label
+   * One plugin file may contain multiple plugins, which are identified by a label. Specify it here.
+* control
+   * If the plugin has control input ports, you have to specify their values here. That is done by simply listing the numeric values using comma as the separator. Default values can be used by leaving the number out. Examples: Plugin with five control ports, leaving the third to the default value: `control=0.34,-2.3,,0.00346,5` Plugin with three control ports, leaving all to the default values: `control=,,`
+* input_ladspaport_map
+   * Comma separated list of input LADSPA audio port names. The list is matched with the sink channel map so that each LADSPA port in the list is assigned for the corresponding channel channel map. If this argument is not given, the ports are assigned in the order that the plugin lists them.
+* output_ladspaport_map
+   * Comma separated list of output LADSPA audio port names. The list is matched with the sink channel map so that each LADSPA port in the list is assigned for the corresponding channel channel map. If this argument is not given, the ports are assigned in the order that the plugin lists them.
 
-Control output ports are ignored. 
+An example: adding an equalizer to a normal alsa sink (on Debian the mbeq plugin is in the `swh-plugins` package).
+
+    load-module module-ladspa-sink sink_name=ladspa_out master=alsa_out plugin=mbeq_1197 label=mbeq control=11.621622,10,4.594594,2.702703,0,0,-1.621622,-0.270270,-5.405406,-3.513514,-8.648648,-5.675676,-4.054054,1.351351,9.189189
+
+The control values can't be modified at run-time, so it can be a problem to figure out good control values for the plugin. The writer of this documentation used [[JACK Rack|http://jack-rack.sourceforge.net/]] to find the values. This is a good solution if you already are familiar with Jack, but if you're not, this is one more thing to learn. If someone knows a handier way to fiddle with the parameters, please edit this page.
+
+Control output ports are ignored.
 
 
 ## Miscellaneous
@@ -670,44 +813,46 @@ Control output ports are ignored.
 
 ### module-sine
 
-Creates a sink input and generates a sine waveform stream. 
+Creates a sink input and generates a sine waveform stream.
 
-   * sink 
-         * The sink to connect to. If omitted defaults to the default sink. frequency 
-         * The frequency to generate in Hertz. Defaults to 440. 
+* sink
+   * The sink to connect to. If omitted defaults to the default sink.
+* frequency
+   * The frequency to generate in Hertz. Defaults to 440.
 
 ### module-sine-source
 
-Creates a source and generates a sine waveform stream. 
+Creates a source and generates a sine waveform stream.
 
-   * source_name 
-         * Name for the source. (defaults to sine_input) rate 
-         * Sample rate for the source. frequency 
-         * The frequency to generate in Hertz. Defaults to 440. 
+* source_name
+   * Name for the source. (defaults to sine_input)
+* rate
+   * Sample rate for the source.
+* frequency
+   * The frequency to generate in Hertz. Defaults to 440.
 
 ### module-esound-compat-spawnfd
 
-This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly. 
+This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
 
 
 ### module-esound-compat-spawnpid
 
-This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly. 
+This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
 
 
 ### module-match
 
-Adjust the volume of a playback stream automatically based on its name. 
+Adjust the volume of a playback stream automatically based on its name.
 
-   * table 
-         * The regular expression matching table file to use (defaults to ~/.pulse/match.table) 
-The table file should contain a regexp and volume on each line, separated by spaces. An example: 
+* table
+   * The regular expression matching table file to use (defaults to ~/.pulse/match.table)
 
+The table file should contain a regexp and volume on each line, separated by spaces. An example:
 
-[[!format txt """
-^sample: 32000
-"""]]
-The volumes of all streams with titles starting with sample: are automatically set to 32000. (FYI: All sample cache streams start with sample:) 
+    ^sample: 32000
+
+The volumes of all streams with titles starting with sample: are automatically set to 32000. (FYI: All sample cache streams start with sample:)
 
 
 ### module-udev-detect
@@ -730,99 +875,114 @@ The volumes of all streams with titles starting with sample: are automatically s
 
 ### module-detect
 
-**This module is deprecated on systems where udev is available. Please use module-udev-detect instead.** 
+**This module is deprecated on systems where udev is available. Please use module-udev-detect instead.**
 
-Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers, and the information is taken directy from them, not through udev. 
+Automatically detect the available sound hardware and load modules for it. Supports OSS, ALSA, Solaris and Win32 output drivers, and the information is taken directy from them, not through udev.
 
-Do not use this together with module-udev-detect! 
+Do not use this together with module-udev-detect!
 
-The parameter: 
+The parameter:
 
-   * just-one 
-         * If set to 1 the module will only try to load a single sink/source and than stop. 
+* just-one
+   * If set to 1 the module will only try to load a single sink/source and than stop.
 
 ### module-zeroconf-publish
 
-Publish all local sinks/sources using mDNS Zeroconf. For more information, see [[Network Setup|Software/PulseAudio/Documentation/User/Network]]. 
+Publish all local sinks/sources using mDNS Zeroconf. For more information, see [[Network Setup|Software/PulseAudio/Documentation/User/Network]].
 
 
 ### module-zeroconf-discover
 
-Discover sinks/sources on other [[PulseAudio|PulseAudio]] servers using mDNS Zeroconf. 
+Discover sinks/sources on other [[PulseAudio|PulseAudio]] servers using mDNS Zeroconf.
 
 
 ### module-rescue-streams
 
-Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink. 
+Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink.
 
 
 ### module-systemd-login
 
-**Since 2.0.** Create a client for each login session of this user. 
+**Since 2.0.** Create a client for each login session of this user.
 
-This module doesn't do anything on systems that don't use systemd, so this module can be loaded at the same time with module-console-kit. 
+This module doesn't do anything on systems that don't use systemd, so this module can be loaded at the same time with module-console-kit.
 
 
 ### module-console-kit
 
-**Since 0.9.11.** Create a client for each [[ConsoleKit|ConsoleKit]] session of this user 
+**Since 0.9.11.** Create a client for each [[ConsoleKit|ConsoleKit]] session of this user
 
-This module doesn't do anything on systems that use systemd, so this module can be loaded at the same time with module-systemd-login. 
+This module doesn't do anything on systems that use systemd, so this module can be loaded at the same time with module-systemd-login.
 
 
 ### module-position-event-sounds
 
-**Since 0.9.11.** Position event sounds between L and R depending on the position on screen of the widget triggering them. 
+**Since 0.9.11.** Position event sounds between L and R depending on the position on screen of the widget triggering them.
 
 
 ### module-always-sink
 
-**Since 0.9.11.** Always keeps at least one sink loaded even if it's a null one 
+**Since 0.9.11.** Always keeps at least one sink loaded even if it's a null one
 
-   * sink_name 
-         * The name for the new virtual sink. 
+* sink_name
+   * The name for the new virtual sink.
 
 ### module-suspend-on-idle
 
-**Since 0.9.11.** Disconnects sinks and sources from their backend after a predetermined amount of idle time. Idle time is accumulated when the sink/source in question is not connected to any streams. 
+**Since 0.9.11.** Disconnects sinks and sources from their backend after a predetermined amount of idle time. Idle time is accumulated when the sink/source in question is not connected to any streams.
 
-Advantages: Saves power. ALSA uses considerably more CPU cycles when pulseaudio has to send empty data to the soundcard during idle. If you don't plan to have an active stream all the time, set the timer to a low value for best power savings. 
+Advantages: Saves power. ALSA uses considerably more CPU cycles when pulseaudio has to send empty data to the soundcard during idle. If you don't plan to have an active stream all the time, set the timer to a low value for best power savings.
 
-Disadvantages: When pulseaudio gives up the backend, and the backend is not capable of mixing, errant applications can grab the sound device and hold exclusive control over it, making pulseaudio stop working. If pulseaudio does not give up the backend, errant applications won't be able to play sound, but they will not disrupt pulseaudio's operation either. This scenario is possible 99% of the time, since most users run an ALSA sink/source without a card that has software mixing. An "errant application" would, for example, try to open hw:0 or front:0 rather than the 'default' ALSA device. 
+Disadvantages: When pulseaudio gives up the backend, and the backend is not capable of mixing, errant applications can grab the sound device and hold exclusive control over it, making pulseaudio stop working. If pulseaudio does not give up the backend, errant applications won't be able to play sound, but they will not disrupt pulseaudio's operation either. This scenario is possible 99% of the time, since most users run an ALSA sink/source without a card that has software mixing. An "errant application" would, for example, try to open hw:0 or front:0 rather than the 'default' ALSA device.
 
-   * timeout 
-         * Time, in seconds, which must elapse before a sink or source is deemed idle. 
+* timeout
+   * Time, in seconds, which must elapse before a sink or source is deemed idle.
 
 ### module-loopback
 
-**Since 0.9.16.** This allows one to route audio from a source directly back to a sink. 
+**Since 0.9.16.** This allows one to route audio from a source directly back to a sink.
 
-   * source 
-         * The name of the input source to connect to. If not specified the source will be picked automatically. You can use a tool like pavucontrol to move the loopback stream to the right source. sink 
-         * The name of the sink the audio is forwarded to. If not specified the sink will be picked automatically. adjust_time 
-         * How often to readjust the sample rates in seconds. Defaults to 10. latency_msec 
-         * The desired latency in milliseconds, from 1 to 2000. Defaults to 200. (Note that this is only a friendly request, the actually latency might be higher or lower thatn this value) format 
-         * The sample format. Defaults to that of specified sink. rate 
-         * The sample rate. Defaults to that of specified sink. channels 
-         * Number of source channels to use. Defaults to that of specified sink. channel_map 
-         * List of the channels to connect to the sink. sink_input_properties 
-         * **Since 1.0.** Property list for the playback stream object. source_output_properties 
-         * **Since 1.0.** Property list for the capture stream object. source_dont_move 
-         * **Since 1.0.** Takes a boolean value. Disallows moving the capture stream to some other than the initial source. Defaults to "false". sink_dont_move 
-         * **Since 1.0.** Takes a boolean value. Disallows moving the playback stream to some other than the initial sink. Defaults to "false". remix 
-         * **Since 1.0.** Takes a boolean value. If the channel map of the capture stream doesn't match the source's channel map, or the channel map of the playback stream doesn't match the sink's channel map, the mismatch has to be handled somehow. If remixing isn't disabled in the global server configuration, by default the audio will get remixed. This parameter can be used to disable remixing for the loopback streams (but if remixing is disabled in the global server configuration, this parameter can't be used for forcing remixing - setting this parameter simply has no effect at all). 
+* source
+   * The name of the input source to connect to. If not specified the source will be picked automatically. You can use a tool like pavucontrol to move the loopback stream to the right source.
+* sink
+   * The name of the sink the audio is forwarded to. If not specified the sink will be picked automatically.
+* adjust_time
+   * How often to readjust the sample rates in seconds. Defaults to 10.
+* latency_msec
+   * The desired latency in milliseconds, from 1 to 2000. Defaults to 200. (Note that this is only a friendly request, the actually latency might be higher or lower thatn this value)
+* format
+   * The sample format. Defaults to that of specified sink.
+* rate
+   * The sample rate. Defaults to that of specified sink.
+* channels
+   * Number of source channels to use. Defaults to that of specified sink.
+* channel_map
+   * List of the channels to connect to the sink.
+* sink_input_properties
+   * **Since 1.0.** Property list for the playback stream object.
+* source_output_properties
+   * **Since 1.0.** Property list for the capture stream object.
+* source_dont_move
+   * **Since 1.0.** Takes a boolean value. Disallows moving the capture stream to some other than the initial source. Defaults to "false".
+* sink_dont_move
+   * **Since 1.0.** Takes a boolean value. Disallows moving the playback stream to some other than the initial sink. Defaults to "false".
+* remix
+   * **Since 1.0.** Takes a boolean value. If the channel map of the capture stream doesn't match the source's channel map, or the channel map of the playback stream doesn't match the sink's channel map, the mismatch has to be handled somehow. If remixing isn't disabled in the global server configuration, by default the audio will get remixed. This parameter can be used to disable remixing for the loopback streams (but if remixing is disabled in the global server configuration, this parameter can't be used for forcing remixing - setting this parameter simply has no effect at all).
 
 ### module-switch-on-connect
 
-Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source. Takes no arguments. 
+Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source. Takes no arguments.
 
 
 ### module-role-ducking
 
-This module lowers the volume of less important streams when a more important stream appears, and raises the volume back up once the important stream has finished (this is called "ducking"). The decision whether a stream has high or low priority is made based on the stream role (the media.role property). By default, "music" and "video" streams are ducked, and "phone" streams trigger the ducking. 
+This module lowers the volume of less important streams when a more important stream appears, and raises the volume back up once the important stream has finished (this is called "ducking"). The decision whether a stream has high or low priority is made based on the stream role (the media.role property). By default, "music" and "video" streams are ducked, and "phone" streams trigger the ducking.
 
-   * trigger_roles 
-         * Comma separated list of roles that will trigger ducking. ducking_roles 
-         * Comma separated list of roles that will be ducked. global 
-         * A boolean. If true, ducking will be applied to all streams that have a ducking role. If false, ducking will be applied only to streams that are connected to the same device as the triggering stream. volume 
-         * Attenuation to be used while ducking. The value can be given either as a percentage (for example, "40%"), in decibels (for example, "-20dB") or as a plain integer between 0 and 65536 (this is the representation that PulseAudio uses for volume internally). 
+* trigger_roles
+   * Comma separated list of roles that will trigger ducking.
+* ducking_roles
+   * Comma separated list of roles that will be ducked.
+* global
+   * A boolean. If true, ducking will be applied to all streams that have a ducking role. If false, ducking will be applied only to streams that are connected to the same device as the triggering stream.
+* volume
+   * Attenuation to be used while ducking. The value can be given either as a percentage (for example, "40%"), in decibels (for example, "-20dB") or as a plain integer between 0 and 65536 (this is the representation that PulseAudio uses for volume internally).
