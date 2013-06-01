@@ -1,59 +1,52 @@
-
-A little overview on the different volumes PA handles internally: 
+A little overview on the different volumes PA handles internally:
 
 
 ## pa_sink_input
 
-**volume** is the volume that is visible to the user. In classic volume mode this is relative to the current sink volume. In flat volume mode it is absolute, i.e. in the same units/range as the sink's volume. 
+**volume** is the volume that is visible to the user. In classic volume mode this is relative to the current sink volume. In flat volume mode it is absolute, i.e. in the same units/range as the sink's volume.
 
-**volume_factor** is an internal volume factor that can be used by effect modules to apply additional software volume adjustments to a stream. Primary user for now is module-position-event-sounds. 
+**volume_factor** is an internal volume factor that can be used by effect modules to apply additional software volume adjustments to a stream. Primary user for now is module-position-event-sounds.
 
-**reference_ratio** is the ratio of the sink input's volume to the sink's reference volume. 
+**reference_ratio** is the ratio of the sink input's volume to the sink's reference volume.
 
-**real_ratio** is the ratio of the sink input's volume to sink's real volume. 
+**real_ratio** is the ratio of the sink input's volume to sink's real volume.
 
-**soft_volume** is an internal volume calculated as the multiplication of **real_ratio** by **volume_factor**. It is as such the actual factor applied on the PCM data of this stream. 
+**soft_volume** is an internal volume calculated as the multiplication of **real_ratio** by **volume_factor**. It is as such the actual factor applied on the PCM data of this stream.
 
 
 ## pa_sink
 
-**reference_volume** is the volume that is visible to the user. Saved/restored stream volumes are relative to this. 
+**reference_volume** is the volume that is visible to the user. Saved/restored stream volumes are relative to this.
 
-**real_volume** is the volume the hardware is actually configured to. This is always lower or equal than the reference volume. In flat volume mode this equals the highest volume of all streams. In non-flat volume mode this equals the reference volume. 
+**real_volume** is the volume the hardware is actually configured to. This is always lower or equal than the reference volume. In flat volume mode this equals the highest volume of all streams. In non-flat volume mode this equals the reference volume.
 
-**base_volume** is an informational value that stores where a 'good' virtual volume level is for the device. Depending on the backend drivers this might be set to something < 0dB but most often is 0dB. This value stays constant and may not be modified. 
+**base_volume** is an informational value that stores where a 'good' virtual volume level is for the device. Depending on the backend drivers this might be set to something < 0dB but most often is 0dB. This value stays constant and may not be modified.
 
-**soft_volume** is an internal volume that is applied to the PCM data before it is handed out to the device. For devices lacking hw volume control this is used to apply volumes. Also, on devices that do dB based volumes this is used to extend the volume range. 
+**soft_volume** is an internal volume that is applied to the PCM data before it is handed out to the device. For devices lacking hw volume control this is used to apply volumes. Also, on devices that do dB based volumes this is used to extend the volume range.
 
 
 ## Formulas
 
-Object _i_ shall be a pa_sink_input, object _s_ a pa_sink. 
+Object _i_ shall be a pa_sink_input, object _s_ a pa_sink.
 
+    i->soft_volume := i->real_ratio * i->volume_factor
 
-[[!format txt """
-i->soft_volume := i->real_ratio * i->volume_factor
-"""]]
-This is always true: 
+This is always true:
 
+    i->real_ratio <= i->reference_ratio
+    s->real_volume <= s->reference_volume
 
-[[!format txt """
-i->real_ratio <= i->reference_ratio
-s->real_volume <= s->reference_volume
-"""]]
-In flat volume mode: 
+In flat volume mode:
 
+    i->real_ratio := i->real_volume / s->volume
+    i->reference_ratio := i->reference_volume / s->volume
 
-[[!format txt """
-i->real_ratio := i->real_volume / s->volume
-i->reference_ratio := i->reference_volume / s->volume
+    s->real_volume = MAX(i->volume for all i of s)
 
-s->real_volume = MAX(i->volume for all i of s)
-"""]]
-In classic volume mode: 
-[[!format txt """
-i->real_ratio := i->volume
-i->reference_ratio := i->volume
+In classic volume mode:
 
-s->real_volume := s->reference_volume
-"""]]
+    i->real_ratio := i->volume
+    i->reference_ratio := i->volume
+
+    s->real_volume := s->reference_volume
+

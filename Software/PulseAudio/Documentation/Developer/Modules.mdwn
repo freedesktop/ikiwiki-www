@@ -1,5 +1,4 @@
-
-[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[!inline pages="DevelopingModulesTOC" quick="yes" raw="yes"]] 
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[!inline pages="DevelopingModulesTOC" quick="yes" raw="yes"]]
 
 
 # Writing new PulseAudio modules
@@ -7,193 +6,179 @@
 
 ## Introduction
 
-I want to rewrite the JACK modules from scratch, and in order to do that I need to know how modules work and how to use the PulseAudio APIs. Instead of reading the sources I'd like to have a friendly guide that tells me what to do. Because there isn't such a guide, I'll write it myself as I learn stuff by other means. Hopefully this will be useful for future module writers too. 
+I want to rewrite the JACK modules from scratch, and in order to do that I need to know how modules work and how to use the PulseAudio APIs. Instead of reading the sources I'd like to have a friendly guide that tells me what to do. Because there isn't such a guide, I'll write it myself as I learn stuff by other means. Hopefully this will be useful for future module writers too.
 
-This documentation is for the "master" branch in the git, which will eventually become the 0.9.7 release. After 0.9.7 I think I will keep updating these pages as git changes (the APIs needed to write modules are mostly considered internal and thus unstable), but keeping the information for 0.9.7 users there too. 
+This documentation is for the "master" branch in the git, which will eventually become the 0.9.7 release. After 0.9.7 I think I will keep updating these pages as git changes (the APIs needed to write modules are mostly considered internal and thus unstable), but keeping the information for 0.9.7 users there too.
 
-This is a wiki, so please improve this yourself whenever you spot inaccuracies, confusion, bad English or straight lies. 
+This is a wiki, so please improve this yourself whenever you spot inaccuracies, confusion, bad English or straight lies.
 
-**Update May 6, 2008:** It's been now eight months since this tutorial was last edited. I didn't finish the JACK modules (Lennart made them good enough for the 0.9.7 release), and I didn't finish this tutorial, nor have I been keeping this up to date for the parts that have been written. If you notice something that has changed since 0.9.7, please fix it, or at least add a note about it. Also, I claim no ownership over this tutorial, so if you have more time and motivation than me, feel free to improve it in any way you want. --tanuk 
+**Update May 6, 2008:** It's been now eight months since this tutorial was last edited. I didn't finish the JACK modules (Lennart made them good enough for the 0.9.7 release), and I didn't finish this tutorial, nor have I been keeping this up to date for the parts that have been written. If you notice something that has changed since 0.9.7, please fix it, or at least add a note about it. Also, I claim no ownership over this tutorial, so if you have more time and motivation than me, feel free to improve it in any way you want. --tanuk
 
 
 ## What is a module?
 
-A module is a shared object file that contains implementations of certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so. 
+A module is a shared object file that contains implementations of certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
 
 
 ## Compiling to a shared object file
 
-This section is here in the case you're like me and don't know anything about the specifics of shared object compilation. This works on my machine: 
+This section is here in the case you're like me and don't know anything about the specifics of shared object compilation. This works on my machine:
 
+    gcc -g -shared -o module-<yourmodule>.so module-<yourmodule>.c
 
-[[!format txt """
-gcc -g -shared -o module-<yourmodule>.so module-<yourmodule>.c
-"""]]
-Copy the resulting .so file to the modules directory and you're done, you can now load your module by running pacmd and saying "load-module module-<yourmodule>". 
+Copy the resulting .so file to the modules directory and you're done, you can now load your module by running pacmd and saying "load-module module-<yourmodule>".
 
-**Update on July 30 2008:** Sometime it is not so straightforward, as your module uses some definitions and variables from other files and libraries. You probably use the [[PulseAudio|PulseAudio]] configure script and Makefile to build your module. In the case, you may update configure.ac and Makefile.am to add your module support. 
+**Update on July 30 2008:** Sometime it is not so straightforward, as your module uses some definitions and variables from other files and libraries. You probably use the [[PulseAudio|PulseAudio]] configure script and Makefile to build your module. In the case, you may update configure.ac and Makefile.am to add your module support.
 
-Here is a code snippet in configure.ac, which adds an optional module abc as an example: 
-[[!format txt """
-...
-#### ABC support ####
+Here is a code snippet in configure.ac, which adds an optional module abc as an example:
 
-AC_ARG_ENABLE([abc],
-        AC_HELP_STRING([--disable-abc],[Disable optional ABC module support]),
-        [
-            case "${enableval}" in
-                yes) abc=yes ;;
-                no) abc=no ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --disable-abc) ;;
-            esac
-        ],
-        [abc=no])
+    ...
+    #### ABC support ####
 
-if test "x${abc}" != xno ; then
-    if test "x$HAVE_DBUS" = x1 && test "x$HAVE_GLIB20" = x1 ; then
-        AC_DEFINE([ABC], 1, [Have ABC module.])
-        ABC=1
+    AC_ARG_ENABLE([abc],
+            AC_HELP_STRING([--disable-abc],[Disable optional ABC module support]),
+            [
+                case "${enableval}" in
+                    yes) abc=yes ;;
+                    no) abc=no ;;
+                    *) AC_MSG_ERROR(bad value ${enableval} for --disable-abc) ;;
+                esac
+            ],
+            [abc=no])
+
+    if test "x${abc}" != xno ; then
+        if test "x$HAVE_DBUS" = x1 && test "x$HAVE_GLIB20" = x1 ; then
+            AC_DEFINE([ABC], 1, [Have ABC module.])
+            ABC=1
+        else
+            ABC=0
+        fi
     else
         ABC=0
     fi
-else
-    ABC=0
-fi
-AM_CONDITIONAL([ABC], [test "x$ABC" = x1])
-...
-"""]]
-Here is a code snippet to add abc module to src/Makefile.am 
-[[!format txt """
-...
-if ABC
-modlibexec_LTLIBRARIES += \
-               libdbus-util.la \
-               module-abc.la
-endif
-...
-module_abc_la_SOURCES = modules/module-abc.c
-module_abc_la_LDFLAGS = -module -avoid-version
-module_abc_la_LIBADD = $(AM_LIBADD) $(DBUS_LIBS) $(GLIB20_LIBS) libpulsecore.la
-module_abc_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(GLIB20_CFLAGS)
-...
-"""]]
-In configure script and Makefile.am, the module may have some dependencies. You need find the right position to add those codes. -stanley 
+    AM_CONDITIONAL([ABC], [test "x$ABC" = x1])
+    ...
+
+Here is a code snippet to add abc module to src/Makefile.am
+
+    ...
+    if ABC
+    modlibexec_LTLIBRARIES += \
+                   libdbus-util.la \
+                   module-abc.la
+    endif
+    ...
+    module_abc_la_SOURCES = modules/module-abc.c
+    module_abc_la_LDFLAGS = -module -avoid-version
+    module_abc_la_LIBADD = $(AM_LIBADD) $(DBUS_LIBS) $(GLIB20_LIBS) libpulsecore.la
+    module_abc_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(GLIB20_CFLAGS)
+    ...
+
+In configure script and Makefile.am, the module may have some dependencies. You need find the right position to add those codes. -stanley
 
 
 ## Required functions
 
-There is one function that every module must implement, the daemon refuses to load the module if it isn't present. 
-[[!format txt """
-int pa__init(pa_module* m);
-"""]]
-`pa_init` is called when the daemon loads the module. Any initialization work is supposed to be done in the `pa_init` function. 
+There is one function that every module must implement, the daemon refuses to load the module if it isn't present.
 
-Some modules may be such that their purpose becomes fulfilled already during the initialization. However, most modules need to do some cleanup work when they are unloaded, so some kind of "destructor" is almost mandatory too. It is called `pa__done`. 
+    int pa__init(pa_module* m);
 
+`pa_init` is called when the daemon loads the module. Any initialization work is supposed to be done in the `pa_init` function.
 
-[[!format txt """
-void pa__done(pa_module* m);
-"""]]
-The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. If `pa__init` fails, `pa__done` won't be called. 
+Some modules may be such that their purpose becomes fulfilled already during the initialization. However, most modules need to do some cleanup work when they are unloaded, so some kind of "destructor" is almost mandatory too. It is called `pa__done`.
 
-The `pa_module` type is defined in [source:branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later. 
+    void pa__done(pa_module* m);
 
-So the minimal module that the daemon agrees to load is: 
+The return value of `pa__init` tells the daemon whether the initialization succeeded or not. A negative number means failure and zero or greater means success. If `pa__init` fails, `pa__done` won't be called.
 
+The `pa_module` type is defined in [source:branches/lennart/src/pulsecore/module.h pulsecore/module.h] and will be explained later.
 
-[[!format txt """
-#include <pulsecore/module.h>
+So the minimal module that the daemon agrees to load is:
 
-int pa__init(pa_module* m)
-{
-  return 0;
-}
-"""]]
+    #include <pulsecore/module.h>
+
+    int pa__init(pa_module* m)
+    {
+      return 0;
+    }
+
 
 ## Optional functions
 
-There are a few other functions that are loaded from the .so file if they are implemented. 
+There are a few other functions that are loaded from the .so file if they are implemented.
 
+    const char* pa__get_author();
 
-[[!format txt """
-const char* pa__get_author();
+    const char* pa__get_description();
 
-const char* pa__get_description();
+    const char* pa__get_usage();
 
-const char* pa__get_usage();
+    const char* pa__get_version();
 
-const char* pa__get_version();
-"""]]
-These strings give additional information about the module, which may be extracted from the modules by running: 
+These strings give additional information about the module, which may be extracted from the modules by running:
 
+    pulseaudio --dump-modules --verbose
 
-[[!format txt """
-pulseaudio --dump-modules --verbose
-"""]]
-You can do these functions more compactly with macros that are defined in module.h. This example is from module-null-sink.c: 
+You can do these functions more compactly with macros that are defined in module.h. This example is from module-null-sink.c:
 
+    PA_MODULE_AUTHOR("Lennart Poettering")
+    PA_MODULE_DESCRIPTION("Clocked NULL sink")
+    PA_MODULE_VERSION(PACKAGE_VERSION)
+    PA_MODULE_USAGE(
+            "format=<sample format> "
+            "channels=<number of channels> "
+            "rate=<sample rate> "
+            "sink_name=<name of sink>"
+            "channel_map=<channel map>"
+            "description=<description for the sink>")
 
-[[!format txt """
-PA_MODULE_AUTHOR("Lennart Poettering")
-PA_MODULE_DESCRIPTION("Clocked NULL sink")
-PA_MODULE_VERSION(PACKAGE_VERSION)
-PA_MODULE_USAGE(
-        "format=<sample format> "
-        "channels=<number of channels> "
-        "rate=<sample rate> "
-        "sink_name=<name of sink>"
-        "channel_map=<channel map>"
-        "description=<description for the sink>")
-"""]]
 
 ## Static linking of modules
 
-It is sometimes desirable to link modules statically in the daemon binary instead of using dynamic loading. If every module defines its own `pa__init`, that's a serious problem, because you could use static linking only for one module. PulseAudio uses libtool, which provides magic that allows the same code to be used either dynamically or statically linked without these problems. That requires a small bit of work from you, the module writer. 
+It is sometimes desirable to link modules statically in the daemon binary instead of using dynamic loading. If every module defines its own `pa__init`, that's a serious problem, because you could use static linking only for one module. PulseAudio uses libtool, which provides magic that allows the same code to be used either dynamically or statically linked without these problems. That requires a small bit of work from you, the module writer.
 
-You have to create a header file that you include from the source file. Let's use the module-null-sink as an example again. These are the contents of module-null-sink-symdef.h, copy it to yourself and modify the "null-sink" parts to match your own module's name: 
+You have to create a header file that you include from the source file. Let's use the module-null-sink as an example again. These are the contents of module-null-sink-symdef.h, copy it to yourself and modify the "null-sink" parts to match your own module's name:
 
+    #ifndef foomodulenullsinksymdeffoo
+    #define foomodulenullsinksymdeffoo
 
-[[!format txt """
-#ifndef foomodulenullsinksymdeffoo
-#define foomodulenullsinksymdeffoo
+    #include <pulsecore/module.h>
 
-#include <pulsecore/module.h>
+    #define pa__init module_null_sink_LTX_pa__init
+    #define pa__done module_null_sink_LTX_pa__done
+    #define pa__get_author module_null_sink_LTX_pa__get_author
+    #define pa__get_description module_null_sink_LTX_pa__get_description
+    #define pa__get_usage module_null_sink_LTX_pa__get_usage
+    #define pa__get_version module_null_sink_LTX_pa__get_version
 
-#define pa__init module_null_sink_LTX_pa__init
-#define pa__done module_null_sink_LTX_pa__done
-#define pa__get_author module_null_sink_LTX_pa__get_author
-#define pa__get_description module_null_sink_LTX_pa__get_description
-#define pa__get_usage module_null_sink_LTX_pa__get_usage
-#define pa__get_version module_null_sink_LTX_pa__get_version
+    int pa__init(pa_module*m);
+    void pa__done(pa_module*m);
 
-int pa__init(pa_module*m);
-void pa__done(pa_module*m);
+    const char* pa__get_author(void);
+    const char* pa__get_description(void);
+    const char* pa__get_usage(void);
+    const char* pa__get_version(void);
 
-const char* pa__get_author(void);
-const char* pa__get_description(void);
-const char* pa__get_usage(void);
-const char* pa__get_version(void);
+    #endif
 
-#endif
-"""]]
-Of course, this is so mechanical stuff that the file can be very well be given to the computer to generate. The PulseAudio developers use a M4 script to generate the symdef files at build time. Read [source:branches/lennart/src/Makefile.am Makefile.am] (search for "SYMDEF") and [source:branches/lennart/src/modules/module-defs.h.m4 modules/module-defs.h.m4] to see how it is done. 
+Of course, this is so mechanical stuff that the file can be very well be given to the computer to generate. The PulseAudio developers use a M4 script to generate the symdef files at build time. Read [source:branches/lennart/src/Makefile.am Makefile.am] (search for "SYMDEF") and [source:branches/lennart/src/modules/module-defs.h.m4 modules/module-defs.h.m4] to see how it is done.
 
 
 ## State data
 
-With the interfaces so far introduced, writing modules isn't a terribly useful activity. Now you can basically make a "Hello world" module, optionally with the advanced feature that it prints "Goodbye world" when the module gets unloaded. Next we'll see how a module can carry its internal state data from `pa__init` to `pa__done`. Still not too awesome an ability, but with that you could do for example a module that measures the time how long it takes from loading to unloading, that's almost useful! 
+With the interfaces so far introduced, writing modules isn't a terribly useful activity. Now you can basically make a "Hello world" module, optionally with the advanced feature that it prints "Goodbye world" when the module gets unloaded. Next we'll see how a module can carry its internal state data from `pa__init` to `pa__done`. Still not too awesome an ability, but with that you could do for example a module that measures the time how long it takes from loading to unloading, that's almost useful!
 
-`pa_module` has the field `userdata`. It is a `void` pointer, of which purpose is to store a pointer to the internal state data of your module. So you allocate some data structure that you want to use for your data in `pa__init`, then set the `pa_module`'s (that you get as a parameter) `userdata` field to point to the allocated structure. In `pa__done` you'll have as a parameter the same `pa_module`, and there you'll find your internal data. 
+`pa_module` has the field `userdata`. It is a `void` pointer, of which purpose is to store a pointer to the internal state data of your module. So you allocate some data structure that you want to use for your data in `pa__init`, then set the `pa_module`'s (that you get as a parameter) `userdata` field to point to the allocated structure. In `pa__done` you'll have as a parameter the same `pa_module`, and there you'll find your internal data.
 
 
 ## Continuing to the PulseAudio internals
 
-Now that you know the very basics of writing a PulseAudio module, we can start to go through the various APIs inside PulseAudio and see what they offer us. 
+Now that you know the very basics of writing a PulseAudio module, we can start to go through the various APIs inside PulseAudio and see what they offer us.
 
-You're basically writing a subclass of `pa_module`, so it would probably be a good starting point to have a look on what the superclass contains. [[[[Software/PulseAudio/Documentation/Developer/ModuleAPI|Software/PulseAudio/Documentation/Developer/ModuleAPI]]]] 
+You're basically writing a subclass of `pa_module`, so it would probably be a good starting point to have a look on what the superclass contains. [[[[Software/PulseAudio/Documentation/Developer/ModuleAPI|Software/PulseAudio/Documentation/Developer/ModuleAPI]]]]
 
-For getting the module parameters that the user has given, read [[[[Software/PulseAudio/Documentation/Developer/ModuleArgumentsAPI|Software/PulseAudio/Documentation/Developer/ModuleArgumentsAPI]]]]. 
+For getting the module parameters that the user has given, read [[[[Software/PulseAudio/Documentation/Developer/ModuleArgumentsAPI|Software/PulseAudio/Documentation/Developer/ModuleArgumentsAPI]]]].
 
-The only way to expand your abilities inside PulseAudio is to follow the `core` pointer in the `pa_module` structure. Let's go there. [[[[Software/PulseAudio/Documentation/Developer/CoreAPI|Software/PulseAudio/Documentation/Developer/CoreAPI]]]] 
+The only way to expand your abilities inside PulseAudio is to follow the `core` pointer in the `pa_module` structure. Let's go there. [[[[Software/PulseAudio/Documentation/Developer/CoreAPI|Software/PulseAudio/Documentation/Developer/CoreAPI]]]]
 
-You will likely run into situations where you'd want the daemon mainloop execute some code of your own. For achieving that, read [[[[Software/PulseAudio/Documentation/Developer/MainLoop|Software/PulseAudio/Documentation/Developer/MainLoop]]]]. 
+You will likely run into situations where you'd want the daemon mainloop execute some code of your own. For achieving that, read [[[[Software/PulseAudio/Documentation/Developer/MainLoop|Software/PulseAudio/Documentation/Developer/MainLoop]]]].
