@@ -1,131 +1,157 @@
+This page is an experimental effort to create a virtual machine image that can be used as a basic reference build and test environment for Gallium3D.  The resulting VM image is large, and is not yet hosted anywhere, but the step by step instruction for creating this reference image are hosted here while development of this reference image is taking place.
 
-This page is an experimental effort to create a virtual machine image that can be used as a basic reference build and test environment for Gallium3D.  The resulting VM image is large, and is not yet hosted anywhere, but the step by step instruction for creating this reference image are hosted here while development of this reference image is taking place. 
+The motivation for creating a reference VM image is two fold:
 
-The motivation for creating a reference VM image is two fold: 
+1. Developing graphics drivers in a VM environment is typically much more efficient than doing the same on a physical machine.  The debugging tools and abstraction from the hardware makes driver developers much more productive.
+1. The potential for developing a Gallium3D drivers that utilizes the [[VMware SVGA II|http://vmware-svga.sourceforge.net/]] virtual GPU interface.
 
-   1. Developing graphics drivers in a VM environment is typically much more efficient than doing the same on a physical machine.  The debugging tools and abstraction from the hardware makes driver developers much more productive. 
-   1. The potential for developing a Gallium3D drivers that utilizes the [[VMware SVGA II|http://vmware-svga.sourceforge.net/]] virtual GPU interface. 
-Here are the current set of steps used to build the Reference Gallium3D VM Image: 
+Here are the current set of steps used to build the Reference Gallium3D VM Image:
 
-   1. Download [[VMplayer 3|http://downloads.vmware.com/d/info/desktop_downloads/vmware_player/3_0]] (Registration Required) 
-   1. Install VMPlayer 3[[!format txt """
-chmod +x VMware-Player-3.0.0*
-sudo ./VMware-Player-3.0.0*
-"""]]
-   1. Get Ubuntu 9.04 Desktop Image from [[Chrysaor's Ubuntu page|http://chrysaor.info]] via Bittorrent 
-   1. Unpack Desktop Image[[!format txt """
-tar xzvf ubuntu904desktop.tgz
-"""]]
-   1. Launch VMPlayer[[!format txt """
-vmplayer
-"""]]
-   1. Launch Ubuntu Desktop from within VMPlayer 
-   1. Login to Ubuntu Desktop:[[!format txt """
-User login: user
-User password: chrysaor.info
-"""]]
-   1. Turn off automatic updates 
-         1. Launch Update Manager: "System"->"Administration"->"Update Manager" 
-         1. Access Settings Pane: "Settings..." button in lower left corner 
-         1. Select Updates Pane: "Updates" tab half way across top 
-         1. Turnoff updates: deselect all update options 
-         1. Close up Update Manager: select "Close" twice 
-   1. Start Terminal: "Applications"->"Accessories"->"Terminal" 
-   1. Change user password to gallium3d[[!format txt """
-passwd
-chrysaor.info
-gallium3d
-gallium3d
-"""]]
-   1. Install build tool packages[[!format txt """
-sudo apt-get -y install autoconf automake1.9 libtool build-essential
-"""]]
-   1. Clarify build dependencies[[!format txt """
-sudo apt-get -y build-dep xorg mesa xserver-xorg-video-intel libdrm-dev
-"""]]
-   1. Install more tools and libraries[[!format txt """
-sudo apt-get -y install git-core libxmu-dev xorg-dev xorg-build-macros flex bison libtiff4-dev libglut-dev sawfish git-core gitk libxmu-dev libxi-dev x11proto-xf86dga-dev scons
-"""]]
-   1. Install LLVM[[!format txt """
-sudo apt-get -y install llvm-dev
-"""]]
-   1. Install Python State Tracker[[!format txt """
-sudo apt-get -y install python-dev swig python-imaging python-imaging-tk
-"""]]
-   1. Install GTK for rbug-gui[[!format txt """
-sudo apt-get -y install libgtk2.0-dev libgtkglext1-dev
-"""]]
-   1. Create and change to Gallium3D build director[[!format txt """
-mkdir Gallium3D
-cd Gallium3D
-"""]]
-   1. Get latest Mesa3D repository.  It's where Gallium3D is hosted right now[[!format txt """
-git clone git://git.freedesktop.org/git/mesa/mesa
-"""]]
-   1. Compile Mesa3D in a way that compiles Gallium3D and software driver[[!format txt """
-cd mesa
-export GALLIUM=$PWD
-make linux-x86-debug
-"""]]
-   1. Compile OpenVG[[!format txt """
-cd src/gallium/state_trackers/vega
-make
-cd $GALLIUM
-"""]]
-   1. Make sure that from now on all apps pick up newly compiled Gallium libs[[!format txt """
-export LD_LIBRARY_PATH=$GALLIUM/lib/gallium:$GALLIUM/lib:$LD_LIBRARY_PATH
-"""]]
-   1. Make sure Gallium's EGL implementation is using the software driver[[!format txt """
-export EGL_DRIVER="egl_softpipe"
-"""]]
-   1. Build and test OpenVG demos[[!format txt """
-cd progs/openvg/demos
-make
-./sp
-./lion
-"""]]
-   1. Get special version of udis86 for llvmpipe[[!format txt """
-cd $GALLIUM/..
-git clone git://people.freedesktop.org/~jrfonseca/udis86
-cd udis86
-./configure --with-pic
-make
-sudo make install
-"""]]
-   1. Patch llvm header to fix typo[[!format txt """
---- /usr/include/llvm-c/Core.h.orig        2009-08-10 15:38:54.000000000 +0100
-+++ /usr/include/llvm-c/Core.h     2009-08-10 15:38:25.000000000 +0100
-@@ -831,7 +831,7 @@
-   template<typename T>
-   inline T **unwrap(LLVMValueRef *Vals, unsigned Length) {
-     #if DEBUG
--    for (LLVMValueRef *I = Vals, E = Vals + Length; I != E; ++I)
-+    for (LLVMValueRef *I = Vals, *E = Vals + Length; I != E; ++I)
-       cast<T>(*I);
-     #endif
-     return reinterpret_cast<T**>(Vals);
-"""]]
-   1. Build llvmpipe[[!format txt """
-cd $GALLIUM
-scons debug=yes statetrackers=mesa drivers=llvmpipe winsys=xlib dri=false -k
-"""]]
-   1. Test llvmpipe[[!format txt """
-export LD_LIBRARY_PATH=$GALLIUM/build/linux-x86-debug/lib:$GALLIUM/build/linux-x86_64-debug:$LD_LIBRARY_PATH
-"""]]
-   1. Build Python State Tracker[[!format txt """
-cd $GALLIUM
-scons debug=yes statetrackers=python drivers=softpipe,trace winsys=none
-"""]]
-   1. Test Python State Tracker[[!format txt """
-export PYTHONPATH=$GALLIUM/build/linux-x86-debug/gallium/state_trackers/python
-python $GALLIUM/src/gallium/state_trackers/python/samples/tri.py
-"""]]
-   1. Get rbug-gui source[[!format txt """
-cd $GALLIUM/..
-git clone git://git.freedesktop.org/git/mesa/rbug-gui
-"""]]
-   1. Build rbug-gui[[!format txt """
-cd rbug-gui
-./autogen.sh
-make
-"""]]
+1. Download [[VMplayer 3|http://downloads.vmware.com/d/info/desktop_downloads/vmware_player/3_0]] (Registration Required)
+1. Install VMPlayer 3
+
+        chmod +x VMware-Player-3.0.0*
+        sudo ./VMware-Player-3.0.0*
+
+1. Get Ubuntu 9.04 Desktop Image from [[Chrysaor's Ubuntu page|http://chrysaor.info]] via Bittorrent
+1. Unpack Desktop Image
+
+        tar xzvf ubuntu904desktop.tgz
+
+1. Launch VMPlayer
+
+        vmplayer
+
+1. Launch Ubuntu Desktop from within VMPlayer
+1. Login to Ubuntu Desktop:
+
+        User login: user
+        User password: chrysaor.info
+
+1. Turn off automatic updates
+   1. Launch Update Manager: "System"->"Administration"->"Update Manager"
+   1. Access Settings Pane: "Settings..." button in lower left corner
+   1. Select Updates Pane: "Updates" tab half way across top
+   1. Turnoff updates: deselect all update options
+   1. Close up Update Manager: select "Close" twice
+1. Start Terminal: "Applications"->"Accessories"->"Terminal"
+1. Change user password to gallium3d
+
+        passwd
+        chrysaor.info
+        gallium3d
+        gallium3d
+
+1. Install build tool packages
+
+        sudo apt-get -y install autoconf automake1.9 libtool build-essential
+
+1. Clarify build dependencies
+
+        sudo apt-get -y build-dep xorg mesa xserver-xorg-video-intel libdrm-dev
+
+1. Install more tools and libraries
+
+        sudo apt-get -y install git-core libxmu-dev xorg-dev xorg-build-macros flex bison libtiff4-dev libglut-dev sawfish git-core gitk libxmu-dev libxi-dev x11proto-xf86dga-dev scons
+
+1. Install LLVM
+
+        sudo apt-get -y install llvm-dev
+
+1. Install Python State Tracker
+
+        sudo apt-get -y install python-dev swig python-imaging python-imaging-tk
+
+1. Install GTK for rbug-gui
+
+        sudo apt-get -y install libgtk2.0-dev libgtkglext1-dev
+
+1. Create and change to Gallium3D build director
+
+        mkdir Gallium3D
+        cd Gallium3D
+
+1. Get latest Mesa3D repository.  It's where Gallium3D is hosted right now
+
+        git clone git://git.freedesktop.org/git/mesa/mesa
+
+1. Compile Mesa3D in a way that compiles Gallium3D and software driver
+
+        cd mesa
+        export GALLIUM=$PWD
+        make linux-x86-debug
+
+1. Compile OpenVG
+
+        cd src/gallium/state_trackers/vega
+        make
+        cd $GALLIUM
+
+1. Make sure that from now on all apps pick up newly compiled Gallium libs
+
+        export LD_LIBRARY_PATH=$GALLIUM/lib/gallium:$GALLIUM/lib:$LD_LIBRARY_PATH
+
+1. Make sure Gallium's EGL implementation is using the software driver
+
+        export EGL_DRIVER="egl_softpipe"
+
+1. Build and test OpenVG demos
+
+        cd progs/openvg/demos
+        make
+        ./sp
+        ./lion
+
+1. Get special version of udis86 for llvmpipe
+
+        cd $GALLIUM/..
+        git clone git://people.freedesktop.org/~jrfonseca/udis86
+        cd udis86
+        ./configure --with-pic
+        make
+        sudo make install
+
+1. Patch llvm header to fix typo
+
+        --- /usr/include/llvm-c/Core.h.orig        2009-08-10 15:38:54.000000000 +0100
+        +++ /usr/include/llvm-c/Core.h     2009-08-10 15:38:25.000000000 +0100
+        @@ -831,7 +831,7 @@
+           template<typename T>
+           inline T **unwrap(LLVMValueRef *Vals, unsigned Length) {
+             #if DEBUG
+        -    for (LLVMValueRef *I = Vals, E = Vals + Length; I != E; ++I)
+        +    for (LLVMValueRef *I = Vals, *E = Vals + Length; I != E; ++I)
+               cast<T>(*I);
+             #endif
+             return reinterpret_cast<T**>(Vals);
+
+1. Build llvmpipe
+
+        cd $GALLIUM
+        scons debug=yes statetrackers=mesa drivers=llvmpipe winsys=xlib dri=false -k
+
+1. Test llvmpipe
+
+        export LD_LIBRARY_PATH=$GALLIUM/build/linux-x86-debug/lib:$GALLIUM/build/linux-x86_64-debug:$LD_LIBRARY_PATH
+
+1. Build Python State Tracker
+
+        cd $GALLIUM
+        scons debug=yes statetrackers=python drivers=softpipe,trace winsys=none
+
+1. Test Python State Tracker
+
+        export PYTHONPATH=$GALLIUM/build/linux-x86-debug/gallium/state_trackers/python
+        python $GALLIUM/src/gallium/state_trackers/python/samples/tri.py
+
+1. Get rbug-gui source
+
+        cd $GALLIUM/..
+        git clone git://git.freedesktop.org/git/mesa/rbug-gui
+
+1. Build rbug-gui
+
+        cd rbug-gui
+        ./autogen.sh
+        make
+
