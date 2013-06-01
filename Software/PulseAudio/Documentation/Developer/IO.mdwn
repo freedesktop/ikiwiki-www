@@ -1,4 +1,3 @@
-
 #pulseaudio irc discussion, between João Paulo Rechi Vita and Lennart Poettering, August 2008
 
 J: [...] I still didn't get how exactly a sink works, could you give an overview of the process ?  I mean, when the sink_process_message is called, when a write is called, or point some place where I can learn by my self
@@ -24,8 +23,8 @@ L: Yes, process_msg() is generally used to dispatch messages, on both sides of q
 
 Every object that inherits from pa_msgobject can receive these messages (~signals), you send those msgs with pa_asncmsgq_send(), or _post().
 
-* _send() is synchronous (i.e. blocks until the function is reeived
-      * and handled on the receiving side
+* _send() is synchronous (i.e. blocks until the function is received
+ and handled on the receiving side)
 * _post() is asynchronous (i.e. it justs enqueues and returns)
 * _send() should thus only be used for communication from the main
 event loop to the thread but not the other way round
@@ -79,14 +78,15 @@ J: the time smoother stuff I still didn't get, what states can a sink be on?
 L: The states of a sink are these:
 
 * PA_SINK_INIT: the sink has been allocated, but has not yet been
-      * installed in the core with pa_sink_put()
+ installed in the core with pa_sink_put()
 * PA_SINK_RUNNING: we are playing something
 * PA_SINK_SUSPENDED: the device has been temporarily
-      * suspended. usually this should cause the device file to be closed
+ suspended. usually this should cause the device file to be closed
 * PA_SINK_IDLE: very similar to PA_SINK_RUNNING but signifies that no
-      * non-paused stream is connected to the sink. Usually this should be handled like PA_SINK_RUNNING, but can be used as an optimization for some cases, since pa_sink_render() will always return silence in this state
+ non-paused stream is connected to the sink. Usually this should be handled like PA_SINK_RUNNING, but can be used as an optimization for some cases, since pa_sink_render() will always return silence in this state
 * PA_SINK_UNLINKED: the sink has been removed from the core and is
-      * being destructed
+ being destructed
+
 Since IDLE and RUNNING is so very similar you usually should check for both at the same time, which is why we have PA_SINK_IS_OPENED() which just takes the state and returns TRUE if the state is RUNNING or IDLE.
 
 To tell the difference between "alive" and "dead" we also have PA_SINK_IS_LINKED() which can be used to check for everything that is not _INIT or _UNLINKED.
