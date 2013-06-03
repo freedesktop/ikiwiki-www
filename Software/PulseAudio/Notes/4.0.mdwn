@@ -30,20 +30,72 @@ D-Bus dependency version has been bumped to 1.4.12, alsa-lib to 1.0.24 and GTK+ 
 
 pa_format_info_free2 symbol has been dropped from libpulse. The pa_format_info_free2 symbol was never part of the public API, but was still exported in libpulse in previous versions of [[PulseAudio|PulseAudio]]. It is now completely dropped. Since it was never exposed in any header files, no programs are expected to break due to this change.
 
-
 ## Changes in More Detail
 
+### Utility changes:
 
-### New Module: module-role-ducking
+* Shell completion is now available for most of the utility programs. Bash and zsh are supported.
 
-module-role-ducking lowers the volume of less important streams when a more important stream appears, and raises the volume back up once the important stream has finished (this is called "ducking"). The decision whether a stream has high or low priority is made based on the stream role (the media.role property). By default, "music" and "video" streams are ducked, and "phone" streams trigger the ducking. This module is not loaded by default.
+* pactl now supports toggling mute. To be clear, setting the mute to on or off was already supported before, this change adds the possibility to give "toggle" as a parameter to the set-*-mute commands.
 
+* New pactl commands: set-default-sink and set-default-source.
+
+###  Module changes:
+
+* New module: module-role-ducking. The module lowers the volume of less important streams when a more important stream appears, and raises the volume back up once the important stream has finished  (this is called "ducking"). The decision whether a stream has high or low priority is made based on the stream role (the media.role property). By default, "music" and "video" streams are ducked, and "phone" streams trigger the ducking. This module is not loaded in the default configuration.
+
+* New module: module-remap-source. The module creates a virtual source on top of another source, with a different channel map. This allows swapping left and right channels, for example.
+
+* module-udev-detect: New module argument: use_ucm. PulseAudio uses ALSA UCM configuration by default if it's available. This module  argument can be used to disable UCM.
+
+* module-udev-detect: New module argument: tsched_buffer_size. Buffer size in bytes when timer based scheduling is enabled.
+
+* module-rtp-send: The "destination" argument was renamed to "destination_ip".
+
+* module-rtp-send: New module argument: source_ip. On a multi-homed system, it may be desirable to use RTP only on a specific interface. The interface can be selected by specifying the source IP address.
+
+###  Hardware support changes:
+
+* Both outputs of Native Instruments Traktor Audio 2 can now be used simultaneously without any manual configuration.
+
+* Mixer improvements for some laptops with TRRS headset jacks.
+
+* Capture support fixed for Logitech B530 USB headset and Focusrite Scarlett 2i2.
+
+###  libpulse changes:
+
+* New function: pa_operation_set_state_callback(). It allows an application to get a callback from pa_operation when it's cancelled (perhaps due to disconnection).
+
+* PA_ENCODING_MPEG2_AAC_IEC61937 added to the pa_encoding_t enumeration. This means that it's now possible to play MPEG-2 AAC streams in the passthrough mode to devices that support it.
+
+* HDMI / DisplayPort monitor name is now available to clients. If supported by HDMI / DisplayPort hardware and drivers, the name of the connected monitor, receiver etc. will now show up as a port property (with key PA_PROP_DEVICE_PRODUCT_NAME). Note that the name might become available slightly after the port becomes available (this is due to hardware/driver limitations). A card change event will be sent out when this information changes.
+
+### Performance improvements:
+
+* Faster C code for mixing 16-bit streams with 1 or 2 channels.
+
+* ARM NEON implementation for mixing 16-bit streams with 2 channels.
+
+* Faster software volume for 16-bit streams on 64-bit platforms.
+
+* Faster format conversion between 16-bit and 32-bit (integer) audio.
+
+* The default resampler was changed from speex-float-3 to speex-float-1, so the resampling is now much lighter on CPU by default than before, with the tradeoff that the audio quality is worse (usually not noticeably so, though).
+
+### Bug fix highlights:
+
+* Quicker drains: in previous versions of PulseAudio, it could sometimes take up to a few seconds after a stream finished playing until pa_stream_drain() actually returned. This has now been fixed, which also means that programs such as paplay will end quicker after having finished playback.
+
+* Issues with device handover to JACK were fixed. JACK should be now able to reliably acquire the sound card while PulseAudio is running.
+
+* When converting between different channel maps, the remixing can't result in clipping any more. Streams that earlier could potentially get clipped are now a bit quieter.
+
+* In certain low-latency scenarios PulseAudio used a bad algorithm to decide when to ask clients to send more data (the data request was sent so late that it was impossible to get the data to the sound card reliably in time). The algorithm has been improved, resulting in fewer drop-outs in those scenarios.
 
 ## Next Steps
 
-TODO
+There's already been a large amount of work happening in the 'next' branch (which master will be merged into master shortly). The highlight of these changes is support for BlueZ 5. We also have 2 projects happening under the Google Summer of Code and hope to see related changes in the next release, along with the usual slew of fixes and improvements.
 
 ## git shortlog
-
 
     TODO
