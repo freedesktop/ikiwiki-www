@@ -1,0 +1,105 @@
+# Debugging ModemManager 0.8.x
+
+## Debug logs
+
+Gathering debug logs of both NM and MM involves several steps. Although these daemons allow to configure the log level manually while running, some of the issues to debug may require a full reboot of both processes, so the steps below try to cover the most generic case.
+
+Note that the debug logs may contain sensitive information (e.g. PIN number, APN settings, SMS contents). Feel free to remove that information when providing logs to the developers, specifying which was the information removed.
+
+### Gathering debug logs when using systemd
+
+Mask and stop the services:
+
+    $> sudo systemctl disable NetworkManager ModemManager
+    $> sudo systemctl stop NetworkManager ModemManager
+
+Manually run with debug enabled:
+
+    $> sudo /usr/sbin/ModemManager --debug
+    $> sudo /usr/sbin/NetworkManager --no-daemon --log-level=DEBUG
+
+Now, reproduce your issue, and gather debug logs. Use Ctrl+C to stop both processes.
+
+Then, unmask the services and start them:
+
+    $> sudo systemctl enable NetworkManager ModemManager
+    $> sudo systemctl start NetworkManager ModemManager
+
+
+### Generic steps to gather debug logs, when not using systemd
+
+If you are not using `systemd`, you can avoid getting the processes automatically launched by moving the program files to another path:
+
+    $> sudo mv /usr/sbin/NetworkManager /
+    $> sudo mv /usr/sbin/ModemManager /
+    $> sudo killall -TERM NetworkManager
+    $> sudo killall -TERM ModemManager
+
+Manually run with debug enabled:
+
+    $> sudo /usr/sbin/ModemManager --debug
+    $> sudo /usr/sbin/NetworkManager --no-daemon --log-level=DEBUG
+
+Now, reproduce your issue, and gather debug logs. Use Ctrl+C to stop both processes.
+
+Finally, recover the original places for the program files:
+
+    $> sudo mv /ModemManager /usr/sbin/
+    $> sudo mv /NetworkManager /usr/sbin/
+
+
+## mmcli
+
+ModemManager comes with a command line interface tool called `mmcli`, which helps to get the status of the modems and control them.
+
+You can see which are all the supported commands by running:
+
+    $> mmcli --help-all
+
+Or:
+
+    $> man mmcli
+
+For a start you may want to see which are the modems detected with:
+
+    $> sudo mmcli -L
+    
+    Found 1 modems:
+        /org/freedesktop/ModemManager1/Modem/0 [Vodafone (Huawei)] K3772
+
+And show information about the specific modem:
+
+    $> sudo mmcli -m 0
+    
+    /org/freedesktop/ModemManager1/Modem/0 (device id 'ea627ff961ff1c850778f5e85a5e0a218cf8e946')
+      -------------------------
+      Hardware |   manufacturer: 'Vodafone (Huawei)'
+               |          model: 'K3772'
+               |       revision: '21.157.40.11.33'
+               |   capabilities: 'gsm-umts'
+               |        current: 'gsm-umts'
+               |   equipment id: '861320000017897'
+      -------------------------
+      System   |         device: '/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2'
+               |        drivers: 'option1, cdc_ncm'
+               |         plugin: 'Huawei'
+               |   primary port: 'ttyUSB2'
+      -------------------------
+      Numbers  |           own : 'unknown'
+      -------------------------
+      Status   |           lock: 'sim-pin'
+               | unlock retries: 'sim-pin (3), sim-pin2 (3), sim-puk (10), sim-puk2 (10)'
+               |          state: 'locked'
+               |    power state: 'on'
+               |    access tech: 'unknown'
+               | signal quality: '0' (cached)
+      -------------------------
+      Modes    |      supported: '2g, 3g'
+               |        allowed: '2g, 3g'
+               |      preferred: 'none'
+      -------------------------
+      Bands    |      supported: 'unknown'
+               |        current: 'unknown'
+      -------------------------
+      SIM      |           path: '/org/freedesktop/ModemManager1/SIM/0'
+

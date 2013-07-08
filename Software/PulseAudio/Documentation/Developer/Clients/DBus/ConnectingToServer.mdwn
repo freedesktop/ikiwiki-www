@@ -1,61 +1,58 @@
 
-
 # D-Bus Interface: Connecting to a Server
 
-[[(Back to the toplevel D-Bus Interface page)|Software/PulseAudio/Documentation/Developer/Clients/DBus]] 
+[[(Back to the toplevel D-Bus Interface page)|Software/PulseAudio/Documentation/Developer/Clients/DBus]]
 
-**NB:** This scheme will very likely be changed, details about this are in this mailing list message: [[[https://tango.0pointer.de/pipermail/pulseaudio-discuss/2009-July/004437.html|https://tango.0pointer.de/pipermail/pulseaudio-discuss/2009-July/004437.html]]]. At the time of writing, there are no responses so it's not certain yet what the final server discovery scheme will exactly look like. The following description applies to the current development version. 
+**NB:** This scheme will very likely be changed, details about this are in this mailing list message: [[[https://tango.0pointer.de/pipermail/pulseaudio-discuss/2009-July/004437.html|https://tango.0pointer.de/pipermail/pulseaudio-discuss/2009-July/004437.html]]]. At the time of writing, there are no responses so it's not certain yet what the final server discovery scheme will exactly look like. The following description applies to the current development version.
 
 
 ## Procedure
 
-When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a server address or a list of addresses, as specified in the [[D-Bus Specification, section Server Addresses|http://dbus.freedesktop.org/doc/dbus-specification.html#addresses]]. The client should be able to use the string directly as the address parameter of the underlying D-Bus library's connect function. 
+When a client wants to connect to a server, it reads the $PULSE_DBUS_SERVER environment variable, which contains a server address or a list of addresses, as specified in the [[D-Bus Specification, section Server Addresses|http://dbus.freedesktop.org/doc/dbus-specification.html#addresses]]. The client should be able to use the string directly as the address parameter of the underlying D-Bus library's connect function.
 
-If $PULSE_DBUS_SERVER is not set, the client reads the Address property (part of the org.PulseAudio.ServerLookup1 interface) of object /org/pulseaudio/server_lookup1. The destination of the call is org.PulseAudio1. The property contains a string similar to the $PULSE_DBUS_SERVER environment variable. The returned string is empty if client.conf doesn't set any address (which is the default) and the daemon is configured to not run local servers. Reading the property may autostart pulseaudio. Due to the fact that pulseaudio may exit automatically after a while, the client shouldn't wait long between reading the address and connecting to the server (the default timeout is 20 seconds). 
+If $PULSE_DBUS_SERVER is not set, the client reads the Address property (part of the org.PulseAudio.ServerLookup1 interface) of object /org/pulseaudio/server_lookup1. The destination of the call is org.PulseAudio1. The property contains a string similar to the $PULSE_DBUS_SERVER environment variable. The returned string is empty if client.conf doesn't set any address (which is the default) and the daemon is configured to not run local servers. Reading the property may autostart pulseaudio. Due to the fact that pulseaudio may exit automatically after a while, the client shouldn't wait long between reading the address and connecting to the server (the default timeout is 20 seconds).
 
 
 ## Authentication
 
-D-Bus handles authentication automatically, so client programmers shouldn't need to care about that otherwise than keeping in mind that authentication may fail. For now the access control is done in the following way (very likely to change): 
+D-Bus handles authentication automatically, so client programmers shouldn't need to care about that otherwise than keeping in mind that authentication may fail. For now the access control is done in the following way (very likely to change):
 
-* When a server runs in the system mode, it by default listens only for local unix domain socket connections and accepts all connections. 
-* When a server runs in the user mode and listens only for local unix domain socket connections (the default case), only connections by the same user as the server and connections by root are accepted. 
-* Whenever a server listens for TCP connections all connections are accepted. 
+* When a server runs in the system mode, it by default listens only for local unix domain socket connections and accepts all connections.
+* When a server runs in the user mode and listens only for local unix domain socket connections (the default case), only connections by the same user as the server and connections by root are accepted.
+* Whenever a server listens for TCP connections all connections are accepted.
 
 ## Example Python Code
 
-This is an example (could be improved) of how D-Bus clients can establish a connection to PulseAudio: 
+This is an example (could be improved) of how D-Bus clients can establish a connection to PulseAudio:
+
+    #!/usr/bin/env python
+
+    import dbus
+    import os
+
+    def connect():
+        if 'PULSE_DBUS_SERVER' in os.environ:
+            address = os.environ['PULSE_DBUS_SERVER']
+        else:
+            bus = dbus.SessionBus()
+            server_lookup = bus.get_object("org.PulseAudio1", "/org/pulseaudio/server_lookup1")
+            address = server_lookup.Get("org.PulseAudio.ServerLookup1", "Address", dbus_interface="org.freedesktop.DBus.Properties")
+
+        return dbus.connection.Connection(address)
 
 
-[[!format txt """
-#!/usr/bin/env python
+    conn = connect()
+    core = conn.get_object(object_path="/org/pulseaudio/core1")
 
-import dbus
-import os
+    print "Successfully connected to " + core.Get("org.PulseAudio.Core1", "Name", dbus_interface="org.freedesktop.DBus.Properties") + "!"
 
-def connect():
-    if 'PULSE_DBUS_SERVER' in os.environ:
-        address = os.environ['PULSE_DBUS_SERVER']
-    else:
-        bus = dbus.SessionBus()
-        server_lookup = bus.get_object("org.PulseAudio1", "/org/pulseaudio/server_lookup1")
-        address = server_lookup.Get("org.PulseAudio.ServerLookup1", "Address", dbus_interface="org.freedesktop.DBus.Properties")
-
-    return dbus.connection.Connection(address)
-
-
-conn = connect()
-core = conn.get_object(object_path="/org/pulseaudio/core1")
-
-print "Successfully connected to " + core.Get("org.PulseAudio.Core1", "Name", dbus_interface="org.freedesktop.DBus.Properties") + "!"
-"""]]
 
 ## Lookup Service Details
 
-To give some background information (and to document this stuff somewhere), this is how server discovery works from PulseAudio's point of view: 
+To give some background information (and to document this stuff somewhere), this is how server discovery works from PulseAudio's point of view:
 
-Contrary to earlier behavior, running the pulseaudio executable with D-Bus support compiled in doesn't necessary start a proper sound server. In certain circumstances only the server lookup service, as described above, is started. This happens in two cases: the executable is run by a non-root user and the daemon is configured to run in the system mode, or the daemon configuration just says that no local server should be started (which is useful when only remote servers are intended to be used). 
+Contrary to earlier behavior, running the pulseaudio executable with D-Bus support compiled in doesn't necessary start a proper sound server. In certain circumstances only the server lookup service, as described above, is started. This happens in two cases: the executable is run by a non-root user and the daemon is configured to run in the system mode, or the daemon configuration just says that no local server should be started (which is useful when only remote servers are intended to be used).
 
-There is a new option in daemon.conf: local-server-type. Its value can be either "user", "system" or "none". The default is "user". However, the option conflicts with the old option system-instance. If system-instance is set and local-server-type is not, system-instance value is honored. On the other hand, if local-server-type is set, it overrides whatever is the value of system-instance. 
+There is a new option in daemon.conf: local-server-type. Its value can be either "user", "system" or "none". The default is "user". However, the option conflicts with the old option system-instance. If system-instance is set and local-server-type is not, system-instance value is honored. On the other hand, if local-server-type is set, it overrides whatever is the value of system-instance.
 
-If user's pulseaudio executable isn't running when a client reads the Address property, D-Bus automatically starts pulseaudio. Depending on server configuration, a real sound server may be started, but another possibility is that only the server lookup service is enabled. The server lookup service, i.e. the Address property, works by first reading the user's (or in absence of that, the system version of) client.conf. client.conf too has a new option: default-dbus-server. If it is set, then that value is returned to the client. If default-dbus-server is not set, the address is deduced from the local-server-type option: in case of "user" the returned address is the unix socket of the user's server (~/.pulse/<machine_id>:runtime/dbus-socket), in case of "system" the returned address is the system server's unix socket (/var/run/pulse/dbus-socket), and in case of "none" the returned address is an empty string. 
+If user's pulseaudio executable isn't running when a client reads the Address property, D-Bus automatically starts pulseaudio. Depending on server configuration, a real sound server may be started, but another possibility is that only the server lookup service is enabled. The server lookup service, i.e. the Address property, works by first reading the user's (or in absence of that, the system version of) client.conf. client.conf too has a new option: default-dbus-server. If it is set, then that value is returned to the client. If default-dbus-server is not set, the address is deduced from the local-server-type option: in case of "user" the returned address is the unix socket of the user's server (~/.pulse/<machine_id>:runtime/dbus-socket), in case of "system" the returned address is the system server's unix socket (/var/run/pulse/dbus-socket), and in case of "none" the returned address is an empty string.

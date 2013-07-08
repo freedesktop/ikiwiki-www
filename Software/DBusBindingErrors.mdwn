@@ -2,11 +2,11 @@
 This page is for bindings authors to discuss what generic errors should be sent by the binding: 
 [[!table header="no" class="mointable" data="""
 **Name** | **Description** | **Comments**
-[[ServiceUnknown|ServiceUnknown]] | The recipient bus name is not taken | In Core
-[[UnknownObject|UnknownObject]] | The sender has called a method on an object not exported on this connection (the service name is valid) | Used by Java
-[[UnknownInterface|UnknownInterface]] | The sender has specified an interface this object does not implement (but the object is valid) | Requested by Thiago
-[[UnknownMethod|UnknownMethod]] | The specified method is not implemented on this object (but the object and the interface names are valid) | In core
-[[InvalidParameters|InvalidParameters]] | Method was called with an invalid number or type of parameters. (Comment: org.freedesktop.DBus.Error.[[InvalidArgs|InvalidArgs]] seems more suitable for this use, especially considering there is no "parameter" in D-Bus terminology -- alp) | Suggested by Matt
+ServiceUnknown | The recipient bus name is not taken | In Core
+UnknownObject | The sender has called a method on an object not exported on this connection (the service name is valid) | Used by Java
+UnknownInterface | The sender has specified an interface this object does not implement (but the object is valid) | Requested by Thiago
+UnknownMethod | The specified method is not implemented on this object (but the object and the interface names are valid) | In core
+InvalidParameters | Method was called with an invalid number or type of parameters. (Comment: org.freedesktop.DBus.Error.InvalidArgs seems more suitable for this use, especially considering there is no "parameter" in D-Bus terminology -- alp) | Suggested by Matt
 """]]
 
 Please add other errors you think should, or could possibly, be useful 
@@ -14,8 +14,8 @@ Please add other errors you think should, or could possibly, be useful
 Other comments: 
 
 * What about errors in executing the method within the binding? There could be problems with marshalling and so on? At the moment I send an internal error with a specific message, should there be a generic error type? - Matt 
-* About [[InvalidParameters|InvalidParameters]]: some bindings could not implement it and use only [[UnknownMethod|UnknownMethod]]. Methods in those bindings are recognised by both the method name and signature. The bindings that support overloading through parameters are the case (C++ and Java especially). 
-* Objects that have children must never reply with [[UnknownObject|UnknownObject]]. 
+* About InvalidParameters: some bindings could not implement it and use only UnknownMethod. Methods in those bindings are recognised by both the method name and signature. The bindings that support overloading through parameters are the case (C++ and Java especially). 
+* Objects that have children must never reply with UnknownObject. 
 
 ## The format of error messages
 
@@ -28,33 +28,33 @@ The spec should specifically say whether the string is mandatory as the first pa
 
 This is a list of core errors for reference. They are usually kept in order because it seems the glib binding puts them in an enumeration. Are these documented anywhere? 
 
-* org.freedesktop.DBus.Error.Failed 
-* org.freedesktop.DBus.Error.[[NoMemory|NoMemory]] 
-* org.freedesktop.DBus.Error.[[ServiceUnknown|ServiceUnknown]] 
-* org.freedesktop.DBus.Error.[[NameHasNoOwner|NameHasNoOwner]] 
-* org.freedesktop.DBus.Error.[[NoReply|NoReply]] 
-* org.freedesktop.DBus.Error.IOError 
-* org.freedesktop.DBus.Error.[[BadAddress|BadAddress]] 
-* org.freedesktop.DBus.Error.[[NotSupported|NotSupported]] 
-* org.freedesktop.DBus.Error.[[LimitsExceeded|LimitsExceeded]] 
-* org.freedesktop.DBus.Error.[[AccessDenied|AccessDenied]] 
-* org.freedesktop.DBus.Error.[[AuthFailed|AuthFailed]] 
-* org.freedesktop.DBus.Error.[[NoServer|NoServer]] 
-* org.freedesktop.DBus.Error.Timeout 
-* org.freedesktop.DBus.Error.[[NoNetwork|NoNetwork]] 
-* org.freedesktop.DBus.Error.[[AddressInUse|AddressInUse]] 
-* org.freedesktop.DBus.Error.Disconnected 
-* org.freedesktop.DBus.Error.[[InvalidArgs|InvalidArgs]] 
-* org.freedesktop.DBus.Error.[[FileNotFound|FileNotFound]] 
-* org.freedesktop.DBus.Error.[[UnknownMethod|UnknownMethod]] 
-* org.freedesktop.DBus.Error.[[TimedOut|TimedOut]] 
-* org.freedesktop.DBus.Error.[[MatchRuleNotFound|MatchRuleNotFound]] 
-* org.freedesktop.DBus.Error.[[MatchRuleInvalid|MatchRuleInvalid]] 
-* org.freedesktop.DBus.Error.Spawn.[[ExecFailed|ExecFailed]] 
-* org.freedesktop.DBus.Error.Spawn.[[ForkFailed|ForkFailed]] 
-* org.freedesktop.DBus.Error.Spawn.[[ChildExited|ChildExited]] 
-* org.freedesktop.DBus.Error.Spawn.[[ChildSignaled|ChildSignaled]] 
-* org.freedesktop.DBus.Error.Spawn.Failed 
-* org.freedesktop.DBus.Error.[[UnixProcessIdUnknown|UnixProcessIdUnknown]] 
-* org.freedesktop.DBus.Error.[[InvalidSignature|InvalidSignature]] 
-* org.freedesktop.DBus.Error.SELinuxSecurityContextUnknown 
+* org.freedesktop.DBus.Error.Failed
+* org.freedesktop.DBus.Error.NoMemory
+* org.freedesktop.DBus.Error.ServiceUnknown
+* org.freedesktop.DBus.Error.NameHasNoOwner
+* org.freedesktop.DBus.Error.NoReply
+* org.freedesktop.DBus.Error.IOError
+* org.freedesktop.DBus.Error.BadAddress
+* org.freedesktop.DBus.Error.NotSupported
+* org.freedesktop.DBus.Error.LimitsExceeded
+* org.freedesktop.DBus.Error.AccessDenied
+* org.freedesktop.DBus.Error.AuthFailed
+* org.freedesktop.DBus.Error.NoServer
+* org.freedesktop.DBus.Error.Timeout
+* org.freedesktop.DBus.Error.NoNetwork
+* org.freedesktop.DBus.Error.AddressInUse
+* org.freedesktop.DBus.Error.Disconnected
+* org.freedesktop.DBus.Error.InvalidArgs
+* org.freedesktop.DBus.Error.FileNotFound
+* org.freedesktop.DBus.Error.UnknownMethod
+* org.freedesktop.DBus.Error.TimedOut
+* org.freedesktop.DBus.Error.MatchRuleNotFound
+* org.freedesktop.DBus.Error.MatchRuleInvalid
+* org.freedesktop.DBus.Error.Spawn.ExecFailed
+* org.freedesktop.DBus.Error.Spawn.ForkFailed
+* org.freedesktop.DBus.Error.Spawn.ChildExited
+* org.freedesktop.DBus.Error.Spawn.ChildSignaled
+* org.freedesktop.DBus.Error.Spawn.Failed
+* org.freedesktop.DBus.Error.UnixProcessIdUnknown
+* org.freedesktop.DBus.Error.InvalidSignature
+* org.freedesktop.DBus.Error.SELinuxSecurityContextUnknown

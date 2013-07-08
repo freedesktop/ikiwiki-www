@@ -1,64 +1,60 @@
-
-[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[↩ Back to ALSA|Software/PulseAudio/Backends/ALSA]] 
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[↩ Back to ALSA|Software/PulseAudio/Backends/ALSA]]
 
 
 # Broken ALSA Drivers
 
-At this point in time it is known that the following ALSA sound drivers are broken in regards to "glitch-free" PA: 
+At this point in time it is known that the following ALSA sound drivers are broken in regards to "glitch-free" PA:
 
-* Some snd-intel8x0 supported chips [[http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014975.html|http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014975.html]] #396 (Seems to be fixed by [[https://bugzilla.redhat.com/show_bug.cgi?id=472339|https://bugzilla.redhat.com/show_bug.cgi?id=472339]]) 
-* All newer Creative chips (snd-emu*) #435 
-* snd-intel-hda on some chips (seems to be fixed by [[https://bugzilla.redhat.com/show_bug.cgi?id=485734|https://bugzilla.redhat.com/show_bug.cgi?id=485734]]) 
-* Some snd-ice1712 supported chips #334 
-* snd-ens1371 [[http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014929.html|http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014929.html]] 
-* snd_es1938 
-* snd_azt3328 (hardware period size is half of buffer size, yet its struct snd_pcm_hardware pretended full buffer size, azt3328 patch has since been committed as of 2011-02-28; this now means that tsched works yet tsched=0 does NOT! - for some weird reason) 
-Regarding snd-emu*: Creative doesn't like Open Source -- there are no docs available. If you buy Creative it is hence a bit your own fault. 
+* Some snd-intel8x0 supported chips [[http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014975.html|http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014975.html]] #396 (Seems to be fixed by [[https://bugzilla.redhat.com/show_bug.cgi?id=472339|https://bugzilla.redhat.com/show_bug.cgi?id=472339]])
+* All newer Creative chips (snd-emu*) #435
+* snd-intel-hda on some chips (seems to be fixed by [[https://bugzilla.redhat.com/show_bug.cgi?id=485734|https://bugzilla.redhat.com/show_bug.cgi?id=485734]])
+* Some snd-ice1712 supported chips #334
+* snd-ens1371 [[http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014929.html|http://mailman.alsa-project.org/pipermail/alsa-devel/2009-February/014929.html]]
+* snd_es1938
+* snd_azt3328 (hardware period size is half of buffer size, yet its struct snd_pcm_hardware pretended full buffer size, azt3328 patch has since been committed as of 2011-02-28; this now means that tsched works yet tsched=0 does NOT! - for some weird reason)
 
-In all cases except for ice and emu the problem is the unreliability of snd_pcm_avail(). 
+Regarding snd-emu*: Creative doesn't like Open Source -- there are no docs available. If you buy Creative it is hence a bit your own fault.
 
-Also, even if your hardware/driver setup might be listed above it doesn't mean that g-f won't work for you at all. I have seen problems with those chips above, but one shouldn't necessarily take pars-pro-toto here. Especially since newer driver versions might already have fixed all or some of the issues. 
+In all cases except for ice and emu the problem is the unreliability of snd_pcm_avail().
 
-Possible workarounds to make PA work on these chips are: 
+Also, even if your hardware/driver setup might be listed above it doesn't mean that g-f won't work for you at all. I have seen problems with those chips above, but one shouldn't necessarily take pars-pro-toto here. Especially since newer driver versions might already have fixed all or some of the issues.
 
-* - Disabling glitch-free mode. I.e. pass tsched=0 to the alsa modules or module-hal-detect 
-Other problematic drivers: 
+Possible workarounds to make PA work on these chips are:
 
-* - Some drivers block the CPU for too long and inhibit PA from getting scheduled in time. (Particularly problematic are closed sources drivers -- hey Ubuntu that means you! nvidia/ndis. latencytop might be useful)  
-**This is how you can help fixing these issues:** 
+* Disabling glitch-free mode. I.e. pass tsched=0 to the alsa modules or module-hal-detect
 
-Please download alsa-time-test.c: 
+Other problematic drivers:
 
+* Some drivers block the CPU for too long and inhibit PA from getting scheduled in time. (Particularly problematic are closed sources drivers -- hey Ubuntu that means you! nvidia/ndis. latencytop might be useful)
 
-[[!format txt """
-wget -O alsa-time-test.c http://cgit.freedesktop.org/pulseaudio/pulseaudio/plain/src/tests/alsa-time-test.c
-"""]]
-Compile it: (this obviously requires gcc to be installed as well as the alsa-lib-devel package -- that's the Fedora name, no clue what other distros call that (Ubuntu: libasound2-dev)) 
+**This is how you can help fixing these issues:**
 
+Please download alsa-time-test.c:
 
-[[!format txt """
-gcc -Wall -Wextra -O0 -g alsa-time-test.c -o alsa-time-test `pkg-config --cflags --libs alsa` -lcheck
-"""]]
-Now run it: 
+    wget -O alsa-time-test.c http://cgit.freedesktop.org/pulseaudio/pulseaudio/plain/src/tests/alsa-time-test.c
 
+Compile it: (this obviously requires gcc to be installed as well as the alsa-lib-devel package -- that's the Fedora name, no clue what other distros call that (Ubuntu: libasound2-dev))
 
-[[!format txt """
-./alsa-time-test hw:0 > log
-"""]]
-(Before running this make sure that nothing blocks the audio device, i.e. kill a running pulseaudio! Also, make sure to pass the correct device string. i.e. if the card in question is not hw:0 change this in the command line! Also, while you run this make sure NOT to run any other program that might cause this tool to get less CPU time than it wants. I.e. the CPU must be _completely idle_ otherwise. alsa-time-test needs all available CPU time.) 
+    gcc -Wall -Wextra -O0 -g alsa-time-test.c -o alsa-time-test `pkg-config --cflags --libs alsa` -lcheck
 
-This will run forever, unless an assertion is hit. This will generate a *lot* of data. So make sure you have enough disk space before you run this (a limited-space alternative is to create a fifo/pipe, probably via 'mknod', redirect output to it and then 'cat' out of it into a separate _newly startable_ log file as needed). If after a while an assertion is hit, please send me an email containing the exact message of the assert as well as the beginning and the end of 'log' (You can generate that with 'head -n 50 log' resp. 'tail -n 50 log'). If after 30mins still no assertion is hit then contact me. You might need to send me the entire log (compress it first with gzip) -- but please do that only _after_ contacting me since this is a **lot** of data. Also, I am not interested in duplicates. If you write me an email like this, please also include the lspci line for your card (i.e. 'lspci  | grep Multimedia audio controller') as well as the driver name ('lsmod | grep snd_'), and finally the contents of /proc/asound/pcm for the card in question. Please understand that I want to keep my signal-to-noise ratio high, so please DO NOT SEND ME more than this unless I ask for it. My address is lennart poettering net. If the logged data gets too large that is generated this might cause some considereable IO load in which case the tool might get temporarily stopped to finish IO. Hence it might be a good idea to simply pipe the output directly to tail, to make sure no data needs to be written to disk during the run. 
+Now run it:
 
-And don't forget, unless you sent me the requested output you have no right to complain! 
+    ./alsa-time-test hw:0 > log
 
-Please do not send me this data unless you are sufficiently sure that this is actually a driver problem, i.e. not an application problem! How do you figure out those cases? Try running "pulseaudio -vvvv" and look for suspicious log output regarding detected driver bugs or underruns. 
+(Before running this make sure that nothing blocks the audio device, i.e. kill a running pulseaudio! Also, make sure to pass the correct device string. i.e. if the card in question is not hw:0 change this in the command line! Also, while you run this make sure NOT to run any other program that might cause this tool to get less CPU time than it wants. I.e. the CPU must be _completely idle_ otherwise. alsa-time-test needs all available CPU time.)
 
-I already got this data for snd-intel8x0, es1969, snd-ens1371, emu10k1 and snd-intel-hda on AD1989B, STAC92xx, ALC883  (reports for other hda implementations very welcome). Please do not send me any logs for these drivers! 
+This will run forever, unless an assertion is hit. This will generate a *lot* of data. So make sure you have enough disk space before you run this (a limited-space alternative is to create a fifo/pipe, probably via 'mknod', redirect output to it and then 'cat' out of it into a separate _newly startable_ log file as needed). If after a while an assertion is hit, please send me an email containing the exact message of the assert as well as the beginning and the end of 'log' (You can generate that with 'head -n 50 log' resp. 'tail -n 50 log'). If after 30mins still no assertion is hit then contact me. You might need to send me the entire log (compress it first with gzip) -- but please do that only _after_ contacting me since this is a **lot** of data. Also, I am not interested in duplicates. If you write me an email like this, please also include the lspci line for your card (i.e. 'lspci  | grep Multimedia audio controller') as well as the driver name ('lsmod | grep snd_'), and finally the contents of /proc/asound/pcm for the card in question. Please understand that I want to keep my signal-to-noise ratio high, so please DO NOT SEND ME more than this unless I ask for it. My address is lennart poettering net. If the logged data gets too large that is generated this might cause some considereable IO load in which case the tool might get temporarily stopped to finish IO. Hence it might be a good idea to simply pipe the output directly to tail, to make sure no data needs to be written to disk during the run.
 
-Thank you! 
+And don't forget, unless you sent me the requested output you have no right to complain!
 
-If you want to understand the ouput of this tool, here's what it does: It enters a busy loop, writing one sample to the device at a time (unless the card's buffer is already filled up), then querying the various timing parameters of the card. And then the next iteration happens, and so on, and so on. The values printed contain the following information: 
+Please do not send me this data unless you are sufficiently sure that this is actually a driver problem, i.e. not an application problem! How do you figure out those cases? Try running "pulseaudio -vvvv" and look for suspicious log output regarding detected driver bugs or underruns.
 
-The first column is clock_gettime(CLOCK_MONOTONIC) in us. Second column in the timestamp stored in the snd_pcm_state_t. The third is the calculated playback time (i.e. write count - delay).  The fourth column is sample count, the fifth column is avail, the sixth is delay. But better have a look at the .c source file (the printf at the end), since the information on this page was outdated. 
+I already got this data for snd-intel8x0, es1969, snd-ens1371, emu10k1 and snd-intel-hda on AD1989B, STAC92xx, ALC883  (reports for other hda implementations very welcome). Please do not send me any logs for these drivers!
 
-For further details about this debugging, please see the thread "Timer instability", [[http://www.spassets.com/forums/linux.alsa.devel/273962/Timer%20instability|http://www.spassets.com/forums/linux.alsa.devel/273962/Timer%20instability]] 
+Thank you!
+
+If you want to understand the ouput of this tool, here's what it does: It enters a busy loop, writing one sample to the device at a time (unless the card's buffer is already filled up), then querying the various timing parameters of the card. And then the next iteration happens, and so on, and so on. The values printed contain the following information:
+
+The first column is clock_gettime(CLOCK_MONOTONIC) in us. Second column in the timestamp stored in the snd_pcm_state_t. The third is the calculated playback time (i.e. write count - delay).  The fourth column is sample count, the fifth column is avail, the sixth is delay. But better have a look at the .c source file (the printf at the end), since the information on this page was outdated.
+
+For further details about this debugging, please see the thread "Timer instability", [[http://www.spassets.com/forums/linux.alsa.devel/273962/Timer%20instability|http://www.spassets.com/forums/linux.alsa.devel/273962/Timer%20instability]]

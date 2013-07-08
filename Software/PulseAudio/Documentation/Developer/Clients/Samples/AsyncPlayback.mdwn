@@ -1,15 +1,11 @@
-
 This code is not made by any pulseaudio developer. It may not be best practice, but it seems to work and could be used as a start for a playback application that uses the async API. 
 
 This simple application plays a constant note and uses a low latency setup (20 ms) that should be suitable for games. It also increases the latency when underruns are detected, this makes it possible to get good sounding playback over networks as well. 
 
 Save code as e.g. pa-beep.c and build using:  
-[[!format txt """
-gcc `pkg-config --cflags --libs libpulse` pa-beep.c -o pa-beep
-"""]]
+<pre><code>gcc `pkg-config --cflags --libs libpulse` pa-beep.c -o pa-beep</code></pre>
 
-[[!format txt """
-#include <stdio.h>
+<pre><code>#include <stdio.h>
 #include <string.h>
 #include <pulse/pulseaudio.h>
 
@@ -157,6 +153,4 @@ exit:
   pa_context_unref(pa_ctx);
   pa_mainloop_free(pa_ml);
   return retval;
-}
-
-"""]]
+}</code></pre>
