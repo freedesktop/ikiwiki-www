@@ -1,0 +1,172 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
+
+# Client API for node-based routing management
+
+## Querying nodes and their connections
+
+Clients should be able find out what nodes exist and how they are connected to each other. I like to picture the nodes as two vertical rows, the input nodes on the left and the output nodes on the right:
+
+[laptop-simple-music-case.png]
+
+That picture represents a typical case on my laptop: there are several device nodes, and a music player stream node that is connected to the headphone node.
+
+Querying the nodes can be done like any other object:
+
+    /** Routing node information. Please note that this structure can be extended
+     * as part of evolutionary API updates at any time in any new release.
+     *
+     * \since 5.0 */
+    typedef struct pa_node_info {
+        /** The index of this node. */
+        uint32_t index;
+
+        /** The name of this node. While one name can refer to only one node at any
+         * given time, the same name can still refer to multiple nodes over time,
+         * and the same node may have a different name e.g. after server restart.
+         * This means that nodes don't have any identifier that could be e.g. saved
+         * to disk for referring to the same node later. There may be some nodes in
+         * the future that have a fixed name, but currently there are none. */
+        const char *name;
+
+        /** The human-readable description of this node. This is localized and
+         * suitable to be shown in user interfaces as the label for this node. */
+        const char *description;
+
+        /** The direction of this node. */
+        pa_direction_t direction;
+
+        /** Connections to other nodes. The connections are represented by an array
+         * of node indexes. The size of the array is stored in n_connections. */
+        uint32_t *connections;
+
+        /** Size of the connections array. */
+        unsigned n_connections;
+    } pa_node_info;
+
+    /** Callback prototype for pa_context_get_node_info_by_name() and friends.
+     * \since 5.0 */
+    typedef void (*pa_node_info_cb_t)(pa_context *c, const pa_node_info *info, int eol, void *userdata);
+
+    /** Get information about a node by its name. \since 5.0 */
+    pa_operation *pa_context_get_node_info_by_name(pa_context *c, const char *name, pa_node_info_cb_t cb, void *userdata);
+
+    /** Get information about a node by its index. \since 5.0 */
+    pa_operation *pa_context_get_node_info_by_index(pa_context *c, uint32_t idx, pa_node_info_cb_t cb, void *userdata);
+
+    /** Get a list of all nodes. \since 5.0 */
+    pa_operation *pa_context_get_node_info_list(pa_context *c, pa_node_info_cb_t cb, void *userdata);
+
+
+## Monitoring node state
+
+Nodes have mutable state (for example, their connections), so there needs to be a way to get notified about state changes. This can be handled with the subscription system as usual. pa_subscription_mask_t and pa_subscription_event_type_t need to be extended:
+
+    /** Subscription event mask, as used by pa_context_subscribe() */
+    typedef enum pa_subscription_mask {
+        ...
+        PA_SUBSCRIPTION_MASK_NODE = 0x0400U,
+        /**< Node events. \since 5.0 */
+
+        PA_SUBSCRIPTION_MASK_ALL = 0x06ffU /* The deprecated autoload events (0x0100) are not included. */
+        /**< Catch all events */
+    } pa_subscription_mask_t;
+
+    /** Subscription event types, as used by pa_context_subscribe() */
+    typedef enum pa_subscription_event_type {
+        ...
+        PA_SUBSCRIPTION_EVENT_NODE = 0x000aU,
+        /**< Event type: Node. \since 5.0 */
+        ...
+    } pa_subscription_event_type_t;
+
+
+## Adding and removing connections
+
+A GUI for managing node connections might work so that the user creates and removes connections one at a time and the GUI program immediately sends a connect/disconnect command to the server after each user action. Another possibility is that the GUI lets the user do the connections, and only after selecting "apply" the GUI program will send the connection updates to the server. The question is: should the API have functions for adding and removing only a single connection at a time, or should the API work so that the client sets the whole connection list, or should both be possible?
+
+I would prefer to support at least single connection adding/removal, because I imagine it would match more closely the way UIs usually work (I find it unlikely that UIs would have an "apply" button), and it also avoids a race condition: if two clients add different connections for a node simultaneously, it works fine (both connections get added) if the command is "add connection", but only one of the clients would win if they would have to use command "set the connection list". If changing multiple connections in one go is important, the race could be avoided also by having a batch command for applying multiple add/remove commands. It's of course possible to support all of these: "add connection", "remove connection", "batched add/remove" and "set the connection list". I would start with just "add connection" and "remove connection" commands for simplicity.
+
+Proposed API:
+
+    /** Connect two nodes together. The nodes to connect can be identified by their
+     * names or their indexes (in order to use index based identification, just
+     * convert the index number to a string). One of the nodes must be an input
+     * node and the other must be an output node, but it doesn't matter in which
+     * order the nodes are given. \since 5.0 */
+    pa_operation *pa_context_add_node_connection(
+            pa_context *c,
+            const char *node_a,
+            const char *node_b,
+            pa_context_success_cb_t cb,
+            void *userdata);
+
+    /** Disconnect two nodes. The nodes to disconnect can be identified by their
+     * names or their indexes (in order to use index based identification, just
+     * convert the index number to a string). \since 5.0 */
+    pa_operation *pa_context_remove_node_connection(
+            pa_context *c,
+            const char *node_a,
+            const char *node_b,
+            pa_context_success_cb_t cb,
+            void *userdata);
+
+Regarding the node identifiers: is there need for function variants that use index based identification? I think not. We should allow indexes to be passed as the node names, like we do with many other APIs that use object names for identification. With those other APIs the possibility to use an index is not documented, but we probably should document it here (at least if there won't be separate functions for adding and removing connections by node indexes).
+
+What if the last connection of a stream node is removed? Is it prevented? Is the stream killed, because streams must always be connected to some sink or source? I think the stream should be moved to a null sink/source even in absence of any policy modules (this implies adding null sink and source functionality to the core, because I don't think we want the core to load any modules). The null sink wouldn't be exposed as a node, and therefore the connection between the stream and the null sink wouldn't be visible either in the node API (it would still be visible in the lower level API).
+
+
+## Moving connections
+
+Moving a connection, for example a sink input from one sink to another, is a bit different than just "remove connection" and "add connection" executed sequentially. In what state is the sink input after the "remove connection" command? It might be routed to a null sink, perhaps. That's not ideal. Routing the sink input to an intermediate target adds delay and will likely cause some audio to be lost. Therefore, I think there needs to be a distinct "move connection" command.
+
+Proposed API:
+
+    /** Move a node connection. This operation involves three nodes A, B and C. In
+     * the normal case there is a connection between A and B, and no connection
+     * between A and C. After a successful move there is a connection between A and
+     * C and no connection between A and B. If the starting situation is such that
+     * A and B don't have a connection, it's undefined whether A and C will be
+     * connected after the move operation. Similarly, if the starting situation is
+     * such that A and C already have a connection between them, it's undefined
+     * whether A and B will be connected after the move operation.
+     *
+     * The nodes can be identified by their names or their indexes (in order to use
+     * index based identification, just convert the index number to a string).
+     * \since 5.0 */
+    pa_operation *pa_context_move_node_connection(
+            pa_context *c,
+            const char *node_a,
+            const char *node_b,
+            const char *node_c,
+            pa_context_success_cb_t cb,
+            void *userdata);
+
+I've left the behavior in abnormal situations undefined to retain flexibility for us to do whatever we like and change our mind at any time, but I think the best policy is to just fail the operation and do nothing in those cases.
+
+
+## Default and explicit routes
+
+The Intel folks have come up with concepts called "default route" and "explicit route". This was probably discussed to some extent in the PulseConf, but as a reminder, here's an attempt at defining those terms. A "default route" is a connection to/from a node that is completely driven by automatic routing policy. An "explicit route" is a connection that has been requested by the user (there may be an element of some automatic policy being applied to explicit routes too, though, at least when the current routing target disappears and a fallback is selected). An important property of default routes is that they can't be controlled by the user, beyond just having a per-node toggle for enabling/disabling default routing. An important property of explicit routes is that they are never(?) automatically moved when new nodes appear. The API described so far has only dealt with explicit routes.
+
+Having separate default routes in the public API makes routing UIs a fair bit more complex, so justification is needed. I now realize that I'm not able to come up with good enough arguments, so I need to discuss this with the Murphy guys...
+
+One benefit of separate default routing is that the user is able to revert back to default after messing around with explicit routes. If this was the only reason, it would not be good enough justification, because we could just have a simple "revert node routing back to default" command in the API. It's also questionable whether such functionality is even needed - I don't remember hearing any complaints about this missing feature with our current stream-restore based routing.
+
+At server side the policy definitely should track whether a connection was explicitly requested by the user, and whether an automatic connection was removed (in which case default routing should be disabled). But does this information really need to be exposed in the public API?
+
+If it turns out that having default routes in the public API is indeed a good idea, here's the proposed API for dealing with them:
+
+
+TODO:
+ - one node operation at a time vs. a transaction of many operations
+   - default route handling combined with explicit route operations
+ - getting node index from pa_stream
+ - passing node name to pa_stream_connect()
+ - adding node index to pa_sink_info, pa_card_port_info etc.
+ - adding node type to pa_node_info
+ - how would module-node-restore work with default and explicit routes? would its routing decisions be part of the default route, or would its actions show up as explicit routes?
+ - what happens when a "move connection" command is sent, and the connection happens to be a default connection? or what if the connection is both a default connection and an explicit connection?
+ - what if a node has multiple default routes, and the user requests one of them to be removed? Is the request rejected, or does that (and only that) route get removed, or do all default routes get removed, because it's not possible to track exceptions, so it's all or nothing?
+ - can there be overlapping default and explicit routes? (impossible, if the default routes are implemented as a mask)
+ - which operations need flags for making the client intent clear in ambiguous scenarios?
+ - rescuing orphan nodes: should connections have explicit direction for the purposes of rescuing nodes that don't have any connections, or is the direction implied by the node type (rescue streams, not devices)?
