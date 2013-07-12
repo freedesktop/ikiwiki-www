@@ -138,7 +138,7 @@ Proposed API:
             void *userdata);
 
 
-## Default and explicit routes
+## Default and explicit connections
 
 The Intel folks have come up with concepts called "default route" and "explicit route". This was probably discussed to some extent in the PulseConf, but as a reminder, here's an attempt at defining those terms. A "default route" is a connection to/from a node that is completely driven by automatic routing policy (or it could be determined just by the default sink/source if nothing fancier is implemented by modules). An "explicit route" is a connection that has been requested by the user.
 
@@ -220,17 +220,30 @@ One thing to consider is whether the default connections should be visible to th
 
 In addition to the two proposals, a third solution could be to combine the two first solutions so that there's a list of all connections, and then separate lists for default and explicit connections. It would mean duplicated information (the list of all connections could be derived from the default and explicit connection lists), but this is a real possibility if we decide to go with the first proposal, and then later we end up wanting the benefits of the second proposal.
 
+I personally prefer the second proposal. The ambiguous handling of connections that are both explicit and default in the first proposal bothers me enough to even prefer not exposing default routes to clients at all over the first proposal.
+
+
+## Moving or removing default connections
+
+If a connection is both default and explicit, the client can, at least in theory, want to move or remove only the explicit part of it, so after the move or remove operation, the default connection would still exist as before. Another, more likely possibility is that the client wants to move or remove the connection completely. Moving or removing a default connection is not a valid operation, however, so this actually implies disabling the default connections entirely. The question is: should the client API support both cases, or should it be always implied that moving or removing a default connection will disable default connections entirely for the node? The move and remove operations could accept a flag describing the client intention: PA_NODE_REMOVE_EXPLICIT_ONLY. If that flag was set, the operation would never implicitly disable default connections, otherwise default connections would get disabled if the connection being moved was a default connection. The flag would be useful also for handling a race condition: if the client thinks that a connection is only an explicit connection when it removes it, and the default routing changes while the remove command is on its way from the client to the server, the default routing wouldn't get disabled by accident if the flag was set.
+
+Another solution would be to never do implicit disabling of default connections. If a client wanted to move a connection that was currently a default connection, it would have to first convert the default connection to an explicit one (that is, add an explicit connection to the old destination, then disable default connections), and then move the explicit connection to the new destination.
+
+I'm in favour of adding the flag argument to pa_context_move_node_connection() and pa_context_remove_node_connection().
+
+
+## Getting node index from pa_stream
+
+It's probably a good idea to make it possible to query the node index from pa_stream.
+
+    /** Return the node index of this stream. Returns PA_INVALID_INDEX is this
+     * stream is not associated with any node. \since 5.0 */
+    uint32_t pa_stream_get_node_index(pa_stream *s);
+
+
 TODO:
 
- - one node operation at a time vs. a transaction of many operations
-   - default route handling combined with explicit route operations
- - getting node index from pa_stream
  - passing node name to pa_stream_connect()
  - add node index to pa_sink_info, pa_card_port_info etc.
  - add node type to pa_node_info
- - how would module-node-restore work with default and explicit routes? would its routing decisions be part of the default route, or would its actions show up as explicit routes?
- - what happens when a "move connection" command is sent, and the connection happens to be a default connection? or what if the connection is both a default connection and an explicit connection?
- - what if a node has multiple default routes, and the user requests one of them to be removed? Is the request rejected, or does that (and only that) route get removed, or do all default routes get removed, because it's not possible to track exceptions, so it's all or nothing?
- - which operations need flags for making the client intent clear in ambiguous scenarios?
  - rescuing orphan nodes: should connections have explicit direction for the purposes of rescuing nodes that don't have any connections, or is the direction implied by the node type (rescue streams, not devices)?
- - connection overlapping: between explicit and default connections, and between own default connections and other default connections
