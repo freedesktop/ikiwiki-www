@@ -246,8 +246,6 @@ It's probably a good idea to make it possible to query the node index from pa_st
 Currently, if the client wants to choose the initial routing target, it must set the dev parameter of pa_stream_connect_playback()/pa_stream_connect_record(). The dev parameter is currently defined to be the name of the sink or source, which is not nice if the client wants to handle routing at the node level. This is easily solved, however: since all sinks, sources and nodes share the same namespace, we could allow node names to be passed as the dev parameter without any ambiguity.
 
 
-TODO:
+## Mapping sinks, sources, ports and streams to nodes
 
- - add node index to pa_sink_info, pa_card_port_info etc.
- - add node type to pa_node_info
- - rescuing orphan nodes: should connections have explicit direction for the purposes of rescuing nodes that don't have any connections, or is the direction implied by the node type (rescue streams, not devices)?
+pa_card_port_info, pa_sink_info, pa_source_info, pa_sink_input_info and pa_source_output node could have the index of the associated node (if any).
