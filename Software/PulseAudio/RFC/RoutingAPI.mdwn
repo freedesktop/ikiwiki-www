@@ -236,14 +236,18 @@ I'm in favour of adding the flag argument to pa_context_move_node_connection() a
 
 It's probably a good idea to make it possible to query the node index from pa_stream.
 
-    /** Return the node index of this stream. Returns PA_INVALID_INDEX is this
+    /** Return the node index of this stream. Returns PA_INVALID_INDEX if this
      * stream is not associated with any node. \since 5.0 */
     uint32_t pa_stream_get_node_index(pa_stream *s);
 
 
+## Creating streams with the initial node set
+
+Currently, if the client wants to choose the initial routing target, it must set the dev parameter of pa_stream_connect_playback()/pa_stream_connect_record(). The dev parameter is currently defined to be the name of the sink or source, which is not nice if the client wants to handle routing at the node level. This is easily solved, however: since all sinks, sources and nodes share the same namespace, we could allow node names to be passed as the dev parameter without any ambiguity.
+
+
 TODO:
 
- - passing node name to pa_stream_connect()
  - add node index to pa_sink_info, pa_card_port_info etc.
  - add node type to pa_node_info
  - rescuing orphan nodes: should connections have explicit direction for the purposes of rescuing nodes that don't have any connections, or is the direction implied by the node type (rescue streams, not devices)?
