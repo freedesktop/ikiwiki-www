@@ -110,21 +110,19 @@ Proposed API:
             pa_context_success_cb_t cb,
             void *userdata);
 
-Regarding the node identifiers: is there need for function variants that use index based identification? I think not. We should allow indexes to be passed as the node names, like we do with many other APIs that use object names for identification. With those other APIs the possibility to use an index is not documented, but we probably should document it here (at least if there won't be separate functions for adding and removing connections by node indexes).
-
-What if the last connection of a stream node is removed? Is it prevented? Is the stream killed, because streams must always be connected to some sink or source? I think the stream should be moved to a null sink/source even in absence of any policy modules (this implies adding null sink and source functionality to the core, because I don't think we want the core to load any modules). The null sink wouldn't be exposed as a node, and therefore the connection between the stream and the null sink wouldn't be visible either in the node API (it would still be visible in the lower level API).
+What if the last connection of a stream node is removed? Does the removal fail? Is the stream killed, because streams must always be connected to some sink or source? I think the stream should be moved to a null sink/source even in absence of any policy modules (this implies adding null sink and source functionality to the core, because I don't think we want the core to load any modules). The null sink wouldn't be exposed as a node, and therefore the connection between the stream and the null sink wouldn't be visible in the node API (it would still be visible in the lower level API as a sink).
 
 
 ## Moving connections
 
-Moving a connection, for example a sink input from one sink to another, is a bit different than just "remove connection" and "add connection" executed sequentially. In what state is the sink input after the "remove connection" command? It might be routed to a null sink, perhaps. That's not ideal. Routing the sink input to an intermediate target adds delay and will likely cause some audio to be lost. Therefore, I think there needs to be a distinct "move connection" command.
+Moving a connection, for example a sink input from one sink to another, is a bit different than just "remove connection" and "add connection" executed sequentially. If moving was implemented as "remove and add", in what state would the sink input be after the "remove connection" command? It might be routed to a null sink. That's not ideal. Routing the sink input to an intermediate target adds delay and will likely cause some audio to be lost. Therefore, I think there needs to be a distinct "move connection" command.
 
 Proposed API:
 
-    /** Move a node connection. This operation involves three nodes A, B and C. In
-     * the normal case there is a connection between A and B, and no connection
-     * between A and C. After a successful move there is a connection between A and
-     * C and no connection between A and B.
+    /** Move a node connection. This operation involves three nodes: A, B and C.
+     * The move operation moves a connection between A and B so that after
+     * a successful move operation A and B are not connected any more, but A and C
+     * are.
      *
      * The nodes can be identified by their names or their indexes (in order to use
      * index based identification, just convert the index number to a string).
@@ -140,46 +138,13 @@ Proposed API:
 
 ## Default and explicit connections
 
-The Intel folks have come up with concepts called "default route" and "explicit route". This was probably discussed to some extent in the PulseConf, but as a reminder, here's an attempt at defining those terms. A "default route" is a connection to/from a node that is completely driven by automatic routing policy (or it could be determined just by the default sink/source if nothing fancier is implemented by modules). An "explicit route" is a connection that has been requested by the user.
+The Intel folks have come up with concepts called "default route" and "explicit route". This was probably discussed to some extent in the PulseConf, but as a reminder, here's an attempt at defining those terms. A "default route" is a connection to/from a node that is completely driven by automatic routing policy (or it could be determined just by the default sink/source if nothing fancier is implemented by modules). An "explicit route" is a connection that has been requested by the user. I prefer the word "connection" over "route", so I will call the concepts "default connection" and "explicit connection".
 
-Even though explicit routes are "less automatic" than default routes, there can still be a fair bit of automation going on with explicit routes. For example, if the user moves a stream to headphones, and then the headphones are unplugged (and the stream is automatically rescued to somewhere else) and then plugged back in, based on the earlier explicit routing request the routing module may decide to automatically move the stream back to the headphones. So, earlier explicit routes can be restored (very similar to what module-stream-restore does).
+Even though explicit connections are generally "less automatic" than default connections, there can still be a fair bit of automation going on with explicit routes. For example, remembering and restoring user routing requests in the style of stream-restore is better implemented as explicit connections than default connections.
 
-A good routing policy will distinguish between node connections that are created by the user and connections that are created without the user requesting them. So the "default route" and "explicit route" concepts will anyway exist. It is an open question, however, whether those concepts should be visible in the client API, and if they should, should it be possible to ignore them in routing applications that don't want to bother the user with the distinction between the two connection types.
+A good routing policy will distinguish between node connections that are created by the user and connections that are created without the user requesting them. So the "default connection" and "explicit connection" concepts will anyway exist. It is arguable, however, whether those concepts should be visible in the client API (I'm in favour of having them visible).
 
-I have two alternative proposals for representing the two kind of connection types in pa_node_info. The first one is designed so that it's possible to ignore the distinction by ignoring everything that is related to default connections.
-
-    typedef struct pa_node_info {
-        ...
-        /** Connections to other nodes. The connections are represented by an array
-         * of node indexes. */
-        uint32_t *connections;
-
-        /** Size of the connections array. */
-        unsigned n_connections;
-
-        /** Are the default connections enabled? If this is zero, then the
-         * connections listed in own_default_connections don't actually exist, they
-         * only represent connections that would exist if default connections were
-         * enabled. This doesn't affect the connections in
-         * other_default_connections. */
-        int default_connections_enabled;
-
-        /** This node's own default connections. This is a subset of the main
-         * connections array when default connections are enabled. */
-        uint32_t *own_default_connections;
-
-        /** Size of the own_default_connections array. */
-        unsigned n_own_default_connections;
-
-        /** Other nodes' default connections to this node. This is a subset of the
-         * main connections array. */
-        uint32_t *other_default_connections;
-
-        /** Size of the other_default_connections array. */
-        unsigned n_other_default_connections;
-    } pa_node_info;
-
-The second proposal is designed so that applications have to take into account both the default and the explicit connections in order to get the full list of connections. The benefit is that this is a more accurate representation of reality (more about that later).
+Proposed API for representing the information about explicit and default connections:
 
     typedef struct pa_node_info {
         ...
@@ -210,26 +175,37 @@ The second proposal is designed so that applications have to take into account b
         unsigned n_other_default_connections;
     } pa_node_info;
 
-One notable thing in the first proposal is that to the client it seems that connections can only be either default or explicit connections, while in the reality the two sets can overlap. I'll demonstrate this with an example:
+It is possible that one connection is both explicit and default. An example:
 
 ![laptop-overlapping-music-case.png](laptop-overlapping-music-case.png)
 
-Here my music is first connected to the headphones via a default connection (red). Then I decide to add a connection also to the HDMI output, it becomes an explicit connection (black). Then I unplug the headphones, and the default route changes to the HDMI output, so now the connection between the headphones and the HDMI output is both a default connection and an explicit connection. If the UI wants to show the dual nature of the connection to the user, it's impossible with the first proposal.
+Here my music is first connected to the headphones via a default connection (red). Then I decide to add a connection also to the HDMI output, it becomes an explicit connection (black). Then I unplug the headphones, and the default route changes to the HDMI output, so now the connection between the headphones and the HDMI output is both a default connection and an explicit connection.
 
-One thing to consider is whether the default connections should be visible to the clients also when default connections are disabled. I've chosen in the proposals to have them visible, because it's just extra information to the clients that they can use if they want. The drawback is that maintaining the list of default connections also when the default connections aren't enabled may cause extra work for the routing policy code in the server (the amount of work may be trivial, I don't know).
+One thing to consider is whether the default connections should be visible to the clients also when default connections are disabled. In the proposal I have chosen to have them visible, because it's extra information that is potentially useful to clients. The drawback is that maintaining the list of default connections also when the default connections aren't enabled may cause extra work for the routing policy code in the server (the amount of work may be trivial, I don't know).
 
-In addition to the two proposals, a third solution could be to combine the two first solutions so that there's a list of all connections, and then separate lists for default and explicit connections. It would mean duplicated information (the list of all connections could be derived from the default and explicit connection lists), but this is a real possibility if we decide to go with the first proposal, and then later we end up wanting the benefits of the second proposal.
 
-I personally prefer the second proposal. The ambiguous handling of connections that are both explicit and default in the first proposal bothers me enough to even prefer not exposing default routes to clients at all over the first proposal.
+## Enabling and disabling default connections
+
+There should be a command for enabling/disabling default connections for a node.
+
+     /** Enable or disable default connections of a node. The node can be
+      * identified by its names or index (in order to use index based
+      * identification, just convert the index number to a string). \since 5.0 */
+    pa_operation *pa_context_enable_node_default_connections(
+            pa_context *c,
+            const char *node,
+            int enable,
+            pa_context_success_cb_t cb,
+            void *userdata);
 
 
 ## Moving or removing default connections
 
-If a connection is both default and explicit, the client can, at least in theory, want to move or remove only the explicit part of it, so after the move or remove operation, the default connection would still exist as before. Another, more likely possibility is that the client wants to move or remove the connection completely. Moving or removing a default connection is not a valid operation, however, so this actually implies disabling the default connections entirely. The question is: should the client API support both cases, or should it be always implied that moving or removing a default connection will disable default connections entirely for the node? The move and remove operations could accept a flag describing the client intention: PA_NODE_REMOVE_EXPLICIT_ONLY. If that flag was set, the operation would never implicitly disable default connections, otherwise default connections would get disabled if the connection being moved was a default connection. The flag would be useful also for handling a race condition: if the client thinks that a connection is only an explicit connection when it removes it, and the default routing changes while the remove command is on its way from the client to the server, the default routing wouldn't get disabled by accident if the flag was set.
+If a connection is both default and explicit, the client can, at least in theory, want to move or remove only the explicit part of it, so after the move or remove operation, the default connection would still exist as before. Another, more likely possibility is that the client wants to move or remove the connection completely. Moving or removing a default connection is not a valid operation, however, so this actually implies disabling the default connections entirely. The question is: should the client API support both cases, or should it be always implied that moving or removing a default connection will disable default connections entirely for the node? The move and remove operations could accept a flag describing the client intention: PA_NODE_REMOVE_EXPLICIT_ONLY. If that flag was set, the operation would never implicitly disable default connections, otherwise default connections would get disabled if the connection being removed was a default connection. The flag would be useful also for handling a race condition: if the client thinks that a connection is only an explicit connection when it removes it, and the default routing changes while the remove command is on its way from the client to the server, the default routing wouldn't get disabled by accident if the flag was set.
 
 Another solution would be to never do implicit disabling of default connections. If a client wanted to move a connection that was currently a default connection, it would have to first convert the default connection to an explicit one (that is, add an explicit connection to the old destination, then disable default connections), and then move the explicit connection to the new destination.
 
-I'm in favour of adding the flag argument to pa_context_move_node_connection() and pa_context_remove_node_connection().
+I'm in favour of adding the flag argument to pa_context_move_node_connection() and pa_context_remove_node_connection(), because the alternative is very inconvenient for applications (especially with an asynchronous API with callbacks it's much nicer to send only one command than executing three commands in sequence).
 
 
 ## Getting node index from pa_stream
@@ -241,11 +217,11 @@ It's probably a good idea to make it possible to query the node index from pa_st
     uint32_t pa_stream_get_node_index(pa_stream *s);
 
 
-## Creating streams with the initial node set
+## Defining the initial node when creating streams
 
-Currently, if the client wants to choose the initial routing target, it must set the dev parameter of pa_stream_connect_playback()/pa_stream_connect_record(). The dev parameter is currently defined to be the name of the sink or source, which is not nice if the client wants to handle routing at the node level. This is easily solved, however: since all sinks, sources and nodes share the same namespace, we could allow node names to be passed as the dev parameter without any ambiguity.
+Currently, if a client wants to choose the initial routing target when creating a stream, it must set the dev parameter of pa_stream_connect_playback()/pa_stream_connect_record(). The dev parameter is currently defined to be the name of the sink or source, which is not nice if the client wants to handle routing at the node level. This is easily solved, however: since all sinks, sources and nodes share the same namespace, we could allow node names to be passed as the dev parameter without any ambiguity.
 
 
 ## Mapping sinks, sources, ports and streams to nodes
 
-pa_card_port_info, pa_sink_info, pa_source_info, pa_sink_input_info and pa_source_output node could have the index of the associated node (if any).
+The pa_card_port_info, pa_sink_info, pa_source_info, pa_sink_input_info and pa_source_output structs should contain the index of the associated node (if any).
