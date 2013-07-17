@@ -1,5 +1,3 @@
-
-
 # PulseAudio's D-Bus interface
 
 These pages should eventually contain the final D-Bus control interface specification. Currently it's just a draft, comments welcome. 
@@ -64,7 +62,13 @@ These pages should eventually contain the final D-Bus control interface specific
 
 Previously the only D-Bus services PulseAudio provided were an implementation of the [[Device Reservation spec|http://git.0pointer.de/?p=reserve.git;a=blob_plain;f=reserve.txt]] for sound cards and reservation of the org.pulseaudio.Server name on the session or system bus for server tracking purposes. Those features remain untouched, and this document doesn't have anything to do with them. 
 
-The new functionality consists of two parts: a server lookup service and the main control interface. When clients want to use the control interface, they have to first figure out where they should connect to. How to connect to the control interface is specified on the [[ConnectingToServer|Software/PulseAudio/Documentation/Developer/Clients/DBus/ConnectingToServer]] page. The main control interface is provided as a "D-Bus server". That is, it's not available on any bus, but instead clients make direct connections to PulseAudio. 
+The new functionality consists of two parts: a server lookup service and the main control interface. When clients want to use the control interface, they have to first figure out where they should connect to. How to connect to the control interface is specified on the [[ConnectingToServer|Software/PulseAudio/Documentation/Developer/Clients/DBus/ConnectingToServer]] page. The main control interface is provided as a "D-Bus server". That is, it's not available on any bus, but instead clients make direct connections to PulseAudio.
+
+Requiring clients to use peer-to-peer connections instead of the traditional system/session bus has turned out to cause lots of trouble and confusion. It was perhaps a bad decision, but initially it seemed like a good idea:
+
+ * It's not possible to connect to a session bus remotely. The chosen approach allows remote connections, without any special handling needed in the applications.
+ * A peer-to-peer connection supposedly has lower latency than a bus, so e.g. volume changes happen quicker. (No empirical evidence available.)
+ * PulseAudio is a user daemon, not a session daemon, so the session bus is not a good match. This point is undermined by the fact that the discovery service is on the session bus - any problems related to the user/session mismatch affect also the discovery service.
 
 
 ## Open Questions
