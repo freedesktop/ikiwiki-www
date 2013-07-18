@@ -1,6 +1,6 @@
 [[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]]
 
-# logind
+# machined
 
 systemd 205 and newer include systemd-machined. This is a tiny daemon that tracks locallly running Virtual Machines and Containers in various ways.
 
@@ -14,37 +14,37 @@ If you are interested in writing a display manager that makes use of logind, ple
 
 The service exposes the following interfaces on the Manager object on the bus:
 
-node /org/freedesktop/machine1 {
-  interface org.freedesktop.machine1.Manager {
-    methods:
-      GetMachine(in  s name,
-                 out o machine);
-      GetMachineByPID(in  u pid,
-                      out o machine);
-      ListMachines(out a(ssso) machines);
-      CreateMachine(in  s name,
-                    in  ay id,
-                    in  s service,
-                    in  s class,
-                    in  u leader,
-                    in  s root_directory,
-                    in  a(sv) scope_properties,
-                    out o path);
-      KillMachine(in  s name,
-                  in  s who,
-                  in  s signal);
-      TerminateMachine(in  s id);
-    signals:
-      MachineNew(s machine,
-                 o path);
-      MachineRemoved(s machine,
+    node /org/freedesktop/machine1 {
+      interface org.freedesktop.machine1.Manager {
+        methods:
+          GetMachine(in  s name,
+                     out o machine);
+          GetMachineByPID(in  u pid,
+                          out o machine);
+          ListMachines(out a(ssso) machines);
+          CreateMachine(in  s name,
+                        in  ay id,
+                        in  s service,
+                        in  s class,
+                        in  u leader,
+                        in  s root_directory,
+                        in  a(sv) scope_properties,
+                        out o path);
+          KillMachine(in  s name,
+                      in  s who,
+                      in  s signal);
+          TerminateMachine(in  s id);
+        signals:
+          MachineNew(s machine,
                      o path);
-    properties:
-  };
-  interface org.freedesktop.DBus.Properties {
-  };
-  interface org.freedesktop.DBus.Peer {
-  };
-  interface org.freedesktop.DBus.Introspectable {
-  };
-};
+          MachineRemoved(s machine,
+                         o path);
+        properties:
+      };
+      interface org.freedesktop.DBus.Properties {
+      };
+      interface org.freedesktop.DBus.Peer {
+      };
+      interface org.freedesktop.DBus.Introspectable {
+      };
+    };
