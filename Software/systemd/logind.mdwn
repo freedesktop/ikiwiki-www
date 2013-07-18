@@ -1,6 +1,5 @@
 [[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]]
 
-
 # logind
 
 systemd 30 and newer include systemd-logind. This is a tiny daemon that manages user logins and seats in various ways.
@@ -12,7 +11,6 @@ The daemon provides both a C library interface as well as a D-Bus interface. The
 If you are interested in writing a display manager that makes use of logind, please have look at [[Writing Display Managers|http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers]].  If you are interested in writing a desktop environment that makes use of logind, please have look at [[Writing Desktop Environments|http://www.freedesktop.org/wiki/Software/systemd/writing-desktop-environments]].
 
 The inhibition logic is documented in [[Inhibitor Locks|http://www.freedesktop.org/wiki/Software/systemd/inhibit]].
-
 
 ## The Manager Object
 
@@ -118,12 +116,12 @@ The service exposes the following interfaces on the Manager object on the bus:
       };
     };
 
-
 ### Security
 
 A number of operations are protected via the PolicyKit privilege system. SetUserLinger() requires the _org.freedesktop.login1.set-user-linger_ privilege. AttachDevice() requires _org.freedesktop.login1.attach-device_ and FlushDevices() _org.freedesktop.login1.flush-devices_. PowerOff(), Reboot(), Suspend(), Hibernate(), HybridSleep() require _org.freedesktop.login1.power-off_, _org.freedesktop.login1.power-off-multiple-sessions_, _org.freedesktop.login1.power-off-ignore-inhibit_, _org.freedesktop.login1.reboot_, _org.freedesktop.login1.reboot-multiple-sessions_, _org.freedesktop.login1.reboot-ignore-inhibit_, _org.freedesktop.login1.suspend_, _org.freedesktop.login1.suspend-multiple-sessions_, _org.freedesktop.login1.suspend-ignore-inhibit_, _org.freedesktop.login1.hibernate_, _org.freedesktop.login1.hibernate-multiple-sessions_ resp. _org.freedesktop.login1.hibernate-ignore-inhibit_, depending whether there are other sessions around or active inhibits. Inhibit() is protected via either one of _org.freedesktop.login1.inhibit-block-shutdown_, _org.freedesktop.login1.inhibit-delay-shutdown_,  _org.freedesktop.login1.inhibit-block-sleep_, _org.freedesktop.login1.inhibit-delay-sleep_, _org.freedesktop.login1.inhibit-block-idle_, _org.freedesktop.login1.inhibit-handle-power-key_, _org.freedesktop.login1.inhibit-handle-suspend-key_, _org.freedesktop.login1.inhibit-handle-hibernate-key_, _org.freedesktop.login1.inhibit-handle-lid-switch_ depending on the lock type and mode taken.
 
 The user_interaction boolean parameters can be used to control whether PolicyKit should interactively ask the user for authentication credentials if it needs to.
+
 ### Methods
 
 **GetSession()** may be used to get the session object path for the session with the specified ID. Similar, **GetUser()** and **GetSeat()** get the user resp. seat objects. **GetSessionByPID()** and **GetUserByPID()** get the session/user object of the specified PID belongs to if there is any.
@@ -170,7 +168,6 @@ The **SessionNew()**, **SessionRemoved()**, **UserNew()**, **UserRemoved()**, **
 
 The **PrepareForShutdown()** resp. **PrepareForSleep()** signals are sent right before (with the argument True) and after (with the argument False) the system goes down for reboot/poweroff, resp. suspend/hibernate. This may be used by applications for saving data on disk, releasing memory or doing other jobs that shall be done shortly before shutdown/sleep, in conjunction with delay inhibitor locks. After completion of this work they should release their inhibition locks in order not to delay the operation any further. For more information see [[Inhibitor Locks|http://www.freedesktop.org/wiki/Software/systemd/inhibit]].
 
-
 ### Properties
 
 Most properties simply reflect the configuration stored in logind.conf. For more information, see: [[logind.conf(5)|http://www.freedesktop.org/software/systemd/man/logind.conf.html]]
@@ -211,16 +208,13 @@ The **PreparingForShutdown** and **PreparingForSleep** boolean properties are tr
       };
     };
 
-
 ### Methods
 
 **Terminate()** and **ActivateSession()** work similar to TerminateSeat(), ActivationSessionOnSeat() on the Manager object.
 
-
 ### Signals
 
 Whenever **ActiveSession**, **Sessions**, **CanGraphical**, **CanMultiSession** and **CanTTY** or the idle state changes **PropertyChanged** signals are sent out to which clients can subscribe.
-
 
 ### Properties
 
@@ -233,7 +227,6 @@ The **Id** property encodes the ID of the seat.
 The **Sessions** array is an array of all current sessions of this seat, each encoded in a structure consisting of the ID and the object path.
 
 The **IdleHint**, **IdleSinceHint**, **IdleSinceHint** properties encode the idle state, similar to the one exposed on the Manager object, but specific for this seat.
-
 
 ## User Objects
 
@@ -268,16 +261,13 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHint** properties encode the idl
       };
     };
 
-
 ### Methods
 
 **Terminate()** and **Kill()** work similar to the TerminateUser() resp. KillUser() calls on the manager object.
 
-
 ### Signals
 
 Whenever **Sessions** or the idle state changes **PropertyChanged** signals are sent out to which clients can subscribe.
-
 
 ### Properties
 
@@ -289,7 +279,9 @@ The **Name** property encodes the user name.
 
 **RuntimePath** encodes the runtime path of the user, i.e. $XDG_RUNTIME_DIR, for details see the [[XDG Basedir Specification|http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html]].
 
-**DefaultControlGroup** encodes the default control group of the user within the system hierarchy.
+**Service** contains the name of the user systemd service unit name of this user. Each logged in user gets a user service unit assigned that runs a user systemd instance. This is usually an instance of user@.service.
+
+**Slice** contains the name of the user systemd slice unit name of this user. Each logged in user gets a private slice.
 
 **Display** encodes which graphical session should be used as primary UI display for the use. It is a structure encoding session ID and object path of the session to use.
 
@@ -298,7 +290,6 @@ The **Name** property encodes the user name.
 **Sessions** is an array of structures encoding all current sessions of the user. Each structure consists of ID and object path.
 
 The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encode the idle hint state of the user, similar to the Manager's properties, but specific for this user.
-
 
 ## Session Objects
 
