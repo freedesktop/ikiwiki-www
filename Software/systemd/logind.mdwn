@@ -340,20 +340,17 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encod
       };
     };
 
-
 ### Methods
 
 **Terminate()**, **Activate()**, **Lock()**, **Unlock()**, **Kill()** work similar to the respective calls on the Manager object.
 
 **SetIdleHint()** shall be called by the session object to update the idle state of the session, whenever it changes.
 
-
 ### Signals
 
 Whenever **Active** or the idle state changes **PropertyChanged** signals are sent out to which clients can subscribe.
 
 **Lock** (resp. **Unlock**) is sent when the session is asked to be screen-locked/screen-unlocked. A session manager of the session should listen to this signal and act accordingly. This signal is sent out as a result of the **Lock()** resp. **Unlock()** methods.
-
 
 ### Properties
 
@@ -364,8 +361,6 @@ Whenever **Active** or the idle state changes **PropertyChanged** signals are se
 **Name** encodes the user name.
 
 **Timestamp** and **TimestampMonotonic** encode the usec timestamp since the epoch when the session was created, in CLOCK_REALTIME resp. CLOCK_MONOTONIC.
-
-**DefaultControlGroup** encodes the default control group of the session, in systemd's own cgroup hierarchy.
 
 **VTNr** encodes the virtual terminal number of the session if there is any, 0 otherwise.
 
@@ -381,6 +376,8 @@ Whenever **Active** or the idle state changes **PropertyChanged** signals are se
 
 **Service** encodes the PAM service name that registered the session.
 
+**Scope** contains the systemd scope unit name of this session.
+
 **Leader** encodes the PID of the process that registered the session.
 
 **Audit** encodes the Kernel Audit session ID of the session, if auditing is available.
@@ -393,16 +390,8 @@ Whenever **Active** or the idle state changes **PropertyChanged** signals are se
 
 **State** encodes the session state and one of "online", "active", "closing". See [[sd_session_get_state(3)|http://www.freedesktop.org/software/systemd/man/sd_session_is_active.html]] for more information about the states.
 
-**Controllers** and **ResetControllers** encode the cgroup controllers this session has been explicitly added to/remove from, using pam_systemd's command line.
-
-**KillProcesses** encodes whether the processes of this session shall be killed if the session ends. It's also controllable on pam_systemd's command line.
-
 **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** encapsulate the idle hint state of this session, similar to how the respective properties on the manager object do it for the whole system.
 
-
-
 ---
-
-
 
 These D-Bus interfaces follow [[the usual interface versioning guidelines|http://0pointer.de/blog/projects/versioning-dbus.html]].
