@@ -126,7 +126,7 @@ A number of operations are protected via the PolicyKit privilege system. SetUser
 The user_interaction boolean parameters can be used to control whether PolicyKit should interactively ask the user for authentication credentials if it needs to.
 ### Methods
 
-**GetSession()** may be used to get the session object path for the session with the specified ID. Similar, **GetUser()** and **GetSeat()** get the user resp. seat objects. **GetSessionByPID()** gets the session object of the session the specified PID belongs to if there is any.
+**GetSession()** may be used to get the session object path for the session with the specified ID. Similar, **GetUser()** and **GetSeat()** get the user resp. seat objects. **GetSessionByPID()** and **GetUserByPID()** get the session/user object of the specified PID belongs to if there is any.
 
 **ListSessions()** returns an array with all current sessions. The structures in the array consist of the following fields: session id, user id, user name, seat id, session object path. If a session does not have a seat attached the seat id field will be an empty string.
 
@@ -162,7 +162,6 @@ The user_interaction boolean parameters can be used to control whether PolicyKit
 
 **ListInhibitors()** lists all currently active inhibitors. Returns an array of structures consisting of what, who, why, mode, user ID and process ID.
 
-
 ### Signals
 
 Whenever the inhibition state or idle hint changes daemon **PropertyChanged** signals are sent out to which clients can subscribe.
@@ -183,7 +182,6 @@ The **IdleHint** property reflects the idle hint state of the system. If the sys
 The **BlockInhibited** and **DelayInhibited** properties encode the currently active locks of the respective modes. They are colon separated lists of "shutdown", "sleep", "idle" (see above).
 
 The **PreparingForShutdown** and **PreparingForSleep** boolean properties are true between the two PrepareForShutdown resp. PrepareForSleep signals are sent. Note that these properties do not send out PropertyChanged signals.
-
 
 ## Seat Objects
 
