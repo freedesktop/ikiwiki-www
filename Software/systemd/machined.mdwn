@@ -6,12 +6,45 @@ systemd 205 and newer include systemd-machined. This is a tiny daemon that track
 
 See [[systemd-machined(8).service|http://www.freedesktop.org/software/systemd/man/systemd-machined.service.html]] for more information.
 
-The daemon provides both a C library interface as well as a D-Bus interface. The library interface may be used to introspect and watch the state of user logins or seat. The bus interface provides the same but in addition may also be used to make changes to system state. For more information please consult the man pages: [[sd-login(7)|http://www.freedesktop.org/software/systemd/man/sd-login.html]]
+The daemon provides both a C library interface (which is shared with [[logind|http://www.freedesktop.org/wiki/Software/systemd/logind]]) as well as a D-Bus interface. The library interface may be used to introspect and watch the state of virtual machines/containers. The bus interface provides the same but in addition may also be used to make changes to system state. For more information please consult the man pages: [[sd-login(7)|http://www.freedesktop.org/software/systemd/man/sd-login.html]]
 
-If you are interested in writing a display manager that makes use of logind, please have look at [[Writing Display Managers|http://www.freedesktop.org/wiki/Software/systemd/writing-display-managers]].  If you are interested in writing a desktop environment that makes use of logind, please have look at [[Writing Desktop Environments|http://www.freedesktop.org/wiki/Software/systemd/writing-desktop-environments]].
-
-The inhibition logic is documented in [[Inhibitor Locks|http://www.freedesktop.org/wiki/Software/systemd/inhibit]].
+If you are interested in writing a display manager that makes use of logind, please have look at [[Writing Virtual Machine or Container Managers|http://www.freedesktop.org/wiki/Software/systemd/writing-vm-managers]].
 
 ## The Manager Object
 
 The service exposes the following interfaces on the Manager object on the bus:
+
+node /org/freedesktop/machine1 {
+  interface org.freedesktop.machine1.Manager {
+    methods:
+      GetMachine(in  s name,
+                 out o machine);
+      GetMachineByPID(in  u pid,
+                      out o machine);
+      ListMachines(out a(ssso) machines);
+      CreateMachine(in  s name,
+                    in  ay id,
+                    in  s service,
+                    in  s class,
+                    in  u leader,
+                    in  s root_directory,
+                    in  a(sv) scope_properties,
+                    out o path);
+      KillMachine(in  s name,
+                  in  s who,
+                  in  s signal);
+      TerminateMachine(in  s id);
+    signals:
+      MachineNew(s machine,
+                 o path);
+      MachineRemoved(s machine,
+                     o path);
+    properties:
+  };
+  interface org.freedesktop.DBus.Properties {
+  };
+  interface org.freedesktop.DBus.Peer {
+  };
+  interface org.freedesktop.DBus.Introspectable {
+  };
+};
