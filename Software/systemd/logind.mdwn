@@ -28,6 +28,8 @@ The service exposes the following interfaces on the Manager object on the bus:
                           out o session);
           GetUser(in  u uid,
                   out o user);
+          GetUserByPID(in  u pid,
+                   out o user);
           GetSeat(in  s id,
                   out o seat);
           ListSessions(out a(susso) sessions);
@@ -89,9 +91,6 @@ The service exposes the following interfaces on the Manager object on the bus:
           PrepareForShutdown(b active);
           PrepareForSleep(b active);
         properties:
-          readonly s ControlGroupHierarchy = '/user';
-          readonly as Controllers = [];
-          readonly as ResetControllers = ['cpu'];
           readonly u NAutoVTs = 6;
           readonly as KillOnlyUsers = [];
           readonly as KillExcludeUsers = ['root'];
@@ -105,7 +104,9 @@ The service exposes the following interfaces on the Manager object on the bus:
           readonly s HandlePowerKey = 'poweroff';
           readonly s HandleSuspendKey = 'suspend';
           readonly s HandleHibernateKey = 'hibernate';
-          readonly s HandleLidSwitch = 'suspend';
+          readonly s HandleLidSwitch = 'suspend';      
+          readonly s IdleAction = 'ignore';
+          readonly t IdleActionUSec = 1800000000;
           readonly b PreparingForShutdown = false;
           readonly b PreparingForSleep = false;
       };
@@ -123,8 +124,6 @@ The service exposes the following interfaces on the Manager object on the bus:
 A number of operations are protected via the PolicyKit privilege system. SetUserLinger() requires the _org.freedesktop.login1.set-user-linger_ privilege. AttachDevice() requires _org.freedesktop.login1.attach-device_ and FlushDevices() _org.freedesktop.login1.flush-devices_. PowerOff(), Reboot(), Suspend(), Hibernate(), HybridSleep() require _org.freedesktop.login1.power-off_, _org.freedesktop.login1.power-off-multiple-sessions_, _org.freedesktop.login1.power-off-ignore-inhibit_, _org.freedesktop.login1.reboot_, _org.freedesktop.login1.reboot-multiple-sessions_, _org.freedesktop.login1.reboot-ignore-inhibit_, _org.freedesktop.login1.suspend_, _org.freedesktop.login1.suspend-multiple-sessions_, _org.freedesktop.login1.suspend-ignore-inhibit_, _org.freedesktop.login1.hibernate_, _org.freedesktop.login1.hibernate-multiple-sessions_ resp. _org.freedesktop.login1.hibernate-ignore-inhibit_, depending whether there are other sessions around or active inhibits. Inhibit() is protected via either one of _org.freedesktop.login1.inhibit-block-shutdown_, _org.freedesktop.login1.inhibit-delay-shutdown_,  _org.freedesktop.login1.inhibit-block-sleep_, _org.freedesktop.login1.inhibit-delay-sleep_, _org.freedesktop.login1.inhibit-block-idle_, _org.freedesktop.login1.inhibit-handle-power-key_, _org.freedesktop.login1.inhibit-handle-suspend-key_, _org.freedesktop.login1.inhibit-handle-hibernate-key_, _org.freedesktop.login1.inhibit-handle-lid-switch_ depending on the lock type and mode taken.
 
 The user_interaction boolean parameters can be used to control whether PolicyKit should interactively ask the user for authentication credentials if it needs to.
-
-
 ### Methods
 
 **GetSession()** may be used to get the session object path for the session with the specified ID. Similar, **GetUser()** and **GetSeat()** get the user resp. seat objects. **GetSessionByPID()** gets the session object of the session the specified PID belongs to if there is any.
