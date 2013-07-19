@@ -61,13 +61,69 @@ The service exposes the following interfaces on the Manager object on the bus:
 
 **ListMachines()** returns an array with all currently registered machines. The structures in the array consist of the following fields: machine name, machine class, an identifier for the service that registered the machine and the machine object path.
 
-**CreateMachine()** may be used to register a new virtual machine or container with machined. This takes as arguments: a machine name chosen by the registrar, an optional UUID as 32 byte array, a string that identifies the service that registers the machine, a class string, the PID of the leader process of the machine, an optional root directory of the container, and an array of additional properties to use for the scope registration. The virtual machine name must be suitable as a file name, and hence not contain any slashes, nor be the empty string, nor single/double full stops. Only 7 Bit ASCII is permitted. The UUID is passed as 32 byte array, or if no suitable UUID is available an empty array shall be passed. The UUID should identify the virtual machine/container uniquely, and should ideally be the same one as /etc/machine-id in the VM/container is initialized from, if that's possible. The service string can be free-form, but it is recommended to parse a short lowercase identifier like "systemd-nspawn", "libvirt-lxc" or suchlike. The class string should be either "container" or "vm" indicating whether the machine to register is of the respective class. The leader PID should be the host PID of the init process of the container, or the encapsulating process of the VM. If the root directory of the container is known and available in the host's hierarchy, it should be passed, otherwise use the empty string. Finally, the scope properties are passed as array in the same way as PID1's StartTransientUnit() accepts it. This method call will internally register a transient scope unit for the calling client (utilizing the passed scope_properties), and move the leader PID into it. The call returns an object path for the registered machine object, implementing the org.freedesktop.machine1.Machine (see below).
+**CreateMachine()** may be used to register a new virtual machine or container with machined. This takes as arguments: a machine name chosen by the registrar, an optional UUID as 32 byte array, a string that identifies the service that registers the machine, a class string, the PID of the leader process of the machine, an optional root directory of the container, and an array of additional properties to use for the scope registration. The virtual machine name must be suitable as a file name, and hence not contain any slashes, nor be the empty string, nor single/double full stops. Only 7 Bit ASCII is permitted. The UUID is passed as 32 byte array, or if no suitable UUID is available an empty array (zero length) or zeroed out array shall be passed. The UUID should identify the virtual machine/container uniquely, and should ideally be the same one as /etc/machine-id in the VM/container is initialized from, if that's possible. The service string can be free-form, but it is recommended to parse a short lowercase identifier like "systemd-nspawn", "libvirt-lxc" or suchlike. The class string should be either "container" or "vm" indicating whether the machine to register is of the respective class. The leader PID should be the host PID of the init process of the container, or the encapsulating process of the VM. If the root directory of the container is known and available in the host's hierarchy, it should be passed, otherwise use the empty string. Finally, the scope properties are passed as array in the same way as PID1's StartTransientUnit() accepts it. This method call will internally register a transient scope unit for the calling client (utilizing the passed scope_properties), and move the leader PID into it. The call returns an object path for the registered machine object, implementing the org.freedesktop.machine1.Machine (see below).
 
 **KillMachine()** sends a UNIX signal to the machine's processes. It takes a machine name (as originally passed to CreateMachine() or returned by Listmachines()). An identifier what precisely to send the signal to being either "leader" or "all", plus a numeric UNIX signal integer.
 
 **TerminateMachine()** terminates a virtual machine, killing its processes. It takes a machine name as argument.
 
-## Signals **
+### Signals
 
 **MachineNew** and **MachineRemoved** are sent whenever a new machine is registered or removed. These signals carry the machine name plus the object path to the org.freedesktop.machine1.Machine interface (see below).
 
+## Machine Objects
+
+    node /org/freedesktop/machine1/machine/fedora_2dtree {
+      interface org.freedesktop.machine1.Machine {
+        methods:
+          Terminate();
+          Kill(in  s who,
+               in  s signal);
+        signals:
+        properties:
+          readonly s Name = 'fedora-tree';
+          readonly ay Id = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+          readonly t Timestamp = 1374193370484284;
+          readonly t TimestampMonotonic = 128247251308;
+          readonly s Service = 'nspawn';
+          readonly s Scope = 'machine-fedora\\x2dtree.scope';
+          readonly u Leader = 30046;
+          readonly s Class = 'container';
+          readonly s State = 'running';
+          readonly s RootDirectory = '/home/lennart/fedora-tree';
+      };
+      interface org.freedesktop.DBus.Properties {
+      };
+      interface org.freedesktop.DBus.Peer {
+      };
+      interface org.freedesktop.DBus.Introspectable {
+      };
+    };
+
+### Methods
+
+**Terminate()** and **Kill()** terminate/kill the machine, and take the same arguments as TerminateMachine() and KillMachine() on the manager interface.
+
+### Properties
+
+**Name** is the machine name, as it was passed in during registration with CreateMachine() on the manager object.
+
+**Id** is the machine UUID.
+
+**Timestamp** and **TimestampMonotonic** are the realtime and monotonic timestamps when the virtual machines where created. 
+
+**Service** contains a short string identifying the registering service, as passed in during registration of the machine.
+
+**Scope** is the systemd scope unit name for the machine.
+
+**Leader** is the PID of the leader process of the machine.
+
+**Class** is the class of the machine and either the string "vm" (for real VMs based on virtualized hardware) or "container" (for light-weight userspace virtualization sharing the same kernel as the host).
+
+**State** is the state of the machine, and one of "opening", "running", "closing". Note that the state machine is not considered part of the API and states might be removed or added without this being considered API breakage.
+
+**RootDirectory** is the root directory of the container if that is known and applicable, or the empty string.
+
+---
+
+These D-Bus interfaces follow [[the usual interface versioning guidelines|http://0pointer.de/blog/projects/versioning-dbus.html]].
