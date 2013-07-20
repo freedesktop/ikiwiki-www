@@ -451,6 +451,7 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
           readonly t ConditionTimestamp = 1368576738557978;
           readonly t ConditionTimestampMonotonic = 22559674;
           readonly b ConditionResult = true;
+          readonly a(sbbsi) Conditions = [('ConditionVirtualization, false, false, 'no', 1)];
           readonly (ss) LoadError = ('', '');
       };
       interface org.freedesktop.systemd1.Service {
@@ -521,7 +522,9 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
 
 **ConditionTimestamp** and **ConditionTimestampMonotonic** contain the CLOCK_REALTIME/CLOCK_MONOTONIC usec timestamps of the last time the configured conditions of the unit have been checked, or 0 if they have never been checked. Conditions are checked when a unit is requested to start. 
 
-**ConditionResult** contain the condition result of the last time the configured conditions of this unit were checked.  
+**ConditionResult** contains the condition result of the last time the configured conditions of this unit were checked.  
+
+**Conditions** contains all configured conditions of the unit. For each condition five fields are given: condition type (e.g. **ConditionPathExists**), whether the condition is a trigger condition, whether the condition is reversed, the right hand side of the condtion (e.g. the path in case of **ConditionPathExists**), and the status. The status can be 0, in which case the condition hasn't been checked yet, a positive value, in which case the condition passed, or a negative value, in which case the condition failed. Currently only 0, +1, and -1 are used, but additional values may be used in the future, retaining the meaning of zero/positive/negative values.
 
 **LoadError** contains a pair of strings. If the unit failed to load (as encoded in **LoadState**, see above), then this will include a D-Bus error pair consisting of the error ID and an explanatory human readable string of what happened. If it succeeded to load this will be a pair of empty strings. 
 
