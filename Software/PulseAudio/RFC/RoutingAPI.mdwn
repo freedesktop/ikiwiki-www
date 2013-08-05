@@ -205,23 +205,48 @@ If a connection is both default and explicit, the client can, at least in theory
 
 Another solution would be to never do implicit disabling of default connections. If a client wanted to move a connection that was currently a default connection, it would have to first convert the default connection to an explicit one (that is, add an explicit connection to the old destination, then disable default connections), and then move the explicit connection to the new destination.
 
-I'm in favour of adding the flag argument to pa_context_move_node_connection() and pa_context_remove_node_connection(), because the alternative is very inconvenient for applications (especially with an asynchronous API with callbacks it's much nicer to send only one command than executing three commands in sequence).
+I'm in favour of adding the flag argument to pa_context_move_node_connection() and pa_context_remove_node_connection(), because the alternative is very inconvenient for applications (especially with an asynchronous API with callbacks it's much nicer to send only one command than to execute three commands in sequence).
 
 
 ## Getting node index from pa_stream
 
 It's probably a good idea to make it possible to query the node index from pa_stream.
 
-    /** Return the node index of this stream. Returns PA_INVALID_INDEX if this
-     * stream is not associated with any node. \since 5.0 */
+    /** Return the node index of this stream. Returns PA_INVALID_INDEX if the
+     * stream doesn't have an associated node. \since 5.0 */
     uint32_t pa_stream_get_node_index(pa_stream *s);
 
 
 ## Defining the initial node when creating streams
 
-Currently, if a client wants to choose the initial routing target when creating a stream, it must set the dev parameter of pa_stream_connect_playback()/pa_stream_connect_record(). The dev parameter is currently defined to be the name of the sink or source, which is not nice if the client wants to handle routing at the node level. This is easily solved, however: since all sinks, sources and nodes share the same namespace, we could allow node names to be passed as the dev parameter without any ambiguity.
+Currently, if a client wants to choose the initial routing target when creating a stream, it must set the dev parameter of pa_stream_connect_playback()/pa_stream_connect_record(). The dev parameter is currently defined to be the name of the sink or source, which is not nice if the client wants to handle routing at the node level. This is easily solved, however: since all sinks, sources and nodes share the same namespace, we could allow node names to be passed as the dev parameter without any ambiguity. There's one problem, though: the client might want to specify multiple targets. Should this be allowed? I suppose it would be pretty easy to handle: the object names can't contain spaces or commas, so we could allow the dev string to be a space or comma separated list of names.
 
 
 ## Mapping sinks, sources, ports and streams to nodes
 
 The pa_card_port_info, pa_sink_info, pa_source_info, pa_sink_input_info and pa_source_output structs should contain the index of the associated node (if any).
+
+
+## Routing groups
+
+Rough ideas:
+
+- node can exist without being a part of a routing group
+- default connections are defined by the routing group, so a node without a routing group will have no default connections
+- all nodes in a group will have the same connections
+- enabling or disabling default connections is a group-wide operation
+- changing the connections of an individual node detaches the node from its group
+- a node can match multiple routing groups, but it can be part of only one at a time
+- clients can change the group of a node? (only matching groups would be allowed)
+- routing groups are matched in priority order
+- clients can change the priorities? (required for making group changes persistent)
+- streams created with non-default routing will be created without any associated group
+- ungrouped streams can be grouped (if they match any routing groups)
+
+I'm starting to think that exposing the routing groups in the public API isn't a good idea, because it makes things a lot more complex for applications, and it limits freedom at the server side.
+
+
+TODO:
+
+- pa_context_edit_connections()
+- connection objects
