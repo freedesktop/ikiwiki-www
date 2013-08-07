@@ -1,0 +1,27 @@
+# Unsuck Login Unlock
+
+This spec is being planned
+
+Goals:
+
+* Don't prompt a user more than once for a login password
+* Use a disk unlock password to log user in if possible
+* Don't prompt a user for a login password after auto-login, fingerprint, or PIN login
+
+Obstacles:
+
+ * systemd unlocking the disk needs a way to pass the password securely all the way up to gdm to use it to try and log in.
+ * Things like auto-login or fingerprint login do not provide a secret to the session, so keyring applications try to prompt the user for a login password anyway
+
+Rough Plan:
+
+* Use the kernel keyring to pass the login password from disk unlock to PAM stack
+* When configuring auto-login, fingerprint or PIN login, store the user's password somewhere on the system, and make it available to the PAM stack.
+
+Diagram
+
+
+
+Details:
+
+...
