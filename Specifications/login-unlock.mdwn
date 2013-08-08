@@ -23,6 +23,25 @@ Diagram
 [[!img login-reprompting.png]]
 
 
-Details:
+### Kernel keyring
+* Plan: Figure out kernel keyring key attributes and type
+* Plan: File layout for auth_tok files
 
-...
+### systemd
+* Task: Have systemd create per service keyrings, and a way to declare linking them between services
+* Task: Modify cryptsetup code to store password in kernel keyring
+ * Use timeout for disk password
+
+### PAM module
+* Task: PAM authenticate to read from kernel keyring and set PAM_AUTHTOK
+* Task: PAM password to rewrite auth_tok file when user password changes
+ * If file is present, and PAM_OLDAUTHTOK matches
+
+### AccountsService
+* Task: Set and change passwords through PAM
+* Task: Update PasswordMode code
+* Task: Fix SetPassword() which is really broken
+
+### GNOME
+* Design: Should GDM completely avoid prompting for the user, if disk password is present in kernel keyring, and somehow try to log last user in?
+* Task: Modify gnome-control-center logic so that there is always a user password.
