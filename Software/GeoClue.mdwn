@@ -1,44 +1,26 @@
 [[!table header="no" class="mointable" data="""
- [[!img http://folks.o-hand.com/jku/geoclue-docs/geoclue-small.jpg] 
  [[!toc ]] 
 """]]
 
 
-# GeoClue: The Geoinformation Service
+# GeoClue: The Geolocation Service
 
-Geoclue is a modular geoinformation service built on top of the [[D-Bus|http://dbus.freedesktop.org]] messaging system. The goal of the Geoclue project is to make creating location-aware applications as simple as possible. 
+Geoclue is a [[D-Bus|http://dbus.freedesktop.org]] service that provides location information. The primary goal of the Geoclue project is to make creating location-aware applications as simple as possible, while the secondary goal is to ensure that no application can access location information without explicit permission from user. 
 
-Geoclue is Free Software, licensed under [[GNU LGPL|http://www.fsf.org/licensing/licenses/lgpl.html]]. It is developed for Linux, but should be portable to any platform that uses D-Bus. 
+Geoclue is Free Software, licensed under [[GNU LGPL|http://www.fsf.org/licensing/licenses/lgpl.html]]. It is developed for Linux.
 
-Geoclue defines a set of geoinformation APIs, but it also includes some _providers_ that implement those APIs. Here is a list of services provided through Geoclue with the currently included implementations: 
-Position
-: gpsd, gypsy, hostip, plazes, gsmloc 
+Geoclue can currently locate you through IP addresses and hence accuracy of geolocation is city-level at best. However, there are plans to add support for:
 
-Address
-: hostip, plazes, manual, localnet 
+* wifi-based geolocation
+* GPS(A) receivers
+* 3G modems
 
-Velocity
-: gpsd, gypsy 
-
-Geocode
-: nominatim, geonames, yahoo 
-
-ReverseGeocode
-: nominatim, geonames 
-
-
-Geoclue source code contains: 
-
-* D-Bus definitions for the above APIs 
-* C bindings for Geoclue clients 
-* C bindings for data providers 
-* a set of provider implementations 
-* (experimental) master provider implementation. 
+Geoclue used to also do (reverse-)geocoding but that functionality has been dropped in favor of [[geocode-glib|http://ftp.gnome.org/pub/GNOME/sources/geocode-glib/]] library. 
 
 # Discuss & contribute
 
 * Discuss on [[mailing list|http://lists.freedesktop.org/mailman/listinfo/geoclue]] 
-* Chat on `#geoclue` on `irc.gimp.org` 
+* Chat on `#gnome-maps` on `irc.gimp.org` 
 * Bugs are handled in freedesktop.org Bugzilla 
    * [[File a bug|http://bugs.freedesktop.org/enter_bug.cgi?product=GeoClue]] 
    * [[see open bugs|http://bugs.freedesktop.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&product=GeoClue&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailtype1=substring&email1=&emailtype2=substring&email2=&bugidtype=include&bug_id=&chfieldfrom=&chfieldto=Now&chfieldvalue=&cmdtype=doit&order=Reuse+same+sort+as+last+time&field0-0-0=noop&type0-0-0=noop&value0-0-0=]] 
@@ -46,58 +28,13 @@ Geoclue source code contains:
 
 # Learn more
 
-The [[documentation|http://folks.o-hand.com/jku/geoclue-docs]] includes 
-
-* D-Bus API Interface reference (not finished) 
-* Client C API reference 
-* Examples on how to use geoclue in an application 
-The documentation source also contains documentation on provider API and writing providers, but these are not finished. 
-
-Below is a higher level description of Geoclue interfaces, providers and master provider. 
-
-
-## Interfaces
-
-Geoclue has three interfaces for querying "current situation": _Position_, _Address_ and _Velocity_. They all include a method and a signal to acquire the information in question along with the time and accuracy of the measurement. 
-
-There are also interfaces Geocode (for getting a Position from an Address) and [[ReverseGeocode|ReverseGeocode]] (for getting an Address from a Position). 
-
-Possible future interfaces include _Map_ and _Route_. 
-
-
-## Providers
-
-All Geoclue providers are D-Bus services, and can be accessed either via "raw" D-Bus or the C API. A provider may implement more than one Geoclue interface if that makes sense internally. Providers do not have to run as daemons, as D-Bus will start them when needed (providers may also shut down when they're no longer used). 
-
-There are several reasons for this structure: 
-
-* No single provider will be useful in all situations (GPS does not work indoors, webservices require an internet connection, GSM cell positioning accuracy is not too good, etc.) 
-* No single set of providers will be best for all people. 
-* Modularity means that anyone can develop and distribute a provider: Adding new providers requires no changes to Geoclue master. In fact a single geoclue provider is fully self-contained (although libgeoclue will make life easier for clients) 
-* It also means a master provider (see below) can use all installed providers, not just the ones that were installed with the master. 
-Providers must naturally implement the methods in the interfaces they support. However, not all providers support signals: E.g. web service based providers usually do not. A client accessing providers directly should be aware of this. 
-
-See also [[list of current provider and their features|http://www.freedesktop.org/wiki/Software/GeoClue/Providers]]. 
-
-
-## Master provider
-
-Geoclue includes a master provider, which implements the same interfaces and is used in the same manner as any other provider. The difference is that internally master uses the best Geoclue provider (based on client requirements and provider availability, accuracy and resource requirements). The provider that is actually used may change over time as conditions change, but the client can just ignore this. 
-
-Using the Master provider is favourable for several reasons: 
-
-* Client does not need to know about the accuracy and availability of a specific data source 
-* Client does not need to depend on specific providers 
-* Master caches data so responses will usually be faster 
-* Master understands network connectivity and basically makes all web service based providers "support signals" 
-The master implementation is currently experimental. 
-
+Here is an example of how a C application can locate its user: [[http://cgit.freedesktop.org/geoclue/plain/demo/where-am-i.c]]
 
 # Get the source
 
 The code is licensed under the [[GNU LGPL|http://www.fsf.org/licensing/licenses/lgpl.html]] and is available as a tar-ball and in a Git repository. You can also [[browse the source|http://cgit.freedesktop.org/geoclue]]. 
 
-Latest release: [[Geoclue 0.12.99|http://freedesktop.org/~hadess/geoclue-0.12.99.tar.gz]] 
+Latest release: [[Geoclue 1.99|http://people.freedesktop.org/~hadess/geoclue-1.99.0.tar.xz]] 
 
 Git repository: 
 
@@ -106,25 +43,11 @@ git clone git://anongit.freedesktop.org/git/geoclue
 """]]
 For help with Git, see [[Usage notes|Infrastructure/git]] here on freedesktop.org and documentation on [[Git homepage|http://git.or.cz/gitwiki/GitDocumentation]]. 
 
-The included providers and the C bindings depend on GLib, GObject and Libxml. 
-
-
-# Getting started
-
-There is a nice [[UI|http://blog.pierlux.com/index.html%3Fp=1122.html]] to see available providers and configure some of them. One can e.g. configure the "manual" provider with a static address. You can get the code [[here|http://git.gnome.org/browse/geoclue-properties/]]. 
-
-Also check out the Python API that [[python-geoclue|https://live.gnome.org/gtg/soc/python_geoclue]] provides. 
-
-
-# Miscellany
-
-
 ## History
 
 Geoclue got started during GNOME Summit 2006 in Boston. At least Keith Preston and Tuomas Kuosmanen can be blamed. 
 
 There was a total rewrite after version 0.9. Use tag "0.9" (as in `git checkout 0.9`) if you need the old code. A copy of the Geoclue wiki page from that time is preserved [[here|http://www.freedesktop.org/wiki/Software/GeoClue?action=recall&rev=32]]. 
-
 
 ## Application ideas
 
