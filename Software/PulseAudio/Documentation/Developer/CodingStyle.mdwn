@@ -82,6 +82,15 @@ Please follow the following rough rules when submitting code for inclusion in PA
 
 * Please do _not_ wrap your lines at 80 characters. Given that most screens are now considerably wider than they used to be, please make use of it. Wrap them at 128 characters. An exception: comments, especially multi-line comments, should be wrapped at 80 characters.
 
+  When a function declaration exceeds 128 charactes and wrapping is needed, please wrap the parameters using this style:
+
+        pa_bluetooth_transport *pa_bluetooth_transport_new(pa_bluetooth_device *d, const char *owner, const char *path,
+                                                           pa_bluetooth_profile_t p, const uint8_t *config, size_t size) {
+            ...
+        }
+
+ That is, wrap at 128 characters, and start the new line aligned with the opening parenthesis.
+
 * Please check parameters on each function call. Use `pa_assert()` when checking parameters which are -- when wrong -- most likely programming errors in PA. For bad parameters that are not necessarily programming errors, or which might be programming errors outside of PA, return with an error code. Please add a separate `pa_assert()` for each argument. Do not use a single check for all parameters using `&&`. This would make debugging more difficult. Good code:
 
         void good_code(int a, int b) {
