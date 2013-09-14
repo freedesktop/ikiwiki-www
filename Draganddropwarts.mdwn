@@ -1,5 +1,3 @@
-
-
 # Drag and drop warts
 
 
@@ -44,8 +42,9 @@ Konqueror and kate both requested the internal address (a 32 bit pointer) of the
 ### Recommendations:
 
 1. Applications should not simply request the first target on the list. They should only request targets they understand. gedit offered text/plain and UTF8_STRING, two well-known targets that would be suitable for a text editor to fetch. 
-1. The target application/octet-stream should be used for the 'default' format. This target would be requested by a filemanager to save some data, or by a compression program which can work on any stream of octets. 
-_I just tried this on [[AltLinux|AltLinux]].com apt repository. GEdit 2.10.0 with Konqueror 3.3.2. The excatly selected text was saved. Though i do not know which of suggestions (or both?) was taken._ 
+1. The target application/octet-stream should be used for the 'default' format. This target would be requested by a filemanager to save some data, or by a compression program which can work on any stream of octets.
+ 
+_I just tried this on [[AltLinux|AltLinux]].com apt repository. GEdit 2.10.0 with Konqueror 3.3.2. The exactly selected text was saved. Though i do not know which of suggestions (or both?) was taken._ 
 
 
 ## Wart 2: Failing to cope with hostnames
@@ -121,18 +120,21 @@ Toolkits must provide high level drag-and-drop APIs if it is to work reliably. R
 
 * [[http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Loading|http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Loading]] (loading tutorial) 
 * [[http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Saving|http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Saving]] (saving tutorial) 
-* [[http://rox.sourceforge.net/rox''lib''docs/rox.saving.html|http://rox.sourceforge.net/rox''lib''docs/rox.saving.html]] (full API reference) 
+* [[http://rox.sourceforge.net/rox''lib''docs/rox.saving.html|http://rox.sourceforge.net/rox''lib''docs/rox.saving.html]] (full API reference)
+
 Loosely, the API for loading is: 
 
 1. The application supplies a list of MIME types that it can accept. 
 1. The library provides the application with the name of the data (a path, URI or leafname), the MIME type (if known) and a stream, open for reading, with the data. 
-1. The application indicates when the load is complete. 
+1. The application indicates when the load is complete.
+ 
 For saving: 
 
 1. The application provides an initial name (path, URI or leafname; the same one received from a previous load or save) and the MIME type(s). 
 1. The library provides the application with the selected MIME type and a stream, open for writing, for the data. 
 1. The application notifies the library when the save is complete. 
-1. The library notifies the application of the new name for the file, if it has been safely saved to permanent storage. 
+1. The library notifies the application of the new name for the file, if it has been safely saved to permanent storage.
+ 
 Note that: 
 
 * All loading and saving is performed on streams. Thus, saving to a local directory, a remote filemanager or an application all appear the same to an application. 
