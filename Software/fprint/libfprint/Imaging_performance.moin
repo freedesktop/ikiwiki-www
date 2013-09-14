@@ -1,0 +1,79 @@
+== Introduction ==
+
+Most fingerprint scanners supported by [[../../libfprint|libfprint]] are just imaging devices which send images to the host computer. It is then up to libfprint (or an equivalent piece of software) to process the image and make a decision as to whether the fingerprint matches the one that was enrolled for the user. A wrong decision will result in the right user being locked out (false negatives), or, even worse, the wrong user being authenticated (false positives).
+
+== Image processing ==
+
+libfprint uses [[http://fingerprint.nist.gov/NBIS/index.html|NIST Biometric Image Software]] (NBIS) for image processing, and follows the usual process for fingeprint matching:
+
+ 1. Enhance image to two-colour version
+ 1. Detect minutiae on enhanced fingerprint
+ 1. Compare minutiae sets and threshold the result to decide whether to authenticate the user or not
+
+See [[http://www.reactivated.net/weblog/archives/2006/08/fingerprint-enhancement-and-recognition/|this article]] for more details on the above process, which is common throughout the industry.
+
+MINDTCT does the enhancement and minutiae detection, and BOZORTH3 does the minutiae set comparison. [[../NBIS adventures]] details some of our pitfalls with these components up to this point.
+
+== Our experience ==
+
+From what I have learned so far, there are two main factors which majorly affect the performance of NBIS. Fortunately, these only seem to result in a high degree of false negatives, without producing any false positives that I'm aware of.
+
+=== 1. The size of the fingerprint image ===
+
+Fortunately, most scanners produce large, high-resolution fingerprint images. NBIS is designed for images of this nature.
+
+Some scanners produce smaller images, usually because the sensor is physically much smaller (e.g. AES1610). These images have far fewer minutiae (sometimes less than 10) than images from other scanners.
+
+BOZORTH3 does not work well on such small minutiae sets, this is documented. It even rejects images which have fewer than 10 minutiae, so it is sometimes difficult to even get a scan accepted when using these small scanners. The [[../Driver quality]] page attempts to separate the small scanners from the large ones.
+
+=== 2. The nature of the finger itself ===
+
+When using scanners which produce large images, NBIS works very well for me personally. Matching fingers get very high BOZORTH3 scores, and non-matching fingers get very low.
+
+However, other people have reported vastly different experiences. One user could not get fingers to match easily, and he investigated this early on during project development. His conclusion was that the skin on his fingers has lost elasticity with age, so it is not as 'tight' as it used to be. The scanned images are not as good, and the results are poor. He reported that when he asked his son to test the software, the images looked significantly better and the BOZORTH3 matching worked just fine. (I am young, which may explain why I do not see this problem)
+
+If anyone has ideas why imaging performance is bad for them on [[../Driver quality|known-good drivers]], feedback is appreciated on the [[../../Mailing list|mailing list]].
+
+== Possible solutions ==
+
+=== Use a different image processing library ===
+
+We could move away from NBIS to a library that works better. Or, we could perhaps have two libraries; we could use NBIS for large images, and have a specialised alternative used for the small scanners.
+
+The problem is that there are currently no viable open source alternatives that I'm aware of. The closest is [[http://fvs.sourceforge.net|FVS]], but was inappropriate during my tests (enhancement and minutiae detection took several seconds, and the minutiae set comparison algorithm never produced any reliable results).
+
+=== Image post-processing ===
+
+Some gains could probably be achieved by applying some simple post-processing to fingerprint images before passing them to MINDTCT.
+
+=== Enrolling multiple times ===
+
+Instead of just scanning a finger once during enrollment, we could scan it 3 times.
+
+We could then store all 3 enrollment images, and during a scan we could compare the new image to all 3 of the enrollment images. If one matches, then authenticate the user. If all 3 fail, report a non-match.
+
+Alternatively, at enrollment time, we could decide which of the 3 images is best and just use that one. Possible quality algorithms include:
+ * Choose the one with the most minutiae
+ * Use NFIQ, NBIS's component which rates fingerprint image quality, to pick the best one
+
+=== Fingerprint sampling for press sensors ===
+
+Right now, libfprint takes an image of the finger as soon as a finger is detected on the sensor, and uses that image. In reality, pressing a finger onto a sensor is not instantaneous; we put the finger down lightly at first and then increase pressure.
+
+If we were to take (say) 10 images of the finger then it is likely that the later images would be better, in that the user has had more time to press a larger finger area onto the scanner. Using a later sample may improve processing performance.
+
+=== Auto calibration ===
+
+The AuthenTec sensors seem to dynamically and iteratively recalibrate the sensor based on the initial images that come back. This is useful because the capacitive technologies of the scanners are quite sensitive to temperature, humidity, and finger pressure.
+
+libfprint does not do any dynamic recalibration at the moment, it just uses some calibration values which seem to work OK. This kind of thing is very hard to reverse engineer, but some benefit would certainly come about from implementing this.
+
+== Evaluating performance ==
+
+The best way to evaluate the imaging performance of your device is to use [[../../fprint_demo|fprint_demo]]. Enroll a finger, and then go into the verification interface and scan the finger again.
+
+ * Does the binarized image match the scanned image well, or have invalid ridge splits/endings been lost/added?
+ * Look at the minutiae plot on the scanned image. How many ridge endings/splittings can you see with your eyes where NBIS has not detect a minutia point? How many minutiae points has it detected where it should not have?
+ * How many minutiae were detected? You realistically want more than 30 for NBIS to work well.
+
+If you enable libfprint debugging output, you will also see the BOZORTH3 match score printed to stdout. The threshold is 40 for most drivers, but we have lowered it for some drivers where the devices produce small images. A higher score indicates a better match.
