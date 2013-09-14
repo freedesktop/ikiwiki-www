@@ -1,0 +1,144 @@
+
+
+# Drag and drop warts
+
+
+
+## Abstract
+
+This essay describes the current state of drag-and-drop support in free desktops, giving a number of example cases where it fails and suggested remedies for each class of problem. 
+
+
+## Introduction
+
+All major desktops support drag and drop using the [[XDND specification|http://www.newplanetsoftware.com/xdnd/]]. However, different interpretations of this document have led to incompatibilities between systems, and these incompatibilities have required other, previously correct, implementations to become incorrect in order to support other programs. 
+
+Note that each example given here is only intended as a sample of a class of problem. The intention was not to pick out particular programs as the worst offenders in any particular case. Indeed, some of these problems may be fixed in later versions of the applications. If so, please add a note beside the example, but leave it in. Other programs will likely suffer from the same problem. 
+
+
+## Background
+
+In a drag-and-drop operation, the sending application offers a list of _targets_ to the destination. The destination can request one or more of these targets. Targets are used both to offer the data in several formats (such as PNG, GIF and JPEG) and to provide meta-data (such as a URI from which the data can be fetched). 
+
+
+## Wart 1: Requesting unknown types
+
+
+### Example 1:
+
+Select some text in gedit (GNOME's text editor) and drag it to konqueror. A new file is created which, instead of containing the dragged text, contains four random characters. 
+
+
+### Example 2:
+
+Drag some text from Edit (ROX's text editor) to kate (KDE's). The pointer indicates that a drag is allowed, but nothing happens. 
+
+
+### Explanation:
+
+The problems are caused by the target applications requesting targets they know nothing about (usually, the first one on the list of targets offered). 
+
+Konqueror and kate both requested the internal address (a 32 bit pointer) of the GtkTextBuffer object, rather than the text. Konqueror saved the four bytes, and kate silently rejected them as invalid text. 
+
+
+### Recommendations:
+
+1. Applications should not simply request the first target on the list. They should only request targets they understand. gedit offered text/plain and UTF8_STRING, two well-known targets that would be suitable for a text editor to fetch. 
+1. The target application/octet-stream should be used for the 'default' format. This target would be requested by a filemanager to save some data, or by a compression program which can work on any stream of octets. 
+_I just tried this on [[AltLinux|AltLinux]].com apt repository. GEdit 2.10.0 with Konqueror 3.3.2. The excatly selected text was saved. Though i do not know which of suggestions (or both?) was taken._ 
+
+
+## Wart 2: Failing to cope with hostnames
+
+The XDND specification (which everyone aims to follow) requires file managers to include the hostname of the source machine in a drag. However, many applications, such as gedit and kate, are confused by these correct messages and refuse to load the files. Therefore, all file managers currently send broken and illegal messages in order to support these programs. This means that drag and drop between different machines does not work (possibly silently using a file on the local machine with the same name). 
+
+Since few filemanagers default to sending correct messages, no application author has any incentive to support them. Since few applications support them, the filemanagers can't be fixed. 
+
+
+### Recommendations:
+
+1. Applications should accept a hostname in a text/uri-list target. If the hostname does not match, they may either report an error or try to fetch some other target. 
+1. Toolkits should provide convenience APIs in which processing of the text/uri-list target is done for the application. GTK now provides **gtk_selection_data_get_uris()** and **g_filename_from_uri()**, for example. 
+1. Filemanagers should provide an option to enable correct operation for testing. Once most applications support it, it should become the default. 
+1. Alternatively, a new target should be declared (eg, XdndUriList), and filemanagers should support this correctly from the start. This would have the added benefit that the text/uri-list target could be later reclaimed to mean that some data of that type had been dragged. 
+
+## Wart 3: Malformed URIs in text/uri-list
+
+
+### Example 1:
+
+Drag an email attachment from sylpheed's attachments list to Edit. Edit complains that the data is on a remote machine. 
+
+
+### Example 2:
+
+Drag a message from evolution to a ROX-Filer window. ROX-Filer complains 'Incorrect or missing line break in text/uri-list data'. 
+
+
+### Explanation:
+
+The URI provided by sylpheed was '[[file://home/tal00r/.sylpheed/mimetmp/tal00r.zip|file://home/tal00r/.sylpheed/mimetmp/tal00r.zip]]'. That is, the file 'tal00r/.sylpheed/mimetmp/tal00r.zip' on the machine 'home'. 
+
+Evolution does not put a newline at the end of the URI it provides. 
+
+
+### Recommendations:
+
+1. Use the correct URI syntax: '[[file://host/path|file://host/path]]'. If no host is to be given (illegal, but see Wart 2), the syntax should be '[[file:///path|file:///path]]'. 
+1. Use \r\n at the end of each line. 
+1. Use library routines such as **gtk_selection_data_set_uris()** to create correctly formed lists for you. 
+See the freedesktop.org [[File URI Specification|Specifications/file-uri-spec]] for more details 
+
+
+## Wart 4: Drag-and-drop saving support is often kludged
+
+
+### Example:
+
+Drag a message from evolution to a Vim window. The message opens correctly, but the titlebar shows the path as /tmp/evolution-1000-10221/drag-n-drop-b5mTiR/file. If the user does ZZ (save and quit), the data is saved back to the temporary file without confirmation and the editor window closes. 
+
+
+### Explanation:
+
+Instead of using the XDS protocol (designed for this purpose) evolution creates a temporary file and pretends to be a file manager. This causes Vim to think that it is editing a real file. 
+
+If a large attachment (such as a video file) was saved to a file manager, it would be first saved to /tmp, and then copied to the final location. This requires twice as much disk space as is necessary, and may fail if the /tmp partition is low on space. Also, since evolution can't know when the filemanager has finished using the file, the temporary file is never deleted. 
+
+
+### Recommendations:
+
+1. Programs saving by drag and drop should use the [[XDS protocol|http://www.newplanetsoftware.com/xds/]]. This allows efficient saving, and can indicate when a temporary file is used. 
+1. File managers should ensure they support the XDS protocol. 
+1. Toolkits should provide a convenience API, so that saving is the same whether to a local filer or elsewhere. 
+
+## Conclusions
+
+Every application is currently forced to write most of the support for the XDND protocol itself. Since programmers tend to hack something that works with their favourite file manager, rather than carefully following the spec,  almost every implementation of the protocol is incorrect in one way or another. 
+
+The programs provided here are only intended as a sample. They are representative of a much larger body of programs with similar problems. Although the situation is improving (two examples I intended to use, dragging with a hostname to Gimp and konqueror saving incorrect data from XDS, turned out to work correctly when I tried them today), it is unreasonable to expect this to be fixed through the efforts of individual application authors. 
+
+Toolkits must provide high level drag-and-drop APIs if it is to work reliably. ROX-Lib provides one such API, which is fully described here: 
+
+* [[http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Loading|http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Loading]] (loading tutorial) 
+* [[http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Saving|http://rox.sourceforge.net/phpwiki/index.php/Tutorials/Saving]] (saving tutorial) 
+* [[http://rox.sourceforge.net/rox''lib''docs/rox.saving.html|http://rox.sourceforge.net/rox''lib''docs/rox.saving.html]] (full API reference) 
+Loosely, the API for loading is: 
+
+1. The application supplies a list of MIME types that it can accept. 
+1. The library provides the application with the name of the data (a path, URI or leafname), the MIME type (if known) and a stream, open for reading, with the data. 
+1. The application indicates when the load is complete. 
+For saving: 
+
+1. The application provides an initial name (path, URI or leafname; the same one received from a previous load or save) and the MIME type(s). 
+1. The library provides the application with the selected MIME type and a stream, open for writing, for the data. 
+1. The application notifies the library when the save is complete. 
+1. The library notifies the application of the new name for the file, if it has been safely saved to permanent storage. 
+Note that: 
+
+* All loading and saving is performed on streams. Thus, saving to a local directory, a remote filemanager or an application all appear the same to an application. 
+* Applications never generate or parse text/uri-list messages themselves. 
+* The new name is set separately from the save operation. This is because a save to a remote machine is not complete until the temporary file has been copied across, or a temporary file might be used to save to another application rather than to a permanent home. 
+
+## See also
+
+[[Specifications/XDNDRevision|Specifications/XDNDRevision]] 
