@@ -1,0 +1,55 @@
+Fingerprint-based authentication is a topic which some people are uneasy about.
+
+The fprint project is primarily about getting consumer fingerprint devices operational on Linux, and while security is of interest, it is not a primary objective.
+
+As you'll see from the general discussion below, various aspects of fprint's security depend on the hardware which is driven by the libfprint drivers. Each driver has a page on this site which will have device-specific comments about the security mechanisms in use.
+
+== Disk storage ==
+
+In order to successfully recognise your fingerprint at some point in time, fprint obviously needs to have prior knowledge of what your fingerprint looks like, and which person/finger that print belongs to. In order to do this, you must ''enroll'' your fingerprint for future comparison with new fingerprint scans (this future process is referred to as ''verification'').
+
+The enrollment process needs to save information about your fingerprint so that it can refer to it later. It does this by saving data to disk.
+
+In it's current state, fprint is not a very secure system: this data is stored on disk in unencrypted form. This data is not readable by other users, however it is possible that the super-user can access it, and also someone with local access could move the disk to another system in order to gain access to the whole disk.
+
+While the data stored on disk is just information about certain features of your fingerprint (i.e. it is not a complete pictorial representation), it is possible that it could be used by someone to bypass a fingerprint authentication mechanism by appearing as yourself.
+
+The actual data stored on disk is determined by the driver in question. Most libfprint drivers power imaging devices, where the devices simply present an image of your fingerprint to the driver, the driver presents that image to libfprint, and libfprint does image processing and fingerprint matching internally. At enroll time, libfprint stores information about the [[http://en.wikipedia.org/wiki/Minutiae|minutiae]] points detected on your fingerprint on disk. At verify time, it detects minutiae on the new scan and compares them to the previously-enrolled minutiae set.
+
+Other drivers power devices which do image processing and matching in hardware, so they simply present a "match" or "no match" result to the driver (which is passed up to libfprint and onto the application in question). However, the nature of the system means that these devices still need an enrollment process, and still need the computer to store some fingerprint data on disk. The structure of this data is generally proprietary and unknown, but definitely does encode some kind of information about your fingerprint.
+
+Each libfprint driver has a page on this site, and that page will include some further information about the data that is stored on disk and other security concerns/comments with the devices in question.
+
+I'm not a security expert, but I would hope that there is room for fprint improvement here: we could encrypt the fingerprints on disk and make them substantially harder to 'get at' by unauthorized individuals. If any security experts would like to comment on how we could implement better security for this open source project, it would be much appreciated.
+
+== Latent fingerprints ==
+
+We leave fingerprints on almost everything that we touch, and these are known as latent fingerprints. It is possible that someone could find a latent fingerprint on an object which you have touched, and identify that the latent fingerprint belongs to yourself.  They could fabricate some kind of fake finger and then login to a fingerprint-based system (using fprint or other software) posing as yourself.
+
+On some devices, you may even leave your latent fingerprint on the fingerprint scanner itself. Devices which require you to swipe your finger (rather than just place it on a sensor) generally do not have this problem.
+
+== Fake finger detection ==
+
+Another point to note is that libfprint does not include any fake finger detection. It may be easier to 'fool' libfprint compared to some commercial systems and drivers which supposedly have a degree of fake finger detection in software.
+
+Some devices probably do a certain amount of fake finger detection in hardware, and libfprint naturally takes advantage of this. Where we know that devices specifically do this, we've noted it on the libfprint driver pages, but this information is not often made public.
+
+== How secure are keyboards anyway? ==
+
+Has the above made you paranoid? Well, I bet you use a number of computer services which require password-based authorization, which you enter on a keyboard. How secure are keyboards anyway?
+
+ * Your password is transmitted 'cleartext' down the keyboard wire
+  * Or for those with wireless/cordless keyboards (bluetooth/RF), to a substantial area around you.
+ * It is easy for someone to look over your shoulder and watch the keys as you press them
+ * It is possible for someone to guess your password
+
+While fingerprinting does have its own security concerns which are outlined above, don't forget the various imperfections with other authorization techniques such as passwords...
+
+== Other fingerprinting approaches ==
+
+When people think about fingerprint scanning, they often think of standard fingerprint-based authentication, which is primarily what has been discussed above. But what about using fingerprints in contexts which are less critical from a security standpoint? Some ideas are presented below.
+
+ * Using a fingerprint to optionally select a username (then requiring password entry as normal)
+ * Requiring a valid (username,password,fingerprint) triple for authentication purposes
+ * Using a fingerprint scanner as a quick way of starting applications (e.g. index finger = web browser, middle finger = email client, ...)
+ * Using a fingerprint as a quick way of loading your user profile for a specific application on a multi-user system
