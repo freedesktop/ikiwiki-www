@@ -1,0 +1,15 @@
+This page details problems and experiences with [[http://fingerprint.nist.gov/NBIS/index.html|NBIS]], the fingerprint image processing included with [[../../libfprint|libfprint]].
+
+== MINDTCT pixels-per-mm (PPMM) parameter not obeyed ==
+
+The ippmm parameter to `get_minutiae()` appears to be ignored, at least it's value does not make any difference to the resultant minutiae.
+
+== MINDTCT problems working with small images ==
+
+The images from the [[../aes4000|AES4000]] are 96x96 pixels, covering a small sensor area only. MINDTCTs enhancement code really makes a mess of the ridges, so much that most ridge information is lost and all detected minutiae are invalid. Using a standard image resize algorithm to scale the image to 200% or 300% in size results in proper results. Ideally MINDTCT would use the PPMM parameter to configure the image enhancement algorithms.
+
+== Bozorth3 matching ==
+
+Bozorth3 match scores are loosely defined to be related to the number of matched minutiae, with 40 as a suggested match threshold.
+
+It would be nice if bozorth3 produced a proportional response instead, based on the number of minutiae in the input images or something like that. For example, with [[../aes4000|aes4000]] images, we generally get 10-20 minutiae making a match score of 40 quite hard to reach except with really good scans.
