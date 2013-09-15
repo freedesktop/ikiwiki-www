@@ -1,4 +1,4 @@
-[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] 
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
 
 
 # About PulseAudio
@@ -6,124 +6,131 @@
 
 ## Details
 
-PulseAudio is a networked sound server, similar in theory to the [[Enlightened Sound Daemon|http://cvs.gnome.org/viewcvs/esound/]] (EsounD). PulseAudio is however much more advanced and has numerous features. 
+PulseAudio is a networked sound server, similar in theory to the [[Enlightened Sound Daemon|http://cvs.gnome.org/viewcvs/esound/]] (EsounD). PulseAudio is however much more advanced and has numerous features.
 
-A sound server can serve many functions: 
+A sound server can serve many functions:
 
-* Software mixing of multiple audio streams, bypassing any restrictions the hardware has. 
-* Network transparency, allowing an application to play back or record audio on a different machine than the one it is running on. 
-* Sound API abstraction, alleviating the need for multiple backends in applications to handle the wide diversity of sound systems out there. 
-* Generic hardware abstraction, giving the possibility of doing things like individual volumes per application. 
-PulseAudio comes with many [[plugin modules|Software/PulseAudio/Documentation/User/Modules]]. All audio from/to clients and audio interfaces goes through modules. 
+* Software mixing of multiple audio streams, bypassing any restrictions the hardware has.
+* Network transparency, allowing an application to play back or record audio on a different machine than the one it is running on.
+* Sound API abstraction, alleviating the need for multiple backends in applications to handle the wide diversity of sound systems out there.
+* Generic hardware abstraction, giving the possibility of doing things like individual volumes per application.
 
-Manuel Amador created [[a diagram|http://rudd-o.com/linux-and-free-software/how-pulseaudio-works/]] describing how the different parts of PulseAudio play together. (Not all [[modules|Software/PulseAudio/Documentation/User/Modules]] are shown.) Another, simpler architecture diagram is attached to this page (scroll to the bottom). 
+PulseAudio comes with many [[plugin modules|Software/PulseAudio/Documentation/User/Modules]]. All audio from/to clients and audio interfaces goes through modules.
 
-PulseAudio clients can send audio to "sinks" and receive audio from "sources". A client can be GStreamer, xinelib, MPlayer or any other audio application. Only the device drivers/audio interfaces can be either sources or sinks (they are often hardware in- and out-puts).  
+Manuel Amador created [[a diagram|http://rudd-o.com/linux-and-free-software/how-pulseaudio-works/]] describing how the different parts of PulseAudio play together. (Not all [[modules|Software/PulseAudio/Documentation/User/Modules]] are shown.) Another, simpler architecture diagram is attached to this page (scroll to the bottom).
+
+PulseAudio clients can send audio to "sinks" and receive audio from "sources". A client can be GStreamer, xinelib, MPlayer or any other audio application. Only the device drivers/audio interfaces can be either sources or sinks (they are often hardware in- and out-puts).
 
 
 ## Current Status
 
-The PulseAudio daemon and utilities are still under development, but are generally considered stable. API, ABI and the protocol are considered release worthy so effort is spent to not break these. Application developers should not feel uneasy using the client library at this point. 
+The PulseAudio daemon and utilities are still under development, but are generally considered stable. API, ABI and the protocol are considered release worthy so effort is spent to not break these. Application developers should not feel uneasy using the client library at this point.
 
 
 ## Features
 
-* Licensed under [[LGPL 2.1+|http://www.gnu.org/copyleft/lesser.html]] (might effectively be downgraded to GPL if you link against libsamplerate -- which his optional however) 
-* Extensible plugin architecture (by loading dynamic loadable modules with dlopen()) 
-* Support for static linking of modules, allowing a single binary for all your needs 
-* Module autoloading 
-* Support for more than one sink/source 
-* Good low latency behaviour 
-* Very accurate latency measurement for playback and recording. 
-* Client side latency interpolation 
-* Embeddable into other software (the core is available as C library) 
-* Completely asynchronous C API, complemented by two synchronous variants for simple use in synchronous applications 
-* Simple command line interface for reconfiguring the daemon while running 
-* Flexible, implicit sample type conversion and resampling 
-* "Zero-Copy" architecture 
-* May be used to combine multiple sound cards to one (with sample rate adjustment) 
-* Ability to fully synchronize multiple playback streams 
-* Various network audio streaming options 
-PulseAudio is intended to provide lower latency than the software mixers dmix and esd. 
+* Licensed under [[LGPL 2.1+|http://www.gnu.org/copyleft/lesser.html]] (might effectively be downgraded to GPL if you link against libsamplerate -- which his optional however)
+* Extensible plugin architecture (by loading dynamic loadable modules with dlopen())
+* Support for static linking of modules, allowing a single binary for all your needs
+* Module autoloading
+* Support for more than one sink/source
+* Good low latency behaviour
+* Very accurate latency measurement for playback and recording.
+* Client side latency interpolation
+* Embeddable into other software (the core is available as C library)
+* Completely asynchronous C API, complemented by two synchronous variants for simple use in synchronous applications
+* Simple command line interface for reconfiguring the daemon while running
+* Flexible, implicit sample type conversion and resampling
+* "Zero-Copy" architecture
+* May be used to combine multiple sound cards to one (with sample rate adjustment)
+* Ability to fully synchronize multiple playback streams
+* Various network audio streaming options
+
+PulseAudio is intended to provide lower latency than the software mixers dmix and esd.
 
 
 ## Supported Operating Systems
 
-* Linux (any modern distribution) 
-* Solaris 
-* FreeBSD 
-* NetBSD 
-* [[Mac OSX|Software/PulseAudio/Ports/OSX]] 
-* Native [[Win32|Software/PulseAudio/Ports/Windows/Support]] 
+* Linux (any modern distribution)
+* Solaris
+* FreeBSD
+* NetBSD
+* [[Mac OSX|Software/PulseAudio/Ports/OSX]]
+* Native [[Win32|Software/PulseAudio/Ports/Windows/Support]]
 
 ## Related Software
 
-The following auxiliary GUI tools have been developed for PulseAudio: 
+The following auxiliary GUI tools have been developed for PulseAudio:
 
-* [[PulseAudio Volume Control|http://0pointer.de/lennart/projects/pavucontrol]] 
-* [[PulseAudio Preferences|http://0pointer.de/lennart/projects/paprefs/]] 
-The following obsolete or out-of-date UI tools have been Developed for PulseAudio as well: 
+* [[PulseAudio Volume Control|http://0pointer.de/lennart/projects/pavucontrol]]
+* [[PulseAudio Preferences|http://0pointer.de/lennart/projects/paprefs/]]
 
-* [[PulseAudio Manager|http://0pointer.de/lennart/projects/paman]]  
-* [[PulseAudio Volume Meter|http://0pointer.de/lennart/projects/pavumeter]] 
-* [[PulseAudio Device Chooser|http://0pointer.de/lennart/projects/padevchooser]] 
-The following plugins for third-party software have been developed: 
+The following obsolete or out-of-date UI tools have been Developed for PulseAudio as well:
 
-* [[xmms-pulse - PulseAudio plugin for XMMS|http://0pointer.de/lennart/projects/xmms-pulse]] 
-* [[libao-pulse - PulseAudio plugin for libao|http://0pointer.de/lennart/projects/libao-pulse]] 
-* [[gst-pulse - PulseAudio plugin for GStreamer in gst-plugins-good|http://gstreamer.freedesktop.org/modules/gst-plugins-good.html]] 
-The following third-party software also has support for PulseAudio: 
+* [[PulseAudio Manager|http://0pointer.de/lennart/projects/paman]]
+* [[PulseAudio Volume Meter|http://0pointer.de/lennart/projects/pavumeter]]
+* [[PulseAudio Device Chooser|http://0pointer.de/lennart/projects/padevchooser]]
 
-* [[ALSA|http://www.alsa-project.org]] (in alsa-plugins: [[README|http://hg-mirror.alsa-project.org/alsa-plugins/file/14ac70da1259/doc/README-pulse]]) 
-* [[LiVES|http://lives.sourceforge.net]] versions 1.1.3 and higher. 
-* [[MPD|http://www.musicpd.org/]] (supported in svn as of revision 4316) 
-* [[MPlayer|http://www.mplayerhq.hu/]] (with [[this patch|http://0pointer.de/public/mplayer-pulse.patch]]) 
-* [[xine|http://xinehq.de]] versions 1.1.3 and greater. 
-* [[VLC media player|http://www.videolan.org/vlc]] and LibVLC from version 0.9.0 (version 1.1.12 or more is recommended) 
-* [[SXEmacs|http://www.sxemacs.org]] since 22.1.3 
-Projects and Software based on [[PulseAudio|PulseAudio]]: 
+The following plugins for third-party software have been developed:
 
-* **Pulse Whole Home Audio** - A no frills multi-room/zone audio server that uses pulse to do all the heavy audio lifting. You can find details and the code on the project's [[gitorious wiki|http://gitorious.org/pulse-whole-home-audio/pages/Home]]. 
+* [[xmms-pulse - PulseAudio plugin for XMMS|http://0pointer.de/lennart/projects/xmms-pulse]]
+* [[libao-pulse - PulseAudio plugin for libao|http://0pointer.de/lennart/projects/libao-pulse]]
+* [[gst-pulse - PulseAudio plugin for GStreamer in gst-plugins-good|http://gstreamer.freedesktop.org/modules/gst-plugins-good.html]]
+
+The following third-party software also has support for PulseAudio:
+
+* [[ALSA|http://www.alsa-project.org]] (in alsa-plugins: [[README|http://hg-mirror.alsa-project.org/alsa-plugins/file/14ac70da1259/doc/README-pulse]])
+* [[LiVES|http://lives.sourceforge.net]] versions 1.1.3 and higher.
+* [[MPD|http://www.musicpd.org/]] (supported in svn as of revision 4316)
+* [[MPlayer|http://www.mplayerhq.hu/]] (with [[this patch|http://0pointer.de/public/mplayer-pulse.patch]])
+* [[xine|http://xinehq.de]] versions 1.1.3 and greater.
+* [[VLC media player|http://www.videolan.org/vlc]] and LibVLC from version 0.9.0 (version 1.1.12 or more is recommended)
+* [[SXEmacs|http://www.sxemacs.org]] since 22.1.3
+
+Projects and Software based on [[PulseAudio|PulseAudio]]:
+
+* **Pulse Whole Home Audio** - A no frills multi-room/zone audio server that uses pulse to do all the heavy audio lifting. You can find details and the code on the project's [[gitorious wiki|http://gitorious.org/pulse-whole-home-audio/pages/Home]].
 
 ## Screenshots
 
-Since PulseAudio is a daemon process that sits in the background it's difficult to make a screenshot of it. However we can provide you with a screenshot of the auxiliary tools mentioned above: 
+Since PulseAudio is a daemon process that sits in the background it's difficult to make a screenshot of it. However we can provide you with a screenshot of the auxiliary tools mentioned above:
 
-[[http://0pointer.de/public/pulse-screenshot-small.png|http://0pointer.de/public/pulse-screenshot-small.png]] 
+[[http://0pointer.de/public/pulse-screenshot-small.png|http://0pointer.de/public/pulse-screenshot-small.png]]
 
-(For the full size image follow [[this link|http://0pointer.de/blog/projects/pulse-news]].) 
+(For the full size image follow [[this link|http://0pointer.de/blog/projects/pulse-news]].)
 
 
 ## Distributions
 
-PulseAudio is currently available in the following distributions: 
+PulseAudio is currently available in the following distributions:
 
-* [[ALT Linux Sisyphus|http://www.altlinux.com/]]; for more information, see [[ALT Linux Sisyphus and PulseAudio (in Russian, only)|http://www.freesource.info/wiki/ALTLinux/Dokumentacija/PulseAudio]] 
-* [[ArchLinux|http://www.archlinux.org]] - has a nice [[Wiki page|http://wiki.archlinux.org/index.php/PulseAudio]] 
-* [[Debian|http://packages.qa.debian.org/p/pulseaudio.html]] 
-* [[Ubuntu|http://packages.ubuntu.com/search?keywords=pulseaudio&searchon=names&exact=1]]  (Enabled by default starting from Ubuntu 8.04.) 
-* [[Fedora|https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=195221]]   (Enabled by default starting from [[Core 8|http://docs.fedoraproject.org/release-notes/f8/en_US/sn-OverView.html]]) 
-* [[Gentoo|http://packages.gentoo.org/package/media-sound/pulseaudio]] ([[Wiki|http://wiki.gentoo.org/wiki/PulseAudio]]) 
-* [[T2 SDE Linux|http://www.t2-project.org/packages/pulseaudio.html]] 
-* [[Lunar Linux|http://lunar-linux.org]] 
-* [[Mandriva|http://fr2.rpmfind.net/linux/rpm2html/search.php?query=pulseaudio&system=&arch=]]   (Enabled by default [[in Mandriva 2008.1|http://wiki.mandriva.com/en/2008.1_Notes#PulseAudio_sound_server_used_by_default]]) 
-* [[OpenEmbedded|http://www.openembedded.org/filebrowser/org.openembedded.dev/packages/pulseaudio]] 
-* [[OpenSUSE|http://fr2.rpmfind.net/linux/rpm2html/search.php?query=pulseaudio&system=&arch=]] 
-* [[Pardus|http://www.pardus.org.tr/eng]]    (Enabled by default since Pardus 2008.) 
-* [[FreeBSD|http://www.freebsd.org/]] 
-* [[NetBSD|http://www.NetBSD.org/]]    (via [[pkgsrc|http://www.pkgsrc.org/]]) 
-Earlier versions of PulseAudio, then known as Polypaudio, can be found in quite a few distributions: 
+* [[ALT Linux Sisyphus|http://www.altlinux.com/]]; for more information, see [[ALT Linux Sisyphus and PulseAudio (in Russian, only)|http://www.freesource.info/wiki/ALTLinux/Dokumentacija/PulseAudio]]
+* [[ArchLinux|http://www.archlinux.org]] - has a nice [[Wiki page|http://wiki.archlinux.org/index.php/PulseAudio]]
+* [[Debian|http://packages.qa.debian.org/p/pulseaudio.html]]
+* [[Ubuntu|http://packages.ubuntu.com/search?keywords=pulseaudio&searchon=names&exact=1]]  (Enabled by default starting from Ubuntu 8.04.)
+* [[Fedora|https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=195221]]   (Enabled by default starting from [[Core 8|http://docs.fedoraproject.org/release-notes/f8/en_US/sn-OverView.html]])
+* [[Gentoo|http://packages.gentoo.org/package/media-sound/pulseaudio]] ([[Wiki|http://wiki.gentoo.org/wiki/PulseAudio]])
+* [[T2 SDE Linux|http://www.t2-project.org/packages/pulseaudio.html]]
+* [[Lunar Linux|http://lunar-linux.org]]
+* [[Mandriva|http://fr2.rpmfind.net/linux/rpm2html/search.php?query=pulseaudio&system=&arch=]]   (Enabled by default [[in Mandriva 2008.1|http://wiki.mandriva.com/en/2008.1_Notes#PulseAudio_sound_server_used_by_default]])
+* [[OpenEmbedded|http://www.openembedded.org/filebrowser/org.openembedded.dev/packages/pulseaudio]]
+* [[OpenSUSE|http://fr2.rpmfind.net/linux/rpm2html/search.php?query=pulseaudio&system=&arch=]]
+* [[Pardus|http://www.pardus.org.tr/eng]]    (Enabled by default since Pardus 2008.)
+* [[FreeBSD|http://www.freebsd.org/]]
+* [[NetBSD|http://www.NetBSD.org/]]    (via [[pkgsrc|http://www.pkgsrc.org/]])
 
-* [[ROCK Linux|http://www.rocklinux.net/]] 
-* [[CRUX|http://crux.nu/]] 
-* [[SourceMage|http://www.sourcemage.org/]] 
+Earlier versions of PulseAudio, then known as Polypaudio, can be found in quite a few distributions:
+
+* [[ROCK Linux|http://www.rocklinux.net/]]
+* [[CRUX|http://crux.nu/]]
+* [[SourceMage|http://www.sourcemage.org/]]
 
 ## In The Press
 
-* [[Wikipedia Article|http://en.wikipedia.org/wiki/PulseAudio]] 
-* [[Linux Weekly News 2006|http://lwn.net/Articles/185613/]] 
-* [[GnomeFiles Featured Application 2006-06-02|http://gnomefiles.org/]] 
-* [[ars.technica 2007-10-17|http://arstechnica.com/journals/linux.ars/2007/10/17/pulseaudio-to-bring-earcandy-to-linux]] 
-* [[Fedora Interview 2007-10-30|http://fedoraproject.org/wiki/Interviews/LennartPoettering]] 
-* [[linux.com 2007-11-02|http://www.linux.com/feature/119926]] 
-* [[TechWorld 2009|http://www.techworld.com.au/article/320807/open_source_identity_pulseaudio_creator_lennart_poettering/]] 
+* [[Wikipedia Article|http://en.wikipedia.org/wiki/PulseAudio]]
+* [[Linux Weekly News 2006|http://lwn.net/Articles/185613/]]
+* [[GnomeFiles Featured Application 2006-06-02|http://gnomefiles.org/]]
+* [[ars.technica 2007-10-17|http://arstechnica.com/journals/linux.ars/2007/10/17/pulseaudio-to-bring-earcandy-to-linux]]
+* [[Fedora Interview 2007-10-30|http://fedoraproject.org/wiki/Interviews/LennartPoettering]]
+* [[linux.com 2007-11-02|http://www.linux.com/feature/119926]]
+* [[TechWorld 2009|http://www.techworld.com.au/article/320807/open_source_identity_pulseaudio_creator_lennart_poettering/]]
