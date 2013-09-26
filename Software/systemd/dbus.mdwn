@@ -665,6 +665,7 @@ Most properties of the Service interface map directly to the corresponding setti
 
 **Result** encodes the execution result of the last run of the service. It is useful to determine the reason a service failed if it is in _failed_ state (see **ActiveState** above). The following values are currently known: _success_ is set if the unit didn't fail. _resources_ indicates that not enough resources have been available to fork off and execute the service processes. _timeout_ indicates that a time-out occurred while executing a service operation. _exit-code_ indicates that a service process exited with an unclean exit code. _signal_ indicates that a service process exited with an uncaught signal. _core-dump_ indicates that a service process exited uncleanly and dumped core. _watchdog_ indicates that a service did not send out watchdog ping messages often enough. _start-limit_ indicates that a service has been started too frequently in a time frame (as configured in **StartLimitInterval**, **StartLimitBurst**). 
 
+**ControlGroup** indicates the control group path the processes of this service unit are placed in.
 
 ## Socket Unit Objects
 
@@ -688,6 +689,7 @@ All socket unit objects implement the `org.freedesktop.systemd1.Socket` interfac
           readonly a(sasbttuii) ExecStopPre = [];
           readonly a(sasbttuii) ExecStopPost = [];
           readonly as Environment = [];
+          readonly a(sb) EnvironmentFiles = [];
           readonly u UMask = 18;
           readonly t LimitCPU = 18446744073709551615;
           readonly t LimitFSIZE = 18446744073709551615;
@@ -713,7 +715,7 @@ All socket unit objects implement the `org.freedesktop.systemd1.Socket` interfac
           readonly i CPUSchedulingPolicy = 0;
           readonly i CPUSchedulingPriority = 0;
           readonly ay CPUAffinity = [];
-          readonly t TimerSlackNS;
+          readonly t TimerSlackNSec = 50000;
           readonly b CPUSchedulingResetOnFork = false;
           readonly b NonBlocking = false;
           readonly s StandardInput = 'null';
@@ -743,8 +745,6 @@ All socket unit objects implement the `org.freedesktop.systemd1.Socket` interfac
           readonly s KillMode = 'control-group';
           readonly i KillSignal = 15;
           readonly s UtmpIdentifier = '';
-          readonly b ControlGroupModify = false;
-          readonly b ControlGroupPersistent = false;
           readonly b PrivateNetwork = false;
           readonly b IgnoreSIGPIPE = true;
           readonly b NoNewPrivileges = false;
