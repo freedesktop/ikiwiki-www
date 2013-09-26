@@ -220,11 +220,11 @@ Note that many of the calls exist twice: once on the Manager object, and once on
 
 **ReloadUnit()**, **RestartUnit()**, **TryRestartUnit()**, **ReloadOrRestartUnit()**, **ReloadOrTryRestartUnit()** may be used to restart and/or reload a unit, and takes similar arguments as **StartUnit()**. Reloading is done only if the unit is already running and fails otherwise. If a service is restarted that isn't running it will be started, unless the "Try" flavor is used in which case a service that isn't running is not affected by the restart. The "ReloadOrRestart" flavors attempt a reload if the unit supports it and use a restart otherwise. 
 
-**KillUnit()** may be used to kill (i.e. send a signal to) all processes of a unit. Takes the unit name, an enum who and a UNIX signal number to send. The who enum is one of "main", "control" or "all". If "main", only the main process of a unit is killed. If "control" only the control process of the unit is killed, if "all" all processes are killed. A "control" process is for example a process that is configured via ExecStop= and is spawned in parallel to the main daemon process, in order to shut it down. 
+**KillUnit()** may be used to kill (i.e. send a signal to) all processes of a unit. Takes the unit name, an enum *who* and a UNIX signal number to send. The who enum is one of "main", "control" or "all". If "main", only the main process of a unit is killed. If "control" only the control process of the unit is killed, if "all" all processes are killed. A "control" process is for example a process that is configured via ExecStop= and is spawned in parallel to the main daemon process, in order to shut it down. 
 
 **GetJob()** returns the job object path for a specific job, identified by its id. 
 
-**CancelJob()** cancels a specific job identified by its numer ID. This operation is also available in the **!Cancel()** method of Job objects (see below), and exists primarily to reduce the necessary round trips to execute this operation. Note that this will not have any effect on jobs whose execution has already begun. 
+**CancelJob()** cancels a specific job identified by its numer ID. This operation is also available in the **Cancel()** method of Job objects (see below), and exists primarily to reduce the necessary round trips to execute this operation. Note that this will not have any effect on jobs whose execution has already begun. 
 
 **ClearJobs()** flushes the job queue, removing all jobs that are still queued. Note that this does not have any effect on jobs whose execution has already begun, it only flushes jobs that are queued and have not yet begun execution. 
 
@@ -292,17 +292,14 @@ Similar, **PresetUnitFiles()** enables/disables one or more units file according
 
 Similar, **MaskUnitFiles()** masks unit files, and **UnmaskUnitFiles()** unmasks them again. 
 
-**SetDefaultTarget()** creates a **default.target** link. See [[bootup(7)|http://www.freedesktop.org/software/systemd/man/bootup.html#System%20Manager%20Bootup]] for more information.
+**SetDefaultTarget()** changes the `default.target` link. See [[bootup(7)|http://www.freedesktop.org/software/systemd/man/bootup.html#System%20Manager%20Bootup]] for more information.
 
-**GetDefaultTarget()** retrieves the name of the unit to which **default.target** is aliased.
+**GetDefaultTarget()** retrieves the name of the unit to which `default.target` is aliased.
 
-**SetUnitProperties()** may be used to modify certain unit properties at
-runtime.  Not all properties may be changed at runtime, but many
-resource management settings (primarily those in [[systemd.cgroup(5)|http://www.freedesktop.org/software/systemd/man/systemd.cgroup.html]]) may. The changes are applied instantly, and stored on disk for future boots, unless
-**runtime** is true, in which case the settings only apply until the next reboot.
- **name** is the name of the unit to modify. **properties** are the settings to set.
+**SetUnitProperties()** may be used to modify certain unit properties at runtime.  Not all properties may be changed at runtime, but many
+resource management settings (primarily those in [[systemd.cgroup(5)|http://www.freedesktop.org/software/systemd/man/systemd.cgroup.html]]) may. The changes are applied instantly, and stored on disk for future boots, unless *runtime* is true, in which case the settings only apply until the next reboot. *name* is the name of the unit to modify. *properties* are the settings to set, encoded as an array of property name and value pairs. Note that this is not a dictionary! Note that when setting array properties with this call this usually results in appending to the pre-configured array. To reset the configured arrays set the property to an empty array first, then append to it.
 
-**StartTransientUnit()** may be used to create and start a transient unit, which will be released as soon as it is not running or referenced anymore or the system is rebooted. **name** is the unit name including suffix, and must be unique. **mode** is the same as in **StartUnit()**, **properties** contains properties of the unit, specified like in **SetUnitProperties()**, and **aux** contains additional properties which can be given more than one time, currently only **ExecStart**.
+**StartTransientUnit()** may be used to create and start a transient unit, which will be released as soon as it is not running or referenced anymore or the system is rebooted. **name** is the unit name including suffix, and must be unique. **mode** is the same as in **StartUnit()**, **properties** contains properties of the unit, specified like in **SetUnitProperties()**. **aux** is currently unused and should be passed as empty array.
 
 ### Signals
 
