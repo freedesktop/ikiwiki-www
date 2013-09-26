@@ -506,7 +506,7 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
 
 **LoadError** contains a pair of strings. If the unit failed to load (as encoded in **LoadState**, see above), then this will include a D-Bus error pair consisting of the error ID and an explanatory human readable string of what happened. If it succeeded to load this will be a pair of empty strings. 
 
-**Transient** contains a boolean that indicates whether the unit was created as transient unit (which means via `CreateTransientUnit()` on the manager object.
+**Transient** contains a boolean that indicates whether the unit was created as transient unit (i.e. via `CreateTransientUnit()` on the manager object).
 
 ## Service Unit Objects
 
@@ -519,17 +519,6 @@ All service unit objects implement the `org.freedesktop.systemd1.Service` interf
       };
       interface org.freedesktop.systemd1.Service {
         methods:
-          SetControlGroup(in  s group,
-                          in  s mode);
-          UnsetControlGroup(in  s group,
-                            in  s mode);
-          GetControlGroupAttribute(in  s attribute,
-                                   out as values);
-          SetControlGroupAttribute(in  s attribute,
-                                   in  as values,
-                                   in  s mode);
-          UnsetControlGroupAttribute(in  s attribute,
-                                     in  s mode);
         signals:
         properties:
           readonly s Type = 'dbus';
@@ -543,7 +532,9 @@ All service unit objects implement the `org.freedesktop.systemd1.Service` interf
           readonly t WatchdogTimestampMonotonic = 0;
           readonly t StartLimitInterval = 10000000;
           readonly u StartLimitBurst = 5;
-          readwrite s StartLimitAction = 'none';
+          readwrite s StartLimitAction = 'none      
+          readonly s Slice = 'system.slice';
+          readonly s ControlGroup = '/system.slice/avahi-daemon.service';
           readonly a(sasbttuii) ExecStartPre = [];
           readonly a(sasbttuii) ExecStart = [('/usr/sbin/avahi-daemon', ['/usr/sbin/avahi-daemon', '-s'], false, 0, 0, 0, 0, 0, 0, 0)];
           readonly a(sasbttuii) ExecStartPost = [];
@@ -606,17 +597,24 @@ All service unit objects implement the `org.freedesktop.systemd1.Service` interf
           readonly b PrivateNetwork = false;
           readonly b SameProcessGroup = false;
           readonly s UtmpIdentifier = '';
-          readonly b ControlGroupModify = false;
-          readonly b ControlGroupPersistent = false;
           readonly b IgnoreSIGPIPE = true;
           readonly b NoNewPrivileges = false;
           readonly au SystemCallFilter = [];
           readonly s KillMode = 'control-group';
           readonly i KillSignal = 15;
           readonly b SendSIGKILL = true;
-          readonly s DefaultControlGroup = 'name=systemd:/system/avahi-daemon.service';
-          readonly as ControlGroups = ['cpu:/system/avahi-daemon.service', 'name=systemd:/system/avahi-daemon.service'];
-          readonly a(sss) ControlGroupAttributes = [];
+          readonly b SendSIGHUP = false;
+          readonly b CPUAccounting = false;
+          readonly t CPUShares = 1024;
+          readonly b BlockIOAccounting = false;
+          readonly t BlockIOWeight = 1000;
+          readonly a(st) BlockIODeviceWeight = [];
+          readonly a(st) BlockIOReadBandwidth=;
+          readonly a(st) BlockIOWriteBandwidth=;
+          readonly b MemoryAccounting = false;
+          readonly t MemoryLimit = 18446744073709551615;
+          readonly s DevicePolicy = 'auto';
+          readonly a(ss) DeviceAllow = [];
           readonly b PermissionsStartOnly = false;
           readonly b RootDirectoryStartOnly = false;
           readonly b RemainAfterExit = false;
