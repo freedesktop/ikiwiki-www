@@ -368,6 +368,8 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
           Kill(in  s who,
                in  i signal);
           ResetFailed();
+          SetProperties(in  b runtime,
+                        in  a(sv) properties);
         signals:
         properties:
           readonly s Id = 'avahi-daemon.service';
@@ -431,7 +433,8 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
           readonly t ConditionTimestampMonotonic = 22559674;
           readonly b ConditionResult = true;
           readonly a(sbbsi) Conditions = [('ConditionVirtualization, false, false, 'no', 1)];
-          readonly (ss) LoadError = ('', '');
+          readonly (ss) LoadError = ('', '');      
+          readonly b Transient = false;
       };
       interface org.freedesktop.systemd1.Service {
         ...
@@ -450,7 +453,7 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
 
 ### Methods
 
-**Start()**, **Stop()**, **Reload()**, **Restart()**, **TryRestart()**, **ReloadOrRestart()**, **ReloadOrTryRestart()**, **Kill()** and **ResetFailed()** implement the same operation as the respective method calls on the Manager object (see above), however operate on the unit object and hence do not take a unit name parameter. Invoking the methods directly on the Manager object has the advantage of not requiring a **GetUnit()** call to get the unit object for a specific unit name. Calling the methods on the Manager object is hence a round trip optimization. 
+**Start()**, **Stop()**, **Reload()**, **Restart()**, **TryRestart()**, **ReloadOrRestart()**, **ReloadOrTryRestart()**, **Kill()**, **ResetFailed()** and **SetProperties()** implement the same operation as the respective method calls on the Manager object (see above), however operate on the unit object and hence do not take a unit name parameter. Invoking the methods directly on the Manager object has the advantage of not requiring a **GetUnit()** call to get the unit object for a specific unit name. Calling the methods on the Manager object is hence a round trip optimization. 
 
 
 ### Properties
@@ -491,10 +494,6 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
 
 **DefaultControlGroup** contains the main control group of this unit as a string. This refers to a group in systemd's own _name=systemd_ hierarchy, which systemd uses to watch and manipulate the unit and all its processes. 
 
-**ControlGroup** contains an array of the control groups this unit is making use of. This includes the default control group in the _name=systemd_ hierarchy, but also includes groups in additional hierarchies. 
-
-**ControlGroupAttributes** contains an array of string triples for each control group to set for this unit. Each triplet consists of hierarchy name, field and value. 
-
 **NeedDaemonReload** is a boolean that indicates whether the configuration file this unit is loaded from (i.e. **FragmentPath** or **SourcePath**) has changed since the configuration was read and hence whether a configuration reload is recommended. 
 
 **JobTimeoutUSec** maps directly to the corresponding configuration setting in the unit file. 
@@ -507,6 +506,7 @@ All Unit objects implement the generic `org.freedesktop.systemd1.Unit` interface
 
 **LoadError** contains a pair of strings. If the unit failed to load (as encoded in **LoadState**, see above), then this will include a D-Bus error pair consisting of the error ID and an explanatory human readable string of what happened. If it succeeded to load this will be a pair of empty strings. 
 
+**Transient** contains a boolean that indicates whether the unit was created as transient unit (which means via `CreateTransientUnit()` on the manager object.
 
 ## Service Unit Objects
 
