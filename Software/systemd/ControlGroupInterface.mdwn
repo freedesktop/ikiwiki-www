@@ -38,8 +38,12 @@ On systemd systems use the systemd APIs as described below. At this time we are 
 
 Systemd provides three unit types that are useful for the purpose of resource control:
 
- * *Services* encapsulate a number of processes that are started and stopped by systemd with the configuration (usually) originating from unit files on disk.
+ * [[*Services*|http://www.freedesktop.org/software/systemd/man/systemd.service.html]] encapsulate a number of processes that are started and stopped by systemd based on configuration. Services are named in the style of `foobar.service`.
 
- * *Scopes* encapsulate a number of processes that are started and stopped by arbitrary processes via fork(), and then registered at runtime with PID1.
+ * [[*Scopes*|http://www.freedesktop.org/software/systemd/man/systemd.scope.html]] encapsulate a number of processes that are started and stopped by arbitrary processes via fork(), and then registered at runtime with PID1. Scopes are named in the style of `foobar.scope`.
 
- * *Slices* may be used to group a number of services and scopes together in a hierarchial tree. Slices do not contain processes themselves, but the services and slices contained in them do.
+ * [[*Slices*|http://www.freedesktop.org/software/systemd/man/systemd.slice.html]] may be used to group a number of services and scopes together in a hierarchial tree. Slices do not contain processes themselves, but the services and slices contained in them do. Slices are named in the style of `foobar-waldo.slice`, where the path to the location of the slice in the tree is encoded in the name with "-" as separator for the path components. (`foobar-waldo.slice` is hence a subslice of `foobar.slice`).
+
+Resource limits may be set on services, scopes and slices the same way. All active service, scope and slice units may easily be viewed with the "systemctl" command. The hierarchy of services and scopes in the slice tree may be viewed with the "systemd-cgls" command.
+
+Service and slice units may be configured via unit files on disk, or alternatively be created dynamically at runtime via API calls to PID 1. Scope units may only be created at runtime via API calls to PID 1, but not from unit files on disk. Units that are created dynamically at runtime via API calls are called *transient* units.
