@@ -1,5 +1,7 @@
 # The New Control Group Interfaces
 
+*aka I want to make use of kernel cgroups, how do I do this in the new world order?*
+
 Starting with version 205 systemd provides a number of interfaces that may be used to create and manage labelled groups of processes for the purpose of monitoring and controlling them and their resource usage. This is built on top of the Linux kernel Control Groups ("cgroups") facility. Previously, the kernel's cgroups API was exposed directly as application API, following the rules of the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document. However, the kernel cgroup interface is in the process of being reworked into an API that requires a single writer in userspace managing it. With this change the cgroup tree becomes private property of that userspace component and is no longer a shared resource. On systemd systems PID 1 takes this role and hence needs to provide APIs for clients to take benefit of the control groups functionality of the kernel.
 
 ### Why this all again?
