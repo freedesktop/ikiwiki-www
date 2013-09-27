@@ -38,12 +38,22 @@ On systemd systems use the systemd APIs as described below. At this time we are 
 
 Systemd provides three unit types that are useful for the purpose of resource control:
 
- * [[*Services*|http://www.freedesktop.org/software/systemd/man/systemd.service.html]] encapsulate a number of processes that are started and stopped by systemd based on configuration. Services are named in the style of `foobar.service`.
+ * [[*Services*|http://www.freedesktop.org/software/systemd/man/systemd.service.html]] encapsulate a number of processes that are started and stopped by systemd based on configuration. Services are named in the style of `quux.service`.
 
- * [[*Scopes*|http://www.freedesktop.org/software/systemd/man/systemd.scope.html]] encapsulate a number of processes that are started and stopped by arbitrary processes via fork(), and then registered at runtime with PID1. Scopes are named in the style of `foobar.scope`.
+ * [[*Scopes*|http://www.freedesktop.org/software/systemd/man/systemd.scope.html]] encapsulate a number of processes that are started and stopped by arbitrary processes via fork(), and then registered at runtime with PID1. Scopes are named in the style of `wuff.scope`.
 
  * [[*Slices*|http://www.freedesktop.org/software/systemd/man/systemd.slice.html]] may be used to group a number of services and scopes together in a hierarchial tree. Slices do not contain processes themselves, but the services and slices contained in them do. Slices are named in the style of `foobar-waldo.slice`, where the path to the location of the slice in the tree is encoded in the name with "-" as separator for the path components. (`foobar-waldo.slice` is hence a subslice of `foobar.slice`).
+
+Service, scope and slice units directly map to objects in the cgroup tree. When these units are activated they each map to directly (modulo some character escaping) to cgroup paths built from the unit names. For example, a service `quux.service` in a slice `foobar-waldo.slice` is found in the cgroup `foobar.slice/foobar-waldo.slice/quux.service/`.
 
 Resource limits may be set on services, scopes and slices the same way. All active service, scope and slice units may easily be viewed with the "systemctl" command. The hierarchy of services and scopes in the slice tree may be viewed with the "systemd-cgls" command.
 
 Service and slice units may be configured via unit files on disk, or alternatively be created dynamically at runtime via API calls to PID 1. Scope units may only be created at runtime via API calls to PID 1, but not from unit files on disk. Units that are created dynamically at runtime via API calls are called *transient* units. Transient units exist only during runtime and are released automatically as soon as they finished/got deactivated or the system is rebooted.
+
+If a service/slice is configured via unit files on disk the resource controls may be configured with the settings documented in [[systemd.resource-control(5)|http://www.freedesktop.org/software/systemd/man/systemd.resource-control.html]]. At runtime they may be reconfigured for services/slices/scopes (with changes applying instantly) with the a command line such as:
+
+    # systemctl set-property httpd.service CPUShares=500 MemoryLimit=500M
+
+Note that the number of cgroup attributes currently exposed as unit properties is limited. This will be extended later on, as their kernel interfaces are cleaned up. For example cpuset or freezer are currently not exposed at all due to the broken inheritance semantics. Also, migrating units to a different slice at runtime is not supported (i.e. setting the Slice= property) as the kernel currently lacks atomic cgroup subtree moves.
+
+## The APIs
