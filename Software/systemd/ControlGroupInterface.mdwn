@@ -8,9 +8,11 @@ Starting with version 205 systemd provides a number of interfaces that may be us
 
 * Similar, some properties also require propagation up the tree.
 
-* The tree needs to be refreshed/build up in scheduled steps as devices show up/go away as controllers like "blkio" or "devices" refer to devices via major/minor device node indexes, which are not fixed but determined only as a device appears.
+* The tree needs to be refreshed/built in scheduled steps as devices show up/go away as controllers like "blkio" or "devices" refer to devices via major/minor device node indexes, which are not fixed but determined only as a device appears.
 
-* Many of the attributes are too low-level as API. For example, the major/minor device interface which to be useful requires a userspace component to translate stable device paths into major/minor at the right time.
+* The tree also needs refreshing/rebuilding as new services are installed/started/instantiated/stopped/uninstalled.
+
+* Many of the cgroup attributes are too low-level as API. For example, the major/minor device interface which to be useful requires a userspace component to translate stable device paths into major/minor at the right time.
 
 * By unifying the cgroup logic under a single arbiter it is possible to write tools that can manage all objects the system contains, including services, virtual machines containers and whatever else applications register.
 
