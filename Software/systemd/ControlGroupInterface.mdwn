@@ -2,7 +2,7 @@
 
 Starting with version 205 systemd provides a number of interfaces that may be used to create and manage labelled groups of processes for the purpose of monitoring and controlling them and their resource usage. This is built on top of the Linux kernel Control Groups ("cgroups") facility. Previously, the kernel's cgroups API was exposed directly as application API, following the rules of the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document. However, the kernel cgroup interface is in the process of being reworked into an API that requires a single writer in userspace managing it. With this change the cgroup tree becomes private property of that userspace component and is no longer a shared resource. On systemd systems PID 1 takes this role and hence needs to provide APIs for clients to take benefit of the control groups functionality of the kernel.
 
-## Why this all again?
+### Why this all again?
 
 * Objects placed in the same level of the cgroup tree frequently need to propagate properties from one to each other. For example, when using the "cpu" controller for one object then all objects on the same level need to do the same, otherwise the entire cgroup of the first object will be scheduled against the individual processes of the others, thus giving the first object a drastic malus on scheduling if it uses many processes.
 
@@ -20,16 +20,26 @@ Starting with version 205 systemd provides a number of interfaces that may be us
 
 systemd through its "unit" concept already implements a dependency network between objects where propagation can take place and contains a powerful execution queue. Also, a major part of the objects resources need to be controlled for are already systemd objects, most prominently the services systemd manages.
 
-## Why is this not managed by a component independent of systemd?
+### Why is this not managed by a component independent of systemd?
 
 Well, as mentioned above, a dependency network between objects, usable for propagation, combined with a powerful execution engine is basically what systemd *is*. Since cgroups management requires precisely this it is an obvious choice to simply implement this in systemd itself.
 
 Implementing a similar propagation/dependency network with execution scheduler outside of systemd in an independent "cgroup" daemon would basically mean reimplementing systemd a second time. Also, accessing such an external service from PID 1 for managing other services would result in cyclic dependencies between PID 1 which would need this functionality to manage the cgroup service which would only be available however after that service finished starting up. Such cyclic dependencies can certainly be worked around, but make such a design complex.
 
-## I don't use systemd, what does this mean for me?
+### I don't use systemd, what does this mean for me?
 
 Nothing. This page is about systemd's cgroups APIs. If you don't use systemd then the kernel cgroup rework will probably affect you eventually, but a different component will be the single writer userspace daemon managing the cgroup tree, with different APIs. Note that the APIs described here expose a lot of systemd-specific concepts and hence are unlikely to be available outside of systemd systems.
 
-## I want to write cgroup code that should work on both systemd systems and others (such as Ubuntu), what should I do?
+### I want to write cgroup code that should work on both systemd systems and others (such as Ubuntu), what should I do?
 
-On systemd systems use the systemd APIs as described below. We are not aware of any component that would take the cgroup managing role on Upstart/sysvinit systems, so I cannot help you there.
+On systemd systems use the systemd APIs as described below. At this time we are not aware of any component that would take the cgroup managing role on Upstart/sysvinit systems, so we cannot help you with this. Sorry.
+
+## systemd's Concepts for Resource Controls
+
+Systemd provides three unit types that are useful for the purpose of resource control:
+
+ * *Services* encapsulate a number of processes that are started and stopped by systemd with the configuration (usually) originating from unit files on disk.
+
+ * *Scopes* encapsulate a number of processes that are started and stopped by arbitrary processes via fork(), and then registered at runtime with PID1.
+
+ * *Slices* may be used to group a number of services and scopes together in a hierarchial tree. Slices do not contain processes themselves, but the services and slices contained in them do.
