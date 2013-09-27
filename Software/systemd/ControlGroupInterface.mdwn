@@ -36,9 +36,9 @@ On systemd systems use the systemd APIs as described below. At this time we are 
 
 ### What's the timeframe of this? Do I need to care now?
 
-In the short term future writing directly to the control group tree from applications should still be OK, as long as the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document is followed. In the medium-term future it will still be supported to alter/read individual attributes of cgroups directly, but no longer to create/delete them without using the systemd API. In the longer-term future altering/reading attributes will also be unavailable to userspace applications.
+In the short-term future writing directly to the control group tree from applications should still be OK, as long as the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document is followed. In the medium-term future it will still be supported to alter/read individual attributes of cgroups directly, but no longer to create/delete cgroups without using the systemd API. In the longer-term future altering/reading attributes will also be unavailable to userspace applications, unless done via systemd's APIs.
 
-It is recommended to use the new systemd APIs described below in any case. Note that the kernel cgroup interface is currently being reworked (available when the "sane_behaviour" option is used). This will change the cgroupfs interface. By using systemd's APIs this change is abstracted away.
+It is recommended to use the new systemd APIs described below in any case. Note that the kernel cgroup interface is currently being reworked (available when the "sane_behaviour" kernel option is used). This will change the cgroupfs interface. By using systemd's APIs this change is abstracted away and invisible to applications.
 
 ## systemd's Resource Control Concepts
 
@@ -63,3 +63,5 @@ If a service/slice is configured via unit files on disk the resource controls ma
 Note that the number of cgroup attributes currently exposed as unit properties is limited. This will be extended later on, as their kernel interfaces are cleaned up. For example cpuset or freezer are currently not exposed at all due to the broken inheritance semantics. Also, migrating units to a different slice at runtime is not supported (i.e. setting the Slice= property) as the kernel currently lacks atomic cgroup subtree moves.
 
 ## The APIs
+
+Most relevant APIs are exposed via D-Bus.
