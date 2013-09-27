@@ -568,7 +568,7 @@ All service unit objects implement the `org.freedesktop.systemd1.Service` interf
           readonly i CPUSchedulingPolicy = 0;
           readonly i CPUSchedulingPriority = 0;
           readonly ay CPUAffinity = [];
-          readonly t TimerSlackNS;
+          readonly t TimerSlackNSec = 50000;
           readonly b CPUSchedulingResetOnFork = false;
           readonly b NonBlocking = false;
           readonly s StandardInput = 'null';
@@ -684,6 +684,8 @@ All socket unit objects implement the `org.freedesktop.systemd1.Socket` interfac
           readonly b BindIPv6Only = 'default';
           readonly u Backlog = 128;
           readonly t TimeoutUSec = 90000000;
+          readonly s Slice = 'system.slice';
+          readonly s ControlGroup = '/system.slice/avahi-daemon.socket';
           readonly a(sasbttuii) ExecStartPre = [];
           readonly a(sasbttuii) ExecStartPost = [];
           readonly a(sasbttuii) ExecStopPre = [];
@@ -740,18 +742,28 @@ All socket unit objects implement the `org.freedesktop.systemd1.Socket` interfac
           readonly as ReadOnlyDirectories = [];
           readonly as InaccessibleDirectories = [];
           readonly t MountFlags = 0;
-          readonly b PrivateTmp = false;
-          readonly b SameProcessGroup = false;
-          readonly s KillMode = 'control-group';
-          readonly i KillSignal = 15;
-          readonly s UtmpIdentifier = '';
+          readonly b PrivateTmp = false;          
           readonly b PrivateNetwork = false;
+          readonly b SameProcessGroup = false;
+          readonly s UtmpIdentifier = '';
           readonly b IgnoreSIGPIPE = true;
           readonly b NoNewPrivileges = false;
           readonly au SystemCallFilter = [];
           readonly s KillMode = 'control-group';
           readonly i KillSignal = 15;
           readonly b SendSIGKILL = true;
+          readonly b SendSIGHUP = false;
+          readonly b CPUAccounting = false;
+          readonly t CPUShares = 1024;
+          readonly b BlockIOAccounting = false;
+          readonly t BlockIOWeight = 1000;
+          readonly a(st) BlockIODeviceWeight = [];
+          readonly a(st) BlockIOReadBandwidth=;
+          readonly a(st) BlockIOWriteBandwidth=;
+          readonly b MemoryAccounting = false;
+          readonly t MemoryLimit = 18446744073709551615;
+          readonly s DevicePolicy = 'auto';
+          readonly a(ss) DeviceAllow = [];
           readonly u ControlPID = 0;
           readonly s BindToDevice = '';
           readonly u DirectoryMode = 493;
@@ -775,7 +787,9 @@ All socket unit objects implement the `org.freedesktop.systemd1.Socket` interfac
           readonly u NConnections = 0;
           readonly x MessageQueueMaxMessages = 0;
           readonly x MessageQueueMessageSize = 0;
+          readonly a(ss) Listen = [('Stream', '/var/run/avahi-daemon/socket')];
           readonly s Result = 'success';
+          readonly b ReusePort = false;
           readonly s SmackLabel = '';
           readonly s SmackLabelIPIn = '';
           readonly s SmackLabelIPOut = '';
@@ -800,7 +814,6 @@ Most of the properties map directly to the corresponding settings in socket unit
 Similarly **NConnections** contains the number of currently open connections on this socket, and also applies only to socket with **Accept** set to _true_. 
 
 **Result** encodes the reason why a socket unit failed if it is in _failed_ state (see **ActiveState** above). The values _success_, _resources_, _timeout_, _exit-code_, _signal_ and _core-dump_ have the same meaning as they have for the corresponding field of service units (see above). In addition to that the value **service-failed-permanent** indicates that the service of this socket failed continuously. 
-
 
 ## Target Unit Objects
 
@@ -883,10 +896,13 @@ All mount unit objects implement the `org.freedesktop.systemd1.Mount` interface 
           readonly s Options = 'rw,relatime,rw,seclabel,data=ordered';
           readonly s Type = 'ext4';
           readonly t TimeoutUSec = 90000000;
+          readonly s Slice = 'system.slice';
+          readonly s ControlGroup = '/system.slice/home.mount';
           readonly a(sasbttuii) ExecMount = [('/bin/mount', ['/bin/mount', '/dev/disk/by-uuid/59a54df8-d070-4907-a4a7-2e0ce05d5c2a', '/home', '-t', 'ext4'], false, 1357656124168977, 11158027, 1357656124274805, 11263855, 608, 1, 0)];
           readonly a(sasbttuii) ExecUnmount = [];
           readonly a(sasbttuii) ExecRemount = [];
           readonly as Environment = [];
+          readonly a(sb) EnvironmentFiles = [];
           readonly u UMask = 18;
           readonly t LimitCPU = 18446744073709551615;
           readonly t LimitFSIZE = 18446744073709551615;
@@ -912,7 +928,7 @@ All mount unit objects implement the `org.freedesktop.systemd1.Mount` interface 
           readonly i CPUSchedulingPolicy = 0;
           readonly i CPUSchedulingPriority = 0;
           readonly ay CPUAffinity = [];
-          readonly t TimerSlackNS;
+          readonly t TimerSlackNSec = 50000;
           readonly b CPUSchedulingResetOnFork = false;
           readonly b NonBlocking = false;
           readonly s StandardInput = 'null';
@@ -938,19 +954,27 @@ All mount unit objects implement the `org.freedesktop.systemd1.Mount` interface 
           readonly as InaccessibleDirectories = [];
           readonly t MountFlags = 0;
           readonly b PrivateTmp = false;
-          readonly b SameProcessGroup = true;
-          readonly s KillMode = 'control-group';
-          readonly i KillSignal = 15;
-          readonly s UtmpIdentifier = '';
-          readonly b ControlGroupModify = false;
-          readonly b ControlGroupPersistent = false;
           readonly b PrivateNetwork = false;
+          readonly b SameProcessGroup = true;
+          readonly s UtmpIdentifier = '';
           readonly b IgnoreSIGPIPE = true;
           readonly b NoNewPrivileges = false;
           readonly au SystemCallFilter = [];
           readonly s KillMode = 'control-group';
           readonly i KillSignal = 15;
           readonly b SendSIGKILL = true;
+          readonly b SendSIGHUP = false;
+          readonly b CPUAccounting = false;
+          readonly t CPUShares = 1024;
+          readonly b BlockIOAccounting = false;
+          readonly t BlockIOWeight = 1000;
+          readonly a(st) BlockIODeviceWeight = [];
+          readonly a(st) BlockIOReadBandwidth=;
+          readonly a(st) BlockIOWriteBandwidth=;
+          readonly b MemoryAccounting = false;
+          readonly t MemoryLimit = 18446744073709551615;
+          readonly s DevicePolicy = 'auto';
+          readonly a(ss) DeviceAllow = [];
           readonly u ControlPID = 0;
           readonly u DirectoryMode = 493;
           readonly s Result = 'success';
@@ -1088,7 +1112,7 @@ All timer unit objects implement the `org.freedesktop.systemd1.Timer` interface 
 
 **NextElapseUSecRealtime** contains the next elapsation point on the CLOCK_REALTIME clock in usec since the epoch, or 0 if this timer event does not include at least one calendar event. 
 
-Similarly, **NextElapseUSecMonotonic** contains the next elapsation point on the CLOCK_MONOTONIC clock in usec since the epoch, or 0 if this timer event does not include at least one monotonic event. 
+Similar, **NextElapseUSecMonotonic** contains the next elapsation point on the CLOCK_MONOTONIC clock in usec since the epoch, or 0 if this timer event does not include at least one monotonic event. 
 
 **Result** knows the values _success_ and _resources_ with the same meanings as the matching values of the corresponding property of the service interface. 
 
@@ -1109,10 +1133,13 @@ All swap unit objects implement the `org.freedesktop.systemd1.Swap` interface (d
         properties:
           readonly s What = '/dev/sda3';
           readonly i Priority = -1;
-          readonly t TimeoutUSec;
+          readonly t TimeoutUSec = 90000000;
+          readonly s Slice = 'system.slice';
+          readonly s ControlGroup = '';
           readonly a(sasbttuii) ExecActivate = [];
           readonly a(sasbttuii) ExecDeactivate = [];
           readonly as Environment = [];
+          readonly a(sb) EnvironmentFiles = [];
           readonly u UMask = 18;
           readonly t LimitCPU = 18446744073709551615;
           readonly t LimitFSIZE = 18446744073709551615;
@@ -1138,7 +1165,7 @@ All swap unit objects implement the `org.freedesktop.systemd1.Swap` interface (d
           readonly i CPUSchedulingPolicy = 0;
           readonly i CPUSchedulingPriority = 0;
           readonly ay CPUAffinity = [];
-          readonly t TimerSlackNS;
+          readonly t TimerSlackNS = 50000;
           readonly b CPUSchedulingResetOnFork = false;
           readonly b NonBlocking = false;
           readonly s StandardInput = 'null';
@@ -1164,19 +1191,29 @@ All swap unit objects implement the `org.freedesktop.systemd1.Swap` interface (d
           readonly as InaccessibleDirectories = [];
           readonly t MountFlags = 0;
           readonly b PrivateTmp = false;
+          readonly b PrivateNetwork = false;
           readonly b SameProcessGroup = false;
           readonly s KillMode = 'control-group';
           readonly i KillSignal = 15;
           readonly s UtmpIdentifier = '';
-          readonly b ControlGroupModify = false;
-          readonly b ControlGroupPersistent = false;
-          readonly b PrivateNetwork = false;
           readonly b IgnoreSIGPIPE = true;
           readonly b NoNewPrivileges = false;
           readonly au SystemCallFilter = [];
           readonly s KillMode = 'control-group';
           readonly i KillSignal = 15;
           readonly b SendSIGKILL = true;
+          readonly b SendSIGHUP = false;
+          readonly b CPUAccounting = false;
+          readonly t CPUShares = 1024;
+          readonly b BlockIOAccounting = false;
+          readonly t BlockIOWeight = 1000;
+          readonly a(st) BlockIODeviceWeight = [];
+          readonly a(st) BlockIOReadBandwidth=;
+          readonly a(st) BlockIOWriteBandwidth=;
+          readonly b MemoryAccounting = false;
+          readonly t MemoryLimit = 18446744073709551615;
+          readonly s DevicePolicy = 'auto';
+          readonly a(ss) DeviceAllow = [];
           readonly u ControlPID = 0;
           readonly s Result = 'success';
       };
