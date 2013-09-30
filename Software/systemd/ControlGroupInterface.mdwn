@@ -175,6 +175,8 @@ If a service/slice is configured via unit files on disk the resource controls ma
 
 Note that the number of cgroup attributes currently exposed as unit properties is limited. This will be extended later on, as their kernel interfaces are cleaned up. For example cpuset or freezer are currently not exposed at all due to the broken inheritance semantics. Also, migrating units to a different slice at runtime is not supported (i.e. setting the Slice= property) as the kernel currently lacks atomic cgroup subtree moves.
 
+(Note that the resource control settings are actually also available on mount, swap and socket units. This is because they may also involve processes run for them. However, normally it should not be necessary to alter resource control settings on these unit types.)
+
 ## The APIs
 
 Most relevant APIs are exposed via D-Bus, however some *passive* interfaces are available as shared library, bypassing IPC so that they are much cheaper to call.
