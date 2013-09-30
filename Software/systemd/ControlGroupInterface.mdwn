@@ -2,6 +2,8 @@
 
 > *aka "I want to make use of kernel cgroups, how do I do this in the new world order?"*
 
+[[!toc ]]
+
 Starting with version 205 systemd provides a number of interfaces that may be used to create and manage labelled groups of processes for the purpose of monitoring and controlling them and their resource usage. This is built on top of the Linux kernel Control Groups ("cgroups") facility. Previously, the kernel's cgroups API was exposed directly as application API, following the rules of the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document. However, the kernel cgroup interface is in the process of being reworked into an API that requires a single writer in userspace managing it. With this change the cgroup tree becomes private property of that userspace component and is no longer a shared resource. On systemd systems PID 1 takes this role and hence needs to provide APIs for clients to take benefit of the control groups functionality of the kernel.
 
 For a more high-level background story, please have a look at this [[Linux Foundation News Story|http://www.linuxfoundation.org/news-media/blogs/browse/2013/08/all-about-linux-kernel-cgroup%E2%80%99s-redesign]].
@@ -56,7 +58,114 @@ Systemd provides three unit types that are useful for the purpose of resource co
 
 Service, scope and slice units directly map to objects in the cgroup tree. When these units are activated they each map to directly (modulo some character escaping) to cgroup paths built from the unit names. For example, a service `quux.service` in a slice `foobar-waldo.slice` is found in the cgroup `foobar.slice/foobar-waldo.slice/quux.service/`.
 
-Services, scopes and slices may be created freely by the administrator or dynamically by programs. However by default the OS defines a number of built-in services that are necessary to start-up the system. Also, there are four slices defined by default: first of all the root slice `-.slice` (as mentioned above), but also `system.slice`, `machine.slice`, `user.slice`. By default all system services are placed in the first slice, all virtual machines and containers in the second, and user sessions in the third. However, this is just a default, and the administrator my freely define new slices and assign services and scopes to them. Also note that all login sessions automatically are placed in an individual scope unit, as are VM and container processes.
+Services, scopes and slices may be created freely by the administrator or dynamically by programs. However by default the OS defines a number of built-in services that are necessary to start-up the system. Also, there are four slices defined by default: first of all the root slice `-.slice` (as mentioned above), but also `system.slice`, `machine.slice`, `user.slice`. By default all system services are placed in the first slice, all virtual machines and containers in the second, and user sessions in the third. However, this is just a default, and the administrator my freely define new slices and assign services and scopes to them. Also note that all login sessions automatically are placed in an individual scope unit, as are VM and container processes. Finally, all users logging in will also get an implicit slice of their own where all the session scopes are placed. 
+
+Here's an example how the cgroup tree could look like (as generated with `systemd-cgls(1)`, see below):
+
+    ├─user.slice
+    │ └─user-1000.slice
+    │   ├─session-18.scope
+    │   │ ├─703 login -- lennart
+    │   │ └─773 -bash
+    │   ├─session-1.scope
+    │   │ ├─  518 gdm-session-worker [pam/gdm-autologin]
+    │   │ ├─  540 gnome-session
+    │   │ ├─  552 dbus-launch --sh-syntax --exit-with-session
+    │   │ ├─  553 /bin/dbus-daemon --fork --print-pid 4 --print-address 6 --session
+    │   │ ├─  589 /usr/libexec/gvfsd
+    │   │ ├─  593 /usr/libexec//gvfsd-fuse -f /run/user/1000/gvfs
+    │   │ ├─  598 /usr/libexec/gnome-settings-daemon
+    │   │ ├─  617 /usr/bin/gnome-keyring-daemon --start --components=gpg
+    │   │ ├─  630 /usr/bin/pulseaudio --start
+    │   │ ├─  726 /usr/bin/gnome-shell
+    │   │ ├─  728 syndaemon -i 1.0 -t -K -R
+    │   │ ├─  736 /usr/libexec/gsd-printer
+    │   │ ├─  742 /usr/libexec/dconf-service
+    │   │ ├─  798 /usr/libexec/mission-control-5
+    │   │ ├─  802 /usr/libexec/goa-daemon
+    │   │ ├─  823 /usr/libexec/gvfsd-metadata
+    │   │ ├─  866 /usr/libexec/gvfs-udisks2-volume-monitor
+    │   │ ├─  880 /usr/libexec/gvfs-gphoto2-volume-monitor
+    │   │ ├─  886 /usr/libexec/gvfs-afc-volume-monitor
+    │   │ ├─  891 /usr/libexec/gvfs-mtp-volume-monitor
+    │   │ ├─  895 /usr/libexec/gvfs-goa-volume-monitor
+    │   │ ├─  999 /usr/libexec/telepathy-logger
+    │   │ ├─ 1076 /usr/libexec/gnome-terminal-server
+    │   │ ├─ 1079 gnome-pty-helper
+    │   │ ├─ 1080 bash
+    │   │ ├─ 1134 ssh-agent
+    │   │ ├─ 1137 gedit l
+    │   │ ├─ 1160 gpg-agent --daemon --write-env-file
+    │   │ ├─ 1371 /usr/lib64/firefox/firefox
+    │   │ ├─ 1729 systemd-cgls
+    │   │ ├─ 1929 bash
+    │   │ ├─ 2057 emacs src/login/org.freedesktop.login1.policy.in
+    │   │ ├─ 2060 /usr/libexec/gconfd-2
+    │   │ ├─29634 /usr/libexec/gvfsd-http --spawner :1.5 /org/gtk/gvfs/exec_spaw/0
+    │   │ └─31416 bash
+    │   └─user@1000.service
+    │     ├─532 /usr/lib/systemd/systemd --user
+    │     └─541 (sd-pam)
+    └─system.slice
+      ├─1 /usr/lib/systemd/systemd --system --deserialize 22
+      ├─sshd.service
+      │ └─29701 /usr/sbin/sshd -D
+      ├─udisks2.service
+      │ └─743 /usr/lib/udisks2/udisksd --no-debug
+      ├─colord.service
+      │ └─727 /usr/libexec/colord
+      ├─upower.service
+      │ └─633 /usr/libexec/upowerd
+      ├─wpa_supplicant.service
+      │ └─488 /usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+      ├─bluetooth.service
+      │ └─463 /usr/sbin/bluetoothd -n
+      ├─polkit.service
+      │ └─443 /usr/lib/polkit-1/polkitd --no-debug
+      ├─alsa-state.service
+      │ └─408 /usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon
+      ├─systemd-udevd.service
+      │ └─253 /usr/lib/systemd/systemd-udevd
+      ├─systemd-journald.service
+      │ └─240 /usr/lib/systemd/systemd-journald
+      ├─rtkit-daemon.service
+      │ └─419 /usr/libexec/rtkit-daemon
+      ├─rpcbind.service
+      │ └─475 /sbin/rpcbind -w
+      ├─cups.service
+      │ └─731 /usr/sbin/cupsd -f
+      ├─avahi-daemon.service
+      │ ├─417 avahi-daemon: running [delta.local]
+      │ └─424 avahi-daemon: chroot helper
+      ├─dbus.service
+      │ ├─418 /bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+      │ └─462 /usr/sbin/modem-manager
+      ├─accounts-daemon.service
+      │ └─416 /usr/libexec/accounts-daemon
+      ├─systemd-ask-password-wall.service
+      │ └─434 /usr/bin/systemd-tty-ask-password-agent --wall
+      ├─systemd-logind.service
+      │ └─415 /usr/lib/systemd/systemd-logind
+      ├─ntpd.service
+      │ └─429 /usr/sbin/ntpd -u ntp:ntp -g
+      ├─rngd.service
+      │ └─412 /sbin/rngd -f
+      ├─libvirtd.service
+      │ └─467 /usr/sbin/libvirtd
+      ├─irqbalance.service
+      │ └─411 /usr/sbin/irqbalance --foreground
+      ├─crond.service
+      │ └─421 /usr/sbin/crond -n
+      ├─NetworkManager.service
+      │ ├─ 410 /usr/sbin/NetworkManager --no-daemon
+      │ ├─1066 /sbin/dhclient -d -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-enp0s20u2.pid -lf /var/lib/NetworkManager/dhclient-35c8218b-9e45-4b1f-b79e-22334f687340-enp0s20u2.lease -cf /var/lib/NetworkManager/dhclient-enp0s20u2.conf enp0s20u2
+      │ └─1070 /sbin/dhclient -d -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-enp0s26u1u4i2.pid -lf /var/lib/NetworkManager/dhclient-f404f1ca-ccfe-4957-aead-dec19c126dea-enp0s26u1u4i2.lease -cf /var/lib/NetworkManager/dhclient-enp0s26u1u4i2.conf enp0s26u1u4i2
+      └─gdm.service
+        ├─420 /usr/sbin/gdm
+        ├─449 /usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Displays/_0
+        └─476 /usr/bin/Xorg :0 -background none -verbose -auth /run/gdm/auth-for-gdm-pJjwsi/database -seat seat0 -nolisten tcp vt1
+
+As you can see, services and scopes contain process and are placed in slices, and slices do not contain processes of their own. (Well, with one exception: PID 1 is magic and located in the special `systemd.slice`, but that's really the only exception...). Also note that the special "-.slice" is not shown as it is implicitly identified with the root of the entire tree.
 
 Resource limits may be set on services, scopes and slices the same way. All active service, scope and slice units may easily be viewed with the "systemctl" command. The hierarchy of services and scopes in the slice tree may be viewed with the "systemd-cgls" command.
 
