@@ -169,11 +169,13 @@ Resource limits may be set on services, scopes and slices the same way. All acti
 
 Service and slice units may be configured via unit files on disk, or alternatively be created dynamically at runtime via API calls to PID 1. Scope units may only be created at runtime via API calls to PID 1, but not from unit files on disk. Units that are created dynamically at runtime via API calls are called *transient* units. Transient units exist only during runtime and are released automatically as soon as they finished/got deactivated or the system is rebooted.
 
-If a service/slice is configured via unit files on disk the resource controls may be configured with the settings documented in [[systemd.resource-control(5)|http://www.freedesktop.org/software/systemd/man/systemd.resource-control.html]]. At runtime they may be reconfigured for services/slices/scopes (with changes applying instantly) with the a command line such as:
+If a service/slice is configured via unit files on disk the resource controls may be configured with the settings documented in [[systemd.resource-control(5)|http://www.freedesktop.org/software/systemd/man/systemd.resource-control.html]]. While the unit are started they may be reconfigured for services/slices/scopes (with changes applying instantly) with the a command line such as:
 
     # systemctl set-property httpd.service CPUShares=500 MemoryLimit=500M
 
-Note that the number of cgroup attributes currently exposed as unit properties is limited. This will be extended later on, as their kernel interfaces are cleaned up. For example cpuset or freezer are currently not exposed at all due to the broken inheritance semantics. Also, migrating units to a different slice at runtime is not supported (i.e. setting the Slice= property) as the kernel currently lacks atomic cgroup subtree moves.
+This will make these changes persistently, so that after the next reboot they are automatically applied right when the services are first started. By passing the `--runtime` switch the changes can alternatively be made in a volatile way so that they are lost on the next reboot.
+
+Note that the number of cgroup attributes currently exposed as unit properties is limited. This will be extended later on, as their kernel interfaces are cleaned up. For example cpuset or freezer are currently not exposed at all due to the broken inheritance semantics of the kernel logic. Also, migrating units to a different slice at runtime is not supported (i.e. altering the Slice= property for running units) as the kernel currently lacks atomic cgroup subtree moves.
 
 (Note that the resource control settings are actually also available on mount, swap and socket units. This is because they may also involve processes run for them. However, normally it should not be necessary to alter resource control settings on these unit types.)
 
