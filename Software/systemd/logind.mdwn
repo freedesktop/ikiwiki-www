@@ -304,7 +304,23 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encod
           SetIdleHint(in  b b);
           Kill(in  s who,
                in  s signal);
+          TakeControl(in  b force);
+          ReleaseControl();
+          TakeDevice(in  u major,
+                     in  u minor,
+                     out h fd,
+                     out b paused);
+          ReleaseDevice(in  u major,
+                        in  u minor);
+          PauseDeviceComplete(in  u major,
+                              in  u minor);
         signals:
+          PauseDevice(u major,
+                      u minor,
+                      s type);
+          ResumeDevice(u major,
+                       u minor,
+                       h fd);
           Lock();
           Unlock();
         properties:
@@ -346,7 +362,23 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encod
 
 **SetIdleHint()** shall be called by the session object to update the idle state of the session, whenever it changes.
 
+**TakeControl()** allows a process to take exclusive managed device access-control for that session. Only one dbus-connection can be a controller for a given session at a time. If the **force** argument is set (root only), an existing controller is kicked out and replaced. Otherwise, this call fails if there is already a controller.
+Note that this call is limited to dbus-users with the effective UID set to the User of the Session or root.
+
+**ReleaseControl()** drops control of a given session again. Closing the dbus-connection implicitly releases control, too. See **TakeControl()** for more. This also releases all devices for the controller that were requested via **TakeDevice()**.
+
+**TakeDevice()** allows a session-controller to get a file-descriptor for a specific device. Pass in the major and minor numbers of the character-device and logind will return a file-descriptor for the device. Only a limited set of device-types is currently supported (but may be extended). logind automatically mutes the file-descriptor if the session is inactive and resumes it once the session gets active again. This guarantees that a session can only access session-devices if the session is active. Note that this revoke/resume mechanism is asynchronous and may happen at any given time.
+This only works on devices that are attached to the seat of the given session. A process is not required to have direct access to the device-node. logind only requires you to be the active session controller (see **TakeControl()**). Also note that any device can only be requested once. As long as you don't release it, further **TakeDevice()** calls will fail.
+
+**ReleaseDevice()** releases a device again (see **TakeDevice()**). This is also implicitly done by **ReleaseControl()** or when closing the dbus-connection.
+
+**PauseDeviceComplete()** allows a session-controller to synchronously pause a device after receiving a **PauseDevice("pause")** signal. Forced signals (or after an internal timeout) are automatically completed by logind asynchronously.
+
 ### Signals
+
+The active session-controller exclusively gets **PauseDevice** and **ResumeDevice** events for any device it requested via **TakeDevice()**. They notify the controller whenever a device is paused or resumed. A device is never resumed if a session is inactive. Also note that **PauseDevice** signals are sent before the **PropertyChanged** signal for the **Active** state. The inverse is true for **ResumeDevice**. A device may remain paused for unknown reasons even though the Session is active.
+A **PauseDevice** signal carries the major/minor as arguments and a string describing the type. **force** means the device got paused by logind already and this is only an asynchronous notification. **pause** means logind tries to pause the device and grants you limited amount of time to pause it. You must respond to this via **PauseDeviceComplete()**. This synchronous pausing-mechanism is used for backwards-compatibility to VTs and logind is free to not make use of it. It is also free to send a forced **PauseDevice** if you don't respond in a timely manner (or for any other reason). **gone** means the device was unplugged from the system and you will no longer get any notifications about it. There is no reason to call **ReleaseDevice()**. You may call **TakeDevice()** again if a new device gets the major+minor combination assigned.
+**ResumeDevice** is sent whenever a session is active and a device is resumed. It carries the major/minor as arguments and provides a new open file-descriptor. You should switch to the new descriptor and close the old one. They are not guaranteed to have the same underlying open-file-descriptor in the kernel (except for a limited set of device types).
 
 Whenever **Active** or the idle state changes **PropertyChanged** signals are sent out to which clients can subscribe.
 
