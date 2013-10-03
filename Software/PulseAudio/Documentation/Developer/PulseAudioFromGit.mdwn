@@ -1,0 +1,60 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
+
+# Building and Installing PulseAudio From Git
+
+If you want to use the current development version of PulseAudio, follow these instructions.
+
+
+## Obtaining the Source Code
+
+Clone the source code repository on your machine:
+
+    git clone git://anongit.freedesktop.org/pulseaudio/pulseaudio
+
+If that doesn't work, perhaps you are behind a restrictive firewall. Try the HTTP interface instead (less efficient, not usually a big deal in practice):
+
+    git clone http://anongit.freedesktop.org/git/pulseaudio/pulseaudio.git
+
+These commands will create a new subdirectory with name "pulseaudio" in the current working directory.
+
+
+## Building
+
+After getting the source, go to the pulseaudio directory and run these commands:
+
+    ./bootstrap.sh
+    make
+
+It's good to know that bootstrap.sh runs also the configure script, using this command line:
+
+    CFLAGS="$CFLAGS -g -O0" ./configure --sysconfdir=/etc --localstatedir=/var --enable-force-preopen
+
+Arguments passed to bootstrap.sh will be passed on to the configure script. If you don't want bootstrap.sh to run configure, use this:
+
+    NOCONFIGURE=1 ./bootstrap.sh
+
+If there are complaints about something not being found, then you need to install the missing things. The list of build dependencies may be useful: [[http://www.freedesktop.org/wiki/Software/PulseAudio/Download/]]
+
+
+## Installing and Running
+
+### Method 1: System-Wide Installation Under /usr/local
+
+This is the simplest method. The drawback is that it will affect the whole system: the self-compiled version will be used everywhere instead of the distribution's version of PulseAudio. The development version should be pretty stable in general, though, so replacing the distro version isn't really a big deal (the distribution version will still exist in the system, but it just won't be used).
+
+Two commands (the latter is rarely needed, but it never hurts):
+
+    sudo make install
+    sudo ldconfig
+
+Uninstalling the self-compiled version is a matter of deleting all pulseaudio files under the /usr/local hierarchy (TODO: the exact rm commands would be nice here).
+
+
+### Method 2: Installing to a Custom Directory
+
+TODO
+
+
+### Method 3: Running From the Build Tree Without Installing
+
+TODO. (A lot of information can be found here: [[http://colin.guthr.ie/2010/09/compiling-and-running-pulseaudio-from-git/]]. It would be good to copy that here.)
