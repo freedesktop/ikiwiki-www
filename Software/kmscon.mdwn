@@ -1,31 +1,74 @@
-
+<pre style="float:right; color:white; background-color:black; font-size:smaller; width:45%; padding:6pt 8pt">
+<span style="color:green">david@david-mb</span> <span style="color:blue">~/dev/kmscon $</span> ls -la
+total 3424
+drwxr-xr-x 12 david david    4096 Oct 29 11:14 <span style="color:blue">.</span>
+drwxr-xr-x 30 david david    4096 Oct 29 09:33 <span style="color:blue">..</span>
+-rw-r--r--  1 david david   51900 Oct 29 11:02 aclocal.m4
+-rwxr-xr-x  1 david david     113 Dec  1  2012 <span style="color:green">autogen.sh</span>
+drwxr-xr-x  2 david david    4096 Oct 29 11:02 <span style="color:blue">autom4te.cache</span>
+drwxr-xr-x  2 david david    4096 Oct 29 11:02 <span style="color:blue">build-aux</span>
+-rw-r--r--  1 david david    4082 Oct 29 11:02 config.h
+-rw-r--r--  1 david david    3718 Oct 29 11:02 config.h.in
+-rw-r--r--  1 david david   49283 Oct 29 11:02 config.log
+-rwxr-xr-x  1 david david   64743 Oct 29 11:02 <span style="color:green">config.status</span>
+-rwxr-xr-x  1 david david  546241 Oct 29 11:02 <span style="color:green">configure</span>
+-rw-r--r--  1 david david   25163 Oct 29 10:52 configure.ac
+-rw-r--r--  1 david david    6759 May 10 17:16 COPYING
+drwxr-xr-x  3 david david    4096 Oct 29 10:20 <span style="color:blue">docs</span>
+drwxr-xr-x  4 david david    4096 Oct 29 11:14 <span style="color:blue">external</span>
+drwxr-xr-x  2 david david    4096 May 10 17:16 <span style="color:blue">fblog</span>
+-rwxr-xr-x  1 david david   22043 Oct 29 11:14 <span style="color:green">genshader</span>
+-rwxr-xr-x  1 david david   23290 Oct 29 11:14 <span style="color:green">genunifont</span>
+drwxr-xr-x  8 david david    4096 Oct 29 11:12 <span style="color:blue">.git</span>
+-rw-r--r--  1 david david     544 Oct 29 09:41 .gitignore
+-rwxr-xr-x  1 david david 1009988 Oct 29 11:14 <span style="color:green">kmscon</span>
+-rw-r--r--  1 david david  950068 Oct 29 11:12 kmscon-8.tar.xz
+-rw-r--r--  1 david david     871 Oct 29 11:14 libeloop.la
+drwxr-xr-x  2 david david    4096 Oct 29 11:14 <span style="color:blue">.libs</span>
+-rw-r--r--  1 david david     865 Oct 29 11:14 libshl.la
+-rwxr-xr-x  1 david david  293012 Oct 29 11:02 <span style="color:green">libtool</span>
+-rw-r--r--  1 david david     938 Oct 29 11:14 libuterm.la
+drwxr-xr-x  2 david david    4096 Oct 29 11:02 <span style="color:blue">m4</span>
+-rw-r--r--  1 david david  136680 Oct 29 11:02 Makefile
+-rw-r--r--  1 david david   14674 Oct 29 10:33 Makefile.am
+-rw-r--r--  1 david david  154345 Oct 29 11:02 Makefile.in
+-rw-r--r--  1 david david       0 Oct 29 11:14 .man_fixup
+-rw-r--r--  1 david david     949 Oct 29 11:14 mod-bbulk.la
+-rw-r--r--  1 david david     958 Oct 29 11:14 mod-gltex.la
+-rw-r--r--  1 david david    1041 Oct 29 11:14 mod-pango.la
+-rw-r--r--  1 david david     963 Oct 29 11:14 mod-unifont.la
+-rw-r--r--  1 david david   12143 Oct 29 11:01 NEWS
+-rw-r--r--  1 david david    4695 Oct 29 10:52 README
+drwxr-xr-x  4 david david   16384 Oct 29 11:14 <span style="color:blue">src</span>
+-rw-r--r--  1 david david      23 Oct 29 11:02 stamp-h1
+drwxr-xr-x  3 david david    4096 Oct 29 11:02 <span style="color:blue">tests</span>
+<span style="color:green">david@david-mb</span> <span style="color:blue">~/dev/kmscon $</span>
+</pre>
 
 # KMS/DRM based System Console
+**`kmscon`** is a system console for linux. It does not depend on any graphics-server on your system (like _X.org_), but instead provides a raw console layer that can be used independently. It can replace the linux kernel console entirely but was designed to work well side-by-side, too. Even though initially targeted at providing internationalization to the system-console, it has grown into a fully modularized console layer including features like multi-head support, internationalized font rendering, XKB-compatible keyboard handling, hardware-accelerated graphics access and more.
 
-Overview 
+Several sub-projects emerged out of kmscon. Have a look at:
 
-* **`kmscon`** is a system console for linux. It does not depend on any graphics-server on your system (like _X.org_), but instead provides a raw console layer that can be used independently. It can replace the linux kernel console entirely but was designed to work well side-by-side, too. Even though initially targeted at providing internationalization to the system-console, it has grown into a fully modularized console layer including features like multi-head support, internationalized font rendering, XKB-compatible keyboard handling, hardware-accelerated graphics access and more. 
-Why the name? 
+* [[wlterm|http://www.freedesktop.org/wiki/Software/kmscon/wlterm/]]
+* [[libtsm|http://www.freedesktop.org/wiki/Software/kmscon/libtsm/]]
 
-* `kmscon` uses the **Direct-Rendering-Manager** (DRM) of the linux kernel to access graphics devices. The API that performs mode-setting on displays/monitors is called **Kernel-Mode-Setting** (KMS). Hence its name `kmscon`. Today, `kmscon` can also make use of other graphics-APIs. But these were mainly introduced for backwards-compatibility. KMS/DRM is the way to go! 
-Mailing Lists: 
+## Why the name?
+`kmscon` uses the **Direct-Rendering-Manager** (DRM) of the linux kernel to access graphics devices. The API that performs mode-setting on displays/monitors is called **Kernel-Mode-Setting** (KMS). Hence its name `kmscon`. Today, `kmscon` can also make use of other graphics-APIs. But these were mainly introduced for backwards-compatibility. KMS/DRM is the way to go!
 
+## Mailing Lists:
 * [[General Development and Discussion|http://lists.freedesktop.org/mailman/listinfo/kmscon-devel]] 
-Bug Reports: 
 
-* [[Existing Bug Reports|https://bugs.freedesktop.org/buglist.cgi?query_format=advanced&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=kmscon]] [[File a New Bug Report|https://bugs.freedesktop.org/enter_bug.cgi?product=kmscon]] 
-Download: 
+## Bug Reports:
+* [[Existing Bug Reports|https://bugs.freedesktop.org/buglist.cgi?query_format=advanced&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=kmscon]]
+* [[File a New Bug Report|https://bugs.freedesktop.org/enter_bug.cgi?product=kmscon]]
 
-* [[Tarball Releases|http://www.freedesktop.org/software/kmscon/releases/]] 
-Git: 
+## Download:
+* [[Tarball Releases|http://www.freedesktop.org/software/kmscon/releases/]]
 
-* [[developer repository (David Herrmann)|http://cgit.freedesktop.org/~dvdhrm/kmscon/]] [[old github repository|http://github.com/dvdhrm/kmscon]] 
-Documentation for Users: 
+## Git:
+* [[developer repository (David Herrmann)|http://cgit.freedesktop.org/~dvdhrm/kmscon/]]
+* [[old github repository|http://github.com/dvdhrm/kmscon]] 
 
-* TODO 
-Documentation for Developers: 
-
-* TODO 
-Distribution Packages: 
-
+## Distribution Packages: 
 * [[Arch Linux|https://www.archlinux.org/packages/community/x86_64/kmscon/]] [[(Wiki)|https://wiki.archlinux.org/index.php/KMSCON]] 
