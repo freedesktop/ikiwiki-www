@@ -2,11 +2,12 @@
 
 # PulseAudio 5.0 Release Notes (draft)
 
+Draft status: checked commits since v4.0 until 50af14bd5bdc3906e13155ca5f7f7b1e088a1885
+
+
 ## Changes at a glance
 
-* Headline item 1
-* Headline item 2
-* ...
+* BlueZ 5 support (A2DP only)
 
 
 ## Notes for Application Developers
@@ -16,29 +17,43 @@ TODO: libpulse API changes go here.
 
 ## Notes for Packagers
 
-TODO: Dependency changes go here.
+PulseAudio now supports BlueZ 5, but only the A2DP profile. BlueZ 4 is still the only way to make HSP/HFP work.
+
+We now use upstream gettext instead of the GLib version. The minimum required version is 0.18.1.
 
 
 ## Changes in More Detail
+
+### BlueZ 5 support (A2DP only)
+
+TODO: This is one of the most significant changes in this release. We already have a note for packagers above, but we probably should have some longer explanation here about what makes BlueZ 5 so great for users, and also what doesn't work and why. And what is required for the not-yet-working stuff to start working.
+
 
 ### Utility changes:
 
 TODO: Changes in pacat, pactl etc. go here.
 
 
-###  Module changes:
+### Module changes:
 
 TODO: New modules, new module arguments etc. shall be noted here.
 
 
-###  Hardware support changes:
+### Configuration changes:
+
+In path configuration files (/usr/share/pulseaudio/alsa-mixer/paths/*) the "name" option in the "General" section is not supported any more. The path name is now determined solely based on the file name. The "name" option was also used as a key to a table containing path descriptions, and that functionality is now provided by a new option called "description-key".
+
+A single path can't be used for both input and output any more.
+
+
+### Hardware support changes:
 
 TODO: New card profile configuration files etc. shall be noted here.
 
 
-###  libpulse changes:
+### libpulse changes:
 
-TODO: libpulse changes go here. (What's the difference between this section and the "Notes for Application Developers" section? Are both necessary?)
+New function: pa_threaded_mainloop_set_name(). This is used internally in PulseAudio, for improving the server log messages when using pa_threaded_mainloop. The usefulness of this new function is probably very limited for applications.
 
 
 ### Performance improvements:
@@ -53,7 +68,7 @@ TODO: Noteworthy bug fixes shall be noted here.
 
 ## Next Steps
 
-TODO
+HSP/HFP support for BlueZ 5 will hopefully arrive in the next PulseAudio release, but that requires someone to write the code for that. Some code already exists, but it hasn't been submitted for upstream inclusion, and lately there has not been much visible progress on that front (TODO: check the latest status and plans from João).
 
 
 ## git shortlog
