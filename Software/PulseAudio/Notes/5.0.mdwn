@@ -2,8 +2,7 @@
 
 # PulseAudio 5.0 Release Notes (draft)
 
-Draft status: checked commits since v4.0 until 50af14bd5bdc3906e13155ca5f7f7b1e088a1885
-
+Draft status: checked commits since v4.0 until b76b9c32d9172a88efad7cb74c3a5c8cf893014a
 
 ## Changes at a glance
 
@@ -21,6 +20,8 @@ PulseAudio now supports BlueZ 5, but only the A2DP profile. BlueZ 4 is still the
 
 We now use upstream gettext instead of the GLib version. The minimum required version is 0.18.1.
 
+The minimum supported alsa-lib version is now 1.0.19 (down from 1.0.24).
+
 
 ## Changes in More Detail
 
@@ -31,7 +32,7 @@ TODO: This is one of the most significant changes in this release. We already ha
 
 ### Utility changes:
 
-TODO: Changes in pacat, pactl etc. go here.
+pacmd now supports "newfile:somefile.log" as a target for the set-log-target command. "newfile:somefile.log" means that somefile.log will not be overwritten if it already exists. Instead, a new file with name somefile.log.1 will be created. The "newfile:" target was already supported in the daemon configuration file, this change just brings pacmd to the same level.
 
 
 ### Module changes:
@@ -48,7 +49,9 @@ A single path can't be used for both input and output any more.
 
 ### Hardware support changes:
 
-TODO: New card profile configuration files etc. shall be noted here.
+Jack detection support for line out jacks has been added. TODO: Any concrete benefits for users?
+
+A configuration file for Native Instruments Traktor Audio 2 was missing from the 4.0 tarball. It's now shipped with 5.0, so users of that hardware actually get the benefit from the configuration file (which allows PulseAudio to use both outputs of the sound card).
 
 
 ### libpulse changes:
@@ -58,12 +61,14 @@ New function: pa_threaded_mainloop_set_name(). This is used internally in PulseA
 
 ### Performance improvements:
 
-TODO: New optimizations or other performance related changes shall be noted here.
+Improved float->s16 and s16->float sample conversion for ARM NEON.
 
 
 ### Bug fix highlights:
 
-TODO: Noteworthy bug fixes shall be noted here.
+module-combine-sink doesn't crash any more when its virtual streams are destroyed (like when unloading the module). This was a regression in 4.0.
+
+In the non-flat-volume mode we had a bug for a long time where stream volume was reset when moving the stream from one device to another. It's strange that this sort of bug in basic functionality has gone unnoticed (or at least unreported) for so long, but now it has been found and fixed.
 
 
 ## Next Steps
