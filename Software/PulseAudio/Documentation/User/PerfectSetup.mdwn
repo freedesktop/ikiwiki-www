@@ -1,5 +1,603 @@
-[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
 
-# Perfect Setup
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[!inline pages="PerfectSetupTOC" quick="yes" raw="yes"]] 
 
-This page used to contain configuration tips for various software. The contents were lost when freedesktop.org changed its wiki system.
+
+# The Perfect Setup
+
+This page tries to explain what steps are necessary to get the "perfect" PulseAudio setup on your system. Following these rules should enable the user to run 90% of all Linux/Unix applications on top of PulseAudio. 
+
+Users: use your Linux distributions packages and instructions as much as possible to maintain compatibility with the systems they provide, such as updates and audio management. 
+
+Distributors: if you ship PulseAudio, please make sure to follow these instruction as much as possible, to provide optimal PulseAudio experience to your users! Thank you! 
+
+
+## Install Utilities
+
+There are several auxiliary GUI tools for the PulseAudio sound server: 
+
+* [[PulseAudio Volume Control|http://0pointer.de/lennart/projects/pavucontrol]] 
+* [[PulseAudio Preferences|http://0pointer.de/lennart/projects/paprefs]]  
+For basic volume control, use the utility provided by your desktop environment.  Alternatively pavucontrol can be used, with the advantage that it maps more closely to the inner workings of PulseAudio. 
+
+There is also the somewhat deprecated [[PulseAudio Volume Meter|http://0pointer.de/lennart/projects/pavumeter]]. The two utilities [[PulseAudio Manager|http://0pointer.de/lennart/projects/paman]] and [[PulseAudio Device Chooser|http://0pointer.de/lennart/projects/padevchooser]] are obsolete and should not be used. 
+
+
+## Should users be in the "audio" group?
+
+There are three kind of distributions: 1) those who control access to the sound card by adding users to the "audio" group, 2) those who use udev (or HAL) and ConsoleKit to dynamically give access to the currently "active" user, but allow overriding that using the "audio" group and 3) those who don't use the "audio" group at all, but rely solely on HAL+ConsoleKit to grant access to the sound card. 
+
+To find out which group your distribution belongs to, run `ls -l /dev/snd`. If the permission field of many of the listed files contains a plus character in the end, like this: 
+
+
+[[!format txt """
+crw-rw----+ 1 root audio 116,  7 Aug  2 08:57 pcmC0D0p
+"""]]
+then your distribution most likely belongs to group 2 or 3. If the group of the file is "audio", as above, then the distribution belongs to group 2, otherwise it belongs to group 3. 
+
+If there was no plus character in the permission fields, like in this example: 
+
+
+[[!format txt """
+crw-rw---- 1 root audio 116,  7 Aug  2 08:57 pcmC0D0p
+"""]]
+then your distribution belongs to group 1. 
+
+Now that you know how your distribution does access control to the sound card, it's easy to determine whether you should put users to the "audio" group or not: 
+
+* If your distribution belongs to group 1, you must put all users to the "audio" group or otherwise they can't access the sound card. 
+* If your distribution belongs to group 2 or 3, you should make sure that no one is in the "audio" group. (If you plan running pulseaudio in the [[system-wide mode|Software/PulseAudio/Documentation/User/SystemWide]], then the special user "pulse" should still be in the "audio" group in order to have access to the sound card.) 
+If your distribution belongs to group 1 or 2, fast user switching doesn't work properly if users are in the "audio" group. 
+
+
+## Third Party Applications
+
+
+### ALSA Applications
+
+If the PulseAudio plugin for alsalibs is installed all applications with support for the ALSA API should be able to access a PulseAudio server. You need version 1.0.12 or newer of the ALSA packages for the PulseAudio plugin to be included. 
+
+To activate the driver edit `/etc/asound.conf` or `~/.asoundrc` and add: 
+
+
+[[!format txt """
+pcm.pulse {
+    type pulse
+}
+
+ctl.pulse {
+    type pulse
+}
+"""]]
+Now you you can access the PulseAudio server under the virtual ALSA device `pulse`: 
+
+
+[[!format txt """
+% aplay -Dpulse foo.wav
+% amixer -Dpulse
+"""]]
+If you want to make the PulseAudio driver the default, use something like this in the ALSA configuration files: 
+
+
+[[!format txt """
+pcm.!default {
+    type pulse
+    # If defaults.namehint.showall is set to off in alsa.conf, then this is
+    # necessary to make this pcm show up in the list returned by
+    # snd_device_name_hint or aplay -L
+    hint.description "Default Audio Device"
+}
+ctl.!default {
+    type pulse
+}
+"""]]
+**Unlikely side note:** If you select the default ALSA device to be "pulse", you need to make sure that PA doesn't try to open the "default" device for its own audio output (otherwise the universe will explode... just like if you type "google" into Google...) If you have previously manually edited your default.pa loading module-alsa-sink without special device argument this means you have to change it to the raw "hw:0" devices. Example: 
+
+
+[[!format txt """
+load-module module-alsa-sink device=hw:0
+load-module module-alsa-source device=hw:0
+"""]]
+If you use udev (or HAL) **this is not necessary**, because the correct ALSA device strings are used automatically. 
+
+The PulseAudio plugin for ALSA supports audio playback, audio capturing and supports the mixer. 
+
+
+### Amarok
+
+[[Amarok|http://amarok.kde.org/]] is a KDE media player. It supports multiple "engines", which can be changed within the menu: "Settings -> Configure Amarok... -> Engines". The GStreamer engine supports PulseAudio (refer to the general GStreamer section on this page for more information), while the Xine engine supports both PulseAudio (1.1.2 and newer) and Esound (older versions). 
+
+
+### Audacious
+
+As of version 1.2.0, [[Audacious|http://audacious-media-player.org/]] supports PulseAudio natively. Simply Select "Preferences -> Audio -> Audio System -> PulseAudio Output Plugin". Also, for avoiding stuttering while playing mp3 files, the "Buffer Size" should be lowered to 300 ms. Audacious is a fork of beep-media-player 0.9.7.1. 
+
+
+### Audacity
+
+Audacity as packaged in Fedora 11 and 12 works with PulseAudio. 
+
+Audacity has now been packaged with a proper "alsa: pulse" device listed, in a ppa for ubuntu intrepid. See [[https://launchpad.net/~diwic/+archive|https://launchpad.net/~diwic/+archive]] 
+
+The following is information for versions without the pulseaudio patch: 
+
+[[Audacity|http://audacity.sourceforge.net/]] doesn't support PulseAudio, nor Esound for the moment. You'll have to kill or suspend pulseaudio before you use this application. Audacity uses the [[PortAudio|http://www.portaudio.com/]] cross-platform Audio API which doesnt support pulseaudio.  Some work was started on making portaudio support PulseAudio but this [[does not appear to be under active development currently|http://osdir.com/ml/audio.pulseaudio.general/2007-11/msg00054.html]] and does not work in it's current state.  
+
+Audacity can use OSS for sound input and sound output. By changing the 2 settings in preferences to /dev/dsp, and running audacity as 
+[[!format txt """
+padsp audacity
+"""]]
+you route OSS sound through pulseaudio and can have successful playback and recording with audacity. You could also set the sound input to be ALSA which (for regular users) is less likely to be blocked by another application, as recording with multiple applications at once is less commonly done 
+
+Using pasuspender to momentarily suspend pulseaudio is another way to use Audacity. 
+[[!format txt """
+pasuspender -- audacity <argument>
+"""]]
+
+### ESOUND Applications
+
+Make sure to load the `module-protocol-esound-unix` PulseAudio module for optimal support for ESOUND clients. Since this is the default you shouldn't need to change anything. 
+
+Some problems with ESOUND clients could be solved adding to your .bashrc 
+[[!format txt """
+if [ ! -e /tmp/.esd-${UID} ]; then
+        ln -s /tmp/.esd /tmp/.esd-${UID}
+fi
+"""]]
+
+### Flash Player
+
+For the moment, [[new beta version of flashplayer|http://labs.adobe.com/downloads/flashplayer10.html]] provides best support for pulseaudio based sound in flash animations. 
+
+
+#### Flash Player 7
+
+You can make Flash Player 7 work with the Esound compatibility mode. However, there is a trick. It will only activate Esound if there are both /lib/libesd.so and /tmp/.esd/socket files present on your system.  
+
+The first one is easy to deal with. As root, type: 
+[[!format txt """
+# ln -sf /usr/lib/libesd.so.0 /lib/libesd.so
+"""]]
+For the second file, it is created if you use [[PulseAudio|PulseAudio]] with the Esound module. If you're running in a thin-client model, you'll need to manually create a file: 
+[[!format txt """
+mkdir -p /tmp/.esd
+chmod 1777 /tmp/.esd
+touch /tmp/.esd/socket
+chmod 777 /tmp/.esd/socket
+"""]]
+
+#### Flash Player 9
+
+An experimental libflashsupport.so module provides Pulseaudio support for Flash Player 9. Go to [[http://pulseaudio.revolutionlinux.com/|http://pulseaudio.revolutionlinux.com/]] for more information. Go [[here|Software/PulseAudio/Apps/FlashPlayer9]] for a straight-forward, simple guide. 
+
+**Update**: there's now a newer implementation of libflashsupport.so available from the [[PulseAudio|PulseAudio]] developers: [[gitweb|http://git.0pointer.de/?p=libflashsupport.git;a=summary]], `git-clone http://git.0pointer.de/repos/libflashsupport.git/`. Please make sure to use this version for better results. 
+
+3/08 **more update** on fedora 8 with flash v115 their is no need for the previous update (it breaks sound with error : "unable to connect: connection refused") it works out of the box 
+
+
+#### Flash Player 10
+
+Flash 10 should work well with PulseAudio out-of-the-box, if the alsa device named "default" is configured to use the pulse plugin, as instructed in the [[ALSA section|Software/PulseAudio/Documentation/User/PerfectSetup]] above on this page. 
+
+
+### GNOME
+
+Current GNOME versions have support for starting ESD on session startup. Because PulseAudio can be used as drop-in replacement for ESD you can fool GNOME to load the PulseAudio daemon just like the traditional ESD daemon. To achieve this use the `esdcompat` script shipped with PulseAudio. Create a symlink from `/usr/bin/esd` to this script:  
+
+
+[[!format txt """
+$ ln -sf /usr/local/bin/esdcompat /usr/bin/esd
+"""]]
+(Make sure to fix the path passed to `ln`) 
+
+That's it. Now GNOME should load and make use of PulseAudio automatically on each login. (unless of course you disabled the option "Enable software sound mixing (ESD)" in GNOME's _Sound Preferences_. 
+
+Make sure to follow instructions for [[GStreamer|Software/PulseAudio/Documentation/User/PerfectSetup]] and [[ESOUND applications|Software/PulseAudio/Documentation/User/PerfectSetup]] to get perfect user experience on GNOME. 
+
+
+### GStreamer Applications
+
+Applications using the modern GStreamer media framework such as [[Rhythmbox|http://www.gnome.org/projects/rhythmbox/]] or [[Totem|http://www.gnome.org/projects/totem/]] can make use of the PulseAudio through gst-pulse, the PulseAudio plugin for GStreamer in [[gst-plugins-good|http://gstreamer.freedesktop.org/modules/gst-plugins-good.html]]. After installing it, you have to enable it as default audio sink and source for all GNOME applications by changing the GConf keys `/system/gstreamer/0.10/default/audiosink` and `/system/gstreamer/0.10/default/audiosrc`: 
+
+
+[[!format txt """
+gconftool -t string --set /system/gstreamer/0.10/default/audiosink pulsesink
+gconftool -t string --set /system/gstreamer/0.10/default/audiosrc pulsesrc
+"""]]
+Alternatively, you can make these changes with the GUI tool `gstreamer-properties`. 
+
+The GStreamer plugin wraps playback, recording and the mixer interface. 
+
+
+### iaxComm
+
+[[iaxComm|http://iaxclient.sourceforge.net/iaxcomm/]] is an Open Source softphone for the Asterisk PBX. It doesn't support PulseAudio or Esound, so you'll have to kill pulseaudio before using this application. However, some work has started on the [[PortAudio|http://www.portaudio.com/]] cross-platform Audio API, to support PulseAudio 
+
+
+### KDE
+
+KDE 3 uses the artsd sound server by default. However, artsd itself can be configured to use an Esound backend. Edit kcmartsrc (either in /etc/kde or /usr/share/config for global configuration or .kde/share/config to configure only one user) like this: 
+[[!format txt """
+[Arts]
+Arguments=\s-F 10 -S 4096 -a esd -n -s 1 -m artsmessage -c drkonqi -l 3 -f
+NetworkTransparent=true
+SuspendTime=1
+"""]]
+KDE 4 uses [[Phonon|http://phonon.kde.org]] as the main audio interface. The Xine backend of Phonon should eventually use PulseAudio automatically, but at the time of writing the pulse plugin for Xine is too unreliable, so it's disabled by default. While waiting for that to get better, Phonon uses Alsa. Therefore, to get Phonon to use PulseAudio, you have to [[edit your ~/.asoundrc or /etc/asound.conf|Software/PulseAudio/Documentation/User/PerfectSetup]]. However, the normal .asoundrc modifications aren't enough. See #232 (specifically the workaround part). 
+
+New progress is being made with KDE 4 and Phonon all the time. Please refer to the [[KDE wiki page|Software/PulseAudio/Desktops/KDE]] for further information and setup instuctions. 
+
+
+### libao Applications
+
+By installing the PulseAudio plugin for libao you can get transparent PulseAudio support in all applications making use of that library. That includes mpg123, ogg123, and [[GAIM (Pidgin uses GStreamer since 2.0.0)|http://pidgin.im/]] 
+
+Download [[libao-pulse|http://0pointer.de/lennart/projects/libao-pulse/]], install it and than edit `/etc/libao.conf`: 
+
+
+[[!format txt """
+default_driver=pulse
+"""]]
+That's it. 
+
+
+### MPD
+
+MPD is the [[Music Player Daemon|http://www.musicpd.org/]]. Check out a revision later than 4316 from SVN and compile as usual. Be sure to check that PulseAudio support is enabled in the configure output. Then simply add a PulseAudio output to your mpd.conf: 
+
+
+[[!format txt """
+...
+audio_output {
+        type    "pulse"
+        name    "My MPD PulseAudio Output"
+        server  "localhost"   # optional
+        sink    "alsa_output" # optional
+}
+...
+"""]]
+See also the [[MPD wiki page on PulseAudio|http://mpd.wikia.com/wiki/PulseAudio]]. 
+
+
+### MPlayer
+
+[[PulseAudio|PulseAudio]] support is included in the current SVN version of [[MPlayer|http://www.mplayerhq.hu/]]: 
+
+
+[[!format txt """
+svn checkout svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+"""]]
+Make it the default by changing the line starting with `ao=` in `/etc/mplayer/mplayer.conf`: 
+
+
+[[!format txt """
+...
+ao=pulse
+...
+"""]]
+Alternatively you can pass the audio driver name on MPlayer's command line: 
+
+
+[[!format txt """
+% mplayer -ao pulse movie.avi
+"""]]
+MPlayer also works with the pulseaudio alsa plugin as configured above.  To get volume control working, configure MPlayer to use alsa instead of oss in mplayer.conf: 
+
+
+[[!format txt """
+mixer=hw:0
+"""]]
+
+### MPlayer plug-in
+
+[[mplayerplug-in|http://mplayerplug-in.sourceforge.net/]] is a browser plugin that uses mplayer to play digital media from websites. 
+
+It is configured in the same manner as the regular mplayer, except that the configuration file is $HOME/.mplayer/mplayerplug-in.conf. Also, you cannot pass the audio driver name from the command line, since the plugins calls mplayer directly from the browser. 
+
+
+### MythTV
+
+A patch has been sent to mythtv to allow myth's alsa output to be compatible with the pulse alsa plugin.  The patch is located [[here|http://svn.mythtv.org/trac/raw-attachment/ticket/3598/mythtv_alsa_non_mmap_fallback.2.patch]]. 
+
+After you've compiled Myth with this patch, configure alsa as described above.  Then from mythfrontend, go to Utilities/Setup->Setup->General->Next->Next, and set Audio output device to 'ALSA:default' if you configured pulse to be the default output device, or 'ALSA:pulse', it pulse hasn't been configured to be the default.  (Note, both are without the single quotes). 
+
+To get volume change support, change Mixer Device to be the same as what you used for Audio output device, and change Mixer Controls to 'Master'. 
+
+Update: the above patch to mythtv was committed and is released with the latest mythtv. (Currently 0.21) 
+
+
+### OpenAL Applications
+
+[[OpenAL Soft|http://kcat.strangesoft.net/openal.html]], an implementation of OpenAL, supports [[PulseAudio|PulseAudio]] starting from [[release 1.8.466|http://opensource.creative.com/pipermail/openal-devel/2009-June/005463.html]] and starting from [[release 1.11.753|http://opensource.creative.com/pipermail/openal-devel/2010-January/005668.html]] the pulse backend will automatically be tried before the ALSA and OSS backends. Earlier releases will try first to open ALSA and OSS before the pulse backend and will clash with the previous ALSA workaround. OpenAL soft releases 1.8.466 - 1.10.622 should be configured to use PulseAudio via `/etc/openal/alsoft.conf`: 
+
+
+[[!format txt """
+drivers = pulse
+"""]]
+Or alternatively via the user-specific `~/.alsoftrc` using a similar line. 
+
+For older OpenAL, editing `~/.openalrc` to look like following seems to work nice: 
+
+
+[[!format txt """
+(define devices '(sdl))
+"""]]
+Or alternatively 
+
+
+[[!format txt """
+(define devices '(alsa))
+(define alsa-device "pulse")
+"""]]
+-- I'm currently working on a native pulseaudio backend for openal-soft (which is an openal implementation) 
+
+* [[http://www.lastlog.de/wiki/index.php/Pulseaudio|http://www.lastlog.de/wiki/index.php/Pulseaudio]] 
+NEWS: this project is dead, see the project page. please leave this link here since it might be a good reference implementation for developers still. 
+
+
+### OSS Applications
+
+To run applications that support the OSS API for audio playback (`/dev/dsp`) on top of PulseAudio you can use the tool `padsp` that is part of the PulseAudio distribution.  
+
+A few example: 
+
+
+[[!format txt """
+% padsp aumix
+% padsp sox foo.wav -t ossdsp /dev/dsp
+% ...
+"""]]
+`padsp` wraps audio playback and capturing (`/dev/dsp`), mixer controls (`/dev/mixer`) and sound status (`/dev/sndstat`). 
+
+
+### Pidgin (and other apps with short event sounds)
+
+Pidgin does not currently (end 2009) have direct support for [[PulseAudio|PulseAudio]], but works (emits sounds fine) via alsa-emulation. However, because of this emulation layer sounds from Pidgin are not marked as being "event" sounds and are therefore not controlled by the "System Sounds" slider in pavucontrol. To solve this, simply change the sound settings in Pidgin (Sounds tab), setting the sound method to "Command" and using this command:- 
+
+
+[[!format txt """
+paplay --property=media.role=event %s
+"""]]
+This means every sound played by Pidgin will be marked as an "event" sound. The same method is applicable to other similar apps with short event sounds (for example, mail notification apps). 
+
+
+### Real Player
+
+
+#### Real Player 11
+
+[[Real Player 11|http://forms.helixcommunity.org/helix/builds/?category=realplay-current]] supports ALSA, and works fine with the ALSA PulseAudio plugin. If you have made "pulse" the default ALSA device (see ALSA section), you may have to change the device in the hardware configuration to "pcm.pulse"  
+
+
+#### Real Player 10
+
+[[Real Player 10|http://www.real.com/linux/]] cannot be used with either Esound [[(note)|http://lists.helixcommunity.org/pipermail/player-users/2004-December/000185.html]] or PulseAudio at this time. However, you can either use [[Real Player 8|http://forms.real.com/real/player/blackjack.html?platform2=Unix&product=RealPlayer%208&proc=Linux%20i386&lang=en&show_list=0&src=blackjack]], or use MPlayer with the RealPlayer [[codecs|http://forms.real.com/real/player/blackjack.html?platform2=Unix&product=RV9%20Codec&proc=Linux%20i386&lang=en&show_list=0&src=blackjack]]. 
+
+
+#### Real Player 8 / G2
+
+[[Real Player 8|http://forms.real.com/real/player/blackjack.html?platform2=Unix&product=RealPlayer%208&proc=Linux%20i386&lang=en&show_list=0&src=blackjack]] can be used with the Esound compatibility mode. To enable it, go to the application menu, select View/Preferences. Go to the Performance tab, and in the Audio Driver options, check "Esound Support". Alternatively, you can use this command: 
+[[!format txt """
+echo "SoundDriver=2" > $HOME/.RealNetworks_RealMediaSDK_60
+"""]]
+
+### SDL
+
+SDL supports multiple output options (alsa, oss, nas, esd, arts, etc). It doesn't (yet) support Pulse, but you can use the esd backend by adding this to your .profile or similar. 
+[[!format txt """
+export SDL_AUDIODRIVER=esd
+"""]]
+Note: on Debian/Ubuntu, you need the libsdl1.2debian-esd package, otherwise you only get alsa support. 
+
+You can also get sound using the alsa backend, and use the .asoundrc method described in the Alsa section to redirect sound from Alsa to Pulse. 
+
+_Update:_ A native PA driver for SDL has recently been merged into SDL upstream.  You can do the following if you have sdl 1.2.12 or later that's compiled with pulse support: 
+
+
+[[!format txt """
+export SDL_AUDIODRIVER=pulse
+"""]]
+**_Update:_ Debian** separates SDL into different packages according to backend. For details about this, refer to the Debian package listings [[here|http://packages.debian.org/search?keywords=libsdl1.2debian&searchon=names&suite=stable&section=all]] and [[here|http://packages.debian.org/squeeze/libsdl1.2debian-pulseaudio]]. The default version of SDL for Debian uses the ALSA backend, provided by the package **libsdl1.2debian-alsa**. For SDL to use pulse, this needs to be replaced with the package **libsdl1.2debian-pulseaudio**. 
+
+**_Update:_ Debian testing/Wheezy:** The Debian package 'libsdl1.2debian now (2011-10-01) includes sound drivers for OSS, ALSA, NAS, and pulseaudio. 
+
+
+### Skype
+
+As of September 2009, Skype 2.1 beta now supports pulseaudio, and is available for download from skype.com  
+
+The following text remains for those using skype versions less than 2.1: 
+
+I've seen a lot of guides to get Skype to work, but I only did it by following a post on the Ubuntu Forums. 
+
+Firstly, add these lines: 
+
+
+[[!format txt """
+default-fragments = 8
+default-fragment-size-msec = 5
+"""]]
+at the end of **"/etc/pulse/daemon.conf"** 
+
+Then, edit **"~/.asoundrc"** and add the following lines if they do not exist: 
+
+
+[[!format txt """
+pcm.pulse { type pulse }
+ctl.pulse { type pulse }
+"""]]
+Install the **libasound2-plugins** package (on ubuntu, at least). (I also rebooted at this point, to restart the pulseaudio daemon - not sure if that was neccessary) 
+
+Finally, open Skype. Set the "Ringing" and "Sound Out" devices to "pulse", then set the "Sound In" to the plughw device of your microphone. 
+
+More information on how to make Skype (and other misbehaving programs) work through [[PulseAudio|PulseAudio]] using the above method can be found here: [[[http://ubuntuforums.org/showthread.php?t=789578|http://ubuntuforums.org/showthread.php?t=789578]]] 
+
+If the above guide **does not work for you**, follow the (somewhat outdated) guide below to try to use one of those methods: 
+
+Although Skype is an Alsa application, for some reason, it doesn't seem to like the "pulse" device. The work-around, is not to use the "default" sound device. Rather to use a specific hardware device, and use pasuspender to momentarily suspend pulseaudio. Here are the steps  
+ 
+
+Note: These steps were tested on Fedora8 with Skype ver 2.0 beta 
+
+* Launch Skype, right click on its tray icon, and click "options" 
+* Click "sound devices" category 
+* For the Sound out, Sound in, and Ringing devices, change the default device to the first plughw device (The exact name depends on your hardware) 
+* Click apply 
+* Click close 
+* Right click on Skype's tray icon, and click Quit 
+* Now launch skype whether from the run dialog or from a shell using the command "pasuspender skype". This momentarily suspends pulseaudio, and starts skype 
+* Enjoy :) 
+* Unfortunately: If you're running skype all the time (like me, from login to logout, if you want to be able to receive skype calls), the momentarily 
+      * suspension of pulseaudio becomes indefinitely. So pulseaudio becomes useless. 
+* I found this additional info in the skype forums: [[[http://forum.skype.com/index.php?showtopic=112021&hl=pulseaudio|http://forum.skype.com/index.php?showtopic=112021&hl=pulseaudio]]] : Andypoo, a Skype staff member, 
+      * gives some info about the problem (his point of view is that it is pulseaudio's fault, not Skype). And someone found a solution to let pulseaudio and skype work together (by making [[PulseAudio|PulseAudio]] support dmix): [[[http://ubuntuforums.org/showthread.php?p=4526841#post4526841|http://ubuntuforums.org/showthread.php?p=4526841#post4526841]]] . But he notes this though: "[[PulseAudio|PulseAudio]]'s module-suspend-idle has a bug when you get [[PulseAudio|PulseAudio]] to use dmix. Some assertion failure while starting up. If you don't kill [[PulseAudio|PulseAudio]] once it has managed to start up though, it should be quite stable. But getting it to even start up is a hit or miss for me. The quick fix is of course to not load module-suspend-idle, but on my system, dmix begins crackling if it isn't released after a very long period of time." 
+* And on pulseaudio-discuss mailing-list I'm told "Pulse on DMIX is so ugly it makes babies cry" and "skype (a closed source product) does not work 
+      * properly. We cannot fix skype, it's up to their devs to do it." 
+* Someone else in that skype forum thread: "Skype should not program anything specically targeted at DMIX. Skype should be programmed to interface with 
+      * the ALSA API in a standard way. ... A solid ALSA implementation in Skype would address most issues for most users but a pluggable sound API for Skype would be best... ". Let's hope the Skype linux developer(s) reprogram Skype soon with this suggestion. (by vatbier) 
+If for some reason you want or need Skype to go through PulseAudio, there is a OSS version of Skype 1.4 (intended for Solaris and FreeBSD's Linux emulation) that can be downloaded from 
+
+[[http://www.skype.com/download/skype/linux/|http://www.skype.com/download/skype/linux/]] 
+
+from the link "Static-OSS". This version will route audio through PulseAudio when started as "padsp skype". 
+
+There is now an Static OSS build of Skype 2.0.0.68 with video support, which is identical to the alsa version except for the switch to OSS. This version will route audio through PulseAudio when started as "padsp skype".  See discussion here: [[http://forum.skype.com/index.php?s=cbf50fecc7f552681402c442583c1a9b&showtopic=119961|http://forum.skype.com/index.php?s=cbf50fecc7f552681402c442583c1a9b&showtopic=119961]] 
+
+There is description on this launchpad bug: [[https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/198453|https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/198453]] of how to make skype alsa version work with pulseaudio on ubuntu hardy (specifically [[https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/198453/comments/65|https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/198453/comments/65]]). This involves upgrading to the intrepid version of the alsa packages (ie the ones synced from debian unstable), setting the correct asound.conf, and choosing the device pulse in skype. 
+
+
+### Teeworlds
+
+Teeworlds works for 0.5 onwards. 
+
+The following information is for Teeworlds before version 0.5: Uses portaudio for sound. see [[audacity|http://www.pulseaudio.org/wiki/PerfectSetup#Audacity]]. 
+
+The ubuntu intrepid version of Teeworlds uses portaudio OSS sound. running teeworlds with padsp make the sound go correctly through pulseaudio. However the sound is slightly distorted.. To solve this, add the following lines to your /etc/pulse/daemon.conf   
+ 
+[[!format txt """
+default-fragments = 8
+default-fragment-size-msec = 5
+"""]]
+
+### !TiMidity++
+
+[[TiMidity++|http://timidity.sourceforge.net/]] supports either libao or Esound. You can use switches to select the choosen audio output: 
+[[!format txt """
+% timidity -Oe <file.mid> #Esound
+% timidity -OO <file.mid> #libao
+"""]]
+
+### Totem
+
+The [[Totem|http://www.gnome.org/projects/totem/]] movie player can, depending on the version installed, use either GStreamer or Xine libraries for audio output.  
+
+For GStreamer, refer to the general configuration above. For the Xine backend, you configure it like the regular Xine (see below), except that the configuration file is $HOME/.gnome2/totem_config. 
+
+
+### VLC media player and LibVLC
+
+VLC and LibVLC support native [[PulseAudio|PulseAudio]] audio output since version 0.9.0. Digital passthrough support and a number of fixes were added in version 1.1.12. 
+
+In versions 0.9.x and 1.0.x, [[PulseAudio|PulseAudio]] needed to be selected manually in the preferences. Otherwise, ALSA would be used instead. 
+
+For older versions, the ALSA or OSS emulation can be used. 
+
+
+### wavbreaker
+
+The current development tree of [[wavbreaker|http://wavbreaker.sf.net/]] has an output module that will be enabled at compile-time when the pulseaudio development libraries and headers are installed. The next release will include this module, so [[PulseAudio|PulseAudio]] will be officially supported by wavbreaker. 
+
+
+### Wine
+
+The ALSA output in Wine (beta releases) does not work with the PulseAudio plugin for ALSA (called alsa-pulse) currently, at least not for DirectSound. See [[this bug report for Wine|http://bugs.winehq.org/show_bug.cgi?id=10495]] and [[this report for PulseAudio|http://www.pulseaudio.org/ticket/198]].  
+ If it does not work to route the audio through ALSA, perhaps Wine will work better if it uses the OSS or ESD procol between Wine and PulseAudio.  
+ 
+
+Distributions like Ubuntu 8.04 is set up so that the default ALSA "device" is pulse, i.e. the PulseAudio plugin for ALSA. Furthermore PulseAudio will take control over the hardware to avoid the use of dmix (better latency, less compatible with things like Winealsa). 
+
+If a gamer wants lowest possible latency, and does not need any other app to play sound (like voice chats like "Teamspeak"), then they should use pasuspender. This makes PulseAudio release the hardware interface, so a game can use it exclusively, and without dmix or PulseAudio in between. 
+
+Winealsa is now ( some time before may 4. 2008) fixed, so it uses the alsa device "default" instead of "default:0" (or like numbers), and does not require a volume control called PCM but uses the default volume control. 
+
+
+### wmii
+
+wmii is a small, dynamic window manager for X11. It is scriptable, has a 9p filesystem interface and supports classic and tiling (acme-like) window management. It aims to maintain a small and clean (read hackable and beautiful) codebase. 
+
+To make pulseaudio work while using wmii, you need to perform some wizardry. Luckily, there exists a script to help you along the way. Assuming you are using a shell script to configure wmii, add a line like this to you local wmii startup script:  
+[[!format txt """
+start-pulseaudio-x11 &
+"""]]
+The script should be located somewhere in your **.wmii** directory. start-pulseaudio-x11 sets up some access cookies and policy-kit things needed for proper sound routing for X11 clients. 
+
+
+### X11
+
+To get pulesaudio working with plain X11 you need to run 
+[[!format txt """
+start-pulseaudio-x11 &
+"""]]
+from your X startup script. This is also true for some window managers oblivious of sound daemons, such as **wmii**. The script sets up some access cookies and policy-kit things needed for proper sound routing for X11 clients. 
+
+
+### Xine
+
+The newest (1.1.3) [[Xine|http://xinehq.de/]] versions support PulseAudio. For 1.0-1.1.2, you will need to specify the "polypaudio" driver, while the oldest versions support Esound. Simply modify the audio.driver setting in $HOME/.xine/config: 
+[[!format txt """
+...
+audio.driver:pulse (or polypaudio or esd depending on xine version)
+...
+
+"""]]
+Note: for openSUSE 10.3 using xine from packman, I had to use 'pulseaudio' and not 'pulse' in order to get it working.  I'm not sure if this is required for other distros. 
+
+
+### XMMS
+
+To use [[XMMS|http://www.xmms.org/]] with PulseAudio as audio server install [[xmms-pulse|http://0pointer.de/lennart/projects/xmms-pulse]]. To activate it this output plugin, edit `~/.xmms/config` and change the line starting with `output_plugin=`: 
+
+
+[[!format txt """
+[xmms]
+...
+output_plugin=/usr/lib/xmms/Output/libxmms-pulse.so
+...
+"""]]
+Alternatively use the configuration dialog of XMMS (like most sane people would probably do...). 
+
+
+### Zattoo
+
+[[Zattoo|http://www.zattoo.com/]] is an ALSA application and should have worked using the above description, but it continues to produce short clicking sounds every 2 to 5 seconds. This is not a synchronization problem as the video playback does not show any conspicuity.   
+ 
+
+To solve this, add the following lines to your /etc/pulse/daemon.conf   
+ 
+[[!format txt """
+default-fragments = 8
+default-fragment-size-msec = 5
+"""]]
+Play with the values till you have the right ones for your system.   
+ 
+
+
+### XBMC
+
+[[XBMC|http://xbmc.org/]] is an award winning media center application for Linux, Mac OS X, Windows and XBox. The ultimate hub for all your media, XBMC is easy to use, looks slick, and has a large helpful community... 
+
+XBMC 8.10 uses ALSA and an independant asound.rc which doesnt play well with pulseaudio but have native support for [[PulseAudio|PulseAudio]] in SVN, which will be released along with XBMC 9.04. 
+
+
+### RTCW / Enemy Territory / True Combat Elite / Quake 3
+
+To use those games with PulseAudio as audio server, you can try to follow instructions from [[http://nullkey.ath.cx/~stuff/et-sdl-sound/|http://nullkey.ath.cx/~stuff/et-sdl-sound/]].  Padsp doesn't work with them... No need to try it. 
+
+***Warning*** Be aware that redirecting library calls to this "wrapper" might be detected as an attempt to cheat. So far [[PunkBuster|PunkBuster]] doesn't complain about it but it might in the future. You have been warned! 
+
+You can also try the following. If your executable is named 'quake3.x86', enter the following command in a terminal (as root): 
+[[!format txt """
+echo "quake3.x86 0 0 direct" > /proc/asound/card0/pcm0p/oss
+"""]]
+This is confirmed to work with Quake3 on Ubuntu 10.04. 
+
+Setting SDL_AUDIODRIVER="esd" in the wrapper is reported to work better than the default (alsa) 
