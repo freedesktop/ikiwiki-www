@@ -64,7 +64,7 @@ You can enable shell access to be available very early in the startup process to
 
     cd $PATH_TO_YOUR_ROOT_FS/etc/systemd/system
     mkdir -p sysinit.target.wants
-    ln -s /lib/systemd/system/debug-shell.service sysinit.target.wants/
+    ln -s /usr/lib/systemd/system/debug-shell.service sysinit.target.wants/
 
 Once enabled, the next time you boot you will be able to switch to tty9 using CTRL+ALT+F9 and have a root shell there available from an early point in the booting process. You can use the shell for checking the status of services, reading logs, looking for stuck jobs with `systemctl list-jobs`, etc.
 
@@ -115,7 +115,7 @@ If normal reboot or poweroff work, but take a suspiciously long time, then
 
         systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M enforcing=0
 
-   * save the following script as **/lib/systemd/system-shutdown/debug.sh** and make it executable:
+   * save the following script as **/usr/lib/systemd/system-shutdown/debug.sh** and make it executable:
 
         #!/bin/sh
         mount -o remount,rw /
