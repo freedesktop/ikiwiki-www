@@ -2,7 +2,10 @@
 
 # PulseAudio 5.0 Release Notes (draft)
 
-Draft status: checked commits since v4.0 until b76b9c32d9172a88efad7cb74c3a5c8cf893014a
+Draft status: checked commits since v4.0 until 0157f4b25f5d64e532ef246d73c2d134be3a2042
+
+TODO: Write an introduction, mention the GSoC projects and new maintainer.
+
 
 ## Changes at a glance
 
@@ -11,7 +14,7 @@ Draft status: checked commits since v4.0 until b76b9c32d9172a88efad7cb74c3a5c8cf
 
 ## Notes for Application Developers
 
-TODO: libpulse API changes go here.
+The pa_card_profile_info struct is deprecated, consider migrating to pa_card_profile_info2. The old struct will keep working, though, so applications should not break even if they are not updated.
 
 
 ## Notes for Packagers
@@ -32,15 +35,25 @@ TODO: This is one of the most significant changes in this release. We already ha
 
 ### Utility changes:
 
+parecord and parec now support the --monitor-stream option, which allows recording from a single playback stream.
+
+pacmd doesn't print the welcome message and the command prompt in non-interactive mode any more.
+
 pacmd now supports "newfile:somefile.log" as a target for the set-log-target command. "newfile:somefile.log" means that somefile.log will not be overwritten if it already exists. Instead, a new file with name somefile.log.1 will be created. The "newfile:" target was already supported in the daemon configuration file, this change just brings pacmd to the same level.
 
 
 ### Module changes:
 
-TODO: New modules, new module arguments etc. shall be noted here.
+New module: module-tunnel-sink-new. It's a reimplementation of module-tunnel-sink. It's not quite finished yet, but if you're having trouble with the audio quality of module-tunnel-sink, it's worth trying if this new implementation works better. Note, however, that module-tunnel-sink-new will be renamed to module-tunnel-sink once it's ready, so if you use module-tunnel-sink-new in your configuration, your configuration will break once that renaming happens.
+
+module-alsa-card now prefers to adjust the "Capture" volume in the ALSA mixer instead of boosts, e.g. "Mic Boost". This should result in less noise in the captured audio on some hardware.
+
+When using ALSA UCM, module-alsa-card now assigns lower priority to ports that combine multiple devices than ports that use only one device.
+
+module-loopback maximum configurable latency has been increased from 2 seconds to 30 seconds.
 
 
-### Configuration changes:
+### Configuration syntax changes:
 
 In path configuration files (/usr/share/pulseaudio/alsa-mixer/paths/*) the "name" option in the "General" section is not supported any more. The path name is now determined solely based on the file name. The "name" option was also used as a key to a table containing path descriptions, and that functionality is now provided by a new option called "description-key".
 
@@ -56,7 +69,18 @@ A configuration file for Native Instruments Traktor Audio 2 was missing from the
 
 ### libpulse changes:
 
+An "available" flag has been added to the card profile info. If a profile is not available, activating it doesn't make sense. GUIs that allow the user to control the card profile can use the new flag to hide unavailable profiles.
+
+Adding the "available" flag to the existing pa_card_profile_info struct turned out to break the ABI due to an earlier design mistake, so instead of extending pa_card_profile_info, we had to introduce pa_card_profile_info2, which contains the same information as the old struct plus the new "available" flag. The old pa_card_profile_info struct is now deprecated. The "profiles" field in pa_card_port_info and the "profiles" and "active_profile" fields in pa_card_info are deprecated too, superseded by the "profiles2" field in pa_card_port_info and "profiles2" and "active_profile2" fields in pa_card_info.
+
+New function: pa_context_load_cookie_from_file(). This allows clients to load the authentication cookie from a custom file. It may be that there are no applications that need this - the reason for adding the function was that module-tunnel-sink-new needed it.
+
 New function: pa_threaded_mainloop_set_name(). This is used internally in PulseAudio, for improving the server log messages when using pa_threaded_mainloop. The usefulness of this new function is probably very limited for applications.
+
+
+### libpulse Vala bindings changes:
+
+The binding for pa_cvolume_set() was missing, now CVolume.set() has been added.
 
 
 ### Performance improvements:
