@@ -20,99 +20,146 @@ The service exposes the following interfaces on the Manager object on the bus:
     node /org/freedesktop/login1 {
       interface org.freedesktop.login1.Manager {
         methods:
-          GetSession(in  s id,
-                     out o session);
-          GetSessionByPID(in  u pid,
-                          out o session);
-          GetUser(in  u uid,
-                  out o user);
-          GetUserByPID(in  u pid,
-                   out o user);
-          GetSeat(in  s id,
-                  out o seat);
-          ListSessions(out a(susso) sessions);
-          ListUsers(out a(uso) users);
-          ListSeats(out a(so) seats);
-          CreateSession(...);
-          ReleaseSession(...);
-          ActivateSession(in  s id);
-          ActivateSessionOnSeat(in  s id,
-                                in  s seat);
-          LockSession(in  s id);
-          UnlockSession(in  s id);
+          GetSession(in  s arg_0,
+                     out o arg_1);
+          GetSessionByPID(in  u arg_0,
+                          out o arg_1);
+          GetUser(in  u arg_0,
+                  out o arg_1);
+          GetUserByPID(in  u arg_0,
+                       out o arg_1);
+          GetSeat(in  s arg_0,
+                  out o arg_1);
+          ListSessions(out a(susso) arg_0);
+          ListUsers(out a(uso) arg_0);
+          ListSeats(out a(so) arg_0);
+          ListInhibitors(out a(ssssuu) arg_0);
+          @org.freedesktop.systemd1.Privileged("true")
+          CreateSession(in  u arg_0,
+                        in  u arg_1,
+                        in  s arg_2,
+                        in  s arg_3,
+                        in  s arg_4,
+                        in  s arg_5,
+                        in  u arg_6,
+                        in  s arg_7,
+                        in  s arg_8,
+                        in  b arg_9,
+                        in  s arg_10,
+                        in  s arg_11,
+                        in  a(sv) arg_12,
+                        out s arg_13,
+                        out o arg_14,
+                        out s arg_15,
+                        out h arg_16,
+                        out u arg_17,
+                        out s arg_18,
+                        out u arg_19,
+                        out b arg_20);
+          @org.freedesktop.systemd1.Privileged("true")
+          ReleaseSession(in  s arg_0);
+          ActivateSession(in  s arg_0);
+          ActivateSessionOnSeat(in  s arg_0,
+                                in  s arg_1);
+          @org.freedesktop.systemd1.Privileged("true")
+          LockSession(in  s arg_0);
+          @org.freedesktop.systemd1.Privileged("true")
+          UnlockSession(in  s arg_0);
+          @org.freedesktop.systemd1.Privileged("true")
           LockSessions();
+          @org.freedesktop.systemd1.Privileged("true")
           UnlockSessions();
-          KillSession(in  s id,
-                      in  s who,
-                      in  s signal);
-          KillUser(in  u uid,
-                   in  s signal);
-          TerminateSession(in  s id);
-          TerminateUser(in  u uid);
-          TerminateSeat(in  s id);
-          SetUserLinger(in  u uid,
-                        in  b b,
-                        in  b interactive);
-          AttachDevice(in  s seat,
-                       in  s sysfs,
-                       in  b interactive);
-          FlushDevices(in  b interactive);
-          PowerOff(in  b interactive);
-          Reboot(in  b interactive);
-          Suspend(in  b interactive);
-          Hibernate(in  b interactive);
-          HybridSleep(in  b interactive);
-          CanPowerOff(out s result);
-          CanReboot(out s result);
-          CanSuspend(out s result);
-          CanHibernate(out s result);
-          CanHybridSleep(out s result);
-          Inhibit(in  s what,
-                  in  s who,
-                  in  s why,
-                  in  s mode,
-                  out h fd);
-          ListInhibitors(out a(ssssuu) inhibitors);
+          @org.freedesktop.systemd1.Privileged("true")
+          KillSession(in  s arg_0,
+                      in  s arg_1,
+                      in  i arg_2);
+          @org.freedesktop.systemd1.Privileged("true")
+          KillUser(in  u arg_0,
+                   in  i arg_1);
+          @org.freedesktop.systemd1.Privileged("true")
+          TerminateSession(in  s arg_0);
+          @org.freedesktop.systemd1.Privileged("true")
+          TerminateUser(in  u arg_0);
+          @org.freedesktop.systemd1.Privileged("true")
+          TerminateSeat(in  s arg_0);
+          SetUserLinger(in  u arg_0,
+                        in  b arg_1,
+                        in  b arg_2);
+          AttachDevice(in  s arg_0,
+                       in  s arg_1,
+                       in  b arg_2);
+          FlushDevices(in  b arg_0);
+          PowerOff(in  b arg_0);
+          Reboot(in  b arg_0);
+          Suspend(in  b arg_0);
+          Hibernate(in  b arg_0);
+          HybridSleep(in  b arg_0);
+          CanPowerOff(out s arg_0);
+          CanReboot(out s arg_0);
+          CanSuspend(out s arg_0);
+          CanHibernate(out s arg_0);
+          CanHybridSleep(out s arg_0);
+          Inhibit(in  s arg_0,
+                  in  s arg_1,
+                  in  s arg_2,
+                  in  s arg_3,
+                  out h arg_4);
         signals:
-          SessionNew(s id,
-                     o path);
-          SessionRemoved(s id,
-                         o path);
-          UserNew(u uid,
-                  o path);
-          UserRemoved(u uid,
-                      o path);
-          SeatNew(s id,
-                  o path);
-          SeatRemoved(s id,
-                      o path);
-          PrepareForShutdown(b active);
-          PrepareForSleep(b active);
+          SessionNew(s arg_0,
+                     o arg_1);
+          SessionRemoved(s arg_0,
+                         o arg_1);
+          UserNew(u arg_0,
+                  o arg_1);
+          UserRemoved(u arg_0,
+                      o arg_1);
+          SeatNew(s arg_0,
+                  o arg_1);
+          SeatRemoved(s arg_0,
+                      o arg_1);
+          PrepareForShutdown(b arg_0);
+          PrepareForSleep(b arg_0);
         properties:
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly u NAutoVTs = 6;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly as KillOnlyUsers = [];
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly as KillExcludeUsers = ['root'];
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly b KillUserProcesses = false;
           readonly b IdleHint = false;
-          readonly t IdleSinceHint = 1340873864854884;
-          readonly t IdleSinceHintMonotonic = 14409495315;
-          readonly s BlockInhibited = '';
-          readonly s DelayInhibited = '';
+          readonly t IdleSinceHint = 0;
+          readonly t IdleSinceHintMonotonic = 0;
+          readonly s BlockInhibited = 'handle-power-key:handle-suspend-key:handle-hibernate-key';
+          readonly s DelayInhibited = 'sleep';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly t InhibitDelayMaxUSec = 5000000;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s HandlePowerKey = 'poweroff';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s HandleSuspendKey = 'suspend';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s HandleHibernateKey = 'hibernate';
-          readonly s HandleLidSwitch = 'suspend';      
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s HandleLidSwitch = 'suspend';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s IdleAction = 'ignore';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly t IdleActionUSec = 1800000000;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
           readonly b PreparingForShutdown = false;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
           readonly b PreparingForSleep = false;
       };
-      interface org.freedesktop.DBus.Properties {
-      };
       interface org.freedesktop.DBus.Peer {
+        ...
       };
       interface org.freedesktop.DBus.Introspectable {
+        ...
+      };
+      interface org.freedesktop.DBus.Properties {
+        ...      
       };
     };
 
@@ -186,25 +233,32 @@ The **PreparingForShutdown** and **PreparingForSleep** boolean properties are tr
     node /org/freedesktop/login1/seat/seat0 {
       interface org.freedesktop.login1.Seat {
         methods:
+          @org.freedesktop.systemd1.Privileged("true")
           Terminate();
-          ActivateSession(in  s id);
+          ActivateSession(in  s arg_0);
         signals:
         properties:
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s Id = 'seat0';
-          readonly so ActiveSession = ('2', '/org/freedesktop/login1/session/2');
+          readonly (so) ActiveSession = ('', '/');
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly b CanMultiSession = true;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly b CanTTY = true;
           readonly b CanGraphical = true;
-          readonly a(so) Sessions = [('2', '/org/freedesktop/login1/session/2')];
-          readonly b IdleHint = false;
-          readonly t IdleSinceHint = 1340873864854884;
-          readonly t IdleSinceHintMonotonic = 14409495315;
+          readonly a(so) Sessions = [('c1', '/org/freedesktop/login1/session/c1')];
+          readonly b IdleHint = true;
+          readonly t IdleSinceHint = 1389368976087311;
+          readonly t IdleSinceHintMonotonic = 48213948;
       };
       interface org.freedesktop.DBus.Properties {
+        ...
       };
       interface org.freedesktop.DBus.Peer {
+        ...
       };
       interface org.freedesktop.DBus.Introspectable {
+        ...
       };
     };
 
@@ -230,34 +284,51 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHint** properties encode the idl
 
 ## User Objects
 
-    $ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/user/500
-    node /org/freedesktop/login1/user/500 {
+    $ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/user/_1000
+    node /org/freedesktop/login1/user/_1000 {
       interface org.freedesktop.login1.User {
         methods:
+          @org.freedesktop.systemd1.Privileged("true")
           Terminate();
-          Kill(in  s signal);
+          @org.freedesktop.systemd1.Privileged("true")
+          Kill(in  i arg_0);
         signals:
         properties:
-          readonly u UID = 500;
-          readonly u GID = 500;
-          readonly s Name = 'lennart';
-          readonly t Timestamp = 1340822974613785;
-          readonly t TimestampMonotonic = 22320963;
-          readonly s RuntimePath = '/run/user/500';
-          readonly s Service = 'user@500.service';
-          readonly s Slice = 'user-500.slice';
-          readonly (so) Display = ('2', '/org/freedesktop/login1/session/2');
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly u UID = 1000;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly u GID = 1000;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Name = 'test';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly t Timestamp = 1389368964102424;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly t TimestampMonotonic = 36229061;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s RuntimePath = '/run/user/1000';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Service = 'user@1000.service';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Slice = 'user-1000.slice';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly (so) Display = ('', '/');
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
           readonly s State = 'active';
-          readonly a(so) Sessions = [('2', '/org/freedesktop/login1/session/2')];
+          readonly a(so) Sessions = [('28', '/org/freedesktop/login1/session/_328'), ('3', '/org/freedesktop/login1/session/_33')];
           readonly b IdleHint = false;
-          readonly t IdleSinceHint = 1340873864854884;
-          readonly t IdleSinceHintMonotonic = 14409495315;
+          readonly t IdleSinceHint = 0;
+          readonly t IdleSinceHintMonotonic = 0;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
+          readonly b Linger = false;
       };
       interface org.freedesktop.DBus.Properties {
+        ...
       };
       interface org.freedesktop.DBus.Peer {
+        ...
       };
       interface org.freedesktop.DBus.Introspectable {
+        ...
       };
     };
 
@@ -293,66 +364,92 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encod
 
 ## Session Objects
 
-    $ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/session/2
-    node /org/freedesktop/login1/session/2 {
+    $ gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1/session/3
+    node /org/freedesktop/login1/session/3 {
       interface org.freedesktop.login1.Session {
         methods:
+          @org.freedesktop.systemd1.Privileged("true")
           Terminate();
           Activate();
+          @org.freedesktop.systemd1.Privileged("true")
           Lock();
+          @org.freedesktop.systemd1.Privileged("true")
           Unlock();
-          SetIdleHint(in  b b);
-          Kill(in  s who,
-               in  s signal);
-          TakeControl(in  b force);
+          SetIdleHint(in  b arg_0);
+          @org.freedesktop.systemd1.Privileged("true")
+          Kill(in  s arg_0,
+               in  i arg_1);
+          TakeControl(in  b arg_0);
           ReleaseControl();
-          TakeDevice(in  u major,
-                     in  u minor,
-                     out h fd,
-                     out b paused);
-          ReleaseDevice(in  u major,
-                        in  u minor);
-          PauseDeviceComplete(in  u major,
-                              in  u minor);
+          TakeDevice(in  u arg_0,
+                     in  u arg_1,
+                     out h arg_2,
+                     out b arg_3);
+          ReleaseDevice(in  u arg_0,
+                        in  u arg_1);
+          PauseDeviceComplete(in  u arg_0,
+                              in  u arg_1);
         signals:
-          PauseDevice(u major,
-                      u minor,
-                      s type);
-          ResumeDevice(u major,
-                       u minor,
-                       h fd);
+          PauseDevice(u arg_0,
+                      u arg_1,
+                      s arg_2);
+          ResumeDevice(u arg_0,
+                       u arg_1,
+                       h arg_2);
           Lock();
           Unlock();
         properties:
-          readonly s Id = '2';
-          readonly (uo) User = (500, '/org/freedesktop/login1/user/500');
-          readonly s Name = 'lennart';
-          readonly t Timestamp = 1340822974628160;
-          readonly t TimestampMonotonic = 22335339;
-          readonly u VTNr = 2;
-          readonly (so) Seat = ('seat0', '/org/freedesktop/login1/seat/seat0');
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Id = '3';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly (uo) User = (1000, '/org/freedesktop/login1/user/_1000');
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Name = 'test';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly t Timestamp = 1389370644734067;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly t TimestampMonotonic = 72063381;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly u VTNr = 0;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly (so) Seat = ('', '/');
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s TTY = '';
-          readonly s Display = ':0';
-          readonly b Remote = false;
-          readonly s RemoteHost = '';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Display = '';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly b Remote = true;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s RemoteHost = '129.174.150.217';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s RemoteUser = '';
-          readonly s Service = 'gdm-password';  
-          readonly s Scope = 'session-2.scope';
-          readonly u Leader = 905;
-          readonly u Audit = 2;
-          readonly s Type = 'x11';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Service = 'sshd';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Scope = 'session-3.scope';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly u Leader = 1854;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly u Audit = 3;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s Type = 'tty';
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s Class = 'user';
           readonly b Active = true;
+          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
           readonly s State = 'active';
           readonly b IdleHint = false;
-          readonly t IdleSinceHint = 1340873864854884;
-          readonly t IdleSinceHintMonotonic = 14409495315;
+          readonly t IdleSinceHint = 0;
+          readonly t IdleSinceHintMonotonic = 0;
       };
       interface org.freedesktop.DBus.Properties {
+        ...
       };
       interface org.freedesktop.DBus.Peer {
+        ...
       };
       interface org.freedesktop.DBus.Introspectable {
+        ...
       };
     };
 
