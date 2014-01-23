@@ -10,11 +10,12 @@
  * Check the bug list in case there's still some bug that should be a release blocker.
  * As a smoke test, run the current git master version on your own machine for a while.
  * Check that the "since" tags in the Doxygen documentation are correct.
- * Update sonames.
+ * Bump sonames.
  * Tag the last commit.
  * Generate the tarball.
  * Upload the tarball.
- * Announce the release candidate.
+ * Announce the release candidate on the mailing list.
+ * Add a news item to the web site front page.
 
 
 ### Checking the "since" Tags in the Doxygen Documentation
@@ -28,9 +29,36 @@ Before running that command, change "v4.0" to point to the last released version
 The command needs to be run in the src directory, because I didn't bother prefixing the files with "src/" when I copied them from pulseinclude_HEADERS.
 
 
-### Updating Sonames
+### Bumping Sonames
 
-TODO
+We have currently three public API libraries: libpulse, libpulse-simple and libpulse-mainloop-glib (if new ones have been added, please update this wiki page). The "sonames" of those libraries need to be bumped before each release (release candidates are releases too in this context). The soname versions are defined in configure.ac. The definitions for v4.0 look as follows:
+
+    AC_SUBST(LIBPULSE_VERSION_INFO, [16:2:16])
+
+    AC_SUBST(LIBPULSE_SIMPLE_VERSION_INFO, [0:4:0])
+
+    AC_SUBST(LIBPULSE_MAINLOOP_GLIB_VERSION_INFO, [0:4:0])
+
+Rules for bumping "X:Y:Z":
+
+ * If there are backwards incompatible changes to the library binary interface, something went wrong. We don't break the ABIs.
+ * If there are backwards compatible changes to the library binary interface, increment X and Z by one, and set Y to zero.
+ * If there are no interface changes, but there are changes to the implementation, increment Y by one.
+ * If there are no changes at all in the library, don't touch the version.
+
+For your convenience, below are commands for viewing the library changes. Replace "v4.0" with the last released version, and if there are new files added to the libraries, update this wiki page.
+
+libpulse:
+
+    git diff v4.0..master -- pulse/cdecl.h pulse/channelmap.c pulse/channelmap.h pulse/context.c pulse/context.h pulse/def.h pulse/error.c pulse/error.h pulse/ext-device-manager.c pulse/ext-device-manager.h pulse/ext-device-restore.c pulse/ext-device-restore.h pulse/ext-stream-restore.c pulse/ext-stream-restore.h pulse/format.c pulse/format.h pulse/gccmacro.h pulse/internal.h pulse/introspect.c pulse/introspect.h pulse/mainloop-api.c pulse/mainloop-api.h pulse/mainloop-signal.c pulse/mainloop-signal.h pulse/mainloop.c pulse/mainloop.h pulse/operation.c pulse/operation.h pulse/proplist.c pulse/proplist.h pulse/pulseaudio.h pulse/rtclock.c pulse/rtclock.h pulse/sample.c pulse/sample.h pulse/scache.c pulse/scache.h pulse/stream.c pulse/stream.h pulse/subscribe.c pulse/subscribe.h pulse/thread-mainloop.c pulse/thread-mainloop.h pulse/timeval.c pulse/timeval.h pulse/utf8.c pulse/utf8.h pulse/util.c pulse/util.h pulse/volume.c pulse/volume.h pulse/xmalloc.c pulse/xmalloc.h
+
+libpulse-simple:
+
+    git diff v4.0..master -- pulse/simple.c pulse/simple.h
+
+libpulse-mainloop-glib:
+
+    git diff v4.0..master -- pulse/glib-mainloop.h pulse/glib-mainloop.c
 
 
 ### Tagging
