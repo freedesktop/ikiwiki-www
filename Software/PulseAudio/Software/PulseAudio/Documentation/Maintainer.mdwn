@@ -1,0 +1,51 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
+
+# Maintainer Documentation
+
+## Making Release Candidates
+
+### Overview
+
+ * Fix all release blocker bugs.
+ * Check the bug list in case there's still some bug that should be a release blocker.
+ * As a smoke test, run the current git master version on your own machine for a while.
+ * Check that the "since" tags in the Doxygen documentation are correct.
+ * Update sonames.
+ * Tag the last commit.
+ * Generate the tarball.
+ * Upload the tarball.
+ * Announce the release candidate.
+
+
+### Checking the "since" Tags in the Doxygen Documentation
+
+It's relatively easy to forget to add the "since" tags in the Doxygen documentation, or to have a wrong version in them (for example, a patch is submitted that is targeted for 4.0, but it ends up merged during the 5.0 cycle). It's pretty easy to check that the tags are correct by diffing the public headers since the last release.
+
+    git diff v4.0..master -- pulse/cdecl.h pulse/channelmap.h pulse/context.h pulse/def.h pulse/error.h pulse/ext-device-manager.h pulse/ext-device-restore.h pulse/ext-stream-restore.h pulse/format.h pulse/gccmacro.h pulse/introspect.h pulse/mainloop-api.h pulse/mainloop-signal.h pulse/mainloop.h pulse/operation.h pulse/proplist.h pulse/pulseaudio.h pulse/rtclock.h pulse/sample.h pulse/scache.h pulse/simple.h pulse/stream.h pulse/subscribe.h pulse/thread-mainloop.h pulse/timeval.h pulse/utf8.h pulse/util.h pulse/volume.h pulse/xmalloc.h pulse/glib-mainloop.h
+
+Before running that command, change "v4.0" to point to the last released version, and check if there are any new headers added to pulseinclude_HEADERS in Makefile.am. If there are new headers, please update this wiki page.
+
+
+### Updating Sonames
+
+TODO
+
+
+### Tagging
+
+TODO
+
+
+### Generating the Tarball
+
+TODO
+
+
+### Uploading the Tarball
+
+TODO
+
+
+### Announcing the Release Candidate
+
+TODO
