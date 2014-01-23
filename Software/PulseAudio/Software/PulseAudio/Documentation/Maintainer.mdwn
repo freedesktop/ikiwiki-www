@@ -11,9 +11,11 @@
  * As a smoke test, run the current git master version on your own machine for a while.
  * Check that the "since" tags in the Doxygen documentation are correct.
  * Bump sonames.
- * Tag the last commit.
+ * Tag the last commit locally (don't make the tag public yet).
  * Generate the tarball.
+ * Test the tarball.
  * Upload the tarball.
+ * Push the tag.
  * Announce the release candidate on the mailing list.
  * Add a news item to the web site front page.
 
@@ -69,19 +71,26 @@ Create a signed tag:
 
 You'll need to have a GPG key with the default e-mail address configured in git.
 
-Push the tag to origin:
+When it's time to push the tag (after generating the tarball and testing that it works), this is the command:
 
     git push origin v4.99.1
 
 
 ### Generating the Tarball
 
-TODO
+    make distcheck
+
+That will create a .tar.gz file and a .tar.xz file. Then you'll need to create matching checksum files too:
+
+    md5sum pulseaudio-4.99.1.tar.gz > pulseaudio-4.99.1.tar.gz.md5
+    sha1sum pulseaudio-4.99.1.tar.gz > pulseaudio-4.99.1.tar.gz.sha1
+    md5sum pulseaudio-4.99.1.tar.xz > pulseaudio-4.99.1.tar.xz.md5
+    sha1sum pulseaudio-4.99.1.tar.xz > pulseaudio-4.99.1.tar.xz.sha1
 
 
 ### Uploading the Tarball
 
-TODO
+    scp pulseaudio-*.tar.* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/pulseaudio/releases
 
 
 ### Announcing the Release Candidate
