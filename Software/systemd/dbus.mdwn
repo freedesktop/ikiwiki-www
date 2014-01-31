@@ -1331,6 +1331,7 @@ All slice unit objects implement the `org.freedesktop.systemd1.Sscope` interface
       interface org.freedesktop.systemd1.Scope {
         methods:
         signals:
+          RequestStop();
         properties:
           readonly s Slice = 'user-1000.slice';
           readonly s ControlGroup = '/user.slice/user-1000.slice/session-1.scope';
@@ -1351,6 +1352,7 @@ All slice unit objects implement the `org.freedesktop.systemd1.Sscope` interface
           readonly s DevicePolicy = 'auto';
           readonly a(ss) DeviceAllow = [];
           readonly s Result = 'success';
+          readonly s Controller = '';
       };
       interface org.freedesktop.DBus.Properties {
         ...
@@ -1367,6 +1369,11 @@ All slice unit objects implement the `org.freedesktop.systemd1.Sscope` interface
 
 All properties correspond directly with the matching properties of service units.
 
+**Controller** contains the bus name (unique or well-known) that is notified when the scope unit is to be shut down via a **RequestStop** signal (see below). This is set when the scope is created. If not set the scope's processes will terminated with SIGTERM directly. 
+
+### Signals
+
+**RequestStop** is sent to the peer that is configured in the **Controller** property when systemd is requested to terminate the scope unit. A program registering a scope can use this to cleanly shut down the processes it added to the scope, instead of letting systemd do it with the usual SIGTERM logic.
 
 ## Job Objects
 
