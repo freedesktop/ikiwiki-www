@@ -21,6 +21,8 @@ The pa_card_profile_info struct is deprecated, consider migrating to pa_card_pro
 
 PulseAudio now supports BlueZ 5, but only the A2DP profile. BlueZ 4 is still the only way to make HSP/HFP work.
 
+The build dependency to libbluetooth has been dropped.
+
 We now use upstream gettext instead of the GLib version. The minimum required version is 0.18.1.
 
 The minimum supported alsa-lib version is now 1.0.19 (down from 1.0.24).
@@ -44,13 +46,25 @@ pacmd now supports "newfile:somefile.log" as a target for the set-log-target com
 
 ### Module changes:
 
-New module: module-tunnel-sink-new. It's a reimplementation of module-tunnel-sink. It's not quite finished yet, but if you're having trouble with the audio quality of module-tunnel-sink, it's worth trying if this new implementation works better. Note, however, that module-tunnel-sink-new will be renamed to module-tunnel-sink once it's ready, so if you use module-tunnel-sink-new in your configuration, your configuration will break once that renaming happens.
+module-bluetooth-discover and module-bluetooth-device have been renamed to module-bluez4-discover and module-bluez4-device. There is still a module called module-bluetooth-discover - that's a new module that serves as a compatibility layer. The new module-bluetooth-discover loads module-bluez5-discover or module-bluez4-discover based on which version is available in the system (if both modules exist, then both are loaded, but depending on the running bluetoothd version, only one of them will interact with BlueZ).
+
+New module: module-bluez5-discover. This is the module that enables BlueZ 5 support. It's recommended to use module-bluetooth-discover in configuration files, however, to keep the configuration file compatible with future BlueZ versions.
+
+New modules: module-tunnel-sink-new and module-tunnel-source-new. They are reimplementations of module-tunnel-sink and module-tunnel-source. They're not quite finished yet, but if you're having trouble with the tunnel modules, it's worth trying if these new implementations work better. Note, however, that module-tunnel-sink-new will be renamed to module-tunnel-sink once it's ready (and the same for module-tunnel-source-new), so if you use module-tunnel-sink-new in your configuration, your configuration will break once that renaming happens.
+
+module-tunnel-sink and module-tunnel-source (the old versions) now support the "auto" argument. If it's set to true, then the default connection parameters are gathered from the environment in the same way as applications do. This is usually a bad idea, because often that will cause the server to connect to itself, but some people found this feature useful for their purposes.
+
+When module-suspend-on-idle reads the timeout property from sinks and sources, it now treats a negative timeout as "never suspend" instead of ignoring the property.
 
 module-alsa-card now prefers to adjust the "Capture" volume in the ALSA mixer instead of boosts, e.g. "Mic Boost". This should result in less noise in the captured audio on some hardware.
+
+module-alsa-card now supports the "PlaybackRate" and "CaptureRate" UCM device options.
 
 When using ALSA UCM, module-alsa-card now assigns lower priority to ports that combine multiple devices than ports that use only one device.
 
 module-loopback maximum configurable latency has been increased from 2 seconds to 30 seconds.
+
+module-bluetooth-proximity has been removed. It was probably not used by anyone, since it required an ancient version of BlueZ to work.
 
 
 ### Configuration syntax changes:
@@ -86,13 +100,6 @@ The binding for pa_cvolume_set() was missing, now CVolume.set() has been added.
 ### Performance improvements:
 
 Improved float->s16 and s16->float sample conversion for ARM NEON.
-
-
-### Bug fix highlights:
-
-module-combine-sink doesn't crash any more when its virtual streams are destroyed (like when unloading the module). This was a regression in 4.0.
-
-In the non-flat-volume mode we had a bug for a long time where stream volume was reset when moving the stream from one device to another. It's strange that this sort of bug in basic functionality has gone unnoticed (or at least unreported) for so long, but now it has been found and fixed.
 
 
 ## Next Steps
