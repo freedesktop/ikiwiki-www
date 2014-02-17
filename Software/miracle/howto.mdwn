@@ -1,0 +1,73 @@
+# MiracleCast - Howto
+
+MiracleCast is currently under heavy development. This document tries to serve as documentation until the first version of MiracleCast is released. It contains some rough description of the code-layout, the architecture and how you can test it right now. Note that parts of this document might describe features that are *not* implemented, yet.
+
+## Overview
+
+MiracleCast is an open-source implementation of the *Miracast* technology (also: *Wifi-Display (WFD)*). It is based on the OpenWFD research project and will supercede it. We focus on proper and tight integration into existing Linux-Desktop systems, compared to OpenWFD which was meant as playground for fast-protoyping.
+
+Despite its name and origin, the project itself is not limited to Miracast. We can support any kind of display-streaming with just a minimal amount of additional work. However, Miracast will remain the main development target due to its level of awareness.
+
+At its core, MiracleCast is built around a system-daemon named *miracled*. This daemon provides a dbus API for runtime configuration and interaction. The *miraclectl* tool is a CLI program that serves as dbus example and CLI management tool for administrators. *miracled* manages objects dynamically at runtime. The top-level objects are *Links*. A link usually represents a local wifi interface, but in case you use another transport, other link-types are also supported (like a virtual link representing the local IP network). You can add and remove links from *miracled* via dbus-calls or *miraclectl*. By default, no links are managed. You can tag them as *miracle* via udev to make *miracled* pick them up automatically.
+
+On each link, *miracled* can perform peer-discovery. This differs heavily between different link-types and there are even types that don't support this at all. In such cases, peers have to be added manually. If peer-discovery is supported, you can start a scan on each given link. While scanning, new *Peer* objects are created for each found remote device. These objects are removed again if the remote device is no longer available. *Peer* objects are second-level objects for *miracled*. Each *Peer* is assigned to a local *Link* and represents a remote device that supports a given type of display-streaming (usually: Miracast).
+
+To start streaming to or from a *Peer*, you first need to establish a connection to the device. Some link-types automatically provide this connection as part of peer-discovery, some others don't. You can query *miracled* whether a connection to a given peer exists. If not, you can instruct *miracled* to create one. In case of incoming connection attempts from remote devices, an agent like *miraclectl* needs to allow or reject these. Once a connection between two devices exists, you can query *miracled* for the local and remote IP addresses. All further display-streaming protocols are based on IP, so we provide a strict separation between link-establishment and streaming-protocols. In fact, both can be used independently of each other. For example, this allows you to fall back to custom IP networks if your driver does not support Wifi-P2P for Miracast. Obviously, the remote device needs to support the same.
+
+*Link* and *Peer* objects are used for connection-management and not for *display-streaming*. So if a peer is signaled as *Connected*, this only means that we have an IP connection to it, it doesn't mean there is an active stream. The streaming part of *miracled* is done separately and largely depends on external resources. For streaming, we have to distinguish between *Sink* and *Source* objects. A *Source* generates display content and streams it to a remote device. A *Sink* receives content and displays it (or similar). MiracleCast implements both, but *miracled* can do neither. The thing is, *miracled* does not know about displays or graphics or else. So you need external entities that register as *Sink* or *Source* with *miracled*, which then allows you to connect these local entities with remote devices. *miracled* implements most of the streaming protocols itself to provide a protocol-independent local dbus API for *Sinks* and *Sources*.
+
+To implement a local *Sink* device, your application needs to register a *LocalSink* object with *miracled*. Once it is registered, *miracled* will start advertising this capability to remote *Sources* so they can initiate a connection to us. Once they are connected, *miracled* routes the traffic between your dbus-object and the remote device. Protocol parsing and encoding is done inside *miracled*. The daemon provides a fairly comprehensive API so your *Sink* application can have full control over the streaming API.
+
+To implement a local *Source* device, your application needs to register a *LocalSource* object with *miracled*. Once registered, *miracled* will start advertising this capability so remote sink will recognize us as *Source*. However, unlike the *LocalSink* objects, no connection is established by default. Instead, your application needs to find a *Peer* object and instruct *miracled* to connect your *LocalSource* to the remote *Sink*.
+
+## Current State
+
+Wifi-P2P link management is currently fully supported. Running wifi-p2p links with android works very well (both sides, GO and client). There are a few things worth mentioning, though:
+
+* We require direct access to the wpa_supplicant interface. No network-manager (including ConnMan, NetworkManager, wicd) provides a Wifi-P2P API so we implemented it ourselves. We *really* want to drop this once network-managers start exposing such APIs.
+* We use our own miracle-dhcp binary as DHCP client and server implementation. It's copied from ConnMan as no existing DHCP server provides ad-hoc capabilities. Once sd-dns gains DHCP-server support, we will immediately switch to it (which should happen during 2014) and drop our helper-binary.
+* You can have at most *ONE* Wifi-P2P link per interface concurrently. The wpa_supplicant events do not provide enough information to associate GROUP-STARTED events with p2p-devices, so we cannot support multiple of them. However, most hardware supports only a single link, anyway. If multiple links are supported, you can use normal AP mode concurrently to Wifi-P2P!
+
+All Miracast related stuff is still under development and not ready to be tested, yet. 
+
+## Link Management
+
+Link management is fully implemented in *miracled*. However, only *Wifi-P2P* links are supported so far. A virtual link-type for any IP-based networks is planned but hasn't been worked on so far.
+
+### Wifi Links
+
+Via Wifi links you can create wifi-P2P connections between two devices. Your wifi-driver needs to support the Wifi-P2P extension and only very few drivers are known to work. *miracled* will refuse links that don't support it. If you're lucky and posses such a wifi card, you can make *miracled* manage the interface via *miraclectl*:
+
+    miraclectl add-link wifi:wlan0
+
+You need to run your own instance of *wpa_supplicant* on the given interface. This is to allow concurrent use of normal wifi features in your network-manager of choice. If you don't run such a network-manager, you can use *--manage-wifi* as argument to *miracled* to let miracled create its own wpa_supplicant processes.
+
+Once a link is added, you can start scans on this interface via:
+
+    miraclectl start-scan wifi:wlan0
+
+You're highly recommended to run *miraclectl* in CLI-mode to get interactive events. Simply run *miraclectl* without arguments for that. Once a scan is running, you will get notified about new peer devices. If a peer-device initiates a connection to your host, you can accept or reject it via:
+
+    allow <peer> [PIN]
+
+or
+
+    reject <peer>
+
+To initiate or close a connection yourself, you can use:
+
+    connect <peer> [PROVISION] [PIN]
+
+or
+
+    disconnect <peer>
+
+A peer is identified by an integer. See *list* for a complete list of managed links and peers.
+
+## Local Sink Management
+
+Local sinks are currently under development. API description will follow shortly.
+
+## Local Source Management
+
+Local sources haven't been tackled, yet.
