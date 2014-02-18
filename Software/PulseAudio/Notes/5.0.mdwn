@@ -2,9 +2,7 @@
 
 # PulseAudio 5.0 Release Notes (draft)
 
-Draft status: checked commits since v4.0 until bef191be820cba76a142722c85f9d0389f901203
-
-TODO: Write an introduction, mention the GSoC projects and new maintainer.
+Welcome to another episode of PulseAudio release notes! The 5.0 release contains the work of last year's GSoC students Alexander Couzens and Damir Jelić, BlueZ 5 support, and much more. It's also noteworthy that Peter Meerwald from bct electronic joined the PulseAudio maintainer team.
 
 
 ## Changes at a glance
@@ -23,7 +21,7 @@ The pa_card_profile_info struct is deprecated, consider migrating to pa_card_pro
 
 ## Notes for Packagers
 
-PulseAudio now supports BlueZ 5, but only the A2DP profile. BlueZ 4 is still the only way to make HSP/HFP work. It's possible to build PulseAudio with support for both BlueZ versions, and that's the default behaviour. If you want to disable one version or the other, pass --disable-bluez4 or --disable-bluez5 to the configure script.
+PulseAudio now supports BlueZ 5, but only the A2DP profile, which means that in case of headsets, only playback is available, the headset microphone can't be used. BlueZ 4 is still the only way to make the headset and hands-free profiles work. It's possible to build PulseAudio with support for both BlueZ versions, and that's the default behaviour. If you want to disable one version or the other, pass --disable-bluez4 or --disable-bluez5 to the configure script.
 
 PulseAudio now supports systemd-journal as a log target. This adds an optional build dependency to libsystemd-journal.
 
@@ -38,7 +36,24 @@ The minimum supported alsa-lib version is now 1.0.19 (down from 1.0.24).
 
 ### BlueZ 5 support (A2DP only)
 
-TODO: This is one of the most significant changes in this release. We already have a note for packagers above, but we probably should have some longer explanation here about what makes BlueZ 5 so great for users, and also what doesn't work and why. And what is required for the not-yet-working stuff to start working.
+First some background: The BlueZ project decided to redesign their client interface. They also decided to drop support for the old client interface. BlueZ 4 has the old interface and BlueZ 5 has the new interface. The decision to drop support for the old interface in BlueZ 5 meant that all applications, including PulseAudio, that used to work with BlueZ 4 didn't work with BlueZ 5.
+
+The support for BlueZ 5 has been gradually added in various applications, and this is the first PulseAudio version that supports BlueZ 5. This means that everything is great, right? Not so. The BlueZ project also decided to drop support for the HSP and HFP profiles, which were the profiles responsible for handling telephony audio. If you have a headset, its microphone won't work with BlueZ 5, because the microphone is only supported by the HSP and HFP profiles.
+
+There are distributions that have migrated to BlueZ 5 without providing users the alternative of staying with BlueZ 4. Some of those distributions probably made the transition without understanding the consequences - they now have a serious regression in functionality, because their users' Bluetooth headsets have stopped working (well, the headsets can still be used for listening to music, but they're useless for VoIP applications).
+
+Gnome made also a decision, possibly misinformed one, to drop support for BlueZ 4 in their latest release, which means that upgrading to the latest Gnome version (3.10) has one of two problems depending on the BlueZ version in the system: with BlueZ 4, the Gnome UI for managing Bluetooth won't work, and with BlueZ 5 the headset audio functionality will be crippled.
+
+So what's the way forward with getting the HSP and HFP profiles work with BlueZ 5? There is partial support for those in oFono (a telephony daemon), which will hopefully be completed soon, and the next PulseAudio release will then hopefully support HSP/HFP through oFono. If there are distributions that prefer some other telephony stack that can't co-exist with oFono, that's another potential problem in the migration to BlueZ 5 in those distributions...
+
+Now, the technical details of the BlueZ 5 support in PulseAudio: there are now separate modules for BlueZ 4 and BlueZ 5: module-bluez4-discover and module-bluez5-discover. The old module-bluetooth-discover still exists and is used in the default configuration. The role of module-bluetooth-discover is now to act as an abstraction layer: it will load module-bluez4-discover and/or module-bluez5-discover based on what's present in the system. This means that the migration to BlueZ 5 can be done without changing the PulseAudio configuration.
+
+
+### Reimplementation of the tunnel modules
+
+The old module-tunnel-sink and module-tunnel-source have an independent implementation of the PulseAudio client protocol. There's another implementation in libpulse, which is what applications use to talk to the PulseAudio server. This is clear duplication of effort, and makes the maintenance of the tunnel modules much harder than what it should be.
+
+As a GSoC project, Alexander Couzens reimplemented the tunnel modules so that they use libpulse instead of implementing the protocol details themselves. The reimplemented modules are now available as module-tunnel-sink-new and module-tunnel-source-new. The implementation isn't fully complete yet, which is why the old modules still exist, but the new versions can already be tested (if you're having trouble with audio streaming quality of the old tunnel modules, it's worth checking if the new modules work better). Note that if you use module-tunnel-sink-new or module-tunnel-source-new in a configuration file, that configuration file will break when those new modules are finished, and the "-new" suffix is removed from the module names.
 
 
 ### Systemd-journal support
@@ -56,14 +71,6 @@ pacmd now supports "newfile:somefile.log" as a target for the set-log-target com
 
 
 ### Module changes:
-
-TODO: Move the bluetooth and module-tunnel-new stuff under their own sections.
-
-module-bluetooth-discover and module-bluetooth-device have been renamed to module-bluez4-discover and module-bluez4-device. There is still a module called module-bluetooth-discover - that's a new module that serves as a compatibility layer. The new module-bluetooth-discover loads module-bluez5-discover or module-bluez4-discover based on which version is available in the system (if both modules exist, then both are loaded, but depending on the running bluetoothd version, only one of them will work).
-
-New module: module-bluez5-discover. This is the module that enables BlueZ 5 support. It's recommended to use module-bluetooth-discover in configuration files, however, to keep the configuration file compatible with future BlueZ versions.
-
-New modules: module-tunnel-sink-new and module-tunnel-source-new. They are reimplementations of module-tunnel-sink and module-tunnel-source. They're not quite finished yet, but if you're having trouble with the tunnel modules, it's worth trying if these new implementations work better. Note, however, that module-tunnel-sink-new will be renamed to module-tunnel-sink once it's ready (and the same for module-tunnel-source-new), so if you use module-tunnel-sink-new in your configuration, your configuration will break once that renaming happens.
 
 module-rtp-recv now supports the "latency_msec" argument. It can be used to control the local buffer size. The default latency is 500 ms.
 
@@ -91,11 +98,16 @@ A single path can't be used for both input and output any more.
 
 ### Hardware support changes:
 
-Jack detection support for line out jacks has been added. TODO: Any concrete benefits for users?
+Jack detection support for line out jacks has been added. This means that user interfaces can now hide or mark unavailable the line out when nothing is plugged in to the jack.
 
-Proper hardware volume support for some laptops that have internal surround speakers.
+Proper hardware volume support has been added for some laptops that have internal surround speakers.
 
 A configuration file for Native Instruments Traktor Audio 2 was missing from the 4.0 tarball. It's now shipped with 5.0, so users of that hardware actually get the benefit from the configuration file (which allows PulseAudio to use both outputs of the sound card).
+
+
+### Performance improvements:
+
+Improved float->s16 and s16->float sample conversion for ARM NEON.
 
 
 ### libpulse changes:
@@ -103,6 +115,8 @@ A configuration file for Native Instruments Traktor Audio 2 was missing from the
 An "available" flag has been added to the card profile info. If a profile is not available, activating it doesn't make sense. GUIs that allow the user to control the card profile can use the new flag to hide unavailable profiles.
 
 Adding the "available" flag to the existing pa_card_profile_info struct turned out to break the ABI due to an earlier design mistake, so instead of extending pa_card_profile_info, we had to introduce pa_card_profile_info2, which contains the same information as the old struct plus the new "available" flag. The old pa_card_profile_info struct is now deprecated. The "profiles" field in pa_card_port_info and the "profiles" and "active_profile" fields in pa_card_info are deprecated too, superseded by the "profiles2" field in pa_card_port_info and "profiles2" and "active_profile2" fields in pa_card_info.
+
+pa_stream_connect_playback() and pa_stream_connect_record() now accept single-channel volume even if the stream has multiple channels. The single volume is applied to all channels.
 
 pa_simple_flush() can now be used with record streams too, in addition to playback streams.
 
@@ -118,11 +132,6 @@ New function: pa_threaded_mainloop_set_name(). This is used internally in PulseA
 The binding for pa_cvolume_set() was missing, now CVolume.set() has been added.
 
 
-### Performance improvements:
-
-Improved float->s16 and s16->float sample conversion for ARM NEON.
-
-
 ### Miscellaneous:
 
 module-dbus-protocol has been removed from the default configuration. The module is (perpetually?) in an experimental state, and it tends to crash the server sometimes.
@@ -130,7 +139,7 @@ module-dbus-protocol has been removed from the default configuration. The module
 
 ## Next Steps
 
-HSP/HFP support for BlueZ 5 will hopefully arrive in the next PulseAudio release, but that requires someone to write the code for that. Some code already exists, but it hasn't been submitted for upstream inclusion, and lately there has not been much visible progress on that front (TODO: check the latest status and plans from João).
+HSP/HFP support with BlueZ 5 will probably arrive in the next PulseAudio release. There's also ongoing work with making routing and volume handling more flexible for policy modules and for client applications.
 
 
 ## git shortlog
