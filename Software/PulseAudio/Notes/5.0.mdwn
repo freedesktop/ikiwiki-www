@@ -112,7 +112,7 @@ Improved float->s16 and s16->float sample conversion for ARM NEON.
 
 ### libpulse changes:
 
-An "available" flag has been added to the card profile info. If a profile is not available, activating it doesn't make sense. GUIs that allow the user to control the card profile can use the new flag to hide unavailable profiles. Currently the (un)availability is set for Bluetooth cards, though, and profiles on other cards will always appear as available.
+An "available" flag has been added to the card profile info. If a profile is not available, activating it doesn't make sense. GUIs that allow the user to control the card profile can use the new flag to hide unavailable profiles. Currently the (un)availability is only set for Bluetooth cards, though, and profiles on other cards will always appear as available.
 
 Adding the "available" flag to the existing pa_card_profile_info struct turned out to break the ABI due to an earlier design mistake, so instead of extending pa_card_profile_info, we had to introduce pa_card_profile_info2, which contains the same information as the old struct plus the new "available" flag. The old pa_card_profile_info struct is now deprecated. The "profiles" field in pa_card_port_info and the "profiles" and "active_profile" fields in pa_card_info are deprecated too, superseded by the "profiles2" field in pa_card_port_info and "profiles2" and "active_profile2" fields in pa_card_info.
 
