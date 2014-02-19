@@ -84,6 +84,7 @@ After accessing the web server, the service should be running.
 
     sudo systemctl status my-php-fpm-pool.service
 
-It's possible to shut down the service and re-activate it using the web browser, too. The systemctl command should warn you that the socket is still listening.
+It's possible to shut down the service and re-activate it using the web browser, too. It's necessary to stop and start the socket to reset some shutdown PHP-FPM does that otherwise breaks reactivation.
 
-    sudo systemctl stop my-php-fpm-pool.service
+    sudo systemctl stop my-php-fpm-pool.socket my-php-fpm-pool.service
+    sudo systemctl start my-php-fpm-pool.socket
