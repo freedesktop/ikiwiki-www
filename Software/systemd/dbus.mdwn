@@ -169,6 +169,10 @@ The main entry point object is available on the fixed `/org/freedesktop/systemd1
           readonly t UnitsLoadStartTimestampMonotonic = 500549464657;
           readonly t UnitsLoadFinishTimestamp = 1374345509652212;
           readonly t UnitsLoadFinishTimestampMonotonic = 500549554088;
+          readonly t SecurityStartTimestamp = 1374345509562782;
+          readonly t SecurityStartTimestampMonotonic = 500549464657;
+          readonly t SecurityFinishTimestamp = 1374345509652212;
+          readonly t SecurityFinishTimestampMonotonic = 500549554088;
           readwrite s LogLevel = 'info';
           readwrite s LogTarget = 'journal';
           readonly u NNames = 100;
@@ -185,6 +189,7 @@ The main entry point object is available on the fixed `/org/freedesktop/systemd1
           readwrite t RuntimeWatchdogUSec = 0;
           readwrite t ShutdownWatchdogUSec = 600000000;
           readonly s Virtualization = '';
+          readonly s Architecture = 'x86-64';
       };
       interface org.freedesktop.DBus.Properties {
         ...
@@ -327,6 +332,8 @@ Most properties simply reflect the respective options in `/etc/systemd/system.co
 
 **FirmwareTimestamp**, **FirmwareTimestampMonotonic**, **LoaderTimestamp**, **LoaderTimestampMonotonic**, **KernelTimestamp**, **KernelTimestampMonotonic**, **InitRDTimestamp**, **InitRDTimestampMonotonic**, **UserspaceTimestamp**, **UserspaceTimestampMonotonic**, **FinishTimestamp**, **FinishTimestampMonotonic** encode CLOCK_REALTIME resp. CLOCK_MONOTONIC usec timestamps taken when the firmware first began execution, when the boot loader first began execution, when the kernel first began execution, when the initrd first began execution, when the main systemd instance began execution and finally, when all queued startup jobs finished execution. These values are useful for determining boot-time performance. Note that as monotonic time begins with the kernel startup the KernelTimestampMonotonic timestamp will always be 0, and FirmwareTimestampMonotonic and LoaderTimestampMonotonic are to be read as negative values. Also, not all fields are available, depending on the used firmware, boot loader or initrd implementation. In these cases the resp. pairs of timestamps are both 0, indicating that no data is available. 
 
+Similar, the **SecurityStartTimestamp**, **GeneratorsStartTimestamp** and **LoadUnitTimestamp** (plus their monotonic and stop counterparts) expose performance data for uploading the security policies to the kernel (such as the SELinux, IMA, or SMACK policies), for running the generator tools and for loading the unit files.
+
 **NNames** encodes how many unit names are currently known. This only includes names of units that are currently loaded and can be more than actually loaded units since units may have more than one name. 
 
 **NJobs** encodes how many jobs are currently queued. 
@@ -343,6 +350,9 @@ Most properties simply reflect the respective options in `/etc/systemd/system.co
 
 **Virtualization** contains a short ID string describing the virtualization technology the system runs in. On bare-metal hardware this is the empty string, otherwise an identifier such as "kvm", "vmware" and so on. For a full list of IDs see systemd-detect-virt(1). Note that only the "innermost" virtualization technology is exported here. This detects both full-machine virtualizations (VMs) and shared-kernel virtualization (containers). 
 
+**Architecture** contains a short ID string describing the architecture the systemd instance is running on. This follows the same vocabulary as ConditionArchitectures=.
+
+**ControlGroup** contains the root control group path of this system manager. Note that the root path is encoded as empty string here (not as "/"!), so that it can be appended to `/sys/fs/cgroup/systemd` easily. This value will be set to the empty string for the host instance, and some other string for container instances.
 
 ## Unit Objects
 
@@ -1330,6 +1340,7 @@ All slice unit objects implement the `org.freedesktop.systemd1.Sscope` interface
       };
       interface org.freedesktop.systemd1.Scope {
         methods:
+          Abandon();
         signals:
           RequestStop();
         properties:
@@ -1353,6 +1364,8 @@ All slice unit objects implement the `org.freedesktop.systemd1.Sscope` interface
           readonly a(ss) DeviceAllow = [];
           readonly s Result = 'success';
           readonly s Controller = '';
+          
+
       };
       interface org.freedesktop.DBus.Properties {
         ...
@@ -1370,6 +1383,10 @@ All slice unit objects implement the `org.freedesktop.systemd1.Sscope` interface
 All properties correspond directly with the matching properties of service units.
 
 **Controller** contains the bus name (unique or well-known) that is notified when the scope unit is to be shut down via a **RequestStop** signal (see below). This is set when the scope is created. If not set the scope's processes will terminated with SIGTERM directly. 
+
+### Methods
+
+**Abandon()** may be used to place a scope unit in the "abandoned" state. This may be used to inform the system manager that the manager that created the scope lost interest in the scope (for example, because it is terminating), without wanting to shut down the scope entirely.
 
 ### Signals
 
