@@ -2,11 +2,11 @@
 
 # Backports
 
-The upstream systemd git repo only contains the main systemd branch that progresses in a quick pace, continously bringing both bugfixes and new features. Distributions usually prefer basing their releases on stabilized versions branched off from this, that receive the bugfixes but not the features.
+The upstream systemd git repo only contains the main systemd branch that progresses at a quick pace, continuously bringing both bugfixes and new features. Distributions usually prefer basing their releases on stabilized versions branched off from this, that receive the bugfixes but not the features.
 
-Since distributions have different release cycles and thus base their releases on different systemd versions we do not provide stable release branches upstream. However, we tag our commits to indicate whether we believe they are relevant for backporting.
+Since distributions have different release cycles and thus base their releases on different systemd versions we do not provide stable release branches upstream. However, we tag our commits to indicate when we believe they are relevant for backporting.
 
-Moreover the systemd community maintains a stabilized systemd "stable" tree in an independent repository that rebases from time to time on the newest releases.
+Moreover the systemd community maintains a stabilized systemd "stable" tree in an independent repository that branches from time to time on the newest releases.
 
 ## Commits Tagged for Backporting
 
@@ -16,16 +16,13 @@ These notes are stored within the main development repository. To get access to 
 
     $ git fetch origin refs/notes/*:refs/notes/*
 
+If you intend to do this regularly, it probably makes sense to add notes to the list of refs to fetch:
+
+    $ git config --add remote.origin.fetch '+refs/notes/*:refs/notes/*'
+
 Afterwards they will be shown next to the commit message in the "git log" output.
 
-To make downloading these notes easier we recommend adding a macro to your git configuration:
-
-    [alias]
-    pullnotes = fetch origin refs/notes/*:refs/notes/*
-
-With that macro pulling down the notes is now as easy as:
-
-    git pullnotes
+They are also shown as yellow dots in gitk.
 
 Alternatively you can actually browse the notes with cgit, but it's not fun. Here's an example for a commit with a backport tag:
    
@@ -42,23 +39,19 @@ The following notes are currently used:
 
 ## Adding Backport Commits
 
-If you'd like to see a commit tagged for backporting and do not have commit priviliges, please contact a developer and ask him to add the tag.
+If you'd like to see a commit tagged for backporting and do not have commit privileges, please contact a developer and ask him to add the tag.
 
 If you are a developer with commit access please tag your commits following this scheme. For this use "git notes add <commit>" to add a note:
 
-    $ git notes add da2620a5f878ad5c8d8d51992528cb3e637c7d1f
+    $ git notes add da2620a5f878ad5c8d8d51992528cb3e637c7d1f -m 'Backport: TYPE'
 
 Then, push the notes to the server:
     
     $ git push origin refs/notes/*
 
-Again, this is much nicer with a macro:
+This is much nicer with a macro:
 
-    [alias]
-    pushnotes = push origin refs/notes/*
-
-And hence:
-
+    $ git config alias.pushnotes 'push origin refs/notes/*'
     $ git pushnotes
 
 Note that dealing with note conflicts sucks in git right now, so always make sure to pull the latest notes before you start adding/pushing new ones.
