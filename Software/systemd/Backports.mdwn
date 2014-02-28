@@ -1,0 +1,73 @@
+[[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]]
+
+# Backports
+
+The systemd git repo only contains the main systemd branch that progresses in a quick pace, continously bringing both bugfixes and new features. Distributions usually prefer basing their releases on stabilized versions branched off from this, that receive the bugfixes but not the features.
+
+Since distributions have different release cycles and thus base their releases on different systemd versions we do not provide stable release branches upstream. However, we tag our commits to indicate whether we believe they are relevant for backporting.
+
+Moreover the systemd community maintains a stabilized systemd "stable" tree in an independent repository that rebases from time to time on the newest releases.
+
+## Commits Tagged for Backporting
+
+Commits we recommend for backporting to stable branches are tagged with the [[git notes|http://git-scm.com/blog/2010/08/25/notes.html]] feature.
+
+These notes are stored within the main development repository. To get access to them you need to pull them explicitly into your checkout:
+
+    $ git fetch origin refs/notes/*:refs/notes/*
+
+Afterwards they will be shown next to the commit message in the "git log" output.
+
+To make downloading these notes easier we recommend adding a macro to your git configuration:
+
+    [alias]
+    pullnotes = fetch origin refs/notes/*:refs/notes/*
+
+With that macro pulling down the notes is now as easy as:
+
+    git pullnotes
+
+Alternatively you can actually browse the notes with cgit, but it's not fun. Here's an example for a commit with a backport tag:
+   
+    [[http://cgit.freedesktop.org/systemd/systemd/commit/?id=da2620a5f878ad5c8d8d51992528cb3e637c7d1f
+|http://cgit.freedesktop.org/systemd/systemd/commit/?id=da2620a5f878ad5c8d8d51992528cb3e637c7d1f]]
+
+The following notes are currently used:
+
+   Backport: security
+   Backport: bugfix
+   Backport: performance
+   Backport: documentation
+
+"Backport: security" indicates commits that are relevant bugfixes that close security holes. "Backport: bugfix" indicates other fixes for important bugs. "Backport: performance" indicates bugs that improve performance of certain operations under certain conditions in majors ways, that are relevant enough to make them relevant for backporting. "Backport: documentation" indicates corrections to documentation or text strings.
+
+## Adding Backport Commits
+
+If you'd like to see a commit tagged for backporting and do not have commit priviliges, please contact a developer and ask him to add the tag.
+
+If you are a developer with commit access please tag your commits following this scheme. For this use "git notes add <commit>" to add a note:
+
+    $ git notes add da2620a5f878ad5c8d8d51992528cb3e637c7d1f
+
+Then, push the notes to the server:
+    
+    $ git push origin refs/notes/*
+
+Again, this is much nicer with a macro:
+
+    [alias]
+    pushnotes = push origin refs/notes/*
+
+And hence:
+
+    $ git pushnotes
+
+Note that dealing with note conflicts sucks in git right now, so always make sure to pull the latest notes before you start adding/pushing new ones.
+
+If you made a commit and believe it is backport-worthy, then please add the note right-away and don't forget to push it!
+
+We do not make use of notes namespaces so that all notes appear in normal "git log" outputs without any additional required options.
+
+## Stable Branch Repository
+
+TBA
