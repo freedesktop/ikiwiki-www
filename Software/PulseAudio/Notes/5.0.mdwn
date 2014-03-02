@@ -16,22 +16,22 @@ Welcome to another episode of PulseAudio release notes! The 5.0 release contains
 
 ## Notes for Application Developers
 
-The pa_card_profile_info struct is deprecated, consider migrating to pa_card_profile_info2. The old struct will keep working, though, so applications should not break even if they are not updated.
+The <tt>pa_card_profile_info</tt> structure is deprecated, consider migrating to <tt>pa_card_profile_info2</tt>. The old struct will keep working, though, so applications should not break even if they are not updated.
 
 
 ## Notes for Packagers
 
-PulseAudio now supports BlueZ 5, but only the A2DP profile, which means that in case of headsets, only playback is available, the headset microphone can't be used. BlueZ 4 is still the only way to make the headset and hands-free profiles work. It's possible to build PulseAudio with support for both BlueZ versions, and that's the default behaviour. If you want to disable one version or the other, pass --disable-bluez4 or --disable-bluez5 to the configure script.
+* PulseAudio now supports BlueZ 5, but only the A2DP profile, which means that in case of headsets, only playback is available, the headset microphone can't be used. BlueZ 4 is still the only way to make the headset and hands-free profiles work. It's possible to build PulseAudio with support for both BlueZ versions, and that's the default behaviour. If you want to disable one version or the other, pass <tt>--disable-bluez4</tt> or <tt>--disable-bluez5</tt> to the configure script.
 
-PulseAudio now supports systemd-journal as a log target. This adds an optional build dependency to libsystemd-journal.
+* PulseAudio now supports systemd-journal as a log target. This adds an optional build dependency to libsystemd-journal.
 
-The build dependency to libbluetooth has been dropped.
+* The build dependency to libbluetooth has been dropped.
 
-We now use upstream gettext instead of the GLib version. The minimum required version is 0.18.1.
+* We now use upstream gettext instead of the GLib version. The minimum required version is 0.18.1.
 
-To avoid accidental weakening of security, the default behaviour on Linux is now to fail during the configure script execution if libcap is not found. To build PulseAudio without libcap support, the --without-caps option can be used.
+* To avoid accidental weakening of security, the default behaviour on Linux is now to fail during the configure script execution if libcap is not found. To build PulseAudio without libcap support, the <tt>--without-caps</tt> option can be used.
 
-The minimum supported alsa-lib version is now 1.0.19 (down from 1.0.24).
+* The minimum supported alsa-lib version is now 1.0.19 (down from 1.0.24).
 
 
 ## Changes in More Detail
@@ -44,9 +44,9 @@ The support for BlueZ 5 has been gradually added in various applications, and th
 
 There are distributions that have migrated to BlueZ 5 without providing users the alternative of staying with BlueZ 4. Some of those distributions probably made the transition without understanding the consequences - they now have a serious regression in functionality, because their users' Bluetooth headsets have stopped working (well, the headsets can still be used for listening to music, but they're useless for VoIP applications).
 
-Gnome made also a decision, possibly misinformed one, to drop support for BlueZ 4 in their latest release, which means that upgrading to the latest Gnome version (3.10) has one of two problems depending on the BlueZ version in the system: with BlueZ 4, the Gnome UI for managing Bluetooth won't work, and with BlueZ 5 the headset audio functionality will be crippled.
+GNOME made also a decision, possibly misinformed one, to drop support for BlueZ 4 in their last release, which means that upgrading to the current GNOME version (3.10) has one of two problems depending on the BlueZ version in the system: with BlueZ 4, the GNOME UI for managing Bluetooth won't work, and with BlueZ 5 the headset audio functionality will be crippled.
 
-So what's the way forward with getting the HSP and HFP profiles work with BlueZ 5? There is partial support for those in oFono (a telephony daemon), which will hopefully be completed soon, and the next PulseAudio release will then hopefully support HSP/HFP through oFono. If there are distributions that prefer some other telephony stack that can't co-exist with oFono, that's another potential problem in the migration to BlueZ 5 in those distributions...
+So what's the way forward with getting the HSP and HFP profiles work with BlueZ 5? There is partial support for those in oFono (a telephony daemon), which will hopefully be completed soon, and the next PulseAudio release will then hopefully support HSP/HFP through oFono. This pulls in a telephony stack as a dependency for using your Bluetooth headset, which might be considered overkill. This issue is yet to be resolved with the BlueZ developers.
 
 Now, the technical details of the BlueZ 5 support in PulseAudio: there are now separate modules for BlueZ 4 and BlueZ 5: module-bluez4-discover and module-bluez5-discover. The old module-bluetooth-discover still exists and is used in the default configuration. The role of module-bluetooth-discover is now to act as an abstraction layer: it will load module-bluez4-discover and/or module-bluez5-discover based on what's present in the system. This means that the migration to BlueZ 5 can be done without changing the PulseAudio configuration.
 
@@ -60,23 +60,23 @@ As a GSoC project, Alexander Couzens reimplemented the tunnel modules so that th
 
 ### Systemd-journal support
 
-A new log target has been added: "journal". It's used by default, if PulseAudio is built with systemd-journal support. The new log target is also supported in daemon.conf (the "log-target" option), on the command line (the "--log-target" option) and in pacmd (the "set-log-target" command).
+A new log target has been added: "journal". It is used by default, if PulseAudio is built with systemd-journal support. The new log target is also supported in daemon.conf (the <tt>log-target</tt> option), on the command line (the <tt>--log-target</tt> option) and in pacmd (the <tt>set-log-target</tt> command).
 
 
-### Utility changes:
+### Utility changes
 
-parecord and parec now support the --monitor-stream option, which allows recording from a single playback stream.
+<tt>parecord</tt> and <tt>parec</tt> now support the --monitor-stream option, which allows recording from a single playback stream.
 
-pacmd doesn't print the welcome message and the command prompt in non-interactive mode any more.
+<tt>pacmd</tt> doesn't print the welcome message and the command prompt in non-interactive mode any more.
 
-pacmd now supports "newfile:somefile.log" as a target for the set-log-target command. "newfile:somefile.log" means that somefile.log will not be overwritten if it already exists. Instead, a new file with name somefile.log.1 will be created. The "newfile:" target was already supported in the daemon configuration file, this change just brings pacmd to the same level.
+<tt>pacmd</tt> now supports "newfile:somefile.log" as a target for the set-log-target command. "newfile:somefile.log" means that somefile.log will not be overwritten if it already exists. Instead, a new file with name somefile.log.1 will be created. The "newfile:" target was already supported in the daemon configuration file, this change just brings <tt>pacmd</tt> to the same level.
 
 
-### Module changes:
+### Module changes
 
 module-rtp-recv now supports the "latency_msec" argument. It can be used to control the local buffer size. The default latency is 500 ms.
 
-module-tunnel-sink and module-tunnel-source (the old versions) now support the "auto" argument. If it's set to true, then the default connection parameters are gathered from the environment in the same way as applications do. This is usually a bad idea, because often that will cause the server to connect to itself, but some people found this feature useful for their purposes.
+module-tunnel-sink and module-tunnel-source (the old versions) now support the <tt>auto</tt> argument. If it's set to true, then the default connection parameters are gathered from the environment in the same way as applications do. This is usually a bad idea, because often that will cause the server to connect to itself, but some people found this feature useful for their purposes.
 
 When module-suspend-on-idle reads the timeout property from sinks and sources, it now treats a negative timeout as "never suspend" instead of ignoring the property.
 
@@ -98,7 +98,7 @@ In path configuration files (/usr/share/pulseaudio/alsa-mixer/paths/*) the "name
 A single path can't be used for both input and output any more.
 
 
-### Hardware support changes:
+### Hardware support changes
 
 Jack detection support for line out jacks has been added. This means that user interfaces can now hide or mark unavailable the line out when nothing is plugged in to the jack.
 
@@ -107,41 +107,41 @@ Proper hardware volume support has been added for some laptops that have interna
 A configuration file for Native Instruments Traktor Audio 2 was missing from the 4.0 tarball. It's now shipped with 5.0, so users of that hardware actually get the benefit from the configuration file (which allows PulseAudio to use both outputs of the sound card).
 
 
-### Performance improvements:
+### Performance improvements
 
 Improved float->s16 and s16->float sample conversion for ARM NEON.
 
 
-### libpulse changes:
+### libpulse changes
 
-An "available" flag has been added to the card profile info. If a profile is not available, activating it doesn't make sense. GUIs that allow the user to control the card profile can use the new flag to hide unavailable profiles. Currently the (un)availability is only set for Bluetooth cards, though, and profiles on other cards will always appear as available.
+* An <tt>available</tt> flag has been added to the card profile info. If a profile is not available, activating it doesn't make sense. GUIs that allow the user to control the card profile can use the new flag to hide or grey out unavailable profiles. Currently the availability is only set for Bluetooth cards, and profiles on other cards will always appear as available.
 
-Adding the "available" flag to the existing pa_card_profile_info struct turned out to break the ABI due to an earlier design mistake, so instead of extending pa_card_profile_info, we had to introduce pa_card_profile_info2, which contains the same information as the old struct plus the new "available" flag. The old pa_card_profile_info struct is now deprecated. The "profiles" field in pa_card_port_info and the "profiles" and "active_profile" fields in pa_card_info are deprecated too, superseded by the "profiles2" field in pa_card_port_info and "profiles2" and "active_profile2" fields in pa_card_info.
+* Adding the <tt>available</tt> flag to the existing <tt>pa_card_profile_info</tt> struct turned out to break the ABI due to an earlier design mistake, so instead of extending <tt>pa_card_profile_info</tt>, we had to introduce <tt>pa_card_profile_info2</tt>, which contains the same information as the old struct plus the new <tt>available</tt> flag. The old <tt>pa_card_profile_info</tt> struct is now deprecated. The <tt>profiles</tt> field in <tt>pa_card_port_info</tt> and the <tt>profiles</tt> and <tt>active_profile</tt> fields in <tt>pa_card_info</tt> are deprecated too, superseded by the <tt>profiles2</tt> field in <tt>pa_card_port_info</tt> and <tt>profiles2</tt> and <tt>active_profile2</tt> fields in <tt>pa_card_info</tt>.
 
-pa_stream_connect_playback() and pa_stream_connect_record() now accept single-channel volume even if the stream has multiple channels. The single volume is applied to all channels.
+* <tt>pa_stream_connect_playback()</tt> and </tt>pa_stream_connect_record()</tt> now accept single-channel volume even if the stream has multiple channels. The single volume is applied to all channels.
 
-pa_simple_flush() can now be used with record streams too, in addition to playback streams.
+* <tt>pa_simple_flush()</tt> can now be used with record streams too, in addition to playback streams.
 
-New functions: pa_sample_format_valid(), pa_sample_rate_valid() and pa_channels_valid(). The functions can be used to check the validity of individual sample spec fields. There was already pa_sample_spec_valid() that checks all fields, but sometimes only a subset of the fields are interesting.
+* New functions: <tt>pa_sample_format_valid()</tt>, <tt>pa_sample_rate_valid()</tt> and <tt>pa_channels_valid()</tt>. The functions can be used to check the validity of individual sample spec fields. There was already pa_sample_spec_valid() that checks all fields, but sometimes only a subset of the fields are interesting.
 
-New function: pa_context_load_cookie_from_file(). This allows clients to load the authentication cookie from a custom file. It may be that there are no applications that need this - the reason for adding the function was that module-tunnel-sink-new needed it.
+* New function: <tt>pa_context_load_cookie_from_file()</tt>. This allows clients to load the authentication cookie from a custom file. It may be that there are no applications that need this - the reason for adding the function was that module-tunnel-sink-new needed it.
 
-New function: pa_threaded_mainloop_set_name(). This is used internally in PulseAudio, for improving the server log messages when using pa_threaded_mainloop. The usefulness of this new function is probably very limited for applications.
+* New function: <tt>pa_threaded_mainloop_set_name()</tt>. This is used internally in PulseAudio, for improving the server log messages when using pa_threaded_mainloop. The usefulness of this new function is probably very limited for applications.
 
 
 ### libpulse Vala bindings changes:
 
-The binding for pa_cvolume_set() was missing, now CVolume.set() has been added.
+The binding for<tt> pa_cvolume_set()</tt> was missing, now <tt>CVolume.set()</tt> has been added.
 
 
-### Miscellaneous:
+### Miscellaneous
 
-module-dbus-protocol has been removed from the default configuration. The module is (perpetually?) in an experimental state, and it tends to crash the server sometimes.
+module-dbus-protocol has been removed from the default configuration. The module is in an experimental state, and it tends to crash the server sometimes.
 
 
 ## Next Steps
 
-HSP/HFP support with BlueZ 5 will probably arrive in the next PulseAudio release. There's also ongoing work with making routing and volume handling more flexible for policy modules and for client applications.
+HSP/HFP support with BlueZ 5 will hopefully arrive in the next PulseAudio release. There's also ongoing work with making routing and volume handling more flexible for policy modules and for client applications.
 
 
 ## git shortlog
