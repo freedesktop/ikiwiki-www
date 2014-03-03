@@ -65,7 +65,7 @@ A new log target has been added: "journal". It is used by default, if PulseAudio
 
 ### Utility changes
 
-<tt>parecord</tt> and <tt>parec</tt> now support the --monitor-stream option, which allows recording from a single playback stream.
+<tt>parecord</tt> and <tt>parec</tt> now support the <tt>--monitor-stream</tt> option, which allows recording from a single playback stream.
 
 <tt>pacmd</tt> doesn't print the welcome message and the command prompt in non-interactive mode any more.
 
@@ -88,7 +88,7 @@ module-alsa-card now supports the "PlaybackRate" and "CaptureRate" UCM device op
 
 When using ALSA UCM, module-alsa-card now assigns lower priority to ports that combine multiple devices than ports that use only one device.
 
-module-loopback maximum configurable latency has been increased from 2 seconds to 30 seconds.
+The maximum configurable latency of module-loopback has been increased from 2 seconds to 30 seconds.
 
 module-bluetooth-proximity has been removed. It was probably not used by anyone, since it required an ancient version of BlueZ to work.
 
@@ -120,15 +120,15 @@ Improved float->s16 and s16->float sample conversion for ARM NEON.
 
 * Adding the <tt>available</tt> flag to the existing <tt>pa_card_profile_info</tt> struct turned out to break the ABI due to an earlier design mistake, so instead of extending <tt>pa_card_profile_info</tt>, we had to introduce <tt>pa_card_profile_info2</tt>, which contains the same information as the old struct plus the new <tt>available</tt> flag. The old <tt>pa_card_profile_info</tt> struct is now deprecated. The <tt>profiles</tt> field in <tt>pa_card_port_info</tt> and the <tt>profiles</tt> and <tt>active_profile</tt> fields in <tt>pa_card_info</tt> are deprecated too, superseded by the <tt>profiles2</tt> field in <tt>pa_card_port_info</tt> and <tt>profiles2</tt> and <tt>active_profile2</tt> fields in <tt>pa_card_info</tt>.
 
-* <tt>pa_stream_connect_playback()</tt> and </tt>pa_stream_connect_record()</tt> now accept single-channel volume even if the stream has multiple channels. The single volume is applied to all channels.
+* <tt>pa_stream_connect_playback()</tt> and <tt>pa_stream_connect_record()</tt> now accept single-channel volume even if the stream has multiple channels. The single volume is applied to all channels.
 
 * <tt>pa_simple_flush()</tt> can now be used with record streams too, in addition to playback streams.
 
-* New functions: <tt>pa_sample_format_valid()</tt>, <tt>pa_sample_rate_valid()</tt> and <tt>pa_channels_valid()</tt>. The functions can be used to check the validity of individual sample spec fields. There was already pa_sample_spec_valid() that checks all fields, but sometimes only a subset of the fields are interesting.
+* New functions: <tt>pa_sample_format_valid()</tt>, <tt>pa_sample_rate_valid()</tt> and <tt>pa_channels_valid()</tt>. The functions can be used to check the validity of individual sample spec fields. There was already <tt>pa_sample_spec_valid()</tt> that checks all fields, but sometimes only a subset of the fields are interesting.
 
 * New function: <tt>pa_context_load_cookie_from_file()</tt>. This allows clients to load the authentication cookie from a custom file. It may be that there are no applications that need this - the reason for adding the function was that module-tunnel-sink-new needed it.
 
-* New function: <tt>pa_threaded_mainloop_set_name()</tt>. This is used internally in PulseAudio, for improving the server log messages when using pa_threaded_mainloop. The usefulness of this new function is probably very limited for applications.
+* New function: <tt>pa_threaded_mainloop_set_name()</tt>. This is used internally in PulseAudio, for improving the server log messages when using <tt>pa_threaded_mainloop</tt>. The usefulness of this new function is probably very limited for applications.
 
 
 ### libpulse Vala bindings changes:
@@ -149,5 +149,523 @@ HSP/HFP support with BlueZ 5 will hopefully arrive in the next PulseAudio releas
 ## git shortlog
 
 <pre>
-TODO: Output of "git shortlog v4.0..v5.0" goes here.
+Alexander Couzens (8):
+      thread-mq: Support a mainloop as thread/consumer
+      client-conf: refactor cookie loaders
+      tunnel-sink-new: add a rewrite of module-tunnel using libpulse
+      context: add pa_context_load_cookie_from_file()
+      tunnel-source-new: counterpart to module-tunnel-sink-new
+      tunnel-sink-new: remove switch-default from state change callbacks
+      tunnel-sink-new: Fix a possible crash
+      tunnel-new: add cookie module argument
+
+Alexander E. Patrakov (1):
+      Documentation of known misuse of PulseAudio API
+
+Alexander Potashev (1):
+      Update Russian translation
+
+Anton Lundin (2):
+      build-sys: Support building pulseaudio as a submodule
+      build-sys: Fix building with Android toolchain
+
+Arun Raghavan (35):
+      core: Add an "internal" suspend cause
+      pulsecore: Fix assert in pa_msgobject creation
+      mainloop: Add API to set thread name for threaded mainloop
+      zeroconf: Make Avahi usage in m-z-publish async
+      tests: Add a latency measurement test
+      tests: Make loopback latency test run with rt priority
+      tests: Adjust latency test calibration
+      tests: Factor out loopback setup code
+      tests: Make loopback latency test more accurate
+      alsa-mixer: Disable headphones when playing to speakers
+      doc: Fix building doxygen docs out of tree
+      iochannel: Document modified pa_iochannel_write return value
+      sink-input: Log format negotiation better
+      mainloop: Document need for mainloop lock around pa_mainloop_api_once
+      zeroconf: Fix pa_mainloop_api_once usage
+      sample: Apply SPARC-specific condition on SPARC only
+      doc: Update LICENSE to reflect optional libpulse dep on libdbus
+      alsa: Trivial whitespace deletion
+      sink-input: Don't assert when removing non-existent volume factor
+      hashmap: Add the ability to free keys
+      alsa: Allow sample spec override in mappings
+      alsa-ucm: Use playback/capture rate specification from UCM
+      alsa-ucm: Make combination port names deterministic
+      build-sys: Fix warning in use-case.h configure check
+      log: Add missing header
+      sink: Increase max sink inputs per sink
+      mutex: Fix compiler warning when priority inheritance is not supported
+      hashmap: Add a key+value iterator
+      alsa-ucm: Don't allow Playback/CaptureRate to be 0
+      alsa-ucm: Fix bad rate check
+      i18n: Update bluetooth bits in POTFILES
+      alsa: Log some output if we disable tsched for BATCH devices
+      protocol-native: Don't enumerate unlinked sinks and sources
+      build-sys: Bump soname
+      Revert "protocol-native: Don't enumerate unlinked sinks and sources"
+
+Ben Brewer (4):
+      mainloop, glib-mainloop: time_restart could cause incorrect event ordering
+      rtp-send: Remove "don't inhibit auto-suspend" flag
+      ladspa-sink: Handle empty chunks in sink_input_pop_cb
+      ladspa-sink: Set a silence memchunk for the memblockq
+
+Cheng-Chia Tseng (1):
+      i18n: Update zh_TW translation
+
+Colin Guthrie (2):
+      card: Ensure we still pick a profile even if it's unavailable.
+      sink/source: When picking the initial ports, prefer ones that are not unavailable.
+
+Daniel Albers (1):
+      combine-sink: fix segfault
+
+David Henningsson (16):
+      alsa-mixer: Add "Line Out" path
+      alsa: Fix "Scheduling delay of..." message
+      iochannel: Avoid unnecessary wakeup after successful write
+      pstream: Fixup hangs caused by recent iochannel patch
+      protocol-esound/http/simple: Make sure callers can handle iochannel_write changes
+      Revert "alsa-mixer: Add a couple of assertions"
+      daemon.conf: Document new speex-float-1 default
+      alsa-ucm: Make combination ports have lower priority
+      alsa-mixer: Prefer moving "Capture" before moving boosts
+      module-tunnel: Fixup broken build
+      alsa: Turn one assertion into two
+      default/system.pa: Do not load module-dbus-protocol
+      alsa-mixer: Drop all unused paths, not only unsupported paths
+      alsa-mixer: Add internal surround speaker elements
+      sink-input/source-output: Fix LFE remixing suddenly enabled
+      suspend-on-idle: Ensure we still time out if a stream remains corked
+
+Dominique Leuenberger (1):
+      build-sys: Move ORC_SOURCE definitions outside of "if HAVE_ORC"
+
+Héctor Martín (1):
+      zeroconf-discover: Specify the interface when connecting to a link-local IPv6 address
+
+Ismo Puustinen (1):
+      module: initialize module index to invalid value.
+
+Jan Alexander Steffens (heftig) (3):
+      core-util: Clamp RLIMIT_RTTIME to what RealtimeKit accepts
+      alsa: Fix crash when loading bare ALSA sink/source
+      thread-mq: Initialize thread_mainloop to NULL if not in use
+
+Javier Jardón (4):
+      build-sys: Use upstream gettext instead glib one
+      build-sys: Use autoreconf in bootstrap.sh
+      build-sys: Use build-aux directory to store autogenerated files
+      build-sys: Do not AC_SUBST *_CFLAGS and *_LIBS
+
+João Paulo Rechi Vita (79):
+      bluetooth: Remove unnecessary braces
+      bluetooth: Improve code and log readability
+      bluetooth: Add 'bluez.alias' property
+      bluetooth: Use 'Alias' value as the device description
+      bluetooth: Remove the 'bluez.name' property
+      module: Fix style
+      bluetooth: Remove unused DBusError
+      bluetooth: Fix coding style
+      build-sys: Fix misuse of "dependant"
+      Revert "bluetooth: Support transport auto-release"
+      Revert "bluetooth: Update to new BlueZ 5 transport acquire/release API"
+      Revert "bluetooth: Support media transport's State property"
+      Revert "bluetooth: Parse media transport's properties"
+      Revert "bluetooth: Support Properties.PropertiesChanged signal"
+      Revert "bluetooth: Support ObjectManager interface add/remove"
+      Revert "bluetooth: BlueZ 5 interface rename to org.bluez.MediaTransport1"
+      Revert "bluetooth: BlueZ 5 interface rename to org.bluez.Media1"
+      Revert "bluetooth: BlueZ 5 interface rename to org.bluez.MediaEndpoint1"
+      Revert "bluetooth: Fix error checking style"
+      Revert "bluetooth: Parse the tree returned by ObjectManager"
+      Revert "bluetooth: Detect BlueZ 5"
+      bluetooth: Update modules description and copyright
+      bluetooth: Rename bluetooth modules to BlueZ 4
+      bluetooth: Rename shared struct to make it BlueZ 4 specific
+      bluetooth: Name BlueZ 4 symbols accordingly
+      bluetooth: Register BlueZ 4 endpoints in a separate object path
+      bluetooth: Prefix BlueZ 4 card profiles enum with PA_BLUEZ4_
+      bluetooth: Remove module-bluetooth-proximity
+      build: Make the build of bluetooth modules BlueZ 4 specific
+      build: Add support for enabling/disabling BlueZ 5 support
+      bluetooth: Create stub for module-bluez5-discover
+      bluetooth: Create pa_bluetooth_discovery for BlueZ 5
+      bluetooth: Track org.bluez for BlueZ 5
+      bluetooth: Create infrastrucure for bluetooth hooks
+      bluetooth: Create pa_bluetooth_adapter for BlueZ 5 support
+      bluetooth: Create pa_bluetooth_device for BlueZ 5 support
+      bluetooth: Remove all devices and adapters when org.bluez goes away
+      bluetooth: Create pa_bluetooth_transport for BlueZ 5 support
+      bluetooth: Register MediaEndpoint1 objects with D-Bus
+      bluetooth: Implement org.bluez.MediaEndpoint1.SetConfiguration()
+      bluetooth: Implement org.bluez.MediaEndpoint1.SelectConfiguration()
+      bluetooth: Implement org.bluez.MediaEndpoint1.ClearConfiguration()
+      bluetooth: Add utility function to send D-Bus messages with reply
+      bluetooth: Get managed objects
+      bluetooth: Create a function to remove only one adapter object
+      bluetooth: Handle InterfacesAdded and InterfacesRemoved
+      bluetooth: Parse BlueZ 5 D-Bus interfaces
+      bluetooth: Parse BlueZ 5 adapter properties
+      bluetooth: Register endpoints with BlueZ 5 adapter
+      bluetooth: Handle PropertiesChanged for org.bluez.Adapter1
+      bluetooth: Parse BlueZ 5 device properties
+      bluetooth: Protect from a misbehaving bluetoothd
+      bluetooth: Handle PropertiesChanged for org.bluez.Device1
+      bluetooth: Handle PropertiesChanged for org.bluez.MediaTransport1
+      bluetooth: Track devices in module-bluez5-discover
+      bluetooth: Create module-bluez5-device
+      bluetooth: Get BlueZ 5 device object
+      bluetooth: Unload module-bluez5-device on device's disconnection
+      bluetooth: Create BlueZ 5 card
+      bluetooth: Create BlueZ 5 card ports
+      bluetooth: Create BlueZ 5 card profile for each audio UUID
+      bluetooth: Initialize profiles for BlueZ 5 cards
+      bluetooth: Create sink for BlueZ 5 cards
+      bluetooth: Create source for BlueZ 5 cards
+      bluetooth: Start / stop I/O thread for BlueZ 5 cards
+      bluetooth: Set card profile for BlueZ 5 cards
+      bluetooth: Create I/O thread function for BlueZ 5 cards
+      bluetooth: Process sink messages for BlueZ 5 cards
+      bluetooth: Process source messages for BlueZ 5 cards
+      bluetooth: Handle changes to BlueZ 5 transports state
+      bluetooth: Implement get_n_used() for module-bluez5-device
+      bluetooth: Fail to load driver if discovery module is not loaded
+      module: Create pa_module_exists()
+      cli-command: Use pa_module_exists() in .ifexists
+      bluetooth: Revive module-bluetooth-discover
+      bluetooth: Track discovery modules by index
+      console-kit: Remove logging of every message on the bus
+      bluetooth: Check adapter address to set device_info_valid
+      bluetooth: Fix crash in pa_bluetooth_discovery_get_device_by_address()
+
+Juho Hämäläinen (1):
+      dbus: Use correct idxset when getting sources
+
+Kenneth Perry (1):
+      bonjour-publish: Return ports in network byteorder
+
+Kerrick Staley (1):
+      Fix typos in command_names
+
+Kiran Krishnappa (1):
+      sndfile-util: fix format for 24bit depth wav files
+
+Koop Mast (2):
+      sconv, svolume: Fix compilation on 32-bit FreeBSD
+      Make tests compile on FreeBSD
+
+Lars-Peter Clausen (1):
+      alsa: Disable timer-scheduling for PCMs with the BATCH flag
+
+Laurentiu Nicola (2):
+      module-rtp-recv: Add an argument for latency
+      rtp-recv: Only try adding the group membership for multicast addresses
+
+Luiz Augusto von Dentz (4):
+      introspect: Expose card profile available flag
+      pactl: Print available flag of card profiles
+      introspect: Fix ABI break introduced by b98a2e1
+      card: Only set active_profile with available profile
+
+Magnus Ekhall (1):
+      pacat: Added support for recording from one specific sink input
+
+Mikel Astiz (12):
+      bluetooth: Detect BlueZ 5
+      bluetooth: Parse the tree returned by ObjectManager
+      bluetooth: BlueZ 5 interface rename to org.bluez.MediaEndpoint1
+      bluetooth: BlueZ 5 interface rename to org.bluez.Media1
+      bluetooth: BlueZ 5 interface rename to org.bluez.MediaTransport1
+      bluetooth: Support ObjectManager interface add/remove
+      bluetooth: Support Properties.PropertiesChanged signal
+      bluetooth: Parse media transport's properties
+      bluetooth: Support media transport's State property
+      bluetooth: Update to new BlueZ 5 transport acquire/release API
+      bluetooth: Support transport auto-release
+      loopback: Fix cork state not updated after move
+
+Mitchell Fang (1):
+      thread-mainloop: Fix bug in example code
+
+Nikolay Amiantov (1):
+      pactl: Flush stdout buffer when printing subscribe events.
+
+Parin Porecha (1):
+      protocol-native: Express XOR asserts more concisely
+
+Peter Meerwald (63):
+      build: make ARM NEON check in configure.ac more strict
+      fdsem: Remember pa_write() type in pa_fdsem_post()
+      .gitignore: Ignore src/*.gcno files created when building with --enable-gcov
+      cli: Fix plural in caption of source-outputs list
+      pactl: Use colon to separate priority in profiles output
+      intended-roles: Fix typo in module description
+      rescue-streams: Fix wording of module description
+      sconv: avoid multiply in ARM NEON float->s16 conversion
+      sconv: avoid multiply in ARM NEON s16->float conversion
+      cli: Output prompt and welcome message only when requested by 'hello'
+      pacmd: Discriminate between interactive and non-interactive mode
+      cli: Use pa_xnew0 to save some 0 inits
+      memblock: Fix typo in description of pa_memblock_unref_fixed(), cleanup
+      tests: Resampler output memchunk may be reset (zero)
+      modargs: Add pa_modargs_get_resample_method()
+      modargs: Add pa_modargs_get_sample_rate()
+      tests: Extract PA_CPU_TEST* macros to separate header
+      resampler: Introduce work frame size (w_fz)
+      resampler: Introduce work_channels
+      resampler: Change interface, resampler may return the number of leftover frames
+      resampler: Handle leftover samples, use new return value
+      resampler: Cleanup, rename xxxx_buf_samples to xxxx_buf_size
+      resampler: Add fit_buf() helper funtion for buffer allocation
+      resampler: Prepare to have leftover data in different output buffers
+      resampler: Cleanup, index of memchunks is not used
+      resampler: Clean up ffmpeg resampler buffering
+      modules: Make use of new function pa_modargs_get_sample_rate()
+      module-sine: Add rate argument
+      module-remap-sink: Add resample_method argument
+      module-remap-source: Add resample_method argument
+      core-util: Check that we actually have regexec before we use it
+      modargs: Fix pa_modargs_get_sample_rate() if no "rate" is present in the modargs
+      modargs: Do not modify alternate_rate in pa_modargs_get_alternate_sample_rate() on failure
+      doc: Fix reference to pa_threaded_mainloop
+      doc: Refer to seek parameter of pa_stream_write() in description of pa_stream_flush()
+      doc: Document that pa_simple_get_latency() can be used on record streams as well
+      doc: Document that pa_stream_flush() is applicable to playback and record streams
+      simple: Enable pa_simple_flush() on record streams and amend documentation
+      modules: Fix resource leak in stream-restore
+      modules: Fix resource leak in alsa-card
+      modules: Fix resource leak in device-restore
+      modules: Fix resource leak in alsa-ucm
+      modules: Fix resource leak in oss
+      core: Fix resource leak in core-util
+      modules: Fix resource leak in tunnel-sink-new
+      modules: Fix resource leak in raop_client
+      modules: Fix resource leak in card-restore
+      core: Fix uninit pointer read in protocol-native
+      modules: Fix uninit value in rtp-send
+      core: Fix asserting command in protocol-native
+      modules: Remove redundant code in virtual-surround-sink
+      tests: Fix resource leak in sigbus-test
+      core: Use after free in pa_sink_input_new_data_set_formats() and pa_source_output_new_data_set_formats()
+      modules: Remove dead code in position-event-sounds
+      core: Remove dead code in pa_mainloop_run()
+      core: Fix check for io->output_event in enable_events()
+      modules: Add assertion in equalizer-sink
+      alsa-card: Don't free the modargs in pa__init
+      resampler: Extend fit_buf() helper to copy leftover data to new buffer
+      resampler: Implement leftover handling in convert_to_work_format()
+      resampler: Resample first followed by remapping if have more out channels than in channels
+      modules: Fix uninitialized variable in rtp-send
+      doc: Assorted spelling and grammar fixes for doxygen output
+
+Pierre Ossman (5):
+      alsa: Support ALSA without a use case manager
+      module-tunnel: automatically find the PulseAudio server
+      daemon conf: "high-priority" setting isn't respected
+      core: make sure win32 sockets remain blocking
+      Revert "core: Transparently handle non-blocking sockets on Windows"
+
+Piotr Drąg (4):
+      i18n: sort POTFILES.in alphabetically
+      i18n: add missing files to POTFILES.in
+      i18n: remove unneeded files from POTFILES.in
+      i18n: Update Polish translation
+
+Rafael Ferreira (1):
+      Updated Brazilian Portuguese translation
+
+Ryan Lortie (3):
+      bootstrap.sh: use /usr/bin/env to find bash
+      core-util: set_scheduler: check for RLIMIT_RTTIME
+      Add support for FreeBSD <sys/capability.h>
+
+Scott Reeves (1):
+      protocol-native: Remove written differently but functionally redundant check.
+
+Shuai Fan (1):
+      cli, log: Improve the set-log-target functionality
+
+Stefan Sperling (1):
+      Fix undefined behaviour in pulseaudio --start.
+
+Tanu Kaskinen (126):
+      switch-on-port-available: Prepare for dual-direction ports going away
+      switch-on-port-available: Remove a redundant function argument
+      switch-on-port-available: Fix error reporting style
+      alsa-mixer: Introduce "description-key" option for paths
+      alsa-mixer: Remove the "name" option from the "General" section of path configuration files
+      device-port: Make it impossible to have dual-direction ports
+      .gitignore: Update m4/ ignore list
+      core-util: Don't accept random words in pa_parse_boolean()
+      alsa: Don't use pa_strna() for port names
+      pasuspender: Resume before exiting in case of SIGINT or fork() failure.
+      module: Assign the index before calling init()
+      bluetooth: Fix error checking style
+      bluetooth: Fix input port description
+      .gitignore: Add lo-latency-test
+      native: Don't enable prebuffering when draining
+      combine: Fix crash in output freeing
+      bluetooth: Fix too late assertion
+      log: Fix error message
+      core-util: Fix log message levels
+      .gitignore: Add build-aux
+      device-port: Assert that ports have a description
+      object: Initialize allocated memory to zero
+      source: Fix an indentation mistake
+      dynarray: Reimplement with nicer semantics
+      alsa-mixer: Add a couple of assertions
+      waveout: Simplify setting the device description
+      device-manager: Add a sanity check for reading entries
+      device-manager: Refuse to load empty descriptions
+      build-sys: Add native-instruments-traktor-audio2.conf to Makefile.am
+      mainloop-test: Use FALSE instead of false for gboolean
+      channelmap, volume: Don't refer to bool in the public API documentation
+      pulse: Add verbose volume printing functions
+      Use pa_(c)volume_snprint_verbose() everywhere
+      sink-input: Keep reference ratio up-to-date
+      Revert "resampler: Resample first followed by remapping if have more out channels than in channels"
+      module: Fix crash in pa_module_unload_all()
+      log: Fix thread name printing
+      caps: Fix compilation on Windows
+      tunnel: Fix reading state from wrong variable
+      log: Remove pa_log_set_fd()
+      log: Use pa_write() instead of write()
+      log: Harmonize log target output
+      ucm: Fix an incorrect log message
+      sink: Add missing curly braces
+      dbus: Fix invalid dbus_bool_t values
+      vala: Add CVolume.set()
+      loopback: Increase the maximum allowed latency
+      resampler: Fix peaks resampler's channel handling
+      source-output: Get the correct source for "direct_on_input" streams
+      sink, source: Reduce indentation level in *_update_rate()
+      sink, source: Don't care about default and alternate rate in passthrough mode
+      sink, source: Fix default and alternate rate assertions
+      sink, source: Small readability improvement
+      sink, source: Return early from pa_*_update_rate(), if there's no need to do anything
+      source: Fix monitor source rate changing
+      source: When updating a monitor source's rate, update the sink rate too
+      sink, source: Fix error reporting style for rate updates
+      resampler: Never return zero for max block size
+      suspend-on-idle: Allow disabling suspending for specific devices
+      .gitignore: Add .dirstamp
+      bluetooth: Add a comment about messing with the IDLE suspend cause
+      build-sys: Don't define _FORTIFY_SOURCE when building with -O0
+      build-sys: Print CPPFLAGS in configure
+      bluetooth: Remove adapter_remove_all()
+      bluetooth: Fix variable constness
+      simple: Improve pa_simple_read() documentation
+      sink-input, source-output: Don't assume that proplist has been initialized in free()
+      bluetooth: Remove a redundant variable
+      bluetooth: Use a helper function for setting device_info_valid
+      bluetooth: Don't mark device valid before it has an adapter
+      bluetooth: Fire DEVICE_CONNECTION_CHANGED in set_device_info_valid()
+      bluetooth: Remove device_remove_all()
+      bluetooth: Set device_info_valid to -1 when the device's adapter disappears
+      source-output: Log the format negotiation result
+      sink, source: Add a TODO comment about removing get_formats()
+      idxset: Allow deep copying with pa_idxset_copy()
+      ucm: Add a FIXME comment about bad error handling
+      Pass the profile object instead of the profile name to pa_card_set_profile()
+      card: Move pa_card_add_profile() implementation to a more logical place
+      bluetooth: Fix profile priority comparison
+      Add pa_sample_format_valid()
+      Add pa_sample_rate_valid()
+      Add pa_channels_valid()
+      sink-input: Fix volume_factor_sink initialization
+      caps: Improve log message
+      caps: Fix platform checking
+      caps: Remove the FreeBSD implementation of pa_drop_caps()
+      volume-test: Increase the allowed number of rouding errors
+      Move pa_format_info_to_sample_spec_fake() to core-format
+      core-format: Add pa_format_info_get_sample_format()
+      core-format: Add pa_format_info_get_rate()
+      core-format: Add pa_format_info_get_channels()
+      core-format: Add pa_format_info_get_channel_map()
+      format: Simplify pa_format_info_to_sample_spec()
+      core-format: Add pa_format_info_to_sample_spec2()
+      core-format: Add pa_format_info_from_sample_spec2()
+      sink-input, source-output: Do routing related validity checks immediately after routing
+      format, core-format: Constify some function parameters
+      stream-util: Add pa_stream_get_volume_channel_map()
+      stream: Remove a volume channel validity check
+      sink-input, source-output: Interpret missing PCM parameters in format info as a request to decide those parameters at the server end
+      def, format: Document how to leave PCM parameters to be decided by the server
+      stream: Improve pa_stream_connect_playback() documentation
+      stream: Mention pa_stream_new_extended() in the high-level stream creation documentation
+      format: Add some error logging
+      caps: Use standard macro when checking for Linux
+      build-sys: Fix building with --as-needed
+      alsa: Mute "Bass Speaker" when using headphones or lineout
+      Revert "ladspa-sink: Handle empty chunks in sink_input_pop_cb"
+      sink, source: Remove useless attach/detach stuff
+      introspect, thread-mainloop: Fix Doxygen "since" tags
+      build-sys: Bump sonames
+      build-sys: Add tests/runtime-test-util.h to the tarball
+      caps: Don't require --without-caps on FreeBSD
+      device-manager: Don't try to use unlinked devices
+      module: Replace rindex() with strrchr()
+      card-restore: Fix a memory leak
+      thread-win32: Implement pa_thread_free_nojoin()
+      protocol-native: Fix a crash
+      source: Increase max outputs per source
+      man: pulse-cli-syntax: Document the "journal" log target
+      sink-input, source-output: Don't crash if format negotiation fails
+      rtp-send: Use _cb suffix with callbacks
+      rtp-send: Add "inhibit_auto_suspend" module argument
+      Update NEWS
+      suspend-on-idle: Fix monitor source handling
+
+Wim Taymans (2):
+      daemon: Remove deprecated Encoding from .desktop files
+      man: improve man page and help for cmdline options
+
+Yuri Chornoivan (1):
+      Update Ukrainian translation
+
+poljar (Damir Jelić) (38):
+      device-port: Introduce pa_device_port_new_data
+      switch-on-port-available: Silence gcc warning.
+      shell-completion: Add list-cards to the pacmd completion.
+      Whitespace cleanup: Remove tabs
+      Whitespace cleanup: Fix broken indentation by hand
+      Style fix: Add a space betwen the if statement and the opening bracket
+      Style fix: Add a space between the closing/opening bracket
+      Style fix: Remove new lines from opening brackets
+      Whitespace cleanup: Remove all multiple newlines
+      Remove pa_bool_t and replace it with bool.
+      Fix alignment issues introduced by the pa_bool -> bool conversion
+      Revert dbus_bool_t variables to use TRUE/FALSE instead of true/false
+      Revert windows BOOL variables to use TRUE/FALSE instead of true/false
+      macro: Remove unneeded typedef for pa_bool_t.
+      bash-completion: Fix device completion for pacat
+      resampler: Make resampler struct implementation agnostic
+      resampler: Move the fix method logic into a separate function
+      resampler: fix_method use switch instead of if/else
+      resampler: Move the work format finding logic into a separate function
+      resampler: choose_work_format use switch instead of if/else
+      resampler: Add a function for comparing sample format precision
+      Resampler: Don't use the peaks resampler for upsampling
+      resampler: Introduce a implementation specific struct
+      resampler: Add assert to set_input/output_rate
+      resampler: Get rid of redundant implementation specific structs
+      resampler: Add a choose_auto_resampler function
+      card-restore: Watch for profiles added after card creation.
+      build-sys: Enable subdir-objects option
+      build-sys: Silence warning about missing AC_LANG_SOURCE call in configure.ac
+      build-sys: Silence warning about missing AC_LANG_SOURCE call in acx_libwrap.m4
+      build-sys: Update ax_pthread macro
+      resampler: Revert to auto if the rates are equal and copy is chosen
+      bash-completion: Add --monitor-stream completion to pacat
+      zsh-completion: Fix pacat device completion
+      zsh-completion: Add --monitor-stream completion to pacat
+      log: Add support for the systemd journal
+      bluez5-util: Free the adapter_path in device_free().
+      alsa-mixer: Free the description key in alsa_path_free().
+
+victory (1):
+      i18n: Japanese translation update
 </pre>
