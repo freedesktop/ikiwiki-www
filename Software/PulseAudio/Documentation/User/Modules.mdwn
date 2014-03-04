@@ -612,7 +612,7 @@ Available configs include: _volume-up_, _volume-down_, _mute_, _mute-toggle_ and
 
 ### module-bluetooth-discover
 
-Detects available bluetooth audio devices using BlueZ. For each audio device, a module-bluetooth-device instance is loaded automatically.
+Detects available bluetooth audio devices using BlueZ.
 
 Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW profiles). This is called the "SCO over PCM" mode. For such hardware, the alsa sink and source need to be specified with the "sco_sink" and "sco_source" arguments.
 
@@ -621,28 +621,6 @@ Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW p
 * sco_source
    * Name of the alsa source that should be used in the "SCO over PCM" mode.
 
-### module-bluetooth-device
-
-Creates a card for a bluetooth audio device. Normally module-bluetooth-device instances should be automatically loaded by module-bluetooth-discover, but it's also possible to load module-bluetooth-device manually.
-
-The module needs to be given an identifier for the device so that it knows what device to talk to. Either the device address (such as 00:1E:DE:29:B7:3B) or the D-Bus object path (such as /org/bluez/2613/hci0/dev_00_1E_DE_29_B7_3B) can be used as the identifier. So, it's mandatory to give the "address" or the "path" argument when loading the module.
-
-* sink_name, source_name, card_name
-   * The name for the sink/source/card.
-* sink_properties, source_properties, card_properties
-   * Extra properties for the sink/source/card.
-* name
-   * Automatic name prefix
-* address
-   * The device address.
-* profile
-   * The initial card profile: "a2dp", "a2dp_source", "hsp", "hfgw" or "off".
-* path
-   * The D-Bus object path of the device.
-* auto_connect
-   * Boolean, the default value is "true". What does this option do??
-* sco_sink, sco_source
-   * See the documentation of module-bluetooth-discover.
 
 ### module-bluetooth-policy
 
