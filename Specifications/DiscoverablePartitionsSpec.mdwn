@@ -1,6 +1,12 @@
 # The Discoverable Partitions Specification
 
-_TL;DR: Let's automatically discover, mount and enable the root partition, /home, /srv and the swap partitions based on GUID Partition Tables (GPT!)_ 
+_TL;DR: Let's automatically discover, mount and enable the root partition, /home, /srv and the swap partitions based on GUID Partition Tables (GPT)!_ 
+
+The GUID Partition Table (GPT) is mandatory on EFI systems. It allows identification of partition types with GUIDs. So far Linux has made little use of this, and mostly just defined one  GUID for file system partitions and another one for swap partitions. With this specification we introduce a number of additional partition types in order to enable automatic discovery of partitions and their purpose. This has a couple of benefits:
+
+* OS installers can automatically discover and make sense of pre-existing partitions of existing Linux installations
+* The OS can discover and mount the necessary file systems with a non-existing or incomplete /etc/fstab file and without root= kernel command line option
+* Container managers (such as nspawn and libvirt-lxc) can decode and setup file systems contained in GPT disk images automatically and mount them to the right places, thus allowing booting the same images on bare-metal and Linux containers.
 
 <table>
 
@@ -81,11 +87,13 @@ An *installer* may omit creating entries in /etc/fstab for root, /home, /srv and
 
 An *operating* *system* should automatically discover and mount the root file system, by looking on the disk the EFI ESP used to boot is located on. It should automatically discover and mount the /home, /srv and swap partitions by looking on the disk the root partition is located on. It should automatically discover and mount the /boot partition to the ESP used for booting. It should not discover/mount partitions with other GUID partition types, or partitions located on other disks. User configuration shall always override automatic discovery and mounting. If a root, /home, /srv, /boot file system or swap partition is listed in /etc/fstab it shall always take precedence over automatically discovered partitions. If a /home, /srv, /boot file system is found to be populated already the automatic discovery shall not overmount it with any discovered file system.
 
-If a btrfs file system is automatically discovered and mounted by the operating system it will be mounted with its *default* subvolume. The installer should make sure to set the default subvolume correctly using "btrfs  subvolume set-default".
+A *container* *manager* should automatically discover and mount the root, /home and /srv boot file systems inside a container disk image. It should ignore any swap, ESP or Extended Boot Partitions should they be included in a container disk image.
+
+If a btrfs file system is automatically discovered and mounted by the operating system/container manager it will be mounted with its *default* subvolume. The installer should make sure to set the default subvolume correctly using "btrfs subvolume set-default".
 
 ## Sharing of File Systems between Installations
 
-If two (Linux-based) operating systems are installed on the same disk, the scheme above suggests that they may share the Swap, /home, /srv, ESP and Extended Boot Partition. However, they should each have their own root partition.
+If two (Linux-based) operating systems are installed on the same disk, the scheme above suggests that they may share the swap, /home, /srv, ESP and Extended Boot Partition. However, they should each have their own root partition.
 
 ## Frequently Asked Questions
 
