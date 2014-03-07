@@ -340,19 +340,21 @@ Setup of the chroot is outside the scope of this wiki, and should be done in wha
 
     /var/lib/dbus
     ~/.pulse
+    $XDG_RUNTIME_DIR
     /tmp
     /dev/shm
 
-/var/lib/dbus contains a reference to the machine-id which pulse uses to identify the local instance of the daemon. ~/.pulse contains various files created by the daemon, one of them, named <id_number>:runtime, symlinks to a folder in /tmp, hence both these folders should be accessible. /dev/shm is needed for proper running of pulseaudio, to prevent audio glitches.
+/var/lib/dbus contains a reference to the machine-id which pulse uses to identify the local instance of the daemon. ~/.pulse contains various files created by the daemon. For "runtime files" PulseAudio will use the directory set in the environment variable $XDG_RUNTIME_DIR, or if it's not set, then the runtime files will be stored under /tmp. The host and the chroot must have $XDG_RUNTIME_DIR set to the same value (or not set at all). /dev/shm is needed for proper running of pulseaudio, to prevent audio glitches.
 
 Most guides to setting up chroots (for example, 32-bit chroots in a 64-bit host) will already have /home and /tmp mounted, at least. Some would include /dev/shm, but very few, if any, would include /var/lib/dbus. You can manually mount the appropriate directories using the following commands, where /path/to/chroot is the path to your chroot.
 
     mount --bind /var/lib/dbus /path/to/chroot/var/lib/dbus
     mount --bind /home /path/to/chroot/home
+    mount --bind $XDG_RUNTIME_DIR /path/to/chroot$XDG_RUNTIME_DIR
     mount --bind /tmp /path/to/chroot/tmp
     mount --bind /dev/shm /path/to/chroot/dev/shm
 
-If you use a helper app for your chroot, such as schroot, you will need to change the mount options for that helper app instead. Here is an example of a /etc/schroot/mount-<name_of_chroot> file, including the necessary options for Pulseaudio within the chroot:-
+If you use a helper app for your chroot, such as schroot, you will need to change the mount options for that helper app instead. Here is an example of a /etc/schroot/mount-<name_of_chroot> file, including the necessary options for Pulseaudio within the chroot:- (FIXME: $XDG_RUNTIME_DIR is not handled)
 
 
     # mount.defaults: static file system information for chroots.
