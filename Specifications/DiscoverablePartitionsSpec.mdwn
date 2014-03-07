@@ -25,7 +25,7 @@ _TL;DR: Let's automatically discover, mount and enable the root partition, /home
 <tr>
 <td><nobr>933ac7e1-2eb4-4f13-b8440e14e2aef915</nobr></td>
 <td><nobr><i>Home Partition</i></nobr></td>
-<td>The first home partition on the disk the root partit.ion is located on is automatically mounted to /home. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/home</td>
+<td>The first home partition on the disk the root partition is located on is automatically mounted to /home. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/home.</td>
 </tr>
 
 <tr>
@@ -49,15 +49,27 @@ _TL;DR: Let's automatically discover, mount and enable the root partition, /home
 <tr>
 <td><nobr>bc13c2ff-59e6-4262-a352-b275fd6f7172</nobr></td>
 <td><nobr><i>Extended Boot Partition</i></nobr></td>
-<td>The first extended boot partition is automatically used by installers to place the boot loader in. It is not automatically mounted on normally system boots, unless configured explicitly in /etc/fstab, which installers are supposed to do.</td>
+<td>The first extended boot partition is automatically used by installers to place the boot loader in. It is not automatically mounted on normally system boots, unless configured explicitly in /etc/fstab, which installers are supposed to do. This partition type is defined by the <a href="http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/">Boot Loader Specification</a>.</td>
 </tr>
 
 <tr>
 
 <td><nobr>0fc63daf-8483-4772-8e79-3d69d8477de4</nobr></td>
 <td><nobr><i>Other Data Partitions</i></nobr></td>
-<td>No automatic mounting takes place for other Linux data partitions. This partition type should be used for all partitions that carry Linux file systems, and the installer needs to mount them explicitly via entries in /etc/fstab. Optionally, these partitions may be encrypted with LUKS.</td>
+<td>No automatic mounting takes place for other Linux data partitions. This partition type should be used for all partitions that carry Linux file systems. The installer needs to mount them explicitly via entries in /etc/fstab. Optionally, these partitions may be encrypted with LUKS.</td>
 
 </table>
 
 Other GPT type IDs might be used on Linux, for example to mark software RAID or LVM partitions. The definitions of those GPT types is outside of the scope of this specification.
+
+## Suggested Mode of Operation
+
+An *installer* may omit creating entries in /etc/fstab for the root partition, for /home, for /srv and for the swap partitions if they use these GUID partition types. If the ESP shall be mounted to /boot it may omit creating entries in /etc/fstab for it, too. If an extended boot partition is used or if the EFI partition shall not be mounted to /boot it needs to create /etc/fstab entries for them. If other partitions are used (for example for /var or /usr, the installer must register these in /etc/fstab.
+
+An installer which supports a "manual partitioning" UI is recommended to prepopulate the UI with existing swap, /home and /srv partitions identified with the GPT type GUIDS above. Note that it shall only prepopulate the UI with the Extended Boot Partition if its boot loader supports the <a href="http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/">Boot Loader Specification</a>.
+
+An *operating* *system* will automatically discover and mount the root file system automatically, by looking on the disk the EFI ESP used to boot is located on. It will automatically discover and mount the /home, /srv and swap partitions by looking on the disk the root partition is located on. It will automatically discover and mount the /boot partition to the ESP sed for booting. It will not discover/mount partitions with other GUID partition types, or located on other disks.
+
+User configuration shall always break automatic discovery and mounting. If a root, /home, /srv, /boot file system or swap partition is listed in /etc/fstab it shall always take precedence over automatically discovered partitions. If a /home, /srv, /boot file system is found to be populated already the automatic discovery shall not overmount it with a discovered file system.
+
+## Sharing of File Systems between Installations
