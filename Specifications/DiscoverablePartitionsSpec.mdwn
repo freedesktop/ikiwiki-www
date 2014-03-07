@@ -111,3 +111,11 @@ Doing a similar automatic discovery of btrfs subvolumes and mounting them automa
 ### Why are you taking my /etc/fstab away?
 
 We are not. /etc/fstab always overrides automatic discovery. We are just trying to make the boot and installation processes of Linux a bit more robust and self-descriptive.
+
+### Why did you only define the root partition for x86 and x86-64?
+
+Well, the automatic discovery of the root partition is defined to operate on the disk the EFI System Partition (ESP) that was used for booting is located on. Since EFI only exists on x86 and x86-64 so far we only defined root partition GUIDs for these two architectures. Should EFI be more common on other architectures too we can define additional GUIDs for them.
+
+### Why define distinct root partition GUIDs for the various architectures?
+
+In order to allow disk images that may be booted on multiple architectures we want to enable discovery of the appropriate root disk on each architecture.
