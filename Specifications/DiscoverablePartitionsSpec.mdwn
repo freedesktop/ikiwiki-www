@@ -121,3 +121,9 @@ Well, the automatic discovery of the root partition is defined to operate on the
 ### Why define distinct root partition GUIDs for the various architectures?
 
 In order to allow disk images that may be booted on multiple architectures we want to enable discovery of the appropriate root partition on each architecture.
+
+### Doesn't this break multi-boot scenarios?
+
+No, it doesn't. The specification says that installers may not stop creating /etc/fstab or stop including root= on the kernel command line, unless the used partitions are the first ones of their type on the disk. And /etc/fstab and root= override all automatic discovery. Multi-boot is hence well supported, since it doesn't change anything for anything but the first installation.
+
+That all said, it's not expected that generic installers generally stop setting root= and creating /etc/fstab anyway. The option to drop these configuration bits is primarily something for appliance-like devices. However, generic installers should *still* set the right GPT partition types for the partitions they create so that container managers, partition tools and administrators can benefit. Or to say this differently: this specification introduces A) the *recommendation* to use the newly defined partition types to tag things properly and B) the *option* to then drop root= and /etc/fstab. While we advertise A) to *all* installers, we only propose B) for simpler, appliance-like installations.
