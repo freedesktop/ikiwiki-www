@@ -84,13 +84,13 @@ Other GPT type IDs might be used on Linux, for example to mark software RAID or 
 
 ## Partition Names 
 
-For partitions of the types listed above it is recommended to use human-friendly, descriptive partition names in the GPT partition table, for example "Home", "Server Data", "Fedora Root" and similar, possibly localized.
+For partitions of the types listed above it is recommended to use human-friendly, descriptive partition names in the GPT partition table, for example "*Home*", "*Server* *Data*", "*Fedora* *Root*" and similar, possibly localized.
 
 ## Partition Flags
 
-For the root, server data, home and swap partitions the partition flag bit 63 may be used to turn off auto-discovery for the specific partition. If set the partition will not be automatically mounted or enabled.
+For the root, server data, home and swap partitions the partition flag bit 63 ("*no-auto*") may be used to turn off auto-discovery for the specific partition. If set the partition will not be automatically mounted or enabled.
 
-For the root, server data and home partitions the partition flag bit 60 may be used to mark a partition for read-only mounts only. If set the partition will be mounted read-only instead of read-write.
+For the root, server data and home partitions the partition flag bit 60 ("*read-only*") may be used to mark a partition for read-only mounts only. If set the partition will be mounted read-only instead of read-write.
 
 Note that these two flag definitions happen to map nicely to the ones used by Microsoft Basic Data Partitions. 
 
@@ -102,7 +102,7 @@ An *installer* which supports a "manual partitioning" UI is may choose to prepop
 
 An *installer* may omit creating entries in /etc/fstab for root, /home, /srv and for the swap partitions if they use these GUID partition types, and are the first partitions on the disk of each type. If the ESP shall be mounted to /boot it may omit creating entries in /etc/fstab for it, too. If an extended boot partition is used or if the EFI partition shall not be mounted to /boot it *must* create /etc/fstab entries for them. If other partitions are used (for example for /var or /usr), the installer *must* register these in /etc/fstab. The root= parameter passed to the kernel by the boot loader may be omitted too, if the root partition is the first one on the disk of its type. If the root partition is not the first one on the disk, the root= parameter *must* be passed to the kernel by the boot loader. An installer that mounts a root, /home or /srv file system with the partition types defined as above which contains a LUKS header *must* call the device mapper device "root", "home" and "srv". This is necessary to ensure that the automatic discovery will never result in different device mapper names than any static configuration by the installer, thus eliminating possibly naming conflicts and ambiguities.
 
-An *operating* *system* should automatically discover and mount the root file system, by looking on the disk the EFI ESP used to boot is located on. It should automatically discover and mount the /home, /srv and swap partitions by looking on the disk the root partition is located on. It should automatically discover and mount the /boot partition to the ESP used for booting. It should not discover/mount partitions with other GUID partition types, or partitions located on other disks. User configuration shall always override automatic discovery and mounting. If a root, /home, /srv, /boot file system or swap partition is listed in /etc/fstab or with root= on the kernel command line it shall always take precedence over automatically discovered partitions. If a /home, /srv, /boot file system is found to be populated already the automatic discovery shall not overmount it with any discovered file system.
+An *operating* *system* should automatically discover and mount the first root partition (which does not have the no-auto flag set, see above), by looking on the disk the EFI ESP used to boot is located on. It should automatically discover and mount the first /home, /srv and swap partitions (which do not have the no-auto flag set, see above) by looking on the disk the root partition is located on. It should automatically discover and mount the /boot partition to the ESP used for booting. It should not discover/mount partitions with other GUID partition types, or partitions located on other disks, or partitions with the no-auto flag set (see above). User configuration shall always override automatic discovery and mounting. If a root, /home, /srv, /boot file system or swap partition is listed in /etc/fstab or with root= on the kernel command line it shall always take precedence over automatically discovered partitions. If a /home, /srv, /boot file system is found to be populated already the automatic discovery shall not overmount it with any discovered file system.
 
 A *container* *manager* should automatically discover and mount the root, /home and /srv boot file systems inside a container disk image. It should ignore any swap, ESP or Extended Boot Partitions should they be included in a container disk image.
 
