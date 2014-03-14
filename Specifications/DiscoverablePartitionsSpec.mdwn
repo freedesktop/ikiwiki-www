@@ -37,6 +37,20 @@ Note that the OS side of this scheme is implemented in [systemd](http://freedesk
 </tr>
 
 <tr>
+<td><nobr><tt>69dad710-2ce4-4e3c-b16c-21a1d49abed3</tt></nobr></td>
+<td><nobr><i>Root Partition (32bit ARM)</i></bobr></td>
+<td>Any native, optionally in LUKS</td>
+<td>On 32bit ARM systems the first ARM root partition on the disk the EFI ESP is located on is automatically mounted to the root directory /. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/root.</td>
+</tr>
+
+<tr>
+<td><nobr><tt>b921b045-1df0-41c3-af44-4c6f280d3fae</tt></nobr></td>
+<td><nobr><i>Root Partition (64bit ARM)</i></bobr></td>
+<td>Any native, optionally in LUKS</td>
+<td>On 64bit ARM systems the first 64bit ARM root partition on the disk the EFI ESP is located on is automatically mounted to the root directory /. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/root.</td>
+</tr>
+
+<tr>
 <td><nobr><tt>933ac7e1-2eb4-4f13-b844-0e14e2aef915</tt></nobr></td>
 <td><nobr><i>Home Partition</i></nobr></td>
 <td>Any native, optionally in LUKS</td>
@@ -126,9 +140,9 @@ Doing a similar automatic discovery of btrfs subvolumes and mounting them automa
 
 We are not. /etc/fstab always overrides automatic discovery. We are just trying to make the boot and installation processes of Linux a bit more robust and self-descriptive.
 
-### Why did you only define the root partition for x86 and x86-64?
+### Why did you only define the root partition for x86, x86-64 and ARM?
 
-Well, the automatic discovery of the root partition is defined to operate on the disk the EFI System Partition (ESP) that was used for booting is located on. Since EFI only exists on x86 and x86-64 in the wild so far we only defined root partition GUIDs for these two architectures. Should EFI become more common on other architectures too we can define additional GUIDs for them.
+Well, the automatic discovery of the root partition is defined to operate on the disk the EFI System Partition (ESP) that was used for booting is located on. Since EFI only exists on x86, x86-64 and ARM in the wild so far we only defined root partition GUIDs for these two architectures. Should EFI become more common on other architectures too we can define additional GUIDs for them.
 
 ### Why define distinct root partition GUIDs for the various architectures?
 
