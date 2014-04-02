@@ -1,0 +1,40 @@
+[[!meta title="Clickpad Software Button behavior"]]
+
+Clickpad is the name given to touchpads without physical buttons below the
+touchpad. Instead, the whole touchpad acts as a button and left or right button clicks are distinguished by the location and/or number of fingers on the touchpad.
+["ClickPad" is a term coined by Synaptics Inc.](http://www.synaptics.com/en/clickpad.php) but for simplicity we refer to any touchpad with the above feature as Clickpad, regardless of the manufacturer.
+
+A clickpad is always marked with the INPUT_PROP_BUTTONPAD property.
+
+To perform a right-click on a Clickpad, two methods are prominent:
+
+* on Apple touchpads, a right click is performed by two fingers on the touchpad while clicking, termed "clickfinger"
+* on most non-Apple touchpads, a right click is performed by a finger in the right button area
+
+The button area is usually defined like this:
+
+    +------------------------+
+    |                        |
+    |                        |
+    |          LEFT          |
+    |                        |
+    |                        |
+    +------------------------+
+    |    LEFT    |   RIGHT   |
+    +------------------------+
+
+
+The button behavior depends on the implementation. Some Clickpads, notably
+some Cypress ones, perform right button detection in firmware and appear to
+userspace as if the touchpad had physical buttons. While physically clickpads,
+these are not handled by the software and treated like traditional touchpads.
+
+
+The clickfinger behavior is subject to some restrictions:
+
+* two fingers execute a right click, three fingers a middle click
+* the two fingers must be in relative proximity. The Xorg synaptics driver uses 30% of the touchpad dimensions as threshold.
+* some touchpads only support two touchpoints, with additional fingers being sent as BTN_TOOL_TRIPLETAP, etc.
+
+
+tbc
