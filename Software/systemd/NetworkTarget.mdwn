@@ -27,6 +27,8 @@ Modern networking tends to be highly dynamic: machines are moved between network
 
 A robust system boots up independently of external services. More specifically, if a network DHCP server does not react this should not slow down boot on most setups, but only for those where network connectivity is strictly needed (for example, because the host actually boots from the network).
 
+## Concepts in systemd
+
 In systemd, three target units take the role of `$network`:
 
 * `network.target` has very little meaning during start-up. It only indicates that the network management stack is up after it has been reached. Whether any network interfaces are already configured when it is reached is undefined. It's primary purpose is for ordering things properly at shutdown: since the shutdown ordering of units in systemd is the reverse of the startup ordering, any unit that is order After=network.target can be sure that it is stopped before the network is shut down if the system is powered off. This allows services to cleanly terminate connections before going down, instead of abruptly losing connectivity for ongoing connections, leaving them in an undefined state. Note that `network.target` is a *passive* unit: you cannot start it directly and it is not pulled in by any services that want to make use of the network. Instead, it is pulled in by the network management service itself. Services using the network should hence simply place an After=network.target dependency in their unit files, and avoid any Wants=network.target or even Requires=network.target.
