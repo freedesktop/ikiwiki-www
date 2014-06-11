@@ -4,8 +4,9 @@
 
 _So you have configured your service to run after `network.target` but it still gets run before your network is up? And now you are wondering why that is and what you can do about it?_
 
-The `network.target` unit is the systemd counterpart of LSB's `$network` facility. However as this facility is defined [[only very unprecisely|http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/facilname.html]] people tend to have different ideas what it is supposed to mean. Here are a couple of ideas people came up with so far:
+LSB init scripts know the `$network` facility. As this facility is defined [[only very unprecisely|http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/facilname.html]] people tend to have different ideas what it is supposed to mean. Here are a couple of ideas people came up with so far:
 
+* The network management software is up
 * All "configured" network interfaces are up and an IP address has been assigned to each
 * All discovered local hardware interfaces that have a link beat have an IP address assigned, independently whether there is actually any explicit local configuration for them
 * The network has been set up precisely to the level that a DNS server is reachable
@@ -22,21 +23,33 @@ And so on and so on. All these are valid approaches to the question "When is the
 
 Modern networking tends to be highly dynamic: machines are moved between networks, network configuration changes, hardware is added and removed, virtual networks are set up, reconfigured and shut down again. Network connectivity is not unconditionally and continuously available, and a machine is connected to different networks at different times. This is particularly true for mobile hardware such as handsets, tablets and laptops, but also for embedded and servers. Software that is written under the assumption that network connectivity is available continuously and never changes is hence not up-to-date with modern standards. Well-written software should be able to handle dynamic configuration changes. It should react to changing network configuration and make the best of it. If it cannot reach a server it must retry. If network configuration connectivity is lost it must react. Reacting to local network configuration changes in daemon code is not particularly hard. In fact many well-known network-facing services running on Linux have been doing this for decades. A service written like this is robust, can be started at any time, and will always do the best of the circumstances it is running in.
 
-`network.target` is a mechanism that is required only to deal with software that assumes continuous network is available (i.e. of the simple non-well-written kind). Which facet of it it requires is undefined. An IMAP server might just require a certain IP to be assigned so that it can listen on it. OTOH a network file system client might need DNS up, and the service to contact up, as well. For `network.target` what precisely is required is not obvious and can be different things depending on local configuration.
+`$network` is a mechanism that is required only to deal with software that assumes continuous network is available (i.e. of the simple non-well-written kind). Which facet of it it requires is undefined. An IMAP server might just require a certain IP to be assigned so that it can listen on it. OTOH a network file system client might need DNS up, and the service to contact up, as well. For `network.target` what precisely is required is not obvious and can be different things depending on local configuration.
 
 A robust system boots up independently of external services. More specifically, if a network DHCP server does not react this should not slow down boot on most setups, but only for those where network connectivity is strictly needed (for example, because the host actually boots from the network).
 
-In systemd `network.target` by default does not have much meaning. If a service orders itself after it this will have little effect, by default. It is up to the admin to actually fill `network.target` with sense, i.e. order a service before it that waits until the "network is up" based on the policy the admin chooses, based on the needs of the software that shall be ordered after it and its configuration. By defaulting to the empty meaning we hence provide a speedy boot that is not slowed down by external factors for the majority of cases, but by allowing `network.target` to be defined by the administrator as he likes any policy is implementable instead.
+In systemd, three target units take the role of `$network`:
 
-## Cut the crap! How do I make network.target work for me?
+* `network.target` has very little meaning during start-up. It only indicates that the network management stack is up after it has been reached. Whether any network interfaces are already configured when it is reached is undefined. It's primary purpose is for ordering things properly at shutdown: since the shutdown ordering of units in systemd is the reverse of the startup ordering, any unit that is order After=network.target can be sure that it is stopped before the network is shut down if the system is powered off. This allows services to cleanly terminate connections before going down, instead of abruptly losing connectivity for ongoing connections, leaving them in an undefined state. Note that `network.target` is a *passive* unit: you cannot start it directly and it is not pulled in by any services that want to make use of the network. Instead, it is pulled in by the network management service itself. Services using the network should hence simply place an After=network.target dependency in their unit files, and avoid any Wants=network.target or even Requires=network.target.
 
-Well, that depends on your setup and the services you plan to run after it (see above). If you use NetworkManager one option is to enable `NetworkManager-wait-online.service`:
+* `network-online.target` is a target that actively waits until the nework is "up", where the definition of "up" is defined by the network management software. Usually it indicates a configured, routable IP address of some kind. It's primary purpose is to actively delay activation of services until the network is set up. It is an *active* target, meaning that is may be pulled in by the services requiring the network to be up, but is not pulled in by the network management service itself. By default all remote mounts defined in `/etc/fstab` pull this service in, in order to make sure the network is up before it is attempted to connect to a network share. Note that normally, if no service requires it, and if not remote mount point is configured this target is not pulled into the boot, thus avoiding any delays during boot should the network not be available. It is strongly recommended not to pull in this target too liberally: for example network server software should generally not pull this in (since server software generally is happy to accept local connections even before any routable network interface is up), it's primary purpose is network client software that cannot operate without network.
+
+* `network-pre.target` is a target that may be used to order services before any network interface is configured. It's primary purpose is for usage with firewall services that want to establish a firewall before any network interface is up. It's a *passive* unit: you cannot start it directly and it is not pulled in by the the network management service, but by the service that wants to run before it. Network management services hence should set After=network-pre.target, but avoid any Wants=network-pre.target or even Requires=network-pre.target. Services that want to be run before the network is configured should place Before=network-pre.target and also set Wants=network-pre.target to pull it in. This way, unless there's actually a service that needs to be ordered before the network is up the target is not pulled in, hence avoiding any unnecessary synchronization point.
+
+## Cut the crap! How do I make `network.target` work for me?
+
+Well, that depends on your setup and the services you plan to run after it (see above). Many network management solutions provide a way to unconditionally pull in network-online.target, and thus upgrading the effect of network.target to the effect of network-online.target.
+
+If you use NetworkManager you can do this by enabling `NetworkManager-wait-online.service`:
 
     systemctl enable NetworkManager-wait-online.service
 
-This will ensure that all configured network devices are up and have an IP address assigned before boot continues. This service will time out after 90s. Enabling this service might considerably delay your boot even if the timeout is not reached.
+If you use systemd-networkd you can do this by enabling `systemd-networkd-wait-online.service`:
+  
+    systemctl enable systemd-networkd-wait-online.service
 
-Alternatively, you can write your own service file wrapping any other program or script you like and simply order it before `network.target` (with Before=). Your service also needs to pull in `network.target` (with Wants=), to indicate that it implements this target.
+This will ensure that all configured network devices are up and have an IP address assigned before boot continues. This service will time out after 90s. Enabling this service might considerably delay your boot even if the timeout is not reached. Both services are disabled by default.
+
+Alternatively, you can change your service that needs the network to be up, to include After=network-online.target and Wants=network-online.target.
 
 ## What does this mean for me, a Developer?
 
