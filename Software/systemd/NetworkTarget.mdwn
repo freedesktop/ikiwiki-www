@@ -35,6 +35,8 @@ In systemd, three target units take the role of `$network`:
 
 * `network-pre.target` is a target that may be used to order services before any network interface is configured. It's primary purpose is for usage with firewall services that want to establish a firewall before any network interface is up. It's a *passive* unit: you cannot start it directly and it is not pulled in by the the network management service, but by the service that wants to run before it. Network management services hence should set After=network-pre.target, but avoid any Wants=network-pre.target or even Requires=network-pre.target. Services that want to be run before the network is configured should place Before=network-pre.target and also set Wants=network-pre.target to pull it in. This way, unless there's actually a service that needs to be ordered before the network is up the target is not pulled in, hence avoiding any unnecessary synchronization point.
 
+Whenever systemd encounters a `$network` dependency in LSB headers of init scripts it will translate this to a Wants= and After= dependency on `network-online.target` hence staying relatively close to traditional LSB behaviour.
+
 ## Cut the crap! How do I make `network.target` work for me?
 
 Well, that depends on your setup and the services you plan to run after it (see above). Many network management solutions provide a way to unconditionally pull in network-online.target, and thus upgrading the effect of network.target to the effect of network-online.target.
