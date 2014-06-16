@@ -3,7 +3,8 @@
 
 ## Description
 
-LightDM is a cross-desktop display manager. A display manager is a daemon that:
+LightDM is a cross-desktop display manager.
+A display manager is a daemon that:
 
 * Runs display servers (e.g. X) where necessary.
 * Runs greeters to allow users to pick which user account and session type to use.
@@ -11,12 +12,12 @@ LightDM is a cross-desktop display manager. A display manager is a daemon that:
 * Runs session processes once authentication is complete.
 * Allows remote login options
 
-Key features are: 
+Key features of LightDM are: 
 
 * Cross-desktop - supports different desktops
-* Supports different display technologies
+* Supports different display technologies (X, Mir, ...)
 * Lightweight - low memory usage and fast performance
-* Remote login features
+* Supports remote login (XDMCP, VNC)
 * Comprehensive test suite
 * Low code complexity
 
@@ -32,12 +33,46 @@ LightDM is available in the following distributions:
 * [[OpenSUSE|http://software.opensuse.org/package/lightdm]]
 * [[Ubuntu|https://launchpad.net/ubuntu/+source/lightdm]]
 
-Development is hosted on [[Launchpad|https://launchpad.net/lightdm]]. [[Tarball releases|https://launchpad.net/lightdm/+download]] are available. 
+Development is hosted on [[Launchpad|https://launchpad.net/lightdm]].
+[[Tarball releases|https://launchpad.net/lightdm/+download]] are available. 
 
 ## Usage
 
-To produce a new greeter, see the [[API reference|http://people.ubuntu.com/~robert-ancell/lightdm/reference/]].  To test new greeters run `lightdm --test-mode`. 
+The core LightDM project does not provide
+
+To produce a new greeter, see the [[API reference|http://people.ubuntu.com/~robert-ancell/lightdm/reference/]].
+To test new greeters run `lightdm --test-mode`. 
 
 ## Contact
 
-Discussion should be done on the [[LightDM mailing list|http://lists.freedesktop.org/mailman/listinfo/lightdm]]. [[File bugs|https://bugs.launchpad.net/lightdm]] for problems/feature requests. 
+Discussion should be done on the [[LightDM mailing list|http://lists.freedesktop.org/mailman/listinfo/lightdm]].
+
+## Development
+
+Please [[file bugs|https://bugs.launchpad.net/lightdm]] for problems/feature requests.
+
+Development is done on Launchpad.
+To check out the trunk branch you will need to [[install Bazaar|http://wiki.bazaar.canonical.com/Download]].
+For committing changes back you will need a [[Launchpad account|https://help.launchpad.net/YourAccount/NewAccount]] (free) and to agree to the [[Canonical contributor license agreement|http://www.canonical.com/contributor-license-agreement]].
+
+Building LightDM from trunk:
+
+    bzr branch lp:lightdm
+    cd lightdm
+    ./autogen.sh
+    make
+    make install
+
+Making changes:
+
+    bzr branch lp:lightdm my-branch-name
+    cd my-branch-name
+    (make changes)
+    bzr commit
+    bzr push lp:~my-lp-username/lightdm/my-branch-name
+
+Then go to https://code.launchpad.net/~my-lp-username/lightdm/my-branch-name and select "Propose for merging".
+Your merge proposal will be reviewed by the LightDM development team which often requires some changes to be made by you.
+For each change do a bzr commit and bzr push to the same branch.
+Once accepted your proposal will be merged by us into the LightDM trunk and be in the next release.
+Congratulations!
