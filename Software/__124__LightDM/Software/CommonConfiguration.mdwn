@@ -1,0 +1,86 @@
+# Disabling Guest Login
+
+By default [[LightDM|Software/LightDM]] allows you to log into a session as a temporary user; disable this with:
+
+    [SeatDefaults]
+    allow-guest=false
+
+# Hiding the User List
+
+Greeters my show the list of possible user accounts.
+If you want to disable this (you have too many users or security concerns) use the following configuration.
+You may also want to explicitly enable manual login with this feature.
+
+    [SeatDefaults]
+    greeter-hide-users=true
+
+# Allow Manual Login
+
+A greeter may not allow you to manually enter the username to log in with.
+If your greeter supports this it can be enabled with:
+
+    [SeatDefaults]
+    greeter-show-manual-login=true
+
+# Setting an Automatic Login
+
+To set the system to automatically start with a logged in user set the *autologin-user*.
+If *autologin-user-timeout* is set the greeter will be shown for this many seconds before the automatic login occurs.
+User activity will cancel this timeout.
+
+    [SeatDefaults]
+    autologin-user=username
+    autologin-user-timeout=delay
+
+If you want to set the automatic login to be a guest session then set *autologin-guest* instead of *autologin-user*:
+
+    autologin-guest=true
+
+# Changing the Default Session
+
+Set the default session to be logged into with:
+
+    [SeatDefaults]
+    user-session=name
+
+Where **name** is the name of the session .desktop file from */usr/share/xsessions/\*.desktop*.
+
+# Changing the Greeter
+
+The greeter is set by configuration in */usr/share/lightdm/lightdm.conf.d/* that greeter packages provide. If you need to override this you can set:
+
+    [SeatDefaults]
+    greeter-session=name
+
+Where **name** is the name of the greeter .desktop file from */usr/share/xgreeters/\*.desktop*.
+
+# Adding System Hooks
+
+If you need some special behaviour when X servers and user sessions start/stop you can set commands to be run with the following configuration:
+
+    [SeatDefaults]
+    display-setup-script=command
+    display-stopped-script=command
+    greeter-setup-script=command
+    session-setup-script=command
+    session-cleanup-script=command
+    session-wrapper=command
+    greeter-wrapper=command
+
+*display-setup-script* is run after the X server starts but before the user session / greeter is run. Set this if you need to configure anything special in the X server. It is run as root. If this command returns an error code the X server is stopped.
+
+*display-stopped-script* is run after an X server exits. It is run as root.
+
+*greeter-setup-script* is run before a greeter starts. It is run as root. If this command returns an error code the greeter fails to start (which will cause LightDM to stop).
+
+*session-setup-script* is run before a user session starts. If this command returns an error the session will not start (user is returned to a greeter).
+
+*session-cleanup-script* is run after a greeter or user session stops. It is run as root.
+
+*session-wrapper* is a the command to run for a session. This command is run as the user and needs to exec the command passed in the arguments to complete running the session. Use this if you need to do special setup for a user session. Note the default is 'lightdm-session' so you should chain to this if you need to override this setting.
+
+*session-wrapper* is a the command to run a greeter. It is the equivalent of *session-wrapper* for greeters.
+
+# Changing the Wallpaper
+
+LightDM does not configure the look of greeters; to do this configure the appropriate greeter.
