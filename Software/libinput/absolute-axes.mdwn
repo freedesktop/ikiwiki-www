@@ -1,0 +1,15 @@
+libinput supports three types of devices with absolute axes:
+
+* multi-touch screens
+* single-touch screens
+* graphics tablets (currently WIP)
+
+A special case of absolute devices are touchpads. While technically absolute devices, the axis values are converted to delta motion and posted as relative events.
+
+For all absolute devices, the default unit for x/y coordinates is in mm off the top left corner on the device, or more specifically off the device's sensor.
+
+## Why x/y coordinates are not normalized
+
+x/y are not given in normalized coordinates ([0..1]) for one simple reason: the aspect ratio of virtually all current devices is something other than 1:1. A normalized axes thus is only useful when looking at a single point at the time, and even then it can only tell that the stylus is e.g. at 78% from the left, 34% from the top of the device. Without knowing the per-axis resolution, these numbers are meaningless. Worse and calculation based on previous coordinates is simply wrong: a movement from 0/0 to 50%/50% is not a 45% degree line.
+
+This could be alleviated by providing resolution and information about the aspect ratio to the caller. Which shifts processing and likely errors into the caller for little benefit. Providing the x/y axes in mm from the outset removes these errors.
