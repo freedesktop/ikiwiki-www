@@ -62,11 +62,11 @@ These configuration snippets shall be Unix-style text files (i.e. line separatio
 * `machine-id` shall contain the machine ID of the OS `/etc/machine-id`. This is useful for boot loaders and applications to filter out boot entries, for example to show only a single newest kernel per OS, or to group items by OS, or to maybe filter out the currently booted OS in UIs that want to show only other installed operating systems. This ID shall be formatted as 32 lower case hexadecimal characters (i.e. without any UUID formatting). This key is optional. Example: `4098b3f648d74c13b1f04ccfba7798e8` 
 * `filesystem` defines the disk and partition forming the base of the path for the `chainload`, `linux`, `initrd`, `devicetree` and `efi` parameters. The format is firmware specific. For BIOS systems, this should be a hex value containing the drive number (eg, 0x80 for the first hard drive), optionally followed by a comma and a 1-indexed partition number (eg, 0x80,1 for the first partition on the first hard drive). If no comma is present, the filesystem shall be considered to be the entire drive. For UEFI systems, this should be a devpath string uniquely identifying the partition (eg, HD(1,800,63801,5fe938c3-dae1-454a-9779-aac648e1746d))
 * `chainload` indicates that the bootloader should execute code from the boot sector of the drive or partition defined by `filesystem`. Providing `chainload` without providing `filesystem` shall be an error. The definition of "boot sector" may be firmware dependent.
-* `linux` refers to the kernel to spawn. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. It is recommended that every distribution creates a machine id and version specific subdirectory below `$BOOT` and places its kernels and initial RAM disk images there. Example: `/6a9857a393724b7a981ebb5b8495b9ea/3.8.0-2.fc19.x86_64/linux`. 
-* `initrd` refers to the initrd to use when executing the kernel. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. This key is optional. Example: `6a9857a393724b7a981ebb5b8495b9ea/3.8.0-2.fc19.x86_64/initrd` 
+* `linux` refers to the kernel to spawn. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. See the pathnames section for discussion of paths. Example: `/boot/vmlinuz-3.8.0-2.fc19.x86_64`
+* `initrd` refers to the initrd to use when executing the kernel. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. See the pathnames section for discussion of paths. This key is optional. Example: `initrd-3.8.0-2.fc19.x86_64` 
 * `efi` to spawn arbitrary EFI programs. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. This key is only available on EFI systems. 
 * `options` shall contain kernel parameters to pass to the Linux kernel to spawn. This key is optional. 
-* `devicetree` refers to the binary device tree to use when executing the kernel. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. This key is optional. Example: `6a9857a393724b7a981ebb5b8495b9ea/3.8.0-2.fc19.armv7hl/tegra20-paz00.dtb`
+* `devicetree` refers to the binary device tree to use when executing the kernel. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. This key is optional. Example: `/boot/dtb-3.8.0-2.fc19.armv7hl/tegra20-paz00.dtb`
 
 Each configuration drop-in snippet must include at least a `linux` or an `efi` key, and is otherwise not valid. Here's an example for a complete drop-in file:
 
@@ -82,6 +82,20 @@ Each configuration drop-in snippet must include at least a `linux` or an `efi` k
 Note that these configurations snippets do not need to be the only configuration source for a boot loader. It may extend this list of entries with additional items from other configuration files (for example its own native configuration files) or automatically detected other entries without explicit configuration. 
 
 Note that all paths used in the configuration snippets use a Unix-style "/" as path separator. This needs to be converted to an EFI-style "\" separator in EFI boot loaders. 
+
+## Pathnames
+
+It is valid for operating systems to install kernels, initrds, devicetree files or EFI executables under $BOOT/org/freedesktop/bls, although care must be taken to avoid collisions. It is recommended that operating systems use their machine id as a unique parent directory. Example:
+
+    /boot/org/freedesktop/bls/entries/6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf
+    title      Fedora 19 (Rawhide)
+    version    3.8.0-2.fc19.x86_64
+    machine-id 6a9857a393724b7a981ebb5b8495b9ea
+    options    root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2
+    linux      /org/freedesktop/bls/6a9857a393724b7a981ebb5b8495b9ea/vmlinux-3.8.0-2.fc19.x86_64
+    initrd     /org/freedesktop/bls/6a9857a393724b7a981ebb5b8495b9ea/initrd-3.8.0-2.fc19.x86_64
+
+If an operating system installs its boot files in an operating system-specific partition, there is no need to embed the machine id in any paths.
 
 ## Logic
 
