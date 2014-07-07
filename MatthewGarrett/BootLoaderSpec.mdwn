@@ -80,12 +80,7 @@ Each configuration drop-in snippet must include at least a `linux` or an `efi` k
 
 Note that these configurations snippets do not need to be the only configuration source for a boot loader. It may extend this list of entries with additional items from other configuration files (for example its own native configuration files) or automatically detected other entries without explicit configuration. 
 
-Note that these configuration snippets may only reference kernels (and EFI programs) that reside on the same file system as the configuration snippets, i.e. everything referenced must be contained in the same file system. This is by design, as referencing other partitions or devices would require a non-trivial language for denoting device paths. If kernels/initrds are to be read from other partitions/disks the boot loader can do this in its own native configuration, using its own specific device path language, and this is out of focus for this specification. More specifically, on non-EFI systems configuration snippets following this specification cannot be used to spawn other operating systems (such as Windows). 
-
-To make this explicitly clear: this specification is designed with "free" operating systems in mind, starting Windows or MacOS is out of focus with these configuration snippets, use boot-loader specific solutions for that. In the text above, if we say "OS" we hence imply "free", i.e. primarily Linux (though this could be easily be extended to the BSDs and whatnot). 
-
 Note that all paths used in the configuration snippets use a Unix-style "/" as path separator. This needs to be converted to an EFI-style "\" separator in EFI boot loaders. 
-
 
 ## Logic
 
@@ -103,7 +98,6 @@ An _OS installer_ picks the right place for `$BOOT` as defined above (possibly c
 There are a couple of items that are out of focus for this specifications: 
 
 * If userspace can figure out the available boot options, then this is only useful so much: we'd still need to come up with a way how userspace could communicate to the boot loader the default boot loader entry temporarily or persistently. Defining a common scheme for this is certainly a good idea, but out of focus for this specifications. 
-* This specifications is just about "Free" Operating systems. Hooking in other operating systems (like Windows, MacOS) into the boot menu is a different story, and should probably happen outside of this specification. For example, boot loaders might choose to detect other available OSes dynamically at runtime without explicit configuration (like Gummiboot does it), or via natvie configuration (for example via explicit Grub2 configuration generated once at installation). 
 * This specification leaves undefined what to do about systems which are upgraded from an OS that does not implement this specification. As the previous boot loader logic was largely handled by in distribution-specific ways we probably should leave the upgrade path (and whether there actually is one) to the distributions. The simplest solution might be to simply continue with the old scheme for old installations and use this new scheme only for new installations. 
 
 
