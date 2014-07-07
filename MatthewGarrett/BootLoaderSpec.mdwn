@@ -37,8 +37,8 @@ The EFI specification provides a boot options logic that can offer similar funct
 
 We define two directories:  
 
-* `$BOOT/loader/` is the directory containing all files defined by this specification 
-* `$BOOT/loader/entries/` is the directory containing the drop-in snippets. This directory contains one `.conf` file for each boot menu item.
+* `$BOOT/org/freedesktop/bls` is the directory containing all files defined by this specification 
+* `$BOOT/org/freedesktop/bls/entries/` is the directory containing the drop-in snippets. This directory contains one `.conf` file for each boot menu item.
 
 These directories are defined below the placeholder file system `$BOOT`. This placeholder file system shall be determined during _installation time_, and an fstab entry for it shall be created mounting it to /boot. The installer program should pick `$BOOT` according to the following rules:
 
@@ -47,13 +47,13 @@ These directories are defined below the placeholder file system `$BOOT`. This pl
 * If the OS is installed on a disk with GPT disk label, and an ESP partition (i.e. with the GPT type UID of c12a7328-f81f-11d2-ba4b-00a0c93ec93b) already exists it should be used as $BOOT. 
 * Otherwise, if the OS is installed on a disk with GPT disk label, and no ESP partition exists yet, a new suitably sized (let's say 500MB) ESP should be created and should be used as $BOOT. 
 
-**Note:** _In all cases the /loader directory should be located directly in the root of the file system. Specifically, if $BOOT is the ESP, then /loader directory should be located directly in the root directory of the ESP, and not in the EFI/ subdirectory._
+**Note:** _In all cases the /org/freedesktop/bls directory should be located directly in the root of the file system. Specifically, if $BOOT is the ESP, then /org/freedesktop/bls directory should be located directly in the root directory of the ESP, and not in the EFI/ subdirectory._
 
 **Note:** _`$BOOT` should be considered **shared** among all OS installations of a system. Instead of maintaining one `$BOOT` per installed OS (as `/boot` was traditionally handled), all installed OS share the same place to drop in their boot-time configuration._ 
 
 `$BOOT` must be a VFAT (16 or 32) file system. Other file system types should not be used. Applications accessing `$BOOT` should hence not assume that fancier file system features such as symlinks, hardlinks, access control or case sensitivity are supported. 
 
-Inside the `$BOOT/loader/entries/` directory each OS vendor may drop one or more configuration snippets with the suffix ".conf", one for each boot menu item. The file name of the file is used for identification of the boot item, but shall never be presented to the user in the UI. The file name may be chosen freely but should be unique enough to avoid clashes between OS installations. More specifically it is suggested to include the machine ID (`/etc/machine-id` or the D-Bus machine ID for OSes that lack `/etc/machine-id`), the kernel version (as returned by `uname -r`) and an OS identifier (The ID field of `/etc/os-release`). Example: $BOOT/loader/entries/6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf`. 
+Inside the `$BOOT/org/freedesktop/bls/entries/` directory each OS vendor may drop one or more configuration snippets with the suffix ".conf", one for each boot menu item. The file name of the file is used for identification of the boot item, but shall never be presented to the user in the UI. The file name may be chosen freely but should be unique enough to avoid clashes between OS installations. More specifically it is suggested to include the machine ID (`/etc/machine-id` or the D-Bus machine ID for OSes that lack `/etc/machine-id`), the kernel version (as returned by `uname -r`) and an OS identifier (The ID field of `/etc/os-release`). Example: $BOOT/org/freedesktop/bls/entries/6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf`. 
 
 These configuration snippets shall be Unix-style text files (i.e. line separation with a single newline character), in the UTF-8 character sets. The configuration snippets are loosely inspired on Grub1's configuration syntax. Lines beginning with '#' shall be ignored and used for commenting. The first word of a line is used as key, and shall be separated by a space from its value. The following keys are known: 
 
@@ -70,7 +70,7 @@ key is optional. Example: `6a9857a393724b7a981ebb5b8495b9ea/3.8.0-2.fc19.armv7hl
 
 Each configuration drop-in snippet must include at least a `linux` or an `efi` key, and is otherwise not valid. Here's an example for a complete drop-in file:
 
-    /boot/loader/entries/6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf
+    /boot/org/freedesktop/bls/entries/6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf
     title      Fedora 19 (Rawhide)
     version    3.8.0-2.fc19.x86_64
     machine-id 6a9857a393724b7a981ebb5b8495b9ea
@@ -91,13 +91,13 @@ Note that all paths used in the configuration snippets use a Unix-style "/" as p
 
 ## Logic
 
-A _boot loader_ needs a file system driver to discover and read `$BOOT`, then simply reads all files `$BOOT/loader/entries/*.conf`, and populates its boot menu with this. Optionally it might sort the menu based on the `machine-id` and `version` fields, and possibly others. It uses the file name to identify specific items, for example in case it supports storing away default entry information somewhere. A boot loader should generally not modify these files. 
+A _boot loader_ needs a file system driver to discover and read `$BOOT`, then simply reads all files `$BOOT/org/freedesktop/bls/entries/*.conf`, and populates its boot menu with this. Optionally it might sort the menu based on the `machine-id` and `version` fields, and possibly others. It uses the file name to identify specific items, for example in case it supports storing away default entry information somewhere. A boot loader should generally not modify these files. 
 
-A _kernel installer package_ installs the kernel and initrd images to `$BOOT` (it is recommended to place these files in a vendor and OS and installation specific directory) and then generates a configuration snippet for it, placing this in `$BOOT/loader/entries/xyz.conf`, with xyz as concatenation of machine id and version information (see above). The files created by a kernel package are private property of the package, and should be deleted along with it. 
+A _kernel installer package_ installs the kernel and initrd images to `$BOOT` (it is recommended to place these files in a vendor and OS and installation specific directory) and then generates a configuration snippet for it, placing this in `$BOOT/org/freedesktop/bls/entries/xyz.conf`, with xyz as concatenation of machine id and version information (see above). The files created by a kernel package are private property of the package, and should be deleted along with it. 
 
 A _UI application_ intended to show available boot options shall operate similar to a boot loader, but might apply additional filters, for example by filtering out the booted OS via the machine ID, or by suppressing all but the newest kernel versions. 
 
-An _OS installer_ picks the right place for `$BOOT` as defined above (possibly creating a partition and file system for it), and pre-creates the `/loader/entries/` directory in it. It then installs an appropriate boot loader that can read these snippets. Finally it installs one or more kernel packages. 
+An _OS installer_ picks the right place for `$BOOT` as defined above (possibly creating a partition and file system for it), and pre-creates the `/org/freedesktop/bls/entries/` directory in it. It then installs an appropriate boot loader that can read these snippets. Finally it installs one or more kernel packages. 
 
 
 ## Out of Focus
