@@ -7,7 +7,7 @@ This version of the Boot Loader Specification is significantly altered from the 
 
 * Partition types. For both MS-DOS and GPT disks, the partition type is that of the EFI system partition. This provides greater consistency between BIOS and UEFI systems.
 * The "loader" directory name has been renamed to "/org/freedesktop/bls" in order to reduce the risk of namespace collisions. The UEFI specification only defines directory names under the EFI directory of the EFI system partition, and implementations are responsible for avoiding conflicts otherwise. Using a DNS-based approach minimises the risk of any future conflict.
-* No requirement that the partition be VFAT. Different firmware implementations may support different filesystems. There's no reason to enforce VFAT as long as the filesystem is able to read it.
+* No requirement that the partition be VFAT. Different firmware implementations may support different filesystems. There's no reason to enforce VFAT as long as the firmware is able to read it.
 * Support for kernels and ramdisks on other partitions. The firmware may only support legacy filesystems, but it's desirable to be able to store the kernel and ramdisk on fully featured filesystems with support for things like extended attributes in order to permit security labelling.
 * Remove the requirement that kernels be valid UEFI executables on UEFI systems. Desirable usecases (such as supporting 64-bit kernels on systems with 32-bit UEFI, or Secure Boot support without relying on being able to hook low-level firmware functions) mean that bootloaders cannot simply rely on LoadImage() and StartImage() working, and so bootloaders must be expected to be able to deal with executing kernels themselves.
 * Provide a `chainload` keyword for booting other operating systems on BIOS systems. BIOS systems are still widely deployed and there's a direct benefit in being able to provide configuration fragments for directly booting them.
@@ -87,7 +87,7 @@ Each configuration drop-in snippet must include at least a `linux` or an `efi` k
     version    3.8.0-2.fc19.x86_64
     machine-id 6a9857a393724b7a981ebb5b8495b9ea
     options    root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2
-    filesystem HD(1,800,63801,6d3376e4-fc93-4509-95ec-a21d68011da2)
+    filesystem 6d3376e4-fc93-4509-95ec-a21d68011da2
     linux      /boot/vmlinux-3.8.0-2.fc19.x86_64
     initrd     /boot/initrd-3.8.0-2.fc19.x86_64
 
