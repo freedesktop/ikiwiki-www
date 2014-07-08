@@ -12,6 +12,7 @@ This version of the Boot Loader Specification is significantly altered from the 
 * Remove the requirement that kernels be valid UEFI executables on UEFI systems. Desirable usecases (such as supporting 64-bit kernels on systems with 32-bit UEFI, or Secure Boot support without relying on being able to hook low-level firmware functions) mean that bootloaders cannot simply rely on LoadImage() and StartImage() working, and so bootloaders must be expected to be able to deal with executing kernels themselves.
 * Provide a `chainload` keyword for booting other operating systems on BIOS systems. BIOS systems are still widely deployed and there's a direct benefit in being able to provide configuration fragments for directly booting them.
 * Various clarifications - bootloaders must not assume that $BOOT is writable, /boot may or may not be shared between different operating systems, kernel installers may install files outside $BOOT, $BOOT is given a defined location on the filesystem.
+* `multiboot` and `module` keywords added to handle Xen and tboot use cases
 
 # The Boot Loader Specification
 
@@ -77,18 +78,33 @@ These configuration snippets shall be Unix-style text files (i.e. line separatio
 * `linux` refers to the kernel to spawn. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. See the pathnames section for discussion of paths. Example: `/boot/vmlinuz-3.8.0-2.fc19.x86_64`
 * `initrd` refers to the initrd to use when executing the kernel. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. See the pathnames section for discussion of paths. This key is optional. Example: `initrd-3.8.0-2.fc19.x86_64` 
 * `efi` to spawn arbitrary EFI programs. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. This key is only available on EFI systems. 
-* `options` shall contain kernel parameters to pass to the Linux kernel to spawn. This key is optional. 
 * `devicetree` refers to the binary device tree to use when executing the kernel. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. This key is optional. Example: `/boot/dtb-3.8.0-2.fc19.armv7hl/tegra20-paz00.dtb`
+* `multiboot` refers to a kernel compatible with the multiboot specification. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. See the pathnames section for discussion of paths. If the `linux`, `initrd` or `efi` keywords are provided after a `multiboot` keyword, they shall be interpreted as synonyms for `module`. Example: `/boot/tboot.gz`.
+* `module` refers to an additional multoboot module. If `filesystem` is defined the path shall be relative to this - otherwise it shall be a path relative to the `$BOOT` directory. See the pathnames section for discussion of paths. Multiple module keywords may be provided. Example: `/boot/GM45_GS45_PM45_SINIT_51.BIN`
+* `options` shall contain parameters to pass to the target of the immediately preceeding `linux`, `multiboot`, `module` or `efi` keyword.
 
-Each configuration drop-in snippet must include at least a `linux` or an `efi` key, and is otherwise not valid. Here's an example for a complete drop-in file:
+Each configuration drop-in snippet must include at least a `linux`, `multiboot`, `chainload` or `efi` key, and is otherwise not valid. Here's an example for a complete drop-in file:
 
     /boot/org/freedesktop/bls/entries/6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf
     title      Fedora 19 (Rawhide)
     version    3.8.0-2.fc19.x86_64
     machine-id 6a9857a393724b7a981ebb5b8495b9ea
-    options    root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2
     filesystem 6d3376e4-fc93-4509-95ec-a21d68011da2
     linux      /boot/vmlinux-3.8.0-2.fc19.x86_64
+    options    root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2
+    initrd     /boot/initrd-3.8.0-2.fc19.x86_64
+
+And here's an example of one using multiboot:
+
+    /boot/org/freedesktop/bls/entries/6a9857a393724b7a981ebb5b8495b9ea-tboot-3.8.0-2.fc19.x86_64.conf
+    title      Fedora 19 (tboot) (Rawhide)
+    version    3.8.0-2.fc19.x86_64
+    machine-id 6a9857a393724b7a981ebb5b8495b9ea
+    filesystem 6d3376e4-fc93-4509-95ec-a21d68011da2
+    multiboot  /boot/tboot.gz
+    options    logging=serial,vga,memory
+    linux      /boot/vmlinux-3.8.0-2.fc19.x86_64
+    options    root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2
     initrd     /boot/initrd-3.8.0-2.fc19.x86_64
 
 Note that these configurations snippets do not need to be the only configuration source for a boot loader. It may extend this list of entries with additional items from other configuration files (for example its own native configuration files) or automatically detected other entries without explicit configuration. 
@@ -106,6 +122,7 @@ It is valid for operating systems to install kernels, initrds, devicetree files 
     options    root=UUID=6d3376e4-fc93-4509-95ec-a21d68011da2
     linux      /org/freedesktop/bls/6a9857a393724b7a981ebb5b8495b9ea/vmlinux-3.8.0-2.fc19.x86_64
     initrd     /org/freedesktop/bls/6a9857a393724b7a981ebb5b8495b9ea/initrd-3.8.0-2.fc19.x86_64
+    module     /boot/GM45_GS45_PM45_SINIT_51.BIN
 
 If an operating system installs its boot files in an operating system-specific partition, there is no need to embed the machine id in any paths.
 
