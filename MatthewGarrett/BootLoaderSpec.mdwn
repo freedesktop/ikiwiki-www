@@ -134,7 +134,7 @@ A _kernel installer package_ installs the kernel and initrd images to either `$B
 
 A _UI application_ intended to show available boot options shall operate similar to a boot loader, but might apply additional filters, for example by filtering out the booted OS via the machine ID, or by suppressing all but the newest kernel versions. 
 
-An _OS installer_ picks the right place for `$BOOT` as defined above (possibly creating a partition and file system for it), and pre-creates the `/org/freedesktop/bls/entries/` directory in it. It then installs an appropriate boot loader that can read these snippets. Finally it installs one or more kernel packages. On POSIX-style operating systems, $BOOT must be accessible via /boot/bls - this may be either a mountpoint or a symlink (eg, /boot/bls may be a symlink to /boot/efi)
+An _OS installer_ picks the right place for `$BOOT` as defined above (possibly creating a partition and file system for it), and pre-creates the `/org/freedesktop/bls/entries/` directory in it. It then installs an appropriate boot loader that can read these snippets. Finally it installs one or more kernel packages. On POSIX-style operating systems, $BOOT must be accessible via /boot/bls - this may be either a mountpoint or a symlink (eg, /boot/bls may be a symlink to /boot/efi). It is acceptable to create boot fragments to chainload operating systems that are unaware of this specification. Such entries should be created using a consistent naming scheme that does not embed the machine-id - for example, use the OS name followed by the chained filesystem ID (eg, macosx-9004e695-2e0f-4230-9a9e-e90bb1e88e17.conf) or "ESP" in the case of $BOOT (eg, ubuntu-ESP.conf).
 
 
 ## Out of Focus
