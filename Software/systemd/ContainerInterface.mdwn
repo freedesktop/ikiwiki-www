@@ -31,6 +31,13 @@ systemd has a number of interfaces for interaction with container managers when 
 2. Outside of a container, if a veth link is prefixed "ve-" will by default do DHCPv4 server and DHCPv6 serer on it, as well as IPv4LL. It is thus recommended that container managers that add a veth link to a container name the external side "ve-" followed by the container name.
 3. It is recommended to configure stable MAC addresses to container veth devices, for example hashed out of the container names. That way it is more likely that DHCP and Ipv4LL will acquire stable addresses.
 
+## What you shouldn't do
+
+1. Do not drop CAP_MKNOD from the container. PrivateDevices= is a commonly used service setting that provides a service with its own, private, minimal version of /dev. To set this up systemd in the container needs this capability. If you take away the capability than all services that set this flag will cease to work, and this are increasingly many, as we encourage people to make use of this functionality. Use the "devices" cgroup logic to restrict what device nodes the container can create instead of taking away the capability instead.
+2. Do not drop CAP_SYS_ADMIN from the container. A number of fs namespacing related settings, such as PrivateDevices=, ProtectHome=, ProtectSystem=, MountFlags=, PrivateTmp=, ReadWriteDirectories=, ReadOnlyDirectories=, InaccessibleDirectories=, MountFlags= need to be able to open new mount namespaces and the mount certain file system into it. You break all services that make use of these flags if you drop the flag. Note that already quite a number of services make use of this as we actively encourage users to make use of this security functionality. Also note that logind mounts XDG_RUNTIME_DIR as tmpfs for all logged in users and won't work either if you take away the capability.
+3. Do not cross-link /dev/kmsg with /dev/console. They are different things, you cannot link them to each other.
+4. Do not pretent that the real VTs would be available in the containers. The VT subsystem consists of all devices /dev/tty*, /dev/vcs*, /dev/vcsa* plus their sysfs counterparts. They speak specific ioctl()s and understand specific escape sequences, that other ptys don't understand. Hence, it is explicitly not OK to mount a pty to /dev/tty1, /dev/tty2, /dev/tty3. This is explicitly not supported.
+
 ## Final Words
 If you write software that wants to detect whether it is run in a container, please check /proc/1/environ and look for the container= environment variable. Do not assume the environment variable is inherited down the process tree. It generally is not. Hence check the environment block of PID 1, not your own. 
 
