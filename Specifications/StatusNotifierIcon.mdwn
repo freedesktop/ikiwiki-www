@@ -1,5 +1,6 @@
-# Introduction
+[[!toc ]]
 
+# Introduction
 
 This specification defines the management of visual items, usually icons used for reporting the status of an application to the user or provide a quick access to common actions performed by that application. It is intended to be complementary but not directly related with the Freedesktop's Desktop Notifications specification and is aimed as a replacement to the Freedesktop System tray specification.
 
@@ -17,11 +18,23 @@ Example use cases will include:
 
 * Generic application information and actions, like a media player controls.
 
+# Basic Design
+
+
+The Status Notifier Item system relies on inter-process communication via D-BUS and is composed by three parts:
+
+
+* StatusNotifierItem: each application that wants to utilize the system registers its own StatusNotifierItem to the session bus. Properties, methods and signals that must be provided by all StatusNotifierItem instances are described in the Section called StatusNotifierItem.
+
+
+* StatusNotifierWatcher: service used to keep track of every active instance of StatusNotifierItem, used by StatusNotifierHost to get the list of all items. It also notifies it when items are added and removed. The detailed specification of StatusNotifierWatcher is described in the Section called StatusNotifierWatcher.
+
+
+* StatusNotifierHost: an application that wants to provide a visualization of the existing StatusNotifierItem instances must register a StatusNotifierHost in the session bus. The detailed specification of StatusNotifierHost is described in the Section called StatusNotifierHost.
 
 
 
-
-# Previous discussions: 
+# Previous Discussions: 
 
 * [[http://www.notmart.org/misc/statusnotifieritem/index.html|http://www.notmart.org/misc/statusnotifieritem/index.html]] 
 * [[https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationIndicators|https://wiki.ubuntu.com/DesktopExperienceTeam/ApplicationIndicators]] 
