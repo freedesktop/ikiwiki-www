@@ -1,0 +1,59 @@
+#StatusNotifierWatcher
+
+There will be a single org.freedesktop.StatusNotifierWatcher service instance registered on the session but at any given time. The StatusNotifierWatcher service is used to keep track of StatusNotifierItem instances, enumerate them and notify when new ones are registered or old ones are unregistered.
+
+It is also used to keep track of org.freedesktop.StatusNotifierHost instances, to have an easy way to know if there is at least one service registered as the visualization host for the status notifier items.
+
+##Methods
+
+###RegisterStatusNotifierItem
+
+VOID org.freedesktop.StatusNotifierWatcher.RegisterStatusNotifierItem (STRING service);
+
+Register a StatusNotifierItem into the StatusNotifierWatcher, in the form of its full name on the session bus, for instance org.freedesktop.StatusNotifierItem-4077-1. A StatusNotifierItem instance must be registered to the watcher in order to be noticed from both the watcher and the StatusNotifierHost instances. If the registered StatusNotifierItem goes away from the session bus, the StatusNotifierWatcher should automatically notice it and remove it from the list of registered services.
+
+###RegisterStatusNotifierHost
+
+VOID org.freedesktop.StatusNotifierWatcher.RegisterStatusNotifierHost (STRING service);
+
+Register a StatusNotifierHost into the StatusNotifierWatcher, in the form of its full name on the session bus, for instance org.freedesktop.StatusNotifierHost-4005. Every NotficationHost instance that intends to display StatusNotifierItem representations should register to StatusNotifierWatcher with this method. The StatusNotifierWatcher should automatically notice if an instance of StatusNotifierHost goes away.
+
+##Properties
+
+###RegisteredStatusNotifierItems
+
+ARRAY(STRING) org.freedesktop.StatusNotifierWatcher.RegisteredStatusNotifierItems ();
+
+List containing all the registered instances of StatusNotifierItem. All elements of the array should correspond to services actually running on the session bus at the moment of the method call.
+
+###IsStatusNotifierHostRegistered
+
+BOOL org.freedesktop.StatusNotifierWatcher.IsStatusNotifierHostRegistered ();
+
+True if at least one StatusNotifierHost has been registered with the Section called RegisterStatusNotifierHost and is currently running. If no StatusNotifierHost are registered and running, all StatusNotifierItem instances should fall back using the Freedesktop System tray specification.
+
+###ProtocolVersion
+
+INT org.freedesktop.StatusNotifierWatcher.ProtocolVersion ();
+
+The version of the protocol the StatusNotifierWatcher instance implements.
+
+##SIGNALS
+
+###StatusNotifierItemRegistered
+
+BOOL org.freedesktop.StatusNotifierWatcher.StatusNotifierItemRegistered (STRING service);
+
+A new StatusNotifierItem has been registered, the argument of the signal is the session bus name of the instance. StatusNotifierHost implementation should listen this signal to know when they should update their representation of the items.
+
+###StatusNotifierItemUnregistered
+
+BOOL org.freedesktop.StatusNotifierWatcher.StatusNotifierItemUnregistered (STRING service);
+
+A StatusNotifierItem instance has disappeared from the bus, the argument of the signal is the session bus name of the instance. StatusNotifierHost implementation should listen this signal to know when they should update their representation of the items.
+
+###StatusNotifierHostRegistered
+
+BOOL org.freedesktop.StatusNotifierWatcher.StatusNotifierHostRegistered ();
+
+A new StatusNotifierHost has been registered, the StatusNotifierItem instances knows that they can use this protocol instead of the Freedesktop System tray protocol.
