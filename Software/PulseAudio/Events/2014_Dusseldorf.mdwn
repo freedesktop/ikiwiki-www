@@ -29,3 +29,28 @@ If you want to suggest topics, please send the suggestions to the PulseAudio mai
 * Resampler quality evaluation
   * Proposed by: Alexander
   * Which resampler implementations should be kept and which removed as clearly inferior in all aspects? Should the default be changed? If one default resampler doesn't suit everyone - what are the relevant use cases and their acceptance criteria in terms of quality, battery life or whatever else?
+
+* Extraction of low frequencies into the LFE channel
+  * Proposed by: Alexander
+  * How should we implement this? Tanu has suggested that we'd add support for multiple remapper implementations that could be chosen by a policy module on a case-by-case basis. This would require some new infrastructure in the core. Is that the way to go? (Tanu should write down some more concrete ideas about this new infrastructure before the meeting and send them to the mailing list.)
+
+* Routing patch status update
+  * Proposed by: Alexander
+  * What does the huge set of routing patches achieve? Some kind of a demo would be nice. What needs to happen in order to get those patches merged?
+
+* Audio groups
+  * Proposed by: Tanu
+  * Audio groups allow applications to control the volume of a group of streams (and in some cases devices too). Audio groups are implemented in Tizen's volume API, can we get the feature in upstream too? Core or module?
+
+* Stream and device objects
+  * Proposed by: Tanu
+  * As part of the volume API, Tizen provides also an API to handle streams and devices at more abstract level than the normal introspection API. There are stream objects that cover both sink inputs and source outputs, and device objects that cover sinks, sources and ports. Is there interest in having this abstraction also in upstream? If yes, core or module?
+
+* Getting rid of filter sinks
+  * Proposed by: Alexander
+  * Filter sinks are currently the best way to add signal processing to an audio path inside PulseAudio, but it has its problems. Many people want a better solution, but can we find any volunteers to do the work? What should the better solution look like?
+
+* Reasons and mitigation ideas for bad rewind handling code
+  * Proposed by: Alexander
+  * Suggested priority: low
+  * We have zero virtual sinks with a correct rewind implementation, and also had a submission of module-xrdp-sink with a rewind implementation even though having no rewind support would have been better in that case. Why does this happen? What technical and social measures (e.g. wiki content or comments in the code or whatever else) would help people avoid writing incorrect code here?
