@@ -1,0 +1,84 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] [[↩ Back to User Documentation|Software/PulseAudio/Documentation/User]] 
+
+# Running PulseAudio
+
+Since PulseAudio v6, the preferred method of launching and running PulseAudio is via systemd.
+
+As before, we strongly recommend that you run PulseAudio as a per-user daemon, however the system-wide approach is also still supported should people require it. We do not, however, ship systemd unit files for doing this, but it should be trivial for any user wishing this setup to write them.
+
+## How it works
+
+Due to integration with PAM, the systemd --user daemon is running automatically when the user logs in (whether via X11 or via a text login). We make use of systemd's socket activation feature to automatically start PulseAudio when the first client application tries to connect. We do this by registering pulseaudio.socket as part of the user's socket.target. We ship appropriate symbolic links to ensure that this is done by default as we do not consider this something each user should have to manually enable - it should Just Work(tm).
+
+This approach means that from immediately after logging in, system is already listening on the PulseAudio communication socket. When it detects a process trying to connect, it start up PulseAudio and hands over the file descriptor for the socket and PulseAudio takes care of things from then on.
+
+If PulseAudio happens to crash (accidents do happen!), systemd will automatically restart it.
+
+## Changing options.
+
+systemd's Journal feature will automatically collect all output from PulseAudio and track exit status and other diagnostic information. Just run "systemd --user status pulseaudio" to see such output.
+
+If you need to add more command line options, you can simply do the following:
+
+        mkdir -p ~/.conig/systemd/user/pulseaudio.service.d
+
+then create a file called ~/.conig/systemd/user/pulseaudio.service.d/tweaks.conf and include the following:
+
+        [Service]
+        ExecStart=/usr/bin/pulseaudio -vvvvv
+
+(or whatever arguments you like)
+
+
+Then:
+
+        systemctl --user daemon-reload
+        systemctl --user restart pulseaudio
+
+
+If you want to hack on PulseAudio and just want to start it manually, then do the following:
+
+systemctl --user stop pulseaudio.socket pulseaudio.service
+
+Note: it's not enough to just stop pulseaudio.service as it will be automatically respawned again when any client tries to connect.
+
+
+If you have a multi-user system and the system is configured to use PulseAudio but some specific users want to opt out, then simply execute the following as that user:
+
+        systemctl --user mask pulseaudio.socket pulseaudio.service
+
+This will prevent the system starting pulseaudio for you, but keep in mind that your distribution is likely geared towards working with PulseAudio and some applications may need specific configuration to cope.
+
+
+## Running when not logged in
+
+In some cases it's desirable to run PulseAudio on your machine even when you are not logged in. A typical example of when this is useful, is when running mpd.
+
+In order to do this, you can make use of a systemd feature called lingering. If you enable lingering for your user, the systemd instance for your user will be started immediately upon boot.
+
+To enable lingering do the following:
+
+        loginctl enable-linger username
+
+Note this command requires root privileges and an authorization dialog should pop up when not run as root.
+
+This is only part of the puzzle however. Your user will need access to the sound hardware. This is normally done for you when you login at a physical seat i.e. your user is granted access to the sound hardware registered to that seat. However, with session lingering although your user will have a systemd --user instance running, it is not associated with any seat and thus cannot access the sound hardware. The recommended approach here is to add your user to the audio group. This does somewhat conflict with features like Fast User Switching (allowing two or more users to login at the same time and switching between them) as proper and graceful handover of device permissions is bypassed.
+
+The next step would be to create a systemd unit to start mpd. Something like the following should do:
+
+        mkdir -p ~/.conig/systemd/user
+        cat >~/.conig/systemd/user/mpd.service <<EOF
+        [Unit]
+        Description=Music Player
+
+        [Service]
+        ExecStart=/usr/bin/mpd
+
+        [Install]
+        WantedBy=default.target
+        EOF
+        systemctl --user daemon-reload
+        systemctl --user enable mpd
+
+
+With the above in place, session lingering and your user in the audio group, mpd should start and connect to PulseAudio as soon as your machine is powered on.
