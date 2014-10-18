@@ -83,11 +83,17 @@ This is over DBus, toolkit widgets provide their content to screen readers such 
 
 Getting it started:
 
-* /usr/lib/at-spi2-core/at-spi-bus-launcher
-* /usr/lib/at-spi2-core/at-spi2-registryd
+* /usr/lib/at-spi2-core/at-spi-bus-launcher &
+* /usr/lib/at-spi2-core/at-spi2-registryd &
 * one can make sure it got registered by using
 
-    xprop -root | grep SPI
+    $ xprop -root | grep SPI
+    AT_SPI_BUS(STRING) = "unix:abstract=/tmp/dbus-6fNHBTP2lK,guid=9d17aaa3ca64ff4b66f0c5985442999e"
+
+* That was the bus address, one can watch what happens by spying on it:
+
+    $ dbus-monitor --address unix:abstract=/tmp/dbus-6fNHBTP2lK,guid=9d17aaa3ca64ff4b66f0c5985442999e
+
 
 
 Accerciser to test the availability of the content
