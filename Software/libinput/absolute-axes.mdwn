@@ -23,9 +23,31 @@ sensor, see [the API doc](http://wayland.freedesktop.org/libinput/doc/latest/)
 
 x/y are not given in normalized coordinates ([0..1]) for one simple reason:
 the aspect ratio of virtually all current devices is something other than
-1:1. A normalized axes thus is only useful when looking at a single point at
-the time, and even then it can only tell that the stylus is e.g. at 78% from
+1:1. A normalized axes thus is only useful to determine that the stylus is e.g. at 78% from
 the left, 34% from the top of the device. Without knowing the per-axis
 resolution, these numbers are meaningless. Worse, calculation based on previous coordinates is simply wrong: a movement from 0/0 to 50%/50% is not a 45% degree line.
 
 This could be alleviated by providing resolution and information about the aspect ratio to the caller. Which shifts processing and likely errors into the caller for little benefit. Providing the x/y axes in mm from the outset removes these errors.
+
+## Handling of absolute coordinates
+
+In most use-cases, absolute input devices are mapped to a single screen. For
+direct input devices such as touchscreens the aspect ratio of the screen and
+the device match. Mapping the input device position to the output position
+is thus a simple mapping between two coordinates. libinput provides the API
+for this with
+
+* libinput_event_pointer_get_absolute_x_transformed() for pointer events
+* libinput_event_touch_get_absolute_x_transformed() for touch events
+
+See [the API doc](http://wayland.freedesktop.org/libinput/doc/latest/) for
+more details.
+
+libinput's API only provides the call to map into a single coordinate range.
+If the coordinate range has an offset, the compositor is responsible for
+applying that offset after the mapping. For example, if the device is mapped
+to the right of two outputs, add the output offset to the transformed coordinate.
+
+## Devices without x/y resolution
+
+An absolute device that does not provide a valid resolution is considered buggy and must be fixed in the kernel. Some touchpad devices that do not provide resolution, those devices are correctly handled within libinput (touchpads are not absolute devices, as mentioned above).
