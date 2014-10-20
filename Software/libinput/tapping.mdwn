@@ -1,19 +1,19 @@
-"Tapping" or "tap-to-click" is the name given to the behavior where a short finger touch down/up sequence maps into a button click. This is most commonly used on touchpads.
-
-A couple of constraints apply to the contact to be converted into a press, the most common ones are:
-
-* the touch down and touch up must happen within an implementation-defined timeout
-* if a finger moves more than an implementation-defined distance while in contact, it's not a tap
+"Tapping" or "tap-to-click" is the name given to the behavior where a short
+finger touch down/up sequence maps into a button click. This is most
+commonly used on touchpads, but may be available on other devices.
 
 libinput implements tapping for one, two, and three fingers, where supported by the hardware, and maps those taps into a left, right, and middle button click, respectively. Not all devices support three fingers, libinput will support tapping up to whatever is supported by the hardware. libinput does not support four-finger taps or any tapping with more than four fingers, even though some hardware can distinguish between that many fingers.
-
-libinput also supports "tap-and-drag" where a tap immediately followed by a finger down and that finger being held down emulates a button press. Moving the finger around can thus drag the selected item on the screen. Lifting the finger and putting it back down immediately (i.e. there is a timeout) will continue the dragging process, so that multiple touchpad-widths of distance can be covered easily. If two-fingers are supported by the hardware, a second finger can be used to drag while the first is held in-place.
 
 Tapping is **disabled** by default, see [this commit](http://cgit.freedesktop.org/wayland/libinput/commit/?id=2219c12c3aa45b80f235e761e87c17fb9ec70eae) because:
 
 * if you don't know that tapping is a thing (or enabled by default), you get spurious button events that make the desktop feel buggy.
 * if you do know what tapping is and you want it, you usually know where to enable it, or at least you can search for it.
 
+## Tap-and-drag
+
+libinput also supports "tap-and-drag" where a tap immediately followed by a finger down and that finger being held down emulates a button press. Moving the finger around can thus drag the selected item on the screen. Lifting the finger and putting it back down immediately (i.e. there is a timeout) will continue the dragging process, so that multiple touchpad-widths of distance can be covered easily. If two-fingers are supported by the hardware, a second finger can be used to drag while the first is held in-place.
+
+## Enabling tapping
 
 The libinput configuration interface allows a caller to enable tapping on a per-device basis:
 
@@ -25,3 +25,14 @@ The libinput configuration interface allows a caller to enable tapping on a per-
     if (max_tapping_fingers > 0)
        libinput_device_config_tap_set_enabled(dev, LIBINPUT_CONFIG_TAP_ENABLED);
 </pre>
+
+# General implementation notes
+
+A couple of constraints apply to the contact to be converted into a press, the most common ones are:
+
+* the touch down and touch up must happen within an implementation-defined timeout
+* if a finger moves more than an implementation-defined distance while in contact, it's not a tap
+* tapping within [[Clickpad software buttons|/Software/libinput/clickpad-softbuttons]] may not trigger an event
+* a tap not meeting required pressure thresholds can be ignored as accidental touch
+* a tap exceeding certain pressure thresholds can be ignored (see [[Palm detection|/Software/libinput/palm-detection]]) 
+* a tap on the edges of the touchpad can usually be ignored (see [[Palm detection|/Software/libinput/palm-detection]])
