@@ -1,0 +1,59 @@
+This page is here to give some high-level information about libinput's implementation. It is considered valid at the time of writing, but may be slightly out of date. The goal is to give an overview of how things connect together rather than describe what the code does.
+
+# libinput architecture overview
+
+libinput is split into four levels:
+
+* libinput core/glue code
+* seat code (udev and path)
+* evdev device code
+* device-specific backends
+
+## libinput core/glue code
+The libinput code is the glue that connects the public API with libinput's internals. Most of that is safety checking and wrapping of internal data structures around what the public API expects.
+
+The other half of the core code is generic helpers. This includes timer helpers, the pointer acceleration code.
+
+Files: libinput.c, timer.c, filter.c
+
+## seat code
+Seats are the central element to be initialized, everything else is based off the seat. As such, the seats are the effective entry points and everything else is largely triggered by the device discovery employed by the seat.
+
+We currently support two seat types: udev and path. A udev seat simply initializes all devices on given SEAT_ID. The path seat requires all devices to be manually added with a path.
+
+Beyond device discovery, seats do very little.
+
+Files: udev-seat.c, path-seat.c
+
+## evdev device code
+The evdev device code is the central code for handling events. It initializes devices nad picks the device-specific backend, if any.
+
+The general approach for event handling is that of a dispatch method: the
+device initializes and sets a dispatch interface (touchpad, tablet, default,
+...). Events are passed to the dispatch interface where they are converted to
+libinput events. The evdev code also provides the functions then used by the
+dispatch interfaces to pass events up to the libinput glue code.
+
+The split into various dispatch interfaces is simply for the various different
+requirements of the devices. Touchpad code is more complex than mouse code, it
+needs features that mice don't support.
+
+Files: evdev.c
+
+## device-specific backends
+
+Unless a device-specific backend is picked (e.g. touchpads, tablets, ...), the
+dispatch interface is the fallback_interface. That interface handles normal
+devices like mice and keyboards but also touchscreens.
+
+Files: evdev.c
+
+For touchpads, a custom dispatch interface is initialized. That interface
+handles [[Tap-to-click behavior|/Software/libinput/tapping]], [[clickpad software buttons|/Software/libinput/clickpad-softbuttons]], [[Palm detection|/Software/libinput/palm-detection]], etc.
+
+Files: evdev-mt-touchpad-*.c
+
+Still on a branch at the time of writing, the tablet interface handles
+graphics tablets (Wacom tablets).
+
+Files: evdev-tablet*.c
