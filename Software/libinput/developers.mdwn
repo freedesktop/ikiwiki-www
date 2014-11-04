@@ -57,3 +57,15 @@ Still on a branch at the time of writing, the tablet interface handles
 graphics tablets (Wacom tablets).
 
 Files: evdev-tablet*.c
+
+# internal notification system
+
+libinput has an internal notification system to tell other devices what happens. This notification system is part of the various dispatch interfaces and used exclusively internally. It's added on a as-needed basis and does not affect the public API.
+
+The need is triggered by enable/disable certain behaviors, e.g. disabling the touchpad when the trackstick is in use.
+
+* device_added/device_removed: notifies all existing devices that a device was added or removed, and notifies the new device of all existing devices. We can't guarantee the order devices are added to libinput. Used on startup as well as for hotplugging. Allows for things like: turn off the touchpad when a mouse is newly/already plugged in
+* device_suspended/device_resumed: notification system that a device was suspended/resumed for whatever reason. Some devices can be disabled on demand, this allows handling this from other devices. Allows for things like: route touchpad [[top software buttons|/Software/libinput/t440-support]] through the trackstick when the device is suspended.
+* tag_device: attach a tag to the device to identify it internally. Allows for things like: identify an external mouse to then disable the touchpad
+
+Another internal notification API are libinput_event_listeners. These are not part of the dispatch interface but on the side. They enable devices to listen in on each other. Allows for things like: disable touchpad tapping while a trackstick is used.
