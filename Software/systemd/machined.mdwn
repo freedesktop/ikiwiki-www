@@ -123,6 +123,8 @@ The service exposes the following interfaces on the Manager object on the bus:
           Terminate();
           Kill(in  s who,
                in  s signal);
+          GetAddresses(out a(iay) addresses);
+          GetOSRelease(out a{ss} fields);
         signals:
         properties:
           readonly s Name = 'fedora-tree';
@@ -130,11 +132,12 @@ The service exposes the following interfaces on the Manager object on the bus:
           readonly t Timestamp = 1374193370484284;
           readonly t TimestampMonotonic = 128247251308;
           readonly s Service = 'nspawn';
-          readonly s Scope = 'machine-fedora\\x2dtree.scope';
+          readonly s Unit = 'machine-fedora\\x2dtree.scope';
           readonly u Leader = 30046;
           readonly s Class = 'container';
-          readonly s State = 'running';
           readonly s RootDirectory = '/home/lennart/fedora-tree';
+          readonly ai NetworkInterfaces = [7];
+          readonly s State = 'running';
       };
       interface org.freedesktop.DBus.Properties {
       };
@@ -146,7 +149,9 @@ The service exposes the following interfaces on the Manager object on the bus:
 
 ### Methods
 
-**Terminate()** and **Kill()** terminate/kill the machine, and take the same arguments as TerminateMachine() and KillMachine() on the manager interface.
+**Terminate()** and **Kill()** terminate/kill the machine, and take the same arguments as TerminateMachine() and KillMachine() on the Manager interface.
+
+**GetAddresses()** and **GetOSRelease()** get IP address and OS release information from the machine, and take the same arguments as GetMachineAddresses() and GetMachineOSRelease() of the Manager interface, described above.
 
 ### Properties
 
@@ -164,9 +169,11 @@ The service exposes the following interfaces on the Manager object on the bus:
 
 **Class** is the class of the machine and either the string "vm" (for real VMs based on virtualized hardware) or "container" (for light-weight userspace virtualization sharing the same kernel as the host).
 
-**State** is the state of the machine, and one of "opening", "running", "closing". Note that the state machine is not considered part of the API and states might be removed or added without this being considered API breakage.
-
 **RootDirectory** is the root directory of the container if that is known and applicable, or the empty string.
+
+**NetworkInterfaces** contains an array of network interface indexes that point towards the container or VM or the host. For details about this information see the description of **CreateMachineWithNetwork()** above.
+
+**State** is the state of the machine, and one of "opening", "running", "closing". Note that the state machine is not considered part of the API and states might be removed or added without this being considered API breakage.
 
 ---
 
