@@ -15,9 +15,10 @@ machined should **not** be used for registering/keeping track of application san
 Machines registered with machined are exposed in various ways in the system. For example:
 
  * Tools like "ps" will show to which machine a specific process belongs in a column of its own, and so will "gnome-system-monitor" or "systemd-cgls".
- * systemd's various tools (systemctl, journalctl, loginctl, hostnamectl, timedatectl, localectl, machinectl, ...) support the "-M" switch to operate on local containers. 
+ * systemd's various tools (systemctl, journalctl, loginctl, hostnamectl, timedatectl, localectl, machinectl, ...) support the "-M" switch to operate on local containers instead of the host system.
  * systemctl's "list-machines" command will show the system state of all local containers, connecting to the container's init system for that.
  * systemctl's "--recursive" switch has the effect of not only showing the locally running services, but recursively the services of all registered containers.
+ * The "machinectl" command provides access to a number of useful operations on registered containers, such as introspecting them, rebooting or shutting them down, or getting a login prompt on them.
  * The sd-bus API exposes the sd_bus_open_system_container() call to connect to the system bus of any registered container
  * The nss-mymachines module makes sure all registered containers can be resolved via normal glibc gethostbyname() or getaddrinfo()
 
