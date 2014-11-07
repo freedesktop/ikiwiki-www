@@ -1,0 +1,79 @@
+# Two-finger scrolling
+
+The default on two-finger capable touchpads (almost all modern touchpads are
+capable of detecting two fingers). Scrolling is triggered by two fingers
+being placed on the surface of the touchpad, then moving those fingers
+vertically or horizontally.
+
+<pre>
++---------------------------+   +---------------------------+
+|                           |   |                           |
+|            ^              |   |                           |
+|       ___  | ___          |   |       ___    ___          |
+|      // \\ |// \\         |   |   <--// \\--// \\---->    |
+|      \\__\\|\\__\\        |   |      \\__\\ \\__\\        |
+|       \    \ \    \       |   |       \    \ \    \       |
+|        \   v\ \    \      |   |        \    \ \    \      |
++---------\    \-\    \-----+   +---------\    \-\    \-----+
+
+      Vertical scrolling            Horizontal scrolling
+</pre>
+
+For scrolling to trigger, a built-in distance threshold has to be met but once
+engaged any movement will scroll. In other words, to start scrolling a
+sufficiently large movement is required, once scrolling tiny amounts of
+movements will translate into tiny scroll movements.
+
+Scrolling in both directions at once is possible by meeting the required
+distance thresholds to enable each direction separately.
+
+# Edge scrolling
+
+On some touchpads, edge scrolling is available, triggered by moving a single
+finger along the right edge (vertical scroll) or bottom edge (horizontal
+scroll).
+
+<pre>
++--------------------------+      +---------------------------+
+|                        ^ |      |                           |
+|                        | |      |                           |
+|                        |_|      |                           |
+|                       // \\     |                           |
+|                       \\__\\    |                           |
+|                        \    \   |         ___               |
+|                        v\    \  |   <----// \\----------->  |
++--------------------------\    \ +--------\\__\\-------------+
+                                            \    \
+
+      Vertical scrolling            Horizontal scrolling
+</pre>
+
+Due to the layout of the edges, diagonal scrolling is not possible.
+
+Edge scrolling conflicts with
+[[Clickpad software buttons|/Software/libinput/clickpad-softbuttons]] and is
+not usually available on clickpads.
+
+# On-Button scrolling
+
+Scrolling when a button is held down is available on selected devices. The
+motion of a device is converted into scrolling motion 
+
+For example, Lenovo devices provide a
+[pointing stick](http://en.wikipedia.org/wiki/Pointing_stick) that emulates
+scroll events when the trackstick's middle mouse button is held down.
+
+<pre>
+
+     +---+---+---+---+          ^
+     | F | G_|_H | J |          | 
+   +-+-+-+-// \\-+-+-+-+    <---|---> scroll movement
+   | C | V \\__\\N | M |        |
+   +---+---+\    \-+---+        v
+             \    \ 
+
+       +----+-_-+----+
+       |    // \\    |
+       +---//__//----+
+          /    / 
+</pre>
