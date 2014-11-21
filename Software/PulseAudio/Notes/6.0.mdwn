@@ -1,0 +1,457 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
+
+# PulseAudio 6.0 Release Notes
+
+## Changes at a Glance
+
+## Notes for Application Developers
+
+## Notes for Packagers
+
+## Changes in More Detail
+
+## git shortlog
+
+Alexander Couzens (2):
+      tunnel-new: add un/corking to the state change callback
+      tunnel-new: remove uncorking in thread_func. Now handled by state change callback.
+
+Alexander E. Patrakov (10):
+      Fix a few "it's -> its" typos
+      Name HDMI outputs uniquely
+      core-util: Remove redundant check of directory permissions
+      build-sys: Eliminate _FORTIFY_SOURCE warnings
+      resampler: Support speex resampler compiled with FIXED_POINT
+      source, sink: Support weird sample rates
+      rtp-recv: fix crash on empty UDP packets (CVE-2014-3970)
+      alsa: Add extra HDMI mappings
+      resampler: Moved speex_is_fixed_point() to speex.c
+      resampler: Changed style of includes
+
+Alexander Kurtz (1):
+      vala: Add bindings for libpulse-simple
+
+Alexander Potashev (1):
+      i18n: Update Russian translation
+
+Andrey Semashev (1):
+      resampler: Fix sample_format_more_precise() for the case of comparing against PA_SAMPLE_S32BE
+
+Arun Raghavan (8):
+      gconf: Remove unused variable
+      gconf: Avoid calling deprecated function if possible
+      echo-cancel: Fix drift timer restart logic across suspend
+      srbchannel: Trivial whitespace and style fixes
+      srbchannel: Fix documentation error
+      pulse: Initalise pa_threaded_mainloop with zeroes
+      creds: Rename pa_ancil to pa_cmsg_ancil_data
+      bluetooth: Fix some native backend command sending
+
+Bradley Broom (2):
+      core-util: Call fchown() only when necessary
+      default.pa: Use freedesktop theme sounds in sample examples
+
+Colin Guthrie (8):
+      man: Fix XDG_RUNTIME_DIR variable reference.
+      build-sys: Clarify some systemd sub-component variable/define names.
+      build-sys: Add support for newer systemd without compatibility libs
+      socket-server: Add support for systemd socket activation.
+      launch: Avoid specifically starting PA and rely on autospawn/socket activation
+      launch: Add systemd units for launching pulseaudio user instances
+      launch: Disable autospawn by default when systemd daemon support is enabled.
+      build-sys: Minor cosmetic tidyup of configure summary
+
+David Henningsson (59):
+      alsa-mixer: Fix Analog Input showing up on USB Headset
+      sink/source: Initialize port before fixate hook (fixes volume/mute not saved)
+      module-switch-on-port-available: Don't switch profiles on uninitialized cards
+      module-switch-on-port-available: Use port->card pointer
+      module-switch-on-port-available: Use new find best port function
+      pstream: Use pa_xnew0 in initialization
+      fdsem: remove superfluous parameter in call to pa_fdsem_new_shm
+      fdsem: Use atomic.h
+      channelmap: Add 2.1 surround
+      alsa-mixer: Add surround 2.1 profile
+      po: Add two files to POTFILES.in
+      module-rescue-streams: Fixup previous patch w r t fallback sink/sources
+      creds: Add struct for ancillary data
+      iochannel/pstream/pdispatch: Add support for receiving file descriptors
+      iochannel/pstream: Support sending file descriptors
+      srbchannel: Add the shared ringbuffer object
+      shm: Allow to open shm in writable mode
+      memblock, pstream: Allow send/receive of remote writable memblocks
+      core: Add a second rw mempool
+      pstream: Allow reading/writing through srbchannel
+      Protocol, client: Add commands to enable srbchannel
+      protocol-native: Enable srbchannel
+      tests: Add pstream/srbchannel test
+      creds: Unbreak build without HAVE_CREDS
+      alsa: Add "exact-channels" mapping configurability
+      alsa: Allow "fallback" configuration for mappings and profiles
+      alsa: Add a multichannel fallback mapping
+      alsa: Remove four channel input profile
+      conf-parser: Add debug print of parsed files
+      sink/source: Fix restore of volume on devices without hw volume
+      resampler: Remove duplicate forward declaration of pa_resampler
+      Make all debug/info level messages untranslatable
+      Replace "authorization" with "authentication"
+      alsa-mixer: Improve workaround for Valgrind's false warnings
+      core-util: Fail if XDG_RUNTIME_DIR belongs to someone else
+      configure: Fix spelling of "backend"
+      alsa-util: Add functions for accessing mixer elements through mixer class
+      alsa-mixer/card: Move to use the new mixer interface
+      alsa: Remove unnecessary hctl handles being passed around
+      alsa-time-test: Add fillrate parameter
+      alsa-time-test: Do not use Lennart's card by default
+      alsa-time-test: Make constants for channels and rate
+      srbchannel: Defer reading when setting up read callback
+      module-mmkbd-evdev: Don't crash on failure to close fd
+      connect-stress-test: Fix number of streams per sink to "20"
+      memblockq: Do not allow non-frame indices in the memblock queue
+      stream: Fail on client submitting non-frame-aligned memblocks
+      protocol-native: Fail if trying to push unaligned memblock into queue
+      configure: Remove "WIBBLE" test
+      pstream-util: Fix build on freebsd
+      module-card/device-restore: Do not legacy load an empty entry
+      alsa-mixer: Add support for "Headphone+LO" and "Speaker+LO"
+      rtpoll: Fixup pa_rtpoll_run
+      bluez 5: Build both headset backends, if available
+      bluez 5: Load the native headset backend if the oFono one is unavailable
+      bluez 5: Fix a debug message
+      bluez 5: remove null headset backend
+      bluetooth: Select headset backend through module argument
+      dbus-iface: Initialize "new_active" variable to NULL
+
+Dimitris Spingos (1):
+      i18n: Update Greek translation
+
+Dusan Kazik (1):
+      i18n: Add Slovak translation
+
+Dušan Kazik (1):
+      i18n: Update the Slovak translation
+
+Evan Nemerson (1):
+      client-conf: add missing directory to pulse/client-conf.x11.h include
+
+Felipe Sateler (2):
+      zsh-completion: Fix completion for default sink/source
+      util: Try finding out application name using dladdr if available
+
+Hemanth Meenakshisundaram (1):
+      combine-sink: fix zero adjust_time behaviour.
+
+Hui Wang (3):
+      rescue-streams: try to find best one using availability and priority
+      module-switch-on-connect: add an argument for conditionally connecting
+      module-switch-on-port-available: make the output more accurate
+
+James Bunton (2):
+      bluetooth: Don't abort on SBC decoding error
+      bluetooth: Fix timing to count based on decoded data
+
+Javier Jardón (2):
+      build-sys: Use AM_CPPFLAGS instead of AM_CFLAGS for preprocessor arguments
+      build-sys: Add -fdiagnostics-color=auto to CFLAGS
+
+Joe Marcus Clarke (1):
+      daemon: Don't try to lock and synchronise threads on (k)FreeBSD
+
+João Paulo Rechi Vita (21):
+      bluetooth: Fix lines going over column 128
+      bluetooth: Change BlueZ 5 card profile name from a2dp to a2dp_sink
+      bluetooth: Rename variable to improve code readability
+      bluetooth: Notify the main thread of a stream fd HUP
+      bluetooth: Add basic support for HEADSET profiles
+      bluetooth: Add BlueZ 5 headset profile names in policy module
+      bluetooth: Create NULL backend
+      bluetooth: Create oFono backend
+      bluetooth: Monitor D-Bus signals
+      bluetooth: Create hf_dbus_send_and_add_to_pending() for oFono backend
+      bluetooth: Register/Unregister Handsfree Audio Agent with oFono
+      bluetooth: List HandsfreeAudioCard objects from oFono
+      bluetooth: Parse HandsfreeAudioCard properties
+      bluetooth: Implement transport acquire for hf_audio_agent transports
+      bluetooth: Implement transport release for hf_audio_agent transports
+      bluetooth: Track oFono service
+      bluetooth: Handle CardAdded signal
+      bluetooth: Handle CardRemoved signal
+      bluetooth: Implement org.ofono.HandsfreeAudioAgent.Release()
+      bluetooth: Implement org.ofono.HandsfreeAudioAgent.NewConnection()
+      bluetooth: Switch transport state to idle in case of HUP
+
+Juho Hämäläinen (1):
+      dbus: Use correct initialization for source ports hashmap.
+
+Luiz Augusto von Dentz (6):
+      bluetooth: Assert transport has a matching profile
+      bluetooth: Add pa_bluetooth_transport_set_state
+      bluetooth: Add pa_bluetooth_transport_unlink
+      bluetooth: Only create backend instance once objects are listed
+      bluetooth: Add discovery to pa_bluetooth_backend_new
+      bluetooth: Allow policy module to pick 'off' profile
+
+Lukas Peleska (1):
+      jack: made it possible to use multiple jack sources and sinks
+
+Lukasz Marek (1):
+      Client API: Add pa_stream_write_ext_free() function.
+
+Mauro Guerrera (1):
+      build-sys: Fix daemon linking when building with systemd-daemon support
+
+Michał Górny (1):
+      build-sys: Alias bash-completion for all PulseAudio commands
+
+Niels Ole Salscheider (1):
+      virtual-surround-sink: Move normalization heuristic to its own function
+
+Pali Rohár (1):
+      bluetooth: bluez4: Add profile name to sinks and sources
+
+Parin Porecha (1):
+      pactl: Allow to set volume of each channel independently (Bug #39190)
+
+Pete Beardmore (1):
+      alsa: Use card description in default sink/source prefix when available
+
+Peter Meerwald (99):
+      doc: Fix a couple of 'to to' typos
+      doc: Fix pa_stream_set_latency_update_callback() documentation
+      tunnel-source-new: Fix shadow compiler warning
+      doc: Use correct parameter name wait_for_accept in documentation of pa_threaded_mainloop_signal()
+      core: add missing SET_PORT_LATENCY_OFFSET to dispatcher opcode string table
+      doc: Use \since doxygen command correctly in mainloop-api.h
+      doc: Fix some typos/wording in man/pulse-daemon.conf.5
+      man: Fix typos in pulse-daemon.conf.5.xml.in
+      pactl: Stop parsing option when the first non-option is encountered
+      pactl: Check consistency of volumes specified
+      pactl: Document ability to specify channel volumes individually
+      pactl: Clean up checking for VOL_RELATIVE flag
+      sconv: Cleanup ARM NEON code
+      pacat: Mention source in addition to sink where applicable in help
+      remap: Don't use PA_VOLUME_NORM
+      remap: Rename pa_init_remap() to pa_init_remap_func()
+      remap: Refactor channel remap table computation calc_map_table()
+      remap: Make resampler's remap structure more self-contained
+      remap: Split remapping functions into s16 and float implementation
+      remap: Use float constant instead of double
+      remap: Add helper function to setup channel arrangement information
+      remap: Cleanup remap function selection, add pa_set_remap_func() helper
+      remap: Change remapping function argument type from void to int16_t / float as appropriate
+      remap: Add (optional) state to remap struct
+      remap: Add special remapping case which just re-arranges channels
+      remap: Add stereo to mono and 4-channel special case remapping
+      mix: Add special-case ARM NEON code for s16 mixing
+      core: Distinguish Cortex processors: A8 vs later (A9, A15)
+      remap: Add ARM NEON optimized remapping and rearrange code
+      core: Initialize ARM NEON remapping code if available
+      tests: Adapt memblock-test to changed pa_memimport_get()
+      core: Misc srbchannel cleanup
+      core: Add SRBCHANNEL command names for debug
+      mix: Fix mixing of S24 samples stored as S32RE
+      sconv: Use optimized conversion function for both directions
+      tests: Cleanup mix-test
+      endianmacros: Fix PA_MAYBE_INT16_SWAP() macro
+      tests: Fix mix-test on big-endian systems
+      util: Fix pa_get_binary_name() on Debian/kFreeBSD
+      remap: Add 4-channel to mono channel rearrangement
+      tests: Add *.log and *.trs to src/.gitignore
+      echo-cancel: Fix spelling of canceller
+      misc: Fix format specifiers
+      core-util: Avoid warnings when missing certain system calls
+      tests: Check expected result of sigbus-test
+      memtrap: Debian/kFreeBSD seems to signal SIGSEGV, not SIGBUS
+      srbchannel: Cleanup when pa_fdsem_open_shm() fails
+      srbchannel: pa_srbchannel_new() may fail
+      context: Stop and return if srbchannel memblock looks fishy
+      context: Handle client-side failure of pa_srbchannel_new_from_template()
+      format: Don't _put() objects obtained with json_object_object_get() or json_object_array_get_idx()
+      format: Use json_object_object_get_ex() instead of deprecated json_object_object_get()
+      build-sys: Drop support for json 0.9
+      format: Don't use deprecated json-c is_error() macro
+      daemon: Debian/kFreeBSD 9.2 fails to compile due to caps
+      svolume: Make volume pointer parameter const for pa_volume_float32re_c()
+      endianmacros: Replace borked PA_FLOAT32_SWAP() with PA_READ_FLOAT32RE() / PA_WRITE_FLOAT32RE()
+      core: Add pa_cpu_init() / cpu.c
+      cpu: Don't check for both x86 and ARM code
+      cpu: Add force_generic_code flag to cpu_info struct
+      tests: Split cpu tests in separate files
+      tests: Use single-line #ifdef for ARM NEON code
+      tests: Add tests for mix special-case code
+      tests: Add ARM NEON test code to cpu-mix-test
+      tests: Use remap function passed in remap struct
+      tests: Reorganize cpu-remap-test program
+      tests: Add to remapping special case code tests to cpu-remap-test
+      tests: Add rearrange remapping test cases to cpu-remap-test
+      tests: Add ARM NEON test code to cpu-remap-test
+      tests: Use float constants in cpu-sconv-test
+      tests: Remove mix-special-test
+      Remove link to CIA from README
+      Cleanup !! for bool
+      mainloop: Fix typo
+      modules: Fix )== typos
+      alsa-sink: Check for after-avail is redundant
+      tests: Make global variables static in srbchannel-test
+      tests: Be careful with data types to avoid cast
+      rtpoll: typo
+      pactl: Remove deprecated 'stat' behaviour
+      resampler: Drop pointless remix variable
+      asyncmsgq: Drop weird assert
+      pstream: Duplicate assignment, write.data is always NULL
+      mix: Make use of pa_cvolume_is_norm/muted() macros
+      log: Cleanup
+      core: Replace assert()s with pa_assert()s
+      alsa: Precompute maximum frames per block
+      iochannel: Remove unnecessary zero-initialization
+      mix: pa_mix() is always called with more than one steam
+      mix: Length over all chunk has already been computed by the caller
+      rtpoll: Fix condition for DEBUG_TIMING output
+      rtpoll: Drop extra wait_op argument to pa_rtpoll_run()
+      alsa-util: Finish description of pa_alsa_set_hw_params()
+      build-sys: Deprecate libsamplerate support
+      macro: Abort() when pa_assert_not_reached() even for NDEBUG
+      macro: Add macro PA_UNUSED
+      core: Annotate variables only used within assert()s to be PA_UNUSED
+      tests: Use pa_assert_se() to get rid of an used variable warning
+      alsa-mixer: Use pa_assert_not_reached()
+
+Peter Ujfalusi (1):
+      alsa-util: Reset hwparams_copy before the second try of buffer setup
+
+Pierre Ossman (6):
+      protocol-native: Early request bandaid for high latency sink/source
+      build-sys: don't build raop modules on win32 as they need librtp
+      mainloop: avoid race-y double wakeup status
+      poll: don't use shared event in Windows pa_poll()
+      poll: don't let select() block on Windows
+      daemon: get rid of win32 message timer
+
+Rafael Ferreira (1):
+      i18n: Updated Brazilian Portuguese translation
+
+Rex Dieter (2):
+      daemon: consolidate startup scripts
+      daemon: ensure pulseaudio early startup on kde
+
+Ricardo Salveti de Araujo (3):
+      daemon-conf: changing default rlimit_rttime value to 200 ms
+      module-stream-restore: use entry_write when filling up the database
+      vala: adding missing fields for sink_input/source_output info struct
+
+Sajeesh Sidharthan (1):
+      core: Closing proper file descriptor when pipe creation fails
+
+Sjoerd Simons (3):
+      alsa-mixer: recognize Dock headphone jack
+      alsa-mixer: Disable line-out if headphone jack is plugged
+      Alsa: Correct port availability with multiple jacks
+
+Tanu Kaskinen (90):
+      Remove all references to the removed KDE files
+      alsa: Remove a redundant check
+      pactl: Fix a copy-paster error
+      tunnel: Fix inverted if condition
+      volume: Increase PA_SW_VOLUME_SNPRINT_DB_MAX
+      mainloop-api: Improve pa_mainloop_api_once() documentation
+      core-util: Make pa_yes_no() translatable
+      pacat: Fix partially translated message
+      zeroconf-publish: Add locking around pa_mainloop_api_once()
+      zeroconf-publish: Don't react to messages while shutting down
+      doxygen: Update the configuration file
+      direction: Add a couple of direction helper functions
+      introspect: Use pa_direction_valid() to validate port direction
+      pactl: Fix crash with older servers
+      util: Check that the home dir is an absolute path
+      client-conf: Remove redundant function parameters
+      client-conf: Don't create multiple cookie files
+      zeroconf-publish: Don't assume any particular defer event ordering
+      hashmap: Add pa_hashmap_remove_and_free()
+      Use pa_hashmap_remove_and_free() where appropriate
+      doxygen: Enable GENERATE_DEPRECATEDLIST
+      sink-input, source-output: Fix mute saving
+      sink, source: Assign to reference_volume from only one place
+      sink-input, source-output: Assign to volume from only one place
+      sink, source: Return early from set_mute()
+      sink-input, source-output: Add logging to set_mute()
+      sink, source: Allow calling set_mute() during initialization
+      echo-cancel: Remove redundant get_mute() callback
+      sink, source: Call set_mute() from mute_changed()
+      sink, source: Assign to s->muted from only one place
+      sink-input, source-output: Remove redundant get_mute() functions
+      solaris, tunnel: Remove some redundant boolean conversions
+      sink, source: Add hooks for volume changes
+      sink-input, source-output: Add hooks for volume changes
+      sink, source: Add hooks for mute changes
+      sink-input, source-output: Add hooks for mute changes
+      bluetooth: Remove redundant assignments
+      bluetooth: Fix a copy-paste error in log message
+      resampler: Remove prefix from static functions
+      shell-completion: Add completion for parec
+      bluetooth: Add "valid" flag to pa_bluetooth_adapter
+      bluetooth: Refactor device validity management
+      combine-sink: Make the latency range calculation easier to read
+      combine-sink: Add a convenience variable
+      combine-sink: Fix the initial requested latency of new outputs
+      combine-sink: Rearrange block_usec initialization
+      client-conf: Don't report failure from pa_client_conf_load()
+      client-conf: Move x11 and env loading to pa_client_conf_load()
+      authkey: Remove pa_authkey_load(), it's redundant
+      authkey: Rename pa_authkey_load_auto() to pa_authkey_load()
+      core-util: Add pa_append_to_home_dir()
+      esound, native: Pass an absolute path to pa_authkey_load() when using a file in the home directory
+      core-util: Add pa_get_config_home_dir()
+      core-util: Add pa_append_to_config_home_dir()
+      authkey: Use the config home dir for relative paths
+      bluetooth: Refactor POLLHUP handling
+      device-manager: Add a comment about non-extensible struct
+      .gitignore: Add srbchannel-test
+      simple: Take locally buffered data into account in pa_simple_get_latency()
+      sink-input, source-output: Assign to reference_ratio from a single place
+      shell-completion: Install the Zsh completions
+      shell-completion: zsh: Move duplicated code into a function
+      shell-completion: zsh: Support also --server in remote detection
+      shell-completion: zsh: Don't say "this help" when it's a different help
+      shell-completion: zsh: Don't use multiple option sets for one command
+      shell-completion: zsh: Use -S and -A with _arguments
+      shell-completion: zsh: Add "=" to the end of some command options
+      alsa-mixer: Fix path subset detection
+      device-restore: Sync the database on unload
+      raop: Don't use incompatible default sample spec parameters
+      bluetooth: Always initialize profile->available
+      device-manager: Don't allow setting an empty description in the client API
+      alsa-mixer: Mark "Line HP Swap" as required-any
+      Add a Valgrind suppression file
+      core-util: Add pa_unset_env()
+      switch-on-connect: Initialize userdata contents to zero
+      tunnel-sink-new: Limit the maximum latency to 200 ms
+      bluetooth: Move stuff to pa_bluetooth_transport_put/unlink()
+      tunnel-sink-new: Fix requested latency check
+      shell-completion: zsh: Mark a variable as local
+      shell-completion: zsh: Rework pactl completion
+      alsa-mixer: Merge analog-output-desktop-speaker with analog-output-speaker(-always)
+      alsa-mixer: Ignore some elements in the analog-output path
+      socket-server: Improve readability
+      build-sys: Fix a variable value check
+      .gitignore: Add pulseaudio.service
+      shell-completion: zsh: Fix set-default-sink/source completion
+      shell-completion: zsh: Fix the set-card-profile description
+      dbus: Fix the ActivePort property handler
+      raop: Fix a memory leak
+
+Wim Taymans (9):
+      device-restore: log restored mute state
+      combine-sink: rework output add/remove
+      combine-sink: add support for DYNAMIC_LATENCY
+      configure: fix headset check
+      bluez5-device: use get_profile_direction
+      bluez5-util: add destroy function
+      backend-native: add a new native headset backend
+      backend-native: implement volume control
+      bluetooth: set gain correctly
+
+Yuri Chornoivan (1):
+      Update Ukrainian translation
+
+poljar (Damir Jelić) (1):
+      resampler: Split the resampler implementations into separate files
