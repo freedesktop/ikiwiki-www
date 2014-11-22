@@ -18,11 +18,9 @@ Work in progress / draft. To be completed before actual release
 
 ## Notes for Packagers
 
-### extra-hdmi.conf has been removed, requires reboot to update
+extra-hdmi.conf, which was present in 5.0 and a few versions before that, has been merged with default.conf. The udev rule has been updated accordingly, but since these are typically only read at boot time, running PulseAudio 6.0 without rebooting first can cause your sound card not to be detected. As an option, one can instead create a symlink from extra-hdmi.conf to default.conf.
 
-extra-hdmi.conf, which was present in 5.0 and a few versions before that, has been merged with default.conf. The udev rule has been updated accordingly, but since these are typically only read at boot time, running PulseAudio 6.0 without rebooting first can cause your sound card not to be detected.
-
-As an option, one can instead create a symlink from extra-hdmi.conf to default.conf.
+start-pulseaudio-kde has been merged into start-pulseaudio-x11 and pulseaudio-kde.desktop has been removed. The only thing that those KDE specific files did was to load module-device-manager at session startup, and that is now handled in start-pulseaudio-x11 (it's still done only for KDE sessions).
 
 ## Changes in More Detail
 
