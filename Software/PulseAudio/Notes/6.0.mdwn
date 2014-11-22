@@ -16,6 +16,8 @@ Work in progress / draft. To be completed before actual release
 
 ## Notes for Application Developers
 
+We now have Vala bindings for libpulse-simple.
+
 ## Notes for Packagers
 
 extra-hdmi.conf, which was present in 5.0 and a few versions before that, has been merged with default.conf. The udev rule has been updated accordingly, but since these are typically only read at boot time, running PulseAudio 6.0 without rebooting first can cause your sound card not to be detected. As an option, one can instead create a symlink from extra-hdmi.conf to default.conf.
@@ -36,6 +38,10 @@ Some unscientific benchmarks show that this can save us ~10% - 25% of CPU power 
 Some multichannel cards, including cards supported by the new Firewire ALSA drivers (merged in Linux 3.16) and some USB cards can only be opened in multichannel mode, e g 14 outputs and 10 inputs. If all existing attempts to open the device fails, we make a last attempt where the driver can choose number of channels freely. A default channel map for these channels is assumed.
 
 Also, ALSA 1.0.28 added better support for surround2.1 profiles. We now support this new syntax (surround21:*card*) where available.
+
+### Utility changes
+
+<tt>pactl</tt> now supports setting different volume for each channel of a device or stream.
 
 ## git shortlog
 
