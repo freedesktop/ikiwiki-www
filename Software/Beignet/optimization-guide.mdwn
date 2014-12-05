@@ -33,16 +33,35 @@ size. We have the following rules:
   platforms.
 
   If use SLM, here are a table:  
-
-  | Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
-  | WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
-
+    <table border=1 width=400>
+      <tr>
+          <th> Amount of SLM </td>
+          <td> 0 </td>
+          <td> 4K </td>
+          <td> 8K </td>
+          <td> 16K </td>
+          <td> 32K </td>
+      </tr>
+      <tr>
+          <th> Work Group Size </td>
+          <td> 16 </td>
+          <td> 64 </td>
+          <td> 128 </td>
+          <td> 256 </td>
+          <td> 512 </td>
+      </tr>
+    </table>
   If use both barrier and table, need to follow the larger one.
 
 Actually, a good method is to pass in a NULL local work size parameter to let the driver to determine the best work group size for you.
 
 Memory Access Optimizations
 ---------------------------
+
+Memory bandwidth requirement is a key factor for many workloads. Although the total memory read/write
+amount may be a constant for a specific algorithm, here are some tips to increase the cache efficiency
+and how to achieve the maximum read/write throughput capability.
+
 * Use shorter data type could get better performance. There are also some detail tips as below.
   * Use uchar16/ushort8/uint4 as much as possible.
   * If the data has to be DWORD(4 bytes) unaligned, it's better to use vload16(for char), vload8(for short) to load the data.
@@ -59,28 +78,29 @@ Memory Access Optimizations
   Currently, private buffer access in beignet backend is very slow. Many small private buffer could be optimized by the compiler.
   But the following type of dynamic indexed private buffer could not be optimized:
 
-  A bad example:  
+  The following example may bring major performance issue:
 
-```
+    <pre><code>
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        int dynamic_idx = src[xid];
        private_buffer[dynamic_idx % 10] = src1[xid];
        ...
      }
-```
+    </code></pre>
 
-  The following example is Ok for most cases:  
+  The following example will not bring performance issue:
 
-```
+    <pre><code>
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        private_buffer[xid % 32] = src1[xid];
        ...
      }
-```
+    </code></pre>
 
-* Use SLM to reduce the memory bandwidth requirement if possible.
+ 
+* Use SLM to reduce the host memory bandwidth requirement if possible.
   
   On Gen platform, SLM is in GPU's L3 cache, if it could be used to  
   share data between work items, it could reduce the memory bandwidth  
