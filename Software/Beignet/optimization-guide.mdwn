@@ -5,32 +5,61 @@ All the SIMD optimization principles such as avoid branching and don't waste
 SIMD lanes are also applied to Beignet optimization on Gen platform. Furthermore,
 there are some special tips for Beignet optimization.
 
-1. It is recommended to choose multiple of 16 work group size. Too much SLM usage may reduce parallelism at group level. 
-   If kernel uses large amount SLM, it's better to choose large work group size. Please refer the following table for recommendations
-   with some SLM usage.  
-  | Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
-  | WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
+Work Group Size Determination
+-----------------------------
 
-   Actually, a good method is to pass in a NULL local work size parameter to let the driver to determine the best work group size for you.
+The basic thoery here is to launch enough work to use as much as possible EUs to do the work. So basicly,
+we need to set a relatively large global work size. The difficult part is how to choose work group
+size. We have the following rules:
 
-1. Use shorter data type could get better performance. There are also some detail tips as below.
-  1. Use uchar16/ushort8/uint4 as much as possible.
-  1. If the data has to be DWORD(4 bytes) unaligned, it's better to use vload16(for char), vload8(for short) to load the data.
-  1. Read/write scalar char/short will be very slow and may lead to be even worse performance than use DW type.
+* Work group Size should be larger than 16 and be multiple of 16.
 
-1. Avoid too strided global/constant memory access.
+  As two possible SIMD lanes on Gen are 8 or 16. To not waste SIMD lanes, we need to follow this rule.
+
+* Need to set relatively large work group size if barrier or SLM are used.
+
+  Using barrier restricts the number concurent running work groups to 16 on each half-slice. But each half-slice could
+  emit 256-1024 work items according to different platforms. So if the work group size is too small, for example 16, then
+  only 16*16 work items could run on the half-slice, and may waste 3/4 of the computing resource on some platforms.
+
+  Using SLM also introduces such restrication and even worse if a kernel is using too much SLM. Each half-slice only has
+  64KB SLM. And each work group needs one additional SLM space. Let's do the math, if one work group needs 64KB, then the
+  whole half-slice could only run one work group one time. And if the work group size is 16, then we may waste 98% of the
+  computing resources on some platforms.
+
+* Some examples of work group
+
+  If use barrier, work group size should be equal or larger than 16 on baytrail and be equal or larger than 64 on other
+  platforms.
+
+  If use SLM, here are a table:
+| Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
+| WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
+
+  If use both barrier and table, need to follow the larger one.
+
+Actually, a good method is to pass in a NULL local work size parameter to let the driver to determine the best work group size for you.
+
+Memory Access Optimizations
+---------------------------
+* Use shorter data type could get better performance. There are also some detail tips as below.
+  * Use uchar16/ushort8/uint4 as much as possible.
+  * If the data has to be DWORD(4 bytes) unaligned, it's better to use vload16(for char), vload8(for short) to load the data.
+  * Read/write scalar char/short will be very slow and may lead to be even worse performance than use DW type.
+
+* Avoid too strided global/constant memory access.
   
   Some examples are as below (assume the data is a cache line aligned global/constant uint buffer, and the work group size is 16 with SIMD16 mode):  
   `uint x = data[get_global_id(0)];      //best, only read one cache line, no bandwidth waste`  
   `uint x = data[get_global_id(0) + 1]; //bad, cross 2 cache lines, not good, waste half of the bandwidth`  
   `uint x = data[get_global_id(0) * 16]; //worst, cross 16 cache lines, waste 15/16 bandwidth.`  
 
-1. Avoid dynamic indexed private buffer if possible.
+* Avoid dynamic indexed private buffer if possible.
   Currently, private buffer access in beignet backend is very slow. Many small private buffer could be optimized by the compiler.
   But the following type of dynamic indexed private buffer could not be optimized:
 
   A bad example:
-  ```
+```
      ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
@@ -38,26 +67,26 @@ there are some special tips for Beignet optimization.
        private_buffer[dynamic_idx % 10] = src1[xid];
        ...
      }
-  ```
+```
 
   The following example is Ok for most cases:
-  ```
+```
      ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        private_buffer[xid % 32] = src1[xid];
        ...
      }
-  ```
+```
 
-1. Use SLM to reduce the memory bandwidth requirement if possible.
+* Use SLM to reduce the memory bandwidth requirement if possible.
   
   On Gen platform, SLM is in GPU's L3 cache, if it could be used to  
   share data between work items, it could reduce the memory bandwidth  
   on the system memory bus. This will be a big win for many I/O intensity  
   kernels.
 
-1. Avoid SLM bank conflicts.
+* Avoid SLM bank conflicts.
 
   SLM is banked at a DWORD granularity, totally 16 banks. Access on the same
   bank with different addresses will lead to a conflicts. It should be avoided.
@@ -69,7 +98,7 @@ there are some special tips for Beignet optimization.
   `uint x = data[get_global_id(0) * 2]; //bad, work item (id) and (id + 8) conflict to each other, waste half of the bandwidth`  
   `uint x = data[get_global_id(0) * 16]; //worst, all work items conflicts on the zero bank, waste 15/16 bandwidth.`  
 
-1. Zero copy on buffer creation. (Only avaliable in git master branch and Release\_v1.0 branch).
+* Zero copy on buffer creation. (Only avaliable in git master branch and Release\_v1.0 branch).
 
   Use CL\_MEM\_USE\_HOST\_PTR to create buffer, and pass in a page
   aligned host pointer which also has multiple page size. Beignet
@@ -80,26 +109,28 @@ there are some special tips for Beignet optimization.
 
   Please be noted, this feature requires the kernel is newer than 3.16 and the libdrm version is newer than 2.4.57.
 
-1. Use float data type as much as possible.
+Miscellaneous
+--------
+* Use float data type as much as possible.
 
   The two ALUs of one EU could both handle float data,but only one of them could handle non-float type data.
 
-1. Avoid using long.
+* Avoid using long.
 
   GEN7 and Gen7.5 doesn't support long natively. And Gen8's native long support is still under development.
 
-1. Declare small constant buffer with content in the kernel if possible.
+* Declare small constant buffer with content in the kernel if possible.
 
   For a small constant buffer, it's better to declare it in the kernel directly with "const \_\_constant". The compiler may optimize it if the buffer is defined inside kernel.
 
-1. Avoid unnecessary synchronizations.
+* Avoid unnecessary synchronizations.
 
   Both in the runtime and in the kernel. For examples, clFinish and clWaitForEvents in runtime and barrier() in the kernel.
 
-1. Consider native version of math built-ins, such as native\_sin, native\_cos, if your kernel is not precision sensitive.
+* Consider native version of math built-ins, such as native\_sin, native\_cos, if your kernel is not precision sensitive.
 
-1. Use fma()/mad() as much as possible.
+* Use fma()/mad() as much as possible.
 
-1. Try to eliminate branching as much as possible.
+* Try to eliminate branching as much as possible.
 
   For example using min, max, clamp or select built-ins instead of if/else if possible.
