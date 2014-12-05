@@ -29,26 +29,26 @@ there are some special tips for Beignet optimization.
   Currently, private buffer access in beignet backend is very slow. Many small private buffer could be optimized by the compiler.
   But the following type of dynamic indexed private buffer could not be optimized:
 
-```c
-
+  A bad example:
+  ```
+     ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        int dynamic_idx = src[xid];
        private_buffer[dynamic_idx % 10] = src1[xid];
        ...
      }
-```
+  ```
 
-   The following case is OK.
-
-```c
+  The following example is Ok for most cases:
+  ```
      ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        private_buffer[xid % 32] = src1[xid];
        ...
      }
-```
+  ```
 
 1. Use SLM to reduce the memory bandwidth requirement if possible.
   
@@ -71,11 +71,11 @@ there are some special tips for Beignet optimization.
 
 1. Zero copy on buffer creation. (Only avaliable in git master branch and Release\_v1.0 branch).
 
-  Use CL\_MEM\_USE\_HOST\_PTR to create buffer, and pass in a page  
-  aligned host pointer which also has multiple page size. Beignet  
-  will leverage userptr to create a buffer object by using that  
-  host buffer directly. If possible, you can also use CL\_MEM\_ALLOC\_HOST\_PTR  
-  flag to let the driver to allocate a userptr qualified buffer which could  
+  Use CL\_MEM\_USE\_HOST\_PTR to create buffer, and pass in a page
+  aligned host pointer which also has multiple page size. Beignet
+  will leverage userptr to create a buffer object by using that
+  host buffer directly. If possible, you can also use CL\_MEM\_ALLOC\_HOST\_PTR
+  flag to let the driver to allocate a userptr qualified buffer which could
   guarantee zero copy on the buffer.
 
   Please be noted, this feature requires the kernel is newer than 3.16 and the libdrm version is newer than 2.4.57.
