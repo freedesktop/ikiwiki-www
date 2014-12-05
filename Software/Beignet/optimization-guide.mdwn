@@ -7,10 +7,9 @@ there are some special tips for Beignet optimization.
 
 1. It is recommended to choose multiple of 16 work group size. Too much SLM usage may reduce parallelism at group level. 
    If kernel uses large amount SLM, it's better to choose large work group size. Please refer the following table for recommendations
-   with some SLM usage.
-
-| Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
-| WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
+   with some SLM usage.  
+  | Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
+  | WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
 
    Actually, a good method is to pass in a NULL local work size parameter to let the driver to determine the best work group size for you.
 
@@ -30,26 +29,26 @@ there are some special tips for Beignet optimization.
   Currently, private buffer access in beignet backend is very slow. Many small private buffer could be optimized by the compiler.
   But the following type of dynamic indexed private buffer could not be optimized:
 
-`
+```c
+
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        int dynamic_idx = src[xid];
        private_buffer[dynamic_idx % 10] = src1[xid];
        ...
      }
-`
+```
 
    The following case is OK.
 
-`
+```c
      ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        private_buffer[xid % 32] = src1[xid];
        ...
      }
-`
-
+```
 
 1. Use SLM to reduce the memory bandwidth requirement if possible.
   
