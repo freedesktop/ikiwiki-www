@@ -34,8 +34,8 @@ size. We have the following rules:
 
   If use SLM, here are a table:  
 
-| Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
-| WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
+  | Amount of SLM | 0  | 4K | 8K  | 16K | 32K |  
+  | WorkGroup size| 16 | 64 | 128 | 256 | 512 |  
 
   If use both barrier and table, need to follow the larger one.
 
@@ -61,7 +61,7 @@ Memory Access Optimizations
 
   A bad example:  
 
-```
+```  
      ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
@@ -69,18 +69,18 @@ Memory Access Optimizations
        private_buffer[dynamic_idx % 10] = src1[xid];
        ...
      }
-```
+```  
 
   The following example is Ok for most cases:  
 
-```
+```  
      ...
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        private_buffer[xid % 32] = src1[xid];
        ...
      }
-```
+```  
 
 * Use SLM to reduce the memory bandwidth requirement if possible.
   
@@ -137,3 +137,4 @@ Miscellaneous
 * Try to eliminate branching as much as possible.
 
   For example using min, max, clamp or select built-ins instead of if/else if possible.
+
