@@ -61,26 +61,24 @@ Memory Access Optimizations
 
   A bad example:  
 
-```  
-     ...
+```
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        int dynamic_idx = src[xid];
        private_buffer[dynamic_idx % 10] = src1[xid];
        ...
      }
-```  
+```
 
   The following example is Ok for most cases:  
 
-```  
-     ...
+```
      uint private_buffer[32];
      for (i = 0; i < xid; i++)    {
        private_buffer[xid % 32] = src1[xid];
        ...
      }
-```  
+```
 
 * Use SLM to reduce the memory bandwidth requirement if possible.
   
