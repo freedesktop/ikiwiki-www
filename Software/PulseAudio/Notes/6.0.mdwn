@@ -29,12 +29,15 @@ start-pulseaudio-kde has been merged into start-pulseaudio-x11 and pulseaudio-kd
 
 ## Changes in More Detail
 
-### Protocol optimisations
+### Performance improvements
 
-PulseAudio has since long supported transferring audio data between clients and server through SHM (shared memory), whereas the packet metadata was sent through a unix socket. As of 6.0 we also support transferring packet metadata through two SHM ringbuffers, one in each direction. For signalling that a new packet has arrived, we use eventfds. (There is also an optimisation layer on top of the eventfd that tries to avoid writing to the eventfd in case no one is currently waiting.) This is not so much for saving memory copies, but to save syscalls.
-This new protocol mechanism is called **srbchannel**, short for "Shared RingBuffer channel".
+PulseAudio has since long supported transferring audio data between clients and server through SHM (shared memory), whereas the packet metadata was sent through a unix socket. As of 6.0 we also support transferring packet metadata through two SHM ringbuffers, one in each direction. For signalling that a new packet has arrived, we use eventfds. (There is also an optimisation layer on top of the eventfd that tries to avoid writing to the eventfd in case no one is currently waiting.) This is not so much for saving memory copies, but to save syscalls. This new protocol mechanism is called **srbchannel**, short for "Shared RingBuffer channel". Some unscientific benchmarks show that this can save us ~10% - 25% of CPU power in low latency use cases, half of that being on the client side.
 
-Some unscientific benchmarks show that this can save us ~10% - 25% of CPU power in low latency use cases, half of that being on the client side.
+Channel remapping has been optimized by replacing the generic implementation with specialized code for certain cases (implementations were done both in C and ARM NEON).
+
+ARM NEON implementation has been added for the special cases of mixing two 16-bit streams when both have 1, 2 or 4 channels.
+
+module-combine-sink now supports dynamic latency, so that applications that require low latency may work properly also with a combine sink.
 
 ### Better support for multichannel and 2.1 profiles
 
