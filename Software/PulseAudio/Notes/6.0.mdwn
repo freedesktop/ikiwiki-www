@@ -6,7 +6,7 @@ Work in progress / draft. To be completed before actual release
 
 ## Changes at a Glance
 
- * Bluez 5 HSP (headset profile) support, both with and without oFono
+ * Bluez 5 HSP (headset) and HFP (hands-free) profile support, both with and without oFono
  * SystemD socket activation support
  * Better support for multichannel and 2.1 profiles
  * Protocol optimisations
@@ -15,9 +15,17 @@ Work in progress / draft. To be completed before actual release
 
 ## Notes for Application Developers
 
+New function in libpulse: pa_stream_write_ext_free(). The function allows more flexible use of free callbacks than the regular pa_stream_write() function. This is useful if an audio buffer is part of a bigger structure that needs to be freed or unreferenced when the audio buffer is no longer needed.
+
 We now have Vala bindings for libpulse-simple.
 
 ## Notes for Packagers
+
+When building PulseAudio, it's possible to choose between "native" and "ofono" BlueZ 5 headset backends. They can be both enabled, but only one can be used at runtime. If you only need to support a bluetooth audio stack with oFono, then it's advisable to disable the native backend when building PulseAudio. Similarly, if you don't need to support oFono, then it's best to disable the oFono backend. If you need to support both alternatives, then you have to enable both. The runtime decision which to use is done via the "headset" argument of module-bluetooth-discover.
+
+The oFono backend for bluetooth naturally introduces a runtime dependency on oFono. The minimum supported oFono version is 1.13.
+
+The minimum json-c version has been bumped to 0.11.
 
 extra-hdmi.conf, which was present in 5.0 and a few versions before that, has been merged with default.conf. The udev rule has been updated accordingly, but these are typically only read at boot time, so in some cases your sound card might not to be detected. We suggest you do one of the following to fix this transitional problem:
 
@@ -28,6 +36,10 @@ extra-hdmi.conf, which was present in 5.0 and a few versions before that, has be
 start-pulseaudio-kde has been merged into start-pulseaudio-x11 and pulseaudio-kde.desktop has been removed. The only thing that those KDE specific files did was to load module-device-manager at session startup, and that is now handled in start-pulseaudio-x11 (it's still done only for KDE sessions).
 
 ## Changes in More Detail
+
+### Bluetooth HSP/HFP support with BlueZ 5
+
+PulseAudio now supports the bluetooth HSP (headset) and HFP (hands-free) profiles with BlueZ 5, which brings the bluetooth functionality almost to the same level as where we are with BlueZ 4. The remaining limitations are that with the native backend there's no support for HFP (usually not an issue, because most devices support both HSP and HFP), and with the oFono backend there's no support for HSP and volume control doesn't work as well as it could.
 
 ### Performance improvements
 
@@ -48,6 +60,10 @@ Also, ALSA 1.0.28 added better support for surround2.1 profiles. We now support 
 ### Utility changes
 
 <tt>pactl</tt> now supports setting different volume for each channel of a device or stream.
+
+### Multiple instances of JACK sinks and sources
+
+Previously it was not possible to load two instances of module-jack-sink or module-jack-source. That limitation was entirely artificial and didn't make much sense, so the limitation has now been removed.
 
 ## git shortlog
 
