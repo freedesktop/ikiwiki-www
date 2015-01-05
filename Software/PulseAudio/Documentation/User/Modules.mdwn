@@ -614,12 +614,14 @@ Available configs include: _volume-up_, _volume-down_, _mute_, _mute-toggle_ and
 
 Detects available bluetooth audio devices using BlueZ.
 
-Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW profiles). This is called the "SCO over PCM" mode. For such hardware, the alsa sink and source need to be specified with the "sco_sink" and "sco_source" arguments.
+Some hardware uses alsa devices for the SCO link (used by the HSP/HFP and HFGW profiles). This is called the "SCO over PCM" mode. For such hardware, the alsa sink and source need to be specified with the "sco_sink" and "sco_source" arguments. This feature is only available with BlueZ 4.
 
+* headset
+   * The backend for HSP/HFP. Supported values: "native", "ofono", "auto". The native backend doesn't have any extra dependencies. The ofono backend depends on oFono. Available with BlueZ 5 only.
 * sco_sink
-   * Name of the alsa sink that should be used in the "SCO over PCM" mode.
+   * Name of the alsa sink that should be used in the "SCO over PCM" mode. Available with BlueZ 4 only.
 * sco_source
-   * Name of the alsa source that should be used in the "SCO over PCM" mode.
+   * Name of the alsa source that should be used in the "SCO over PCM" mode. Available with BlueZ 4 only.
 
 
 ### module-bluetooth-policy
@@ -1010,8 +1012,10 @@ Disadvantages: When pulseaudio gives up the backend, and the backend is not capa
 
 ### module-switch-on-connect
 
-Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source. Takes no arguments.
+Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source.
 
+* only_from_unavailable
+   * Takes a boolean value. If set to true, the device switch is only done if the current default device is currently marked as unavailable.
 
 ### module-role-ducking
 
