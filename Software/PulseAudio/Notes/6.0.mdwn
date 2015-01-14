@@ -45,11 +45,19 @@ start-pulseaudio-x11 doesn't any more start PulseAudio explicitly, because expli
 
 ### Bluetooth HSP/HFP support with BlueZ 5
 
-PulseAudio now supports the bluetooth HSP (headset) and HFP (hands-free) profiles with BlueZ 5, which brings the bluetooth functionality almost to the same level as where we are with BlueZ 4. The remaining limitations are that with the native backend there's no support for HFP (usually not an issue, because most devices support both HSP and HFP), and with the oFono backend there's no support for HSP and volume control doesn't work as well as it could.
+PulseAudio now supports the bluetooth HSP (headset) and HFP (hands-free) profiles with BlueZ 5, which brings the bluetooth functionality near to the level where we are with BlueZ 4. The remaining limitations are that with the native backend there's no support for HFP (usually not an issue, because most devices support both HSP and HFP), and with the oFono backend there's no support for HSP and volume control doesn't work as well as it could.
 
 ### systemd socket activation support
 
 PulseAudio now supports systemd's socket activation. There's support only for unix sockets, though; support for TCP sockets will come later. PulseAudio ships with a ready-made socket file for starting the user instance, but it's not generally advisable to enable it, because doing so will likely prevent PulseAudio from accessing the D-Bus session bus, crippling some features that depend on the session bus. It's expected that in the future, systems that use systemd will replace the session bus with a user bus, at which point the socket activation support in PulseAudio will become usable more widely.
+
+Here's the list of things in PulseAudio that depend on the session bus, so if you want to try the socket activation and you don't somehow set up the session bus address appropriately, these things will break:
+
+  * module-jackdbus-detect. Breaking that breaks the automatic discovery of a running JACK server.
+  * The device reservation protocol. Breaking that breaks clean device handover from PulseAudio to JACK.
+  * Server tracking in libpulse. Clients can set up libpulse so that if the PulseAudio server isn't running when they try to connect, the connection attempt will be continued when the server starts and advertises itself in the session bus. This feature is rarely needed, so not a big loss.
+  * module-rygel-media-server. Breaking that breaks PulseAudio's integration with Rygel.
+  * The server lookup service of the D-Bus protocol. Breaking that breaks pretty much all applications that use PulseAudio's D-Bus protocol, because they can't figure out where the server's D-Bus socket is. There aren't many applications using the D-Bus protocol, though, so this is not a big loss in most cases.
 
 ### Performance improvements
 
@@ -64,6 +72,8 @@ module-combine-sink now supports dynamic latency, so that applications that requ
 ### Better support for multichannel and 2.1 profiles
 
 Some multichannel cards, including cards supported by the new Firewire ALSA drivers (merged in Linux 3.16) and some USB cards can only be opened in multichannel mode, e g 14 outputs and 10 inputs. If all existing attempts to open the device fails, we make a last attempt where the driver can choose number of channels freely. A default channel map for these channels is assumed.
+
+7.1 audio support for HDMI has been added.
 
 Also, ALSA 1.0.28 added better support for surround2.1 profiles. We now support this new syntax (surround21:*card*) where available.
 
