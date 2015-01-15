@@ -45,7 +45,11 @@ start-pulseaudio-x11 doesn't any more start PulseAudio explicitly, because expli
 
 ### Bluetooth HSP/HFP support with BlueZ 5
 
-PulseAudio now supports the bluetooth HSP (headset) and HFP (hands-free) profiles with BlueZ 5, which brings the bluetooth functionality near to the level where we are with BlueZ 4. The remaining limitations are that with the native backend there's no support for HFP (usually not an issue, because most devices support both HSP and HFP), and with the oFono backend there's no support for HSP and volume control doesn't work as well as it could.
+PulseAudio now supports the bluetooth HSP (headset) and HFP (hands-free) profiles with BlueZ 5, which brings the bluetooth functionality near to the level where we are with BlueZ 4. There are two mutually exclusive backends for HSP/HFP: "native" and "oFono". Some limitations remain, and the limitations are different depending on the backend:
+
+The native backend only supports HSP, not HFP. That's usually not a big issue, because most devices support both HSP and HFP, so it's enough to support only one profile to get audio working. Another limitation in the native backend is that it doesn't support the "headset role", which means that the use case of connecting a PC to a mobile phone, so that the PC pretends to be a headset, isn't supported.
+
+The oFono backend in turn only supports HFP, and not HSP. Also, volume control doesn't work as well as it could (PulseAudio doesn't mirror the connected device's volume, so PulseAudio and the connected device handle the device volume independently, which is prone to cause confusion).
 
 ### systemd socket activation support
 
