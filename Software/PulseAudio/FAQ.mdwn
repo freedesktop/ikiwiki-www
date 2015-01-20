@@ -46,6 +46,7 @@ The client honors:
 * `$PULSE_CLIENTCONFIG` (path to the client configuration file).
 * `$PULSE_PROP` (A space seperated list of properties of the form 'media.role=event' to set for all streams)
 * `$PULSE_PROP_xxxx` (Set property xxx for all streams)
+* `$PULSE_COOKIE` (the path of the authentication cookie to use)
 
 The daemon honors:
 
@@ -60,7 +61,7 @@ The following rule applies: (see [[Server Strings|Software/PulseAudio/Documentat
 
 * If the the application using the library specifies a server to connect to it is used. If the connection fails, the library fails too.
 * If the environment variable `$PULSE_SERVER` is defined the library connects to that server. If the connection fails, the library fails too.
-* If `$DISPLAY` is set, the library tries to connect to that server and looks for the root window property `PULSE_SERVER` for the host to connect to. If `PULSE_COOKIE` is set it is used as authentication cookie.
+* If `$DISPLAY` is set, the library tries to connect to that server and looks for the root window property `PULSE_SERVER` for the host to connect to. If `PULSE_COOKIE` is set it is used as the path to the authentication cookie.
 * If the client configuration file (`~/.pulse/client.conf` or `/etc/pulse/client.conf`) sets the server address, the library connects to that server. If the connection fails, the library fails too.
 * The library tries to connect to the default local UNIX socket for PulseAudio servers. If the connection fails, it proceeds with the next item.
 * The library tries to connect to the default local TCP socket for PulseAudio servers. If the connection fails, it proceeds with the next item.
@@ -122,6 +123,12 @@ This project is [[WinESD|http://www.clingman.org/winesd/]]. This software was de
 ### I get this error message: "Connection refused"
 
 It is a network level error, which is caused by libpulse trying to connect to the daemon. The most likely reason for this error is that pulseaudio isn't running.
+
+### I get this error message: "Access denied"
+
+This is likely caused by a mismatch in the cookie used to authenticate to the pulse daemon. You must connect with the same cookie that was used by the daemon when it started. Normally when the server starts it uses the cookie in ~/.config/pulse/cookie (this can be changed with $PULSE_COOKIE). Any client that connects needs to use the same cookie. 
+
+This means that if you want to connect to the daemon with a different user (root, for example) than what the daemon was started with, you need to manually copy the cookie to the other users home directory or use the PULSE_COOKIE environment variable to select a cookie file.
 
 ### I get this error message: "Invalid argument"
 
