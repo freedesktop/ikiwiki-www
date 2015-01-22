@@ -438,19 +438,21 @@ See module-cli-protocol-{unix,tcp} for more information about the two possible s
 In addition to the options supported by module-cli-protocol-*, this module supports:
 
 * auth-anonymous
-   * If set to 1 no authentication is required to connect to the service
+   * If set to true, no authentication is required to connect to the service
 * auth-group (only for -unix)
-   * members of the specified unix group may access the server without further authentication. **Changed in 0.9.3:** if the daemon is running in system-wide mode (`--system` passed when starting up) defaults to `pulse-access`, otherwise is disabled.
+   * Members of the specified unix group may access the server without further authentication. If the daemon is running in system-wide mode (`--system` passed when starting up) defaults to `pulse-access`, otherwise is disabled.
 * auth-group-enable (only for -unix)
-   * **New in 0.9.3:** enable/disable auth-group authentication, takes a boolean value (0 or 1). If `auth-group=` is specified or started in system-wide mode defaults to 1, otherwise 0.
+   * Enable/disable auth-group authentication, takes a boolean value. If `auth-group=` is specified or started in system-wide mode defaults to true, otherwise false.
 * auth-cookie
-   * **New in 0.9.12:** Path to the cookie file. If the path is relative, the cookie will be searched from the normal configuration directories. The cookie file contains random data that is used as a shared secret between the server and the clients.
+   * Path to the cookie file. If the path is relative, the cookie will be searched from the normal configuration directories. The cookie file contains random data that is used as a shared secret between the server and the clients.
 * auth-cookie-enabled
-   * **New in 0.9.12:** enable/disable auth-cookie authentication, takes a boolean value (0 or 1). Defaults to 1.
+   * Enable/disable auth-cookie authentication, takes a boolean value. Defaults to true.
 * cookie
    * The old name for auth-cookie. Don't use this, it's only here for compatibility with versions before 0.9.12.
 * auth-ip-acl (only for -tcp}
-   * **New in 0.9.3:** A semicolon separated list of IP address range to which anonymous access is allowed. Example: _auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8_
+   * A semicolon separated list of IP address range to which anonymous access is allowed. Example: _auth-ip-acl=10.11.12.13;192.168.50.0/24;127.0.0.0/8_
+* srbchannel
+   * Enable/disable the srbchannel communication mechanism, takes a boolean value.
 
 ### module-native-protocol-fd
 
