@@ -1,0 +1,23 @@
+## Feature requests for libinput
+
+Generally, we consider all feature requests for inclusion. To request a feature, please file a bug in the [freedesktop bugzilla](https://bugs.freedesktop.org/enter_bug.cgi?product=Wayland&component=libinput)
+
+Please note however that libinput is different to the X.Org stack with evdev,
+synaptics and the wacom driver. The design approach differs greatly and thus
+the features that are needed or required are different.
+
+libinput is a lot more restricted in the configuration options that it
+provides to through it's API. For example, the synaptics driver has several
+options to avoid bad cursor movement (PalmDetect, AreaBottomEdge, etc. and
+syndaemon). libinput has none of those, it always does palm detection.
+
+Other problems, solved by "abusing" certain options in the xorg stack are
+solved completely different in libinput. For example, high-resolution gaming
+mice in X are often dealt with by turning the acceleration off. In libinput,
+we use a [mouse resolution database](http://wayland.freedesktop.org/libinput/doc/latest/motion_normalization.html) to scale the movement down and provide sensible acceleration values.
+
+For every feature, we try to understand **why** it is necessary, in which
+use-cases and how it can best be resolved. So our request to you is: please
+don't file a bug report for "implement the evdev driver's option Foo" or
+"allow this option to be set to value X". Explain what you are doing, where
+you need it done and let's ee  what the best solution is.
