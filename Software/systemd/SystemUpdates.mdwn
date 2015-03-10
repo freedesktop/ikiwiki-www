@@ -1,4 +1,3 @@
-
 [[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]] 
 
 
@@ -16,17 +15,21 @@ The logic:
 1. The system now continues to boot into default.target, and thus into system-update.target. This target pulls in the OS update script, which is executed after all file systems are mounted. 
 1. The system update script now creates a btrfs snapshot (if possible), then installs all RPMs. After completion (regardless whether the update succeeded or failed) the /system-update symlink is removed. In addition, on failure it reverts to the old btrfs state (modulo the aforementioned symlink), on success it leaves the newly made changes in place. 
 1. The system is now rebooted. Since the /system-update symlink is gone, the generator won't redirect default.target this time and we now boot into the full system again. 
+
 Advantages of this approach over in-system updates: 
 
 1. Only the components of the OS that are required to access the file systems are started and initialized. No other daemons/services are running, thus minimizing problems with conflicting versions of libraries/daemons/other files on disk and in memory. 
-1. The btrfs snapshot of the OS is fairly reliable and mostly atomic 
+1. The btrfs snapshot of the OS is fairly reliable and mostly atomic
+ 
 Disadvantages of this approach over in-system updates: 
 
 1. The system is rebooted twice. 
+
 Advantages of this approach over rescue partition based updates: 
 
 1. The exact same storage initialization configuration is used for the update process as for the main OS, thus avoiding problems in finding the OS hierarchy and mounting it properly. 
 1. Since the journal is available all updates logs are saved and stored on disk the usual way and available for later review next to the usual logs. 
+
 Disadvantages of this approach over rescue partition based updates: 
 
 1. The basic mounts are done with code that might be subject to the updating process. This means that while the problems with conflicts between processes/libraries in memory on disk are minimized they are not zero. 
