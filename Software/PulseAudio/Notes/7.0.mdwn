@@ -5,6 +5,8 @@
 ## Changes at a Glance
 
  * New libsoxr based resamplers
+ * Socket activation support for TCP
+ * The "srbchannel" IPC mechanism enabled by default
 
 ## Notes for Application Developers
 
@@ -25,6 +27,14 @@ The mq and hq variants have better performance than speex-float-1 (the current d
 More discussion about the merits and shortcomings of the new resamplers can be found in this mailing list thread: [[http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/22158]]
 
 Here are some benchmarking results: [[http://lastique.github.io/src_test/]]
+
+### Socket activation support for TCP
+
+The previous release introduced support for systemd socket activation for unix sockets. Now the support has been extended to cover TCP sockets as well. This allows PulseAudio to be started on-demand on headless servers, for example.
+
+### The "srbchannel" IPC mechanism enabled by default
+
+The "srbchannel" IPC mechanism, which improves efficiency particularly on low latency streams, was introduced in the previous release, but it was too buggy to be enabled by default at that time. Bugs have been fixed since, and now the feature is enabled by default.
 
 ## git shortlog
 
