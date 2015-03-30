@@ -4,9 +4,11 @@
 
 ## Changes at a Glance
 
+ * LFE channel synthesis with low-pass filtering
  * New libsoxr based resamplers
  * Socket activation support for TCP
  * The "srbchannel" IPC mechanism enabled by default
+ * More flexible jack detection support when using ALSA's "use case manager" (UCM) system
 
 ## Notes for Application Developers
 
@@ -17,6 +19,12 @@
 There's a new optional dependency on libsoxr. The minimum supported version is 0.1.1. libsoxr is used for the soxr-mq, soxr-hq and soxr-vhq resamplers.
 
 ## Changes in More Detail
+
+### LFE channel synthesis with low-pass filtering
+
+When the speaker system has a subwoofer, it's often desirable to synthesize the LFE channel audio when the original audio content doesn't have a separate LFE channel. Previously PulseAudio supported doing that by simply feeding the average of all input channels to the LFE channel, but it's often better to filter out any high frequencies going to the subwoofer. That's now supported, and enabled by default.
+
+The default value of "enable-lfe-remixing" in daemon.conf has changed from "false" to "true", and there's a new daemon.conf option for configuring the crossover frequency: "lfe-crossover-freq". The crossover filtering can be disabled by setting "lfe-crossover-freq" to zero, and if "enable-lfe-remixing" is "true", then the old LFE synthesis algorithm is used.
 
 ### New libsoxr based resamplers
 
@@ -35,6 +43,10 @@ The previous release introduced support for systemd socket activation for unix s
 ### The "srbchannel" IPC mechanism enabled by default
 
 The "srbchannel" IPC mechanism, which improves efficiency particularly on low latency streams, was introduced in the previous release, but it was too buggy to be enabled by default at that time. Bugs have been fixed since, and now the feature is enabled by default.
+
+### More flexible jack detection support when using UCM
+
+Systems that use ALSA's UCM can now configure the jack kcontrol for a device using the "JackControl" value. Previously, jack detection with UCM relied on implicit heuristics for the jack kcontrol name, which often didn't work well enough.
 
 ## git shortlog
 
