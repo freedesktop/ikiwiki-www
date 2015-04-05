@@ -153,3 +153,7 @@ In order to allow disk images that may be booted on multiple architectures we wa
 No, it doesn't. The specification says that installers may not stop creating /etc/fstab or stop including root= on the kernel command line, unless the used partitions are the first ones of their type on the disk. And /etc/fstab and root= override all automatic discovery. Multi-boot is hence well supported, since it doesn't change anything for anything but the first installation.
 
 That all said, it's not expected that generic installers generally stop setting root= and creating /etc/fstab anyway. The option to drop these configuration bits is primarily something for appliance-like devices. However, generic installers should *still* set the right GPT partition types for the partitions they create so that container managers, partition tools and administrators can benefit. Or to say this differently: this specification introduces A) the *recommendation* to use the newly defined partition types to tag things properly and B) the *option* to then drop root= and /etc/fstab. While we advertise A) to *all* installers, we only propose B) for simpler, appliance-like installations.
+
+### What partitioning tools will create a DPS-compliant partition table?
+
+As of util-linux 2.25.2, the fdisk tool provides type codes to create the root, home and swap partitions that the DPS expects, but the gdisk tool (version 0.8.10) and its variants do not support creation of a root filesystem with a matching type code.   
