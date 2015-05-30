@@ -1,5 +1,4 @@
 
-
 # What is wrong with system mode?
 
 Many folks seem to think it is a good idea to run PA in [[system mode|Software/PulseAudio/Documentation/User/SystemWide]]. But it is not. Nobody should run it that way, with the exception of very few cases, which are listed further down. 
@@ -7,7 +6,7 @@ Many folks seem to think it is a good idea to run PA in [[system mode|Software/P
 Here are a couple of reasons why running PA in system mode is a bad idea. 
 
 * Security: Much like the X server as soon as you are authenticated you have complete control of the sound server, no further per-object access checks are done. 
-* When in system mode, module loading after startup is disabled for security reasons, which means: no hotplug handling in system mode 
+* Related to the previous point, one especially problematic thing from security point of view is module loading. Anyone who has access can load and unload modules. Module loading can be disabled, but then bluetooth and alsa hotplug functionality doesn't work.
 * When in system mode, shared memory data transport is disabled for security reasons, which means: much higher memory usage and CPU load in system mode 
 * The module-xxx-restore modules maintain state that is inheritely user specific, but when run in system mode is shared between users. 
 * Security: there are no size limits on state data, which enables users to flood /var unless you employ quotas on the pulse user 
