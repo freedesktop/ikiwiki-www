@@ -37,6 +37,10 @@ If you have a hardware serial console available or if you are debugging in a vir
 
     systemd.log_level=debug systemd.log_target=console console=ttyS0,38400
 
+The above is useful if pid 1 is failing, but if a later but critical boot service is broken (such as networking), you can configure journald to forward to the console by using:
+
+    systemd.journald.forward_to_console=1 console=ttyS0,38400
+
 ### Booting into Rescue or Emergency Targets
 
 To boot directly into rescue target add `systemd.unit=rescue.target` or just `1` to the kernel command line. This target is useful if the problem occurs somewhere after the basic system is brought up, during the starting of "normal" services. If this is the case, you should be able to disable the bad service from here. If the rescue target will not boot either, the more minimal emergency target might.
