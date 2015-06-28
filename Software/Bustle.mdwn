@@ -1,0 +1,93 @@
+## Bustle <small>– someone's favourite D-Bus profiler</small>
+
+Bustle is a better `dbus-monitor`. It records and draws sequence diagrams of
+[D-Bus](http://dbus.freedesktop.org/) activity, showing signal emissions,
+method calls and their corresponding returns, with timestamps for each
+individual event and the duration of each method call. This can help you check
+for unwanted D-Bus traffic, and pinpoint why your D-Bus-based application isn't
+performing as well as you like. It also provides statistics like signal
+frequencies and average method call times.
+
+### Download
+
+Find source code releases and portable-ish Linux binary releases
+[here](http://www.freedesktop.org/software/bustle/?C=M;O=D). You will need a
+recent Glib and <acronym>GTK</acronym>+ 3 to run the binary releases. See the
+[release notes](http://cgit.freedesktop.org/bustle/plain/NEWS.md) for what is
+new in each release.
+
+You can also get the latest source from
+[Hackage](http://hackage.haskell.org/package/bustle).
+
+You can probably find a recent-ish version in
+[Debian](https://packages.debian.org/source/sid/bustle),
+[Fedora](https://apps.fedoraproject.org/packages/bustle),
+[Gentoo](https://packages.gentoo.org/package/dev-util/bustle),
+or your favourite distribution.
+
+### Using Bustle
+
+With luck, Bustle itself should be self-explanatory: run it, click the button
+to record some D-Bus traffic, explore it, save or export the log.
+
+If you want to record traffic without running the UI (maybe on an embedded
+platform which doesn't have Gtk+ and/or a Haskell compiler), you can use the
+stand-alone logger, which is just a C program:
+
+    bustle-pcap logfile.bustle
+
+You can then open `logfile.bustle` in Bustle.
+
+You can also get some ASCII-art
+version of the statistics shown in the UI:
+
+    bustle --count logfile.bustle
+    bustle --time logfile.bustle
+
+#### Logging System Bus Traffic
+
+If you want to log all system bus traffic, you need to edit
+`/etc/dbus/system.conf` to enable eavesdropping, and then remove the include of
+`/etc/dbus-1/system.conf.d` which seems to re-enable strictness. Then you can run
+the stand-alone logger against the system bus:
+
+    bustle-pcap --system system-log.bustle
+
+Please remember to **undo these changes** when you're done.
+
+### Development
+
+Please [report bugs][report] on
+[bugs.freedesktop.org](https://bugs.freedesktop.org/buglist.cgi?query_format=advanced&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=Bustle).
+
+The canonical Git repository is at
+[cgit.freedesktop.org](http://cgit.freedesktop.org/bustle/) with a mirror on
+[GitHub](https://github.com/wjt/bustle).
+
+You will need a C compiler, a [Haskell](https://www.haskell.org/) compiler and
+many libraries. Try:
+
+    cabal sandbox init
+    cabal install alex happy gtk2hs-buildtools
+    cabal install
+
+To just build the C-only `bustle-pcap` logger, run `make`.
+
+In new code, try to follow [this Haskell style
+guide](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md).
+
+Patches gratefully accepted, whether [attached to bug reports][report] or
+[emailed to the maintainer](mailto:will@willthompson.co.uk).
+
+[report]: https://bugs.freedesktop.org/enter_bug.cgi?product=Bustle
+
+### Credits
+
+Bustle is written and maintained by [Will Thompson](/) (originally
+courtesy of [Collabora Ltd.](http://www.collabora.co.uk/)), with
+contributions by Alex Merry, Arnaud Bonatti, Chris Lamb, Cosimo Alfarano,
+Dafydd Harries, Lennart Poettering, Marc Kleine-Budde, Philip Withnall, Sergei
+Trofimovich, and Αποστολίδου Χρυσαφή.
+It was originally inspired by a
+[similar tool](http://alban.apinc.org/blog/2008/03/08/99-how-to-make-a-diagram-from-dbus-monitor-logs/)
+by [Alban Crequy](http://alban.apinc.org/).
