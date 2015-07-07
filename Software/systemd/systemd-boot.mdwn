@@ -1,18 +1,16 @@
-![gummiboot](gummiboot-icon.png)
+# systemd-boot UEFI Boot Manager
 
-# gummiboot Simple UEFI Boot Manager
+systemd-boot is a UEFI boot manager which executes configured EFI images. The default entry is selected by a configured pattern (glob) or an on-screen menu. 
 
-gummiboot is a simple UEFI boot manager which executes configured EFI images. The default entry is selected by a configured pattern (glob) or an on-screen menu. 
+systemd-boot operates on the EFI System Partition (ESP) only. Configuration file fragments, kernels, initrds, other EFI images need to reside on the ESP. Linux kernels need to be built with CONFIG_EFI_STUB to be able to be directly executed as an EFI image. 
 
-gummiboot operates on the EFI System Partition (ESP) only. Configuration file fragments, kernels, initrds, other EFI images need to reside on the ESP. Linux kernels need to be built with CONFIG_EFI_STUB to be able to be directly executed as an EFI image. 
-
-gummiboot reads simple and entirely generic boot loader configuration files; one file per boot loader entry to select from. All files need to reside on the ESP. 
+systemd-boot reads simple and entirely generic boot loader configuration files; one file per boot loader entry to select from. All files need to reside on the ESP. 
 
 Pressing the Space key (or most other keys actually work too) during bootup will show an on-screen menu with all configured loader entries to select from. Pressing Enter on the selected entry loads and starts the EFI image. 
 
 If no timeout is configured, which is the default setting, and no key pressed during bootup, the default entry is executed right away. 
 
-![gummiboot menu](gummiboot-menu.png) 
+![systemd-boot menu](gummiboot-menu.png) 
 
 All configuration files are expected to be 7-bit ASCII or valid UTF8. The loader configuration file understands the following keywords:
 
@@ -20,8 +18,6 @@ Config     |||
 ---------- | ---
 default    | pattern to select the default entry in the list of entries
 timeout    | timeout in seconds for how long to show the menu
-splash     | BMP image file to show during bootup
-background | background color in #RRGGBB notation (only applied with splash)
 
 The entry configuration files understand the following keywords:
 
@@ -32,9 +28,8 @@ version    | version string to append to the title when the title is not unique
 machine-id | machine identifier to append to the title when the title is not unique 
 efi        | executable EFI image 
 options    | options to pass to the EFI image / kernel command line 
-linux      | linux kernel image (gummiboot still requires the kernel to have an EFI stub) 
-initrd     | initramfs image (gummiboot just adds this as option initrd=)
-splash     | BMP image file to show during bootup
+linux      | linux kernel image (systemd-boot still requires the kernel to have an EFI stub) 
+initrd     | initramfs image (systemd-boot just adds this as option initrd=)
 
 Examples: 
 
@@ -71,7 +66,7 @@ d       | select the default entry to boot (stored in a non-volatile EFI variabl
 t/T     | adjust the timeout (stored in a non-volatile EFI variable) 
 e       | edit the option line (kernel command line) for this bootup to pass to the EFI image 
 Q       | quit 
-v       | show the gummiboot and UEFI version 
+v       | show the systemd-boot and UEFI version 
 P       | print the current configuration to the console 
 h       | show key mapping 
 
@@ -93,12 +88,10 @@ LoaderEntryDefault                    | entry identifier to select as default at
 LoaderConfigTimeout                   | timeout in seconds to show the menu                                     | non-volatile 
 LoaderEntryOneShot                    | entry identifier to select at the next and only the next bootup         | non-volatile 
 LoaderDeviceIdentifier                | list of identifiers of the volume the loader was started from           | volatile 
-LoaderDevicePartUUID                  | partition GPT UUID of the ESP gummiboot was executed from               | volatile 
-LoaderEntryOptions-$machine-id        | kernel command line options for a specific machine                      | non-volatile 
-LoaderEntryOptionsOneShot-$machine-id | kernel command line options for a specific machine, for the next bootup | non-volatile
+LoaderDevicePartUUID                  | partition GPT UUID of the ESP systemd-boot was executed from            | volatile 
 
 Links:
 
-[[http://cgit.freedesktop.org/gummiboot]]
+[[https://github.com/systemd/systemd]]
 
 [[http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/]]
