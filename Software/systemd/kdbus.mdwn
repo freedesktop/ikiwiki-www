@@ -1,0 +1,36 @@
+# kdbus
+
+## What is this?
+
+kdbus is a transport layer for the DBus IPC system. It is meant as replacement for the UDS (Unix Domain Socket) transport layer which is the de-facto default for local DBus communication. kdbus is not directly related to DBus, nor is it limited to transporting DBus messages. However, kdbus was designed specifically for DBus so it does exhibit DBus specific behavior. Further use-cases are possible, though.
+
+With the kdbus transport layer, the dbus-daemon is no longer needed. kdbus provides a full bus transport and thus eliminates the bus manager. Note that UDS also provides such a full bus transport, but lacks extended features like message tracking, policy handling, peer tracking and a name database. Hence, dbus-daemon is needed if UDS is used as transport.
+
+Apart from providing a full bus transport, kdbus also extends DBus with new features. This includes reliable metadata transmission, simplified policy, single/zero-copy message transactions and namespaced endpoints.
+
+## Implementation
+
+The **kdbus.ko** kernel module is available at [[git.kernel.org|https://git.kernel.org/cgit/linux/kernel/git/gregkh/char-misc.git/log/?h=kdbus]] and included in [[linux-next|https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/]]. It implements the kdbus transport layer and exposes its API via a virtual file system, usually mounted at */sys/fs/kdbus*.
+
+Since version 221, systemd will automatically load the kdbus module (if available), mount kdbusfs and create the system and user bus via kdbus. A dbus1 compatibility daemon, called **systemd-bus-proxyd**, is spawned for each bus. It listens on the old UDS dbus1 socket and provides a compatibility layer to kdbus. Thus, legacy software will run on kdbus systems without any changes required.
+
+systemd will read the 'kdbus={0,1}' kernel command-line option and load kdbus only if it is set to '1'. Otherwise, a legacy boot is done and kdbus will not be loaded nor used by your system. Hence, you can disable kdbus entirely by specifying 'kdbus=0' on your kernel commandline. If the commandline option is omitted, the default is used (which might be either, depending how systemd was compiled).
+
+The [[sd-bus|http://0pointer.net/blog/the-new-sd-bus-api-of-systemd.html]] library supports both transports (dbus1 and kdbus) natively. Further native ports for gdbus and qt are underway.
+
+## Testing
+
+To run your system on kdbus, you need the kdbus kernel module installed and a recent systemd version:
+
+* kdbus.ko: https://git.kernel.org/cgit/linux/kernel/git/gregkh/char-misc.git/log/?h=kdbus
+* systemd-223: https://github.com/systemd/systemd
+
+You're highly recommended to run the newest version of both, but at least systemd-221 and kdbus.ko-63c8e2f6f337. Please extend your kernel commandline with 'kdbus=1' to enable (and 'kdbus=0' to disable) kdbus.
+
+Once you booted your system, you can use 'busctl' to list bus users. If the 'DESCRIPTION' column contains non-empty entries, you've successfully booted with kdbus enabled. You can also verify this by looking for a log message "systemd[1]: Inserted module 'kdbus'", or see whether '/sys/fs/kdbus' contains a sub-directory called '0-system'.
+
+If you encounter any issues, please report them to us via the systemd issues tracker at [[github|https://github.com/systemd/systemd/issues/]].
+
+## Known issues
+
+No known issues at this moment.
