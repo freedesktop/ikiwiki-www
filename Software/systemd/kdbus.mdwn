@@ -1,6 +1,95 @@
-# kdbus
+<pre style="float:right; color:white; background-color:black; font-size:smaller; width:45%; padding:6pt 8pt">
+<span style="color:LawnGreen">david@david-t2</span> <span style="color:blue">~/dev/kdbus $</span> busctl monitor
+Monitoring bus message stream.
+<span style="color:LawnGreen">‣</span> Type=signal  Endian=l  Flags=1  Version=2  Priority=0 Cookie=-1
+  Sender=org.freedesktop.DBus  Path=/org/freedesktop/DBus  Interface=org.freedesktop.DBus  Member=NameOwnerChanged
+  Monotonic=21122678158  Realtime=1438248540378044  SequenceNumber=98386
+  UniqueName=org.freedesktop.DBus  WellKnownNames=org.freedesktop.DBus
+  MESSAGE "sss" {
+          STRING ":1.98385";
+          STRING "";
+          STRING ":1.98385";
+  };
 
-## What is this?
+<span style="color:LawnGreen">‣</span> Type=method_call  Endian=l  Flags=0  Version=2  Priority=0 Cookie=1
+  Sender=:1.98385  Destination=org.freedesktop.locale1  Path=/org/freedesktop/locale1  Interface=org.freedesktop.DBus.Properties  Member=GetAll
+  Monotonic=21122678639  Realtime=1438248540378525  SequenceNumber=98387
+  PID=21611  TID=21611  PPID=8014
+  UID=1000  EUID=1000  SUID=1000  FSUID=1000  OwnerUID=1000  GID=1000  EGID=1000  SGID=1000  FSGID=1000  SupplementaryGIDs=91 190 1000
+  Comm=localectl  TIDComm=localectl  Exe=/usr/bin/localectl
+  CommandLine=localectl  Description=sd-system-localectl
+  CGroup=/user.slice/user-1000.slice/session-c1.scope  Unit=session-c1.scope  Slice=user-1000.slice  UserUnit=n/a  Session=c1
+  UniqueName=:1.98385  WellKnownNames=
+  EffectiveCapabilities=
+  PermittedCapabilities=
+  InheritableCapabilities=
+  BoundingCapabilities=cap_chown cap_dac_override cap_dac_read_search 
+          cap_fowner cap_fsetid cap_kill cap_setgid 
+          cap_setuid cap_setpcap cap_linux_immutable cap_net_bind_service 
+          cap_net_broadcast cap_net_admin cap_net_raw cap_ipc_lock 
+          cap_ipc_owner cap_sys_module cap_sys_rawio cap_sys_chroot 
+          cap_sys_ptrace cap_sys_pacct cap_sys_admin cap_sys_boot 
+          cap_sys_nice cap_sys_resource cap_sys_time cap_sys_tty_config 
+          cap_mknod cap_lease cap_audit_write cap_audit_control 
+          cap_setfcap cap_mac_override cap_mac_admin cap_syslog 
+          cap_wake_alarm cap_block_suspend cap_audit_read
+  MESSAGE "s" {
+          STRING "";
+  };
+
+<span style="color:LawnGreen">‣</span> Type=method_return  Endian=l  Flags=1  Version=2  Priority=0 Cookie=2  ReplyCookie=1
+  Sender=:1.98376  Destination=:1.98385
+  Monotonic=21122679054  Realtime=1438248540378940  SequenceNumber=98388
+  PID=21609  TID=21609  PPID=1
+  UID=0  EUID=0  SUID=0  FSUID=0  GID=0  EGID=0  SGID=0  FSGID=0  SupplementaryGIDs=
+  Comm=systemd-localed  TIDComm=systemd-localed
+  CommandLine=/usr/lib/systemd/systemd-localed  Description=sd-system-systemd_2dlocaled
+  CGroup=/system.slice/systemd-localed.service  Unit=systemd-localed.service  Slice=system.slice  UserUnit=n/a  Session=n/a
+  UniqueName=:1.98376  WellKnownNames=org.freedesktop.locale1
+  EffectiveCapabilities=
+  PermittedCapabilities=
+  InheritableCapabilities=
+  BoundingCapabilities=
+  MESSAGE "a{sv}" {
+          ARRAY "{sv}" {
+                  DICT_ENTRY "sv" {
+                          STRING "Locale";
+                          VARIANT "as" {
+                                  ARRAY "s" {
+                                          STRING "LANG=en_US.UTF-8";
+                                  };
+                          };
+                  };
+                  DICT_ENTRY "sv" {
+                          STRING "VConsoleKeymap";
+                          VARIANT "s" {
+                                  STRING "de-latin1-nodeadkeys";
+                          };
+                  };
+                  DICT_ENTRY "sv" {
+                          STRING "VConsoleKeymapToggle";
+                          VARIANT "s" {
+                                  STRING "";
+                          };
+                  };
+          };
+  };
+
+<span style="color:LawnGreen">‣</span> Type=signal  Endian=l  Flags=1  Version=2  Priority=0 Cookie=-1
+  Sender=org.freedesktop.DBus  Path=/org/freedesktop/DBus  Interface=org.freedesktop.DBus  Member=NameOwnerChanged
+  Monotonic=21122679612  Realtime=1438248540379497  SequenceNumber=98389
+  UniqueName=org.freedesktop.DBus  WellKnownNames=org.freedesktop.DBus
+  MESSAGE "sss" {
+          STRING ":1.98385";
+          STRING ":1.98385";
+          STRING "";
+  };
+
+^C
+<span style="color:LawnGreen">david@david-t2</span> <span style="color:blue">~/dev/kdbus $</span>
+</pre>
+
+# kdbus
 
 kdbus is a transport layer for the DBus IPC system. It is meant as replacement for the UDS (Unix Domain Socket) transport layer which is the de-facto default for local DBus communication. kdbus is not directly related to DBus, nor is it limited to transporting DBus messages. However, kdbus was designed specifically for DBus so it does exhibit DBus specific behavior. Further use-cases are possible, though.
 
