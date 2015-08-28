@@ -150,7 +150,11 @@ The service exposes the following interfaces on the Manager object on the bus:
 
 **GetMachine()** may be used to get the machine object path for the machine with the specified name. Similar, **GetMachineByPID()** get the machine object the specified PID belongs to if there is any.
 
+**GetImage()** may be used to the the image object path for the image with the specified name.
+
 **ListMachines()** returns an array with all currently registered machines. The structures in the array consist of the following fields: machine name, machine class, an identifier for the service that registered the machine and the machine object path.
+
+**ListImages()** returns an array with all currently known images. The structures in the array consist of the following fields: image name, type, read-only flag, creation time, modification time, current disk space, image object path.
 
 **CreateMachine()** may be used to register a new virtual machine or container with machined, creating a scope unit for it. This takes as arguments: a machine name chosen by the registrar, an optional UUID as 32 byte array, a string that identifies the service that registers the machine, a class string, the PID of the leader process of the machine, an optional root directory of the container, and an array of additional properties to use for the scope registration. The virtual machine name must be suitable as a file name, and hence not contain any slashes, nor be the empty string, nor single/double full stops. Only 7 Bit ASCII is permitted. The UUID is passed as 32 byte array, or if no suitable UUID is available an empty array (zero length) or zeroed out array shall be passed. The UUID should identify the virtual machine/container uniquely, and should ideally be the same one as /etc/machine-id in the VM/container is initialized from, if that's possible. The service string can be free-form, but it is recommended to parse a short lowercase identifier like "systemd-nspawn", "libvirt-lxc" or suchlike. The class string should be either "container" or "vm" indicating whether the machine to register is of the respective class. The leader PID should be the host PID of the init process of the container, or the encapsulating process of the VM. If the root directory of the container is known and available in the host's hierarchy, it should be passed, otherwise use the empty string. Finally, the scope properties are passed as array in the same way as PID1's `StartTransientUnit() accepts it`. This method call will internally register a transient scope unit for the calling client (utilizing the passed scope_properties), and move the leader PID into it. The call returns an object path for the registered machine object, implementing the `org.freedesktop.machine1.Machine` interface (see below). Also see the [[New Countrol Group Interfaces|http://www.freedesktop.org/wiki/Software/systemd/ControlGroupInterface/]] for details about scope units, and how to alter resource control settings on the created machine at runtime.
 
@@ -165,6 +169,30 @@ The service exposes the following interfaces on the Manager object on the bus:
 **GetMachineAddresses()** retrieves the IP addresses of a container. This call returns an array of pairs consisting of an address family specfier (AF_INET or AF_INET6) and a byte array containing the addresses. This is only supported for containers that make use of network namespacing.
 
 **GetMachineOSRelease()** retrieves the OS release information of a container. This call returns an array of key value pairs read from /usr/lib/os-release from the container, and useful to identify the operating system used in a container. See [[os-release(5)|http://www.freedesktop.org/software/systemd/man/os-release.html]] for details.
+
+**OpenMachinePTY()** allocates a pseudo TTY in the container and returns a file descriptor and its path. This is equivalent to transitioning into the container and invoking posix_openpt().
+
+**OpenMachineLogin()** allocates a pseudo TTY in the container and ensures that a getty loging prompt of the container is running on the other end. It returns the file descriptor of the PTY plus the PTY path.  This is useful for acquiring a pty with a login prompt from the container.
+
+**OpenMachineShell()** allocates a pseudo TTY in the container, as the specified user, and invokes an executable of the specified path, with a list of arguments (starting from argv[0]), and an environment block. It then returns the file descriptor of the PTY plus the PTY path.
+
+**BindMountMachine()** bind mounts a file or directory from the host into the container. Takes a machine name, the source directory on the host, and the destination directory in the container as argument. Also takes two booleans, one indicating whether the bind mount shall be read-only, the other indicating whether the destination mount point shall be created first, if it is missing.
+
+**CopyFromMachine()** copies files or directories from a container into the host. Takes a container name, a source directory in the container and a destination directory on the host as argument. **CopyToMachine()** does the opposite and copies files from a source directory on the host into a destination directory in the container.
+
+**RemoveImage()** removes the image by the specified name.
+
+**RenameImage()** renames the specified image to a new name.
+
+**CloneImage()** clones the specified image under a new name. Also takes a boolean argument indicating whether the resuling image shall be read-only or not.
+
+**MarkImageReadOnly()** toggles the read-only flag of an image.
+
+**SetPoolLimit()** sets an overall quota limit on the pool of images.
+
+**SetImageLimit()** sets a per-image quota limit.
+
+**MapFromMachineUser()**, **MapToMachineUser()**, **MapFromMachineGroup()**, **MapToMachineGroup()** may be used to map UIDs/GIDs from the host user namespace to a container namespace or back.
 
 ### Signals
 
