@@ -215,6 +215,18 @@ Optionally, it is possible for a program that registers a scope unit (the "scope
 
 Scope units implement a special `Abandon()` method call. This method call is useful for informing the system manager that the scope unit is no longer managed by any scope manager process. Among other things it is useful for manager daemons which terminate but want to leave the scopes they started running. When a scope is abandoned its state will be set to "abandoned" which is shown in the usual systemctl output, as information to the user. Also, if a controller has been set for the scope, it will be unset. Note that there is not strictly need to ever invoke the `Abandon()` method call, however it is recommended for cases like the ones explained above.
 
+### Delegation
+
+Service and scope units know a special `Delegate` boolean property. If set, then the processes inside the scope or service may control their own control group subtree. The effect of the property is that: 
+
+1. All controllers systemd knows are enabled for that scope/service, if the scope/service runs privileged code.
+2. Access to the cgroup directory of the scope/service is permitted, and files/and directories are updated to get write access for the user specified in `User=` if the scope/unit runs unprivileged. Note that in this case access to any controllers is not available.
+3. systemd will refrain from moving processes across the "delegation" boundary.
+
+Generally, the `Delegate` property is only useful for services that need to manage their own cgroup subtrees, such as container managers. After creating a unit with this property set, they should use `/proc/$PID/cgroup` to figure out the cgroup subtree path they may manage (the one from the name=systemd hierarchy!). Managers should refrain from making any changes to the cgroup tree outside of the subtrees for units they created with the `Delegate` flag turned on.
+
+Note that scope units created by `machined`'s `CreateMachine()` call have this flag set.
+
 ### Example
 
 Please see the [[systemd-run sources|http://cgit.freedesktop.org/systemd/systemd/plain/src/run/run.c]] for a relatively simple example how to create scope or service units transiently and pass properties to them.
