@@ -1,0 +1,23 @@
+= Particle =
+
+Design concepts for the particle file format.
+
+Primary design goals:
+
+* Should cover "manifest" files (complete metadata, but no payload), "full data" files (complete metadata and payload), "delta data" files (partial metadata plus new payload)
+* Each directory tree should be identified by a cryptographic checksum, that is generated from the data and metadata
+* Reproducible: regardless how data is transported/packed/unpacked, payload and metadata of identical file system trees must result in the same particle file and checksum
+* Fuzzy verification: must be able to deal that not all file systems provide the same featureset (some lack nsec, others btrfs subvols, hard links, ...)
+* Must be streamable, i.e. not require random access to particle file when packing or unpacking
+* Should be possible to generate from all common Linux file systems, and be applicable to all common Linux file systems
+* Extensible
+
+Secondary design goals:
+* Files should be composable: a particle file of a directory is just the concatenation of its metadata plus the particle files of its directory entries
+* Should cover all kinds of modern an exotic file system objects (btrfs subvols, chattr flags, btrfs, crc32, xattr, acls, nsec times, sparse files, hard links, ...)
+* Delta image generation should be efficient on btrfs snapshots
+* Content addressable: if you have a file with random access (instead of just stream access) should be efficient to jump to specific files)
+* Delta compression
+* Should be able to cover individual files as well ad directory trees
+* Should support references to external particles for directory subtrees
+* Should support universal addressing of files (as particle hash + relative path)
