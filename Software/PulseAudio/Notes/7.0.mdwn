@@ -1,6 +1,6 @@
 [[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
 
-# PulseAudio 7.0 Release Notes (draft)
+# PulseAudio 7.0 Release Notes
 
 ## Changes at a Glance
 
@@ -60,5 +60,240 @@ The Creative SoundBlaster Omni Surround 5.1 USB sound card sets up its microphon
 ## git shortlog
 
 <pre>
-To be added later.
+Ahmed S. Darwish (1):
+      pulse: Document client libraries logging behavior
+
+Alexander E. Patrakov (4):
+      Make pa_socket_server_new static
+      module-loopback: don't use 0 for custom source output message id
+      echo-cancel: fix the obviously-wrong "buffer+=buffer" logic
+      loopback: Fix the obviously-wrong "buffer+=buffer" logic
+
+Andrey Semashev (4):
+      Added libsoxr resampler backend.
+      Enabled libsoxr resampler backend.
+      Added libsoxr detection and optional build of soxr resampler backend.
+      Added documentation for soxr resampling methods.
+
+Andrey Zholos (1):
+      detect: Fix OSS device detection with long names
+
+Arun Raghavan (17):
+      sink-input: Clarify the meaning of rewrite and flush a bit in rewinds
+      udev: Deal with unavailable bus property
+      protocol-native: Fix source latency calculation in ADJUST_LATENCY mode
+      rescue-streams: Document a cryptic looking condition
+      rescue-streams: Fix a couple of typos
+      stream: Support extended API with PULSE_LATENCY_MSEC if possible
+      sink,source: Add a helper function to check whether this is a filter
+      always-sink: Ignore filter sinks
+      echo-cancel: Handle underlying sink going away better when autoloaded
+      equalizer: Handle underlying sink going away better when autoloaded
+      build-sys: Fix distcheck for systemd user unit dir
+      build-sys: Make echo-cancel use speex cflags/libs conditionally
+      build-sys: Fix up setting the bash completion dir
+      alsa-mixer: Drop redundant conditional frees
+      alsa: Clarify potentially confusing device port data field
+      lfe-filter: Deal with empty input chunks
+      Update NEWS for 7.0 release
+
+Cédric Valmary (1):
+      i18n: add Occitan translation
+
+David Henningsson (29):
+      alsa-util: Make two of the warnings "debug" instead of "error"
+      pstream: Don't split (non-SHM) memblocks
+      protocol-native: Re-enable srbchannel
+      pstream: Remove unnecessary if condition
+      thread-mq: Make pa_thread_mq_done more robust
+      lfe-filter: Import code from the Chrome OS audio server
+      lfe-filter: Enable LFE filter in the resampler
+      lfe-filter: Cleanup and refactor
+      memblock: Change pa_memblock_new_malloced to an inline function
+      lfe-filter: Add rewind support
+      resampler: Make some basic functions for rewinding
+      resampler: Allow disabling the LFE filter by setting crossover to 0
+      resampler: Rename "lfe_filter_required" to "lfe_remixed"
+      module: Add hook dynarray
+      module-*-restore: use pa_module_hook_connect
+      module-suspend-on-idle: use pa_module_hook_connect
+      module-alsa-card: use pa_module_hook_connect
+      module-filter-*: use pa_module_hook_connect
+      module-switch-*: use pa_module_hook_connect
+      alsa-mixer: Use separate profiles for Multichannel Input/Output
+      alsa-mixer: Add paths/ports for multichannel profile
+      core-util, pactl: Make one localised and one non-localised version of pa_yes_no
+      alsa-mixer: Make line out path unavailable when "Front Headphone" is plugged in
+      lfe-filter-test: Use S16NE format
+      echo-cancel: Add config.h in adrian-aec.c
+      stream: Check sample spec validity before abiding PULSE_LATENCY_MSEC
+      module: Warn about modules loaded after unload
+      alsa-mixer: Add "Front Line Out" and "Rear Line Out"
+      module: Always remove freed module from modules_pending_unload
+
+David Herrmann (1):
+      core-util: Fix set_nice() to use private bus connections
+
+Deepak Srivastava (3):
+      padsp: Avoid possible deadlock. Unlocked i->mainloop before returning from default case.
+      patcl: Error msg from pactl not quite accurate for 'mute' commands
+      Removed exclamation marks from user-visible messages.
+
+Dušan Kazik (2):
+      i18n: update Slovak translation
+      i18n: Update Slovak translation
+
+Felipe Sateler (5):
+      Add a .travis.yml for Travis CI
+      man: fix reference to --daemonize option
+      Fix return code check of pa_append_to_home_dir
+      util: pa_get_fqdn: always free addrinfo
+      sink, source: Do not dereference freed memory when freeing the next events
+
+Hui Wang (5):
+      lfe-filter: change the crossover frequency as a parameter
+      tests: adding lfe-filter-test
+      daemon-conf: enable the lfe remixing by default
+      tests: Remove a redundant mempool_new from resampler-test
+      tests: add tolerant variation for comparing the rewind result
+
+Jaska Uimonen (1):
+      socket-server: add tcp support for systemd socket activation
+
+Juho Hämäläinen (17):
+      dbus: Use hooks for card profile events
+      dbus: Use hooks for client proplist changes
+      dbus: Use hooks for sink and source events
+      dbus: Use hooks for sink-input and source-output events
+      dbus: Use state changed hook for sink-input and source-output rate changes
+      core: Add hooks for default sink and source changes
+      namereg: Fire hooks for default sink and source changes
+      dbus: Use hooks for put and unlink
+      dbus: Use hooks for default sink and source changes
+      core: Add core hooks for module changes
+      module: Fire hooks for new, proplist changed and removed
+      core, core-scache: Fire hooks for new, changed and removed events
+      dbus: Use hooks for sample cache new and removed events
+      dbus: Use hook for sample cache proplist changes
+      dbus: Use hooks for module new and removed events
+      dbus: Use hooks for module proplist changes
+      Revert "Warn on loading module-dbus-protocol"
+
+Manish Sogi (2):
+      xen: Resource leak in local function alloc_gref() - alloc_fd and dev_fd
+      pacmd: Placeholders describing command line options should not have spaces
+
+Michael Cree (1):
+      tests: Fix test-suite failure on Alpha
+
+Milo Casagrande (1):
+      Update Italian translation.
+
+Muhammet Kara (1):
+      i18n: Updated Turkish translation
+
+Nazar Mokrynskyi (1):
+      alsa-mixer: Add support for Creative SoundBlaster Omni Surround 5.1 USB sound card
+
+Paul Menzel (1):
+      lfe-filter: Use length modifier `z` for type `size_t`
+
+Peter Meerwald (29):
+      context: pa_context_connect() with PA_CONTEXT_NOFAIL should return 0 when waiting for PA on D-Dus
+      man: Describe optional prefix {string} in server address
+      man: Drop separate paplay man page, move info to pacat man page
+      man: Install man page symlinks to pacat for paplay, parec, parecord, pamon
+      pacat: State purpose of program depending how it was invoked
+      alsa-util: No logging when sound card only supports non-interleaved sample format
+      alsa: Fix spelling of officially
+      tagstruct: Distinguish pa_tagstruct_new() use cases
+      tagstruct: Replace dynamic flag with type
+      tagstruct: Get rid of pa_tagstruct_free_data()
+      tagstruct: Add type _APPENDED
+      tagstruct: Use flist to potentially save calls to malloc()/free()
+      packet: Hide internals of pa_packet, introduce pa_packet_data()
+      packet: Make pa_packet_new() create fixed-size packets
+      packet: Introduce pa_packet_new_data() to copy data into a newly created packet
+      packet: Use flist to save calls to malloc()/free()
+      pacat: Fix comment wording
+      man: Fix typos in pulse-cli-syntax.5
+      man: Document .ifexists CLI meta command
+      daemon: Exit with code 0 on SIGINT and SIGTERM
+      pulse: Document pa_mainloop_quit()'s retval parameter
+      core: Don't export pa_rtpoll_quit(), only used internally
+      biquad: Make use of M_SQRT2 constant
+      biquad: Fix warning, gamma shadows global declaration
+      padsp: Fix wrong condition discovered by -Wlogical-not-parentheses warning
+      core: Work around -Wlogical-not-parentheses warnings
+      daemon: No need to check optarg, -p requires argument
+      core: Add missing return on protocol error
+      modules: Fix entry leak in module-card-restore
+
+Pierre Ossman (1):
+      core: make sure we use the correct win32 socket errno:s
+
+Piotr Drąg (1):
+      i18n: Update Polish translation
+
+René J. V. Bertin (1):
+      coreaudio: Change error type to OSStatus
+
+Sagar Nageshmurthy (1):
+      Fix: Prevent calling pa_rtpoll_free() for a NULL rtpoll
+
+Shawn Walker (1):
+      modules: Fix struct namespace collision on Solaris
+
+Sukesh Adiga (1):
+      cpu-arm: Fix memory leak in pa_cpu_get_arm_flags()
+
+Takashi Sakamoto (1):
+      udev: use ID_MODEL/ID_VENDOR to give friendly name for FireWire devices
+
+Tanu Kaskinen (33):
+      socket-server: pa_socket_server_new() can't fail, so don't check its return value
+      dynarray: Add pa_dynarray_last()
+      dynarray: Add pa_dynarray_remove_by_index()
+      dynarray: Add pa_dynarray_remove_by_data()
+      dynarray: Add PA_DYNARRAY_FOREACH
+      tagstruct: Refactor writing/reading basic types
+      alsa: Don't access pa_sink/source_new_data after done() has been called
+      core-util: Make number parsing stricter
+      ucm: Add support for "JackControl"
+      .gitignore: Add lfe-filter-test
+      sink, source: Fix a volume change leak
+      pactl: Fix relative volume parsing
+      core-util: Filter out not-a-numbers in pa_atod()
+      core-util: Make pa_parse_volume() more strict
+      oss: Use the correct fd when interacting with the mixer
+      build-sys: add winerrno.h to libpulsecommon_SOURCES
+      combine-sink: Fix unsafe message handling
+      alsa-mixer: Add descriptions for analog-stereo-input and analog-stereo-output mappings
+      build-sys: make error message visible
+      alsa: Add pa_alsa_jack_new() and pa_alsa_jack_free()
+      ucm: Don't create separate input and output jacks
+      alsa: Add associations between jacks, UCM devices and UCM ports
+      alsa: Move UCM port availability updating to the mixer code
+      ucm: Create only one jack object per kcontrol
+      ucm: Add support for "JackHWMute"
+      build-sys: bump sonames
+      update NEWS for 7.0
+      alsa-mixer: sb-omni-surround-5.1.conf: rename analog-stereo to analog-stereo-output
+      alsa-mixer: sb-omni-surround-5.1.conf: remove analog-surround-40 mapping
+      build-sys: check strtod_l instead of strtof_l
+      core-util: include xlocale.h when using strtod_l()
+      build-sys: bump sonames
+      build-sys: add sb-omni-surround-5.1.conf to Makefile.am
+
+Ville Skyttä (1):
+      build-sys: Install bash completion to where bash-completion.pc says
+
+Wim Taymans (1):
+      Add korean translation
+
+Yuri Chornoivan (1):
+      i18n: Update Ukrainian translation
+
+Zavadovsky Yan (1):
+      build-sys: fix order of libraries installation
 </pre>
