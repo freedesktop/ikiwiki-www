@@ -2,14 +2,14 @@
 
 _TL;DR: Let's automatically discover, mount and enable the root partition, /home, /srv and the swap partitions based on GUID Partition Tables (GPT)!_ 
 
-The GUID Partition Table (GPT) is mandatory on EFI systems. It allows identification of partition types with GUIDs. So far Linux has made little use of this, and mostly just defined one  GUID for file system partitions and another one for swap partitions. With this specification we introduce a number of additional partition types in order to enable automatic discovery of partitions and their purpose. This has a couple of benefits:
+The GUID Partition Table (GPT) is mandatory on EFI systems. It allows identification of partition types with GUIDs. So far Linux has made little use of this, and mostly just defined one GUID for file system/data partitions and another one for swap partitions.  With this specification, we introduce additional partition types to enable automatic discovery of partitions and their intended mountpoint.  This has many benefits:
 
-* OS installers can automatically discover and make sense of partitions of pre-existing Linux installations
-* The OS can discover and mount the necessary file systems with a non-existing or incomplete /etc/fstab file and without root= kernel command line option
+* OS installers can automatically discover and make sense of partitions of existing Linux installations.
+* The OS can discover and mount the necessary file systems with a non-existing or incomplete /etc/fstab file and without the root= kernel command line option.
 * Container managers (such as nspawn and libvirt-lxc) can decode and set up file systems contained in GPT disk images automatically and mount them to the right places, thus allowing booting the same, identical images on bare-metal and in Linux containers. This enables true, natural portability of disk images between physical machines and Linux containers.
 * As a help to administrators and users partition manager tools can show more descriptive information about partitions tables.
 
-Note that the OS side of this scheme is implemented in [systemd](http://freedesktop.org/wiki/Software/systemd/) 211 and newer in the [systemd-auto-gpt-generator(8)](http://www.freedesktop.org/software/systemd/man/systemd-gpt-auto-generator.html) and [systemd-efi-boot-generator(8)](http://www.freedesktop.org/software/systemd/man/systemd-efi-boot-generator.html) generator tools. Note that automatic discovery of the root or ESP partition only works if the boot loader communicates this information to the OS, by implementing the [Boot Loader Interface](http://www.freedesktop.org/wiki/Software/systemd/BootLoaderInterface/).
+Note that the OS side of this specification is currently implemented in [systemd](http://freedesktop.org/wiki/Software/systemd/) 211 and newer in the [systemd-auto-gpt-generator(8)](http://www.freedesktop.org/software/systemd/man/systemd-gpt-auto-generator.html) and [systemd-efi-boot-generator(8)](http://www.freedesktop.org/software/systemd/man/systemd-efi-boot-generator.html) generator tools. Note that automatic discovery of the root or ESP partition only works if the boot loader communicates this information to the OS, by implementing the [Boot Loader Interface](http://www.freedesktop.org/wiki/Software/systemd/BootLoaderInterface/).
 
 ## Defined Partition Type GUIDs
 
@@ -26,56 +26,56 @@ Note that the OS side of this scheme is implemented in [systemd](http://freedesk
 <td><nobr><tt>44479540-f297-41b2-9af7-d131d5f0458a</tt></nobr></td>
 <td><nobr><i>Root Partition (x86)</i></nobr></td>
 <td>Any native, optionally in LUKS</td>
-<td>On 32bit x86 systems the first x86 root partition on the disk the EFI ESP is located on is automatically mounted to the root directory /. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/root.</td>
+<td>On 32-bit x86 systems, the first partition with this GUID on the disk containing the active EFI ESP is automatically mounted to the root directory /.  If the partition is encrypted with LUKS, the device mapper file will be named /dev/mapper/root.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>4f68bce3-e8cd-4db1-96e7-fbcaf984b709</tt></nobr></td>
 <td><nobr><i>Root Partition (x86-64)</i></bobr></td>
 <td>Any native, optionally in LUKS</td>
-<td>On 64bit x86 systems the first x86-64 root partition on the disk the EFI ESP is located on is automatically mounted to the root directory /. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/root.</td>
+<td>On 64-bit x86 systems, the first partition with this GUID on the disk containing the active EFI ESP is automatically mounted to the root directory /.  If the partition is encrypted with LUKS, the device mapper file will be named /dev/mapper/root.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>69dad710-2ce4-4e3c-b16c-21a1d49abed3</tt></nobr></td>
-<td><nobr><i>Root Partition (32bit ARM)</i></bobr></td>
+<td><nobr><i>Root Partition (32-bit ARM)</i></bobr></td>
 <td>Any native, optionally in LUKS</td>
-<td>On 32bit ARM systems the first ARM root partition on the disk the EFI ESP is located on is automatically mounted to the root directory /. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/root.</td>
+<td>On 32-bit ARM systems, the first partition with this GUID on the disk containing the active EFI ESP is automatically mounted to the root directory /.  If the partition is encrypted with LUKS, the device mapper file will be named /dev/mapper/root.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>b921b045-1df0-41c3-af44-4c6f280d3fae</tt></nobr></td>
-<td><nobr><i>Root Partition (64bit ARM)</i></bobr></td>
+<td><nobr><i>Root Partition (64-bit ARM/AArch64)</i></bobr></td>
 <td>Any native, optionally in LUKS</td>
-<td>On 64bit ARM systems the first 64bit ARM root partition on the disk the EFI ESP is located on is automatically mounted to the root directory /. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/root.</td>
+<td>On 64-bit ARM systems, the first partition with this GUID on the disk containing the active EFI ESP is automatically mounted to the root directory /.  If the partition is encrypted with LUKS, the device mapper file will be named /dev/mapper/root.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>933ac7e1-2eb4-4f13-b844-0e14e2aef915</tt></nobr></td>
 <td><nobr><i>Home Partition</i></nobr></td>
 <td>Any native, optionally in LUKS</td>
-<td>The first home partition on the disk the root partition is located on is automatically mounted to /home. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/home.</td>
+<td>The first partition with this GUID on the disk containing the root partition is automatically mounted to /home.  If the partition is encrypted with LUKS, the device mapper file will be named /dev/mapper/home.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>3b8f8425-20e0-4f3b-907f-1a25a76f98e8</tt></nobr></td>
 <td><nobr><i>Server Data Partition</i></nobr></td>
 <td>Any native, optionally in LUKS</td>
-<td>The first server data partition on the disk the root partition is located on is automatically mounted to /srv. If the partition is encrypted with LUKS the device mapper file will be named /dev/mapper/srv.</td>
+<td>The first partition with this GUID on the disk containing the root partition is automatically mounted to /srv.  If the partition is encrypted with LUKS, the device mapper file will be named /dev/mapper/srv.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>0657fd6d-a4ab-43c4-84e5-0933c84b4f4f</tt></nobr></td>
 <td><nobr><i>Swap</i></nobr></td>
 <td>Swap</td>
-<td>All swap partitions located on the disk the root partition is located on are automatically enabled.</td>
+<td>All swap partitions on the disk containing the root partition are automatically enabled.</td>
 </tr>
 
 <tr>
 <td><nobr><tt>c12a7328-f81f-11d2-ba4b-00a0c93ec93b</tt></nobr></td>
 <td><nobr><i>EFI System Partition</i></nobr></td>
 <td>VFAT</td>
-<td>The ESP used for the current boot is automatically mounted to /boot, unless a different partition is mounted there, possibly via /etc/fstab, or the directory is non-empty on the root disk. THis partition type is defined by the <a href="http://www.uefi.org/specifications">UEFI Specification</a>.</td>
+<td>The ESP used for the current boot is automatically mounted to /boot, unless a different partition is mounted there (possibly via /etc/fstab) or the directory is non-empty on the root disk.  This partition type is defined by the <a href="http://www.uefi.org/specifications">UEFI Specification</a>.</td>
 </tr>
 
 <tr>
@@ -102,58 +102,58 @@ For partitions of the types listed above it is recommended to use human-friendly
 
 ## Partition Flags
 
-For the root, server data, home and swap partitions the partition flag bit 63 ("*no-auto*") may be used to turn off auto-discovery for the specific partition. If set the partition will not be automatically mounted or enabled.
+For the root, server data, home, and swap partitions, the partition flag bit 63 ("*no-auto*") may be used to turn off auto-discovery for the specific partition.  If set, the partition will not be automatically mounted or enabled.
 
-For the root, server data and home partitions the partition flag bit 60 ("*read-only*") may be used to mark a partition for read-only mounts only. If set the partition will be mounted read-only instead of read-write.
+For the root, server data, and home partitions, the partition flag bit 60 ("*read-only*") may be used to mark a partition for read-only mounts only.  If set, the partition will be mounted read-only instead of read-write.
 
 Note that these two flag definitions happen to map nicely to the ones used by Microsoft Basic Data Partitions. 
 
 ## Suggested Mode of Operation
 
-An *installer* that repartitions the hard disk, should use the above GUID partition types for the partitions it creates. 
+An *installer* that repartitions the hard disk _should_ use the above GUID partition types for appropriate partitions it creates.
 
-An *installer* which supports a "manual partitioning" UI is may choose to prepopulate the UI with swap, /home and /srv partitions of pre-existing Linux OS installations, identified with the GPT type GUIDS above. Note that it shall only prepopulate the UI with the Extended Boot Partition if its boot loader supports the <a href="http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/">Boot Loader Specification</a>. The installer should not prepopulate such an UI with any identified root partition unless the intention is too overwrite an existing operating system that might be installed.
+An *installer* which supports a "manual partitioning" interface _may_ choose to pre-populate the interface with swap, /home and /srv partitions of pre-existing Linux installations, identified with the GPT type GUIDs above.  Note that it must only pre-populate the interface with the Extended Boot Partition if its boot loader supports the <a href="http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/">Boot Loader Specification</a>.  The installer should not pre-populate such an interface with any identified root partition unless the intention is to overwrite an existing operating system that might be installed.
 
-An *installer* may omit creating entries in /etc/fstab for root, /home, /srv and for the swap partitions if they use these GUID partition types, and are the first partitions on the disk of each type. If the ESP shall be mounted to /boot it may omit creating entries in /etc/fstab for it, too. If an extended boot partition is used or if the EFI partition shall not be mounted to /boot it *must* create /etc/fstab entries for them. If other partitions are used (for example for /var or /usr), the installer *must* register these in /etc/fstab. The root= parameter passed to the kernel by the boot loader may be omitted too, if the root partition is the first one on the disk of its type. If the root partition is not the first one on the disk, the root= parameter *must* be passed to the kernel by the boot loader. An installer that mounts a root, /home or /srv file system with the partition types defined as above which contains a LUKS header *must* call the device mapper device "root", "home" and "srv". This is necessary to ensure that the automatic discovery will never result in different device mapper names than any static configuration by the installer, thus eliminating possibly naming conflicts and ambiguities.
+An *installer* _may_ omit creating entries in /etc/fstab for root, /home, /srv and for the swap partitions if they use these GUID partition types, and are the first partitions on the disk of each type. If the ESP shall be mounted to /boot, it may additionally omit creating the entry for it in /etc/fstab.  If an extended boot partition is used, or if the EFI partition shall not be mounted to /boot, it _must_ create /etc/fstab entries for them.  If other partitions are used (for example for /var or /usr), the installer _must_ register these in /etc/fstab.  The root= parameter passed to the kernel by the boot loader may be omitted if the root partition is the first one on the disk of its type.  If the root partition is not the first one on the disk, the root= parameter _must_ be passed to the kernel by the boot loader.  An installer that mounts a root, /home or /srv file system with the partition types defined as above which contains a LUKS header _must_ call the device mapper device "root", "home", and "srv", respectively.  This is necessary to ensure that the automatic discovery will never result in different device mapper names than any static configuration by the installer, thus eliminating possible naming conflicts and ambiguities.
 
-An *operating* *system* should automatically discover and mount the first root partition (which does not have the no-auto flag set, see above), by looking on the disk the EFI ESP used to boot is located on. It should automatically discover and mount the first /home, /srv and swap partitions (which do not have the no-auto flag set, see above) by looking on the disk the root partition is located on. It should automatically discover and mount the /boot partition to the ESP used for booting. It should not discover/mount partitions with other GUID partition types, or partitions located on other disks, or partitions with the no-auto flag set (see above). User configuration shall always override automatic discovery and mounting. If a root, /home, /srv, /boot file system or swap partition is listed in /etc/fstab or with root= on the kernel command line it shall always take precedence over automatically discovered partitions. If a /home, /srv, /boot file system is found to be populated already the automatic discovery shall not overmount it with any discovered file system.
+An *operating* *system* _should_ automatically discover and mount the first root partition that does not have the no-auto flag set (as described above) by scanning the disk containing the currently used EFI ESP.  It _should_ automatically discover and mount the first /home, /srv, and swap partitions that do not have the no-auto flag set by scanning the disk containing the discovered root partition.  It should automatically discover and mount the partition containing the currently used EFI ESP to /boot.  It _should not_ discover or automatically mount partitions with other GUID partition types, or partitions located on other disks, or partitions with the no-auto flag set.  User configuration shall always override automatic discovery and mounting.  If a root, /home, /srv, /boot, or swap partition is listed in /etc/fstab or with root= on the kernel command line, it _must_ take precedence over automatically discovered partitions.  If a /home, /srv, or /boot directory is found to be populated already in the root partition, the automatic discovery _must not_ mount any discovered file system over it.
 
-A *container* *manager* should automatically discover and mount the root, /home and /srv boot file systems inside a container disk image. It should ignore any swap, ESP or Extended Boot Partitions should they be included in a container disk image.
+A *container* *manager* should automatically discover and mount the root, /home, and /srv partitions inside a container disk image.  It should ignore any swap, ESP, or Extended Boot Partitions should they be included in a container disk image.
 
-If a btrfs file system is automatically discovered and mounted by the operating system/container manager it will be mounted with its *default* subvolume. The installer should make sure to set the default subvolume correctly using "btrfs subvolume set-default".
+If a btrfs file system is automatically discovered and mounted by the operating system/container manager it will be mounted with its *default* subvolume.  The installer should make sure to set the default subvolume correctly using "btrfs subvolume set-default".
 
 ## Sharing of File Systems between Installations
 
-If two (Linux-based) operating systems are installed on the same disk, the scheme above suggests that they may share the swap, /home, /srv, ESP and Extended Boot Partition. However, they should each have their own root partition.
+If two Linux-based operating systems are installed on the same disk, the scheme above suggests that they may share the swap, /home, /srv, ESP, and Extended Boot Partition. However, they should each have their own root partition.
 
 ## Frequently Asked Questions
 
-### What about automatic discovery of /var, /usr or /etc partitions?
+### What about automatic discovery of /var, /usr, or /etc partitions?
 
-Partitions for /home, /srv or swap may be shared relatively painlessly between multiple OS installations on the same disk. The same is not true for /var, /usr and /etc which belong closely to one specific root partition and need to be updated in close synchronization with each other. Since the GPT partition table scheme cannot express which sets of partitions belong to a single OS installation and to avoid the risk of accidentally mixing and matching incorrect combinations of these partitions we decided to not define auto-discovery of these partition types within this specification.
+Partitions for /home, /srv, or swap may be shared relatively painlessly between multiple OS installations on the same disk.  The same is not true for /var, /usr, and /etc which belong closely to one specific root partition and need to be updated in close synchronization with each other.  Since the GPT partition table scheme cannot express which sets of partitions belong to a single OS installation, and to avoid the risk of accidentally mixing and matching incorrect combinations of these partitions, we decided to not define auto-discovery of these partition types within this specification.
 
 ### What about automatic mounting of btrfs subvolumes to /var, /home and so on?
 
-Doing a similar automatic discovery of btrfs subvolumes and mounting them automatically to the appropriate places is certainly desirable. We are waiting for the btrfs designers to add a per-subvolume type UUID to their disk format to make this possible.
+Doing a similar automatic discovery of btrfs subvolumes and mounting them automatically to the appropriate places is certainly desirable.  We are waiting for the btrfs designers to add a per-subvolume type UUID to their disk format to make this possible.
 
 ### Why are you taking my /etc/fstab away?
 
-We are not. /etc/fstab always overrides automatic discovery. We are just trying to make the boot and installation processes of Linux a bit more robust and self-descriptive.
+We are not.  /etc/fstab always overrides automatic discovery and is indeed mentioned in the specifications.  We are simply trying to make the boot and installation processes of Linux a bit more robust and self-descriptive.
 
 ### Why did you only define the root partition for x86, x86-64 and ARM?
 
-Well, the automatic discovery of the root partition is defined to operate on the disk the EFI System Partition (ESP) that was used for booting is located on. Since EFI only exists on x86, x86-64 and ARM in the wild so far we only defined root partition GUIDs for these two architectures. Should EFI become more common on other architectures too we can define additional GUIDs for them.
+The automatic discovery of the root partition is defined to operate on the disk containing the current EFI System Partition (ESP). Since EFI only exists on x86, x86-64, and ARM so far, we only defined root partition GUIDs for these architectures.  Should EFI become more common on other architectures, we can define additional GUIDs for them.
 
 ### Why define distinct root partition GUIDs for the various architectures?
 
-In order to allow disk images that may be booted on multiple architectures we want to enable discovery of the appropriate root partition on each architecture.
+This allows disk images that may be booted on multiple architectures to use discovery of the appropriate root partition on each architecture.
 
 ### Doesn't this break multi-boot scenarios?
 
-No, it doesn't. The specification says that installers may not stop creating /etc/fstab or stop including root= on the kernel command line, unless the used partitions are the first ones of their type on the disk. And /etc/fstab and root= override all automatic discovery. Multi-boot is hence well supported, since it doesn't change anything for anything but the first installation.
+No, it doesn't.  The specification says that installers may not stop creating /etc/fstab or stop including root= on the kernel command line, unless the used partitions are the first ones of their type on the disk. Additionally, /etc/fstab and root= both override automatic discovery.  Multi-boot is hence well supported, since it doesn't change anything for anything but the first installation.
 
-That all said, it's not expected that generic installers generally stop setting root= and creating /etc/fstab anyway. The option to drop these configuration bits is primarily something for appliance-like devices. However, generic installers should *still* set the right GPT partition types for the partitions they create so that container managers, partition tools and administrators can benefit. Or to say this differently: this specification introduces A) the *recommendation* to use the newly defined partition types to tag things properly and B) the *option* to then drop root= and /etc/fstab. While we advertise A) to *all* installers, we only propose B) for simpler, appliance-like installations.
+That all said, it's not expected that generic installers generally stop setting root= and creating /etc/fstab anyway. The option to drop these configuration bits is primarily something for appliance-like devices.  However, generic installers should *still* set the right GPT partition types for the partitions they create so that container managers, partition tools and administrators can benefit.  Phrased differently, this specification introduces A) the *recommendation* to use the newly defined partition types to tag things properly and B) the *option* to then drop root= and /etc/fstab.  While we advertise A) to *all* installers, we only propose B) for simpler, appliance-like installations.
 
 ### What partitioning tools will create a DPS-compliant partition table?
 
-As of util-linux 2.25.2, the fdisk tool provides type codes to create the root, home and swap partitions that the DPS expects, but the gdisk tool (version 0.8.10) and its variants do not support creation of a root filesystem with a matching type code.   By default, fdisk will create an old-style MBR, not a GPT, so typing 'l' to list partition types will not show the choices that the root partition with the correct GUID.   You must first create an empty GPT and then type 'l' in order for the DPS-compliant type codes to be available.
+As of util-linux 2.25.2, the fdisk tool provides type codes to create the root, home, and swap partitions that the DPS expects, but the gdisk tool (version 0.8.10) and its variants do not support creation of a root file system with a matching type code.   By default, fdisk will create an old-style MBR, not a GPT, so typing 'l' to list partition types will not show the choices that the root partition with the correct GUID.   You must first create an empty GPT and then type 'l' in order for the DPS-compliant type codes to be available.
