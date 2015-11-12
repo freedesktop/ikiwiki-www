@@ -850,6 +850,30 @@ The control values can't be modified at run-time, so it can be a problem to figu
 
 Control output ports are ignored.
 
+###module-virtual-surround-sink
+
+Simulates surround sound when using headphones.
+
+The module shows up as a separate sink. You can set the following parameters:
+
+* sink_name
+   * Name for this sink.
+* sink_properties
+   * Properties to set on the virtual sink.
+* master
+   * The sink where the processed audio is forwarded to.
+* hrir
+   * The hrir file that should be used. The module will convolve the input signal with the HRIR to create the output signal.
+
+Example:
+            load-module module-virtual-surround-sink sink_name=vsurround hrir=/home/user/.hrir.wav sink_properties=device.description=VirtualSurround
+
+You might want to put this line in _~/.config/pulse/default.pa_ since the HRIR file for best results can be different for every user.
+
+Some HRIR files can be found [[here|https://stuff.salscheider-online.de/hrir_kemar.tar.gz]] and [[here|https://stuff.salscheider-online.de/hrir_listen.tar.gz]].
+The HRIR file from the first link was recorded using a dummy head. It was designed to work well for most people.
+The second link contains many HRIR files that where recorded using real heads. You should play back the files in the _demos_ folder. Then, you should decide which gives you the best impression of a noise moving around your head in a circle. You can find the corresponding HRIR file for this module in the _hrirs_ folder.
+
 
 ## Miscellaneous
 
