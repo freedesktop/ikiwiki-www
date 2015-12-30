@@ -14,7 +14,7 @@ There's a new API for controlling the LFE (a.k.a. subwoofer) channel volume rela
 
 Some background: the "native" volume representation in PulseAudio is to have independent volume for each channel, but some UIs may prefer to have one "overall volume" slider and two sliders for controlling the left-right and rear-front balances. There have always been helper functions for mapping the left-right and rear-front balances to per-channel volumes and vice versa. The LFE channel is not included in any of the conversions, however. To allow users to also control the LFE channel volume some UIs (at least the Gnome sound configuration tool) have added the LFE channel control as a separate slider, but in practice that had weird interactions with the overall volume slider.
 
-To resolve this problem, we now have helper functions for controlling the balance between LFE and non-LFE channels, which allow changing the balance without affecting the overall volume. All applications that present the left-right and rear-front balances to the user should start using the new API for dealing with the LFE volume.
+To resolve this problem, we now have helper functions for controlling the balance between LFE and non-LFE channels, which allow changing the balance without affecting the overall volume. All applications that present the left-right and rear-front balances to the user are advised to start using the new API for dealing with the LFE volume.
 
 The new functions are `pa_cvolume_get_lfe_balance`, `pa_cvolume_set_lfe_balance` and `pa_channel_map_can_lfe_balance`.
 
