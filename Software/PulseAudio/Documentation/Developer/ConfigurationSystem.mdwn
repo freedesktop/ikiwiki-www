@@ -169,3 +169,72 @@ Should we have a "reset to default" API? What about an "ask what the default is"
 Should we have an API for querying the currently supported object types?
 
 * My opinion: yes. --Tanu
+
+
+# Alternative Proposal
+
+Use cases
+----
+
+ * Daemon configuration (daemon.conf, additional modules to load)
+ * Client configuration (client.conf)
+ * Global module configuration (echo canceller parameters)
+ * Per-instance module configuration (ALSA ignore_dB)
+
+Scheme
+----
+
+ * Configuration will be defined as a (key, type, value) tuple
+   * Types are basic types -- integer, boolean, string
+   * Do we want to support lists of a single type?
+ * All known configuration will need to be registered before first use
+   * Required because the type must be known whenever a value is set
+   * Mechanism for modules to publish configuration out of band?
+ * Keys can be namespaced
+   * daemon.flat-volumes, daemon.defaults.rate,
+     daemon.defaults.alternate-rate
+   * client.autospawn, client.defaults.sink, client-defaults.source
+   * modules.echo-cancel.engine, modules.beamformer.geometry
+   * modules.alsa.card.<card-name>.ignore_dB
+ * Identifying instance for per-instance configuration must be handled by
+   module itself
+   * Can just be responsible for module.alsa.* for example
+
+Internal API
+----
+
+ * Register a config key
+   * pa_config_register_key(core, key, type, default_value)
+ * Query a config key
+   * pa_config_query_key(core, key, ptr)
+ * Register a handler for when a key is set
+   * pa_config_register_single_handler(core, key, func)
+ * Register a handler for a namespace
+   * pa_config_register_prefix_handler(core, prefix, func)
+ * More than one handler can be registered
+   * Modules might be interested in certain core config, for example 
+   * Do we need to worry about order? Early/normal/late?
+
+External API
+----
+
+ * Configuration key names and types become part of the client API/ABI. 
+ * Clients can listen for configuration changes
+   * pa_context_set_config_callback()
+   * Should we allow a prefix filter?
+ * Clients can set configuration (the name and type are assumed to be well
+   known
+   * pa_context_set_config(context, key, type, value)
+   * The type will let us pack the value appropriately to send on the wire
+   * Validation of the type will be done server side against the registered
+     type
+ * Clients can query configuration
+   * pa_context_get_config(context, key, type_ptr, value_ptr)
+
+Storage
+----
+
+ * Configuration storage can be in whatever database mechanism PA is compiled
+   with
+ * All access happens in the main thread context
+ * No support for listening to changes made outside of the client API
