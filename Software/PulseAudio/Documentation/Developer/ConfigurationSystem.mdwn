@@ -55,13 +55,17 @@ Internal API
    * Do we need to worry about order? Early/normal/late?
  * Modules that have not yet been loaded might still need to validate their
    configuration
-   * For this, we add a new entry point to modules -- validate()
+   * For this, we could add a new entry point to modules -- validate()
    * The core will load the corresponding module when a module.<module-name>.*
      configuration option is set
-   * The pa__validate() function in that module is meant to accept a (key,
-     type, value) tuple and return true/false on validate
+   * The pa__validate_config() function in that module is meant to accept a
+     (key, type, value) tuple and return true/false on validate
    * The core can unload the module after a while if no configuration is set on
      it for a while
+   * An alternative to the core understanding the "module.<module-name>"
+     prefix is that we build a registry at PA start time of modules and the
+     prefixes they will manage so that we know up-front which module(s) to load
+     to validate a given configuration option.
 
 External API
 ----
@@ -86,6 +90,7 @@ Storage
 
  * Configuration storage can be in whatever database mechanism PA is compiled
    with
+ * An alternative is a plain-text file
  * All access happens in the main thread context
  * No support for listening to changes made outside of the client API
 
