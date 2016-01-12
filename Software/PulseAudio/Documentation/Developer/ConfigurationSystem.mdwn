@@ -22,11 +22,8 @@ Use cases
 Scheme
 ----
 
- * Configuration will be defined as a (key, type, value) tuple
-   * Types are basic types -- integer, boolean, string
-   * Do we want to support lists of a single type?
+ * Configuration will be defined as a (key, value) pair, each being a string
  * All known configuration will need to be registered before first use
-   * Required because the type must be known whenever a value is set
    * Mechanism for modules to publish configuration out of band?
  * Keys can be namespaced
    * daemon.flat-volumes, daemon.defaults.rate,
@@ -43,7 +40,7 @@ Internal API
 ----
 
  * Register a config key
-   * pa_config_register_key(core, key, type, default_value)
+   * pa_config_register_key(core, key, default_value)
  * Query a config key
    * pa_config_query_key(core, key, ptr)
  * Register a handler for when a key is set
@@ -51,7 +48,7 @@ Internal API
  * Register a handler for a namespace
    * pa_config_register_prefix_handler(core, prefix, func)
  * More than one handler can be registered
-   * Modules might be interested in certain core config, for example 
+   * Modules might be interested in certain core config, for example
    * Do we need to worry about order? Early/normal/late?
  * Modules that have not yet been loaded might still need to validate their
    configuration
@@ -59,7 +56,7 @@ Internal API
    * The core will load the corresponding module when a module.<module-name>.*
      configuration option is set
    * The pa__validate_config() function in that module is meant to accept a
-     (key, type, value) tuple and return true/false on validate
+     (key, value) tuple and return true/false on validate
    * The core can unload the module after a while if no configuration is set on
      it for a while
    * An alternative to the core understanding the "module.<module-name>"
@@ -70,20 +67,16 @@ Internal API
 External API
 ----
 
- * Configuration key names and types become part of the client API/ABI. 
+ * Configuration key names become part of the client API/ABI.
  * Clients can listen for configuration changes
    * pa_context_set_config_callback()
    * Should we allow a prefix filter?
- * Clients can set configuration (the name and type are assumed to be well
-   known
-   * pa_context_set_config(context, key, type, value, success_cb)
-   * The type will let us pack the value appropriately to send on the wire
-   * Validation of the type will be done server side against the registered
-     type
+ * Clients can set configuration (the name is assumed to be well known)
+   * pa_context_set_config(context, key, value, success_cb)
    * Server will return a success/failure status which will be provided to
      the client via the success callback
  * Clients can query configuration
-   * pa_context_get_config(context, key, type_ptr, value_ptr)
+   * pa_context_get_config(context, key, value_ptr)
 
 Storage
 ----
