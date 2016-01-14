@@ -4,10 +4,20 @@
 
 ## Changes at a glance
 
+ * Routing more likely to change profile
  * New LFE balance programming interface
  * More flexible configuration file handling
  * OS X and NetBSD support improvements
  * Various bug fixes and small improvements
+
+## Notes for end users
+
+### Routing more likely to change profile
+
+In case a sound card contains more than one profile (e g analog and HDMI profiles), module-switch-on-port-available will now switch away from the profile when no ports are available. E g, on a HTPC with headphones and HDMI outputs only, unplugging headphones will reroute the sound to HDMI, which did not work before.
+In addition, we also remember the last used profile for a port, so the expected HDMI profile is chosen (instead of just falling back to stereo).
+
+Note that many systems have HDMI and analog output on separate sound cards, so this might not improve the situation for all systems.
 
 ## Notes for application developers
 
@@ -20,6 +30,10 @@ Some background: the "native" volume representation in PulseAudio is to have ind
 To resolve this problem, we now have helper functions for controlling the balance between LFE and non-LFE channels, which allow changing the balance without affecting the overall volume. All applications that present the left-right and rear-front balances to the user are advised to start using the new API for dealing with the LFE volume.
 
 The new functions are `pa_cvolume_get_lfe_balance`, `pa_cvolume_set_lfe_balance` and `pa_channel_map_can_lfe_balance`.
+
+### Module-dbus-protocol improvements
+
+Port and card profile availability is now visible through the D-Bus API.
 
 ## Notes for packagers
 
