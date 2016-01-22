@@ -7,11 +7,11 @@
  * Automatic routing more likely to change profile
  * OS X and NetBSD support improvements
  * Systemd journal logging for clients
- * New script for measuring memory consumption
  * New LFE balance programming interface
  * Module-dbus-protocol improvements
  * More flexible configuration file handling
  * pulsecore-8.0.so moved to a private directory
+ * New script for measuring memory consumption
  * Various bug fixes and small improvements
 
 ## Notes for end users
@@ -67,5 +67,164 @@ pulsecore-X.Y.so used to be installed in the top level /usr/lib directory, but t
 ## git shortlog
 
 <pre>
-To be added later.
+Ahmed S. Darwish (5):
+      log: Introduce PULSE_LOG_JOURNAL environment variable
+      log: Fix compilation error on non-systemd systems
+      build-sys: bootstrap.sh: Do a make only if configure has succeeded
+      scripts: Introduce benchmark_memory_usage.sh
+      scripts: Plot memory benchmarks using gnuplot
+
+Alexander E. Patrakov (1):
+      alsa-sink: Don't pretend to support passthrough on HDMI surround sinks
+
+Andrey Semashev (1):
+      soxr: Use soxr_clear() if libsoxr version is 0.1.2 or later.
+
+Arun Raghavan (15):
+      resampler: Don't expose soxr methods if they are not supported
+      tests: Set appropriate timeouts for a couple of tests
+      build: Add IRC notifications to Travis
+      sink: Make early drain reporting propagate down to filters
+      source: Deal with filter having more channels than the master
+      alsa: Use helper function for byte conversion across sample specs
+      tests: Make echo-cancel-test not crash
+      echo-cancel: Don't skip canceller when sink is inactive
+      build: Move to using Travis trusty images
+      daemon: Sanitise message about unsupported high res timers
+      alsa: Don't disable timer-based scheduling on USB devices
+      sink-input, source-output: Add some debug output on start_move()
+      stream: Clarify pa_stream_writable_size() documentation
+      build-sys: Use #ifdef with HAVE_FAST_64BIT_OPERATIONS
+      Update NEWS for 8.0
+
+David Henningsson (23):
+      alsa-mixer: Add "Mic Boost" and "Line Boost" to analog-input.conf
+      client: Use pa_xnew0 when creating a client
+      card: Use pa_xnew0 when creating a card
+      shm: Warn on not being able to open shm files
+      card: Use pa_xmalloc0 when creating card profiles
+      module-alsa-card: Report available ports before unavailable ones
+      pstream: Fix use-after-free in srb_callback
+      alsa-mixer: Ignore volume with unexpected number of channels
+      volume: Refactor get/set balance/fade
+      volume: Add LFE balance API
+      alsa-mixer: Add "Front Headphone" to headset mic path
+      alsa-mixer: Return early in case of no mixer poll descriptors
+      card: Add variables for splitting up a profile
+      alsa-mixer: Fill in input and output names
+      device-port: Add preferred_profile field to pa_device_port
+      card: Update preferred_profile for ports when profile changes
+      card-restore: Save and restore "preferred profile" of port
+      module-switch-on-port-available: Use input and output names
+      module-switch-on-port-available: Route to preferred profile
+      module-card-restore: Remove "version" from internal entry struct
+      card: Only update port's preferred profile if profile is saved
+      typedefs.h: Move some typedefs to a separate file
+      gitignore: Add .orig and .rej to gitignore
+
+Deepak Srivastava (1):
+      Rename functions with "tostring" in the name to one with "to_string" to conform with the convention.
+
+Felipe Sateler (5):
+      daemon: Use Type=notify for systemd service
+      pulseaudio.1: document that systemd notification only works without daemonization
+      build-sys: Make pulsecore a private library
+      travis: Run make install in travis.
+      build-sys: Fix install order of libpulsecore
+
+Georg Chini (2):
+      null-sink: correct update of timestamp when state changes to RUNNING or IDLE
+      loopback: Validate the rate parameter
+
+Jason Gerecke (1):
+      bluetooth: Prevent aborts caused by invalid module arguments
+
+John Horan (1):
+      make availability of ports visible over dbus
+
+Juho Hämäläinen (2):
+      dbus: Add card profile availability info to API
+      alsa-mixer: Have valid proplist for synthesized path as well.
+
+Julien Isorce (2):
+      core-util: avoid calling fchmod if already right mode
+      thread-mainloop: keep SIGSYS unblocked if currently trapped
+
+Kamil Rytarowski (7):
+      netbsd: NetBSD ships with paccept(2) a superset of Linux-specific accept4()
+      netbsd: Improve handling of <locale> and <xlocale.h> headers
+      netbsd: Fix unportable test(1) construct
+      core-rtclock: Add missing declaration of struct timespec
+      core, pulse, modules: Fix undefined behavior with array subscript of invalid type
+      netbsd: Revamp NetBSD platform checks
+      NetBSD: Stop depending upon nonstandard __WORDSIZE
+
+KimJeongYeon (1):
+      module-tunnel: Fix double free
+
+Kiran Krishnappa (1):
+      module: Remove redundant core argument from pa_module_unload()
+
+Lev Melnikovsky (1):
+      rtp: fix non null terminated string / non portable sscanf
+
+Manish Sogi (1):
+      bluetooth: bluez4: Remove the unused "auto_connect" parameter as it is not used in bluez4
+
+Mihai Moldovan (4):
+      configure.ac: add HAVE_COREAUDIO to automake and code.
+      default.pa.in: load module-coreaudio-detect if HAVE_COREAUDIO.
+      system.pa.in: load module-coreaudio-detect if HAVE_COREAUDIO.
+      module-coreaudio-device: get channel name as CFString and convert to plain C string.
+
+Mingye Wang (Arthur2e5) (1):
+      i18n: Updated zh_CN translation
+
+Nazar Mokrynskyi (1):
+      alsa-mixer: sb-omni-surround-5.1.conf: remove analog-surround-21, add Linux 4.3+ support
+
+Peter Mattern (1):
+      pacmd: Fix typo in set-default-* help
+
+Peter Meerwald (1):
+      core: Fallbacks for machine-id in filesystem
+
+Pierre Ossman (1):
+      context: continue without srbchannel if it fails
+
+Ross Burton (1):
+      git-version-gen: Avoid further processing when tarball-version is present
+
+Shawn Walker (1):
+      build-sys: don't use the nodelete linker flag on executables
+
+Takashi Iwai (1):
+      alsa-mixer: Recognize "Dock Line Out" jack
+
+Tanu Kaskinen (12):
+      alsa-mixer: Add "Dock Line Out" jack handling to analog-output-speaker-always
+      build-sys: fix the default bash completion directory
+      alsa-ucm: fix pa_device_port.profiles leak
+      man: document when system.pa is used instead of default.pa
+      man: remove a reference to pacmd from default.pa.5
+      core-util: improve comments in pa_machine_id()
+      build-sys: fix PULSE_LOCALEDIR definition
+      conf-parser: add support for .d directories
+      client-conf, daemon-conf: enable .d directories
+      always-sink: simplify hook management with pa_module_hook_connect()
+      build-sys: bump sonames
+      build-sys: add typedefs.h to libpulsecore SOURCES
+
+Thomas Petazzoni (1):
+      pulsecore/packet: avoid redefinition of pa_packet structure
+
+Yuri Chornoivan (1):
+      i18n: Update Ukrainian translation
+
+Zbigniew Kempczyński (1):
+      alsa-sink: Avoid unloading alsa-sink module before calling try_recover()
+
+jungsup lee (1):
+      rtpoll: Fix build error when building with DEBUG_TIMING
+
 </pre>
