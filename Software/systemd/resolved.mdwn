@@ -7,3 +7,71 @@ systemd 229 and newer include a fully featured systemd-resolved DNS resolver imp
 See [[systemd-resolved(8).service|http://www.freedesktop.org/software/systemd/man/systemd-resolved.service.html]] for more information.
 
 systemd-resolved may be used via two interfaces: directly via its D-Bus interface (which is documented here), or via glibc NSS getaddrinfo(), in which case it provides forward and reverse hostname resolution. The latter is generally preferable as long as basic hostname resolution is all that's needed. The former is useful to retrieve arbitrary DNS resource records or DNSSEC authentication information. It generally provides a more fine-grained control over the lookups made. In addition it provides calls to introspect and configure the DNS resolver.
+
+    node /org/freedesktop/resolve1 {
+      interface org.freedesktop.resolve1.Manager {
+        methods:
+          ResolveHostname(in  i ifindex,
+                          in  s name,
+                          in  i family,
+                          in  t flags,
+                          out a(iiay) addresses,
+                          out s canonical,
+                          out t flags);
+          ResolveAddress(in  i ifindex,
+                         in  i family,
+                         in  ay address,
+                         in  t flags,
+                         out a(is) names,
+                         out t flags);
+          ResolveRecord(in  i ifindex,
+                        in  s name,
+                        in  q class,
+                        in  q type,
+                        in  t flags,
+                        out a(iqqay) records,
+                        out t flags);
+          ResolveService(in  i ifindex,
+                         in  s name,
+                         in  s type,
+                         in  s domain,
+                         in  i family,
+                         in  t flags,
+                         out a(qqqsa(iiay)s) srv_data,
+                         out aay txt_data,
+                         out s canonical_name,
+                         out s canonical_type,
+                         out s canonical_domain,
+                         out t flags);
+          ResetStatistics();
+          GetLink(in  i ifindex,
+                  out o path);
+          SetLinkDNS(in  i ifindex,
+                     in  a(iay) addresses);
+          SetLinkDomains(in  i ifindex,
+                         in  a(sb) domains);
+          SetLinkLLMNR(in  i ifindex,
+                       in  s mode);
+          SetLinkMulticastDNS(in  i ifindex,
+                              in  s mode);
+          SetLinkDNSSEC(in  i ifindex,
+                        in  s mode);
+          SetLinkDNSSECNegativeTrustAnchors(in  i ifindex,
+                                            in  as names);
+          RevertLink(in  i ifindex);
+        properties:
+          readonly s LLMNRHostname = 'delta';
+          readonly a(iiay) DNS = [(0, 2, [0xac, 0x1f, 0x00, 0x01])];
+          readonly a(isb) SearchDomains = [(0, 'fritz.box', false)];
+          readonly (tt) TransactionStatistics = (0, 846);
+          readonly (ttt) CacheStatistics = (55, 406, 439);
+          readonly (tttt) DNSSECStatistics = (0, 0, 0, 0);
+          readonly b DNSSECSupported = false;
+      };
+      interface org.freedesktop.DBus.Peer {
+      };
+      interface org.freedesktop.DBus.Introspectable {
+      };
+      interface org.freedesktop.DBus.Properties {
+      };
+    };
