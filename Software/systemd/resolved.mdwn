@@ -2,6 +2,8 @@
 
 # resolved
 
-systemd 229 and newer include a fully featured systemd-resolved DNS resolver implementation. This is a tiny daemon that provides DNS and LLMNR based host name resolution. Since it acts as DNSSEC validating stub resolver it is suitable for retrieving DNS certificate and SSH fingerprint resource records.
+systemd 229 and newer include a fully featured systemd-resolved DNS resolver implementation. This is a tiny daemon that provides DNS and LLMNR based host name resolution and caching. Since it acts as DNSSEC validating stub resolver it is suitable for retrieving DNS certificate and SSH fingerprint resource records.
 
 See [[systemd-resolved(8).service|http://www.freedesktop.org/software/systemd/man/systemd-resolved.service.html]] for more information.
+
+systemd-resolved may be used via two interfaces: directly via its D-Bus interface (which is documented here), or via glibc NSS getaddrinfo(), in which case it provides forward and reverse hostname resolution. The latter is generally preferable as long as basic hostname resolution is all that's needed. The former is useful to retrieve arbitrary DNS resource records or DNSSEC authentication information. It generally provides a more fine-grained control over the lookups made. In addition it provides calls to introspect and configure the DNS resolver.
