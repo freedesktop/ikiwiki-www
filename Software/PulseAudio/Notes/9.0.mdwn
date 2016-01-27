@@ -1,0 +1,35 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
+
+# PulseAudio 9.0 release notes (draft)
+
+## Changes at a glance
+
+ * Support for sample rates up to 384 kHz
+
+## Notes for end users
+
+### Support for sample rates up to 384 kHz
+
+PulseAudio has traditionally limited the maximum sample rate to 192 kHz, but it seems that there is some use for rates as high as 384 kHz, so the hard limit has been increased. While such rates may seem nonsensical, there are reasons for supporting them:
+
+ * Some online stores sell music with such sample rates.
+ * ALSA uses such sample rates for playing back some compressed formats in passthrough mode. In that case the actual audio doesn't have that high sample rate. The high rate is just an ALSA quirk originating from the choice of pretending that the compressed data is PCM audio with only two channels, while the compressed data actually carries more channels. Note that these compressed formats don't work yet with PulseAudio, the increase in the maximum sample rate is just a precondition for adding the support later.
+ * There are indications that some hardware supports such rates. PulseAudio should now be able to take advantage of that hardware feature, but it hasn't been tested.
+
+## Notes for application developers
+
+### Support for sample rates up to 384 kHz
+
+If you have always wanted to create streams in your application with sample rates higher than 192 kHz, now it is possible, up to 384 kHz.
+
+## Notes for packagers
+
+### ...
+
+...
+
+## git shortlog
+
+<pre>
+To be added later.
+</pre>
