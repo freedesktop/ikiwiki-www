@@ -100,6 +100,18 @@ The `family` parameter of the **ResolveService()** call encodes the desired fami
 
 On return, **ResolveService()** returns an array of SRV record structures. Each item consists of the priority, weight and port fields and the hostname to contact, as encoded in the SRV record. Immediately following is an array with the addresses of this hostname, with each item consisting of the interface index, the address family and the address data in a byte array. This address array is followed with the canonicalized hostname. After this array of SRV record structures an array of byte arrays follows, that encodes the TXT RR strings, in case DNS-SD look-ups are enabled. The next parameters are the canonical service name, type and domain. This may or may not be identical to the parameters passed in. Finally, a `flags` field is returned that contains information about the resolver operation performed.
 
+The **ResetStatistics()** method resets to zero the various statistics counters resolved maintains. (See the statistics properties discussed below.)
+
+The **GetLink()** method takes a network interface index and returns the object path to the `org.freedesktop.resolve1.Link` object corresponding to it.
+
+The **SetLinkDNS()** method sets the DNS servers to use on a specific interfaces. It may be used by network management software to configure per-interface settings. It takes a network interface index as well as an array of IP address records. Each array item consists of an address family (either AF_INET or AF_INET6), followed by a 4-byte or 16-byte array with the raw address data. This call is a one-call shortcut for retrieving the Link object for a network interface using `GetLink()` and then invoking the `SetDNS()` call on it.
+
+The **SetLinkDomains()** method sets the search and routing domains to use on a specific network interface for DNS look-ups. It take a network interface index plus an array of domains, each with a boolean parameter indicating whether the specified domain shall be used as search domain (true), or just as routing domain (false). Search domains are used for qualifying single-label names into FQDN when looking up hostnames, as well as for making routing decisions on which interface to send queries ending in the domain to. Routing domains are not used for single-label name qualification, and are only used for routing decisions. Pass the search domains in the order they shall be used.
+
+The **SetLinkLLMNR()** methods enables or disables LLMNR support on a specific interface. It takes a network interface index as well as a string that either may be empty, "yes", "no" or "resolve". If empty, the systemd-wide default LLMNR setting is used. If "yes" LLMNR is used for resolution of single-label names, and the local hostname is registered on all local LANs for LLMNR resolution by peers. If "no" LLMNR is turned off fully on this interface. If "resolve" LLMNR is only enabled for resolving names, but the local host name is not registered for other peers to use.
+
+Similar, the **SetLinkMulticastDNS()** option enables or disables MulticastDNS support on a specific interface. It takes the same parameters as **SetLinkLLMNR()** described above.
+
 #### Flags Parameter
 
 The four calls above accept and return a 64bit flags value. In most cases passing 0 is sufficient and recommended. However, the following flags are defined to alter the look-up:
@@ -123,8 +135,12 @@ The primary use case for these five flags are follow-up look-ups based on DNS da
 
 The NO_CNAME flag controls whether CNAME/DNAME resource records shall be followed during the look-up. This flag is only available at input, none of the functions will return it on output. If a CNAME/DNAME RR is discovered while resolving a hostname an error is returned instead. By default, when the flag is off, CNAME/DNAME RRs are followed.
 
-The NO_TXT and NO_ADDRESS flags influence operation of the **ResolveService()** call only. They are only defined for input, not output. If NO_TXT set, the DNS-SD TXT RR look-up is not done in the same operation. If NO_ADDRESS is specified the hostnames discovered are not implicitly translated to their address records.
+The NO_TXT and NO_ADDRESS flags influence operation of the **ResolveService()** call only. They are only defined for input, not output. If NO_TXT set, the DNS-SD TXT RR look-up is not done in the same operation. If NO_ADDRESS is specified the hostnames discovered are not implicitly translated to their addresses.
 
 The NO_SEARCH flag turns off the search domain logic. It is only defined for input in **ResolveHostname()**. When specified, single-label hostnames are not qualified using defined search domains, if any are configured. Note that **ResolveRecord()** will not qualify single-label domain names using search domains in any case.
 
-The AUTHENTICATED bit is defined only in the output flags of the four functions. If set, the returned data has been fully authenticated. Specifically, this bit is set for all DNSSEC-protected data for which a full trust chain may be established to a trusted domain anchor. It is also set for locally synthesized data, such as "localhost" or data from /etc/hosts. Moreover, it is set for all LLMNR or mDNS RRs which originate from the local host. Applications that require authenticated RR data for operation should check this flag before trusting the data. Not that resolved will not return invalidated data in any case, hence this flag simply allows to discern the cases where data is known to be trustable, or where there's proof that the data is "rightfully" unauthenticated.
+The AUTHENTICATED bit is defined only in the output flags of the four functions. If set, the returned data has been fully authenticated. Specifically, this bit is set for all DNSSEC-protected data for which a full trust chain may be established to a trusted domain anchor. It is also set for locally synthesized data, such as `localhost` or data from /etc/hosts. Moreover, it is set for all LLMNR or mDNS RRs which originate from the local host. Applications that require authenticated RR data for operation should check this flag before trusting the data. Not that resolved will not return invalidated data in any case, hence this flag simply allows to discern the cases where data is known to be trustable, or where there's proof that the data is "rightfully" unauthenticated (which includes cases where the underlying protocol or server does not support authenticating data).
+
+## Link Object
+
+## Common Errors
