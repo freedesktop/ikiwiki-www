@@ -89,9 +89,12 @@ The service exposes the following interfaces on the Manager object on the bus:
 **ResolveRecord()** takes a DNS resource record (RR) type, class and name, and retrieves the full resource record set (RRset), including the rdata, for it. As parameter it takes the Linux network interface index to execute the query on, or 0 if it may be done on any suitable interface. The `name` parameter specifies the RR domain name to look up, followed by the 16bit class and type fields (which may be ANY). Finally, a `flags` field may be passed in to alter behaviour of the look-up (see below). On return a array of RR items is returned. Each array entry consists of the network interface index the RR was discovered on, the type and class field of the RR found, and a byte array of the raw RR record discovered. For RRs that support name compression in the payload (such as MX or PTR), the compression is undone in the returned data. 
 Note that the class field has to be specified as IN or ANY currently, and specifying a different class will return an error indicating that lookups of this kind are unsupported. Similar some speial types are not supported either (AXFR, OPT, …). While resolved parses and validates many resource record types, it is essential that clients using this API understand that the RR data originates from the network and should be thoroughly validated before use.
 
+**ResolveService()** takes may be used to resolve a DNS SRV service record, as well as the hostnames referenced in it, and possibly an accompanying DNS-SD TXT record containing addditional service metadata. As parameter it takes a Linux network interface index, a service name, a service type and a domain. To resolve a DNS-SD service, specify the service name ("Lennart's Files") as service name, the service type ("_webdav._tcp") as service type and the domain to search is as domain ("local"). To resolve just a plain SRV record, leave the name fiel
+
 The four calls above accept and return a 64bit flags value. In most cases passing 0 is sufficient and recommended, however, the following flags are defined to alter the look-up:
 
 Flags:
+
     #define SD_RESOLVED_DNS           (UINT64_C(1) << 0)
     #define SD_RESOLVED_LLMNR_IPV4    (UINT64_C(1) << 1)
     #define SD_RESOLVED_LLMNR_IPV6    (UINT64_C(1) << 2)
