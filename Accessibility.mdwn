@@ -23,39 +23,3 @@ Accessibility support is needed in [[Accessibility/Output/]]
 ***
 
 Accessibility support is needed in applications, through [[Accessibility/AT-SPI2/]]
-
-### AT-SPI2
-
-This is over DBus, toolkit widgets provide their content to screen readers such as Orca.
-
-* GTK2/GTK3: good support
-* QT4/5: only preliminary support
-
-Getting it started by hand (normally done by the Desktop Environment session manager):
-
-* /usr/lib/at-spi2-core/at-spi-bus-launcher &
-* /usr/lib/at-spi2-core/at-spi2-registryd &
-* one can make sure it got registered by using
-
-        $ xprop -root | grep SPI
-        AT_SPI_BUS(STRING) = "unix:abstract=/tmp/dbus-6fNHBTP2lK,guid=9d17aaa3ca64ff4b66f0c5985442999e"
-
-* That was the bus address, one can watch what happens by spying on it:
-
-        $ dbus-monitor --address unix:abstract=/tmp/dbus-6fNHBTP2lK,guid=9d17aaa3ca64ff4b66f0c5985442999e
-
-* Some applications need explicit accessibility enabling:
-
-        export GTK_MODULES=gail:atk-bridge
-        export OOO_FORCE_DESKTOP=gnome
-        export GNOME_ACCESSIBILITY=1
-        export QT_ACCESSIBILITY=1
-
-
-Accerciser to test the availability of the content
-
-***
-
-## Wayland
-
-Works just the same :D
