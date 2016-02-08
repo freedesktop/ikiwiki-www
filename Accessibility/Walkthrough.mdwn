@@ -46,3 +46,34 @@ In the case of a Qt5 application:
 dbus transmits the response to the application.
 
 * `atspi_text_get_text` gets the string from the response and returns it
+
+## Notifications from the application
+
+The application can notify about e.g. an insertion of text in a widget. The Orca screen reader must first register for getting the event:
+
+* The default `getListeners` method (implemented in `orca/src/orca/scripts/default.py`) returns to call `onTextInserted` on `object:text-changed:insert` signal
+* `registerScriptListeners` (implemented in `orca/src/orca/event_manager.py`) calls `_registerListener` to record a callback to `_enqueue` on that signal
+* `_registerListener` calls `registry.registerEventListener` for this.
+* `registerEventListener` (implemented in `python-atspi/pyatspi/registry.py`) calls `Atspi.EventListener.register`, which is a Python binding for the C `atspi_event_listener_register` function.
+* `atspi_event_listener_register` (implemented in `at-spi2-core/atspi/atspi-event-listener.c`) uses `dbus_bus_add_match` on `"org.a11y.atspi.Event"` to make dbus make the `_enqueue` callback when the event is received. It also makes an RPC to the at-spi-registryd (conventional dbus name `"org.a11y.atspi.Registry"`), on the `"/org/a11y/atspi/registry"` path, the `"org.a11y.atspi.Registry"` interface, `RegisterEvent` method, to tell the registry to start notifying Orca about these events.
+
+dbus transmits the event to the application.
+
+In the case of a GTK application:
+
+* TODO
+
+dbus transmits the event to at-spi-registryd.
+
+* TODO
+
+dbus transmits the event to the application.
+
+* The dbus filter calls `_enqueue`
+* `_enqueue`  (implemented in orca/src/orca/event_manager.py`) calls `_addToQueue`
+* `_addToQueue` queues an event
+* glib idle loop calls `_dequeue`.
+* `_dequeue` dequeues an event and calls `_processObjectEvent`
+* `_processObjectEvent` calls `processObjectEvent`
+* `processObjectEvent` (implemented in `orca/src/orca/script.py`) calls the listener for `object:text-changed:insert`.
+* `onTextInserted` (implemented in `orca/src/orca/scripts/default.py` for instance) updates the user output.
