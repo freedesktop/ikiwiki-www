@@ -27,6 +27,10 @@ In the case of a Java application:
 * `atk_text_get_text` returns it
 * `impl_GetText` stuffes the string into a dbus response
 
+In the case of mozilla:
+* `impl_GetText` and `atk_text_get_text` get called like for a GTK application, the `get_text` method is `getTextCB`
+* `getTextCB` (implemented in `mozilla/accessible/atk/nsMaiInterfaceText.cpp`) uses the `TextSubstring` of the `HyperTextAccessible` class.
+
 In the case of a Qt4 application:
 * `AtSpiAdaptor::textInterface` (implemented in `qt-at-spi/src/atspiadaptor.cpp`) gets called by qt dbus, it parses the parameters, and calls the `text` method of the `textInterface` of the `QAccessibleInterface` class.
 * `QAccessibleTextWidget::text` (implemented in `qt4-x11/src/plugins/accessible/widgets/qaccessiblewidgets.cpp`) fetches the text and returns it.
@@ -34,6 +38,7 @@ In the case of a Qt4 application:
 
 In the case of a Qt5 application:
 * `AtSpiAdaptor::textInterface` (implemented in qtbase/src/platformsupport/linuxaccessibility/atspiadaptor.cpp`) gets called by qt dbus, the rest is happening as with Qt4.
+
 
 dbus transmits the response to the application.
 
