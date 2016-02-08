@@ -19,6 +19,12 @@ In the case of a GTK application:
 * `atk_text_get_text` returns it
 * `impl_GetText` stuffes the string into a dbus response
 
+In the case of a Java application:
+
+* `impl_GetText` and `atk_text_get_text` get called like for a GTK application, the `get_text` method is `jaw_text_get_text`
+* `jaw_text_get_text` (implemented in `java-atk-wrapper/jni/src/jawtext.c`) calls the `get_text` method of the `AtkText` java class
+* `get_text` (implemented in `java-atk-wrapper/wrapper/org/GNOME/Accessibility/AtkText.java`) uses the `getAtIndex` method of the `AccessibleExtendedText` interface of the widget.
+
 dbus transmits the response to the application.
 
 * `atspi_text_get_text` gets the string from the response and returns it
