@@ -57,20 +57,22 @@ The application can notify about e.g. an insertion of text in a widget. The Orca
 * `registerEventListener` (implemented in `python-atspi/pyatspi/registry.py`) calls `Atspi.EventListener.register`, which is a Python binding for the C `atspi_event_listener_register` function.
 * `atspi_event_listener_register` (implemented in `at-spi2-core/atspi/atspi-event-listener.c`) uses `dbus_bus_add_match` on `"org.a11y.atspi.Event"` to make dbus make the `_enqueue` callback when the event is received. It also makes an RPC to the at-spi-registryd (conventional dbus name `"org.a11y.atspi.Registry"`), on the `"/org/a11y/atspi/registry"` path, the `"org.a11y.atspi.Registry"` interface, `RegisterEvent` method, to tell the registry to start notifying Orca about these events.
 
-dbus transmits the event to the application.
+dbus transmits the RPC to at-spi2-registryd.
+
+* TODO
 
 In the case of a GTK application:
 
 * TODO
 
-dbus transmits the event to at-spi-registryd.
+dbus transmits the event to at-spi2-registryd.
 
 * TODO
 
 dbus transmits the event to the application.
 
 * The dbus filter calls `_enqueue`
-* `_enqueue`  (implemented in orca/src/orca/event_manager.py`) calls `_addToQueue`
+* `_enqueue`  (implemented in `orca/src/orca/event_manager.py`) calls `_addToQueue`
 * `_addToQueue` queues an event
 * glib idle loop calls `_dequeue`.
 * `_dequeue` dequeues an event and calls `_processObjectEvent`
