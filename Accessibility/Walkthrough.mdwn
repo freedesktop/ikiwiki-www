@@ -59,11 +59,14 @@ The application can notify about e.g. an insertion of text in a widget. The Orca
 
 dbus transmits the RPC to at-spi2-registryd.
 
-* TODO
+* `impl_register_event` (implemented in `at-spi2-core/registryd/registry.c`) parses the request, records the registration in the `registry->events` list, and sends a `EventListenerRegistered` signal.
 
 In the case of a GTK application:
 
-* TODO
+* The Atk adaptor has added in `spi_atk_register_event_listeners` (implemented in `at-spi2-atk/atk-adaptor/event.c`) `text_insert_event_listener` as listener for signal `"Gtk:AtkText:text-insert"`.
+* Atk has added in `atk_text_base_init` (implemented in `atk1.0/atk/atktext.c`) the `"text-insert"` signal.
+
+* `text_insert_event_listener` (implemented in `at-spi2-atk/atk-adaptor/event.c`) emits the `text-changed:insert` event.
 
 dbus transmits the event to at-spi2-registryd.
 
