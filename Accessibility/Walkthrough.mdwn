@@ -61,20 +61,19 @@ dbus transmits the RPC to at-spi2-registryd.
 
 * `impl_register_event` (implemented in `at-spi2-core/registryd/registry.c`) parses the request, records the registration in the `registry->events` list, and sends a `EventListenerRegistered` signal.
 
-In the case of a GTK application:
+In the case of a GTK application (quite unsure about the details):
 
 * The Atk adaptor has added in `spi_atk_register_event_listeners` (implemented in `at-spi2-atk/atk-adaptor/event.c`) `text_insert_event_listener` as listener for signal `"Gtk:AtkText:text-insert"`.
 * Atk has added in `atk_text_base_init` (implemented in `atk1.0/atk/atktext.c`) the `"text-insert"` signal.
+* Gail has added `gail_text_cell_update_cache` as update_cache callback
 
-* `text_insert_event_listener` (implemented in `at-spi2-atk/atk-adaptor/event.c`) emits the `text-changed:insert` event.
+* TODO textcell to `text_insert` signal
+* `gail_text_cell_update_cache` (implemented in `gtk+2.0/modules/other/gail/gailtextcell.c`) emits the `"text_changed::insert"` Atk signal.
+* `text_insert_event_listener` (implemented in `at-spi2-atk/atk-adaptor/event.c`) emits the `text-changed:insert` event on the bus.
 
-dbus transmits the event to at-spi2-registryd.
+dbus transmits the event on the bus.
 
-* TODO
-
-dbus transmits the event to the application.
-
-* The dbus filter calls `_enqueue`
+* In Orca, the dbus filter calls `_enqueue`
 * `_enqueue`  (implemented in `orca/src/orca/event_manager.py`) calls `_addToQueue`
 * `_addToQueue` queues an event
 * glib idle loop calls `_dequeue`.
