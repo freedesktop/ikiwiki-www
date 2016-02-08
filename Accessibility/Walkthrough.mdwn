@@ -49,7 +49,7 @@ dbus transmits the response to the application.
 
 ## Notifications from the application
 
-The application can notify about e.g. an insertion of text in a widget. The Orca screen reader must first register for getting the event:
+The application can notify about e.g. an insertion of text in a widget. The Orca screen reader must first register for getting the event, before the toolkit will only send events if there are listeners for them:
 
 * The default `getListeners` method (implemented in `orca/src/orca/scripts/default.py`) returns to call `onTextInserted` on `object:text-changed:insert` signal
 * `registerScriptListeners` (implemented in `orca/src/orca/event_manager.py`) calls `_registerListener` to record a callback to `_enqueue` on that signal
@@ -59,17 +59,22 @@ The application can notify about e.g. an insertion of text in a widget. The Orca
 
 dbus transmits the RPC to at-spi2-registryd.
 
-* `impl_register_event` (implemented in `at-spi2-core/registryd/registry.c`) parses the request, records the registration in the `registry->events` list, and sends a `EventListenerRegistered` signal.
+* `impl_register_event` (implemented in `at-spi2-core/registryd/registry.c`) parses the request, records the registration in the `registry->events` list, and sends a `EventListenerRegistered` signal on the bus
 
 In the case of a GTK application (quite unsure about the details):
 
-* The Atk adaptor has added in `spi_atk_register_event_listeners` (implemented in `at-spi2-atk/atk-adaptor/event.c`) `text_insert_event_listener` as listener for signal `"Gtk:AtkText:text-insert"`.
+* When receiving the `EventListenerRegistered` signal in `signal_filter` (implemented in `at-spi2-atk/atk-adaptor/bridge.c`), `handle_event_listener_registered` is called
+* `handle_event_listener_registered` adds the event listening registration to the `events` list.
+
+* The Atk adaptor has added in `spi_atk_register_event_listeners` (implemented in `at-spi2-atk/atk-adaptor/event.c`) `text_changed_event_listener` as listener for signals `"Gtk:AtkText:text-insert"` and `"Gtk:AtkText:text-changed"`
 * Atk has added in `atk_text_base_init` (implemented in `atk1.0/atk/atktext.c`) the `"text-insert"` signal.
 * Gail has added `gail_text_cell_update_cache` as update_cache callback
 
 * TODO textcell to `text_insert` signal
-* `gail_text_cell_update_cache` (implemented in `gtk+2.0/modules/other/gail/gailtextcell.c`) emits the `"text_changed::insert"` Atk signal.
-* `text_insert_event_listener` (implemented in `at-spi2-atk/atk-adaptor/event.c`) emits the `text-changed:insert` event on the bus.
+* `gail_text_cell_update_cache` (implemented in `gtk+2.0/modules/other/gail/gailtextcell.c`) emits the `"text_changed::insert"` glib signal.
+* `text_changed_event_listener` (implemented in `at-spi2-atk/atk-adaptor/event.c`) calls `emit_event`
+* `emit_event` checks `signal_is_needed` before emitting the `text-changed:insert` event on the bus.
+* `signal_is_needed` checks whether the signal is in the `events` list.
 
 TODO: In the case of a Qt application
 
