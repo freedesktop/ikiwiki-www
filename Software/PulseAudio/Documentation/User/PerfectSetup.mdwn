@@ -74,7 +74,7 @@ Now you you can access the PulseAudio server under the virtual ALSA device `puls
 % aplay -Dpulse foo.wav
 % amixer -Dpulse
 """]]
-If you want to make the PulseAudio driver the default, use something like this in the ALSA configuration files: 
+If you want to make the PulseAudio driver the default, use something like this in the ALSA configuration files (or see below for a better method that avoids using '!'): 
 
 
 [[!format txt """
@@ -98,8 +98,16 @@ load-module module-alsa-source device=hw:0
 """]]
 If you use udev (or HAL) **this is not necessary**, because the correct ALSA device strings are used automatically. 
 
-The PulseAudio plugin for ALSA supports audio playback, audio capturing and supports the mixer. 
+The PulseAudio plugin for ALSA supports audio playback, audio capturing and supports the mixer.
 
+Depending on your system, using the '!' (exclamation point syntax) inside of an `asound.conf` or `.asoundrc` could have adverse effects, because it overwrites the system's ALSA configuration (often found in `/usr/share/alsa/alsa.conf`). A preferred way of making PulseAudio the driver default is as follows:
+
+[[!format txt """
+pcm.default pulse
+ctl.default pulse
+"""]]
+
+This is likely to cause less issues than the configuration block above, especially on systems where the 'Analog' card is not recognized as 'card 0' by the bios. This is often seen in newer laptops with HDMI ports.
 
 ### Amarok
 
