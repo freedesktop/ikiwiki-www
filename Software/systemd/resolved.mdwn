@@ -66,7 +66,7 @@ The service exposes the following interfaces on the Manager object on the bus:
         properties:
           readonly s LLMNRHostname = 'delta';
           readonly a(iiay) DNS = [(0, 2, [0xac, 0x1f, 0x00, 0x01])];
-          readonly a(isb) SearchDomains = [(0, 'fritz.box', false)];
+          readonly a(isb) Domains = [(0, 'fritz.box', false)];
           readonly (tt) TransactionStatistics = (0, 846);
           readonly (ttt) CacheStatistics = (55, 406, 439);
           readonly (tttt) DNSSECStatistics = (0, 0, 0, 0);
@@ -108,13 +108,13 @@ The **SetLinkDNS()** method sets the DNS servers to use on a specific interface.
 
 Network management software integrating with resolved is recommended to invoke this method (and the five below) after the interface appeared in the kernel (and thus after a network interface index has been assigned) but before the network interfaces is activated (set IFF_UP on) so that all settings take effect during the full time the network interface is up. It is safe to alter settings while the interface is up, however. Use the **RevertLink()** (described below) to reset all per-interface settings made.
 
-The **SetLinkDomains()** method sets the search and routing domains to use on a specific network interface for DNS look-ups. It take a network interface index plus an array of domains, each with a boolean parameter indicating whether the specified domain shall be used as search domain (true), or just as routing domain (false). Search domains are used for qualifying single-label names into FQDN when looking up hostnames, as well as for making routing decisions on which interface to send queries ending in the domain to. Routing domains are not used for single-label name qualification, and are only used for routing decisions. Pass the search domains in the order they shall be used.
+The **SetLinkDomains()** method sets the search and routing domains to use on a specific network interface for DNS look-ups. It take a network interface index plus an array of domains, each with a boolean parameter indicating whether the specified domain shall be used as search domain (false), or just as routing domain (true). Search domains are used for qualifying single-label names into FQDN when looking up hostnames, as well as for making routing decisions on which interface to send queries ending in the domain to. Routing domains are not used for single-label name qualification, and are only used for routing decisions. Pass the search domains in the order they shall be used.
 
 The **SetLinkLLMNR()** method enables or disables LLMNR support on a specific network interface. It takes a network interface index as well as a string that either may be empty, "yes", "no" or "resolve". If empty, the systemd-wide default LLMNR setting is used. If "yes" LLMNR is used for resolution of single-label names, and the local hostname is registered on all local LANs for LLMNR resolution by peers. If "no" LLMNR is turned off fully on this interface. If "resolve" LLMNR is only enabled for resolving names, but the local host name is not registered for other peers to use.
 
 Similar, the **SetLinkMulticastDNS()** option enables or disables MulticastDNS support on a specific interface. It takes the same parameters as **SetLinkLLMNR()** described above.
 
-The **SetLinkDNSSEC()** method enables or disables DNSSEC validation on a specific network interface. It takes a network interface index as well as a string that either may be empty, "yes", "no" or "allow-downgrade". If empty, the system-wide default DNSSEC setting is used. If "yes" full DNSSEC validation is done for all look-ups. If the selected DNS server does not support DNSSEC, look-ups will fail if this mode is used. If "no" DNSSEC validation is fully disabled. If "allow-downgrade" DNSSEC validation is enabled, but is turned off automatically if the selected server does not support it (thus opening up behaviour to downgrade attacks).
+The **SetLinkDNSSEC()** method enables or disables DNSSEC validation on a specific network interface. It takes a network interface index as well as a string that either may be empty, "yes", "no" or "allow-downgrade". If empty, the system-wide default DNSSEC setting is used. If "yes" full DNSSEC validation is done for all look-ups. If the selected DNS server does not support DNSSEC, look-ups will fail if this mode is used. If "no" DNSSEC validation is fully disabled. If "allow-downgrade" DNSSEC validation is enabled, but is turned off automatically if the selected server does not support it (thus opening up behaviour to downgrade attacks). Note that DNSSEC only applies to traditional DNS, not to LLMNR or MulticastDNS.
 
 The **SetLinkDNSSECNegativeTrustAnchors()** method may be used to configure DNSSEC Negative Trust Anchors (NTAs) for a specific network interface. It takes a network interface index and a list of domains as parameters.
 
@@ -145,11 +145,25 @@ The NO_CNAME flag controls whether CNAME/DNAME resource records shall be followe
 
 The NO_TXT and NO_ADDRESS flags influence operation of the **ResolveService()** call only. They are only defined for input, not output. If NO_TXT set, the DNS-SD TXT RR look-up is not done in the same operation. If NO_ADDRESS is specified the hostnames discovered are not implicitly translated to their addresses.
 
-The NO_SEARCH flag turns off the search domain logic. It is only defined for input in **ResolveHostname()**. When specified, single-label hostnames are not qualified using defined search domains, if any are configured. Note that **ResolveRecord()** will not qualify single-label domain names using search domains in any case.
+The NO_SEARCH flag turns off the search domain logic. It is only defined for input in **ResolveHostname()**. When specified, single-label hostnames are not qualified using defined search domains, if any are configured. Note that **ResolveRecord()** will not qualify single-label domain names using search domains in any case. Also note that multi-label hostnames are never subject to search list expansion.
 
 The AUTHENTICATED bit is defined only in the output flags of the four functions. If set, the returned data has been fully authenticated. Specifically, this bit is set for all DNSSEC-protected data for which a full trust chain may be established to a trusted domain anchor. It is also set for locally synthesized data, such as `localhost` or data from /etc/hosts. Moreover, it is set for all LLMNR or mDNS RRs which originate from the local host. Applications that require authenticated RR data for operation should check this flag before trusting the data. Not that resolved will not return invalidated data in any case, hence this flag simply allows to discern the cases where data is known to be trustable, or where there's proof that the data is "rightfully" unauthenticated (which includes cases where the underlying protocol or server does not support authenticating data).
 
 ### Properties
+
+The **LLMNRHostname** contains the hostname currently exposed on the network via LLMNR. It usually follows the system hostname as may be queried via `gethostname()`, but may differ if a conflict is detected on the network.
+
+The **DNS** contains an array containing all DNS servers currently used by resolved. It contains similar information as the DNS server data written to /run/systemd/resolve/resolv.conf. Each structure in the array consists of a numeric network interface index, an address family, and a byte array containing the DNS server address (either 4 bytes in length for IPv4 or 16 bytes in lengths for IPv6). The array contains DNS servers configured system-wide, including those possibly read from a foreign /etc/resolv.conf or the DNS= setting in /etc/systemd/resolved.conf, as well as per-interface DNS server information either retrieved from systemd-networkd or configured by external software via `SetLinkDNS()` (see above). The network interface index will be 0 for the system-wide configured services, and non-zero for the per-link servers.
+
+Similar, the **Domains** property contains an array containing all search and routing domains currently used by resolved. Each entry consists of a network interface index (again, 0 encodes system-wide entries), the actual domain name, and whether the entry is used only for routing (true), or for both routing and searching (false).
+
+The **TransactionStatistics** property contains information about the number of transactions resolved has been processing. It contains a pair of unsigned 64bit counters, the first containing the number of currently ongoing transactions, the second the number of total transactions resolved is processing or has processed. The latter value may be reset using the `ResetStatistics()` call described above. Note that the number of transaction does not directly map to the number of resolver bus calls issued. While simple look-ups usually require a single transaction only, more complex look-ups might result in more, for example when CNAMEs or DNSSEC are in use.
+
+The **CacheStatistics** property contains information about the executed cache operations so far. It exposes three 64bit counters: the first being the total number of current cache entries (both positive and negative), the second number of cache hits, and the third the number of cache misses. The latter counters may be reset using `ResetStatistics()` (see above). 
+
+The **DNSSECStatistics** property contains information about the DNSSEC validations executed so far. It contains four 64bit counters: the number of secure, insecure, bogus, and indeterminate DNSSEC validations so far. The counters are increased for each validated RRset, and each non-existance proof. The secure counter is increased for each operation that successfully verified a signed reply, the insecure counter is increased for each operation that successfully verified that an unsigned reply is rightfully unsigned. The bogus counter is increased for each operation where the validation did not check out, and the data is likely to have been tempered with. Finally the indeterminate counter is increased for each operation which didn't complete because the necessary keys could not be acquired or the cryptographic algorithms were unknown.
+
+The **DNSSECSupported** boolean properties reports whether DNSSEC is enabled and the selected DNS servers support it. It combines information about system-wide and per-link DNS settings (see below), and only reports true if DNSSEC is enabled and supported on every interface for which DNS is configured and for the system-wide settings if there are any. Note that resolved assumes DNSSEC is supported by DNS servers until it verified that this is not the case. Thus, the reported value may initially be true, until the first transactions are executed.
 
 ## Link Object
 
@@ -172,7 +186,7 @@ The AUTHENTICATED bit is defined only in the output flags of the four functions.
           readonly s MulticastDNS = 'no';
           readonly s DNSSEC = '';
           readonly as DNSSECNegativeTrustAnchors = [];
-          readonly b DNSSECSupport = true;
+          readonly b DNSSECSupported = true;
       };
       interface org.freedesktop.DBus.Peer {
       };
