@@ -149,6 +149,47 @@ The NO_SEARCH flag turns off the search domain logic. It is only defined for inp
 
 The AUTHENTICATED bit is defined only in the output flags of the four functions. If set, the returned data has been fully authenticated. Specifically, this bit is set for all DNSSEC-protected data for which a full trust chain may be established to a trusted domain anchor. It is also set for locally synthesized data, such as `localhost` or data from /etc/hosts. Moreover, it is set for all LLMNR or mDNS RRs which originate from the local host. Applications that require authenticated RR data for operation should check this flag before trusting the data. Not that resolved will not return invalidated data in any case, hence this flag simply allows to discern the cases where data is known to be trustable, or where there's proof that the data is "rightfully" unauthenticated (which includes cases where the underlying protocol or server does not support authenticating data).
 
+### Properties
+
 ## Link Object
+
+    node /org/freedesktop/resolve1/link/_34 {
+      interface org.freedesktop.resolve1.Link {
+        methods:
+          SetDNS(in  a(iay) arg_0);
+          SetDomains(in  a(sb) arg_0);
+          SetLLMNR(in  s arg_0);
+          SetMulticastDNS(in  s arg_0);
+          SetDNSSEC(in  s arg_0);
+          SetDNSSECNegativeTrustAnchors(in  as arg_0);
+          Revert();
+        signals:
+        properties:
+          readonly t ScopesMask = 6;
+          readonly a(iay) DNS = [];
+          readonly a(sb) Domains = [];
+          readonly s LLMNR = 'yes';
+          readonly s MulticastDNS = 'no';
+          readonly s DNSSEC = '';
+          readonly as DNSSECNegativeTrustAnchors = [];
+          readonly b DNSSECSupport = false;
+      };
+      interface org.freedesktop.DBus.Peer {
+      };
+      interface org.freedesktop.DBus.Introspectable {
+      };
+      interface org.freedesktop.DBus.Properties {
+      };
+    };
+
+For each Linux network interface a "Link" object is created, which exposes per-link DNS configuration and state. Use `GetLink()` on the Manager interface to retrieve the object path for a link object given the network interface index (see above).
+
+### Methods
+
+The various methods exposed by the Link interface are equivalent to their similar named counterparts on the Manager interface. e.g. ***SetDNS()*** on the Link object maps to `SetLinkDNS()` on the Manager object, the main difference being that the later expects an interface index to be speicified. Invoking the calls on the Manager interface has the benefit of reducing roundtrips, as it's not necessary to first request the Link object path via `GetLink()` before invoking the methods. For further details on these calls see the Manager documentation above. 
+
+### Properties
+
+***ScopesMasks*** defines which resolver scopes are currently active on this interface. This field is a bit mask, consisting of a subset of the bits as the flags parameter describe above. Specifically, it may have the DNS, LLMNR and MDNS bits (the latter in IPv4 and IPv6 flavours) set. Each individual bit is set when the protocol applies to a specific interface and is enabled for it. It is unset otherwise. Specifically, a multicast-capable interface in "UP" state with an IP address is suitable for LLMNR or MulticastDNS, and any interface that is UP and has an IP address is suitable for DNS.
 
 ## Common Errors
