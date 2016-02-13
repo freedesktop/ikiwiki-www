@@ -211,3 +211,19 @@ The various methods exposed by the Link interface are equivalent to their simila
 The other properties reflect the state of the various configuration settings for the link, which may be set with the various methods calls such as SetDNS() or SetLLMNR().
 
 ## Common Errors
+
+Many bus calls resolved exposes (in particular the resolver calls such as `ResolveHostname()` on the `Manager` interface) return some of the following errors:
+
+* `org.freedesktop.resolve1.NoNameServers` is returned when no suitable DNS servers have been found to resolve a request.
+* `org.freedesktop.resolve1.InvalidReply`: a response from the selected DNS server could not be understood.
+* `org.freedesktop.resolve1.NoSuchRR`: the requested name exists, but there's not resource record of the requested type for it. (This is the DNS NODATA case)
+* `org.freedesktop.resolve1.CNameLoop`: the look-up failed because a CNAME or DNAME loop was detected.
+* `org.freedesktop.resolve1.Aborted`: the look-up was aborted, because the selected protocol became unavailable while the operation was ongoing.
+* `org.freedesktop.resolve1.NoSuchService`: a service look-up was successful, but the SRV record reported that the service is not available.
+* `org.freedesktop.resolve1.DnssecFailed`: the acquired response did not pass DNSSEC validation.
+* `org.freedesktop.resolve1.NoTrustAnchor`: no chain of trust could be established for the response, to a configured DNSSEC trust anchor.
+* `org.freedesktop.resolve1.ResourceRecordTypeUnsupported`: the requested resource record type is not supported on the selected DNS servers. This error is generated for example when an RRSIG record is requested from a DNS server that does not support DNSSEC.
+* `org.freedesktop.resolve1.NoSuchLink`: no network interface with the specified network interface index exists
+* `org.freedesktop.resolve1.LinkBusy`: the requested configuration change can not be made, because systemd-networkd already took possesion of the interface and supplied configuration data for it.
+* `org.freedesktop.resolve1.NetworkDown`: the requested look-up failed because the system is currently not connected to any suitable network.
+* `org.freedesktop.resolve1.DnsError.NXDOMAIN`, `org.freedesktop.resolve1.DnsError.REFUSED`, … the look-up failed with a DNS return code reporting a failure. The error names used as suffixes here are defined are at the [IANA](https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-6).
