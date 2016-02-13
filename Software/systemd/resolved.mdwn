@@ -172,7 +172,7 @@ The AUTHENTICATED bit is defined only in the output flags of the four functions.
           readonly s MulticastDNS = 'no';
           readonly s DNSSEC = '';
           readonly as DNSSECNegativeTrustAnchors = [];
-          readonly b DNSSECSupport = false;
+          readonly b DNSSECSupport = true;
       };
       interface org.freedesktop.DBus.Peer {
       };
@@ -186,10 +186,14 @@ For each Linux network interface a "Link" object is created, which exposes per-l
 
 ### Methods
 
-The various methods exposed by the Link interface are equivalent to their similar named counterparts on the Manager interface. e.g. ***SetDNS()*** on the Link object maps to `SetLinkDNS()` on the Manager object, the main difference being that the later expects an interface index to be speicified. Invoking the calls on the Manager interface has the benefit of reducing roundtrips, as it's not necessary to first request the Link object path via `GetLink()` before invoking the methods. For further details on these calls see the Manager documentation above. 
+The various methods exposed by the Link interface are equivalent to their similar named counterparts on the Manager interface. e.g. `SetDNS()` on the Link object maps to `SetLinkDNS()` on the Manager object, the main difference being that the later expects an interface index to be speicified. Invoking the calls on the Manager interface has the benefit of reducing roundtrips, as it's not necessary to first request the Link object path via `GetLink()` before invoking the methods. For further details on these calls see the Manager documentation above. 
 
 ### Properties
 
-***ScopesMasks*** defines which resolver scopes are currently active on this interface. This field is a bit mask, consisting of a subset of the bits as the flags parameter describe above. Specifically, it may have the DNS, LLMNR and MDNS bits (the latter in IPv4 and IPv6 flavours) set. Each individual bit is set when the protocol applies to a specific interface and is enabled for it. It is unset otherwise. Specifically, a multicast-capable interface in "UP" state with an IP address is suitable for LLMNR or MulticastDNS, and any interface that is UP and has an IP address is suitable for DNS.
+***ScopesMasks*** defines which resolver scopes are currently active on this interface. This 64bit unsigned integer field is a bit mask, consisting of a subset of the bits as the flags parameter describe above. Specifically, it may have the DNS, LLMNR and MDNS bits (the latter in IPv4 and IPv6 flavours) set. Each individual bit is set when the protocol applies to a specific interface and is enabled for it. It is unset otherwise. Specifically, a multicast-capable interface in "UP" state with an IP address is suitable for LLMNR or MulticastDNS, and any interface that is UP and has an IP address is suitable for DNS.
+
+***DNSSECSupported** exposes a boolean field that indicates whether DNSSEC is currently configured and in use on the interface. Note that if DNSSEC is enabled on an interface it is assumed available until it is detected that the configured server does not actually support it. Thus, this property may initially report that DNSSEC is supported on an interface.
+
+The other properties reflect the state of the various configuration settings for the link, which may be set with the various methods calls such as SetDNS() or SetLLMNR().
 
 ## Common Errors
