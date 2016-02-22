@@ -50,7 +50,7 @@ Note that it is fully OK if multiple different daemons push DNS configuration da
 
 ## Handling of `/etc/resolv.conf`
 
-`systemd-resolved` receives DNS configuration from a number of sources, via the bus, as well as directly from networkd or user configuration. It uses this data to write a file that is compatible with the traditional Linux `/etc/resolv.conf` file. This file is stored in `/run/systemd/resolve/resolv.conf`. It is recommended to symlink `/etc/resolv.conf` to this file, in order to provide compatibility with programs reading the file directly and not going via the NSS and thus resolved.
+`systemd-resolved` receives DNS configuration from a number of sources, via the bus, as well as directly from networkd or user configuration. It uses this data to write a file that is compatible with the traditional Linux `/etc/resolv.conf` file. This file is stored in `/run/systemd/resolve/resolv.conf`. It is recommended to symlink `/etc/resolv.conf` to this file, in order to provide compatibility with programs reading the file directly and not going via the NSS and thus `systemd-resolved`.
 
 For network configuration managers it is recommended to rely on this resolved-provided mechanism to update `resolv.conf`. Specifically, the network configuration manager should stop modifying `/etc/resolv.conf` directly if it notices it being a symlink to `/run/systemd/resolve/resolv.conf`.
 
