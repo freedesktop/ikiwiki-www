@@ -139,12 +139,9 @@ Save code as e.g. pa-beep.c and build using: `gcc $(pkg-config --cflags --libs l
         goto exit;
       }
     
-      // Iterate the main loop and go again.  The second argument is whether
-      // or not the iteration should block until something is ready to be
-      // done.  Set it to zero for non-blocking.
-      while (1) {
-        pa_mainloop_iterate(pa_ml, 1, NULL);
-      }
+      // Run the mainloop until pa_mainloop_quit() is called
+      // (this example never calls it, so the mainloop runs forever).
+      pa_mainloop_run(pa_ml, NULL);
     
     exit:
       // clean up and disconnect
