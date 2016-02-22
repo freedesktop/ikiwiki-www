@@ -4,6 +4,8 @@
 
 _Or: How to hook up your favourite network configuration manager with `systemd-resolved`_
 
+_(This is a longer explanation how to use some parts of `systemd-resolved` bus API. If you are just looking for an API reference, consult [full bus API documentation](https://wiki.freedesktop.org/www/Software/systemd/resolved/) instead.)_
+
 Since systemd 229 `systemd-resolved` offers a powerful bus API that may be used by network configuration managers (e.g. NetworkManager, connman, ..., but also lower level DHCP, VPN or PPP daemons managing specific interfaces) to pass DNS and DNSSEC server information directly to `systemd-resolved`. Note that `systemd-resolved` also reads the DNS configuration data in `/etc/resolv.conf`, for compatibility. However, by passing the DNS configuration directly to `systemd-resolved` via the bus a couple of benefits are available:
 
 1. `systemd-resolved` maintains DNS configuration per-interface, instead of simply system-wide, and is capable of sending DNS requests to servers on multiple different network interfaces simultaneously, returning the first positive response (or if all fail, the last negative one). This allows effective "merging" of DNS views on different interfaces, which makes private DNS zones on multi-homed hosts a lot nicer to use. For example, if you are connected to a LAN and a VPN, and both have private DNS zones, then you will be able to resolve both, as long as they don't clash in names. By using the bus API to configure DNS settings, the per-interface configuration is opened up.
@@ -38,7 +40,7 @@ It is strongly recommended for network configuration managers that implement cap
 
 If a network configuration manager wants to reset specific settings to the defaults (such as the DNSSEC, LLMNR or MulticastDNS mode), it may simply call the function with an empty argument. To reset all per-link changes it made it may call `RevertLink()`.
 
-To read back the various settings made, use `GetLink()` to get a `org.freedesktop.resolve1.Link` object for a specific network interface. It exposes the current settings in its bus properties. See the full bus API documentation for details on this.
+To read back the various settings made, use `GetLink()` to get a `org.freedesktop.resolve1.Link` object for a specific network interface. It exposes the current settings in its bus properties. See the [full bus API documentation](https://wiki.freedesktop.org/www/Software/systemd/resolved/) for details on this.
 
 In order to translate a network interface name to an interface index, use the usual glibc `if_nametoindex()` call.
 
