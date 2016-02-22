@@ -30,7 +30,7 @@ For details about these calls see the [full resolved bus API documentation](http
 
 The calls should be pretty obvious to use: they simply take an interface index and the parameters to set. IP addresses are encoded as an address family specifier (an integer, that takes the usual `AF_INET` and `AF_INET6` constants), followed by a 4 or 16 byte array with the address in network byte order.
 
-systemd-resolved distuingishes between "search" and "routing" domains. Routing domains are used to route DNS requests of specific domains to particular interfaces. i.e. requests for a hostname "foo.bar.com" will be routed to any interface that has "bar.com" as routing domain. The same routing domain may be defined on multiple interfaces, in which case the request is routed to all of them in parallel. Resolver requests for hostnames that do not end in any defined routing domain of any interface will be routed to all suitable interfaces. Search domains work like routing domain, but are also used to qualify single-label domain names. They hence are identical to the traditional search domain logic on UNIX. The `SetLinkDomains()` call may used to define both search and routing domains.
+systemd-resolved distinguishes between "search" and "routing" domains. Routing domains are used to route DNS requests of specific domains to particular interfaces. i.e. requests for a hostname "foo.bar.com" will be routed to any interface that has "bar.com" as routing domain. The same routing domain may be defined on multiple interfaces, in which case the request is routed to all of them in parallel. Resolver requests for hostnames that do not end in any defined routing domain of any interface will be routed to all suitable interfaces. Search domains work like routing domain, but are also used to qualify single-label domain names. They hence are identical to the traditional search domain logic on UNIX. The `SetLinkDomains()` call may used to define both search and routing domains.
 
 The most basic support of systemd-resolved in a network configuration manager would be to simply invoke `SetLinkDNS()` and `SetLinkDomains()` for the specific interface index with the data traditionally written to `/etc/resolv.conf`. More advanced integration could mean the network configuration manager also makes the DNSSEC mode, the DNSSEC NTAs and the LLMNR/MulticastDNS modes available for configuration.
 
@@ -40,11 +40,13 @@ If a network configuration manager wants to reset specific settings to the defau
 
 To read back the various settings made, use `GetLink()` to get a `org.freedesktop.resolve1.Link` object for a specific network interface. It exposes the current settings in its bus properties. See the full bus API documentation for details on this.
 
+In order to translate a network interface name to an interface index, use the usual glibc if_nametoindex() call.
+
 If the network configuration UI shall expose information about whether the selected DNS server supports DNSSEC, use the `DNSSECSupported` on the link object.
 
 ## Handling of `/etc/resolv.conf`
 
-resolved receives DNS configuration from a number of sources, via the bus, as well as directly from networkd or user configuration. It uses this data to write a file that is compatible with the traditional Linux `/etc/resolv.conf` file. This file is stored in `/run/systemd/resolve/resolv.conf`. It is recommended to symlink `/etc/resolv.conf` to this file, in order to provide compatibility with programs reading the file directly and not going via the NSS and thus resolved.
+`systemd-resolved` receives DNS configuration from a number of sources, via the bus, as well as directly from networkd or user configuration. It uses this data to write a file that is compatible with the traditional Linux `/etc/resolv.conf` file. This file is stored in `/run/systemd/resolve/resolv.conf`. It is recommended to symlink `/etc/resolv.conf` to this file, in order to provide compatibility with programs reading the file directly and not going via the NSS and thus resolved.
 
 For network configuration managers it is recommended to rely on this mechanism to update `resolv.conf`. Specifically, the network configuration manager should stop modifying `/etc/resolv.conf` directly if it notices it being a symlink to `/run/systemd/resolve/resolv.conf`.
 
