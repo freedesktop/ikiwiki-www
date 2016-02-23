@@ -106,16 +106,16 @@ The service exposes the following interfaces on the Manager object on the bus:
                      o object_path);
           SessionRemoved(s session_id,
                          o object_path);
-          UserNew(u arg_0,
-                  o arg_1);
-          UserRemoved(u arg_0,
-                      o arg_1);
-          SeatNew(s arg_0,
-                  o arg_1);
-          SeatRemoved(s arg_0,
-                      o arg_1);
-          PrepareForShutdown(b arg_0);
-          PrepareForSleep(b arg_0);
+          UserNew(u uid,
+                  o object_path);
+          UserRemoved(u uid,
+                      o object_path);
+          SeatNew(s seat_id,
+                  o object_path);
+          SeatRemoved(s seat_id,
+                      o object_path);
+          PrepareForShutdown(b start);
+          PrepareForSleep(b start);
         properties:
           readwrite b EnableWallMessages = false;
           readwrite s WallMessage = '';
@@ -222,7 +222,7 @@ The **PreparingForShutdown** and **PreparingForSleep** boolean properties are tr
       interface org.freedesktop.login1.Seat {
         methods:
           Terminate();
-          ActivateSession(in  s arg_0);
+          ActivateSession(in  s session_id);
           SwitchTo(in  u vtnr);
           SwitchToNext();
           SwitchToPrevious();
@@ -272,7 +272,7 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHint** properties encode the idl
       interface org.freedesktop.login1.User {
         methods:
           Terminate();
-          Kill(in  i arg_0);
+          Kill(in  i signo);
         properties:
           readonly u UID = 1000;
           readonly u GID = 1000;
@@ -338,26 +338,26 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encod
           Activate();
           Lock();
           Unlock();
-          SetIdleHint(in  b arg_0);
-          Kill(in  s arg_0,
-               in  i arg_1);
-          TakeControl(in  b arg_0);
+          SetIdleHint(in  b idle);
+          Kill(in  s who,
+               in  i signo);
+          TakeControl(in  b force);
           ReleaseControl();
-          TakeDevice(in  u arg_0,
-                     in  u arg_1,
-                     out h arg_2,
-                     out b arg_3);
-          ReleaseDevice(in  u arg_0,
-                        in  u arg_1);
-          PauseDeviceComplete(in  u arg_0,
-                              in  u arg_1);
+          TakeDevice(in  u major,
+                     in  u minor,
+                     out h fd,
+                     out b inactive);
+          ReleaseDevice(in  u major,
+                        in  u minor);
+          PauseDeviceComplete(in  u major,
+                              in  u minor);
         signals:
-          PauseDevice(u arg_0,
-                      u arg_1,
-                      s arg_2);
-          ResumeDevice(u arg_0,
-                       u arg_1,
-                       h arg_2);
+          PauseDevice(u major,
+                      u minor,
+                      s type);
+          ResumeDevice(u major,
+                       u minor,
+                       h fd);
           Lock();
           Unlock();
         properties:
@@ -387,13 +387,10 @@ The **IdleHint**, **IdleSinceHint**, **IdleSinceHintMonotonic** properties encod
           readonly t IdleSinceHintMonotonic = 0;
       };
       interface org.freedesktop.DBus.Properties {
-        ...
       };
       interface org.freedesktop.DBus.Peer {
-        ...
       };
       interface org.freedesktop.DBus.Introspectable {
-        ...
       };
     };
 
