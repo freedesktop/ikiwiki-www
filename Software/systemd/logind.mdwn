@@ -221,17 +221,15 @@ The **PreparingForShutdown** and **PreparingForSleep** boolean properties are tr
     node /org/freedesktop/login1/seat/seat0 {
       interface org.freedesktop.login1.Seat {
         methods:
-          @org.freedesktop.systemd1.Privileged("true")
           Terminate();
           ActivateSession(in  s arg_0);
-        signals:
+          SwitchTo(in  u vtnr);
+          SwitchToNext();
+          SwitchToPrevious();
         properties:
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s Id = 'seat0';
           readonly (so) ActiveSession = ('', '/');
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly b CanMultiSession = true;
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly b CanTTY = true;
           readonly b CanGraphical = true;
           readonly a(so) Sessions = [('c1', '/org/freedesktop/login1/session/c1')];
@@ -240,13 +238,10 @@ The **PreparingForShutdown** and **PreparingForSleep** boolean properties are tr
           readonly t IdleSinceHintMonotonic = 48213948;
       };
       interface org.freedesktop.DBus.Properties {
-        ...
       };
       interface org.freedesktop.DBus.Peer {
-        ...
       };
       interface org.freedesktop.DBus.Introspectable {
-        ...
       };
     };
 
