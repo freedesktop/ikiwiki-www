@@ -1,0 +1,137 @@
+[[Back to systemd|http://www.freedesktop.org/wiki/Software/systemd/]]
+
+# Writing Resolver Clients
+
+_Or: How to look up arbitrary DNS Resource Records via `systemd-resolved`'s bus APIs_
+
+    #include <assert.h>
+    #include <endian.h>
+    #include <stdbool.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <systemd/sd-bus.h>
+    
+    #define DNS_CLASS_IN 1U
+    #define DNS_TYPE_MX 15U
+
+    static const uint8_t* print_name(const uint8_t* p) {
+            bool dot = false;
+            for (;;) {
+                    if (*p == 0)
+                            return p + 1;
+                    if (dot)
+                            putchar('.');
+                    else
+                            dot = true;
+                    printf("%.*s", (int) *p, (const char*) p + 1);
+                    p += *p + 1;
+            } 
+    }
+
+    static void process_mx(const void *rr, size_t sz) {
+            uint16_t class, type, rdlength, preference;
+            const uint8_t *p = rr;
+            uint32_t ttl;
+    
+            fputs("Found MX: ", stdout);
+            p = print_name(p);
+
+            memcpy(&type, p, sizeof(uint16_t));
+            p += sizeof(uint16_t);
+            memcpy(&class, p, sizeof(uint16_t));
+            p += sizeof(uint16_t);
+            memcpy(&ttl, p, sizeof(uint32_t));
+            p += sizeof(uint32_t);
+            memcpy(&rdlength, p, sizeof(uint16_t));
+            p += sizeof(uint16_t);
+            memcpy(&preference, p, sizeof(uint16_t));
+            p += sizeof(uint16_t);
+
+            assert(be16toh(type) == DNS_TYPE_MX);
+            assert(be16toh(class) == DNS_CLASS_IN);
+            printf(" preference=%u ", be16toh(preference));
+
+            p = print_name(p);
+            putchar('\n');
+
+            assert(p == (const uint8_t*) rr + sz);
+    }
+
+    int main(int argc, char*argv[]) {
+            sd_bus_error error = SD_BUS_ERROR_NULL;
+            sd_bus_message *reply = NULL;
+            sd_bus *bus = NULL;
+            uint64_t flags;
+            int r;
+
+            r = sd_bus_open_system(&bus);
+            if (r < 0) {
+                    fprintf(stderr, "Failed to open system bus: %s\n", strerror(-r));
+                    goto finish;
+            }
+    
+            r = sd_bus_call_method(bus,
+                                   "org.freedesktop.resolve1",
+                                   "/org/freedesktop/resolve1",
+                                   "org.freedesktop.resolve1.Manager",
+                                   "ResolveRecord",
+                                   &error,
+                                   &reply,
+                                   "isqqt",
+                                   0,
+                                   argc >= 2 ? argv[1] : "gmail.com",
+                                   DNS_CLASS_IN,
+                                   DNS_TYPE_MX,
+                                   UINT64_C(0));
+            if (r < 0) {
+                    fprintf(stderr, "Failed to resolve record: %s\n", error.message);
+                    sd_bus_error_free(&error);
+                    goto finish;
+            }
+
+            r = sd_bus_message_enter_container(reply, 'a', "(iqqay)");
+            if (r < 0)
+                    goto parse_failure; 
+    
+            for (;;) {
+                    uint16_t class, type;
+                    const void *data;
+                    size_t length;
+                    int ifindex;
+
+                    r = sd_bus_message_enter_container(reply, 'r', "iqqay");
+                    if (r < 0)
+                            goto parse_failure;
+                    if (r == 0)  /* Reached end of array */
+                            break;
+                    r = sd_bus_message_read(reply, "iqq", &ifindex, &class, &type);
+                    if (r < 0)
+                            goto parse_failure;
+                    r = sd_bus_message_read_array(reply, 'y', &data, &length);
+                    if (r < 0)
+                            goto parse_failure;
+                    r = sd_bus_message_exit_container(reply);
+                    if (r < 0)
+                            goto parse_failure;
+    
+                    process_mx(data, length);
+            }
+    
+            r = sd_bus_message_exit_container(reply);
+            if (r < 0)
+                    goto parse_failure;
+            r = sd_bus_message_read(reply, "t", &flags);
+            if (r < 0)
+                    goto parse_failure;
+    
+            goto finish;
+    
+    parse_failure:
+            fprintf(stderr, "Parse failure: %s\n", strerror(-r));
+    
+    finish:
+            sd_bus_message_unref(reply);
+            sd_bus_flush_close_unref(bus);
+            return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+       }
