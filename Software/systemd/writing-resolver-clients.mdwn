@@ -30,6 +30,12 @@ The examples below use the `sd-bus` D-Bus client implementation, which is part o
 
 To resolve a hostname use the `ResolveHostname()` call. For details on the function parameters see the [bus API documentation](https://wiki.freedesktop.org/www/Software/systemd/resolved/).
 
+This example specifies `AF_UNSPEC` as address family for the requested address. This means both an `AF_INET` (A) and an `AF_INET6` (AAAA) record is looked for, depending on whether the local system has configured IPv4 and/or IPv6 connectivity. It is generally recommended to request `AF_UNSPEC` addresses for best compatibility with both protocols, in particular on dual-stack systems.
+
+The example specifies a network interface index of "0", i.e. does not specify any at all, so that the request may be done on any. Note that the interface index is primarily relevant for LLMNR and MulticastDNS lookups, which distinguish different scopes for each network interface index.
+
+This examples makes no use of either the input flags parameter, nor the output flags parameter. See the `ResolveRecord()` example below for information how to make use of the `SD_RESOLVED_AUTHENTICATED` bit in the returned flags paramter.
+
     #include <arpa/inet.h>
     #include <netinet/in.h>
     #include <stdio.h>
@@ -59,10 +65,10 @@ To resolve a hostname use the `ResolveHostname()` call. For details on the funct
                                    &error,
                                    &reply,
                                    "isit",
-                                   0,
-                                   argc >= 2 ? argv[1] : "www.github.com",
-                                   AF_UNSPEC,
-                                   UINT64_C(0));
+                                   0,                                        /* Network interface index where to look (0 means any) */
+                                   argc >= 2 ? argv[1] : "www.github.com",   /* Hostname */
+                                   AF_UNSPEC,                                /* Which address family to look for */
+                                   UINT64_C(0));                             /* Input flags parameter */
             if (r < 0) {
                    fprintf(stderr, "Failed to resolve hostnme: %s\n", error.message);
                     sd_bus_error_free(&error);
@@ -208,11 +214,11 @@ For details on the function parameters see the [bus API documentation](https://w
                                    &error,
                                    &reply,
                                    "isqqt",
-                                   0,
-                                   argc >= 2 ? argv[1] : "gmail.com",
-                                   DNS_CLASS_IN,
-                                   DNS_TYPE_MX,
-                                   UINT64_C(0));
+                                   0,                                  /* Network interface index where to look (0 means any) */
+                                   argc >= 2 ? argv[1] : "gmail.com",  /* Domain name */
+                                   DNS_CLASS_IN,                       /* DNS RR class */ 
+                                   DNS_TYPE_MX,                        /* DNS RR type */
+                                   UINT64_C(0));                       /* Input flags parameter */
             if (r < 0) {
                     fprintf(stderr, "Failed to resolve record: %s\n", error.message);
                     sd_bus_error_free(&error);
