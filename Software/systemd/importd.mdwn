@@ -5,3 +5,58 @@
 systemd 219 and newer include the `systemd-importd` service which may be used to import, export and download additional system images, for running them as local containers using tools such as `systemd-nspawn`. The service is used as backend for `machinectl pull-raw` and `machinectl pull-tar` and related commands.
 
 See [[systemd-importd(8).service|http://www.freedesktop.org/software/systemd/man/systemd-importd.service.html]] for more information.
+
+    node /org/freedesktop/import1 {
+      interface org.freedesktop.import1.Manager {
+        methods:
+          ImportTar(in  h arg_0,
+                    in  s arg_1,
+                    in  b arg_2,
+                    in  b arg_3,
+                    out u arg_4,
+                    out o arg_5);
+          ImportRaw(in  h arg_0,
+                    in  s arg_1,
+                    in  b arg_2,
+                    in  b arg_3,
+                    out u arg_4,
+                    out o arg_5);
+          ExportTar(in  s arg_0,
+                    in  h arg_1,
+                    in  s arg_2,
+                    out u arg_3,
+                    out o arg_4);
+          ExportRaw(in  s arg_0,
+                    in  h arg_1,
+                    in  s arg_2,
+                    out u arg_3,
+                    out o arg_4);
+          PullTar(in  s arg_0,
+                  in  s arg_1,
+                  in  s arg_2,
+                  in  b arg_3,
+                  out u arg_4,
+                  out o arg_5);
+          PullRaw(in  s arg_0,
+                  in  s arg_1,
+                  in  s arg_2,
+                  in  b arg_3,
+                  out u arg_4,
+                  out o arg_5);
+          ListTransfers(out a(usssdo) arg_0);
+          CancelTransfer(in  u arg_0);
+        signals:
+          TransferNew(u arg_0,
+                      o arg_1);
+          TransferRemoved(u arg_0,
+                          o arg_1,
+                          s arg_2);
+        properties:
+      };
+      interface org.freedesktop.DBus.Peer {
+      };
+      interface org.freedesktop.DBus.Introspectable {
+      };
+      interface org.freedesktop.DBus.Properties {
+      };
+    };
