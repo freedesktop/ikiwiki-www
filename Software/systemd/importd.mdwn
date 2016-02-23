@@ -9,49 +9,48 @@ See [[systemd-importd(8).service|http://www.freedesktop.org/software/systemd/man
     node /org/freedesktop/import1 {
       interface org.freedesktop.import1.Manager {
         methods:
-          ImportTar(in  h arg_0,
-                    in  s arg_1,
-                    in  b arg_2,
-                    in  b arg_3,
-                    out u arg_4,
-                    out o arg_5);
-          ImportRaw(in  h arg_0,
-                    in  s arg_1,
-                    in  b arg_2,
-                    in  b arg_3,
-                    out u arg_4,
-                    out o arg_5);
-          ExportTar(in  s arg_0,
-                    in  h arg_1,
-                    in  s arg_2,
-                    out u arg_3,
-                    out o arg_4);
-          ExportRaw(in  s arg_0,
-                    in  h arg_1,
-                    in  s arg_2,
-                    out u arg_3,
-                    out o arg_4);
-          PullTar(in  s arg_0,
-                  in  s arg_1,
-                  in  s arg_2,
-                  in  b arg_3,
-                  out u arg_4,
-                  out o arg_5);
-          PullRaw(in  s arg_0,
-                  in  s arg_1,
-                  in  s arg_2,
-                  in  b arg_3,
-                  out u arg_4,
-                  out o arg_5);
-          ListTransfers(out a(usssdo) arg_0);
-          CancelTransfer(in  u arg_0);
+          ImportTar(in  h fd,
+                    in  s local_name,
+                    in  b force,
+                    in  b read_only,
+                    out u transfer_id,
+                    out o transfer_path);
+          ImportRaw(in  h fd,
+                    in  s local_name,
+                    in  b force,
+                    in  b read_only,
+                    out u transfer_id,
+                    out o transfer_path);
+          ExportTar(in  s local_name,
+                    in  h fd,
+                    in  s format,
+                    out u transfer_id,
+                    out o transfer_path);
+          ExportRaw(in  s local_name,
+                    in  h fd,
+                    in  s format,
+                    out u transfer_id,
+                    out o transfer_path);
+          PullTar(in  s url,
+                  in  s local_name,
+                  in  s verify_mode,
+                  in  b force,
+                  out u transfer_id,
+                  out o transfer_path);
+          PullRaw(in  s url,
+                  in  s local_name,
+                  in  s verify_mode,
+                  in  b force,
+                  out u transfer_id,
+                  out o transfer_path);
+          ListTransfers(out a(usssdo) list);
+          CancelTransfer(in  u transfer_id);
         signals:
-          TransferNew(u arg_0,
-                      o arg_1);
-          TransferRemoved(u arg_0,
-                          o arg_1,
-                          s arg_2);
-        properties:
+          TransferNew(u transfer_id,
+                      o transfer_path);
+          TransferRemoved(u transfer_id,
+                          o transfer_path,
+                          s result);
       };
       interface org.freedesktop.DBus.Peer {
       };
