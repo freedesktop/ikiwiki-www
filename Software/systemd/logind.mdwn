@@ -89,16 +89,23 @@ The service exposes the following interfaces on the Manager object on the bus:
           CanSuspend(out s result);
           CanHibernate(out s result);
           CanHybridSleep(out s result);
-          Inhibit(in  s arg_0,
-                  in  s arg_1,
-                  in  s arg_2,
-                  in  s arg_3,
-                  out h arg_4);
+          ScheduleShutdown(in  s type,
+                           in  t usec);
+          CancelScheduledShutdown(out b cancelled);
+          Inhibit(in  s what,
+                  in  s who,
+                  in  s why,
+                  in  s mode,
+                  out h pipe_fd);
+          CanRebootToFirmwareSetup(out s result);
+          SetRebootToFirmwareSetup(in  b enable);
+          SetWallMessage(in  s wall_message,
+                         in  b enable);
         signals:
-          SessionNew(s arg_0,
-                     o arg_1);
-          SessionRemoved(s arg_0,
-                         o arg_1);
+          SessionNew(s session_id,
+                     o object_path);
+          SessionRemoved(s session_id,
+                         o object_path);
           UserNew(u arg_0,
                   o arg_1);
           UserRemoved(u arg_0,
@@ -110,46 +117,37 @@ The service exposes the following interfaces on the Manager object on the bus:
           PrepareForShutdown(b arg_0);
           PrepareForSleep(b arg_0);
         properties:
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readwrite b EnableWallMessages = false;
+          readwrite s WallMessage = '';
           readonly u NAutoVTs = 6;
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly as KillOnlyUsers = [];
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly as KillExcludeUsers = ['root'];
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly b KillUserProcesses = false;
+          readonly b RebootToFirmwareSetup = false;
           readonly b IdleHint = false;
           readonly t IdleSinceHint = 0;
           readonly t IdleSinceHintMonotonic = 0;
           readonly s BlockInhibited = 'handle-power-key:handle-suspend-key:handle-hibernate-key';
           readonly s DelayInhibited = 'sleep';
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly t InhibitDelayMaxUSec = 5000000;
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s HandlePowerKey = 'poweroff';
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s HandleSuspendKey = 'suspend';
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly s HandleHibernateKey = 'hibernate';
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
-          readonly s HandleLidSwitch = 'suspend';
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
+          readonly s HandleLidSwitch = 'suspend';    
+          readonly s HandleLidSwitchDocked = 'ignore';    
+          readonly t HoldoffTimeoutUSec = 30000000;
           readonly s IdleAction = 'ignore';
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("const")
           readonly t IdleActionUSec = 1800000000;
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
           readonly b PreparingForShutdown = false;
-          @org.freedesktop.DBus.Property.EmitsChangedSignal("false")
           readonly b PreparingForSleep = false;
+          readonly (st) ScheduledShutdown = ('', 0);
+          readonly b Docked = false;
       };
       interface org.freedesktop.DBus.Peer {
-        ...
       };
       interface org.freedesktop.DBus.Introspectable {
-        ...
       };
       interface org.freedesktop.DBus.Properties {
-        ...      
       };
     };
 
