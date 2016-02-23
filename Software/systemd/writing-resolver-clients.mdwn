@@ -18,9 +18,17 @@ Below you'll find examples for two of these calls, to show how to use them. Note
  1. Bus APIs are naturally asynchronous, which the glibc APIs generally are not.
  2. The bus calls above pass back substantially more information about the resolved data, including where and how the data was found (i.e. which protocol was used: DNS, LLMNR, MulticastDNS, and on which network interface), and most importantly, whether the data could be authenticated via DNSSEC.
  3. `ResolveService()` knows no counterpart in glibc, and has the benefit of being a single call that collects all data necessary to connect to a DNS-SD or pure SRV service in one step.
- 4. `ResolveRecord()` in contrast to `res_query()` supports LLMNR and MulticastDNS as protocols on top of DNS, and makes use of `systemd-resolved`'s local DNS record cache. Also the initial processing of the request is done in the sandboxed `systemd-resolved` process rather than in the local process, and all packets are pre-validated.
+ 4. `ResolveRecord()` in contrast to `res_query()` supports LLMNR and MulticastDNS as protocols on top of DNS, and makes use of `systemd-resolved`'s local DNS record cache. The  processing of the request is done in the sandboxed `systemd-resolved` process rather than in the local process, and all packets are pre-validated. Because this relies on `systemd-resolved` the per-interface DNS zone handling is supported.
+
+Of course, by using `systemd-resolved` you lose some portability, but a fallback to the glibc counterparts is possibly.
+
+Note that the various resolver calls provided by `systemd-resolved` will consult `/etc/hosts` and synthesize resource records for these entries in order to ensure that this file is honoured fully.
+
+The examples below use the `sd-bus` D-Bus client implementation, which is part of `libsystemd`. Any other D-Bus library, including the original `libdbus` or `GDBus` may be used too.
 
 ## Resolving a Hostname
+
+To resolve a hostname use the `ResolveHostname()` call. For details on the function parameters see the [bus API documentation](https://wiki.freedesktop.org/www/Software/systemd/resolved/).
 
     #include <arpa/inet.h>
     #include <netinet/in.h>
