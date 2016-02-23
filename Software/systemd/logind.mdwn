@@ -20,85 +20,75 @@ The service exposes the following interfaces on the Manager object on the bus:
     node /org/freedesktop/login1 {
       interface org.freedesktop.login1.Manager {
         methods:
-          GetSession(in  s arg_0,
-                     out o arg_1);
-          GetSessionByPID(in  u arg_0,
-                          out o arg_1);
-          GetUser(in  u arg_0,
-                  out o arg_1);
-          GetUserByPID(in  u arg_0,
-                       out o arg_1);
-          GetSeat(in  s arg_0,
-                  out o arg_1);
-          ListSessions(out a(susso) arg_0);
-          ListUsers(out a(uso) arg_0);
-          ListSeats(out a(so) arg_0);
-          ListInhibitors(out a(ssssuu) arg_0);
-          @org.freedesktop.systemd1.Privileged("true")
-          CreateSession(in  u arg_0,
-                        in  u arg_1,
-                        in  s arg_2,
-                        in  s arg_3,
-                        in  s arg_4,
-                        in  s arg_5,
-                        in  u arg_6,
-                        in  s arg_7,
-                        in  s arg_8,
-                        in  b arg_9,
-                        in  s arg_10,
-                        in  s arg_11,
-                        in  a(sv) arg_12,
-                        out s arg_13,
-                        out o arg_14,
-                        out s arg_15,
-                        out h arg_16,
-                        out u arg_17,
-                        out s arg_18,
-                        out u arg_19,
-                        out b arg_20);
-          @org.freedesktop.systemd1.Privileged("true")
-          ReleaseSession(in  s arg_0);
-          ActivateSession(in  s arg_0);
-          ActivateSessionOnSeat(in  s arg_0,
-                                in  s arg_1);
-          @org.freedesktop.systemd1.Privileged("true")
-          LockSession(in  s arg_0);
-          @org.freedesktop.systemd1.Privileged("true")
-          UnlockSession(in  s arg_0);
-          @org.freedesktop.systemd1.Privileged("true")
+          GetSession(in  s session_id,
+                     out o object_path);
+          GetSessionByPID(in  u pid,
+                          out o object_path);
+          GetUser(in  u uid,
+                  out o object_path);
+          GetUserByPID(in  u pid,
+                       out o object_path);
+          GetSeat(in  s seat_id,
+                  out o object_path);
+          ListSessions(out a(susso) session_list);
+          ListUsers(out a(uso) user_list);
+          ListSeats(out a(so) seat_list);
+          ListInhibitors(out a(ssssuu) inhibitor_list);
+          CreateSession(in  u uid,
+                        in  u pid,
+                        in  s service,
+                        in  s type,
+                        in  s class,
+                        in  s desktop,
+                        in  s seat_id,
+                        in  u vtnr,
+                        in  s tty,
+                        in  s display,
+                        in  b remote,
+                        in  s remote_user,
+                        in  s remote_host,
+                        in  a(sv) properties,
+                        out s session_id,
+                        out o object_path,
+                        out s runtime_path,
+                        out h fifo_fd,
+                        out u uid,
+                        out s seat_id,
+                        out u vtnr,
+                        out b existing);
+          ReleaseSession(in  s session_id);
+          ActivateSession(in  s session_id);
+          ActivateSessionOnSeat(in  s session_id,
+                                in  s seat_id);
+          LockSession(in  s session_id);
+          UnlockSession(in  s session_id);
           LockSessions();
-          @org.freedesktop.systemd1.Privileged("true")
           UnlockSessions();
-          @org.freedesktop.systemd1.Privileged("true")
-          KillSession(in  s arg_0,
-                      in  s arg_1,
-                      in  i arg_2);
-          @org.freedesktop.systemd1.Privileged("true")
-          KillUser(in  u arg_0,
-                   in  i arg_1);
-          @org.freedesktop.systemd1.Privileged("true")
-          TerminateSession(in  s arg_0);
-          @org.freedesktop.systemd1.Privileged("true")
-          TerminateUser(in  u arg_0);
-          @org.freedesktop.systemd1.Privileged("true")
-          TerminateSeat(in  s arg_0);
-          SetUserLinger(in  u arg_0,
-                        in  b arg_1,
-                        in  b arg_2);
-          AttachDevice(in  s arg_0,
-                       in  s arg_1,
-                       in  b arg_2);
-          FlushDevices(in  b arg_0);
-          PowerOff(in  b arg_0);
-          Reboot(in  b arg_0);
-          Suspend(in  b arg_0);
-          Hibernate(in  b arg_0);
-          HybridSleep(in  b arg_0);
-          CanPowerOff(out s arg_0);
-          CanReboot(out s arg_0);
-          CanSuspend(out s arg_0);
-          CanHibernate(out s arg_0);
-          CanHybridSleep(out s arg_0);
+          KillSession(in  s session_id,
+                      in  s who,
+                      in  i signo);
+          KillUser(in  u uid,
+                   in  i signo);
+          TerminateSession(in  s session_id);
+          TerminateUser(in  u uid);
+          TerminateSeat(in  s seat_id);
+          SetUserLinger(in  u uid,
+                        in  b linger,
+                        in  b interactive);
+          AttachDevice(in  s seat_id,
+                       in  s sysfs,
+                       in  b interactive);
+          FlushDevices(in  b interactive);
+          PowerOff(in  b interactive);
+          Reboot(in  b interactive);
+          Suspend(in  b interactive);
+          Hibernate(in  b interactive);
+          HybridSleep(in  b interactive);
+          CanPowerOff(out s result);
+          CanReboot(out s result);
+          CanSuspend(out s result);
+          CanHibernate(out s result);
+          CanHybridSleep(out s result);
           Inhibit(in  s arg_0,
                   in  s arg_1,
                   in  s arg_2,
