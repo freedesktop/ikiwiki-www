@@ -79,9 +79,17 @@ In the case of a GTK application (quite unsure about the details):
 TODO: In the case of a Qt application
 
 TODO: In the case of a Java application
-* AccessibleContext::addPropertyChangeListener called to register focus notify hook
-* Java_org_GNOME_Accessibility_AtkWrapper_focusNotify
-* Use jni_main_idle_add or gdk_threads_add_idle to record having to call focus_notify_handler later
+* jaw_impl_class_init sets jaw_impl_initialize as initializer for atk class
+
+* when receiving events about a yet-unseen object, jaw_impl_get_instance calls atk_object_initialize
+* atk_object_initialize calls the atk class initializer, jaw_impl_initialize
+* jaw_impl_initialize calls org.GNOME.Accessibility.AtkWrapper::registerPropertyChangeListener
+* registerPropertyChangeListener calls AccessibleContext::addPropertyChangeListener to register propertyChangeListener to beans
+
+* AtkWrapper.java's propertyChangeListener's propertyChange get called, calls org.GNOME.Accessibility.AtkWrapper::dispatchFocusEvent.
+* dispatchFocusEvent calls focusNotify (implemented in C function Java_org_GNOME_Accessibility_AtkWrapper_focusNotify)
+* Java_org_GNOME_Accessibility_AtkWrapper_focusNotify uses jni_main_idle_add or gdk_threads_add_idle to record having to call focus_notify_handler later.
+* The glib loop calls focus_notify_handler.
 * focus_notify_handler calls atk_object_notify_state_change
 * atk_object_notify_state_change emits the signal
 * The rest is like gtk
