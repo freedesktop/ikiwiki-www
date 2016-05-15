@@ -4,13 +4,19 @@
 
 ## Changes at a glance
 
- * Various new features in the WebRTC echo canceller
+ * Automatic routing improvements
+ * Beamforming and various other new features in the WebRTC echo canceller
+ * module-role-cork and module-role-ducking can now operate on streams that don't have role set (and have other improvements too)
  * Support for sample rates up to 384 kHz
  * webrtc-audio-processing dependency minimum version bumped to 0.2
 
 ## Notes for end users
 
-### Various new features in the WebRTC echo canceller
+### Automatic routing improvements
+
+In 8.0, PulseAudio started to automatically switch to another profile when the device associated with the current profile is unplugged. That seemingly smart thing had some serious unintended consequences. One typical issue was that when unplugging headphones, PulseAudio might switch to S/PDIF output and not switch back to headphones when they are plugged in again. Another issue was that HDMI in many cases appears to get temporarily unplugged when the monitor goes to sleep mode, or even when switching the refresh rate of the monitor - PulseAudio 8.0 would move audio away from the HDMI monitor in these cases and not move the audio back to HDMI when the monitor becomes available again. These issues are now fixed.
+
+### Beamforming and various other new features in the WebRTC echo canceller
 
 The WebRTC echo canceller now supports [[beamforming|https://en.wikipedia.org/wiki/Beamforming#Beamforming_for_speech_audio]]. To enable the feature, pass "beamforming=true" in aec_args when loading module-echo-cancel. The filter also needs to know the microphone array geometry and the target direction, configured with the "mic_geometry" and "target_direction" options. For more details about how to configure beamforming, refer to the [[Modules|Software/PulseAudio/Documentation/User/Modules/#index45h3]] wiki page.
 
@@ -19,6 +25,12 @@ There's a new "extended filter" mode in the WebRTC echo canceller. The extended 
 It's now possible to disable the voice activation detection feature. To do that, pass "voice_detection=false" in aec_args when loading module-echo-cancel.
 
 It's now possible to configure the initial volume when using AGC (automatic gain control). To do that, pass "agc_start_volume=VOL" in aec_args when loading module-echo-cancel (replace VOL with a number between 0 and 255). Note that too low initial volume may prevent the AGC algorithm from ever raising the volume high enough (there seems to be some regression in the WebRTC code in this regard).
+
+### module-role-cork and module-role-ducking can now operate on streams that don't have role set (and have other improvements too)
+
+module-role-cork and module-role-ducking previously ignored streams that don't have the "media.role" property set. Now it's possible to refer to such streams in the configuration by using the special "no_role" string in place of a real stream role.
+
+If the trigger streams themselves get muted or corked, their effects on other streams now get cancelled.
 
 ### Support for sample rates up to 384 kHz
 
