@@ -6,9 +6,11 @@
 
  * Automatic routing improvements
  * Beamforming and various other new features in the WebRTC echo canceller
- * module-role-cork and module-role-ducking can now operate on streams that don't have role set (and have other improvements too)
+ * Various improvements in module-role-cork and module-role-ducking
+ * memfd-backed shared memory transport
  * Support for sample rates up to 384 kHz
  * webrtc-audio-processing dependency minimum version bumped to 0.2
+ * Changed the C standard from C99 to C11.
 
 ## Notes for end users
 
@@ -26,11 +28,23 @@ It's now possible to disable the voice activation detection feature. To do that,
 
 It's now possible to configure the initial volume when using AGC (automatic gain control). To do that, pass "agc_start_volume=VOL" in aec_args when loading module-echo-cancel (replace VOL with a number between 0 and 255). Note that too low initial volume may prevent the AGC algorithm from ever raising the volume high enough (there seems to be some regression in the WebRTC code in this regard).
 
-### module-role-cork and module-role-ducking can now operate on streams that don't have role set (and have other improvements too)
+### Various improvements in module-role-cork and module-role-ducking
 
 module-role-cork and module-role-ducking previously ignored streams that don't have the "media.role" property set. Now it's possible to refer to such streams in the configuration by using the special "no_role" string in place of a real stream role.
 
+Another new special role string is "any_role", which allows corking or ducking all streams other than the trigger stream.
+
+module-role-ducking now supports configuring different ducking volume levels for different trigger streams, and different trigger streams can also be configured to duck different sets of streams. For example, "trigger_roles=trig_role1/trig_role2,trig_role3 ducking_roles=ducking_role1,ducking_role2/ducking_role2,ducking_role3 volume=40%/20%" configures two groups. In the first group, streams with role "trig_role1" cause streams with roles "ducking_role1" and "ducking_role2" to be set to 40% volume. In the second group, streams with role "trig_role2" or "trig_role3" cause streams with roles "ducking_role2" or "ducking_role3" to be set to 20% volume.
+
 If the trigger streams themselves get muted or corked, their effects on other streams now get cancelled.
+
+### memfd-backed shared memory transport
+
+We have so far used the POSIX shared memory system to implement efficient communication between clients and the server. Now we also have initial support for [[memfd|https://lwn.net/Articles/593918/]]-backed shared memory, which has potential to improve security in sandboxing use cases (preventing applications from accessing each other's streams) and efficiency in system-wide setups (by making it possible to enable shared memory) in the future (further development is required before those benefits materialize).
+
+The memfd support is disabled by default for now, to allow more testing before it's rolled out to everyone (everyone is encouraged to test - if there are problems, please report them!). To enable the feature, add "enable-memfd = true" to /etc/pulse/daemon.conf or ~/.config/pulse/daemon.conf.
+
+Even if the server supports memfd and has it enabled, clients can opt out of it by setting "enable-memfd = false" in /etc/pulse/client.conf or ~/.config/pulse/client.conf.
 
 ### Support for sample rates up to 384 kHz
 
@@ -51,6 +65,10 @@ If you have always wanted to create streams in your application with sample rate
 ### webrtc-audio-processing dependency minimum version bumped to 0.2
 
 When enabling the WebRTC features, the webrtc-audio-processing package version has to be at least 0.2. Note that webrtc-audio-processing 0.2 is not compatible with applications that use version 0.1 (for example, older PulseAudio versions), so PulseAudio and webrtc-audio-processing have to be upgraded in lockstep.
+
+### Changed the C standard from C99 to C11.
+
+We now pass -std=gnu11 to the C compiler. Earlier we didn't explicitly set the C standard version, but we tried to be C99 compliant (with GNU extensions). Now we have decided to start using C11 features.
 
 ## git shortlog
 
