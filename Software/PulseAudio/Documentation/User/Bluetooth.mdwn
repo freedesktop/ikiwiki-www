@@ -1,0 +1,35 @@
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
+
+# Bluetooth
+
+## Introduction
+
+The Bluetooth standard specifies three audio profiles:
+
+* "A2DP" (Advanced Audio Distribution Profile) - high-quality audio playback, appropriate for e.g. listening to music.
+* "HSP" (HeadSet Profile) - phone-quality audio playback and recording, appropriate for phone calls.
+* "HFP" (Hands-Free Profile) - same as HSP, but with additional functionality for managing phone calls.
+
+On Linux, PulseAudio supports all of these profiles. However, the HSP and HFP implementations are mutually exclusive - it depends on the configuration which profile is enabled. HSP is enabled by default.
+
+    TODO: What about the "headset=auto" option? In theory, that should support both profiles. However, there must be a reason why that's not the default.
+
+PulseAudio depends on [[BlueZ|http://www.bluez.org]] for all Bluetooth functionality, and additionally [[oFono|https://01.org/ofono]] is required for HFP support.
+
+## Configuration
+
+A2DP and HSP should work out-of-the-box. Just pair and connect the device, and new audio devices should appear in PulseAudio.
+
+### HFP
+
+To enable HFP (which also disables HSP support), change this line in /etc/pulse/default.pa
+
+    load-module module-bluetooth-discover
+
+to
+
+    load-module module-bluetooth-discover headset=ofono
+
+Then restart PulseAudio.
+
+    TODO: oFono may need configuration changes too.
