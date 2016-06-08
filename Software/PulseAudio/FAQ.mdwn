@@ -266,14 +266,57 @@ Please keep in mind that PulseAudio will constantly adjust the sample rate to co
 
 ### How can use my Windows box to play the sound from my Linux box?
 
-* Download the windows binary of pulseaudio from the download page.
-* In the pulseaudio directory, create a file **default.pa** whith a content similar to this one (you may have to adjust the auth-ip-acl to reflect your network's settings):
+The following applies to Cygwin/X, but could be adapted for other 
+Windows pulseaudio installations.
 
-        load-module module-waveout
+Run the Cywin setup app in Windows and choose "pulseaudio" and 
+"pulseaudio-module-x11" -- then let the setup determine the dependencies 
+and accept those.
 
-        load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.0.0/16
+Now you have an installed pulseaudio.exe (in <cygwindir>/bin) but it is 
+not yet running, and it should be running in daemon mode (which is not 
+the default).  So in Windows, go to <cygwindir>/etc/pulse.   Edit 
+daemon.conf and change
 
-* In pulseaudio applet: PA applet -> Default Server -> Other -> Enter the hostname or ip of your windows box.
+daemonize = no
+to
+daemonize = yes
+
+Then in that same Windows directory, edit default.pa and add:
+
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.1.50
+
+In the Network Access area.  This allows host 192.168.1.50 (in this 
+example) to access Windows pulseaudio.  You can specify a network range 
+instead with CIDR notation.  A hostname may work, if it's defined in 
+Windows hosts file.
+
+That's it for Windows config files.  Now run the command pulseaudio.exe 
+and you might see a warning or two, but no errors.
+
+Last thing in Windows is to follow the usual Windows steps for setting 
+up pulseaudio.exe to run when Windows boots.
+
+Now on the Linux side, first kill pulseaudio, if it's running.  Then 
+edit /etc/pulse/client.conf and add:
+
+default-server = foobar
+
+where foobar is the hostname or IP of your Windows box.
+
+Now in Linux start up an app and play some audio.  At this point Windows 
+should pop up and ask permission to open its firewall to the incoming 
+Pulseaudio traffic, say yes to that.  Now you should hear the sound from 
+Linux being played in Windows!
+
+Note: with this setup, as far as I know, you can't run Pulseaudio daemon 
+anymore in Linux (as long as linux /etc/pulse/client.conf has another 
+server configured).  Every Linux sound will go to Windows. That is what 
+I wanted, as I have a headless Linux box with no speakers attached and I 
+am accessing the Linux X-clients with Cygwin/X.
+
+Also, if you start/restart Windows pulseaudio.exe, you will need to 
+restart any running Linux audio clients.
 
 ### How can I reverse my left and right speaker channels?
 
