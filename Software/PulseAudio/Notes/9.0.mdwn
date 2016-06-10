@@ -7,6 +7,7 @@
  * Automatic routing improvements
  * Beamforming and various other new features in the WebRTC echo canceller
  * Various improvements in module-role-cork and module-role-ducking
+ * LFE remixing disabled by default
  * memfd-backed shared memory transport
  * Support for sample rates up to 384 kHz
  * webrtc-audio-processing dependency minimum version bumped to 0.2
@@ -37,6 +38,10 @@ Another new special role string is "any_role", which allows corking or ducking a
 module-role-ducking now supports configuring different ducking volume levels for different trigger streams, and different trigger streams can also be configured to duck different sets of streams. For example, "trigger_roles=trig_role1/trig_role2,trig_role3 ducking_roles=ducking_role1,ducking_role2/ducking_role2,ducking_role3 volume=40%/20%" configures two groups. In the first group, streams with role "trig_role1" cause streams with roles "ducking_role1" and "ducking_role2" to be set to 40% volume. In the second group, streams with role "trig_role2" or "trig_role3" cause streams with roles "ducking_role2" or "ducking_role3" to be set to 20% volume.
 
 If the trigger streams themselves get muted or corked, their effects on other streams now get cancelled.
+
+### LFE remixing disabled by default
+
+When playing e.g. a stereo stream to a surround system with a subwoofer, the question arises what to do with the subwoofer (i.e. LFE, "low frequency emitter") channel. Up until 6.0 we left the LFE channel silent by default. In 7.0 we introduced support for filtering out low frequencies from other channels and playing the low frequencies to the LFE channel, and we enabled that feature by default. Now we have reverted the default configuration back to what it was in 6.0, i.e. we leave the LFE channel silent. The reason is that the low frequency filtering feature turned out to not work properly; the LFE channel is too quiet. It's not clear how to fix the issue, because increasing the volume may cause clipping in the LFE channel (another possibility would be to lower the volume of the other channels, but that has its problems too), so we decided to just disable the problematic feature by default for now.
 
 ### memfd-backed shared memory transport
 
