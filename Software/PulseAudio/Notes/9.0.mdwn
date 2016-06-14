@@ -43,13 +43,17 @@ If the trigger streams themselves get muted or corked, their effects on other st
 
 When playing e.g. a stereo stream to a surround system with a subwoofer, the question arises what to do with the subwoofer (i.e. LFE, "low frequency emitter") channel. Up until 6.0 we left the LFE channel silent by default. In 7.0 we introduced support for filtering out low frequencies from other channels and playing the low frequencies to the LFE channel, and we enabled that feature by default. Now we have reverted the default configuration back to what it was in 6.0, i.e. we leave the LFE channel silent. The reason is that the low frequency filtering feature turned out to not work properly; the LFE channel is too quiet. It's not clear how to fix the issue, because increasing the volume may cause clipping in the LFE channel (another possibility would be to lower the volume of the other channels, but that has its problems too), so we decided to just disable the problematic feature by default for now.
 
-### memfd-backed shared memory transport
+### Memfd-backed shared memory transport
 
-We have so far used the POSIX shared memory system to implement efficient communication between clients and the server. Now we also have initial support for [[memfd|https://lwn.net/Articles/593918/]]-backed shared memory, which has potential to improve security in sandboxing use cases (preventing applications from accessing each other's streams) and efficiency in system-wide setups (by making it possible to enable shared memory) in the future (further development is required before those benefits materialize).
+We have so far used POSIX shared memory to implement efficient, zero-copy, communication between clients and the server. Now we also have initial support for [[memfd-backed|https://dvdhrm.wordpress.com/2014/06/10/memfd_create2/]] shared memory.
 
-The memfd support is disabled by default for now, to allow more testing before it's rolled out to everyone (everyone is encouraged to test - if there are problems, please report them!). To enable the feature, add "enable-memfd = true" to /etc/pulse/daemon.conf or ~/.config/pulse/daemon.conf.
+Memfd is a simple memory sharing mechanism, added by the systemd/kdbus developers, to share pages between processes in an anonymous, no global registry needed, no mount-point required, [[relatively secure|https://lwn.net/Articles/593918/]], manner. Memfd support in PulseAudio has the potential of improving security in sandboxing use cases by preventing applications from accessing each other's audio streams.
 
-Even if the server supports memfd and has it enabled, clients can opt out of it by setting "enable-memfd = false" in /etc/pulse/client.conf or ~/.config/pulse/client.conf.
+Moreover, due to the nature of POSIX shared memory, where a global /dev/shm registry is needed, shared memory communication is always disabled for system-mode setups. In the future, pending further development to materialize, memfd will also enable system-wide setups to use shared memory.
+
+To allow more testing before this is rolled out, the memfd support is for now disabled by default. Everyone is encouraged to test this feature, and if there are problems please report them! To enable this feature, add "enable-memfd = true" to /etc/pulse/daemon.conf or ~/.config/pulse/daemon.conf.
+
+Even if the server supports memfd and has it enabled, clients can opt out by setting "enable-memfd = false" in /etc/pulse/client.conf or ~/.config/pulse/client.conf.
 
 ### Support for sample rates up to 384 kHz
 
