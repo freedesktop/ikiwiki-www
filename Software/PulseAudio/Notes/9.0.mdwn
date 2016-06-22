@@ -1,6 +1,6 @@
 [[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
 
-# PulseAudio 9.0 release notes (draft)
+# PulseAudio 9.0 release notes
 
 ## Changes at a glance
 
@@ -82,5 +82,166 @@ We now pass -std=gnu11 to the C compiler. Earlier we didn't explicitly set the C
 ## git shortlog
 
 <pre>
-To be added later.
+Ahmed S. Darwish (18):
+      log: journal: Prevent duplicate values for CODE_* fields
+      pulsecore: Cache daemon shm size inside pa_core
+      pulsecore: Reference count mempools
+      srbchannel: Introduce per-client SHM files
+      pulsecore: Transform pa_mempool_new() into a factory method
+      SHM: Refactor private allocations
+      pulsecore: Introduce memfd support
+      memimport: Support memfd blocks
+      pulsecore: Specially mark global mempools
+      pstream: Support memfd blocks transport
+      build-sys: Set C language standard to gnu11
+      protocol-native: Disable srbchannel for setups without SCM_CREDENTIALS
+      stream: Document pa_stream_write() size and offset requirements
+      detect: Don't deprecate module-detect on non-Linux systems
+      client audio: Support memfd transport
+      core: Support memfd transport; bump protocol version
+      shm: Fix use of uninitialized value: segment's shared-memory type
+      pstream: Fix use of uninitialized value: ancillary fd cleanup flag
+
+Alexander E. Patrakov (1):
+      Disable LFE remixing by default
+
+Arun Raghavan (39):
+      format: Make pa_format_info_valid() stricter for PCM
+      pulse: Bump PA_RATE_MAX to 384 kHz
+      glib: Trivial whitespace fix
+      build-sys: Only use sysroot in OS X CFLAGS if specified
+      coreaudio: Dynamically allocate C string when converting from CFString
+      coreaudio: Catch devices with more channels than we support
+      echo-cancel: Update webrtc-audio-processing usage to new API
+      echo-cancel: Allow enabling the extended filter in webrtc AEC
+      echo-cancel: Canceller may use different spec for playback and capture
+      echo-cancel: Express restrictions correctly on webrtc AEC stream config
+      echo-cancel: Add a modarg to use sink/source master format and spec
+      echo-cancel: Mark private function as static
+      echo-cancel: Allow enabling tracing output from the webrtc canceller
+      echo-cancel: Deal with volume limit breakage in webrtc AGC
+      echo-cancel: Start capture at a sane volume if we're doing webrtc AGC
+      echo-cancel: Allow enabling of the webrtc experimental AGC mechanism
+      echo-cancel: Add a modarg toggle for VAD in the webrtc canceller
+      build-sys: Move to compiling with C11 support
+      echo-cancel: Use anonymous unions for echo canceller params
+      echo-cancel: Make webrtc AGC start volume a modarg
+      echo-cancel: Fix webrtc canceller when rec channels != play channels
+      echo-cancel: Improve webrtc canceller error handling a bit
+      echo-cancel: webrtc canceller supports different in/out channel counts
+      echo-cancel: Use webrtc's deinterleaved API
+      echo-cancel: Update a copyright notice
+      echo-cancel: Remove pa_ prefix on private functions
+      echo-cancel: Add beamforming support in the webrtc canceller
+      echo-cancel: Convert AGC API to deal with pa_volume_t
+      rtp: Do all receive side rate calculations in sink-input domain
+      Revert "format: Make pa_format_info_valid() stricter for PCM"
+      module-filter-apply: Remove some dead code
+      module-filter-apply: Don't implement policy in module-device-manager
+      module-device-manager: Refine logic to ignore filtered streams
+      alsa: Reread and upate jack status when a card is unsuspended
+      module-filter-apply: Fix stale m-d-m property name in comment
+      build-sys: Bump sonames for release
+      dbus: Deal with double-counting module-dbus-protocol
+      sink-input,source-output: Fix crasher while setting property
+      Update NEWS for 9.0
+
+Barun Kumar Singh (1):
+      resampler: Fix leaking lfe filter on init failure
+
+David Henningsson (3):
+      switch-on-port-available: Switch from HDMI to analog; but not the other way around
+      alsa-mixer: refactor element_probe and fix >2 channel bug
+      memblock/pstream: Fix two compiler warnings
+
+Deepak Srivastava (1):
+      pulsecore: Fixed possible memory leak
+
+Gabor Kelemen (1):
+      Updated Hungarian translation
+
+Georg Chini (11):
+      role-cork: Don't ignore streams without media.role
+      role-cork: React to mute/cork of trigger streams and to proplist changes
+      role-cork: allow cork of all non-trigger streams using cork_roles=any_role
+      role-cork: remove corking on module exit
+      role-cork: prepare merge with role-ducking: move most code to stream-interaction.c
+      role-cork: prepare merge with role-ducking: replace "cork" with "interact" where appropriate
+      role-cork: more cosmetic changes, changed debug output
+      stream-interaction: Bugfix for improper uncorking behavior with global=1
+      stream-interaction: add ducking functionality
+      role-ducking: use the common code in stream-interaction.c
+      stream-interaction: interact if a stream starts corked
+
+Jeremy Huddleston Sequoia (1):
+      build-sys: Fix check for CoreServices.h
+
+Jonathan Perkin (1):
+      solaris: Catch up with newer API
+
+Juho Hämäläinen (1):
+      stream-restore: With dbus-proto fix segfault if e->device is NULL.
+
+Jungsup Lee (1):
+      rescue-streams : Fix a typo
+
+Kamil Rytarowski (1):
+      solaris: Illumos does not ship with SOUND_PCM* functionality
+
+Marcin Lewandowski (1):
+      vala: Added cnames to callback delegates in Vala VAPI
+
+Milo Casagrande (1):
+      i18n: Update Italian translation
+
+Muhammet Kara (1):
+      i18n: Updated Turkish translation
+
+Nazar Mokrynskyi (1):
+      alsa-mixer: Support for Creative SoundBlaster Omni Surround 5.1 USB sound card with latest firmware
+
+Peter Meerwald (2):
+      modules: Fix compiler warning comparing 0 with bool
+      core: Fix GCC 6 compiler warning regarding left shift of negative value
+
+Piotr Drąg (1):
+      i18n: Update Polish translation
+
+Sachin Kumar Chauhan (2):
+      module-filter-apply: Fix a memory leak
+      resampler: Fix a memory leak in pa_resampler_ffmpeg_init()
+
+Sangchul Lee (3):
+      role-ducking: Fix improper unducking behavior in case of operating globally
+      role-ducking: Add support for ducking group
+      stream-interaction: Fix crash in case of invalid argument for volume
+
+Tanu Kaskinen (24):
+      source-output: do volume_factor_source application before resampling
+      source-output: remap volume_factor_source when starting move
+      device-manager: improve logging about non-existing data
+      default.pa: remove X11 module examples
+      echo-cancel: Add some bits for webrtc intelligibility enhancer
+      card-restore: save the database when shutting down
+      resampler-test: remove translations
+      filter-apply: fix typo "what" -> "want"
+      build-sys: build gtk-test only when glib is enabled
+      echo-cancel: rework move handling
+      don't move streams to devices that are going away
+      device-manager, filter-apply: don't reroute streams that have a filter
+      sink-input, source-output: rework property setting
+      sink-input, source-output: remove set_name()
+      loopback: refactor proplist updating
+      filter-apply: simplify proplist updating
+      switch-on-port-available: unify input/output switching policy
+      switch-on-port-available: fix inverted if condition
+      switch-on-port-available: avoid repetitive pointer deferencing
+      card: add preferred_{input, output}_port
+      card-restore: restore preferred ports
+      switch-on-port-available: prefer ports that have been selected by the user
+      alsa: ignore jack events when the user is inactive
+      dbus: fix crash on LoadModule()
+
+YunQiang Su (1):
+      i18n: update Simplified Chinese translation
 </pre>
