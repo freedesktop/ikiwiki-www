@@ -21,7 +21,19 @@ An application can access the final mixed audio of all other applications, sent 
 $ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head).monitor snooped-audio.wav
 ```
 
-##### 
+##### Unmediated access to the micophone
+Any application can access and access from the microphone. This means that a single browser or internet-facing-application exploit can lead to full audio data access. The simple recording command below can run from the context of any application:
+
+```
+$ parec --file-format=wav -d $(pactl list sources | grep Name | grep -v '\.monitor' | cut -d: -f2 | head) microphone-audio.wav
+```
+
+##### Control system objects outside of the application domain
+Any application can induce system-wide effects regarding user audio. For example, an application can _suspend_ the main sink and the user won't hear audio from _any_ application:
+
+```
+
+```
 
 ## Prior Art
 ####Windows
