@@ -12,15 +12,16 @@ Similar to the massively-succesful mobile model, and like the current efforts of
 ## The problem
 PulseAudio, being written in the Wintel era of computing,⁶ _heavily follows_ the user-centric model of security. It has usually evaded the security question, almost in entirety, by confining itself to run under user context. 
 
-In the current model, applications can do whatever they like to the state of user's sound. Examples include
+In the current model, applications can do whatever they like to the state of user's sound. Examples include:
 
-### Listening and recording other application's audio
+##### Snooping other application's audio
 An application can access the final mixed audio of all other applications, sent to any sink, through the use of monitors:
 
 ```
-$ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head) snooped-audio.wav
+$ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head).monitor snooped-audio.wav
 ```
 
+##### 
 
 ## Prior Art
 ####Windows
