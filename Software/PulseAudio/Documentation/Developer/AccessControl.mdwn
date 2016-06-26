@@ -17,9 +17,7 @@ In the current model, applications can do whatever they like to the state of use
 ##### Snooping other application's audio
 An application can access the final mixed audio of all other applications, sent to any sink, through the use of monitors:
 
-```
-$ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head).monitor snooped-audio.wav
-```
+```$ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head).monitor snooped-audio.wav```
 
 ##### Unmediated access to the micophone
 Any application can access and access from the microphone. This means that a single browser or internet-facing-application exploit can lead to full audio data access. The simple recording command below can run from the context of any application:
@@ -42,8 +40,17 @@ Any application can load or unload server modules, with parameters that might dr
 $ pactl load-module module-native-protocol-tcp listen=0.0.0.0 port=1234
 ```
 
-##### Force the daemon to be reliably killed
-Due to how PulseAudio is currently designed, a certain number of playback streams can reliably kill the daemon by making it exceed its allocated real-time budget.⁷ ⁸
+##### Force the server to be reliably killed
+Due to how PulseAudio is currently designed, certain workloads asked by the application can reliably kill the daemon by making it exceed its allocated real-time budget.⁷ ⁸ For example, the following script will reliably kill pulse server on a dual-core 3GHz x86 machine:
+
+    #!/bin/bash
+    wget --no-clobber http://demo.polr.me/8a
+
+    for i in {1..60}; do
+        echo "Client #$i";
+        pacat --latency-msec=5000 --rate=384000 WhiteNoise.flac &
+        sleep 1`
+    done
 
 ##### "Use passthrough"
 
