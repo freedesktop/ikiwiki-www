@@ -9,17 +9,17 @@ The concept of user-centric security is so prevalent that Android, built way bef
 
 Similar to the massively-succesful mobile model, and like the current efforts of macOS,⁴ the Linux desktop is migrating to a sandboxed model of security.⁵ PulseAudio, a core infrastructure layer of the Linux desktop, should be ready.
 
-## The problem
+## The Problem
 PulseAudio, being written in the Wintel era of computing,⁶ _heavily follows_ the user-centric model of security. It has usually evaded the security question, almost in entirety, by confining itself to run under user context. 
 
-In the current model, applications can do whatever they like to the state of user's sound. Examples include:
+In the current model, applications can do whatever they like to the state of user's sound. An application can do any of the following:
 
-##### Snooping other application's audio
+##### Snoop on other application's audio
 An application can access the final mixed audio of all other applications, sent to any sink, through the use of monitors:
 
 ```$ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head).monitor snooped-audio.wav```
 
-##### Unmediated access to the micophone
+##### Have unmediated access to the micophone
 Any application can access and access from the microphone. This means that a single browser or internet-facing-application exploit can lead to full audio data access. The simple recording command below can run from the context of any application:
 
 ```
@@ -55,25 +55,29 @@ For example, the following script will reliably kill the pulse server on a dual-
         sleep 1
     done
 
-##### Effectively forbidding other applications from using a sink
+##### Forbid other applications from using a sink
 To protect resources, pulse has a hard-coded limit of 256 open streams (sink-inputs) per sink. If a malicious, or buggy, application makes the server reach that limit for the default sink, _no other application in the system_ will be able to output any audio.
 
 In the early days, this limit was set to 32 streams. It was increased later to 256 stream due to web browsers, and as a result HTML5 games, becoming PulseAudio-native.⁹
 
-###### Exclusively reserving access to passthrough mode
-<TBC>
+###### Reserve access to passthrough mode
+to-be-filled.
 
-## Proposed designs
+###### Snoop on the server's global mempool
+to-be-filled.¹⁰
+
+## Proposed Designs
 
 
 ## References & Footnotes
-- ¹ [An Experimental Time-Sharing System](https://raw.githubusercontent.com/a-darwish/cuteOS-references/master/papers/sched/Corbato62%20-%20An%20Experimental%20Time-Sharing%20System%20(Original).pdf), F.J. Corbato et al.
-- ² [Namespaces in Operation, part 1: Namespaces overview](https://lwn.net/Articles/531114/). Michael Kerrisk
-- ³ [Introduction: System Permissions](https://developer.android.com/guide/topics/security/permissions.html). Anrdroid Developers Guide
-- ⁴ [macOS App Sandboxing](https://developer.apple.com/app-sandboxing/), Apple Developers Guide
-- ⁵ As originally started by [GNOME's xdg-app effort](https://web.archive.org/web/20150128224610/https://wiki.gnome.org/Projects/SandboxedApps), and later renamed to [Flatpak](http://flatpak.org/)
-- ⁶ [The PulseAudio Sound Server](http://darwish.chasingpointers.com/pub/The%20PulseAudoi%20Sound%20Server%20-%20Lennart%202007.pdf), FOSS.in 2007, Lennart Poettering
-- ⁷ [PulseAudio gets reliably killed upon a big number of client connections](https://bugs.freedesktop.org/show_bug.cgi?id=94629). PulseAudio bugzilla
-- ⁸ [Timing issues in desktop audio playback infrastructure](http://lac.linuxaudio.org/2015/download/rewind-slides.pdf), Linux Audio Conference 2015, Alexander Patrakov
-- ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
+-  ¹ [An Experimental Time-Sharing System](https://raw.githubusercontent.com/a-darwish/cuteOS-references/master/papers/sched/Corbato62%20-%20An%20Experimental%20Time-Sharing%20System%20(Original).pdf), F.J. Corbato et al.
+-  ² [Namespaces in Operation, part 1: Namespaces overview](https://lwn.net/Articles/531114/). Michael Kerrisk
+-  ³ [Introduction: System Permissions](https://developer.android.com/guide/topics/security/permissions.html). Anrdroid Developers Guide
+-  ⁴ [macOS App Sandboxing](https://developer.apple.com/app-sandboxing/), Apple Developers Guide
+-  ⁵ As originally started by [GNOME's xdg-app effort](https://web.archive.org/web/20150128224610/https://wiki.gnome.org/Projects/SandboxedApps), and later renamed to [Flatpak](http://flatpak.org/)
+-  ⁶ [The PulseAudio Sound Server](http://darwish.chasingpointers.com/pub/The%20PulseAudoi%20Sound%20Server%20-%20Lennart%202007.pdf), FOSS.in 2007, Lennart Poettering
+-  ⁷ [PulseAudio gets reliably killed upon a big number of client connections](https://bugs.freedesktop.org/show_bug.cgi?id=94629). PulseAudio bugzilla
+-  ⁸ [Timing issues in desktop audio playback infrastructure](http://lac.linuxaudio.org/2015/download/rewind-slides.pdf), Linux Audio Conference 2015, Alexander Patrakov
+-  ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
+- ¹⁰ [Why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
 ⁰¹²³⁴⁵⁶⁷⁸⁹
