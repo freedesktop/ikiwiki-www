@@ -40,28 +40,33 @@ Any application can load or unload server modules, with parameters that might dr
 $ pactl load-module module-native-protocol-tcp listen=0.0.0.0 port=1234
 ```
 
-##### Force the server to be reliably killed
-Due to how PulseAudio is currently designed, certain workloads asked by the application can reliably kill the daemon by making it exceed its allocated real-time budget.⁷ ⁸ For example, the following script will reliably kill pulse server on a dual-core 3GHz x86 machine:
+##### Induce the server to get _reliably_ killed
+Due to how PulseAudio is currently designed, certain workloads asked by the application can reliably kill the daemon by making it exceed its allocated real-time budget.⁷ ⁸ Typically speaking rtkit limits pulse real-time budget to 200ms – not to cause any havoc in the system if any pulse code goes awry.
+
+For example, the following script will reliably kill the pulse server on a dual-core 3GHz x86 machine:
 
     #!/bin/bash
+
     wget -nc https://archive.org/download/TenMinutesOfWhiteNoisePinkNoiseAndBrownianNoise/WhiteNoise.flac
+
     for i in {1..60}; do
         echo "Client #$i";
         pacat --latency-msec=5000 --rate=384000 WhiteNoise.flac &
-        sleep 1`
+        sleep 1
     done
 
-##### "Use passthrough"
+##### Effectively forbidding other applications from using a sink
+To protect resources, pulse has a hard-coded limit of 256 open streams (sink-inputs) per sink. If a malicious, or buggy, application makes the server reach that limit for the default sink, _no other application in the system_ will be able to output any audio.
 
-##### Force daemon's resource-exhaustion
+In the early days, this limit was set to 32 streams. It was increased later to 256 stream due to web browsers, and as a result HTML5 games, becoming PulseAudio-native.⁹
+
+###### Exclusively reserving access to passthrough mode
+<TBC>
+
+## Proposed designs
 
 
-## Prior Art
-####Windows
-####macOS
-####iOS
-
-# References & Footnotes
+## References & Footnotes
 - ¹ [An Experimental Time-Sharing System](https://raw.githubusercontent.com/a-darwish/cuteOS-references/master/papers/sched/Corbato62%20-%20An%20Experimental%20Time-Sharing%20System%20(Original).pdf), F.J. Corbato et al.
 - ² [Namespaces in Operation, part 1: Namespaces overview](https://lwn.net/Articles/531114/). Michael Kerrisk
 - ³ [Introduction: System Permissions](https://developer.android.com/guide/topics/security/permissions.html). Anrdroid Developers Guide
@@ -70,5 +75,5 @@ Due to how PulseAudio is currently designed, certain workloads asked by the appl
 - ⁶ [The PulseAudio Sound Server](http://darwish.chasingpointers.com/pub/The%20PulseAudoi%20Sound%20Server%20-%20Lennart%202007.pdf), FOSS.in 2007, Lennart Poettering
 - ⁷ [PulseAudio gets reliably killed upon a big number of client connections](https://bugs.freedesktop.org/show_bug.cgi?id=94629). PulseAudio bugzilla
 - ⁸ [Timing issues in desktop audio playback infrastructure](http://lac.linuxaudio.org/2015/download/rewind-slides.pdf), Linux Audio Conference 2015, Alexander Patrakov
-
+- ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
 ⁰¹²³⁴⁵⁶⁷⁸⁹
