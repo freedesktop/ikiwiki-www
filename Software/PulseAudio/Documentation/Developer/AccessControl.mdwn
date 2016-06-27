@@ -72,12 +72,12 @@ In PulseAudio classical setups, shared memory is used for audio transfers betwee
 
 This shared-memory mechanism is used to achieve low-latency and a single-copy sound architecture. Classically, there are two _global_ shared memory pools created by the server:
 
-- The shared-ringbuffer memory pool, created for [the low-latency srbchannel command exchange mechanism] instead of exchanging commands, through copying, over UNIX sockets.
+- The shared-ringbuffer memory pool, created for [the low-latency srbchannel command exchange mechanism](http://voices.canonical.com/david.henningsson/2014/11/21/pulseaudio-buffers-and-protocol/) instead of exchanging commands, through copying, over UNIX sockets.
 - The global mempool, created by the server to send recorded audio (e.g. from a microphone) to a source-output (e.g. a client recording stream) in an efficient manner.
 
-Both mempools can by fully read by _any_ connect client in the system, and thus any client _can fully snoop_ on their contents. Since PulseAudio v9.0, the shared-ringbuffer mempool has been redesigned to get instantiated on a per-client basis, thus forbidding any cross-application data leaks.¹⁰
+Both mempools can by fully read by _any_ connected client in the system, and thus any client _can fully snoop_ on their contents. Since PulseAudio v9.0, the srbchannel mempool has been redesigned to get instantiated on a per-client basis, thus forbidding any cross-application data leaks.¹⁰
 
-We need to do the same for the global mempool and instantiate it on a per-client basis. Otherwise, any app can read the microphone's audio stream by snooping on this global shared memory pool. This can happen _even if an access-control layer was merged_ to allow/deny access to the microphone. Due to PulseAudio's current design, a large patchset is needed for this transformation.¹¹
+We need to do the same for the global mempool and also instantiate it on a per-client basis. Otherwise, any app can read the microphone's audio stream by snooping on that global pool. Since an attacker can achieve this through simple memory reads, this snooping can happen _even if an access-control layer was merged_ to allow/deny access to the microphone. Due to PulseAudio's current design, a large patchset is needed for this transformation.¹¹
 
 ## Proposed Designs
 
