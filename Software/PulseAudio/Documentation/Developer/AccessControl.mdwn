@@ -68,16 +68,16 @@ For example, [this second malicious client](https://github.com/a-darwish/malicio
 to-be-filled.
 
 ###### Snoop on the server's global mempool
-In PulseAudio, shared memory is used for audio transfers. For playback, the client creates a shared-memory pool to send played audio to the server. For recording, a _system-wide & global_ shared-memory pool is used to send recorded audio to clients. Shared memory is used to achieve low-latency and a single-copy sound architecture.
+Shared memory is used in PulseAudio for audio transfers. For playback the client creates a shared-memory pool to send played audio to the server. For recording a _system-wide & global_ shared-memory pool is used to send recorded audio to clients. Shared memory is used for low-latency and a single-copy sound architecture.
 
-Classically, there are two _global_ shm pools created by the server:
+Classically, there are two _global_ shared-memory pools created by the server:
 
 - The shared-ringbuffer memory pool, created for [low-latency srbchannel commands exchange](http://voices.canonical.com/david.henningsson/2014/11/21/pulseaudio-buffers-and-protocol/)
-- The global mempool, created by the server to send recorded audio to clients
+- The global mempool, created send recorded audio from server to clients
 
-All clients have full read-access to the above two pools and thus any client _can fully snoop on their contents_. Since PulseAudio v9.0, the srbchannel pool has been redesigned to get created on a per-client basis, thus forbidding cross-application leaks.¹⁰
+All clients have full read-access to the two pools above and thus any client _can fully snoop their contents_. Since PulseAudio v9.0, the srbchannel pool has been redesigned & instantiated on a per-client basis, thus forbidding cross-application leaks.¹⁰
 
-A similar per-client effort is needed for the global mempool. Otherwise, _any_ app can snoop behind the server's back and read the microphone's audio _even if an access-control layer was implemented_. A large patchset is needed for this transformation.¹¹
+A similar per-client effort is needed for the global mempool. Otherwise, _any_ app can snoop behind the server's back and read the microphone's audio _even if an access-control layer was merged_. A large patchset is needed for this transformation.¹¹
 
 ## Proposed Designs
 
