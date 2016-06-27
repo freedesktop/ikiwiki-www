@@ -55,6 +55,8 @@ For example, the following script will reliably kill the pulse server on a dual-
         sleep 1
     done
 
+Moreover, [this simple client](https://github.com/a-darwish/malicious-pulseaudio-clients/blob/master/kill_server_quickly_open_write_streams.c) will _instantaneously_ kill the server, simply by quickly opening and writing to multiple connected streams.
+
 ##### Forbid other applications from using a sink
 To protect resources, pulse has a hard-coded limit of 256 open streams (sink-inputs) per sink. If a malicious, or buggy, application makes the server reach that limit for the default sink, _no other application in the system_ will be able to output any audio.
 
@@ -79,5 +81,5 @@ to-be-filled.¹⁰
 -  ⁷ [PulseAudio gets reliably killed upon a big number of client connections](https://bugs.freedesktop.org/show_bug.cgi?id=94629). PulseAudio bugzilla
 -  ⁸ [Timing issues in desktop audio playback infrastructure](http://lac.linuxaudio.org/2015/download/rewind-slides.pdf), Linux Audio Conference 2015, Alexander Patrakov
 -  ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
-- ¹⁰ [Why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
+- ¹⁰ [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
 ⁰¹²³⁴⁵⁶⁷⁸⁹
