@@ -68,16 +68,16 @@ For example, [this second malicious client](https://github.com/a-darwish/malicio
 to-be-filled.
 
 ###### Snoop on the server's global mempool
-In PulseAudio classical setups, shared memory is used for audio transfers between the client and the server. Either for playback, through a shared memory pool created by the client, or for recording, through a _global_ memory pool created by the server.
+In PulseAudio, shared memory is used for audio transfers between the client and the server. For playback, a shared memory pool is created by the client to share the audio with the server. For recording, a _global_ shared pool used to share the audio with _all_ interested clients. This shared-memory mechanism is used to achieve low-latency and a single-copy sound architecture.
 
-This shared-memory mechanism is used to achieve low-latency and a single-copy sound architecture. Classically, there are two _global_ shared memory pools created by the server:
+Classically, there are two _global_ shared memory pools created by the server:
 
-- The shared-ringbuffer memory pool, created for [the low-latency srbchannel command exchange mechanism](http://voices.canonical.com/david.henningsson/2014/11/21/pulseaudio-buffers-and-protocol/) instead of exchanging commands, through copying, over UNIX sockets.
-- The global mempool, created by the server to send recorded audio (e.g. from a microphone) to a source-output (e.g. a client recording stream) in an efficient manner.
+- The shared-ringbuffer memory pool, created for [low-latency srbchannel command exchange mechanism](http://voices.canonical.com/david.henningsson/2014/11/21/pulseaudio-buffers-and-protocol/).
+- The global mempool, created by the server to send recorded audio to interested clients in an efficient manner.
 
-Both mempools can by fully read by _any_ connected client in the system, and thus any client _can fully snoop_ on their contents. Since PulseAudio v9.0, the srbchannel mempool has been redesigned to get instantiated on a per-client basis, thus forbidding any cross-application data leaks.¹⁰
+All clients have full read-access to these pools and thus any client _can snoop on their contents_. Since PulseAudio v9.0, the srbchannel mempool has been redesigned to get instantiated on a per-client basis, thus forbidding cross-application data leaks.¹⁰
 
-We need to do the same for the global mempool and also instantiate it on a per-client basis. Otherwise, any app can read the microphone's audio stream by snooping on that global pool. Since an attacker can achieve this through simple memory reads, this snooping can happen _even if an access-control layer was merged_ to allow/deny access to the microphone. Due to PulseAudio's current design, a large patchset is needed for this transformation.¹¹
+We need to do the same for the global mempool and instantiate it on a per-client basis. Otherwise, any app can read the microphone's audio stream by snooping on that global pool. Since an attacker can achieve this through simple memory reads, this snooping can happen _even if an access-control layer was merged in PulseAudio_ to allow/deny access to the microphone. Due to the system's current design & codebase, a large patchset is needed for this transformation.¹¹
 
 ## Proposed Designs
 
