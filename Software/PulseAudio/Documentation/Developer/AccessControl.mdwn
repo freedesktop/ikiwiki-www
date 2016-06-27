@@ -55,18 +55,29 @@ For example, the following script will reliably kill the pulse server on a dual-
         sleep 1
     done
 
-Moreover, [this simple client](https://github.com/a-darwish/malicious-pulseaudio-clients/blob/master/kill_server_quickly_open_write_streams.c) will _instantaneously_ kill the server, simply by quickly opening and writing to multiple connected streams.
+Moreover, [this malicious client](https://github.com/a-darwish/malicious-pulseaudio-clients/blob/master/kill_server_quickly_open_write_streams.c) will _instantaneously_ kill the server. It simply does so by quickly opening and writing to multiple connected streams.
 
 ##### Forbid other applications from using a sink
 To protect resources, pulse has a hard-coded limit of 256 open streams (sink-inputs) per sink. If a malicious, or buggy, application makes the server reach that limit for the default sink, _no other application in the system_ will be able to output any audio.
 
 In the early days, this limit was set to 32 streams. It was increased later to 256 stream due to web browsers, and as a result HTML5 games, becoming PulseAudio-native.⁹
 
+For example, [this second malicious client](https://github.com/a-darwish/malicious-pulseaudio-clients/blob/master/exhaust_open_streams.c) will force-mute the system, without any ability to unmute it back except by killing the client or restarting the server. It does so by exhausting the number of open streams connected to the default sink, thus disabling any newly-connected app from outputting audio.
+
 ###### Reserve access to passthrough mode
 to-be-filled.
 
 ###### Snoop on the server's global mempool
-to-be-filled.¹⁰
+In PulseAudio classical setups, shared memory is used for audio transfers between the client and the server. Either for playback, through a shared memory pool created by the client, or for recording, through a _global_ memory pool created by the server.
+
+This shared-memory mechanism is used to achieve low-latency and a single-copy sound architecture. Classically, there are two _global_ shared memory pools created by the server:
+
+- The shared-ringbuffer memory pool, created for [the low-latency srbchannel command exchange mechanism] instead of exchanging commands, through copying, over UNIX sockets.
+- The global mempool, created by the server to send recorded audio (e.g. from a microphone) to a source-output (e.g. a client recording stream) in an efficient manner.
+
+Both mempools can by fully read by _any_ connect client in the system, and thus any client _can fully snoop_ on their contents. Since PulseAudio v9.0, the shared-ringbuffer mempool has been redesigned to get instantiated on a per-client basis, thus forbidding any cross-application data leaks.¹⁰
+
+We need to do the same for the global mempool and instantiate it on a per-client basis. Otherwise, any app can read the microphone's audio stream by snooping on this global shared memory pool. This can happen _even if an access-control layer was merged_ to allow/deny access to the microphone. Due to PulseAudio's current design, a large patchset is needed for this transformation.¹¹
 
 ## Proposed Designs
 
@@ -81,5 +92,7 @@ to-be-filled.¹⁰
 -  ⁷ [PulseAudio gets reliably killed upon a big number of client connections](https://bugs.freedesktop.org/show_bug.cgi?id=94629). PulseAudio bugzilla
 -  ⁸ [Timing issues in desktop audio playback infrastructure](http://lac.linuxaudio.org/2015/download/rewind-slides.pdf), Linux Audio Conference 2015, Alexander Patrakov
 -  ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
-- ¹⁰ [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
+- ¹⁰ [pulsecore: Reference-count mempools](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=9bda6e344a67a9df245bd679706c9a0291b30d08), [srbchannel: Introduce per-client SHM files](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=211a520543b97c2c769d85bdc4d4c8d3a9023199), PulseAudio git log, Ahmed Darwish
+- ¹¹ [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
+
 ⁰¹²³⁴⁵⁶⁷⁸⁹
