@@ -19,7 +19,7 @@ An application can access the final mixed audio of all other applications, sent 
 
     $ parec --file-format=wav -d $(pactl list sinks | grep Name | cut -d: -f2 | head).monitor snooped-audio.wav
 
-##### Have unmediated access to the micophone
+##### Have unmediated access to the microphone
 Any application can access and access from the microphone. This means that a single browser or internet-facing-application exploit can lead to full audio data access. The simple recording command below can run from the context of any application:
 
     $ parec --file-format=wav -d $(pactl list sources | grep Name | grep -v '\.monitor' | cut -d: -f2 | head) microphone-audio.wav
@@ -59,7 +59,7 @@ In the early days, this limit was set to 32 streams. It was increased later to 2
 For example, [this second malicious client](https://github.com/a-darwish/malicious-pulseaudio-clients/blob/master/exhaust_open_streams.c) will force-mute the system, without any ability to unmute it back except by killing the client or restarting the server. It does so by exhausting the number of open streams connected to the default sink, thus disabling any newly-connected app from outputting audio.
 
 ##### Forbid other applications from using a digital sink
-PulseAudio's [passtrhough mode](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/Developer/Passthrough/) allows passing audio, in its compressed form, directly to the hardware. This model is especially prevalent in embedded SoCs where software audio decoding is costly in performance and power-consumption.
+PulseAudio's [passthrough mode](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/Developer/Passthrough/) allows passing audio, in its compressed form, directly to the hardware. This model is especially prevalent in embedded SoCs where software audio decoding is costly in performance and power-consumption.
 
 Since we can't do audio mixing without decoding the audio first, this mode requries exclusive access (forbids mixing) on the sink. A passthrough stream is thus allowed to start only if the sink has zero open streams. Malicious apps, or an honest system event, can block the system's core application from using passthrough. To handle this, the [allow-passthrough](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Modules/) module is to be merged in v10.0: it force-acquires the sink for passtrhough streams.¹⁰
 
@@ -68,6 +68,7 @@ Nonetheless from a containers perspective, and whether the above module is loade
     $ pacat --passthrough /dev/zero
 
 ##### Snoop on the server's global mempool
+
 Shared memory is used in PulseAudio for audio transfers. For playback the client creates a shared-memory pool to send played audio to the server. For recording a _system-wide & global_ shared-memory pool is used to send recorded audio to clients. Shared memory is used for low-latency and a single-copy sound architecture.
 
 Classically, there are two _global_ shared-memory pools created by the server:
@@ -78,6 +79,42 @@ Classically, there are two _global_ shared-memory pools created by the server:
 All clients have full read-access to the two pools above and thus any client _can fully snoop their contents_. Since PulseAudio v9.0, the srbchannel pool has been redesigned & instantiated on a per-client basis, thus forbidding cross-application leaks.¹¹
 
 A similar per-client effort is needed for the global mempool. Otherwise, _any_ app can snoop behind the server's back and read the microphone's audio _even if an access-control layer was merged_. A large patchset is needed for this transformation.¹²
+
+## Threat model
+
+The PulseAudio protocol was not originally written with security at the application level in mind. We run an instance of PulseAudio for each user, and if the user has access to the audio hardware, then all applications being run as that user are trusted.
+
+Before start looking at how to address this, we list the set of "attacks" that we wish to mitigate, and those that we explicitly do not address (at least currently).
+
+##### Application level
+
+ * An application should not be able to capture audio without authorisation
+   * Do we want to provide fine-grained control over *which* devices capture is permitted from?
+
+ * An application should only be able to perform any operations on its own input and output streams
+   * While enumerating, only its own streams should be visible to the application
+
+ * An application should only only be able to control the volume of its own streams
+   * How does this operate with flat volumes?
+
+ * An application should only be able to play or remove a sample that it uploaded
+
+ * An application should not be able to perform operations sinks/sources/cards without authorisation
+   * It should be possible to enumerate only permitted devices
+
+ * An application should not be able to set the default sink/source without authorisation
+
+ * An application should not be able to load or unload modules without authorisation
+   * Exception for modules loaded by policy (such as filter modules)?
+
+ * An application should only be able to subscribe to events:
+   * On its own streams
+   * On devices that it can enumerate
+   * Do we need to filter what events are sent?
+
+##### Core level
+
+ * It should not be possible for an application's stream to be moved to a device it is not authorised for
 
 ## Proposed Designs
 
