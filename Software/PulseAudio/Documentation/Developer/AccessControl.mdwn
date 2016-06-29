@@ -59,15 +59,13 @@ In the early days, this limit was set to 32 streams. It was increased later to 2
 For example, [this second malicious client](https://github.com/a-darwish/malicious-pulseaudio-clients/blob/master/exhaust_open_streams.c) will force-mute the system, without any ability to unmute it back except by killing the client or restarting the server. It does so by exhausting the number of open streams connected to the default sink, thus disabling any newly-connected app from outputting audio.
 
 ###### Forbid other applications from using a digital sink
-PulseAudio's [passtrhough mode](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/Developer/Passthrough/) allows passing audio, in its compressed form, directly to the hardware. This model of usage is especially prevalent in embedded SoCs where it's too costly, power-consumption and peformance wise, to do the decoding in software.
+PulseAudio's [passtrhough mode](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/Developer/Passthrough/) allows passing audio, in its compressed form, directly to the hardware. This model is especially prevalent in embedded SoCs where software audio decoding is costly in performance and power-consumption.
 
-Since we can't do audio mixing without decoding the audio first, passtrhough mode forbids mixing by requiring _absolute exclusive access_ to the digital sink in question. By default, passthrough is only allowed this exclusive access _if nothing else_ is currently using the sink.
+Since we can't do audio mixing without decoding the audio first, this mode requries exclusive access (forbids mixing) on the sink. A passthrough stream is thus allowed to start only if the sink has zero open streams. Malicious apps, or an honest system event, can block the system's core application from using passthrough. To handle this, the [allow-passthrough](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Modules/) module is to be merged in v10.0: it force-acquires the sink for passtrhough streams.¹⁰
 
-A malicious app, or an honest system event, can block the system's main application from using passthrough by having a sink-input stream open. That's why the allow-passthrough module, which gives highest priority to the passthrough stream, was created and is to be shipped in v10.0.¹⁰
+Nonetheless from a containers perspective, and whether the above module is loaded or not, a malicious app can _pretend_ to be a passthrough and _block all other apps_ from accessing the acquired sink. The below simple command will disable all other apps from outputting audio:
 
-Nonetheless, whether such a module is loaded or not, a malicious app can _pretend_ to require passthrough and _block all other apps_ from accessing the sink. For example, below simple command will disable any other application from outputting audio:
-
-    $pacat --passthrough /dev/zero
+    $ pacat --passthrough /dev/zero
 
 ###### Snoop on the server's global mempool
 Shared memory is used in PulseAudio for audio transfers. For playback the client creates a shared-memory pool to send played audio to the server. For recording a _system-wide & global_ shared-memory pool is used to send recorded audio to clients. Shared memory is used for low-latency and a single-copy sound architecture.
@@ -94,7 +92,7 @@ A similar per-client effort is needed for the global mempool. Otherwise, _any_ a
 -  ⁷ [PulseAudio gets reliably killed upon a big number of client connections](https://bugs.freedesktop.org/show_bug.cgi?id=94629). PulseAudio bugzilla
 -  ⁸ [Timing issues in desktop audio playback infrastructure](http://lac.linuxaudio.org/2015/download/rewind-slides.pdf), Linux Audio Conference 2015, Alexander Patrakov
 -  ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
-- ¹⁰ [New Module, allow passthrough](http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/20333). PulseAudio mailing list, Collabora Ltd.
+- ¹⁰ [New Module, allow passthrough](http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/20333), [patch: allow-passtrhough module](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25340), PulseAudio mailing list, Collabora Ltd
 - ¹¹ [pulsecore: Reference-count mempools](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=9bda6e344a67a9df245bd679706c9a0291b30d08), [srbchannel: Introduce per-client SHM files](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=211a520543b97c2c769d85bdc4d4c8d3a9023199), PulseAudio git log, Ahmed Darwish
 - ¹² [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
 
