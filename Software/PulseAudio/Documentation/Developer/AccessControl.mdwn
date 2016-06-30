@@ -168,7 +168,19 @@ We can think of access control in PulseAudio as a separation of concerns mechani
 2. The core, which mediates access (mechanism part), _in an independent manner from the transport layer_
 3. External policy module, which provides policy part of the access
 
-In the above manner, the transport layer won't directly access [the pulse-core layer data structures](https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/core.h) as it's done now. Rather, this will be done through a well-defined API. The API shall then allow/deny access (mechanism) per hooks registered in core and implemented as external modules (policy).
+In the above manner, the transport layer won't directly access [the pulse-core layer data structures](https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/core.h) as it's done now. Rather, this will be done through a well-defined core API. This core API shall then allow/deny access (mechanism) per hooks registered in core and implemented as external modules (policy).
+
+**Advantages**:
+
+* Sound design that can serve us well in the following years
+
+**Disadvantages**:
+
+* A major undertaking, requiring a _redesign_ of both protocol-native _and_ core
+* Each transport, especially the more advanced it is, have its own "native" access control mechanism. For example, we have polkit for d-bus, ¹⁴ and possibly a unique new mechanism for bus1. In this case, won't it be simpler to do Pulse own mechanism checks in terms of the protocol (native, bus1, etc.) own access-control mechanism interfaces?
+
+### 2. Merging access-control mechanism inside the transport
+This is how it's done here.¹⁵
 
 ## References & Footnotes
 -  ¹ [An Experimental Time-Sharing System](https://raw.githubusercontent.com/a-darwish/cuteOS-references/master/papers/sched/Corbato62%20-%20An%20Experimental%20Time-Sharing%20System%20(Original).pdf), F.J. Corbato et al.
@@ -184,6 +196,7 @@ In the above manner, the transport layer won't directly access [the pulse-core l
 - ¹¹ [pulsecore: Reference-count mempools](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=9bda6e344a67a9df245bd679706c9a0291b30d08), [srbchannel: Introduce per-client SHM files](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=211a520543b97c2c769d85bdc4d4c8d3a9023199), PulseAudio git log, Ahmed Darwish
 - ¹² [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156), PulseAudio mailing list, Ahmed Darwish
 - ¹³ [Bus1: Friendly IPC for Linux](http://www.bus1.org/), Kdbus successor, David Herrman, Tom Gundersen, & Kay Sievers
-
+- ¹⁴ [Why polkit (or, how to mount a disk on modern Linux)](http://smcv.pseudorandom.co.uk/2015/why_polkit/), Simon McVittie
+- ¹⁵ [patch: Add access-control to protocol-native](http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/23280/). Wim Taymans
 
 ⁰¹²³⁴⁵⁶⁷⁸⁹
