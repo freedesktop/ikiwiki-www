@@ -90,17 +90,23 @@ Before start looking at how to address this, we list the set of "attacks" that w
 
  * An application should not be able to capture audio without authorisation
    * Do we want to provide fine-grained control over *which* devices capture is permitted from?
+   * iOS/Android seems to aggregate all of this under "microphone access"
 
  * An application should only be able to perform any operations on its own input and output streams
    * While enumerating, only its own streams should be visible to the application
 
+ * An application should not be able to create passthrough streams without authorisation
+
  * An application should only only be able to control the volume of its own streams
    * How does this operate with flat volumes?
+   * GNOME/Flatpak "[not planning on using flat volumes](https://github.com/flatpak/xdg-desktop-portal/issues/27#issuecomment-229290252" anymore?
 
  * An application should only be able to play or remove a sample that it uploaded
+   * Should all applications be allowed to upload samples?
 
  * An application should not be able to perform operations sinks/sources/cards without authorisation
    * It should be possible to enumerate only permitted devices
+   * Should operations on sinks/sources/cards be allowed in bulk? (e.g. like UNIX root)
 
  * An application should not be able to set the default sink/source without authorisation
 
@@ -111,6 +117,8 @@ Before start looking at how to address this, we list the set of "attacks" that w
    * On its own streams
    * On devices that it can enumerate
    * Do we need to filter what events are sent?
+
+ * An application should not be able to snoop on server's systemd-wide shared memory
 
 ##### Core level
 
