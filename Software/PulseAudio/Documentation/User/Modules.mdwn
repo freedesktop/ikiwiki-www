@@ -1084,3 +1084,9 @@ This module lowers the volume of less important streams when a more important st
    * A boolean. If true, ducking will be applied to all streams that have a ducking role. If false, ducking will be applied only to streams that are connected to the same device as the triggering stream.
 * volume
    * Attenuation to be used while ducking. The value can be given either as a percentage (for example, "40%"), in decibels (for example, "-20dB") or as a plain integer between 0 and 65536 (this is the representation that PulseAudio uses for volume internally).
+
+### module-allow-passthrough
+
+**Since 10.0**. This module ensures that [passthrough streams](../Passthrough)  are always allowed to play on sinks. The default policy in PulseAudio is to only allow exclusive access if nothing else is currently using the sink. With this module, all the existing streams are muted (by being re-routed to the null sink) when a passthrough stream comes in, allowing the passthrough stream to exclusively use the sink.
+
+This is particularly useful with media centers and HTPC boxes (e.g. [Kodi media center](http://kodi.wiki/view/PulseAudio#Passthrough_Mode)) where we usually always want to be able to start a video even if an external notification sound happened to be playing at the same time.
