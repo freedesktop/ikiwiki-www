@@ -5,7 +5,7 @@ Since MIT's introduction of time-sharing in the 60s,¹ operating system's securi
 
 This user-centric model of security was later inherited into the Personal Computing era, with slight differences. Applications written over the Wintel platform expected full access to the user's data, network, and even other applications files and data. By late 2008, the iPhone shifted the client applications landscape by forcing each application to run _only_ in its own isolated sandbox. By 2012, Docker similarly changed the server side of the equation by mainstreaming application-centric containers and deployment.
 
-The concept of user-centric security is so prevalent that Android, built way before the introduction of Linux Kernel namespaces,² had to achieve basic file-system separation between apps by giving each package a distinct Linux _user_ ID at install time.³
+The concept of user-centric security is so prevalent that Android, built way before the introduction of Linux Kernel namespaces,² had to achieve basic file-system separation between apps by giving _each_ package a distinct Linux _user_ ID at install time.³
 
 Similar to the massively-succesful mobile model, and like the current efforts of macOS,⁴ the Linux desktop is migrating to a sandboxed model of security.⁵ PulseAudio, a core infrastructure layer of the Linux desktop, should be ready.
 
@@ -67,8 +67,44 @@ Nonetheless from a containers perspective, and whether the above module is loade
 
     $ pacat --passthrough /dev/zero
 
-##### Snoop on the server's global mempool
+##### Stop all audio through the Device Reservation Protocol
+For better cooperation with other audio servers requiring direct access to ALSA (e.g. JACK), the generic [Device Reservation Protocol](http://git.0pointer.net/reserve.git/tree/reserve.txt) was created. It's implemented in [PulseAudio](http://sources.debian.net/src/pulseaudio/8.0-2/src/modules/reserve.c/), [Jack](http://sources.debian.net/src/jackd2/1.9.10%2B20150825git1ed50c92%7Edfsg-1/dbus/reserve.c/?hl=70#L70), [Kodi](http://sources.debian.net/src/kodi/16.1%2Bdfsg1-1/xbmc/linux/DBusReserve.cpp/), etc. and uses d-bus's own "service name ownership" conflict management to serialize access to ALSA cards.
 
+Through this protocol, _any_ application can ask PulseAudio to relinquish access to the ALSA cards and effectively force-mute the system if misused. The following program is an example:
+
+    #!/usr/bin/env python3
+    
+    import dbus, signal
+    
+    service_prefix='org.freedesktop.ReserveDevice1.Audio'
+    object_prefix='/org/freedesktop/ReserveDevice1/Audio'
+    interface='org.freedesktop.ReserveDevice1'
+    priority=0x7fffffff       # Highest prio = INT32_MAX
+    bus = dbus.SessionBus()
+    
+    def request_card_release(card_idx):    
+        object = bus.get_object(service_prefix + card_idx, object_prefix + card_idx)
+        release = object.get_dbus_method('RequestRelease', interface)
+        result = str(release(priority))
+        print('Asking pulse to release ALSA card #' + card_idx + ': ', end="")
+        print('Success!' if result == '1' else 'Failure!')
+        acquire_alsa_card(card_idx, dbus.bus.NAME_FLAG_REPLACE_EXISTING)
+    
+    def acquire_alsa_card(card_idx, extra_flags=0):
+        request = bus.request_name(service_prefix + card_idx,
+                                   dbus.bus.NAME_FLAG_DO_NOT_QUEUE |
+                                   dbus.bus.NAME_FLAG_ALLOW_REPLACEMENT |
+                                   extra_flags)
+        if request == dbus.bus.REQUEST_NAME_REPLY_EXISTS:
+            print('Pulse has previously acquired ALSA card #' + card_idx)
+            request_card_release(card_idx)
+        elif request == dbus.bus.REQUEST_NAME_REPLY_PRIMARY_OWNER:
+            print("Pulse is now blocked from accessing ALSA card #" + card_idx)
+    
+    acquire_alsa_card(str(0))
+    signal.pause()
+    
+##### Snoop on the server's global mempool
 Shared memory is used in PulseAudio for audio transfers. For playback the client creates a shared-memory pool to send played audio to the server. For recording a _system-wide & global_ shared-memory pool is used to send recorded audio to clients. Shared memory is used for low-latency and a single-copy sound architecture.
 
 Classically, there are two _global_ shared-memory pools created by the server:
