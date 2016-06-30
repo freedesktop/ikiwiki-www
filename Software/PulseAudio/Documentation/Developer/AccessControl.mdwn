@@ -118,7 +118,7 @@ A similar per-client effort is needed for the global mempool. Otherwise, _any_ a
 
 ## Threat model
 
-The PulseAudio protocol was not originally written with security at the application level in mind. We run an instance of PulseAudio for each user, and if the user has access to the audio hardware, then all applications being run as that user are trusted.
+As seen above, the PulseAudio protocol was not originally written with security at the application level in mind. We run an instance of PulseAudio for each user, and if the user has access to the audio hardware, then all applications being run as that user are trusted.
 
 Before start looking at how to address this, we list the set of "attacks" that we wish to mitigate, and those that we explicitly do not address (at least currently).
 
@@ -157,11 +157,18 @@ Before start looking at how to address this, we list the set of "attacks" that w
  * An application should not be able to snoop on server's system-wide shared memory
 
 ##### Core level
-
  * It should not be possible for an application's stream to be moved to a device it is not authorised for
 
 ## Proposed Designs
 
+### 1. Separation of concerns
+We can think of access control in PulseAudio as a separation of concerns mechanism. In this light we can see three entities:
+
+1. The transport layer. [protocol-native](https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/protocol-native.c) over Unix domain sockets, and possibly bus1 in the future.¹³
+2. The core, which mediates access (mechanism part), _in an independent manner from the transport layer_
+3. External policy module, which provides policy part of the access
+
+In the above manner, the transport layer won't directly access [the pulse-core layer data structures](https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/pulsecore/core.h) as it's done now. Rather, this will be done through a well-defined API. The API shall then allow/deny access (mechanism) per hooks registered in core and implemented as external modules (policy).
 
 ## References & Footnotes
 -  ¹ [An Experimental Time-Sharing System](https://raw.githubusercontent.com/a-darwish/cuteOS-references/master/papers/sched/Corbato62%20-%20An%20Experimental%20Time-Sharing%20System%20(Original).pdf), F.J. Corbato et al.
@@ -175,7 +182,8 @@ Before start looking at how to address this, we list the set of "attacks" that w
 -  ⁹ [sink: Increase max sink inputs per sink](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=26bf2df903b1c7439ad3eef0dc3bb1e777835cc3), PulseAudio git log, Arun Raghavan
 - ¹⁰ [New Module, allow passthrough](http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/20333), [patch: allow-passtrhough module](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25340), PulseAudio mailing list, Collabora Ltd
 - ¹¹ [pulsecore: Reference-count mempools](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=9bda6e344a67a9df245bd679706c9a0291b30d08), [srbchannel: Introduce per-client SHM files](https://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/?id=211a520543b97c2c769d85bdc4d4c8d3a9023199), PulseAudio git log, Ahmed Darwish
-- ¹² [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156). PulseAudio mailing list, Ahmed Darwish
+- ¹² [On why the global mempool is not yet instantiated per-client](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/25156), PulseAudio mailing list, Ahmed Darwish
+- ¹³ [Bus1: Friendly IPC for Linux](http://www.bus1.org/), Kdbus successor, David Herrman, Tom Gundersen, & Kay Sievers
 
 
 ⁰¹²³⁴⁵⁶⁷⁸⁹
