@@ -180,7 +180,19 @@ In the above manner, the transport layer won't directly access [the pulse-core l
 * Each transport, especially the more advanced it is, have its own "native" access control mechanism. For example, we have polkit for d-bus, ¹⁴ and possibly a unique new mechanism for bus1. In this case, won't it be simpler to do Pulse own mechanism checks in terms of the protocol (native, bus1, etc.) own access-control mechanism interfaces?
 
 ### 2. Merging access-control mechanism inside the transport
-This is how it's done here.¹⁵
+This is the approach chosen by the access-control patch series submitted last year.¹⁵ New access-control hooks are added, and mapped 1-to-1 with protocol-native commands.
+
+**Advantages**:
+
+* Simple design. Few stabilization changes + [personalizing the global mempool](#snoopontheserversglobalmempool) and we can offer the basic privacy features needed by Flatpak.¹⁶
+
+**Disadvantages**:
+
+* This second approach leads a design loophole. The 1-to-1 mapping ¹⁷ of protocol-native commands to acces hooks inside pa-core is, at best, redundant. At worst, it heavily ties protocol-native with core, blocking future extensions. Meanwhile, putting the access hooks inside protocol-native itself [introduces race-conditions](http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/23280/focus=26144) with the policy modules.
+
+  * Can we avoid these race conditions by introducing module dependencies within PulseAudio, just [like what the Linux Kernel does](http://man7.org/linux/man-pages/man5/modules.dep.5.html)?
+
+* What if we want to provide access-control checks _beyond the semantics_ of a protocol module?
 
 ## References & Footnotes
 -  ¹ [An Experimental Time-Sharing System](https://raw.githubusercontent.com/a-darwish/cuteOS-references/master/papers/sched/Corbato62%20-%20An%20Experimental%20Time-Sharing%20System%20(Original).pdf), F.J. Corbato et al.
@@ -198,5 +210,7 @@ This is how it's done here.¹⁵
 - ¹³ [Bus1: Friendly IPC for Linux](http://www.bus1.org/), Kdbus successor, David Herrman, Tom Gundersen, & Kay Sievers
 - ¹⁴ [Why polkit (or, how to mount a disk on modern Linux)](http://smcv.pseudorandom.co.uk/2015/why_polkit/), Simon McVittie
 - ¹⁵ [patch: Add access-control to protocol-native](http://thread.gmane.org/gmane.comp.audio.pulseaudio.general/23280/). Wim Taymans
+- ¹⁶ [Flatpak Issue #27: Add a sound portal](https://github.com/flatpak/xdg-desktop-portal/issues/27#issuecomment-228785987), Matthias Clasen & Alexander Larrson
+- ¹⁷ For details on the 1-to-1 mapping, check the `pa_access_hook` enumerations at [patch #3](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/23282) and the `map_table[]` at [patch #4](http://article.gmane.org/gmane.comp.audio.pulseaudio.general/23281)
 
 ⁰¹²³⁴⁵⁶⁷⁸⁹
