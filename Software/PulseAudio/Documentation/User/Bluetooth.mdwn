@@ -10,9 +10,17 @@ The Bluetooth standard specifies three audio profiles:
 * "HSP" (HeadSet Profile) - phone-quality audio playback and recording, appropriate for phone calls.
 * "HFP" (Hands-Free Profile) - same as HSP, but with additional functionality for managing phone calls.
 
-On Linux, PulseAudio supports all of these profiles. However, the HSP and HFP implementations are mutually exclusive - it depends on the configuration which profile is enabled. HSP is enabled by default.
+Each of the profiles are further divided into two roles:
 
-    TODO: What about the "headset=auto" option? In theory, that should support both profiles. However, there must be a reason why that's not the default.
+* A2DP:
+  * Source role - the device that sends audio. When PulseAudio acts in this role, a sink is created where applications can play to (this may be confusing - when PulseAudio acts as a bluetooth "source", a sink is created and vice versa).
+  * Sink role - the device that receives audio. When PulseAudio acts in this role, a source is created where applications can record from.
+* HSP:
+  * TODO
+* HFP:
+  * TODO
+
+(TODO: rewrite this paragraph) On Linux, PulseAudio supports all of these profiles. However, the HSP and HFP implementations are mutually exclusive - it depends on the configuration which profile is enabled (there's no fundamental reason why they have to be mutually exclusive - that's just how it is at the moment). HSP is enabled by default.
 
 PulseAudio depends on [[BlueZ|http://www.bluez.org]] for all Bluetooth functionality, and additionally [[oFono|https://01.org/ofono]] is required for HFP support.
 
