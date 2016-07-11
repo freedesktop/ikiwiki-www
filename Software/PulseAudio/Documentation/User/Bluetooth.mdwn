@@ -2,25 +2,39 @@
 
 # Bluetooth
 
-## Introduction
+PulseAudio depends on [[BlueZ|http://www.bluez.org]] for all Bluetooth functionality, and additionally [[oFono|https://01.org/ofono]] is required for HFP support.
 
-The Bluetooth standard specifies three audio profiles:
+## Profiles
 
-* "A2DP" (Advanced Audio Distribution Profile) - high-quality audio playback, appropriate for e.g. listening to music.
-* "HSP" (HeadSet Profile) - phone-quality audio playback and recording, appropriate for phone calls.
-* "HFP" (Hands-Free Profile) - same as HSP, but with additional functionality for managing phone calls.
+The bluetooth standard specifies three audio profiles. Don't confuse these with the "card profile" concept in PulseAudio. A bluetooth device shows up in PulseAudio as a card, and the card will have some set of profiles depending on what bluetooth profiles the device supports, but the "bluetooth profile" <-> "card profile" mapping is not one-to-one. The three bluetooth profiles are:
+
+* A2DP (Advanced Audio Distribution Profile) - high-quality audio playback, appropriate for e.g. listening to music.
+* HSP (HeadSet Profile) - phone-quality audio playback and recording, appropriate for phone calls.
+* HFP (Hands-Free Profile) - same as HSP, but with additional functionality for managing phone calls.
 
 Each of the profiles are further divided into two roles:
 
 * A2DP:
-  * Source role - the device that sends audio. When PulseAudio acts in this role, a sink is created where applications can play to (this may be confusing - when PulseAudio acts as a bluetooth "source", a sink is created and vice versa).
-  * Sink role - the device that receives audio. When PulseAudio acts in this role, a source is created where applications can record from.
+  * Source role - the device that sends audio.
+  * Sink role - the device that receives audio.
 * HSP:
-  * TODO
+  * Audio Gateway role - the device that the headset is connected to. The HSP profile is typically used in phone calls, and this is the device that is connected to the cellular network (for cellular phone calls) or to the internet (for VoIP calls). Typically a cellular phone or a personal computer.
+  * Headset role - the headset, obviously. This is where the speakers and microphone are.
 * HFP:
-  * TODO
+  * Audio Gateway role - the device that the hands-free device is connected to. The HFP profile is typically used for cellular phone calls, and this is the device that is connected to the cellular network. Typically a cellular phone.
+  * Hands-Free Unit role - the device with the speakers and microphone.
 
-(TODO: rewrite this paragraph) On Linux, PulseAudio supports all of these profiles. However, the HSP and HFP implementations are mutually exclusive - it depends on the configuration which profile is enabled (there's no fundamental reason why they have to be mutually exclusive - that's just how it is at the moment). HSP is enabled by default.
+## A2DP
+
+PulseAudio supports A2DP in both source and sink roles. When PulseAudio acts in the source role, a sink is created where applications can play to. When PulseAudio acts in the sink role, a source is created where applications can record from.
+
+A2DP works generally without a hassle, although when watching videos, the audio can get badly out of sync. It seems that in case of transmission problems (weak signal, or out of signal range) the kernel can buffer quite a lot of audio. PulseAudio doesn't know how much the kernel has audio buffered, so PulseAudio can neither report the latency accurately, nor wait until the kernel buffer fill level goes down to a more reasonable level. We currently lack a person who would have both the time and the skills to resolve this problem. Help would be greatly appreciated. Here's a bug report about this issue: https://bugs.freedesktop.org/show_bug.cgi?id=95411
+
+
+
+(TODO: The rest of this page is in need of some rewriting.)
+
+On Linux, PulseAudio supports all of these profiles. However, the HSP and HFP implementations are mutually exclusive - it depends on the configuration which profile is enabled (there's no fundamental reason why they have to be mutually exclusive - that's just how it is at the moment). HSP is enabled by default.
 
 PulseAudio depends on [[BlueZ|http://www.bluez.org]] for all Bluetooth functionality, and additionally [[oFono|https://01.org/ofono]] is required for HFP support.
 
