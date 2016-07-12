@@ -30,28 +30,16 @@ PulseAudio supports A2DP in both source and sink roles. When PulseAudio acts in 
 
 A2DP works generally without a hassle, although when watching videos, the audio can get badly out of sync. It seems that in case of transmission problems (weak signal, or out of signal range) the kernel can buffer quite a lot of audio. PulseAudio doesn't know how much the kernel has audio buffered, so PulseAudio can neither report the latency accurately, nor wait until the kernel buffer fill level goes down to a more reasonable level. We currently lack a person who would have both the time and the skills to resolve this problem. Help would be greatly appreciated. Here's a bug report about this issue: [[https://bugs.freedesktop.org/show_bug.cgi?id=95411]].
 
+## HSP
 
+PulseAudio supports HSP only in the audio gateway role, so headsets can be used with PulseAudio, but PulseAudio can't act as a headset. (With BlueZ 4 both roles are supported, but almost everyone uses BlueZ 5 nowadays.) With the "Headset Head Unit (HSP/HFP)" card profile selected, PulseAudio will create a sink and a source that applications can use to play back and record audio.
 
-(TODO: The rest of this page is in need of some rewriting.)
+The HSP implementation in PulseAudio is mutually exclusive with the HFP implementation, so users have to choose which one is more important to them. There's no reason why the two profiles absolutely have to be mutually exclusive, but that's the way it is for now.
 
-On Linux, PulseAudio supports all of these profiles. However, the HSP and HFP implementations are mutually exclusive - it depends on the configuration which profile is enabled (there's no fundamental reason why they have to be mutually exclusive - that's just how it is at the moment). HSP is enabled by default.
+HSP support is enabled by passing argument "headset=native" to module-bluetooth-discover in /etc/pulse/default.pa. Or the argument can be omitted, because HSP is enabled by default.
 
-PulseAudio depends on [[BlueZ|http://www.bluez.org]] for all Bluetooth functionality, and additionally [[oFono|https://01.org/ofono]] is required for HFP support.
+The headset role will eventually be supported too. In fact, there's already a patch for that: [[https://lists.freedesktop.org/archives/pulseaudio-discuss/2015-February/023242.html]]. Arun reviewed the patch, and there was something to fix in the patch, but the feedback was given in IRC, so the details are not archived. No new version of the patch has been submitted. Contact Arun Raghavan and Wim Taymans if you want more information about this, or if you want to help finishing the work.
 
-## Configuration
+## HFP
 
-A2DP and HSP should work out-of-the-box. Just pair and connect the device, and a new audio device should appear in PulseAudio.
-
-### HFP
-
-To enable HFP (which also disables HSP support), change this line in /etc/pulse/default.pa
-
-    load-module module-bluetooth-discover
-
-to
-
-    load-module module-bluetooth-discover headset=ofono
-
-Then restart PulseAudio.
-
-    TODO: oFono may need configuration changes too.
+TODO
