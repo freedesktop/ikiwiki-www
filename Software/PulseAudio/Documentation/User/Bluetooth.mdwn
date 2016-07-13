@@ -42,4 +42,30 @@ The headset role will eventually be supported too. In fact, there's already a pa
 
 ## HFP
 
-TODO
+PulseAudio supports HFP only in the hands-free unit role (opposite to the situation with HSP), so PulseAudio can connect to a mobile phone, but not to headsets and other hands-free devices. With the "Headset Audio Gateway (HSP/HFP)" card profile selected, PulseAudio will create a sink and a source that applications can use to play back and record audio - or more commonly, the bluetooth sink and source will be connected with module-loopback to speakers and a microphone device. Note that the "Headset Audio Gateway (HSP/HFP)" card profile is typically automatically activated by module-bluetooth-policy when appropriate, and manual activation might not work, because the HFP protocol requires that it's always the audio gateway device that initiates the audio connection, so PulseAudio can't start using HFP audio at will.
+
+As mentioned in the HSP section, support for HFP and HSP are currently mutually exclusive. HFP support is enabled by passing argument "headset=ofono" to module-bluetooth-discover in /etc/pulse/default.pa.
+
+The audio gateway role will hopefully be supported too in the future, as well as simultaneous support for HSP and HFP. Simon Fels has done some work on both of these things: [[https://github.com/morphis/pulseaudio/commits/master-bt-fixes]]. Those patches have not yet been submitted to upstream, however.
+
+## Using HFP with oFono
+
+In typical desktop environments, connecting to a mobile phone with HFP isn't totally plug-and-play. The device has to be manually enabled in oFono first. To do that, get the oFono source code, which includes some test scripts that can be used to interact with oFono. First, run
+
+    test/list-modems
+
+That will list all modems (the phone will appear as a "modem" in oFono), look for the one with Type=hfp. Then, assuming that the phone is on path /hfp_path, run
+
+    test/enable-modem /hfp_path
+
+To disable the device, use this command:
+
+    test/disable-modem /hfp_path
+
+While the device is enabled, you can test that audio works by calling someone using the phone. You can also try to command the phone to make the call from your computer with this command:
+
+    test/dial-number /hfp_path 12345
+
+To hangup all ongoing calls, this command can be used:
+
+    test/hangup-all /hfp_path
