@@ -17,7 +17,7 @@ This is a wiki, so please improve this yourself whenever you spot inaccuracies, 
 
 ## What is a module?
 
-A module is a shared object file that contains implementations of certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pacmd program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
+A module is a shared object file that contains implementations of certain functions. The daemon loads the modules from a predefined directory, which by default is /usr/local/lib/pulse-<version>/modules/ and can be configured when the daemon is built. The module's file name starts with "module-" by convention and has the system specific extension for shared objects, on my system it is ".so". The file name (without the extension) is used as the identifier that is given to the "load-module" command in the daemon startup configuration file or in the pactl program. For example "load-module module-sine" tells the daemon to load a module from the file module-sine.so.
 
 
 ## Compiling to a shared object file
@@ -26,7 +26,7 @@ This section is here in the case you're like me and don't know anything about th
 
     gcc -g -shared -o module-<yourmodule>.so module-<yourmodule>.c
 
-Copy the resulting .so file to the modules directory and you're done, you can now load your module by running pacmd and saying "load-module module-<yourmodule>".
+Copy the resulting .so file to the modules directory and you're done, you can now load your module by running pactl and saying "load-module module-<yourmodule>".
 
 **Update on July 30 2008:** Sometime it is not so straightforward, as your module uses some definitions and variables from other files and libraries. You probably use the [[PulseAudio|PulseAudio]] configure script and Makefile to build your module. In the case, you may update configure.ac and Makefile.am to add your module support.
 

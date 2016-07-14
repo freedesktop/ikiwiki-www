@@ -19,7 +19,7 @@ With regards to a properly integrated Phonon, you can verify that your build sup
 
 _NB, the "Speaker Setup" tab in the above screen shot will be/is part of KDE 4.6: See [[Speak(er Setup) now, or Forever hold your Peace|http://colin.guthr.ie/2010/07/speaker-setup-now-or-forever-hold-your-peace/]]_. 
 
-The devices shown will obviously be different on your system, however 99% of systems will have an "Internal Audio Analog Stereo" listing (or an "Internal Audio Digital Stereo" entry). To cross reference, the command `pacmd list-sinks | grep device.description` should list the same device names as the active (i.e. non-greyed out) outputs. 
+The devices shown will obviously be different on your system, however 99% of systems will have an "Internal Audio Analog Stereo" listing (or an "Internal Audio Digital Stereo" entry). To cross reference, the command `pactl list sinks | grep device.description` should list the same device names as the active (i.e. non-greyed out) outputs. 
 
 If you do not see this full list, you may see simply a single [[PulseAudio|PulseAudio]] entry like this: 
 
@@ -64,7 +64,7 @@ If you need to restart [[PulseAudio|PulseAudio]], generally a reboot is simplest
 
 When reporting bugs either to your distro (preferred), KDE or directly here to the [[PulseAudio|PulseAudio]] project, you should include at least the following information in your bug report: 
 
-* The output of `pacmd ls` (preferably grabbed when a stream is playing - even if you cannot hear anything). 
+* The output of `pactl list` (preferably grabbed when a stream is playing - even if you cannot hear anything). 
 * The output of `amixer -c0` (where 0 is the card number, if you have multiple cards, please include the output for all cards). 
 * The output of `sudo lsof /dev/snd/* /dev/dsp*` (`sudo` just runs this command as root, you are welcome to use a different mechanism to issue the command as root if you prefer) 
 * The output of `getfacl /dev/snd/*` 
