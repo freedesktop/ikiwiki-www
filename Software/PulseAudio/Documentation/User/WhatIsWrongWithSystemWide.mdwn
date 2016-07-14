@@ -1,9 +1,9 @@
 
 # What is wrong with system mode?
 
-Many folks seem to think it is a good idea to run PA in [[system mode|Software/PulseAudio/Documentation/User/SystemWide]]. But it is not. Nobody should run it that way, with the exception of very few cases, which are listed further down. 
+In most desktop use cases, system mode likely is not the right choice. There are use cases where system mode does make sense, and these are listed further down.
 
-Here are a couple of reasons why running PA in system mode is a bad idea. 
+Here are a couple of reasons why running PA in system mode can be problematic in desktop use cases.
 
 * Security: Much like the X server as soon as you are authenticated you have complete control of the sound server, no further per-object access checks are done. 
 * Related to the previous point, one especially problematic thing from security point of view is module loading. Anyone who has access can load and unload modules. Module loading can be disabled, but then bluetooth and alsa hotplug functionality doesn't work.
@@ -17,20 +17,9 @@ And, most importantly: it is explicitly not designed for it, you are on your own
 
 # So why have it then?
 
-System mode is around for usage on thin client or embedded setups, wher no real local user exists, where access is exclusively via the network, and where state data is flushed on each session termination. 
-
-Or with other words: if you run it that way on your desktop, then you are doing it the wrong way. 
+System mode is around for usage on thin client or embedded setups, where no real local user exists, where access is exclusively via the network, and where state data is flushed on each session termination.
 
 
 # So you want to set it up nonetheless?
 
-You are on your own. You need to know you way around, be able to write init scripts, dbus policies, to fix up device permissions, and unix users, you need to pass around security cookies and more. 
-
-You are expected to know your way around if you use system mode. You are using PA against the explicit recommendations of the maintainers, so **don't expect particularly enthusiastic support from them in doing so**. 
-
-Good luck! 
-
-
-# But my distro is shipping an init script for PA!
-
-Ignore that. It's stupid. They shouldn't be doing this. 
+Do note that the maintainers of PulseAudio do not recommend using system mode for most desktop use cases. Things should still work as-is, and more documentation on doing this correctly is to be done (contributions welcome!).
