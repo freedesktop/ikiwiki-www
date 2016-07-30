@@ -7,6 +7,7 @@
  * New module for prioritizing passthrough streams (module-allow-passthrough)
  * Improvements to module-loopback
  * Dropped dependency to json-c
+ * When using systemd to start PulseAudio, pulseaudio.socket is started first
 
 ## Notes for end users
 
@@ -27,6 +28,10 @@ TODO: Try to explain what has changed.
 ### Dropped dependency to json-c
 
 libpulse previously used json-c internally, which forced applications to link to json-c too. That caused crashing in some GLib applications, because json-c and json-glib both use the same name for some functions. To solve this, we implemented the necessary JSON functionality directly in libpulse, so we don't depend on json-c any more.
+
+### When using systemd to start PulseAudio, pulseaudio.socket is started first
+
+The pulseaudio.service unit now depends on pulseaudio.socket, meaning that before systemd starts PulseAudio, it will always first set up the socket. This is done to avoid confusing behaviour in certain corner cases (see the comments in [[pulseaudio.service|https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/daemon/systemd/user/pulseaudio.service.in?id=edff1b2204587925178ffd00736afdbcdfb8778f]] for a more detailed explanation).
 
 ## git shortlog
 
