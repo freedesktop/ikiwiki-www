@@ -4,12 +4,17 @@
 
 ## Changes at a glance
 
+ * Automatically switch Bluetooth profile when using VoIP applications
  * New module for prioritizing passthrough streams (module-allow-passthrough)
  * Improvements to module-loopback
  * Dropped dependency to json-c
  * When using systemd to start PulseAudio, pulseaudio.socket is started first
 
 ## Notes for end users
+
+### Automatically switch Bluetooth profile when using VoIP applications
+
+module-bluetooth-policy will now automatically switch the profile of a Bluetooth headset from A2DP to HSP/HFP when an application creates a recording stream with property media.role=phone (VoIP applications should set that property for their streams). When the stream goes away, the profile gets restored back to A2DP. This behaviour can be disabled by giving argument auto_switch=false to module-bluetooth-policy.
 
 ### New module for prioritizing passthrough streams (module-allow-passthrough)
 
