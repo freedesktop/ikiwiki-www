@@ -16,6 +16,8 @@
 
 Bluetooth headsets typically support both the A2DP profile, which is suitable for music, and the HSP profile, which is suitable for telephony use cases. module-bluetooth-policy will now automatically switch the profile of a Bluetooth headset from A2DP to HSP/HFP when an application creates a recording stream with property media.role=phone (telephony applications should set that property for their streams). When the stream goes away, the profile gets restored back to A2DP. This way the user doesn't have to manually switch the profiles when starting and stopping a call. This behaviour can be disabled by giving argument auto_switch=false to module-bluetooth-policy.
 
+(This doesn't currently work with BlueZ 5, needs to be fixed before release!)
+
 ### New module for prioritizing passthrough streams (module-allow-passthrough)
 
 Passthrough streams are streams whose content must go completely unaltered from the application to the sound card, and they are mainly used for playing back compressed audio through an S/PDIF connection. When a passthrough stream is playing to a device, no other streams can play at the same time to the same device, and if there's already something playing when a passthrough stream is created, the passthrough stream creation will normally fail. Now we have a new module, called module-allow-passthrough, which will give higher priority to passthrough streams, so that if there are other streams playing when a passthrough stream is created, those other streams will be moved out of the way to a dummy device.
