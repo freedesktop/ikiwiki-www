@@ -42,7 +42,9 @@ The headset role will eventually be supported too. In fact, there's already a pa
 
 ## HFP
 
-PulseAudio supports HFP only in the hands-free unit role (opposite to the situation with HSP), so PulseAudio can connect to a mobile phone, but not to headsets and other hands-free devices. With the "Headset Audio Gateway (HSP/HFP)" card profile selected, PulseAudio will create a sink and a source that applications can use to play back and record audio - or more commonly, the bluetooth sink and source will be connected with module-loopback to speakers and a microphone device. Note that the "Headset Audio Gateway (HSP/HFP)" card profile is typically automatically activated by module-bluetooth-policy when appropriate, and manual activation might not work, because the HFP protocol requires that it's always the audio gateway device that initiates the audio connection, so PulseAudio can't start using HFP audio at will.
+PulseAudio supports HFP only in the hands-free unit role (opposite to the situation with HSP), so PulseAudio can connect to a mobile phone, but not to headsets and other hands-free devices. With the "Headset Audio Gateway (HSP/HFP)" card profile selected, PulseAudio will create a sink and a source that applications can use to play back and record audio - or more commonly, the bluetooth sink and source will be connected with module-loopback to speakers and a microphone device. Note that the "Headset Audio Gateway (HSP/HFP)" card profile is typically automatically activated by module-bluetooth-policy when the phone initiates audio streaming.
+
+The HFP specification recommends that it's always the AG side that initiates the audio streaming, so it doesn't seem like a good idea to manually activate the HFP profile from PulseAudio side. The rationale for doing the initiation always from the AG side is that the network may or may not support
 
 As mentioned in the HSP section, support for HFP and HSP are currently mutually exclusive. HFP support is enabled by passing argument "headset=ofono" to module-bluetooth-discover in /etc/pulse/default.pa.
 
