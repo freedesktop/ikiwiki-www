@@ -50,6 +50,23 @@ As mentioned in the HSP section, support for HFP and HSP are currently mutually 
 
 The audio gateway role will hopefully be supported too in the future, as well as simultaneous support for HSP and HFP. Simon Fels has done some work on both of these things: [[https://github.com/morphis/pulseaudio/commits/master-bt-fixes]]. Those patches have not yet been submitted to upstream, however.
 
+## Using bluetooth when running PulseAudio in the system mode
+
+For some reason the bluetooth modules aren't included in /etc/pulse/system.pa by default, so if you want to use bluetooth, add this to /etc/pulse/system.pa:
+
+    load-module module-bluetooth-discover
+    load-module module-bluetooth-policy
+
+It's generally recommended to disallow module loading when using PulseAudio in the system mode, because if the system administrator doesn't trust the users, allowing users to load modules may not be a good idea. However, bluetooth doesn't work if module loading is disallowed (this is a bug that somebody should fix), so if it's more important to have bluetooth support than to prevent users from loading (and unloading) modules, make sure you don't disallow module loading (by default module loading is allowed).
+
+The D-Bus access policy doesn't allow pulseaudio to communicate with bluetoothd by default when running pulseaudio in the system mode. Add the user "pulse" to group "bluetooth" to grant the permission.
+
+The D-Bus access policy also doesn't allow pulseaudio to communicate with ofonod by default when running pulseaudio in the system mode. To grant the permission, add this to /etc/dbus-1/system.d/ofono.conf:
+
+      <policy user="pulse">
+        <allow send_destination="org.ofono"/>
+      </policy>
+
 ## Using HFP with oFono
 
 In typical desktop environments, connecting to a mobile phone with HFP isn't totally plug-and-play. The device has to be manually enabled in oFono first. To do that, get the oFono source code, which includes some test scripts that can be used to interact with oFono. First, run
@@ -78,4 +95,4 @@ To hangup all ongoing calls, this command can be used:
 
 There was some regression in the kernel that was introduced in 3.12 and fixed in 3.18 that caused failure when trying to activate HSP/HFP with some headsets. This problem can be identified by this error message in pulseaudio log:
 
-backend-native.c: connect(): Protocol not supported
+    backend-native.c: connect(): Protocol not supported
