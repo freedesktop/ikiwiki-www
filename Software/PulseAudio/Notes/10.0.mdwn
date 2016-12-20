@@ -7,6 +7,7 @@
  * Automatically switch Bluetooth profile when using VoIP applications
  * New module for prioritizing passthrough streams (module-allow-passthrough)
  * Improvements to module-loopback
+ * memfd-based shared memory mechanism enabled by default
  * Dropped dependency to json-c
  * When using systemd to start PulseAudio, pulseaudio.socket is started first
 
@@ -26,6 +27,12 @@ Passthrough streams are streams whose content must go completely unaltered from 
 
 TODO: Try to explain what has changed.
 
+### memfd-based shared memory mechanism enabled by default
+
+The memfd-based shared memory mechanism that was [[implemented in 9.0|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/9.0/]] is now enabled by default. This shouldn't cause any user-visible changes in behaviour, except if you're using the Firejail sandboxing software, which doesn't work with PulseAudio's old shared memory mechanism.
+
+If desired, the feature can still be disabled by setting "enable-memfd = no" either in daemon.conf (for disabling it at the server side) or in client.conf (for disabling it at the client side).
+
 ## Notes for application developers
 
 ### ...
@@ -38,7 +45,7 @@ libpulse previously used json-c internally, which forced applications to link to
 
 ### When using systemd to start PulseAudio, pulseaudio.socket is started first
 
-The pulseaudio.service unit now depends on pulseaudio.socket, meaning that before systemd starts PulseAudio, it will always first set up the socket. This is done to avoid confusing behaviour in certain corner cases (see the comments in [[pulseaudio.service|https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/daemon/systemd/user/pulseaudio.service.in?id=edff1b2204587925178ffd00736afdbcdfb8778f]] for a more detailed explanation).
+The pulseaudio.service unit now depends on pulseaudio.socket, meaning that before systemd starts PulseAudio, it will always first set up the socket. This is done to avoid confusing behaviour in certain corner cases (see the comments in [[pulseaudio.service|https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/daemon/systemd/user/pulseaudio.service.in?id=master]]  for a more detailed explanation). (TODO: change id=master to id=v10.0 in the link after release.)
 
 ## git shortlog
 
