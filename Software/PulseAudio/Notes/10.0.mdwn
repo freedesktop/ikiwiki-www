@@ -7,17 +7,18 @@
  * Automatically switch Bluetooth profile when using VoIP applications
  * New module for prioritizing passthrough streams (module-allow-passthrough)
  * Improvements to module-loopback
+ * Separate volumes for Bluetooth A2DP and HSP profiles
  * memfd-based shared memory mechanism enabled by default
+ * Removed module-xenpv-sink
  * Dropped dependency to json-c
  * When using systemd to start PulseAudio, pulseaudio.socket is started first
+ * Compatibility with OpenSSL 1.1.0
 
 ## Notes for end users
 
 ### Automatically switch Bluetooth profile when using VoIP applications
 
 Bluetooth headsets typically support both the A2DP profile, which is suitable for music, and the HSP profile, which is suitable for telephony use cases. module-bluetooth-policy will now automatically switch the profile of a Bluetooth headset from A2DP to HSP/HFP when an application creates a recording stream with property media.role=phone (telephony applications should set that property for their streams). When the stream goes away, the profile gets restored back to A2DP. This way the user doesn't have to manually switch the profiles when starting and stopping a call. This behaviour can be disabled by giving argument auto_switch=false to module-bluetooth-policy.
-
-(This doesn't currently work with BlueZ 5, needs to be fixed before release!)
 
 ### New module for prioritizing passthrough streams (module-allow-passthrough)
 
@@ -27,11 +28,23 @@ Passthrough streams are streams whose content must go completely unaltered from 
 
 TODO: Try to explain what has changed.
 
+### Separate volumes for Bluetooth A2DP and HSP profiles
+
+The Bluetooth sink and source names are now different depending on whether the active profile is A2DP or HSP. This allows PulseAudio to store different volumes for A2DP and HSP. Due to different mechanisms for implementing volume control between the profiles, trying to use the same volume value in PulseAudio doesn't actually result in the same perceived volume, so it's better not to try to use the same volume.
+
+As an unfortunate transition effect, volumes saved earlier with an older PulseAudio version won't have effect in the new PulseAudio version, so all Bluetooth devices will have their volume reset to the default value when running the new PulseAudio version for the first time.
+
+This only affects BlueZ 5 users. The same change was done already earlier for PulseAudio's BlueZ 4 code.
+
 ### memfd-based shared memory mechanism enabled by default
 
 The memfd-based shared memory mechanism that was [[implemented in 9.0|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/9.0/]] is now enabled by default. This shouldn't cause any user-visible changes in behaviour, except if you're using the Firejail sandboxing software, which doesn't work with PulseAudio's old shared memory mechanism.
 
 If desired, the feature can still be disabled by setting "enable-memfd = no" either in daemon.conf (for disabling it at the server side) or in client.conf (for disabling it at the client side).
+
+### Removed module-xenpv-sink
+
+module-xenpv-sink was removed, because it's probably not used by anyone. If you use it, please let us know.
 
 ## Notes for application developers
 
@@ -46,6 +59,10 @@ libpulse previously used json-c internally, which forced applications to link to
 ### When using systemd to start PulseAudio, pulseaudio.socket is started first
 
 The pulseaudio.service unit now depends on pulseaudio.socket, meaning that before systemd starts PulseAudio, it will always first set up the socket. This is done to avoid confusing behaviour in certain corner cases (see the comments in [[pulseaudio.service|https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/daemon/systemd/user/pulseaudio.service.in?id=master]]  for a more detailed explanation). (TODO: change id=master to id=v10.0 in the link after release.)
+
+### Compatibility with OpenSSL 1.1.0
+
+OpenSSL, which is used by module-raop-sink, broke backwards compatibility in the 1.1.0 release. PulseAudio now supports both 1.1.0 and older versions.
 
 ## git shortlog
 
