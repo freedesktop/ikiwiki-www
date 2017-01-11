@@ -10,7 +10,7 @@
  * memfd-based shared memory mechanism enabled by default
  * Removed module-xenpv-sink
  * Dropped dependency to json-c
- * When using systemd to start PulseAudio, pulseaudio.socket is started first
+ * When using systemd to start PulseAudio, pulseaudio.socket is always started first
  * Compatibility with OpenSSL 1.1.0
 
 ## Notes for end users
@@ -47,7 +47,7 @@ module-xenpv-sink was removed, because it's probably not used by anyone. If you 
 
 libpulse previously used json-c internally, which forced applications to link to json-c too. That caused crashing in some GLib applications, because json-c and json-glib both use the same name for some functions. To solve this, we implemented the necessary JSON functionality directly in libpulse, so we don't depend on json-c any more.
 
-### When using systemd to start PulseAudio, pulseaudio.socket is started first
+### When using systemd to start PulseAudio, pulseaudio.socket is always started first
 
 The pulseaudio.service unit now depends on pulseaudio.socket, meaning that before systemd starts PulseAudio, it will always first set up the socket. This is done to avoid confusing behaviour in certain corner cases (see the comments in [[pulseaudio.service|https://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/daemon/systemd/user/pulseaudio.service.in?id=master]]  for a more detailed explanation). (TODO: change id=master to id=v10.0 in the link after release.)
 
