@@ -6,12 +6,14 @@
 
  * Automatically switch Bluetooth profile when using VoIP applications
  * New module for prioritizing passthrough streams (module-allow-passthrough)
+ * Fix hotplugging support for USB surround sound cards
  * Separate volumes for Bluetooth A2DP and HSP profiles
  * memfd-based shared memory mechanism enabled by default
  * Removed module-xenpv-sink
  * Dropped dependency to json-c
  * When using systemd to start PulseAudio, pulseaudio.socket is always started first
  * Compatibility with OpenSSL 1.1.0
+ * Clarified qpaeq license
 
 ## Notes for end users
 
@@ -22,6 +24,10 @@ Bluetooth headsets typically support both the A2DP profile, which is suitable fo
 ### New module for prioritizing passthrough streams (module-allow-passthrough)
 
 Passthrough streams are streams whose content must go completely unaltered from the application to the sound card, and they are mainly used for playing back compressed audio through an S/PDIF connection. When a passthrough stream is playing to a device, no other streams can play at the same time to the same device, and if there's already something playing when a passthrough stream is created, the passthrough stream creation will normally fail. Now we have a new module, called module-allow-passthrough, which will give higher priority to passthrough streams, so that if there are other streams playing when a passthrough stream is created, those other streams will be moved out of the way to a dummy device.
+
+### Fix hotplugging support for USB surround sound cards
+
+A long-standing bug that prevented PulseAudio from using any hotplugged USB surround sound cards has been fixed.
 
 ### Separate volumes for Bluetooth A2DP and HSP profiles
 
@@ -54,6 +60,10 @@ The pulseaudio.service unit now depends on pulseaudio.socket, meaning that befor
 ### Compatibility with OpenSSL 1.1.0
 
 OpenSSL, which is used by module-raop-sink, broke backwards compatibility in the 1.1.0 release. PulseAudio now supports both 1.1.0 and older versions.
+
+### Clarified qpaeq license
+
+Most of PulseAudio is licensed under LGPL, but the "qpaeq" equalizer GUI is licensed under AGPL. That hasn't previously been mentioned anywhere else than in the qpaeq source code itself. Therefore, distributions that tag their packages with license information have likely used incorrect information. The license of qpaeq hasn't changed, but the use of AGPL is now correctly noted in the top-level LICENSE file.
 
 ## git shortlog
 
