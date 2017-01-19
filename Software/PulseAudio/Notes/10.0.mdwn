@@ -68,5 +68,213 @@ Most of PulseAudio is licensed under LGPL, but the "qpaeq" equalizer GUI is lice
 ## git shortlog
 
 <pre>
-To be added later.
+Ahmed S. Darwish (7):
+      pstream: Add rationale for pa_cmsg_ancil_data_close_fds()
+      protocol-native: DRY: Remove pdispatch callbacks declarations
+      iochannel: Strictly specify PF_UNIX ancillary data boundaries
+      protocol-native: Don't signal memfd support for 9.0 clients
+      pacat: Synchronize STDIN and "write stream ready" events
+      stream: Frame-align divided audio segments
+      pacat: Write to stream only in frame-sized chunks
+
+Aidan Gauland (1):
+      qpaeq: Don't set font-size on widgets
+
+Alexander E. Patrakov (1):
+      alsa: reread configuration when opening new devices
+
+Anton Lundin (1):
+      raop: Correct spelling of KTH
+
+Arun Raghavan (21):
+      client, protocol-native: Use macros for protocol version/flag access
+      allow-passthrough: Use pa_module_hook_connect()
+      i18n: Add module-allow-passthrough to POTFILES.in
+      pulse: Add a JSON-parsing library
+      format: Drop dependency on json-c
+      json: Correctly handle bad strings with missing closing quotes
+      json: Add overflow checks for integer and float parsing
+      json: Handle error cases while parsing numbers
+      json: Error out for objects and arrays that are nested too deep
+      json: Add a positive test for nested objects
+      json: Add some more negative test cases
+      json: Drop refcounting of json objects
+      device-port: Add mechanism to free implementation data
+      alsa: Use pa_device_port->impl_free() for freeing port data
+      modargs: Add a mechanism to append modargs
+      daemon: Tone down system mode snarkiness
+      memblockq-test: Rename test to something more relevant
+      sink-input,source-output: Fix a leak during property change logging
+      source-output: Fix copy-pasto
+      shm: Wrap memfd-specific code in relevant ifdef
+      stream-interaction: Fix a memory leak
+
+Balázs Úr (1):
+      i18n: update Hungarian translation
+
+Chris Billington (2):
+      source: Fixed bug: pa_source_set_port() did not update the latency_offset.
+      sink, source, device-port: renames to distinguish latency offsets
+
+Cédric Valmary (1):
+      i18n: update Occitan translation
+
+Deepak Srivastava (1):
+      xen: Fixed possible memory leak.
+
+Dušan Kazik Kazik (1):
+      i18n: Update Polish translation
+
+Felipe Sateler (1):
+      launch: make pulseaudio.service properly order and require the socket
+
+Fran Dieguez (1):
+      i18n: add Galician translation
+
+Georg Chini (8):
+      loopback: Save time stamps during latency snapshots
+      loopback: Improve latency estimation in snapshots
+      loopback: Improve latency estimation
+      loopback: Change memblockq length
+      loopback: Move timer restart and snapshots to timer callback
+      loopback: Restart timer after 1/3 second
+      loopback: Adjust rate based on latency difference
+      loopback: Stop tracking max_request and min_memblockq_length
+
+Guillaume Desmottes (1):
+      allow-passthrough: Add module to allow passthrough streams always go through
+
+Jan Alexander Steffens (heftig) (1):
+      launch: Remove the already implicit After=pulseaudio.socket
+
+John Paul Adrian Glaubitz (2):
+      pulsecore: Fix incorrect architecture mapping on sparc64.
+      core-util: Use _SC_NPROCESSORS_ONLN instead of _SC_NPROCESSORS_CONF
+
+Juha Kuikka (1):
+      bluetooth: fix race condition in BlueZ5 device disconnection
+
+Juho Hämäläinen (1):
+      pulsecore: Don't allow unreferencing linked object.
+
+KimJeongYeon (1):
+      ladspa-sink: avoid to configure invalid format
+
+Marcin Lewandowski (1):
+      core-util: log error if we hit file descriptors limit
+
+Mario Blättermann (1):
+      i18n: update German translation
+
+Moo (1):
+      i18n: add Lithuanian translation
+
+Nils Schneider (1):
+      pipe-sink: align buffer
+
+Pali Rohár (3):
+      bluetooth: Add support for automatic switch between hsp and a2dp profiles
+      bluetooth: bluez5: Add profile name to sinks and sources
+      bluetooth: Add support for automatic switch between hsp and a2dp profiles also for bluez5
+
+Peter Meerwald (2):
+      tests: Include signal.h in core-util-test.c
+      build: Check version of check library, require >= 0.9.10
+
+Peter Meerwald-Stadler (16):
+      sink-input,source-output: Fix logging, don't overwrite old_value when value == 0
+      alsa: Check pa_modargs_get_value_boolean() retval for use_ucm
+      tests: Assert fillrate > 0 in alsa-time-test
+      stream: Check pa_tagstruct_get_format_info() retval in pa_create_stream_callback()
+      modules: Check pa_threaded_mainloop_start() return value
+      tests: Check pa_rtpoll_run() return value
+      modules: Use pa_assert_se() to check return value of dbus_message_iter_close_container()
+      Remove newline at end of log messages
+      bluetooth: Don't free modargs twice
+      bluetooth: Fix dead code
+      bluetooth: Reorganize code to avoid Coverity NULL dereference warning
+      bluetooth: Fix negative array index write
+      padsp: Fix flush and improve error handling
+      core: Replace PA_PAGE_SIZE with pa_page_size()
+      tests: Assert granularity range in stripnul.c
+      sample: Assert validity of sample_spec
+
+Philip Withnall (1):
+      zeroconf-discover: fix a memory leak
+
+Pierre Ossman (3):
+      memblockq: move minreq handling in to memblockq
+      tests: add test to verify correct minreq behaviour
+      memblockq: remove internal "missing" state variable
+
+Piotr Drąg (2):
+      i18n: fix errors and warnings in Belarusian and Korean translations
+      i18n: update Polish translation
+
+Rikard Söderström (1):
+      daemon-conf: changed 'not' to 'note'
+
+Romain Naour (1):
+      build-sys: C++11 is only required for WebRTC support
+
+Sylvain Baubeau (1):
+      zeroconf: use local icon for shared devices
+
+Tanu Kaskinen (41):
+      pstream: fix revoke callback setting
+      webrtc: improve comment about mic geometry
+      alsa, bluetooth: fail if user-requested profile doesn't exist
+      card: don't allow the CARD_NEW hook to fail
+      card: move profile selection after pa_card_new()
+      card: remove pa_card_new_data.active_profile
+      alsa: set availability for (some) unavailable profiles
+      launch: explain why .service depends on .socket
+      bluetooth: wait for all profiles to connect before creating card
+      card-restore: don't switch profiles when availability changes
+      bluetooth: remove a redundant assignment
+      bluetooth: update device's valid flag after parsing properties
+      bluetooth: unify BlueZ 4 and BlueZ 5 UUID handling
+      bluetooth: unify BlueZ 4 and BlueZ 5 profile constant names
+      bluetooth: refactor BlueZ 4 transport state setting
+      bluetooth: don't create the HSP/HFP profile twice
+      zeroconf-publish: fix uninitialized variable
+      zeroconf-publish: unref D-Bus connection
+      daemon-conf: enable memfd by default
+      raop: add compatibility with openssl 1.1.0
+      remove module-xenpv-sink
+      module: postpone lt_dlclose() until a safe time
+      rtp: don't use memblocks for non-audio data
+      don't assume that pa_asyncq_new() always succeeds
+      bluetooth-policy: do A2DP profile restoring a bit later
+      suspend-on-idle: use earlier (safer) hooks for stream unlink notifications
+      sink-input, source-output: set sink/source to NULL before the "unlink post" hook
+      sink, source: unify stream "attached" flag checking
+      sink, source: add missing stream "attached" flag handling
+      sink, source: remove some assumptions about stream "attached" state
+      refactor stream attaching/detaching
+      build-sys: add LICENSE.WEBKIT to EXTRA_DIST
+      Revert "memblockq: remove internal "missing" state variable"
+      LICENSE: add a clarification
+      LICENSE: add a note about qpaeq being licensed under AGPL
+      memblockq: remove pa_memblockq_missing()
+      memblockq-test: fix incorrect assumption of pa_memblockq_pop_missing() behaviour
+      build-sys: bump sonames
+      zeroconf-publish: fix unitialized DBusError
+      update NEWS
+      build-sys: add the AGPL license file to tarballs
+
+Ulrich Eckhardt (10):
+      core-util-test: Add boilerplate
+      core-util-test: Add tests
+      core-util: Improve pa_replace() behaviour
+      modargs: Document behaviour on missing arguments
+      memblockq-test: Utility function to alloc chunks
+      memblockq-test: Utility function to validate queue invariants
+      memblockq-test: Some refactoring
+      memblockq-test: Add a test that checks initial properties
+      memblockq-test: Add test changing the parameters of a queue
+      memblockq-test: Add a test for missing data behaviour
+
+Viktar Vaŭčkievič (1):
+      i18n: add Belarusian translation
 </pre>
