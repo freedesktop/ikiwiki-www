@@ -18,7 +18,7 @@ Try to boot without `rhgb` and `quiet` on the kernel command line. If you see so
 
 then systemd is running. (See an actual [screenshot](f17boot.png).)
 
-Debugging always gets easier if you can get a shell. If you do not get a login prompt, try switching to a different virtual terminal using CTRL+ALT+F_<number>_. Problems with X server startup may manifest themselves as a missing login on tty1, but other VTs working.
+Debugging always gets easier if you can get a shell. If you do not get a login prompt, try switching to a different virtual terminal using CTRL+ALT+F_<number>_. Problems with a display server startup may manifest themselves as a missing login on tty1, but other VTs working.
 
 If the boot stops without presenting you with a login on any virtual console, let it retry for _up to 5 minutes_ before declaring it definitely stuck. There is a chance that a service that has trouble starting will be killed after this timeout and the boot will continue normally. Another possibility is that a device for an important mountpoint will fail to appear and you will be presented with _emergency mode_.
 
@@ -62,13 +62,15 @@ You can enable shell access to be available very early in the startup process to
 
     systemctl enable debug-shell.service
 
-**Tip**: If your version of systemd is not new enough to have debug-shell.service, you can download the unit file from [[systemd git|http://cgit.freedesktop.org/systemd/systemd/plain/units/debug-shell.service.in]]. Substitute `/bin/bash` for `@sushell@` in the file.
+or by specifying
 
-**Tip**: If you find yourself in a situation where you cannot use systemctl (e.g. when setting this up from a different booted system), you can enable the service manually:
+    systemd.debug-shell=1
 
-    cd $PATH_TO_YOUR_ROOT_FS/etc/systemd/system
-    mkdir -p sysinit.target.wants
-    ln -s /usr/lib/systemd/system/debug-shell.service sysinit.target.wants/
+on the kernel command line.
+
+**Tip**: If you find yourself in a situation where you cannot use systemctl to communicate with a running systemd (e.g. when setting this up from a different booted system), you can avoid communication with the manager by specifying `--root=`:
+
+    systemctl --root=/ enable debug-shell.service
 
 Once enabled, the next time you boot you will be able to switch to tty9 using CTRL+ALT+F9 and have a root shell there available from an early point in the booting process. You can use the shell for checking the status of services, reading logs, looking for stuck jobs with `systemctl list-jobs`, etc.
 
@@ -84,13 +86,13 @@ A (at least partly) populated `/dev` is required. Depending on your setup (e.g. 
 
 When you have systemd running to the extent that it can provide you with a shell, please use it to extract useful information for debugging. Boot with these parameters on the kernel command line:
 
-    systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M
+    systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M printk.devkmsg=on
 
-in order to increase the verbosity of systemd, to let systemd write its logs to the kernel log buffer, and to increase the size of the kernel log buffer. After reaching the shell, save the log:
+in order to increase the verbosity of systemd, to let systemd write its logs to the kernel log buffer, to increase the size of the kernel log buffer, and to prevent the kernel from discarding messages. After reaching the shell, look at the log:
 
-    dmesg > dmesg.txt
+    journalctl -b
 
-When reporting a bug, attach the **dmesg.txt** file.
+When reporting a bug, pipe that to a file and attach it to the bug report.
 
 To check for possibly stuck jobs use:
 
@@ -105,11 +107,10 @@ Just like with boot problems, when you encounter a hang during shutting down, ma
 
 If shutdown (whether it be to reboot or power-off) of your system gets stuck, first test if the kernel itself is able to reboot or power-off the machine forcedly using one of these commands:
 
-    sync && reboot -f
-    sync && poweroff -f
+    reboot -f
+    poweroff -f
 
-If either one of the commands does not work, it is a kernel bug, not systemd.
-
+If either one of the commands does not work, it's more likely to be a kernel, not systemd bug.
 
 ## Shutdown Completes Eventually
 
@@ -117,7 +118,7 @@ If normal reboot or poweroff work, but take a suspiciously long time, then
 
    * boot with the debug options:
 
-        systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M enforcing=0
+        systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M printk.devkmsg=on enforcing=0
 
    * save the following script as **/usr/lib/systemd/system-shutdown/debug.sh** and make it executable:
 
@@ -165,18 +166,17 @@ If you have a syslog service (such as rsyslog) running, the journal will also fo
 
 # Reporting systemd Bugs
 
-Be prepared to include some information (logs) about your system as well. These should be complete (no snippets please), not in an archive, uncompressed, with MIME type set as text/plain.
+Be prepared to include some information (logs) about your system as well. These should be complete (no snippets please), not in an archive, uncompressed.
 
-Please report bugs to your distribution's bug tracker first. If you are sure that you are encountering an upstream bug, then first check [[for existing bug reports|https://bugs.freedesktop.org/buglist.cgi?query_format=advanced&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=systemd]], and if your issue is not listed [[file a new bug|https://bugs.freedesktop.org/enter_bug.cgi?product=systemd]].
+Please report bugs to your distribution's bug tracker first. If you are sure that you are encountering an upstream bug, then first check [[for existing bug reports|https://github.com/systemd/systemd/issues/]], and if your issue is not listed [[file a new bug|https://github.com/systemd/systemd/issues/new]].
 
 
 ## Information to Attach to a Bug Report
 
 Whenever possible, the following should be mentioned and attached to your bug report:
 
-   * The exact kernel command-line used if not default. Typically from the bootloader configuration file (e.g. **/boot/grub2/grub.cfg**) or from **/proc/cmdline**
-   * A copy of the file **/var/log/messages**
-   * The output of the dmesg command: `dmesg > dmesg.txt`
-    - ideally after booting with `systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M`
-   * The output of a systemd dump: `systemctl dump > systemd-dump.txt`
+   * The exact kernel command-line used. Typically from the bootloader configuration file (e.g. **/boot/grub2/grub.cfg**) or from **/proc/cmdline**
+   * The journal (the output of `journalctl -b > journal.txt`)
+    - ideally after booting with `systemd.log_level=debug systemd.log_target=kmsg log_buf_len=1M printk.devkmsg=on`
+   * The output of a systemd dump: `systemd-analyze dump > systemd-dump.txt`
    * The output of `/usr/bin/systemd --test --system --log-level=debug > systemd-test.txt 2>&1`
