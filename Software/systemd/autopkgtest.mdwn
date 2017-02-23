@@ -37,6 +37,31 @@ As soon as a test on the infrastructure finishes, the "Details" link in the PR "
 
 # Run autopkgtests locally
 
- * TODO:* write this section
- * [[https://people.debian.org/~mpitt/autopkgtest/README.running-tests.html]]
- * [[http://manpages.ubuntu.com/autopkgtest-buildvm-ubuntu-cloud]]
+Preparations:
+
+ * Get autopkgtest:
+
+        git clone https://anonscm.debian.org/git/autopkgtest/autopkgtest.git
+
+ * Install necessary dependencies; on Debian/Ubuntu you can simply run `sudo apt install autopkgtest` (instead of the above cloning), on Fedora do `yum install qemu-kvm dpkg-perl`
+ * Build a test image based on Ubuntu cloud images for the desired release/arch:
+
+        autopkgtest/tools/autopkgtest-buildvm-ubuntu-cloud -r xenial -a amd64
+
+   This will build `autopkgtest-xenial-amd64.img`. This is normally being used through the `autopkgtest` command (see below), but you can boot this normally in QEMU (using `-snapshot` is highly recommended) to interactively poke around; this provides a easy throw-away test environment.
+
+
+The most basic mode of operation is to run the tests for the current distro packages:
+
+    autopkgtest/runner/autopkgtest systemd -- qemu autopkgtest-xenial-amd64.img
+
+But autopkgtest allows lots of [[different modes|https://people.debian.org/~mpitt/autopkgtest/README.running-tests.html]] and [[options|http://manpages.ubuntu.comautopkgtest]], like running a shell on failure (`-s`), running a single test only (`--test-name`), running the tests from a local checkout of the Debian source tree (possibly with modifications to the test) instead of from the distribution source, or running QEMU with more than one CPU (check the [[autopkgtest-virt-qemu manpage|http://manpages.ubuntu.com/autopkgtest-virt-qemu]].
+
+A common use case is to check out the Debian packaging git for getting/modifying the tests locally:
+
+    git clone https://anonscm.debian.org/git/pkg-systemd/systemd.git /tmp/systemd-debian/
+
+and running these against the binaries from a PR (see above), running only the `logind` test, getting a shell on failure, showing the boot output, and running with 2 CPUs:
+
+    autopkgtest/runner/autopkgtest --test-name logind /tmp/binaries/*.deb /tmp/systemd-debian/ -s -- \
+        qemu --show-boot --cpus 2 /srv/vm/autopkgtest-xenial-amd64.img
