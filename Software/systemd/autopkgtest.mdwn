@@ -1,0 +1,42 @@
+# Test description
+
+Full system integration/acceptance testing is done through [[autopkgtests|https://people.debian.org/~mpitt/autopkgtest/README.package-tests.html]]. These test the actual installed binary distribution packages. They are run in QEMU or containers and thus can do intrusive and destructive things such as installing arbitrary packages, modifying arbitrary files in the system (including grub boot parameters), rebooting, or loading kernel modules.
+
+The tests for systemd are defined in the [[Debian package's debian/tests|https://anonscm.debian.org/cgit/pkg-systemd/systemd.git/tree/debian/tests]] directory. For validating a pull request, the Debian package is built using the unpatched code from that PR (through the [[checkout-upstream|https://anonscm.debian.org/cgit/pkg-systemd/systemd.git/tree/debian/extra/checkout-upstream]] script, and the tests run against these built packages. (Note that some tests which check Debian specific behaviour are skipped in "test upstream" mode).
+
+# Infrastructure
+
+systemd's GitHub project has webhooks that trigger autopkgtests on Ubuntu 16.04 LTS on three architectures:
+
+ * i386: 32 bit x86, little endian, QEMU (OpenStack cloud instance)
+ * amd64: 64 bit x86, little endian, QEMU (OpenStack cloud instance)
+ * s390x: 64 bit IBM z/Series, big endian, LXC (this architecture is not yet available in Canonical's OpenStack and thus skips some tests)
+
+Please see the [[Ubuntu CI infrastructure|https://wiki.ubuntu.com/ProposedMigration/AutopkgtestInfrastructure]] documentation for details about how this works.
+
+# Manually retrying/triggering tests on the infrastructure
+
+The current tests are fairly solid by now, but rarely they fail on infrastructure/network issues or race conditions. If you encounter these, please notify @martinpitt in the GitHub PR for debugging/fixing those -- transient infrastructure issues are supposed to be detected automatically, and tests auto-retry on those; and flaky tests should of course be fixed properly. But sometimes it is useful to trigger tests on a different Ubuntu release too, for example to test a PR on a newer kernel or against current build/binary dependencies (cgroup changes, util-linux, gcc, etc.).
+
+This can be done using the generic [[retry-github-test|https://git.launchpad.net/~ubuntu-release/+git/autopkgtest-cloud/plain/tools/retry-github-test]] script from [[Ubuntu's autopkgtest infrastructure|https://git.launchpad.net/~ubuntu-release/+git/autopkgtest-cloud/tree/]]: you need the parameterized URL from the [[configured webhooks|https://github.com/systemd/systemd/settings/hooks]] and the shared secret (Ubuntu's CI needs to restrict access to avoid DoSing and misuse).
+
+You can use Martin Pitt's [[retry-gh-systemd-test|http://piware.de/tools/bin/retry-gh-systemd-test]] shell wrapper around retry-github-test for that. You need to adjust the path where you put retry-github-test and the file with the shared secret, then you can call it like this:
+
+    $ retry-gh-systemd-test <#PR> <architecture> [release]
+
+where `release` defaults to `xenial` (aka Ubuntu 16.04 LTS). For example:
+
+    $ retry-gh-systemd-test 1234 amd64
+    $ retry-gh-systemd-test 2345 s390x zesty
+
+Please make sure to not trigger unknown releases/architectures as they will cause a pending test on the PR which never gets finished.
+
+# Test the code from the PR locally
+
+As soon as a test on the infrastructure finishes, the "Details" link in the PR "checks" section will point to the `log.gz` log. You can download the individual test log, built .debs, and other artifacts that tests leave behind (some dump a complete journal or the udev database on failure) by replacing `/log.gz` with `/artifacts.tar.gz` in that URL. You can then unpack the tarball and use `sudo dpkg -iO binaries/*.deb` to install the debs from the PR into an Ubuntu VM of the same release/architecture for manually testing a PR.
+
+# Run autopkgtests locally
+
+ * TODO:* write this section
+ * [[https://people.debian.org/~mpitt/autopkgtest/README.running-tests.html]]
+ * [[http://manpages.ubuntu.com/autopkgtest-buildvm-ubuntu-cloud]]
