@@ -5,13 +5,19 @@
 ## Changes at a glance
 
  * Support for newer AirPlay hardware
+ * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
  * Switch bluetooth profile to HSP more aggressively (disabled by default)
+ * Support for 32-bit applications on 64-bit systems in padsp
 
 ## Notes for end users
 
 ### Support for newer AirPlay hardware
 
 Previously the RAOP sink in PulseAudio only supported an older version of the protocol, which is not any more used in newer AirPlay products. Hajime Fujita has been maintaining [[his own version of PulseAudio|https://hfujita.github.io/pulseaudio-raop2/]] (with patches from several other contributors too) that supports also the newer RAOP protocol version. That work has now been merged upstream.
+
+### Improved bluetooth MTU configuration
+
+TODO
 
 ### Switch bluetooth profile to HSP more aggressively (disabled by default)
 
@@ -29,7 +35,11 @@ The feature is controlled by the "auto_switch" module argument for module-blueto
 
 ## Notes for packagers
 
-(nothing here yet)
+### Support for 32-bit applications on 64-bit systems in padsp
+
+padsp uses the LD_PRELOAD environment variable to make the wrapped application link to libpulsedsp.so. 32-bit applications on 64-bit systems are problematic, because the correct path to libpulsedsp.so depends on which architecture the application is built for. That means that 32-bit applications don't work, because the library path points to a 64-bit version of libpulsedsp.so. The problem is now solved for systems that use glibc. When the library path contains the string "$LIB", glibc will convert that to the correct directory name depending on the application's architecture.
+
+This is not enabled by default, because the fix doesn't work on non-glibc systems. To enable the fix, pass --with-pulsedsp-location='/usr/\\\\$$LIB/pulseaudio' to the configure script (this assumes that the prefix is /usr, so adjust the path as needed).
 
 ## git shortlog
 
