@@ -5,6 +5,7 @@
 ## Changes at a glance
 
  * Support for newer AirPlay hardware
+ * Upmixing can now be disabled without bad side effects
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
  * Switch bluetooth profile to HSP more aggressively (disabled by default)
  * Support for 32-bit applications on 64-bit systems in padsp
@@ -14,6 +15,12 @@
 ### Support for newer AirPlay hardware
 
 Previously the RAOP sink in PulseAudio only supported an older version of the protocol, which is not any more used in newer AirPlay products. Hajime Fujita has been maintaining [[his own version of PulseAudio|https://hfujita.github.io/pulseaudio-raop2/]] (with patches from several other contributors too) that supports also the newer RAOP protocol version. That work has now been merged upstream.
+
+### Upmixing can now be disabled without bad side effects
+
+By default, PulseAudio will play a stereo stream to all speakers (except subwoofer) of a surround system. Many people don't like this. It has been possible to disable all remixing by setting "enable-remixing = no" in daemon.conf, but that breaks other use cases where remixing is useful (perhaps the most silly breakage is that mono streams don't play at all, because the system doesn't have a dedicated "mono speaker").
+
+Now it's possible to leave remixing enabled, and only disable (most) upmixing by setting "remixing-use-all-sink-channels = no" in daemon.conf. Mono streams will still be upmixed to front-left, front-right and center channels.
 
 ### Improved bluetooth MTU configuration
 
