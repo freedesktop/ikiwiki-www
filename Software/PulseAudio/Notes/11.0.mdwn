@@ -5,12 +5,23 @@
 ## Changes at a glance
 
  * Support for newer AirPlay hardware
+ * Switch bluetooth profile to HSP more aggressively (disabled by default)
 
 ## Notes for end users
 
 ### Support for newer AirPlay hardware
 
 Previously the RAOP sink in PulseAudio only supported an older version of the protocol, which is not any more used in newer AirPlay products. Hajime Fujita has been maintaining [[his own version of PulseAudio|https://hfujita.github.io/pulseaudio-raop2/]] (with patches from several other contributors too) that supports also the newer RAOP protocol version. That work has now been merged upstream.
+
+### Switch bluetooth profile to HSP more aggressively (disabled by default)
+
+By default, module-bluetooth-policy automatically switches from A2DP to HSP when a recording stream appears that has the media.role property set to "phone". To better support VoIP applications that don't set the property (perhaps because they use the ALSA API that doesn't have the concept of stream properties), module-bluetooth-policy can now be configured to switch to HSP also if a recording stream appears with the media.role property unset.
+
+The feature is controlled by the "auto_switch" module argument for module-bluetooth-policy. Previously the argument was a boolean that enabled or disabled the automatic profile switching. Now the argument's type is integer, with the following supported values:
+
+ * 0: disable the automatic profile switching altogether
+ * 1: enable the automatic profile switching for streams with media.role=phone (this is the default mode)
+ * 2: enable the automatic profile switching for streams with media.role=phone and streams with media.role unset
 
 ## Notes for application developers
 
