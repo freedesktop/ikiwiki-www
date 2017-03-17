@@ -6,8 +6,9 @@
 
  * Support for newer AirPlay hardware
  * Upmixing can now be disabled without bad side effects
+ * Option to avoid resampling more aggressively
+ * Option to automatically switch bluetooth profile to HSP more aggressively
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
- * Switch bluetooth profile to HSP more aggressively (disabled by default)
  * Support for 32-bit applications on 64-bit systems in padsp
 
 ## Notes for end users
@@ -22,11 +23,11 @@ By default, PulseAudio will play a stereo stream to all speakers (except subwoof
 
 Now it's possible to leave remixing enabled, and only disable (most) upmixing by setting "remixing-use-all-sink-channels = no" in daemon.conf. Mono streams will still be upmixed to front-left, front-right and center channels.
 
-### Improved bluetooth MTU configuration
+### Option to avoid resampling more aggressively
 
-TODO
+By default, PulseAudio will configure hardware to use 44.1 kHz or 48 kHz sample rate, and if applications use some other rate, their audio is resampled to match the hardware rate. Now it's possible to set "avoid-resampling = yes" in daemon.conf, which will make PulseAudio configure the hardware to whatever rate the application uses (if the hardware doesn't support the application's rate, resampling is of course still done).
 
-### Switch bluetooth profile to HSP more aggressively (disabled by default)
+### Option to automatically switch bluetooth profile to HSP more aggressively
 
 By default, module-bluetooth-policy automatically switches from A2DP to HSP when a recording stream appears that has the media.role property set to "phone". To better support VoIP applications that don't set the property (perhaps because they use the ALSA API that doesn't have the concept of stream properties), module-bluetooth-policy can now be configured to switch to HSP also if a recording stream appears with the media.role property unset.
 
@@ -35,6 +36,10 @@ The feature is controlled by the "auto_switch" module argument for module-blueto
  * 0: disable the automatic profile switching altogether
  * 1: enable the automatic profile switching for streams with media.role=phone (this is the default mode)
  * 2: enable the automatic profile switching for streams with media.role=phone and streams with media.role unset
+
+### Improved bluetooth MTU configuration
+
+TODO
 
 ## Notes for application developers
 
