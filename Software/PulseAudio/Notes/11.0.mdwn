@@ -39,7 +39,9 @@ The feature is controlled by the "auto_switch" module argument for module-blueto
 
 ### Improved bluetooth MTU configuration
 
-TODO
+The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses with the bluetooth HSP profile was previously always configured to be 48 bytes. That worked with most hardware, but some adapters require a different packet size. Now PulseAudio asks the kernel what packet size should be used, which fixes the problem.
+
+However, a new problem appeared: some adapters that used to work with 48 byte packet size don't any more work with the size that the kernel tells PulseAudio to use. If you find that HSP audio stopped working when upgrading to PulseAudio 11.0, you can revert to the old behaviour by passing option "autodetect_mtu=no" to module-bluetooth-discover in /etc/pulse/default.pa. If that fixes the problem, then please report the problem to the BlueZ and/or PulseAudio developers, so that the kernel can be fixed.
 
 ## Notes for application developers
 
