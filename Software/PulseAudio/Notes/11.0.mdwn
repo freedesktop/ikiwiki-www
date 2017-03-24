@@ -8,6 +8,7 @@
  * Upmixing can now be disabled without bad side effects
  * Option to avoid resampling more aggressively
  * Option to automatically switch bluetooth profile to HSP more aggressively
+ * Better latency control in module-loopback
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
  * Support for 32-bit applications on 64-bit systems in padsp
 
@@ -36,6 +37,10 @@ The feature is controlled by the "auto_switch" module argument for module-blueto
  * 0: disable the automatic profile switching altogether
  * 1: enable the automatic profile switching for streams with media.role=phone (this is the default mode)
  * 2: enable the automatic profile switching for streams with media.role=phone and streams with media.role unset
+
+### Better latency control in module-loopback
+
+The latency of module-loopback can be configured, but so far it hasn't been very good at actually implementing the requested latency. It used to be so that during startup the latency was rather random, and it would take a long time before the module would adapt to the requested latency. Now the startup latency should reflect the requested latency much more accurately.
 
 ### Improved bluetooth MTU configuration
 
