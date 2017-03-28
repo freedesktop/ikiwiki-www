@@ -10,6 +10,7 @@
  * Option to avoid resampling more aggressively
  * Option to automatically switch bluetooth profile to HSP more aggressively
  * Better latency control in module-loopback
+ * Fixed input device handling in module-waveout
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
  * Support for 32-bit applications on 64-bit systems in padsp
 
@@ -46,6 +47,10 @@ The feature is controlled by the "auto_switch" module argument for module-blueto
 ### Better latency control in module-loopback
 
 The latency of module-loopback can be configured, but so far it hasn't been very good at actually implementing the requested latency. It used to be so that during startup the latency was rather random, and it would take a long time before the module would adapt to the requested latency. Now the startup latency should reflect the requested latency much more accurately.
+
+### Fixed input device handling in module-waveout
+
+The Windows audio module, module-waveout, had pretty broken handling for input devices. The module arguments "device" and "device_name" were used for selecting both the input and output device, but the arguments worked properly only for output. Those module arguments have now been replaced by new arguments: "output_device", "output_device_name", "input_device" and "input_device_name". That allows the input device to be configured properly.
 
 ### Improved bluetooth MTU configuration
 
