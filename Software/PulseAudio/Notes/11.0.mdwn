@@ -5,6 +5,7 @@
 ## Changes at a glance
 
  * Support for newer AirPlay hardware
+ * USB and bluetooth devices preferred over internal sound cards
  * Bluetooth HSP headset role implemented
  * Bluetooth HSP audio gateway and HFP hands-free unit roles can be enabled simultaneously
  * Upmixing can now be disabled without bad side effects
@@ -20,6 +21,10 @@
 ### Support for newer AirPlay hardware
 
 Previously the RAOP sink in PulseAudio only supported an older version of the protocol, which is not any more used in newer AirPlay products. Hajime Fujita has been maintaining [[his own version of PulseAudio|https://hfujita.github.io/pulseaudio-raop2/]] (with patches from several other contributors too) that supports also the newer RAOP protocol version. That work has now been merged upstream.
+
+### USB and bluetooth devices preferred over internal sound cards
+
+The prioritization of sinks and sources has been changed so that USB and bluetooth devices are preferred over internal sound cards when the user hasn't explicitly configured which device should be the default. This means that after plugging in an USB sound card or connecting a bluetooth device, it's not necessary to manually set the new device as default.
 
 ### Bluetooth HSP headset role implemented
 
