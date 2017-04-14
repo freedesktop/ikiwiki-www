@@ -15,6 +15,7 @@
  * Changed module argument names in module-ladspa-sink and module-virtual-surround-sink
  * Fixed input device handling in module-waveout
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
+ * Applications can request LADSPA or virtual surround filtering for their streams
  * Support for 32-bit applications on 64-bit systems in padsp
 
 ## Notes for end users
@@ -79,7 +80,15 @@ However, a new problem appeared: some adapters that used to work with 48 byte pa
 
 ## Notes for application developers
 
-(nothing here yet)
+### Applications can request LADSPA or virtual surround filtering for their streams
+
+module-ladspa-sink and module-virtual-surround-sink weren't previously compatible with the module argument interface that module-filter-apply expects from filter modules, but now they are. Another problem was that these two filter modules require arguments that module-filter-apply couldn't figure out on its own. It's now possible to tell module-filter-apply what the filter module arguments should be.
+
+To request LADSPA filtering, set the "filter.apply" stream property to "ladspa-sink" and pass the required module arguments with "filter.apply.ladspa-sink.parameters" (multiple arguments are separated by spaces). Similarly, to request virtual surround filtering, set the "filter.apply" stream property to "virtual-surround-sink" and pass the module arguments with "filter.apply.virtual-surround-sink.parameters".
+
+For documentation on what arguments the modules expect, see the [[Modules|Software/PulseAudio/Documentation/User/Modules]] page.
+
+The new module argument passing capability can also be utilized with the modules that module-filter-apply supported before (module-echo-cancel and module-equalizer-sink).
 
 ## Notes for packagers
 
