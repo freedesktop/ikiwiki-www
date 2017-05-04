@@ -7,6 +7,7 @@
  * Support for newer AirPlay hardware
  * USB and bluetooth devices preferred over internal sound cards
  * Bluetooth HSP headset role implemented
+ * Bluetooth HFP audio gateway role implemented
  * Bluetooth HSP audio gateway and HFP hands-free unit roles can be enabled simultaneously
  * Upmixing can now be disabled without bad side effects
  * Avoid having unavailable sinks or sources as the default
@@ -33,11 +34,19 @@ The prioritization of sinks and sources has been changed so that USB and bluetoo
 
 The HSP headset role allows PulseAudio to act as a bluetooth headset, so it's possible to connect e.g. a phone to a laptop running PulseAudio, and use the laptop's speaker and microphone for calls made on the phone. This is similar to the previously implemented HFP hands-free unit role, which is supported via oFono. The HSP headset role doesn't use oFono.
 
+### Bluetooth HFP audio gateway role implemented (requires oFono)
+
+Bluetooth headsets can now be used also using HFP, in addition to HSP that was already supported. Some newer headsets don't any more support HSP, so this change makes it possible to use such headsets.
+
+The HFP support in PulseAudio depends on oFono, and unfortunately it's not all plug-and-play. See the [[Bluetooth|Software/PulseAudio/Documentation/User/Bluetooth/]] wiki page for instructions. TODO: The wiki page needs to be updated before the release!
+
 ### Bluetooth HSP audio gateway and HFP hands-free unit roles can be enabled simultaneously
 
 Previously, passing the "headset=auto" argument to module-bluetooth-discover would enable the HSP audio gateway role when oFono is not running, and the HFP hands-free unit role when oFono is running (so only one HSP/HFP role would be active at a time). The HSP audio gateway role doesn't really interfere with oFono, so this was changed so that the HSP audio gateway role will be kept available all the time.
 
 The new HSP headset role implementation does interfere with oFono, however, so that will be disabled when oFono is running.
+
+The "headset=auto" option is now enabled by default. To return back to only the native backend (i.e. no oFono support), pass "headset=native" to module-bluetooth-discover.
 
 ### Upmixing can now be disabled without bad side effects
 
