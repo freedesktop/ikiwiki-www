@@ -9,6 +9,7 @@
  * Bluetooth HSP headset role implemented
  * Bluetooth HSP audio gateway and HFP hands-free unit roles can be enabled simultaneously
  * Upmixing can now be disabled without bad side effects
+ * Avoid having unavailable sinks or sources as the default
  * Option to avoid resampling more often
  * Option to automatically switch bluetooth profile to HSP more often
  * Better latency control in module-loopback
@@ -43,6 +44,10 @@ The new HSP headset role implementation does interfere with oFono, however, so t
 By default, PulseAudio will play a stereo stream to all speakers (except subwoofer) of a surround system. Many people don't like this. It has been possible to disable all remixing by setting "enable-remixing = no" in daemon.conf, but that breaks other use cases where remixing is useful (perhaps the most silly breakage is that mono streams don't play at all, because the system doesn't have a dedicated "mono speaker").
 
 Now it's possible to leave remixing enabled, and only disable (most) upmixing by setting "remixing-use-all-sink-channels = no" in daemon.conf. Mono streams will still be upmixed to front-left, front-right and center channels.
+
+### Avoid having unavailable sinks or sources as the default
+
+The default sink and source are now automatically changed if the current default becomes unavailable. This mostly affects systems that have HDMI and analog audio on separate cards. If the HDMI sink was set as the default, and the HDMI cable is unplugged, the analog sink is automatically set as the default.
 
 ### Option to avoid resampling more often
 
