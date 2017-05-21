@@ -24,14 +24,14 @@ Basically, the biggest two advantages of Glamor is:
 
 In Xorg, upper layer should always use low level DDX functions to handle rendering and never access a drawable directly.  The common logic of the DDX is: setup appropriate 2D or 3D pipeline according to the rendering request and draw and render it directly,  which will prepare a serial of hardware dependent command, and then upload the command to the GFX device through DRM interface, and if it failed or the feature is not implemented, DDX will map the drawable to a virtual memory buffer and then use  fb functions to draw and render it using software. 
 
-The Glamor has similar logic, but replace the 2D or 3D pipeline setup with GL's pipeline. In most case, pixmap and window have a normal texture object. When doing the render or draw process, the texture object will be binded to a frame buffer object, so all the subsequent draw and render operations can use GL functions or use the according shader. We do not need to setup pipeline and write the control code for each different GFX device, the GL will handle it. If that GL kind render can not complete because of failure or not support, the Glamor will fallback to software rendering, which will use FB functions and upload it then if needs. This process needs memory copy several times and is relative slower, so the fallback cases should be decrease to the minimum. 
+Glamor has similar logic, but replace the 2D or 3D pipeline setup with GL's pipeline. In most case, pixmap and window have a normal texture object. When doing the render or draw process, the texture object will be binded to a frame buffer object, so all the subsequent draw and render operations can use GL functions or use the according shader. We do not need to setup pipeline and write the control code for each different GFX device, the GL will handle it. If that GL kind render can not complete because of failure or not support, Glamor will fallback to software rendering, which will use FB functions and upload it then if needs. This process needs memory copy several times and is relative slower, so the fallback cases should be decrease to the minimum. 
 
-The Glamor now is implemented to be embedded in other DDX driver(By now, just xf86-video-intel support) to complete the draw and render functions. In the feature, Glamor will also be implemented as a seperated DDX driver. 
+Glamor now is implemented to be embedded in other DDX driver(By now, just xf86-video-intel support) to complete the draw and render functions. In the feature, Glamor will also be implemented as a seperated DDX driver. 
 
 
 # How to Enable Glamor on Intel?
 
-To enable the Glamor, the following steps is needed: 
+To enable Glamor, the following steps is needed: 
 
 1. Rebuild the mesa using the parameter: --with-egl-platforms=x11,drm --with-gallium-drivers=  --enable-gbm --enable-shared-glapi --enable-glx-tls. 
 1. Rebuild the xf86-video-intel driver, add parameter --enable-glamor to enable glamor module which is embedded in intel driver. 
@@ -48,7 +48,7 @@ To enable the Glamor, the following steps is needed:
    * [[EndSection|EndSection]] 
 The reason why we need to load dri2/glamoregl earlier is both glx-xserver and glamor are a dri2 loader. And glx-xserver side has a own glapi/dispatch table implementation which is a subset of the standard mesa's implementation. So if the glx module is loaded earlier than dri2/glamoregl, then we will get an incomplete dispatch table and everything is broken in glamor then. This is also why we need to add --enable-glx-tls parameters when build mesa, as we need to keep mesa align with Xserver's behavious, xserver will enable-glx-tls by default, but mesa will not. 
 
-After you finish all the above steps, then you can try to start x with glamor enabled DDX. To make sure it's the glamor running, you can refer to Xorg.0.log, and check that the Glamor is enabled if you can find the log like: _<ins>intel(0): Use GLAMOR acceleration.</ins>_ 
+After you finish all the above steps, then you can try to start x with glamor enabled DDX. To make sure it's glamor running, you can refer to Xorg.0.log, and check that Glamor is enabled if you can find the log like: _<ins>intel(0): Use GLAMOR acceleration.</ins>_ 
 
 
 # ChangeLog
