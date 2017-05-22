@@ -37,15 +37,16 @@ To enable Glamor, the following steps are needed:
 1. Rebuild the xf86-video-intel driver, add parameter --enable-glamor to enable glamor module which is embedded in intel driver. 
 1. Build and install glamor source. The Glamor source can be get at [[git://anongit.freedesktop.org/git/xorg/driver/glamor|http://cgit.freedesktop.org/xorg/driver/glamor/]] 
 1. Make sure you have the xorg configure file named glamor.conf at conf/glamor.conf under the directory /usr/share/X11/xorg.conf.d or /etc/X11/xorg.conf.d/. Although make install will try to install that file to the correct directory. But it may failed, as if you are installing the xserver to a local directory, then the "make install" will install glamor.conf to your local directory rather than the two system directories. So you may need to manually copy the file to the system's configuration directory. Otherwise, you will encounter segfault when start the xserver. Here is the content of the glamor.conf. 
-   * Section "Module" 
-      * Load "dri2" 
-      * Load "glamoregl" 
-   * EndSection 
-   * Section "Device" 
-      * Identifier "intel" 
-      * Driver "intel" 
-      * Option "[[AccelMethod|AccelMethod]]" "glamor" 
-   * [[EndSection|EndSection]] 
+
+        Section "Module" 
+            Load "dri2" 
+            Load "glamoregl" 
+        EndSection 
+        Section "Device" 
+            Identifier "intel" 
+            Driver "intel" 
+            Option "AccelMethod" "glamor" 
+        EndSection
 The reason why we need to load dri2/glamoregl earlier is both glx-xserver and glamor are a dri2 loader. And glx-xserver side has a own glapi/dispatch table implementation which is a subset of the standard mesa's implementation. So if the glx module is loaded earlier than dri2/glamoregl, then we will get an incomplete dispatch table and everything is broken in glamor then. This is also why we need to add --enable-glx-tls parameters when build mesa, as we need to keep mesa align with Xserver's behavious, xserver will enable-glx-tls by default, but mesa will not. 
 
 After you finish all the above steps, then you can try to start x with glamor enabled DDX. To make sure it's glamor running, you can refer to Xorg.0.log, and check that Glamor is enabled if you can find the log like: _<ins>intel(0): Use GLAMOR acceleration.</ins>_ 
