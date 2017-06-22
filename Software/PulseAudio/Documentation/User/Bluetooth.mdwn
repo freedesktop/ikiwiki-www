@@ -91,8 +91,16 @@ To hangup all ongoing calls, this command can be used:
 
 ## Troubleshooting
 
-### The "Protocol not supported" problem
+### HSP problem: HSP stopped working when upgrading PulseAudio from 10.0 to 11.0
 
-There was some regression in the kernel that was introduced in 3.12 and fixed in 3.18 that caused failure when trying to activate HSP/HFP with some headsets. This problem can be identified by this error message in pulseaudio log:
+From the [[11.0 release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/11.0/]]:
+
+The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses with the bluetooth HSP profile was previously always configured to be 48 bytes. That worked with most hardware, but some adapters require a different packet size. Now PulseAudio asks the kernel what packet size should be used, which fixes the problem.
+
+However, a new problem appeared: some adapters that used to work with 48 byte packet size don't any more work with the size that the kernel tells PulseAudio to use. If you find that HSP audio stopped working when upgrading to PulseAudio 11.0, you can revert to the old behaviour by passing option "autodetect_mtu=no" to module-bluetooth-discover in /etc/pulse/default.pa. If that fixes the problem, then please report the problem to the BlueZ and/or PulseAudio developers, so that the kernel can be fixed.
+
+### HSP problem: "Protocol not supported"
+
+There was some regression in the kernel that was introduced in 3.12 and fixed in 3.18 that caused failure when trying to activate HSP with some headsets. This problem can be identified by this error message in pulseaudio log:
 
     backend-native.c: connect(): Protocol not supported
