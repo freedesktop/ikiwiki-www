@@ -99,6 +99,22 @@ The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses w
 
 However, a new problem appeared: some adapters that used to work with 48 byte packet size don't any more work with the size that the kernel tells PulseAudio to use. If you find that HSP audio stopped working when upgrading to PulseAudio 11.0, you can revert to the old behaviour by passing option "autodetect_mtu=no" to module-bluetooth-discover in /etc/pulse/default.pa. If that fixes the problem, then please report the problem to the BlueZ and/or PulseAudio developers, so that the kernel can be fixed.
 
+### HSP problem: the bluetooth sink and source are created, but no audio is being transmitted
+
+This is often not PulseAudio's fault, and not specific to any particular headset. Instead, the problem tends to be in the bluetooth adapter. The bluetooth adapter may be missing firmware, or the adapter's SCO audio routing may be wrong (SCO is the audio protocol used by HSP and HFP, and SCO audio needs to be routed via the HCI interface in order to work with PulseAudio). [[Bug 97064|https://bugs.freedesktop.org/show_bug.cgi?id=97064]] has discussion about this, and solutions for a couple of adapters. If you have different hardware and are suffering from this problem AND you find a working solution, please comment on the bug.
+
+Here are the adapters with known solutions (these adapters/chipsets are probably used in multiple products under different brands, so use lsusb/lspci/etc to figure out the chipset of your bluetooth adapter):
+
+TI WL1837: [[http://www.ti.com/product/WL1837MOD]]
+
+This adapter may have wrong SCO audio routing. Use this command (as root) to route the SCO audio through HCI:
+
+    hcitool cmd 0x3F 0x0210 0x01 120 511 0xFF
+
+Broadcom BCM20702
+
+This adapter requires proprietary firmware. Installation instructions: [[http://plugable.com/2014/06/23/plugable-usb-bluetooth-adapter-solving-hfphsp-profile-issues-on-linux/]]
+
 ### HSP problem: "Protocol not supported"
 
 There was some regression in the kernel that was introduced in 3.12 and fixed in 3.18 that caused failure when trying to activate HSP with some headsets. This problem can be identified by this error message in pulseaudio log:
