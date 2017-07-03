@@ -89,7 +89,42 @@ To hangup all ongoing calls, this command can be used:
 
     test/hangup-all /hfp_path
 
+## History of bluetooth features in PulseAudio
+
+### 11.0
+
+* HSP headset role implemented, which means that PulseAudio can act as a headset.
+* HFP audio gateway role implemented (via oFono), which means that PulseAudio can use bluetooth headsets via HFP instead of HSP (good especially for headsets that only support HFP).
+* The HSP audio gateway and HFP headset roles can be enabled simultaneously.
+* Bluetooth device priority got bumped higher than internal sound cards, which means that it's not any more necessary to set the bluetooth device as the default sink manually when connecting it.
+* The "auto_switch" option of module-bluetooth-policy got a new mode: mode "2" can be used to enable automatic profile switching from A2DP to HSP when a recording stream appears without any role set.
+* HSP MTU configuration changed from always using 48 bytes to asking the kernel for an appropriate packet size.
+
+More details in the [[release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/11.0/]].
+
+### 10.0
+
+* module-bluetooth-policy got a new option: "auto_switch" can be used to enable automatic profile switches from A2DP to HSP when a recording stream appears with role "phone".
+* Separate volumes for A2DP and HSP.
+
+More details in the [[release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/10.0/]].
+
+### 6.0
+
+* HSP audio gateway role implemented, so HSP headsets can again be used with PulseAudio.
+* HFP hands-free unit role implemented (via oFono), so PulseAudio can act as a headset or other hands-free device.
+
+More details in the [[release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/6.0/]].
+
+### 5.0
+
+* Initial BlueZ 5 support added. Only A2DP is supported. (BlueZ 4 support is retained, though, so systems that still use BlueZ 4 keep working as before.)
+
+More details in the [[release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/5.0/]].
+
 ## Troubleshooting
+
+Check first that your version of PulseAudio supports the feature you're trying to use. Refer to the history section above to see when a particular bluetooth feature was added to PulseAudio.
 
 ### HSP problem: HSP stopped working when upgrading PulseAudio from 10.0 to 11.0
 
