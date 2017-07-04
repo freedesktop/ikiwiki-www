@@ -7,7 +7,7 @@ PulseAudio depends on [[BlueZ|http://www.bluez.org]] for all Bluetooth functiona
 
 ## Profiles
 
-The bluetooth standard specifies three audio profiles. Don't confuse these with the "card profile" concept in PulseAudio. A bluetooth device shows up in PulseAudio as a card, and the card will have some set of profiles depending on what bluetooth profiles the device supports, but the "bluetooth profile" <-> "card profile" mapping is not one-to-one. The three bluetooth profiles are:
+The bluetooth standard specifies three audio profiles. Try not to confuse these with the "card profile" concept in PulseAudio. A bluetooth device shows up in PulseAudio as a card, and the card will have some set of profiles depending on what bluetooth profiles the device supports, but the "bluetooth profile" <-> "card profile" mapping is not one-to-one. The three bluetooth profiles are:
 
 * A2DP (Advanced Audio Distribution Profile) - high-quality audio playback, appropriate for e.g. listening to music.
 * HSP (HeadSet Profile) - phone-quality audio playback and recording, appropriate for phone calls.
@@ -19,7 +19,7 @@ Each of the profiles are further divided into two roles:
   * Source role - the device that sends audio.
   * Sink role - the device that receives audio.
 * HSP:
-  * Audio Gateway role - the device that the headset is connected to. The HSP profile is typically used in phone calls, and this is the device that is connected to the cellular network (for cellular phone calls) or to the internet (for VoIP calls). Typically a cellular phone or a personal computer.
+  * Audio Gateway role - the device that the headset is connected to. The HSP profile is typically used in phone calls, and this is the device that is connected to the cellular network (for cellular phone calls) or to the internet (for VoIP calls). Typically a cellular phone or a PC.
   * Headset role - the headset, obviously. This is where the speakers and microphone are.
 * HFP:
   * Audio Gateway role - the device that the hands-free device is connected to. The HFP profile is typically used for cellular phone calls, and this is the device that is connected to the cellular network. Typically a cellular phone.
@@ -29,27 +29,19 @@ Each of the profiles are further divided into two roles:
 
 PulseAudio supports A2DP in both source and sink roles. When PulseAudio acts in the source role, a sink is created where applications can play to. When PulseAudio acts in the sink role, a source is created where applications can record from.
 
-A2DP works generally without a hassle, although when watching videos, the audio can get badly out of sync. It seems that in case of transmission problems (weak signal, or out of signal range) the kernel can buffer quite a lot of audio. Here's a bug report about this issue: [[https://bugs.freedesktop.org/show_bug.cgi?id=58746]]. A patch is available in the bug report, but it breaks HSP, so it can't be accepted. The general idea of the patch seems fine, though. Help with improving the patch would be very welcome.
+A2DP works generally without a hassle, although when watching videos, the audio can get badly out of sync. It seems that in case of transmission problems (weak signal, or out of signal range) the kernel can buffer quite a lot of audio. Here's a bug report about this issue: [[https://bugs.freedesktop.org/show_bug.cgi?id=58746]]. A patch is available in the bug report (see [[comment #8|https://bugs.freedesktop.org/show_bug.cgi?id=58746#c8]], but it breaks HSP, so it can't be accepted. The general idea of the patch seems fine, though. Help with improving the patch would be very welcome.
 
-## HSP
+## HSP/HFP
 
-PulseAudio supports HSP only in the audio gateway role, so headsets can be used with PulseAudio, but PulseAudio can't act as a headset. (With BlueZ 4 both roles are supported, but almost everyone uses BlueZ 5 nowadays.) With the "Headset Head Unit (HSP/HFP)" card profile selected, PulseAudio will create a sink and a source that applications can use to play back and record audio.
+PulseAudio supports both HSP roles, and with oFono also both HFP roles. In the default configuration, if oFono isn't running, only HSP is enabled. If oFono is running, the audio gateway role of HSP is enabled plus both HFP roles. The headset role of HSP is disabled, because otherwise PulseAudio and oFono would conflict as both would try to listen for new connections from audio gateway devices.
 
-The HSP implementation in PulseAudio is mutually exclusive with the HFP implementation, so users have to choose which one is more important to them. There's no reason why the two profiles absolutely have to be mutually exclusive, but that's the way it is for now.
+It's possible to force PulseAudio to only enable HSP or HFP with the "headset" option of module-bluetooth-discover (configured in /etc/pulse/default.pa). By default the option is set to "auto", but if it's set to "native", then only HSP is enabled, and if the option is set to "ofono", then only HFP is enabled.
 
-HSP support is enabled by passing argument "headset=native" to module-bluetooth-discover in /etc/pulse/default.pa. Or the argument can be omitted, because HSP is enabled by default.
+When connected to a HSP or HFP device, the bluetooth card in PulseAudio will have the "Headset Head Unit (HSP/HFP)" and/or "Headset Audio Gateway (HSP/HFP)" profiles available. When those profiles are activated, a sink and a source are created where applications can play and record audio.
 
-The headset role will eventually be supported too. In fact, there's already a patch for that: [[https://lists.freedesktop.org/archives/pulseaudio-discuss/2015-February/023242.html]]. Arun reviewed the patch, and there was something to fix in the patch, but the feedback was given in IRC, so the details are not archived. No new version of the patch has been submitted. Contact Arun Raghavan and Wim Taymans if you want more information about this, or if you want to help finishing the work.
+When PulseAudio is acting as a headset or a hands-free unit, it's rarely necessary to manually change the card profile. When the audio gateway initiates audio streaming, module-bluetooth-policy will automatically change to the appropriate profile. module-bluetooth-policy will also load module-loopback instances to loop the audio from bluetooth to the local speakers and microphone.
 
-## HFP
-
-PulseAudio supports HFP only in the hands-free unit role (opposite to the situation with HSP), so PulseAudio can connect to a mobile phone, but not to headsets and other hands-free devices. With the "Headset Audio Gateway (HSP/HFP)" card profile selected, PulseAudio will create a sink and a source that applications can use to play back and record audio - or more commonly, the bluetooth sink and source will be connected with module-loopback to speakers and a microphone device. Note that the "Headset Audio Gateway (HSP/HFP)" card profile is typically automatically activated by module-bluetooth-policy when the phone initiates audio streaming.
-
-As mentioned in the HSP section, support for HFP and HSP are currently mutually exclusive. HFP support is enabled by passing argument "headset=ofono" to module-bluetooth-discover in /etc/pulse/default.pa.
-
-The audio gateway role will hopefully be supported too in the future, as well as simultaneous support for HSP and HFP. Simon Fels has done some work on both of these things: [[https://github.com/morphis/pulseaudio/commits/master-bt-fixes]]. Those patches have not yet been submitted to upstream, however.
-
-James Bottomley submitted different patches for supporting HFP headsets, which don't use oFono: [[https://www.mail-archive.com/pulseaudio-discuss@lists.freedesktop.org/msg16443.html]]. The patches need some work, but nothing has happened for a long time. Someone else could relatively easily finish off the work - just read the review discussion, and address the points raised.
+Being able to use HFP headsets without oFono would be nice, and James Bottomley has submitted patches for that: [[https://www.mail-archive.com/pulseaudio-discuss@lists.freedesktop.org/msg16443.html]]. The patches need some work, but nothing has happened for a long time. Someone else could relatively easily finish off the work - just read the review discussion, and address the points raised.
 
 ## Using bluetooth when running PulseAudio in the system mode
 
@@ -69,6 +61,8 @@ The D-Bus access policy also doesn't allow pulseaudio to communicate with ofonod
       </policy>
 
 ## Using HFP with oFono
+
+TODO: Explain how HFP headsets can be used with oFono. The following text is only about audio gateway devices.
 
 In typical desktop environments, connecting to a mobile phone with HFP isn't totally plug-and-play. The device has to be manually enabled in oFono first. To do that, get the oFono source code, which includes some test scripts that can be used to interact with oFono. First, run
 
