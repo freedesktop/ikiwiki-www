@@ -35,6 +35,8 @@ Arguments passed to bootstrap.sh will be passed on to the configure script. If y
 
 If there are complaints about something not being found, then you need to install the missing things. The list of build dependencies may be useful: [[http://www.freedesktop.org/wiki/Software/PulseAudio/Download/]]
 
+On Debian and its derivatives (Ubuntu etc.) it's possible to use "apt-get build-dep pulseaudio" to install all the build dependencies.
+
 
 ## Installing and Running
 
@@ -47,7 +49,7 @@ Two commands:
     sudo make install
     sudo ldconfig
 
-Uninstalling the self-compiled version is a matter of deleting all pulseaudio files under the /usr/local hierarchy (TODO: the exact rm commands would be nice here).
+Uninstalling the self-compiled version is a matter of deleting all pulseaudio files under the /usr/local hierarchy (TODO: the exact rm commands would be nice here). "sudo make uninstall" works too, but it will only remove the files that were installed by the last "sudo make install" command, so if you over time install many versions without uninstalling in between, the old installations may have files that are not included in the latest install, and in such case "sudo make uninstall" will not remove everything. Also, if "sudo make install" installed something in the same place where the distribution installs files, then those are removed too, and that may cause trouble (such trouble should be fixable by forcing a reinstall of the distribution's pulseaudio packages).
 
 
 ### Method 2: Installing to a Custom Directory
