@@ -62,27 +62,55 @@ The D-Bus access policy also doesn't allow pulseaudio to communicate with ofonod
 
 ## Using HFP with oFono
 
-TODO: Explain how HFP headsets can be used with oFono. The following text is only about audio gateway devices.
+Currently HFP support in pulseaudio is only available through oFono. The additional dependency makes device setup somewhat difficult because oFono is designed for mobile telephony and not for audio applications.
 
-In typical desktop environments, connecting to a mobile phone with HFP isn't totally plug-and-play. The device has to be manually enabled in oFono first. To do that, get the oFono source code, which includes some test scripts that can be used to interact with oFono. First, run
+Within oFono, a mobile telephony device is represented as a modem. oFono will only work if there is at least one enabled modem in your system. To simplify modem control, you should download the source code of oFono (git://git.kernel.org/pub/scm/network/ofono/ofono.git), which contains a "test" directory with several useful python scripts. A list of available modems can be obtained by running
 
     test/list-modems
 
-That will list all modems (the phone will appear as a "modem" in oFono), look for the one with Type=hfp. Then, assuming that the phone is on path /hfp_path, run
+A modem can be enabled with
 
-    test/enable-modem /hfp_path
+    test/enable-modem /modem_path
 
-To disable the device, use this command:
+and disabled again with
 
-    test/disable-modem /hfp_path
+    test/disable-modem /modem_path
 
-While the device is enabled, you can test that audio works by calling someone using the phone. You can also try to command the phone to make the call from your computer with this command:
+### Headset Setup
+
+The necessity to provide a modem to oFono makes the headset setup rather cumbersome. If you do not have a GSM/UMTS modem connected to your system (like in most desktop environments), you need a modem emulator. Unfortunately oFono does not allow to use a mobile (hfp modem, see below) as a modem to support headsets.
+
+The best emulator choice is "phonesim" because there is a version that is maintained together with ofono. Most distributions contain a package ofono-phonesim or similar while the git version can be found at git://git.kernel.org/pub/scm/network/ofono/phonesim.git.
+
+To set up phonesim, first create or edit the file phonesim.conf in /etc/ofono. It should contain the following lines:
+
+    [phonesim]
+    Driver=phonesim
+    Address=127.0.0.1
+    Port=12345
+
+Restart oFono and check with list-modems if the phonesim modem was found. Start phonesim with
+
+    phonesim -p 12345 /usr/share/phonesim/default.xml&
+
+The paths to phonesim.conf and default.xml might be different if you compiled ofono and/or phonesim from source. Now you can enable the modem either by using the enable-modem script or by issuing the following command:
+
+    dbus-send --print-reply --system --dest=org.ofono /phonesim org.ofono.Modem.SetProperty string:"Powered" variant:boolean:"true"
+
+list-modems should show that the modem is powered and online. If you want to play with the modem emulator, you can add the -gui option to the phonesim command. Then a GUI will pop up as soon as you enable the modem.
+
+Once the modem is set up properly, you can connect your headset and the "Headset Head Unit (HSP/HFP)" profile should be available in pulseaudio.
+
+### Mobile phone Setup
+
+After connecting your mobile to the system, the phone should already be available without further configuration. Use list-modems to find it (there will be a modem with Type=hfp). If it is not online (Online=1 and Powered=1), you need to enable it first by running enable-modem with the appropriate path. While the device is enabled, you can test that audio works by calling someone using the phone. You can also try to command the phone to make the call from your computer with this command:
 
     test/dial-number /hfp_path 12345
 
-To hangup all ongoing calls, this command can be used:
+Similar to HSP, module-bluetooth-policy will load module-loopback instances to loop the audio from bluetooth to the local speakers and microphone. To hangup all ongoing calls, this command can be used:
 
     test/hangup-all /hfp_path
+
 
 ## History of bluetooth features in PulseAudio
 
