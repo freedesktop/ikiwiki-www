@@ -14,6 +14,7 @@
  * (final release only) Update NEWS.
  * Tag the last commit locally (don't make the tag public yet).
  * Generate the tarball.
+ * Check that all new files are included in the tarball.
  * Test the tarball.
  * Upload the tarball.
  * Push the tag.
@@ -84,6 +85,19 @@ That will create a .tar.gz file and a .tar.xz file. Then you'll need to create m
       sha1sum ${i} > ${i}.sha1;      \
     done
 
+### Checking that all new files are included in the tarball
+
+First, run
+
+    git ls-files > /tmp/file-list-new
+
+Then, checkout the previous release, list files again, and compare the file lists:
+
+    git checkout v10.0
+    git ls-files > /tmp/file-list-old
+    diff -u /tmp/file-list-old /tmp/file-list-new
+
+Check what files have been added. Are they all included in the tarball?
 
 ### Uploading the Tarball
 
