@@ -33,13 +33,15 @@ If you get neither a normal login nor the emergency mode shell, you will need to
 
 ### Debug Logging to a Serial Console
 
-If you have a hardware serial console available or if you are debugging in a virtual machine (e.g. using virt-manager you can switch your view to a serial console in the menu View -> Text Consoles), you can ask systemd to log lots of useful debugging information to it by booting with:
+If you have a hardware serial console available or if you are debugging in a virtual machine (e.g. using virt-manager you can switch your view to a serial console in the menu View -> Text Consoles or connect from the terminal using `virsh console MACHINE`), you can ask systemd to log lots of useful debugging information to it by booting with:
 
-    systemd.log_level=debug systemd.log_target=console console=ttyS0,38400
+    systemd.log_level=debug systemd.log_target=console console=ttyS0,38400 console=tty1
 
 The above is useful if pid 1 is failing, but if a later but critical boot service is broken (such as networking), you can configure journald to forward to the console by using:
 
-    systemd.journald.forward_to_console=1 console=ttyS0,38400
+    systemd.journald.forward_to_console=1 console=ttyS0,38400 console=tty1
+
+console= can be specified multiple times, systemd will output to all of them.
 
 ### Booting into Rescue or Emergency Targets
 
@@ -76,6 +78,7 @@ Once enabled, the next time you boot you will be able to switch to tty9 using CT
 
 **Warning:** Use this shell only for debugging! Do not forget to disable systemd-debug-shell.service after you've finished debugging your boot problems. Leaving the root shell always available would be a security risk.
 
+It is also possible to alias `kbrequest.target` to `debug-shell.service` to start the debug shell on demand. This has the same security implications, but avoids running the shell always.
 
 ### verify prerequisites
 
