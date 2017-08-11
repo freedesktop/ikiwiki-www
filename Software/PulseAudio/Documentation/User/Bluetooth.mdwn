@@ -179,6 +179,36 @@ There was some regression in the kernel that was introduced in 3.12 and fixed in
 
     backend-native.c: connect(): Protocol not supported
 
+### Getting a log from bluetoothd
+
+Sometimes inspecting the bluetoothd log is helpful. Here are instructions for getting the log:
+
+First, stop bluetoothd and preferably also prevent it from getting started automatically. Here's how to do that with systemd:
+
+    sudo systemctl disable bluetooth.service
+    sudo systemctl stop bluetooth.service
+
+Then, run bluetoothd in a terminal with verbose logging:
+
+    sudo /usr/lib/bluetooth/bluetoothd -n -d
+
+Now you can read the log, or copy it from the terminal for later reading.
+
+When you want to stop bluetoothd, press ctrl-c. When you're done, you probably want to re-enable the bluetooth service. Here's how to do that with systemd:
+
+    sudo systemctl enable bluetooth.service
+    sudo systemctl start bluetooth.service
+
+Sometimes it's useful to have both bluetoothd and pulseaudio logs interleaved, because that makes it easier to match events in the bluetoothd log with events in the pulseaudio log. To do this, add "&" to the end of the bluetoothd command, like this:
+
+    sudo /usr/lib/bluetooth/bluetoothd -n -d &
+
+Now bluetoothd will print log messages to the terminal, but you can also use the terminal for other commands. You can now start pulseaudio in the same terminal. TODO: Write instructions for getting the log from pulseaudio.
+
+To stop bluetoothd, run
+
+    sudo killall bluetoothd
+
 ## Specifications
 
 Here are some links to relevant specifications:
