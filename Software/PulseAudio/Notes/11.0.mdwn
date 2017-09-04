@@ -14,7 +14,7 @@
  * Avoid having unavailable sinks or sources as the default
  * Option to avoid resampling more often
  * Option to automatically switch bluetooth profile to HSP more often
- * Better latency control in module-loopback
+ * Better latency regulation in module-loopback
  * Changed module argument names in module-ladspa-sink and module-virtual-surround-sink
  * Fixed input device handling in module-waveout
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
@@ -82,11 +82,11 @@ The feature is controlled by the "auto_switch" module argument for module-blueto
 
 To keep backwards compatibility with old configuration files, boolean values are still accepted: "true" maps to option 1 and "false" maps to option 0.
 
-### Better latency control in module-loopback
+### Better latency regulation in module-loopback
 
 The latency of module-loopback can be configured, but so far it hasn't been very good at actually implementing the requested latency. It used to be so that during startup the latency was rather random, and it would take a long time before the module would adapt to the requested latency. Now the startup latency should reflect the requested latency much more accurately.
 
-module-loopback will now also try to ensure that the configured latency isn't too low, but if underruns nevertheless occur, it will increase the target latency automatically.
+module-loopback will now also try to ensure that the configured latency isn't too low to avoid glitches, but if underruns nevertheless occur, the loopback's target latency is increased automatically.
 
 ### Changed module argument names in module-ladspa-sink and module-virtual-surround-sink
 
