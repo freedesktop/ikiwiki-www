@@ -6,6 +6,7 @@
 
  * Support for newer AirPlay hardware
  * USB and bluetooth devices preferred over internal sound cards
+ * The default sink and source configuration is remembered better
  * Bluetooth HSP headset role implemented
  * Bluetooth HFP audio gateway role implemented (requires oFono)
  * Bluetooth HSP audio gateway and HFP hands-free unit roles can be enabled simultaneously
@@ -17,6 +18,7 @@
  * Changed module argument names in module-ladspa-sink and module-virtual-surround-sink
  * Fixed input device handling in module-waveout
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
+ * GNU Hurd support
  * Applications can request LADSPA or virtual surround filtering for their streams
  * Support for 32-bit applications on 64-bit systems in padsp
 
@@ -29,6 +31,10 @@ Previously the RAOP sink in PulseAudio only supported an older version of the pr
 ### USB and bluetooth devices preferred over internal sound cards
 
 The prioritization of sinks and sources has been changed so that USB and bluetooth devices are preferred over internal sound cards when the user hasn't explicitly configured which device should be the default. This means that after plugging in an USB sound card or connecting a bluetooth device, it's not necessary to manually set the new device as default.
+
+### The default sink and source configuration is remembered better
+
+Previously, PulseAudio was bad at remembering the user's choice if they set a hotpluggable device (e.g. a USB sound card) as the default sink or source. Now PulseAudio doesn't forget the default device configuration any more. (Now that hotpluggable devices have higher priority in general, it's less often necessary to do any such manual configuration anyway, but this is an improvement nevertheless.)
 
 ### Bluetooth HSP headset role implemented
 
@@ -95,6 +101,10 @@ The Windows audio module, module-waveout, had pretty broken handling for input d
 The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses with the bluetooth HSP profile was previously always configured to be 48 bytes. That worked with most hardware, but some adapters require a different packet size. Now PulseAudio asks the kernel what packet size should be used, which fixes the problem.
 
 However, a new problem appeared: some adapters that used to work with 48 byte packet size don't any more work with the size that the kernel tells PulseAudio to use. If you find that HSP audio stopped working when upgrading to PulseAudio 11.0, you can revert to the old behaviour by passing option "autodetect_mtu=no" to module-bluetooth-discover in /etc/pulse/default.pa. If that fixes the problem, then please report the problem to the BlueZ and/or PulseAudio developers, so that the kernel can be fixed.
+
+### GNU Hurd support
+
+PulseAudio can now be used on the GNU Hurd kernel. There are no new Hurd specific modules, though; the way to make PulseAudio work on Hurd is to use module-solaris together with software that implements the Solaris /dev/audio interface. The only change in PulseAudio is that module-solaris was slightly modified so that it builds on Hurd. More information here: [[https://github.com/dm0-/hurd-rump-audio]]
 
 ## Notes for application developers
 
