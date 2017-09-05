@@ -32,6 +32,8 @@ Previously the RAOP sink in PulseAudio only supported an older version of the pr
 
 The prioritization of sinks and sources has been changed so that USB and bluetooth devices are preferred over internal sound cards when the user hasn't explicitly configured which device should be the default. This means that after plugging in an USB sound card or connecting a bluetooth device, it's not necessary to manually set the new device as default.
 
+Update: Some have wondered what's the relationship of this change with module-switch-on-connect, which is often used to achieve the same result. module-switch-on-connect still exists, and is still not loaded by default (because it has undesirable side effects), and can still be useful to many people. In addition to just making the newly plugged in sound card the default sink, module-switch-on-connect also moves existing streams to the new sink. There are plans to eventually make module-switch-on-connect unnecessary, but for now it remains the only way to automatically move existing streams when plugging in a new sound card.
+
 ### The default sink and source configuration is remembered better
 
 Previously, PulseAudio was bad at remembering the user's choice if they set a hotpluggable device (e.g. a USB sound card) as the default sink or source. Now PulseAudio doesn't forget the default device configuration any more. (Now that hotpluggable devices have higher priority in general, it's less often necessary to do any such manual configuration anyway, but this is an improvement nevertheless.)
