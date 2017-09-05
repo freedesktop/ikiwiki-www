@@ -16,7 +16,7 @@
  * Option to automatically switch bluetooth profile to HSP more often
  * Better latency regulation in module-loopback
  * Changed module argument names in module-ladspa-sink and module-virtual-surround-sink
- * Fixed input device handling in module-waveout
+ * Fixed input device handling on Windows
  * Improved bluetooth MTU configuration (warning! this causes some hardware to not work any more, see the details below for how to fix it)
  * GNU Hurd support
  * Applications can request LADSPA or virtual surround filtering for their streams
@@ -92,7 +92,7 @@ module-loopback will now also try to ensure that the configured latency isn't to
 
 The master sink for module-ladspa-sink and module-virtual-surround-sink is now specified using the "sink_master" module argument instead of "master". The reason for the change is to be consistent with other modules that use "sink_master" as a module argument name. The old "master" module argument continues to work for the time being (a warning will be logged), but the old argument may be removed in the future.
 
-### Fixed input device handling in module-waveout
+### Fixed input device handling on Windows
 
 The Windows audio module, module-waveout, had pretty broken handling for input devices. The module arguments "device" and "device_name" were used for selecting both the input and output device, but the arguments worked properly only for output. Those module arguments have now been replaced by new arguments: "output_device", "output_device_name", "input_device" and "input_device_name". That allows the input device to be configured properly.
 
