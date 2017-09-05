@@ -1,6 +1,6 @@
 [[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
 
-# PulseAudio 11.0 release notes (draft)
+# PulseAudio 11.0 release notes
 
 ## Changes at a glance
 
@@ -129,5 +129,276 @@ This is not enabled by default, because the fix doesn't work on non-glibc system
 ## git shortlog
 
 <pre>
-TODO
+Arun Raghavan (9):
+      build-sys: Enable clang-based builds on Travis
+      sink, source: Add a mode to avoid resampling if possible
+      sink, source: Make rate selection more explicit
+      combine-sink: Use PA_MAX instead of ternary operator for clarity
+      alsa: Avoid creating tiny memchunks on write iterations
+      echo-cancel: Limit the maximum sink/source latency
+      echo-cancel: Fix assert with webrtc's built-in drift compensation
+      echo-cancel: Try to minimise in-flight chunks in snapshot latency
+      padsp: Write only frame-aligned chunks to the stream
+
+Christian Kellner (3):
+      sink: Invert priorities to prefer external devices
+      sink: Add portable form factor priority (450)
+      sink: Add missing 'hifi' form factor to priorities
+
+Colin Leroy (5):
+      rtp: New pa_rtsp_options function
+      raop: Fix sink getting destroyed after one use
+      raop: fix sequence number overflow
+      raop: fix typos
+      raop: Fix packet retransmission
+
+Corentin Noël (2):
+      vala: use the correct syntax
+      echo-cancel: Change the DEVICE_MASTER_DEVICE property when changing device
+
+David Mandelberg (4):
+      remix-test: test the remixer using different flags
+      resampler: Flag for remixing to all sink channels.
+      remix-test: test the remixer with PA_RESAMPLER_NO_FILL_SINK set
+      daemon-conf: add remixing-use-all-sink-channels option
+
+David Michael (1):
+      solaris: Support building on GNU Hurd
+
+Denis Shulyaka (1):
+      pacat: fix a memory issue
+
+Felipe Sateler (1):
+      padsp: allow overriding library install location
+
+Georg Chini (33):
+      bluetooth: Make use of getsockopt() to determine MTU configurable
+      bluez5-device: Use correct constants for fixed latency in PA_{SINK, SOURCE}_MESSAGE_GET_LATENCY
+      loopback: Rename sink_input_buffer to loopback_memblockq_length
+      loopback: correct comments about the thread calling a function
+      loopback: Initialize latency at startup and during source/sink changes
+      loopback: fix up the previous commit
+      bluetooth: use native and ofono backends in parallel with headset=auto
+      bluez5-util: Disconnect AG devices when ofono is started and headset=auto
+      sink-input/source-output: Don't crash when cork() is called without valid sink or source
+      loopback: Fix corking logic of module-loopback
+      loopback: Do not skip audio at startup
+      loopback: Calculate and track minimum possible latency
+      Merge branch 'master' of ssh://git.freedesktop.org/git/pulseaudio/pulseaudio
+      loopback: Add hooks to track port latency offsets
+      sink-input: Allow sink_input_set_rate() to be called during a move
+      loopback: Reset sink input rate when source or sink changes
+      loopback: Implement underrun protection
+      sample.c: Allow module-loopback to exceed PA_RATE_MAX
+      source/sink: Don't let pa_{sink, source}_get_latency_within_thread() return -1 if process_msg() fails
+      source/sink: Allow pa_{source, sink}_get_latency_within_thread() to return negative values
+      bluez5-util: Fix segfault during shutdown of daemon
+      echo-cancel: Fix segfault during profile switch
+      virtual sources and sinks: Fix possible segfault
+      source/sink: Fix wrong calculation of thread_info.current_hw_volume
+      volume: Print a warning when volume is clipped in pa_sw_volume_multiply/divide()
+      volume: Fix overflow in percent calculation of pa_*volume_snprint*()
+      bluez5-device: Correctly handle suspend/resume cyle for audio gateway role of ofono backend
+      virtual sinks and sources: Revert commits
+      virtual sources and sinks: Don't double attach a sink input or source output on filter load
+      sink/source: Don't update default sink/source before calling PA_CORE_HOOK_{SINK,SOURCE}_PUT
+      stream-restore: Ignore sink-inputs/source-outputs that connect a filter to the master
+      tunnel-{sink, source}-new: Fix assertion when used with loopback or combine-sink
+      bluez5-device: lower sink/source priority for Audio gateway or a2dp source
+
+Grzegorz Kolodziejczyk (1):
+      bluez5-device: Log subband count instead of subband flag
+
+Hajime Fujita (14):
+      Support IPv6 address in pa_socket_client_new_string()
+      rtp: Freeing ioline when disconnecting
+      rtp: Introduce pa_rtsp_exec_ready()
+      core-util: add pa_strneq macro
+      core-util: add pa_split_space_in_place function
+      core-util: do in-place search in pa_str_in_list_spaces
+      raop: Add UDP protocol handling
+      raop: Add address to RAOP device description
+      raop: Add IPv6 support
+      raop: Silently drop out-of-history retransmission request
+      raop: Stop recording when RTSP FLUSH is issued
+      raop: Disable is_recording flag when tearing down the connection
+      raop: Discard data upon getting EAGAIN on a socket
+      raop: Fix memory leaks
+
+Hui Wang (1):
+      alsa: make priority of the port headset-mic higher than headphone-mic
+
+Imre Vadász (1):
+      context: Check for errno == ECHILD instead of ESRCH after failed waitpid().
+
+Jungsup Lee (1):
+      allow-passthrough: Fix indentation
+
+Karl Ove Hufthammer (1):
+      i18n: add a Norwegian Nynorsk translation
+
+KimJeongYeon (1):
+      i18n: Update the Korean translation
+
+KimjeongYeon (4):
+      filter-apply: Fix memory leak in process()
+      virtual-surround-sink: Add sink_master argument to enable filter-apply to load the module
+      ladspa-sink: Add sink_master argument to enable filter-apply to load the module
+      filter-apply: Add ability to pass parameters to a filter module
+
+Luiz Augusto von Dentz (7):
+      bluetooth: ofono: Don't attempt to connect if fd is ready
+      bluetooth: ofono: Fix asserting when connecting as AG
+      bluetooth: ofono: Detect if Connect has been called
+      bluetooth: Don't default to native backend
+      bluetooth: Auto recover if profile is 'off'
+      bluetooth: ofono: Close fd if cannot be accepted
+      bluetooth: ofono: Fix failing to parse valid NewConnection
+
+Martin Blanchard (17):
+      raop: Cosmetic fixes / Match coding style
+      raop: Add pulsecore/core-utils a pa_str_in_list function
+      rtp: Random seq number at the beginning of the session
+      raop: Parse server capabilities on discovery
+      raop: Do not send audio before RECORD response
+      raop: Better playback resume handling
+      raop: Extract encryption related code into a separate file
+      raop: Move base64 implementation to a util file
+      raop: Add a MD5 hashing fuction
+      raop: Add BA (Basic) and DA (Digest) HTTP authentication helpers
+      raop: Merge TCP and UDP code paths + refactoring
+      raop: Prefer ALAC encoding to raw PCM if supported by server
+      raop: Update and standardise source file headers
+      raop: Rework packet's store memory management
+      raop: Remove unimplemented code (PCM and AAC)
+      raop: Correctly wrap RTP packet sequence number
+      raop: Add back initial volume RTSP SET_PARAMETER request on connect
+
+Matthias Wabersich (1):
+      raop: Packet retransmission support for UDP
+
+Mihai Moldovan (2):
+      build-sys: FlatCarbon is dead. Good riddance.
+      coreaudio-device: fix improper memory handling leading to crashes.
+
+Milo Casagrande (1):
+      i18n: update the Italian translation
+
+Moo (1):
+      i18n: update the Lithuanian translation
+
+Moritz Bruder (2):
+      waveout: fix wrong input device
+      waveout: add argument deprecation error
+
+Muhammet Kara (1):
+      i18n: Updated Turkish translation
+
+Pali Rohár (1):
+      bluetooth: Add optional heuristic for switching between hsp and a2dp profiles
+
+Paul Seyfert (1):
+      shell-completion: update zsh completion for pasuspender
+
+Peter Meerwald-Stadler (22):
+      build: Add Coverity scan model
+      raop: Fix double free
+      raop: Fix loop searching for port number
+      raop: Fail after search for port number
+      raop: Fix memleak
+      raop: Fix resource leaks
+      raop: Fix potential memory leak
+      raop: Fix indentation
+      raop: Silence unchecked return value warnings
+      raop: Fix potential resource leaks
+      raop: Fix potential NULL dereference
+      build: Use #ifdef to check for #defines
+      core-util: Fix description of pa_split()
+      raop: Fix check for invalid file descriptor
+      raop: Fix potential dereference after NULL check
+      raop: Fix potential NULL dereference
+      raop: Log if pa_atoi() fails, latency is not used anyway
+      raop: Error out on parsing server port component
+      core: Assert return value of pa_shared_set/_remove() in dbus-shared
+      core: Ignore pa_shared_remove() return value
+      oss: Fix dead code
+      pulse: Explicitly ignore pa_mainloop_run() return value in thread function
+
+Philip Chimento (2):
+      build-sys: Move TLS check after flags additions
+      build-sys: Don't override libtoolize
+
+Piotr Drąg (1):
+      i18n: update Polish translation
+
+Rafael Fontenelle (1):
+      i18n: update the Brazilian Portuguese translation
+
+Renjith Thomas (1):
+      bluetooth: fix distorted audio during Bluetooth SCO HFP/HSP playback
+
+Stephen Paul Weber (1):
+      raop: Do not flush when RTSP object is not ready
+
+Takashi Sakamoto (1):
+      alsa: remove double calls of snd_pcm_prepare()
+
+Tanu Kaskinen (36):
+      x11-bell: ignore volume from X11
+      thread-test: fix deadlock
+      alsa-util: don't crash on devices with more than 32 channels
+      iochannel: don't use variable length array in union
+      udev-detect: don't use readdir_r(), it's deprecated
+      dbus: fix card profile change signals
+      bluetooth-policy: retain backwards compatibility
+      bluez5-util: fix profile waiting logic
+      bluetooth: assert that dbus_message_iter_append_basic() doesn't fail
+      bluetooth: allow UTF-8 in device descriptions
+      i18n: update the Swedish translation
+      thread-mainloop: fix volatile use in example
+      pipe-sink: set correct latency
+      protocol-native: log who changes card profiles
+      memblock: multiple references should make blocks read-only
+      ladspa-sink, virtual-surround-sink: fix master sink argument handling
+      alsa: don't assume that hw:x is an analog output
+      improve default sink/source handling
+      core, device-port: check availability when choosing the default device
+      jack-sink: fix latency calculation
+      sink, source: update the default sink/source on port switches
+      sink-input, source-output: don't allow moving streams that are connected to moving filter devices
+      i18n: update the French translation
+      Revert "bluetooth: Auto recover if profile is 'off'"
+      man: fix a copy-paste error
+      man: fix typos: "my" -> "may"
+      man: fix typo: "the" -> "they"
+      fix dbus message leaks
+      core: change configured_default_sink/source type to string
+      protocol-native: fix bytes-to-usec conversion of "on-the-fly" data
+      simple: fix negative latency handling
+      build-sys: bump sonames
+      build-sys: add coverity/model.c to the tarball
+      echo-cancel: don't set latency range if the device doesn't support dynamic latency
+      core: ignore devices that are not linked when choosing the default sink or source
+      update NEWS
+
+Ted Ying (1):
+      simple: Change latency estimation to account for already-read data in pa_simple_get_latency().
+
+Vadim Troshchinskiy (1):
+      conf-parser: provide a replacement for scandir on Win32
+
+Wim Taymans (2):
+      suspend-on-idle: resume on unload
+      backend-native: add support for the HSP Headset role
+
+Yuri Chornoivan (1):
+      i18n: update the Ukrainian translation
+
+ced2c (2):
+      raop: Fix #36: invalid access to freed object
+      raop: Fix #37: OOB access in rtsp_auth_cb
+
+muzena (2):
+      i18n: add Croatian translation
+      i18n: update the Croatian translation
 </pre>
