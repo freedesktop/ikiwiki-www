@@ -5,6 +5,7 @@
 ## Changes at a glance
 
  * New module: module-always-source
+ * When using passthrough for compressed audio, set the "non-audio" bit
  * HSP support for more bluetooth headsets
  * Steelseries Arctis 7 USB headset stereo output support
  * Dell Thunderbolt Dock TB16 speaker jack support
@@ -18,6 +19,10 @@
 The new module makes sure that there's always at least one non-monitor source available in the system. If you're running into situations where there are no "proper" input devices, and you'd rather use a null source that only produces silence as the default input device rather than a monitor source that copies the audio from the default output, this is for you.
 
 module-always-source is not loaded by default.
+
+### When using passthrough for compressed audio, set the "non-audio" bit
+
+When playing compressed audio through S/PDIF or HDMI, it should be indicated that the data is not normal uncompressed audio, otherwise the receiver might play some horrible noise. It seems that PulseAudio never set the "non-audio" bit properly. There hasn't been any complaints about this until recently, so apparently receivers generally detect compressed audio pretty well even without the "non-audio" bit being set, but in any case, now PulseAudio does set that bit.
 
 ### HSP support for more bluetooth headsets
 
