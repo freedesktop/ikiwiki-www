@@ -6,6 +6,7 @@
 
  * Dell Thunderbolt Dock TB16 speaker jack support
  * Fixed digital input support for some USB sound cards
+ * State files not any more readable by all users in the system mode
 
 ## Notes for end users
 
@@ -16,6 +17,12 @@ TB16 has a speaker jack that PulseAudio didn't previously make available by defa
 ### Fixed digital input support for some USB sound cards
 
 Some USB sound cards require the "PCM Capture Source" control in the ALSA mixer to be set to "IEC958 In" in order to be able to record from the digital input, but PulseAudio didn't do that. Now it does.
+
+### State files not any more readable by all users in the system mode
+
+PulseAudio used to set the process umask to 022. That meant that the state files that PulseAudio writes on disk were readable by all users when running PulseAudio in the "system mode", i.e. only one instance that all users share. Now the umask is 077, so users can't read the state files any more, which is a slight improvement in privacy, because the state files might contain e.g. information about what applications users use.
+
+The umask change also affects the file permissions in the default setup where each user runs their own PulseAudio instance, but in that mode the files are written in a directory that other users can't access, so there shouldn't be any practical difference.
 
 ## Notes for application developers
 
