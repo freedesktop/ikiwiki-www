@@ -73,7 +73,7 @@ The file format begins with a header structure. After the header structure objec
     };
 
 * A **DATA** object, which encapsulates the contents of one field of an entry, i.e. a string such as `_SYSTEMD_UNIT=avahi-daemon.service`, or `MESSAGE=Foobar made a booboo.` but possibly including large or binary data, and always prefixed by the field name and "=".
-* A **FIELD** object, which encapsulates a field name, i.e. a string such as `_SYSTEMD_UNIT` or "MESSAGE", without any `=` or even value.
+* A **FIELD** object, which encapsulates a field name, i.e. a string such as `_SYSTEMD_UNIT` or `MESSAGE`, without any `=` or even value.
 * An **ENTRY** object, which binds several **DATA** objects together into a log entry.
 * A **DATA_HASH_TABLE** object, which encapsulates a hash table for finding existing **DATA** objects.
 * A **FIELD_HASH_TABLE** object, which encapsulates a hash table for finding existing **FIELD** objects.
@@ -223,11 +223,11 @@ The **type** field is one of the object types listed above. The **flags** field 
             uint8_t payload[];
     };
 
-Data objects carry actual field data in the **payload[]** array, including a field name, a '=' and the field data. Example: "_SYSTEMD_UNIT=foobar.service". The **hash** field is a hash value of the payload.
+Data objects carry actual field data in the **payload[]** array, including a field name, a '=' and the field data. Example: `_SYSTEMD_UNIT=foobar.service`. The **hash** field is a hash value of the payload.
 
 **next_hash_offset** is used to link up DATA objects in the DATA_HASH_TABLE if a hash collision happens (in a singly linked list, with an offset of 0 indicating the end). **next_field_offset** is used to link up data objects with the same field name from the FIELD object of the field used.
 
-**entry_offset** is an offset to the first ENTRY object referring to this DATA object. **entry_array_offset** is an offset to an ENTRY_ARRAY object with offsets to other entries referencing this DATA object. Storing the offset to the first ENTRY object in-line is an optimization given that many DATA objects will be referenced from a single entry only (for example, MESSAGE= frequently includes a practically unique string). **n_entries** is a counter of the total number of ENTRY objects that reference this object, i.e. the sum of all ENTRY_ARRAYS chained up from this object, plus 1.
+**entry_offset** is an offset to the first ENTRY object referring to this DATA object. **entry_array_offset** is an offset to an ENTRY_ARRAY object with offsets to other entries referencing this DATA object. Storing the offset to the first ENTRY object in-line is an optimization given that many DATA objects will be referenced from a single entry only (for example, `MESSAGE=` frequently includes a practically unique string). **n_entries** is a counter of the total number of ENTRY objects that reference this object, i.e. the sum of all ENTRY_ARRAYS chained up from this object, plus 1.
 
 The **payload[]** field contains the field name and date unencoded, unless OBJECT_COMPRESSED is set in the [[ObjectHeader|ObjectHeader]], in which case the payload is LZMA compressed.
 
@@ -244,7 +244,7 @@ The **payload[]** field contains the field name and date unencoded, unless OBJEC
 
 Field objects are used to enumerate all possible values a certain field name can take in the entire journal file.
 
-The **payload[]** array contains the actual field name, without '=' or any field value. Example: "_SYSTEMD_UNIT". The **hash** field is a hash value of the payload.
+The **payload[]** array contains the actual field name, without '=' or any field value. Example: `_SYSTEMD_UNIT`. The **hash** field is a hash value of the payload.
 
 **next_hash_offset** is used to link up FIELD objects in the FIELD_HASH_TABLE if a hash collision happens (in singly linked list, offset 0 indicating the end). **head_data_offset** points to the first DATA object that shares this field name. It is the head of a singly linked list using DATA's **next_field_offset** offset.
 
