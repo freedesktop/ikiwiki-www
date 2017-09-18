@@ -34,6 +34,8 @@ The prioritization of sinks and sources has been changed so that USB and bluetoo
 
 Update: Some have wondered what's the relationship of this change with module-switch-on-connect, which is often used to achieve the same result. module-switch-on-connect still exists, and is still not loaded by default (because it has undesirable side effects), and can still be useful to many people. In addition to just making the newly plugged in sound card the default sink, module-switch-on-connect also moves existing streams to the new sink. There are plans to eventually make module-switch-on-connect unnecessary, but for now it remains the only way to automatically move existing streams when plugging in a new sound card.
 
+Another update: Most USB devices weren't prioritized over built-in sound cards in 11.0 after all. This should be finally working in 11.1.
+
 ### The default sink and source configuration is remembered better
 
 Previously, PulseAudio was bad at remembering the user's choice if they set a hotpluggable device (e.g. a USB sound card) as the default sink or source. Now PulseAudio doesn't forget the default device configuration any more. (Now that hotpluggable devices have higher priority in general, it's less often necessary to do any such manual configuration anyway, but this is an improvement nevertheless.)
@@ -103,6 +105,8 @@ The Windows audio module, module-waveout, had pretty broken handling for input d
 The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses with the bluetooth HSP profile was previously always configured to be 48 bytes. That worked with most hardware, but some adapters require a different packet size. Now PulseAudio asks the kernel what packet size should be used, which fixes the problem.
 
 However, a new problem appeared: some adapters that used to work with 48 byte packet size don't any more work with the size that the kernel tells PulseAudio to use. If you find that HSP audio stopped working when upgrading to PulseAudio 11.0, you can revert to the old behaviour by passing option "autodetect_mtu=no" to module-bluetooth-discover in /etc/pulse/default.pa. If that fixes the problem, then please report the problem to the BlueZ and/or PulseAudio developers, so that the kernel can be fixed.
+
+Update: We decided to disable the MTU autodetection in 11.1 by default, because the feature caused too much problems and it looked like the kernel would not really get fixed even when people reported issues.
 
 ### GNU Hurd support
 
