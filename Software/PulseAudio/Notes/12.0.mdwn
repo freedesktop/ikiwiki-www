@@ -6,6 +6,7 @@
 
  * Much more accurate latency reporting for AirPlay devices
  * When using passthrough for compressed audio, set the "non-audio" bit
+ * Prioritize HDMI output over S/PDIF output
  * HSP support for more bluetooth headsets
  * Steelseries Arctis 7 USB headset stereo output support
  * Dell Thunderbolt Dock TB16 speaker jack support
@@ -27,6 +28,10 @@ TODO: We should provide an easy way for users to figure out the device identifie
 ### When using passthrough for compressed audio, set the "non-audio" bit
 
 When playing compressed audio through S/PDIF or HDMI, it should be indicated that the data is not normal uncompressed audio, otherwise the receiver might play some horrible noise. It seems that PulseAudio never set the "non-audio" bit properly. There hasn't been any complaints about this until recently, so apparently receivers generally detect compressed audio pretty well even without the "non-audio" bit being set, but in any case, now PulseAudio does set that bit.
+
+### Prioritize HDMI output over S/PDIF output
+
+HDMI output is probably used more often than S/PDIF output, so if PulseAudio has to pick one, it's better to pick HDMI. Previously S/PDIF had higher priority than HDMI.
 
 ### HSP support for more bluetooth headsets
 
