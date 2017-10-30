@@ -10,9 +10,9 @@ D-Bus is a message bus system, a simple way for applications to talk to one anot
 
 D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, or through unencrypted TCP/IP suitable for use behind a firewall with shared NFS home directories. (Help wanted with [[better remote transports|Software/DBusRemote]] - the transport mechanism is well-abstracted and extensible.) 
 
-The D-Bus [[low-level API reference implementation|http://dbus.freedesktop.org/doc/api/html/index.html]] and [[protocol|http://dbus.freedesktop.org/doc/dbus-specification.html]] have been heavily tested in the real world over several years, and are now "set in stone." Future changes will either be compatible or versioned appropriately. 
+The dbus [[low-level API reference implementation|http://dbus.freedesktop.org/doc/api/html/index.html]] and the D-Bus [[protocol|http://dbus.freedesktop.org/doc/dbus-specification.html]] have been heavily tested in the real world over several years, and are now "set in stone." Future changes will either be compatible or versioned appropriately. 
 
-The low-level libdbus reference implementation has no required dependencies; the bus daemon's only *required* dependency is an XML parser (expat). Higher-level bindings specific to particular frameworks (Qt, GLib, Java, C#, Python, etc.) add more dependencies, but can make more assumptions and are thus much simpler to use. The bindings evolve separately from the low-level libdbus, so some are more mature and ABI-stable than others; check the docs for the binding you plan to use. 
+The low-level libdbus reference library has no required dependencies; the reference bus daemon's only *required* dependency is an XML parser (expat). Higher-level bindings specific to particular frameworks (Qt, GLib, Java, C#, Python, etc.) add more dependencies, but can make more assumptions and are thus much simpler to use. The bindings evolve separately from the low-level libdbus, so some are more mature and ABI-stable than others; check the docs for the binding you plan to use. 
 
 There are also some reimplementations of the D-Bus protocol for languages such as C#, Java, and Ruby. These do not use the libdbus reference implementation. 
 
@@ -59,7 +59,7 @@ Generic D-Bus protocol information:
 * Some [[tools|Software/DbusTools]] for working with D-Bus. 
 Please note that the D-Bus spec is incomplete, especially in its description of the message bus daemon. The spec for the protocol itself is reasonably complete, though not always clear or precise. Your patches are welcome! In the meantime, you may need to supplement your reading of the spec with a reading of the reference implementation source code. 
 
-Docs specific to the reference implementation: 
+Docs specific to the reference implementation, dbus:
 
 * [[API reference manual for the reference implementation (libdbus)|http://dbus.freedesktop.org/doc/api/html/index.html]] 
 * [[@todo items from reference implementation manual|http://dbus.freedesktop.org/doc/api/html/todo.html]] and high-level [[TODO|http://dbus.freedesktop.org/doc/TODO]] 
@@ -85,35 +85,31 @@ Articles from around the web, including some tutorials:
 # Download
 
 
-## Reference Implementation (dbus-daemon and libdbus)
+## Reference Implementation (dbus, incorporating dbus-daemon and libdbus)
 
-Released versions of D-Bus can be downloaded from the [[releases directory on dbus.freedesktop.org|http://dbus.freedesktop.org/releases/dbus/]] and are available in all major Linux distributions. If in doubt, use your distribution's packages. 
+dbus is the reference implementation of D-Bus. Released versions can be downloaded from the [[releases directory on dbus.freedesktop.org|http://dbus.freedesktop.org/releases/dbus/]] and are available in all major Linux distributions. If in doubt, use your distribution's packages. 
 
-The current **stable** branch is [[D-Bus 1.10.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=dbus-1.10]]. This is the recommended version for most purposes. 
+The current **stable** branch is [[D-Bus 1.12.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=dbus-1.12]]. This is the recommended version for most purposes. 
 
-The current **legacy** branch is [[D-Bus 1.8.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=dbus-1.8]]. This is still supported, but only for security fixes: only use these versions when upgrading from older stable releases, or preparing security updates for frozen/stable distributions.
+The current **legacy** branches are [[D-Bus 1.10.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=dbus-1.10]] and [[D-Bus 1.8.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=dbus-1.8]]. These are still supported, but only for security fixes: only use these versions when upgrading from older stable releases, or preparing security updates for frozen/stable distributions.
 
 Older branches are unsupported and are unlikely to have any more releases, but distributors who still provide security support for an older version are invited to share backported patches via the older branches in the same git repository.
 
-The current **development** branch is  [[D-Bus 1.11.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=master]], which will lead to a 1.12.x stable branch in future.
+The current **development** branch is  [[D-Bus 1.13.x|http://cgit.freedesktop.org/dbus/dbus/tree/NEWS?h=master]], which will lead to a 1.14.x stable branch in future.
+
+### Windows port
+
+The Windows port from the windbus and dbus4win projects was merged into the freedesktop dbus development branch several years ago, and is released as part of dbus. Thanks to all the past and current contributors to that port.
+
+The Windows port is knowing to work on Windows XP, Windows Vista and Windows 7, supported compiler/sdk are MSVC 2010, mingw-w32/w64(gcc) and cygwin(gcc). ''TODO: These need updating.''
+
+Everyone interested in having stable dbus on windows is invited to test the implementation, to reports bugs and/or to file patches. 
 
 ## Bindings and Independent Implementations
 
 Bindings and independent implementations are linked to from the [[Bindings Page|Software/DBusBindings]]. 
 
-A binding wraps libdbus (and thus automatically gets e.g. new authentication mechanisms and other additions to libdbus), while a reimplementation codes the protocol from scratch (and thus avoids a dependency on the libdbus C library, but has to be kept in sync with new features). We are working on a hybrid approach where libdbus can be used to set up connections but bindings don't use the message queue or message marshaling from libdbus. 
-
-
-# Windows port
-
-The Windows port from the windbus and dbus4win projects has been merged into the freedesktop dbus development branch and the spec has been updated with windows specific stuff. Many thanks to the people who worked on the windows port (in alphabetic order): 
-
-Marcus Brinkmann, Nguyễn Thái Ngọc Duy, Christian Ehrlicher, Peter Kümmel, Tor Lillqvist, Ralf Habacker, Frank Osterfeld, Marc Mutz, Romain Pokrzywka, Ole André Vadla Ravnås, Sebastian Sauer 
-
-The windows port is knowing to work on Windows XP, Windows Vista and Windows 7, supported compiler/sdk are MSVC 2010, mingw-w32/w64(gcc) and cygwin(gcc). 
-
-Everyone interested in having stable dbus on windows is invited to test the implementation, to reports bugs and/or to file patches. 
-
+A binding wraps libdbus (and thus automatically gets e.g. new authentication mechanisms and other additions to libdbus), while a reimplementation codes the protocol from scratch (and thus avoids a dependency on the libdbus C library, but has to be kept in sync with new features).
 
 # Grab the Source
 
