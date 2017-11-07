@@ -2,7 +2,12 @@
 
 > *aka "I want to make use of kernel cgroups, how do I do this in the new world order?"*
 
-Starting with version 205 systemd provides a number of interfaces that may be used to create and manage labelled groups of processes for the purpose of monitoring and controlling them and their resource usage. This is built on top of the Linux kernel Control Groups ("cgroups") facility. Previously, the kernel's cgroups API was exposed directly as application API, following the rules of the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document. However, the kernel cgroup interface is in the process of being reworked into an API that requires a single writer in userspace managing it. With this change the cgroup tree becomes private property of that userspace component and is no longer a shared resource. On systemd systems PID 1 takes this role and hence needs to provide APIs for clients to take benefit of the control groups functionality of the kernel.
+Starting with version 205 systemd provides a number of interfaces that may be used to create and manage labelled groups of processes for the purpose of monitoring and controlling them and their resource usage. This is built on top of the Linux kernel Control Groups ("cgroups") facility. Previously, the kernel's cgroups API was exposed directly as shared application API, following the rules of the [[Pax Control Groups|http://www.freedesktop.org/wiki/Software/systemd/PaxControlGroups/]] document. However, the kernel cgroup interface has been reworked into an API that requires that each individual cgroup is managed by a single writer only. With this change the main cgroup tree becomes private property of that userspace component and is no longer a shared resource. On systemd systems PID 1 takes this role and hence needs to provide APIs for clients to take benefit of the control groups functionality of the kernel. Note that services running on systemd systems may manage their own subtrees of the cgroups tree, as long as they explicitly turn on delegation mode for them (see below). 
+
+That means explicitly, that:
+
+1. The root control group may only be written to by systemd (PID 1). Services that create and manipulate control groups in the top level cgroup are in direct conflict with the kernel's requirement that each control group should have a single-writer only.
+2. Services must set Delegate=yes for the units they intend to manage subcgroups of. If they create and manipulate cgroups outside of units that have Delegate=yes set, they violate the access contract for control groups.
 
 For a more high-level background story, please have a look at this [[Linux Foundation News Story|http://www.linuxfoundation.org/news-media/blogs/browse/2013/08/all-about-linux-kernel-cgroup%E2%80%99s-redesign]].
 
@@ -217,7 +222,7 @@ Scope units implement a special `Abandon()` method call. This method call is use
 
 ### Delegation
 
-Service and scope units know a special `Delegate` boolean property. If set, then the processes inside the scope or service may control their own control group subtree. The effect of the property is that: 
+Service and scope units know a special `Delegate` boolean property. If set, then the processes inside the scope or service may control their own control group subtree (that means: create subcgroups directly via /sys/fs/cgroup). The effect of the property is that: 
 
 1. All controllers systemd knows are enabled for that scope/service, if the scope/service runs privileged code.
 2. Access to the cgroup directory of the scope/service is permitted, and files/and directories are updated to get write access for the user specified in `User=` if the scope/unit runs unprivileged. Note that in this case access to any controllers is not available.
