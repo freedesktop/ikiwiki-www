@@ -8,6 +8,7 @@
  * When using passthrough for compressed audio, set the "non-audio" bit
  * Prioritize HDMI output over S/PDIF output
  * HSP support for more bluetooth headsets
+ * Choose the A2DP bluetooth profile by default instead of HSP
  * Steelseries Arctis 7 USB headset stereo output support
  * Dell Thunderbolt Dock TB16 speaker jack support
  * Fixed digital input support for some USB sound cards
@@ -34,6 +35,10 @@ HDMI output is probably used more often than S/PDIF output, so if PulseAudio has
 ### HSP support for more bluetooth headsets
 
 When connecting a bluetooth headset, the headset sends a list of features that it supports. Headsets can indicate HSP support in two different ways, but PulseAudio used to recognize only one way, so to PulseAudio it seemed that some headsets didn't support HSP even when in reality they did. Now both kinds of headsets are supported.
+
+### Choose the A2DP bluetooth profile by default instead of HSP
+
+When connecting a new bluetooth headset, PulseAudio used to activate the HSP profile by default. Now A2DP has higher priority. A2DP is a better default, because it has better audio quality. HSP is needed with phone applications, but we already have automatic profile switching when a phone application appears, so using A2DP as the default profile shouldn't cause problems even when using bluetooth primarily for phone calls.
 
 ### Steelseries Arctis 7 USB headset stereo output support
 
