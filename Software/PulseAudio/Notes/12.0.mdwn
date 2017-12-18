@@ -16,6 +16,7 @@
  * New "dereverb" option for the Speex echo canceller
  * New module: module-always-source
  * State files not any more readable by all users in the system mode
+ * module-augment-properties now uses XDG_DATA_DIRS to find .desktop files
  * qpaeq license changed from AGPL to LGPL
 
 ## Notes for end users
@@ -73,6 +74,10 @@ module-always-source is not loaded by default.
 PulseAudio used to set the process umask to 022. That meant that the state files that PulseAudio writes on disk were readable by all users when running PulseAudio in the "system mode", i.e. only one instance that all users share. Now the umask is 077, so users can't read the state files any more, which is a slight improvement in privacy, because the state files might contain e.g. information about what applications users use.
 
 The umask change also affects the file permissions in the default setup where each user runs their own PulseAudio instance, but in that mode the files are written in a directory that other users can't access, so there shouldn't be any practical difference.
+
+### module-augment-properties now uses XDG_DATA_DIRS to find .desktop files
+
+module-augment-properties reads [[.desktop files|https://standards.freedesktop.org/desktop-entry-spec/latest/]] to get more information about applications that connect to the server. Previously the .desktop files were searched only from one fixed location (/usr/share/applications), but now the module supports also the XDG_DATA_DIRS environment variable for specifying additional search paths.
 
 ## Notes for application developers
 
