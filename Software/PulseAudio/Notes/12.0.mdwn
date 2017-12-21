@@ -10,6 +10,7 @@
  * Prioritize HDMI output over S/PDIF output
  * HSP support for more bluetooth headsets
  * Choose the A2DP bluetooth profile by default instead of HSP
+ * New "sink_input_properties" module argument for module-ladspa-sink
  * Steelseries Arctis 7 USB headset stereo output support
  * Dell Thunderbolt Dock TB16 speaker jack support
  * Fixed digital input support for some USB sound cards
@@ -19,6 +20,7 @@
  * State files not any more readable by all users in the system mode
  * module-augment-properties now uses XDG_DATA_DIRS to find .desktop files
  * qpaeq license changed from AGPL to LGPL
+ * qpaeq ported to Qt 5
 
 ## Notes for end users
 
@@ -47,6 +49,10 @@ When connecting a bluetooth headset, the headset sends a list of features that i
 ### Choose the A2DP bluetooth profile by default instead of HSP
 
 When connecting a new bluetooth headset, PulseAudio used to activate the HSP profile by default. Now A2DP has higher priority. A2DP is a better default, because it has better audio quality. HSP is needed with phone applications, but we already have automatic profile switching when a phone application appears, so using A2DP as the default profile shouldn't cause problems even when using bluetooth primarily for phone calls.
+
+### New "sink_input_properties" argument for module-ladspa-sink
+
+The new "sink_input_properties" argument for module-ladspa-sink makes it possible to control the properties that are set on the sink input that the module creates. For example, passing "sink_input_properties=media.name=foo" sets the stream description to "foo", which will be shown in volume control applications.
 
 ### Steelseries Arctis 7 USB headset stereo output support
 
@@ -93,6 +99,10 @@ Nothing here yet...
 ### qpaeq license changed from AGPL to LGPL
 
 Most of PulseAudio's code is licensed under LGPLv2.1, but the equalizer GUI qpaeq was licensed under AGPL. qpaeq is now licensed under LGPLv2.1, so there's one less exception in PulseAudio's licensing terms.
+
+### qpaeq ported to Qt 5
+
+qpaeq used to depend on Qt 4, which was not nice, since the Qt project has stopped supporting the 4.x releases. qpaeq has now been ported to Qt 5.
 
 ## git shortlog
 
