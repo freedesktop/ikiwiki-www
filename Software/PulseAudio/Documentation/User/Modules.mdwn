@@ -948,6 +948,39 @@ This is a compatibility module for libesd based autospawning of PulseAudio. Don'
 This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
 
 
+### module-filter-apply
+
+Tracks when a stream is created, moved and properties list changed.
+
+Checks if this is a group filter, which uses a paired source and sink and therefore requires a paired source output and sink input.
+In this case, the filter is loaded only if the paired stream exists as well.
+
+Two streams are considered paired if they have the same "filter.apply" property and the same stream group identifier.
+Currently, the only group filter is "echo-cancel".
+
+Checks if the user did specify additional module paraterer via the "filter.apply.<filter_name>.parameters" property.
+
+Loads the "module-<filter_name>" module. The "master" or the "source_master" and "sink_master" arguments are set to the name of the source or sink to which the stream or paired streams are currently connected.
+If the user did specify additional parameters, they are also passed to the module.
+
+Finds the newly loaded filter source or sink.
+
+Moves the stream or paired streams to the filter source or sink.
+
+Parameters:
+
+* autoclean
+    * Unload unused filters every ten seconds if true. Default: true.
+
+### module-filter-heuristics
+
+Tracks when a stream is created or moved.
+
+Converts the "filter.want" to "filter.apply" property, unless is filtered out.
+
+The filtering list is hard-coded, and currently there is only one situation where "echo-cancel" is filtered out for "phone" intended role.
+
+
 ### module-loopback
 
 **Since 0.9.16.** This allows one to route audio from a source directly back to a sink.
