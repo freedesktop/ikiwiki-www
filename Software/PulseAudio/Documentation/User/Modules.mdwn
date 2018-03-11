@@ -902,67 +902,26 @@ The second link contains many HRIR files that where recorded using real heads. Y
 
 ## Miscellaneous
 
+### module-allow-passthrough
 
-### module-sine
+**Since 10.0**. This module ensures that [passthrough streams](../Passthrough)  are always allowed to play on sinks. The default policy in PulseAudio is to only allow exclusive access if nothing else is currently using the sink. With this module, all the existing streams are muted (by being re-routed to the null sink) when a passthrough stream comes in, allowing the passthrough stream to exclusively use the sink.
 
-Creates a sink input and generates a sine waveform stream.
-
-* sink
-   * The sink to connect to. If omitted defaults to the default sink.
-* frequency
-   * The frequency to generate in Hertz. Defaults to 440.
-
-### module-sine-source
-
-Creates a source and generates a sine waveform stream.
-
-* source_name
-   * Name for the source. (defaults to sine_input)
-* rate
-   * Sample rate for the source.
-* frequency
-   * The frequency to generate in Hertz. Defaults to 440.
-
-### module-esound-compat-spawnfd
-
-This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
+This is particularly useful with media centers and HTPC boxes (e.g. [Kodi media center](http://kodi.wiki/view/PulseAudio#Passthrough_Mode)) where we usually always want to be able to start a video even if an external notification sound happened to be playing at the same time.
 
 
-### module-esound-compat-spawnpid
+### module-always-sink
 
-This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
+**Since 0.9.11.** Always keeps at least one sink loaded even if it's a null one
 
-
-### module-match
-
-Adjust the volume of a playback stream automatically based on its name.
-
-* table
-   * The regular expression matching table file to use (defaults to ~/.pulse/match.table)
-
-The table file should contain a regexp and volume on each line, separated by spaces. An example:
-
-    ^sample: 32000
-
-The volumes of all streams with titles starting with sample: are automatically set to 32000. (FYI: All sample cache streams start with sample:)
+* sink_name
+   * The name for the new virtual sink.
 
 
-### module-udev-detect
+### module-console-kit
 
-**Since 0.9.16.** Detects ALSA audio devices on the system using [[udev|http://en.wikipedia.org/wiki/Udev]].
+**Since 0.9.11.** Create a client for each [[ConsoleKit|ConsoleKit]] session of this user
 
- * tsched
-    * Enable timer based scheduling?
- * tsched_buffer_size
-    * **Since 4.0.** Buffer size in bytes when timer based scheduling is enabled.
- * fixed_latency_range
-    * **Since 2.0.** Boolean. Normally when there's an alsa underrun or overrun, and timer based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
- * ignore_dB
-    * Ignore the decibel information that ALSA provides?
- * deferred_volume
-    * **Since 1.0.** Synchronize sw and hw volume changes?
- * use_ucm
-    * **Since 4.0.** PulseAudio uses ALSA UCM configuration by default if it's available. This argument can be used to disable UCM.
+This module doesn't do anything on systems that use systemd, so this module can be loaded at the same time with module-systemd-login.
 
 
 ### module-detect
@@ -978,57 +937,49 @@ The parameter:
 * just-one
    * If set to 1 the module will only try to load a single sink/source and than stop.
 
-### module-zeroconf-publish
 
-Publish all local sinks/sources using mDNS Zeroconf. For more information, see [[Network Setup|Software/PulseAudio/Documentation/User/Network]].
+### module-esound-compat-spawnfd
 
-
-### module-zeroconf-discover
-
-Discover sinks/sources on other [[PulseAudio|PulseAudio]] servers using mDNS Zeroconf.
+This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
 
 
-### module-rescue-streams
+### module-esound-compat-spawnpid
 
-Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink.
-
-
-### module-systemd-login
-
-**Since 2.0.** Create a client for each login session of this user.
-
-This module doesn't do anything on systems that don't use systemd, so this module can be loaded at the same time with module-console-kit.
+This is a compatibility module for libesd based autospawning of PulseAudio. Don't use it directly.
 
 
-### module-console-kit
+### module-filter-apply
 
-**Since 0.9.11.** Create a client for each [[ConsoleKit|ConsoleKit]] session of this user
+Tracks when a stream is created, moved and properties list changed.
 
-This module doesn't do anything on systems that use systemd, so this module can be loaded at the same time with module-systemd-login.
+Checks if this is a group filter, which uses a paired source and sink and therefore requires a paired source output and sink input.
+In this case, the filter is loaded only if the paired stream exists as well.
 
+Two streams are considered paired if they have the same "filter.apply" property and the same stream group identifier.
+Currently, the only group filter is "echo-cancel".
 
-### module-position-event-sounds
+Checks if the user did specify additional module paraterer via the "filter.apply.<filter_name>.parameters" property.
 
-**Since 0.9.11.** Position event sounds between L and R depending on the position on screen of the widget triggering them.
+Loads the "module-<filter_name>" module. The "master" or the "source_master" and "sink_master" arguments are set to the name of the source or sink to which the stream or paired streams are currently connected.
+If the user did specify additional parameters, they are also passed to the module.
 
+Finds the newly loaded filter source or sink.
 
-### module-always-sink
+Moves the stream or paired streams to the filter source or sink.
 
-**Since 0.9.11.** Always keeps at least one sink loaded even if it's a null one
+Parameters:
 
-* sink_name
-   * The name for the new virtual sink.
+* autoclean
+    * Unload unused filters every ten seconds if true. Default: true.
 
-### module-suspend-on-idle
+### module-filter-heuristics
 
-**Since 0.9.11.** Disconnects sinks and sources from their backend after a predetermined amount of idle time. Idle time is accumulated when the sink/source in question is not connected to any streams.
+Tracks when a stream is created or moved.
 
-Advantages: Saves power. ALSA uses considerably more CPU cycles when pulseaudio has to send empty data to the soundcard during idle. If you don't plan to have an active stream all the time, set the timer to a low value for best power savings.
+Converts the "filter.want" to "filter.apply" property, unless is filtered out.
 
-Disadvantages: When pulseaudio gives up the backend, and the backend is not capable of mixing, errant applications can grab the sound device and hold exclusive control over it, making pulseaudio stop working. If pulseaudio does not give up the backend, errant applications won't be able to play sound, but they will not disrupt pulseaudio's operation either. This scenario is possible 99% of the time, since most users run an ALSA sink/source without a card that has software mixing. An "errant application" would, for example, try to open hw:0 or front:0 rather than the 'default' ALSA device.
+The filtering list is hard-coded, and currently there is only one situation where "echo-cancel" is filtered out for "phone" intended role.
 
-* timeout
-   * Time, in seconds, which must elapse before a sink or source is deemed idle.
 
 ### module-loopback
 
@@ -1061,12 +1012,30 @@ Disadvantages: When pulseaudio gives up the backend, and the backend is not capa
 * remix
    * **Since 1.0.** Takes a boolean value. If the channel map of the capture stream doesn't match the source's channel map, or the channel map of the playback stream doesn't match the sink's channel map, the mismatch has to be handled somehow. If remixing isn't disabled in the global server configuration, by default the audio will get remixed. This parameter can be used to disable remixing for the loopback streams (but if remixing is disabled in the global server configuration, this parameter can't be used for forcing remixing - setting this parameter simply has no effect at all).
 
-### module-switch-on-connect
 
-Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source.
+### module-match
 
-* only_from_unavailable
-   * Takes a boolean value. If set to true, the device switch is only done if the current default device is currently marked as unavailable.
+Adjust the volume of a playback stream automatically based on its name.
+
+* table
+   * The regular expression matching table file to use (defaults to ~/.pulse/match.table)
+
+The table file should contain a regexp and volume on each line, separated by spaces. An example:
+
+    ^sample: 32000
+
+The volumes of all streams with titles starting with sample: are automatically set to 32000. (FYI: All sample cache streams start with sample:)
+
+
+### module-position-event-sounds
+
+**Since 0.9.11.** Position event sounds between L and R depending on the position on screen of the widget triggering them.
+
+
+### module-rescue-streams
+
+Automatically route a stream whose sink has become unavailable (e.g. USB hw plugged out) to another working sink.
+
 
 ### module-role-ducking
 
@@ -1081,8 +1050,79 @@ This module lowers the volume of less important streams when a more important st
 * volume
    * Attenuation to be used while ducking. The value can be given either as a percentage (for example, "40%"), in decibels (for example, "-20dB") or as a plain integer between 0 and 65536 (this is the representation that PulseAudio uses for volume internally).
 
-### module-allow-passthrough
 
-**Since 10.0**. This module ensures that [passthrough streams](../Passthrough)  are always allowed to play on sinks. The default policy in PulseAudio is to only allow exclusive access if nothing else is currently using the sink. With this module, all the existing streams are muted (by being re-routed to the null sink) when a passthrough stream comes in, allowing the passthrough stream to exclusively use the sink.
+### module-sine
 
-This is particularly useful with media centers and HTPC boxes (e.g. [Kodi media center](http://kodi.wiki/view/PulseAudio#Passthrough_Mode)) where we usually always want to be able to start a video even if an external notification sound happened to be playing at the same time.
+Creates a sink input and generates a sine waveform stream.
+
+* sink
+   * The sink to connect to. If omitted defaults to the default sink.
+* frequency
+   * The frequency to generate in Hertz. Defaults to 440.
+
+
+### module-sine-source
+
+Creates a source and generates a sine waveform stream.
+
+* source_name
+   * Name for the source. (defaults to sine_input)
+* rate
+   * Sample rate for the source.
+* frequency
+   * The frequency to generate in Hertz. Defaults to 440.
+
+
+### module-suspend-on-idle
+
+**Since 0.9.11.** Disconnects sinks and sources from their backend after a predetermined amount of idle time. Idle time is accumulated when the sink/source in question is not connected to any streams.
+
+Advantages: Saves power. ALSA uses considerably more CPU cycles when pulseaudio has to send empty data to the soundcard during idle. If you don't plan to have an active stream all the time, set the timer to a low value for best power savings.
+
+Disadvantages: When pulseaudio gives up the backend, and the backend is not capable of mixing, errant applications can grab the sound device and hold exclusive control over it, making pulseaudio stop working. If pulseaudio does not give up the backend, errant applications won't be able to play sound, but they will not disrupt pulseaudio's operation either. This scenario is possible 99% of the time, since most users run an ALSA sink/source without a card that has software mixing. An "errant application" would, for example, try to open hw:0 or front:0 rather than the 'default' ALSA device.
+
+* timeout
+   * Time, in seconds, which must elapse before a sink or source is deemed idle.
+
+
+### module-switch-on-connect
+
+Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source.
+
+* only_from_unavailable
+   * Takes a boolean value. If set to true, the device switch is only done if the current default device is currently marked as unavailable.
+
+
+### module-systemd-login
+
+**Since 2.0.** Create a client for each login session of this user.
+
+This module doesn't do anything on systems that don't use systemd, so this module can be loaded at the same time with module-console-kit.
+
+
+### module-udev-detect
+
+**Since 0.9.16.** Detects ALSA audio devices on the system using [[udev|http://en.wikipedia.org/wiki/Udev]].
+
+ * tsched
+    * Enable timer based scheduling?
+ * tsched_buffer_size
+    * **Since 4.0.** Buffer size in bytes when timer based scheduling is enabled.
+ * fixed_latency_range
+    * **Since 2.0.** Boolean. Normally when there's an alsa underrun or overrun, and timer based scheduling is used, the alsa sink or source will raise the minimum latency that applications can get to avoid further underruns or overruns. If this option is enabled, the minimum latency will stay constant even if underruns or overruns occur.
+ * ignore_dB
+    * Ignore the decibel information that ALSA provides?
+ * deferred_volume
+    * **Since 1.0.** Synchronize sw and hw volume changes?
+ * use_ucm
+    * **Since 4.0.** PulseAudio uses ALSA UCM configuration by default if it's available. This argument can be used to disable UCM.
+
+
+### module-zeroconf-discover
+
+Discover sinks/sources on other [[PulseAudio|PulseAudio]] servers using mDNS Zeroconf.
+
+
+### module-zeroconf-publish
+
+Publish all local sinks/sources using mDNS Zeroconf. For more information, see [[Network Setup|Software/PulseAudio/Documentation/User/Network]].
