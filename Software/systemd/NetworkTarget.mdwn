@@ -41,21 +41,26 @@ Whenever systemd encounters a `$network` dependency in LSB headers of init scrip
 
 For more details, see the [[systemd.special(7)|http://www.freedesktop.org/software/systemd/man/systemd.special.html]] man page.
 
-## Cut the crap! How do I make `network.target` work for me?
+## Cut the crap! How do I make sure that my service starts after the network is *really* online?
 
-Well, that depends on your setup and the services you plan to run after it (see above). Many network management solutions provide a way to unconditionally pull in network-online.target, and thus upgrading the effect of network.target to the effect of network-online.target.
+Well, that depends on your setup and the services you plan to run after it (see above). If you need to delay you service after the network is up, include
 
-If you use NetworkManager you can do this by enabling `NetworkManager-wait-online.service`:
+    After=network-online.target
+    Wants=network-online.target
+
+in the .service file, and enable the right "wait" service:
+
+if you use NetworkManager:
 
     systemctl enable NetworkManager-wait-online.service
 
-If you use systemd-networkd you can do this by enabling `systemd-networkd-wait-online.service`:
+if you use systemd-networkd:
   
     systemctl enable systemd-networkd-wait-online.service
 
-This will ensure that all configured network devices are up and have an IP address assigned before boot continues. This service will time out after 90s. Enabling this service might considerably delay your boot even if the timeout is not reached. Both services are disabled by default.
+This will ensure that all configured network devices are up and have an IP address assigned before the service is started.
 
-Alternatively, you can change your service that needs the network to be up, to include After=network-online.target and Wants=network-online.target.
+network-online.target will time out after 90s. Enabling this might considerably delay your boot even if the timeout is not reached.
 
 ## What does this mean for me, a Developer?
 
