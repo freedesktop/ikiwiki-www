@@ -1,0 +1,115 @@
+Here is a small tutorial for exploring the At-Spi2 exposition of applications through the python bindings.
+
+Details on the pyatspi2 interface are available on 
+
+Of course, one first needs to import the pyatspi bindings :)
+
+    import pyatspi
+
+# Browsing through the tree
+
+One can then enumerate applications:
+
+    desktop = pyatspi.Registry.getDesktop(0)
+    for application in desktop:
+        print(application.name)
+
+Let's see what is inside one:
+
+    a = desktop[0]
+    print(a.name)
+    for o in a:
+        print(o)
+
+We get for instance
+
+    gucharmap
+    [frame | Character Map]
+
+so it's the gucharmap application, which has one window frame, named "Character Map". This, like the rest of the At-Spi tree, is an "Accessible", see pydoc atspi.Accessible for the details of available methods. Notably we have:
+
+    for o in a:
+        print(o.role, o.name)
+
+that prints
+
+    <enum ATSPI_ROLE_FRAME of type Atspi.Role> Character Map
+
+which is basically the information that <tt>print(o)</tt> gave. Let's see inside:
+
+    frame = a[0]
+    for o in frame:
+        print(o)
+
+which prints
+
+    [panel | ]
+    [menu bar | ]
+
+So the frame is composed of a panel and a menu bar. Let's see at the panel:
+
+    panel = frame[0]
+    for o in panel:
+        print(o)
+
+which prints
+
+    [status bar | U+10000 LINEAR B SYLLABLE B008 A]
+    [text | test]
+    [push button | Copy]
+    [label | Text to copy:]
+    [split pane | ]
+    [filler | Font]
+
+We notably have a text and a label. They have differing roles, but they both implement the Text interface:
+
+    t = panel[1]
+    l = panel[3]
+    print(t.role)
+    print(l.role)
+    t_text = t.queryText()
+    l_text = l.queryText()
+
+which allows to interact more closely with the text (see <tt>pydoc pyatspi.Text</tt> for all details):
+
+    print(t_text.caretOffset)
+    print(l_text.caretOffset)
+
+Note that the ".name" of the widget may not be the same as the context of the widget: for instance, entries typically have a label which provides what the entry is meant for, so that the ".name" will contain the text of the label for the entry, and the Text interface will contain the content of the entry.
+
+Conversely to looking in children, one can go back to the parent, which we can check is the panel as expected:
+
+    p = t.parent
+    print(p == panel)
+
+So that for looking around in the tree, let's now see how to react to AtSpi events:
+
+# Reacting to events
+
+For instance, we want to track caret movements:
+
+    def f(e):
+        print(e.source, " got caret ", e.detail1)
+
+    pyatspi.Registry.registerEventListener(f, "object:text-caret-moved")
+    pyatspi.Registry.start()
+
+which prints for instance:
+
+      [text | ]  got caret  2
+      [text | ]  got caret  1
+      [text | ]  got caret  0
+      [entry | ]  got caret  23
+      [entry | ]  got caret  24
+      [entry | ]  got caret  25
+
+which shows that the user has moved the caret inside a text widget, then in an entry widget.
+
+One can watch for focus acquisition:
+
+    def f(e):
+         print(e.source, " got focus " if e.detail1 else " lost focus")
+    pyatspi.Registry.registerEventListener(f, "object:state-changed:focused")
+    pyatspi.Registry.start()
+ 
+and from there, get the interesting text to show, etc.
