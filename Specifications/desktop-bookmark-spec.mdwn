@@ -52,13 +52,10 @@ Each `metadata` element might contain any combination of the following elements,
 * Each `application` element has a number of attributes:  [[!table header="no" class="mointable" data="""
  **Attribute**  |  **Required**  |  **Notes** 
  name  |  Yes  |  The name of the application that has registered the bookmark. It must a unique name for each application. Every application element must have this attribute set 
- exec  |  Yes  |  The preferred command line to be used when launching the application; it might contain variables, see the list of valid exec attribute variables for more details. If no exec attribute has been provided, implementors should use the application name followed by the `%u` variable 
- count  |  Yes  |  The number of times the application has registered the bookmark. If not count attribute has been defined, then implementors should assume that the total number of registrations is equal to one 
-"""]]
-||
- modified || Yes || The last time, expressed as a string conformant to the ISO 8601 specification and relative to UTC, that the application registered the bookmark. Each application element must have this attribute set 
-[[!table header="no" class="mointable" data="""
- timestamp  |         Yes  |  The last time, expresses in seconds from the system's Epoch, the application registered the bookmark. Each application  element must have this attribute set. **This attribute has been deprecated since revision 0.8.5 of the specification, and should not be used by newly written code**. 
+ exec  |  Yes  |  The preferred command line to be used when launching the application; it might contain variables, see the list of valid exec attribute variables for more details. If no exec attribute has been provided, implementors should use the application name followed by the `%u` variable.
+ count  |  Yes  |  The number of times the application has registered the bookmark. If not count attribute has been defined, then implementors should assume that the total number of registrations is equal to one.
+ modified |  Yes  | The last time, expressed as a string conformant to the ISO 8601 specification and relative to UTC, that the application registered the bookmark. Each application element must have this attribute set.
+ timestamp  |  No  |  The last time, expresses in seconds from the system's Epoch, the application registered the bookmark. Each application  element must have this attribute set. **This attribute has been deprecated since revision 0.8.5 of the specification, and should not be used by newly written code**.
 """]]
 See the Applications section for the correct behaviour when handling duplicate application registrations. 
 The `applications` element is mandatory; every bookmark must have at least one valid `application` element.  
@@ -181,6 +178,11 @@ In order to properly install a new desktop bookmark file, third party applicatio
 
 * Install new desktop bookmark files inside $XDG_DATA_DIR/desktop-bookmarks for each desktop bookmark file. Please, namespace the filename, as in "vendor-foo.xbel", or use a subdirectory or $XDG_DATA_DIR/desktop-bookmarks so you have "vendor/foo.xbel." Please ensure all desktop bookmark entries are valid. 
 
+# Appendix D: Desktops and applications using this specification
+
+* Gnome: All recent versions use the 'recently used' list.
+
+Please add to and update this list where it is missing or incomplete.
 
 ---
 
