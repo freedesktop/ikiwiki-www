@@ -20,6 +20,7 @@
  * New module: module-always-source
  * State files not any more readable by all users in the system mode
  * module-augment-properties now uses XDG_DATA_DIRS to find .desktop files
+ * The GConf dependency can now be avoided
  * qpaeq license changed from AGPL to LGPL
  * qpaeq ported to Qt 5
 
@@ -102,6 +103,14 @@ module-augment-properties reads [[.desktop files|https://standards.freedesktop.o
 Nothing here yet...
 
 ## Notes for packagers
+
+### The GConf dependency can now be avoided
+
+paprefs has so far required module-gconf to be loaded in the PulseAudio daemon, which is bad, because GConf is deprecated and unmaintained. A new paprefs version is expected to be released shortly, and that will use GSettings instead of GConf. The new paprefs version requires module-gsettings to be loaded in the PulseAudio daemon.
+
+PulseAudio still provides module-gconf in case there's need for it. GSettings and GConf can both be enabled when building PulseAudio, but note that both modules should not be installed at the same time, so distributions should make module-gconf conflict with module-gsettings in their packaging system. It may be useful to enable both when building PulseAudio, so that PulseAudio can be updated before paprefs. If only GSettings is enabled, PulseAudio and paprefs need to be updated at the same time.
+
+There can be some problems for users after updating paprefs. When module-gsettings is installed along with the new paprefs version, the module won't be automatically loaded by the PulseAudio daemon that is already running during the update, so any configuration changes done with paprefs will have effect only after the daemon has been restarted. Another issue is that if the gsettings-data-convert program is not installed, the old settings from GConf won't be migrated to GSettings. gsettings-data-convert is provided by GConf, so to ensure that the program is installed, the module-gsettings package would have to depend on GConf, but since the whole point of this exercise is to get rid of GConf, such dependency may not be feasible.
 
 ### qpaeq license changed from AGPL to LGPL
 
