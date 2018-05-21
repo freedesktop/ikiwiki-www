@@ -7,23 +7,17 @@ Starting with PulseAudio 0.9.3 the daemon can be run as a system-wide instance w
 
 Before you now go ahead and use it please read about [[what is wrong with system mode|Software/PulseAudio/Documentation/User/WhatIsWrongWithSystemWide]].
 
-To run PulseAudio in system-wide mode, start it as `root` and pass the `--system` argument to it. It will then drop priviliges and change to the `pulse` UNIX user and group. The directory `/var/run/pulse/` is used as home directory. In this mode the module `module-native-protocol-unix` will automatically allow access to all members of the group `pulse-access`. All user/group names and paths can be changed by passing compile-time arguments to `configure`. The system user `pulse` and the groups `pulse` and `pulse-access` need to be created manually. On Debian this works like this:
+To run PulseAudio in system-wide mode, it should be started as `root` with the `--system` command line argument. You may want to write a systemd service for starting PulseAudio at boot (or an init script if you're not using systemd). (TODO: We should provide a ready-made systemd service file with PulseAudio. Patches welcome!)
 
-    addgroup --system pulse
-    adduser --system --ingroup pulse --home /var/run/pulse pulse
-    addgroup --system pulse-access
+Many distributions use systemd to start per-user instances of PulseAudio. When using the system mode, the PulseAudio user services need to be disabled in systemd:
 
-    # Some distributions restrict access to the sound devices to a group audio
-    adduser pulse audio
+    sudo systemctl --global disable pulseaudio.service pulseaudio.socket
 
-    # Add a user to the pulse-access group
-    adduser lennart pulse-access
+It's also advisable to set `autospawn = no` in `/etc/pulse/client.conf`. It's not strictly necessary, because even if autospawning is enabled, it won't happen when PulseAudio is running in the system mode. However, if the daemon stops for some reason, then autospawning will happen, and that may make debugging more difficult.
 
-The runtime directory `/var/run/pulse` is created automatically on daemon startup. This directory contains the .esd_auth file, which is the authentication cookie for esound. If you want to use esound without disabling authentication, create a symlink from this file in your home directory:
+When PulseAudio starts in the system mode, it will change its user and group from `root` to `pulse` in order to not have too many privileges. The `pulse` user needs to be in the `audio` and `bluetooth` groups in order to be able to use ALSA and bluetooth devices.
 
-    ln -sf /var/run/pulse/.esd_auth ~/.esd_auth
-
-_Please note that creating these groups/users is not necessary when running the PulseAudio in the traditional per-user setup_
+All users that need access to PulseAudio have to be in the `pulse-access` group, even `root`. (TODO: We should probably allow `root` to access PulseAudio without being in the `pulse-access` group. Patches welcome!)
 
 Running PulseAudio in system-wide mode has some limitations:
 
@@ -37,4 +31,4 @@ It has some disadvantages:
 
 Read more about [[what is wrong with system mode|Software/PulseAudio/Documentation/User/WhatIsWrongWithSystemWide]].
 
-If the system-wide mode is enabled it is advisable to disable module loading during runtime by passing `--disallow-module-loading` to the daemon, to inhibit the user from loading arbitrary modules with potentially vulnerable code into the daemon. However, this might break some modules like `module-hal-detect` which will load a sound driver module each time HAL signals that a new sound card became available in the system.
+If the system-wide mode is enabled it is advisable to disable module loading during runtime by passing `--disallow-module-loading` to the daemon, to inhibit the user from loading arbitrary modules with potentially vulnerable code into the daemon. However, this breaks bluetooth and USB sound card hotplugging. You might want to use `--disallow-exit` as well to prevent users from shutting down PulseAudio.
