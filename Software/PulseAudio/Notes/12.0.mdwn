@@ -4,6 +4,7 @@
 
 ## Changes at a glance
 
+ * Better latency reporting (and hence better A/V sync) with the A2DP bluetooth profile
  * Much more accurate latency reporting for AirPlay devices
  * module-switch-on-connect now ignores virtual devices
  * When using passthrough for compressed audio, set the "non-audio" bit
@@ -23,7 +24,7 @@
  * New module: module-always-source
  * State files not any more readable by all users in the system mode
  * module-augment-properties now uses XDG_DATA_DIRS to find .desktop files
- * Source output volume/mute support in the Vala bindings
+ * Updates for the Vala bindings
  * The GConf dependency can now be avoided
  * qpaeq license changed from AGPL to LGPL
  * qpaeq ported to Qt 5
@@ -31,6 +32,10 @@
  * The esdcompat tool isn't any more installed if esound support is disabled
 
 ## Notes for end users
+
+### Better latency reporting (and hence better A/V sync) with the A2DP bluetooth profile
+
+PulseAudio doesn't get good latency information from the kernel with A2DP playback, which has caused A/V sync problems for many people when watching videos. Now PulseAudio makes the audio buffer in the kernel much smaller, which reduces the problem a lot.
 
 ### Much more accurate latency reporting for AirPlay devices
 
@@ -118,11 +123,13 @@ module-augment-properties reads [[.desktop files|https://standards.freedesktop.o
 
 ## Notes for application developers
 
-### Source output volume/mute support in the Vala bindings
+### Updates for the Vala bindings
 
-The Vala bindings were missing the set_source_output_volume() and set_source_output_mute() functions. That has now been fixed.
+There are a few fixes in the Vala bindings:
 
-Also, the SourceOutputInfo struct had an incorrect field name: "sink_usec" should have been "source_usec". That's now fixed too.
+ * Added the set_source_output_volume() and set_source_output_mute() functions.
+ * The SourceOutputInfo struct had an incorrect field name: "sink_usec" has now been changed to "source_usec".
+ * The "ports" arrays in the SinkInfo and SourceInfo structs weren't properly annotated, so the Vala compiler didn't know that the "n_ports" field contained the array length.
 
 ## Notes for packagers
 
