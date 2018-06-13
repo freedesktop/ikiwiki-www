@@ -12,9 +12,11 @@
  * Choose the A2DP bluetooth profile by default instead of HSP
  * New "sink_input_properties" module argument for module-ladspa-sink
  * New "use_system_clock_for_timing" module argument for module-pipe-sink
+ * Fixed a crash or high CPU use problem with Intel HDMI LPE
  * Steelseries Arctis 7 USB headset stereo output support
  * Dell Thunderbolt Dock TB16 speaker jack support
  * Fixed digital input support for some USB sound cards
+ * Fixed Native Instruments Traktor Audio 6 detection
  * Ability to disable input or output on macOS
  * New "dereverb" option for the Speex echo canceller
  * New module: module-always-source
@@ -62,6 +64,10 @@ module-pipe-sink plays audio to a pipe file, and it has so far relied on the pro
 
 Now it's possible to pass the "use_system_clock_for_timing=yes" option to module-pipe-sink to support simple programs (e.g. "cat") that just read from the pipe as fast as data becomes available. When the option is enabled, PulseAudio uses the system clock to make writes happen at the normal rate.
 
+### Fixed a crash or high CPU use problem with Intel HDMI LPE
+
+Many recent computers use the Intel HDMI LPE kernel driver for HDMI audio, and that driver has some unususal behaviour that made PulseAudio enter an infinite loop with 100% CPU use, if the HDMI cable is unplugged and PulseAudio tries to play to the HDMI output. Usually the playback thread runs with realtime scheduling, and using too much CPU in that situation makes the kernel kill PulseAudio, so effectively PulseAudio appeared to be crashing. This problem has now been fixed.
+
 ### Steelseries Arctis 7 USB headset stereo output support
 
 The headset is unusual in that it presents itself as two output devices: a mono device (meant for voice audio) and a stereo device (for everything else), and both devices have separate volume control at the hardware level. PulseAudio used to make only the mono device available by default, now both devices can be used at the same time.
@@ -73,6 +79,10 @@ TB16 has a speaker jack that PulseAudio didn't previously make available by defa
 ### Fixed digital input support for some USB sound cards
 
 Some USB sound cards require the "PCM Capture Source" control in the ALSA mixer to be set to "IEC958 In" in order to be able to record from the digital input, but PulseAudio didn't do that. Now it does.
+
+### Fixed Native Instruments Traktor Audio 6 detection
+
+PulseAudio has custom configuration for the Traktor Audio 6 USB sound card, but either the device ID that PulseAudio used to detect the card was wrong, or maybe some units use one ID and some use another. PulseAudio now detects the card with either ID.
 
 ### Ability to disable input or output on macOS
 
