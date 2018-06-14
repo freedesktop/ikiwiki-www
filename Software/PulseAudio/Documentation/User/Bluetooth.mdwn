@@ -29,7 +29,7 @@ Each of the profiles are further divided into two roles:
 
 PulseAudio supports A2DP in both source and sink roles. When PulseAudio acts in the source role, a sink is created where applications can play to. When PulseAudio acts in the sink role, a source is created where applications can record from.
 
-A2DP works generally without a hassle, although when watching videos, the audio can get badly out of sync. It seems that in case of transmission problems (weak signal, or out of signal range) the kernel can buffer quite a lot of audio. Here's a bug report about this issue: [[https://bugs.freedesktop.org/show_bug.cgi?id=58746]]. A patch is available in the bug report (see [[comment #8|https://bugs.freedesktop.org/show_bug.cgi?id=58746#c8]]), but it breaks HSP, so it can't be accepted. The general idea of the patch seems fine, though. Help with improving the patch would be very welcome.
+A2DP works generally without a hassle. With PulseAudio versions older than 12.0 the audio can get badly out of sync when watching videos, however.
 
 ## HSP/HFP
 
@@ -41,7 +41,7 @@ When connected to a HSP or HFP device, the bluetooth card in PulseAudio will hav
 
 When PulseAudio is acting as a headset or a hands-free unit, it's rarely necessary to manually change the card profile. When the audio gateway initiates audio streaming, module-bluetooth-policy will automatically change to the appropriate profile. module-bluetooth-policy will also load module-loopback instances to loop the audio from bluetooth to the local speakers and microphone.
 
-Being able to use HFP headsets without oFono would be nice, and James Bottomley has submitted patches for that: [[https://www.mail-archive.com/pulseaudio-discuss@lists.freedesktop.org/msg16443.html]]. The patches need some work, but nothing has happened for a long time. Someone else could relatively easily finish off the work - just read the review discussion, and address the points raised.
+Being able to use HFP headsets without oFono would be nice, and James Bottomley has submitted patches for that: [[1|https://patchwork.freedesktop.org/patch/178198/]], [[2|https://patchwork.freedesktop.org/patch/178199/]], [[3|https://patchwork.freedesktop.org/patch/178200/]], [[4|https://patchwork.freedesktop.org/patch/178201/]]. The patches need still some work, help with finishing them would be appreciated.
 
 ## Using bluetooth when running PulseAudio in the system mode
 
@@ -52,7 +52,9 @@ For some reason the bluetooth modules aren't included in /etc/pulse/system.pa by
 
 It's generally recommended to disallow module loading when using PulseAudio in the system mode, because if the system administrator doesn't trust the users, allowing users to load modules may not be a good idea. However, bluetooth doesn't work if module loading is disallowed (this is a bug that somebody should fix), so if it's more important to have bluetooth support than to prevent users from loading (and unloading) modules, make sure you don't disallow module loading (by default module loading is allowed).
 
-The D-Bus access policy doesn't allow pulseaudio to communicate with bluetoothd by default when running pulseaudio in the system mode. Add the user "pulse" to group "bluetooth" to grant the permission.
+The D-Bus access policy doesn't allow pulseaudio to communicate with bluetoothd by default when running pulseaudio in the system mode. Add the user "pulse" to group "bluetooth" to grant the permission:
+
+    sudo useradd -g bluetooth pulse
 
 The D-Bus access policy also doesn't allow pulseaudio to communicate with ofonod by default when running pulseaudio in the system mode. To grant the permission, add this to /etc/dbus-1/system.d/ofono.conf:
 
@@ -114,6 +116,14 @@ Similar to HSP, module-bluetooth-policy will load module-loopback instances to l
 
 ## History of bluetooth features in PulseAudio
 
+### 12.0
+
+* More accurate latency reporting with A2DP, meaning improved A/V sync.
+* Recognize HSP support in devices that advertise their HSP capability using a different identifier than what PulseAudio has been using before.
+* Use A2DP by default with headsets rather than HSP.
+
+More details in the [[release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/12.0/]].
+
 ### 11.0
 
 * HSP headset role implemented, which means that PulseAudio can act as a headset.
@@ -149,13 +159,9 @@ More details in the [[release notes|https://www.freedesktop.org/wiki/Software/Pu
 
 Check first that your version of PulseAudio supports the feature you're trying to use. Refer to the history section above to see when a particular bluetooth feature was added to PulseAudio.
 
-### HSP problem: HSP stopped working when upgrading PulseAudio from 10.0 to 11.0
+### HSP problem: audio is silent or skipping
 
-From the [[11.0 release notes|https://www.freedesktop.org/wiki/Software/PulseAudio/Notes/11.0/]]:
-
-The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses with the bluetooth HSP profile was previously always configured to be 48 bytes. That worked with most hardware, but some adapters require a different packet size. Now PulseAudio asks the kernel what packet size should be used, which fixes the problem.
-
-However, a new problem appeared: some adapters that used to work with 48 byte packet size don't any more work with the size that the kernel tells PulseAudio to use. If you find that HSP audio stopped working when upgrading to PulseAudio 11.0, you can revert to the old behaviour by passing option "autodetect_mtu=no" to module-bluetooth-discover in /etc/pulse/default.pa. If that fixes the problem, then please report the problem to the BlueZ and/or PulseAudio developers, so that the kernel can be fixed.
+The packet size (a.k.a. MTU, "maximum transmission unit") that PulseAudio uses with the bluetooth HSP profile might be bad. By default PulseAudio configures the packet size to 48 bytes, but the adapter might require something else. Try passing "autodetect_mtu=yes" to module-bluetooth-discover in /etc/pulse/default.pa. That will make PulseAudio ask the kernel what the correct packet size is. The option is not enabled by default, because the kernel gives bad advice too often, while the default size of 48 bytes works better.
 
 ### HSP problem: the bluetooth sink and source are created, but no audio is being transmitted
 
@@ -173,11 +179,13 @@ Broadcom BCM20702
 
 This adapter requires proprietary firmware. Installation instructions: [[http://plugable.com/2014/06/23/plugable-usb-bluetooth-adapter-solving-hfphsp-profile-issues-on-linux/]]
 
-Broadcom BCM4354 and BCM43438
+Broadcom BCM2835, BCM4354, and BCM43438
 
-(BCM43438 is notable for being used in Raspberry Pi 3.) These adapters may have wrong SCO audio routing. Use this command (as root) to fix the routing:
+(BCM2835 and BCM43438 are notable for being used in Raspberry Pi Zero W and Raspberry Pi 3, respectively.) These adapters may have wrong SCO audio routing. Use this command (as root) to fix the routing:
 
     hcitool cmd 0x3F 0x01C 0x01 0x02 0x00 0x01 0x01
+
+BCM2835 doesn't work properly even with the fixed routing. There's audio, but it's very bad.
 
 ### HSP problem: "Protocol not supported"
 
