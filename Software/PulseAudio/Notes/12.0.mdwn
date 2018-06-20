@@ -6,6 +6,7 @@
 
  * Better latency reporting (and hence better A/V sync) with the A2DP bluetooth profile
  * Much more accurate latency reporting for AirPlay devices
+ * Fixed a crash or high CPU use problem with Intel HDMI LPE
  * module-switch-on-connect now ignores virtual devices
  * When using passthrough for compressed audio, set the "non-audio" bit
  * Prioritize HDMI output over S/PDIF output
@@ -14,7 +15,6 @@
  * New "sink_input_properties" module argument for module-ladspa-sink
  * New "use_system_clock_for_timing" module argument for module-pipe-sink
  * module-pipe-sink can now use an existing pipe
- * Fixed a crash or high CPU use problem with Intel HDMI LPE
  * Steelseries Arctis 7 USB headset stereo output support
  * Dell Thunderbolt Dock TB16 speaker jack support
  * Fixed digital input support for some USB sound cards
@@ -35,13 +35,17 @@
 
 ### Better latency reporting (and hence better A/V sync) with the A2DP bluetooth profile
 
-PulseAudio doesn't get good latency information from the kernel with A2DP playback, which has caused A/V sync problems for many people when watching videos. Now PulseAudio makes the audio buffer in the kernel much smaller, which reduces the problem a lot.
+When playing videos, it's important that the audio latency is known so that the video can be synchronized accurately. PulseAudio doesn't get good latency information from the kernel with A2DP playback, which has caused A/V sync problems for many people when watching videos. Now PulseAudio makes the audio buffer in the kernel much smaller, which reduces the problem a lot.
 
 ### Much more accurate latency reporting for AirPlay devices
 
-When playing videos, it's important that the audio latency is known so that the video can be synchronized accurately. The AirPlay protocol has a large latency, but PulseAudio didn't previously report that latency to applications. Now it reports it, or at least something much closer to the reality than before.
+The AirPlay protocol has a large latency, but PulseAudio didn't previously report that latency to applications. Now it reports it, or at least something much closer to the reality than before.
 
 The AirPlay protocol doesn't provide a mechanism for getting the exact latency (or if it does, we're not aware of that). PulseAudio makes an educated guess, and a significant part of that guess is a latency constant that is added to each latency report. The default value for that constant is exactly 2 seconds, but that's not optimal for all devices. PulseAudio uses a different constant for some known devices, and we'd like to expand the set of known devices. If you find that audio-video synchronization is bad with your AirPlay device, you can experiment with different latency constants by passing argument "latency_msec=2000" to module-raop-discover in /etc/pulse/default.pa. Change the number 2000 to something that works better. Once you find a better latency value, we'd be happy hear from you so that we can add your device to the list of known devices.
+
+### Fixed a crash or high CPU use problem with Intel HDMI LPE
+
+Many recent computers use the Intel HDMI LPE kernel driver for HDMI audio, and that driver has some unususal behaviour that made PulseAudio enter an infinite loop with 100% CPU use, if the HDMI cable is unplugged and PulseAudio tries to play to the HDMI output. Usually the playback thread runs with realtime scheduling, and using too much CPU in that situation makes the kernel kill PulseAudio, so effectively PulseAudio appeared to be crashing. This problem has now been fixed.
 
 ### module-switch-on-connect now ignores virtual devices
 
@@ -76,10 +80,6 @@ Now it's possible to pass the "use_system_clock_for_timing=yes" option to module
 ### module-pipe-sink can now use an existing pipe
 
 module-pipe-sink used to fail always if it failed to create the pipe file. If the failure happens because the file already exists, module-pipe-sink will now use the already existing file.
-
-### Fixed a crash or high CPU use problem with Intel HDMI LPE
-
-Many recent computers use the Intel HDMI LPE kernel driver for HDMI audio, and that driver has some unususal behaviour that made PulseAudio enter an infinite loop with 100% CPU use, if the HDMI cable is unplugged and PulseAudio tries to play to the HDMI output. Usually the playback thread runs with realtime scheduling, and using too much CPU in that situation makes the kernel kill PulseAudio, so effectively PulseAudio appeared to be crashing. This problem has now been fixed.
 
 ### Steelseries Arctis 7 USB headset stereo output support
 
