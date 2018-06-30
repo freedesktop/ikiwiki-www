@@ -5,6 +5,7 @@
 ## Changes at a glance
 
 * Improved initial card profile selection
+* Added support for SteelSeries Arctis 5 USB headset
 * New "max_latency_msec" module argument for module-loopback
 * Fixed S/PDIF for CMEDIA USB2.0 High-Speed True HD Audio
 * Use source sample spec and channel map by default in module-loopback
@@ -15,6 +16,10 @@
 ### Improved initial card profile selection
 
 When a new card shows up (during PulseAudio startup or hotplugged), PulseAudio needs to pick the initial profile for the card. Unavailable profiles shouldn't be picked, but module-alsa-card sometimes marked unavailable profiles as available, causing bad initial profile choices. Specifically, if a profile contains a sink and a source, and only one of them is available, the profile should be marked as unavailable, but previously it was marked as available. As a result PulseAudio might pick a profile with a non-working output. That's now fixed.
+
+### Added support for SteelSeries Arctis 5 USB headset
+
+The Arctis headsets are unusual in that they provide separate outputs with separate volume controls for speech and other audio (which is useful with gaming), which requires some custom configuration in PulseAudio. PulseAudio 12.0 added support for the Arctis 7 headset, and now PulseAudio 13.0 adds support for the Arctis 5 headset too.
 
 ### New "max_latency_msec" module argument for module-loopback
 
