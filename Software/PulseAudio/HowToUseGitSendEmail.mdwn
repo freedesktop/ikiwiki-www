@@ -90,6 +90,15 @@ By default the patch mails will have "[PATCH]" in the subject (or "[PATCH n/m]",
     git send-email -v2 -1
 
 
+### Changing or amending the [PATCH] tag in the subject
+
+The default "[PATCH]" tag can be changed with --subject-prefix. This is useful especially when sending pavucontrol or paprefs patches, because the subject should note when the patch is meant for some other git repository than the main pulseaudio repository. For example:
+
+    # Using "[PATCH pavucontrol]" as the tag is a good way to indicate
+    # that the patch is meant for pavucontrol.
+    git send-email -1 --subject-prefix="PATCH pavucontrol"
+
+
 ### Adding Extra Notes to Patch Mails
 
 Sometimes it's convenient to annotate patches with some notes that are not meant to be included in the commit message. For example, one might want to write "I'm not sure if this should be committed yet, because..." in a patch, but the text doesn't make sense in the commit message. Such messages can be written below the three dashes "---" that are in every patch after the commit message. Use the --annotate option with git send-email to be able to edit the mails before they are sent.
