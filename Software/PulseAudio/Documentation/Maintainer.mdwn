@@ -1,35 +1,16 @@
 [[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]]
 
-# Maintainer Documentation
+# Maintainer documentation
 
-## Making Releases
+## Release checklist
 
-### Overview
+### Fix all release blocker bugs
 
- * Fix all release blocker bugs.
- * Check the bug list in case there's still some bug that should be a release blocker.
- * As a smoke test, run the current git master version on your own machine for a while.
- * Check that the "since" tags in the Doxygen documentation are correct.
- * Update the [[Bluetooth|Software/PulseAudio/Documentation/User/Bluetooth/]] wiki page.
- * Bump sonames.
- * (final release only) Update NEWS.
- * Tag the last commit locally (don't make the tag public yet).
- * Generate the tarball.
- * Check that all new files are included in the tarball.
- * Test the tarball.
- * Upload the tarball.
- * Push the tag.
- * (final release only) Add git shortlog to the release notes. Proofreading the release notes at this point is a good idea too.
- * (final release only) If the release notes are marked as a draft, remove that marking.
- * Announce the release on the mailing list.
- * (final release only) Add a news item to the web site front page.
- * Update the channel topic in IRC.
- * (final release only) Refresh the online Doxygen documentation.
- * (final release only) Rebase and push the contents from the "next" branch to "master".
- * (final release only) Close the old release blocker tracker bug and create another.
+### Check the bug list in case there's still some bug that should be a release blocker
 
+### As a smoke test, run the current git master version on your own machine for a while
 
-### Checking the "since" Tags in the Doxygen Documentation
+### Check that the "since" tags in the Doxygen documentation are correct
 
 It's relatively easy to forget to add the "since" tags in the Doxygen documentation, or to have a wrong version in them (for example, a patch is submitted that is targeted for 4.0, but it ends up merged during the 5.0 cycle). It's pretty easy to check that the tags are correct by diffing the public headers since the last release.
 
@@ -37,7 +18,11 @@ It's relatively easy to forget to add the "since" tags in the Doxygen documentat
 
 Before running that command, change "v5.0" to point to the last released version.
 
-### Bumping Sonames
+### Update the [[Bluetooth|Software/PulseAudio/Documentation/User/Bluetooth/]] wiki page
+
+The page has a history section detailing what significant bluetooth related changes each version has, so document the bluetooth changes of the new release. Other sections may need updating as well.
+
+### Bump sonames
 
 We have currently three public API libraries: libpulse, libpulse-simple and libpulse-mainloop-glib (if new ones have been added, please update this wiki page). The "sonames" of those libraries need to be bumped before each release (release candidates are releases too in this context). The soname versions are defined in configure.ac. The definitions for v4.0 look as follows:
 
@@ -58,8 +43,9 @@ Library changes can be found easily by viewing only changes that affect files un
 
     gitk v7.0...master -- src/pulse
 
+### (final release only) Update NEWS
 
-### Tagging
+### Tag the last commit locally (don't make the tag public yet)
 
 Create a signed tag:
 
@@ -70,12 +56,7 @@ You'll need to have a GPG key with the default e-mail address configured in git.
 
 The clean command is needed, because otherwise the tarball will have wrong version in its file name (and quite possibly the wrong version will appear elsewhere too). The version number is cached somewhere, and even rerunning ./configure doesn't update it.
 
-When it's time to push the tag (after generating the tarball and testing that it works), this is the command:
-
-    git push origin v4.99.1
-
-
-### Generating the Tarball
+### Generate the tarball
 
     make distcheck
 
@@ -85,7 +66,7 @@ That will create a .tar.gz file and a .tar.xz file. Then you'll need to create m
       sha256sum ${i} > ${i}.sha256;  \
     done
 
-### Checking that all new files are included in the tarball
+### Check that all new files are included in the tarball
 
     git ls-files > /tmp/file-list-new              # Generate the file list for the new release
     git checkout v10.0                             # Check out the previous release
@@ -94,24 +75,40 @@ That will create a .tar.gz file and a .tar.xz file. Then you'll need to create m
 
 Check what files have been added. Are they all included in the tarball?
 
-### Uploading the Tarball
+### Test the tarball
+
+### Upload the tarball
 
     scp pulseaudio-*.tar.* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/pulseaudio/releases
 
+### Push the tag
 
-### Announce
+    git push origin master
+    git push origin v4.99.1
 
-    /msg ChanServ topic #pulseaudio new topic here
+Remember to push the master (or stable-x.y) branch as well, in case you added new commits during the release process (like updating NEWS).
 
-And don't forget to update the news section of <http://www.freedesktop.org/wiki/Software/PulseAudio>
+### (final release only) Add git shortlog to the release notes.
 
-### Refreshing the online Doxygen documentation
+Proofreading the release notes at this point is a good idea too.
+
+### (final release only) If the release notes are marked as a draft, remove that marking.
+
+### Announce the release on the mailing list
+
+### (final release only) Add a news item to the web site front page
+
+### Update the channel topic in IRC
+
+    /msg ChanServ topic #pulseaudio Stable release: 12.2 || Release candidate 1 for 13.0 is out now, please test! || Planet: https://freedesktop.org/software/pulseaudio/planet
+
+### (final release only) Refresh the online Doxygen documentation
 
     make doxygen
     rsync -av --delete-after doxygen/html/ annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/pulseaudio/doxygen/
 
-After uploading, check that all files have these permissions set:
+### (final release only) Rebase and push the contents from the "next" branch to "master"
 
-    -rw-rw-r--+
+Remove the "next" branch afterwards.
 
-There was once some trouble with missing group write access with newly created files.
+### (final release only) Close the old release blocker tracker bug and create another
