@@ -45,6 +45,8 @@ Library changes can be found easily by viewing only changes that affect files un
 
 ### (final release only) Update NEWS
 
+In case of paprefs, there's no NEWS file, but you should add a news item to doc/README.html.in.
+
 ### Tag the last commit locally (don't make the tag public yet)
 
 Create a signed tag:
@@ -58,11 +60,33 @@ The clean command is needed, because otherwise the tarball will have wrong versi
 
 ### Generate the tarball
 
+#### pulseaudio
+
     make distcheck
 
 That will create a .tar.gz file and a .tar.xz file. Then you'll need to create matching checksum files too:
 
     for i in pulseaudio-*.tar.*z; do \
+      sha256sum ${i} > ${i}.sha256;  \
+    done
+
+#### paprefs
+
+paprefs doesn't have "make distcheck" available since it's using Meson. You can generate the tarball with "git archive". First make sure that you have the tar.xz archiver configured:
+
+    git config --global tar.tar.xz.command "xz -c"
+
+Here's the actual archive command (some trickery added to avoid repeating the version number):
+
+    VERSION=1.0 bash -c "git archive --prefix=paprefs-\$VERSION/ -o paprefs-\$VERSION.tar.xz v\$VERSION"
+
+If the tar.xz archiver isn't properly configured, the command will silently produce a plain tar archive without compression. Check that the file is actually compressed (the command should print "XZ compressed data"):
+
+    file paprefs-*.tar.xz
+
+Checksum generation:
+
+    for i in paprefs-*.tar.xz; do \
       sha256sum ${i} > ${i}.sha256;  \
     done
 
@@ -79,14 +103,18 @@ Check what files have been added. Are they all included in the tarball?
 
 ### Upload the tarball
 
+#### pulseaudio
+
     scp pulseaudio-*.tar.* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/pulseaudio/releases
+
+#### paprefs
+
+    scp paprefs-*.tar.* annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/pulseaudio/paprefs
 
 ### Push the tag
 
     git push origin master
     git push origin v4.99.1
-
-Remember to push the master (or stable-x.y) branch as well, in case you added new commits during the release process (like updating NEWS).
 
 ### (final release only) Add git shortlog to the release notes.
 
@@ -97,6 +125,10 @@ Proofreading the release notes at this point is a good idea too.
 ### Announce the release on the mailing list
 
 ### (final release only) Add a news item to the web site front page
+
+### (paprefs) Upload README.html
+
+    scp build/doc/README.html annarchy.freedesktop.org:/srv/www.freedesktop.org/www/software/pulseaudio/paprefs/
 
 ### Update the channel topic in IRC
 
