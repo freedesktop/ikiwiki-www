@@ -24,10 +24,10 @@ You can use Martin Pitt's [[retry-gh-systemd-test|http://piware.de/tools/bin/ret
 
     $ retry-gh-systemd-test <#PR> <architecture> [release]
 
-where `release` defaults to `xenial` (aka Ubuntu 16.04 LTS). For example:
+where `release` defaults to `bionic` (aka Ubuntu 18.04 LTS). For example:
 
     $ retry-gh-systemd-test 1234 amd64
-    $ retry-gh-systemd-test 2345 s390x zesty
+    $ retry-gh-systemd-test 2345 s390x xenial
 
 Please make sure to not trigger unknown releases/architectures as they will cause a pending test on the PR which never gets finished.
 
@@ -46,14 +46,14 @@ Preparations:
  * Install necessary dependencies; on Debian/Ubuntu you can simply run `sudo apt install autopkgtest` (instead of the above cloning), on Fedora do `yum install qemu-kvm dpkg-perl`
  * Build a test image based on Ubuntu cloud images for the desired release/arch:
 
-        autopkgtest/tools/autopkgtest-buildvm-ubuntu-cloud -r xenial -a amd64
+        autopkgtest/tools/autopkgtest-buildvm-ubuntu-cloud -r bionic -a amd64
 
-   This will build `autopkgtest-xenial-amd64.img`. This is normally being used through the `autopkgtest` command (see below), but you can boot this normally in QEMU (using `-snapshot` is highly recommended) to interactively poke around; this provides a easy throw-away test environment.
+   This will build `autopkgtest-bionic-amd64.img`. This is normally being used through the `autopkgtest` command (see below), but you can boot this normally in QEMU (using `-snapshot` is highly recommended) to interactively poke around; this provides a easy throw-away test environment.
 
 
 The most basic mode of operation is to run the tests for the current distro packages:
 
-    autopkgtest/runner/autopkgtest systemd -- qemu autopkgtest-xenial-amd64.img
+    autopkgtest/runner/autopkgtest systemd -- qemu autopkgtest-bionic-amd64.img
 
 But autopkgtest allows lots of [[different modes|https://people.debian.org/~mpitt/autopkgtest/README.running-tests.html]] and [[options|http://manpages.ubuntu.comautopkgtest]], like running a shell on failure (`-s`), running a single test only (`--test-name`), running the tests from a local checkout of the Debian source tree (possibly with modifications to the test) instead of from the distribution source, or running QEMU with more than one CPU (check the [[autopkgtest-virt-qemu manpage|http://manpages.ubuntu.com/autopkgtest-virt-qemu]].
 
@@ -64,4 +64,4 @@ A common use case is to check out the Debian packaging git for getting/modifying
 and running these against the binaries from a PR (see above), running only the `logind` test, getting a shell on failure, showing the boot output, and running with 2 CPUs:
 
     autopkgtest/runner/autopkgtest --test-name logind /tmp/binaries/*.deb /tmp/systemd-debian/ -s -- \
-        qemu --show-boot --cpus 2 /srv/vm/autopkgtest-xenial-amd64.img
+        qemu --show-boot --cpus 2 /srv/vm/autopkgtest-bionic-amd64.img
