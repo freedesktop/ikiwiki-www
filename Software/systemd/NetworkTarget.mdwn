@@ -53,7 +53,7 @@ in the .service file.
 This will ensure that all configured network devices are up and have an IP address assigned before the service is started.
 network-online.target will time out after 90s. Enabling this might considerably delay your boot even if the timeout is not reached.
 
-The right "wait" service must be enabled too (NetworkManager-wait-online.service if NetworkManager is used to configure the network, systemd-networkd-wait-online.service if systemd-networkd is used, etc.). systemd-networkd.service has Also=systemd-networkd-wait-online.service in its [Install] section, so when systmed-networkd.service is enabled, systemd-networkd-wait-online.service will be enabled too, which means that network-online.target will include systemd-networkd-wait-online.service when and only when systemd-networkd.service is enabled. NetworkManager-wait-online.service is set up similarly. Verify that the right service is enabled (usually only one should be):
+The right "wait" service must be enabled too (NetworkManager-wait-online.service if NetworkManager is used to configure the network, systemd-networkd-wait-online.service if systemd-networkd is used, etc.). systemd-networkd.service has Also=systemd-networkd-wait-online.service in its [Install] section, so when systemd-networkd.service is enabled, systemd-networkd-wait-online.service will be enabled too, which means that network-online.target will include systemd-networkd-wait-online.service when and only when systemd-networkd.service is enabled. NetworkManager-wait-online.service is set up similarly. Verify that the right service is enabled (usually only one should be):
 
     $ systemctl is-enabled NetworkManager-wait-online.service systemd-networkd-wait-online.service
     disabled
