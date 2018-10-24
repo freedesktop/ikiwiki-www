@@ -2,7 +2,7 @@
 
 Full system integration/acceptance testing is done through [[autopkgtests|https://people.debian.org/~mpitt/autopkgtest/README.package-tests.html]]. These test the actual installed binary distribution packages. They are run in QEMU or containers and thus can do intrusive and destructive things such as installing arbitrary packages, modifying arbitrary files in the system (including grub boot parameters), rebooting, or loading kernel modules.
 
-The tests for systemd are defined in the [[Debian package's debian/tests|https://anonscm.debian.org/cgit/pkg-systemd/systemd.git/tree/debian/tests]] directory. For validating a pull request, the Debian package is built using the unpatched code from that PR (via the [[checkout-upstream|https://anonscm.debian.org/cgit/pkg-systemd/systemd.git/tree/debian/extra/checkout-upstream]] script), and the tests run against these built packages. Note that some tests which check Debian specific behaviour are skipped in "test upstream" mode.
+The tests for systemd are defined in the [[Debian package's debian/tests|https://salsa.debian.org/systemd-team/systemd/tree/master/debian/tests]] directory. For validating a pull request, the Debian package is built using the unpatched code from that PR (via the [[checkout-upstream|https://salsa.debian.org/systemd-team/systemd/blob/master/debian/extra/checkout-upstream]] script), and the tests run against these built packages. Note that some tests which check Debian specific behaviour are skipped in "test upstream" mode.
 
 # Infrastructure
 
@@ -41,7 +41,7 @@ Preparations:
 
  * Get autopkgtest:
 
-        git clone https://anonscm.debian.org/git/autopkgtest/autopkgtest.git
+        git clone https://salsa.debian.org/ci-team/autopkgtest.git
 
  * Install necessary dependencies; on Debian/Ubuntu you can simply run `sudo apt install autopkgtest` (instead of the above cloning), on Fedora do `yum install qemu-kvm dpkg-perl`
  * Build a test image based on Ubuntu cloud images for the desired release/arch:
@@ -59,7 +59,7 @@ But autopkgtest allows lots of [[different modes|https://people.debian.org/~mpit
 
 A common use case is to check out the Debian packaging git for getting/modifying the tests locally:
 
-    git clone https://anonscm.debian.org/git/pkg-systemd/systemd.git /tmp/systemd-debian/
+    git clone https://salsa.debian.org/systemd-team/systemd.git /tmp/systemd-debian/
 
 and running these against the binaries from a PR (see above), running only the `logind` test, getting a shell on failure, showing the boot output, and running with 2 CPUs:
 
