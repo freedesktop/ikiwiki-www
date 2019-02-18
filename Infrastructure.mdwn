@@ -1,0 +1,52 @@
+# freedesktop.org infrastructure
+
+Our infrastructure falls into two categories.
+
+## GitLab
+
+gitlab.fd.o is hosted on the Google Cloud Platform within us-east1, run on Kubernetes with Helm charts. The [Helm charts](https://gitlab.freedesktop.org/freedesktop/helm-gitlab-omnibus) and the [Helm configuration](https://gitlab.freedesktop.org/freedesktop/helm-gitlab-config) used to deploy are both publicly available.
+
+Repositories and the PostgreSQL database are both stored on persistent disks mapped into the Kubernetes service pods.
+
+Docker Registry images, file uploads and attachments, and backups, are all stored within Google Cloud Storage buckets. Backups are retained for one week.
+
+There are two shared runners available for all GitLab CI jobs:
+* fdo-gitlab-gce-runner3 executes 4 concurrent jobs, and is a 22 vCPU, 128GB RAM worker hosted in GCE's us-east1, with 1TB of NVMe storage
+* gst-gitlab-htz-runner1 executes 6 concurrent jobs, and is a 24 vCPU, 128GB RAM worker hosted in Hetzner Germany, with 256GB of SSD storage
+
+Given the level of concurrency, you should aim for each job to parallelise with 4 concurrent processes.
+
+It is possible to add runners for your own projects, however this has significant caveats. Most obviously, your runners should be faster than the shared runners, unless your goal is just to remove load from the shared runners. Speed of storage is quite important here, and you should also have a fast network to Google us-east1, especially if your pipeline has multiple stages, as the build contents are saved, uploaded, and re-downloaded, between each stage. If you need to run Docker-in-Docker (e.g. to build Docker images to execute in), your runner must have the `privileged` flag set, which means you must consider the host machine to be completely compromised as the root user. Using tools such as [[buildah|https://github.com/containers/buildah]], [[kaniko|https://github.com/GoogleContainerTools/kaniko]] or [[img|https://github.com/genuinetools/img]] may help you avoid the need for a privileged runner.
+
+If you would like to donate execution time for shared runners, please [[file an issue|https://gitlab.freedesktop.org/freedesktop/freedesktop/issues/new]] or [[contact the admins|https://lists.freedesktop.org/mailman/listinfo/sitewranglers]] and we can discuss this. Our main considerations when accepting new runners are performance (should be similar to existing runners), reliability (should not unduly cause failures, or huge spikes in build times due to external load), and security.
+
+How Git itself is served is in the [[Git page|Infrastructure/git]].
+
+## Everything else
+
+All the other services are run on a small fleet of machines hosted at Portland State University. These machines all run Debian. They are all (with the exception of fruit?) virtual machines.
+
+This list is not quite complete.
+
+* fruit.fd.o (admin only): runs OpenLDAP and a very ancient fork of Debian's userdir-ldap, used to produce our user account database which is then distributed to all the other machines with rsync
+* gabe.fd.o (restricted access): serves DNS with Bind for fd.o and X.Org; MX with Postfix for all incoming fd.o/x.org mail and the only outgoing mail relay; runs Apache for web access to Mailman lists; hosts some confidential X.Org Board of Directors information; is still somehow 32-bit
+* kemper.fd.o (restricted access): git.fd.o host for master Git repo storage; users can push with Git but not get a shell; exports read-only NFS mountpoint for git
+* annarchy.fd.o (open access): serves HTTP with Apache for most project-specific pages, the www.fd.o wiki, and people.fd.o; general shell host; much abused for arbitrary user file storage and exchange; serves home directories over NFS
+* molly.fd.o (admin only): serves anongit with git-daemon over NFS mounts from kemper/annarchy; serves cgit via Apache; runs Postfix for incoming bug mail
+* culpepper.fd.o (admin only): serves Bugzilla over Apache
+* emeril.fd.o (restricted access): serves Patchwork (in Python venv) and members.x.org (in Docker container); runs Postfix for incoming Patchwork mail
+
+Virtual machines:
+* patrick.fd.o (admin only): used for adminstering VMs?
+* ray.fd.o (admin only): VM host?
+* todd.fd.o (admin only): VM host?
+* cornelius.fd.o (admin only): VM host?
+* patrick2, lyle, teodor (admin only): ?
+
+## Plans
+
+Most of our planning is discussed in [[freedesktop/freedesktop issues|https://gitlab.freedesktop.org/freedesktop/freedesktop/issues]] on GitLab.
+
+## Contacts
+
+The admins are reachable through GitLab issues or the [[sitewranglers list|https://lists.freedesktop.org/mailman/listinfo/sitewranglers]].

@@ -1,41 +1,23 @@
+freedesktop.org provides its code through Git, most of which can be found on [[our GitLab instance|https://gitlab.freedesktop.org]], or linked from our [[Software]] page.
 
+For more information on using Git, plenty of documentation is available on the internet, e.g. [[the Git book|https://git-scm.com/book/en/v2]] or GitLab's own help, available from the top of every page.
 
-## Users
+## How our Git is served
 
-Information for users who want to check out repositories and use them to build code and isolate bugs can find more information on [[the users page|Infrastructure/git/Users]]. 
+The following is probably not interesting to you, unless you care about the particular details of how our servers are configured.
 
+gitlab.fd.o is the master for all Git repositories (apart from the kernel), which is hosted on the Google Cloud Platform. For more details, see [[Infrastructure]].
 
-## Developers
+git.fd.o, anongit.fd.o, and cgit.fd.o are still run on the 'old' fd.o fleet at Portland State University, on the kemper.fd.o VM for git and molly.fd.o for anongit and cgit. git.fd.o/kemper has the master storage, exporting a read-only NFS mount to anongit/cgit. Similarly, annarchy.fd.o's `/home` (for people.fd.o) is NFS mounted into molly to allow cloning as well as cgit access.
 
-Information for developers who want to commit code and push and/or send patches can be found on [[the developers page|Infrastructure/git/Developers]]. 
+All repositories which started off on git.fd.o are still push-mirrored back from GitLab to the old locations; new repositories are not mirrored.
 
-Owen Taylor has created a tool for integrating git and bugzilla updates.   Documentation is [[provided with the tool|http://git.fishsoup.net/cgit/git-bz/tree/git-bz.txt]] and it has been further described in Owen's blog: [[git-bz: Bugzilla subcommand for Git|http://blog.fishsoup.net/2008/11/16/git-bz-bugzilla-subcommand-for-git/]], [[git bz push|http://blog.fishsoup.net/2009/09/05/git-bz-push/]]. 
+The mirroring is performed in a `post-receive` Git hook on the GitLab server. The hook is common to all repositories, in a common location with symlinks being manually placed in each repo's `custom_hooks` directory when the repo is created.
 
+Most manual hooks are still run from git.fd.o: anything that in particular sends email cannot be done directly from GitLab's GCP server, so we do this from kemper.
 
-## Creating your own repository
+## GitHub mirror
 
-Please see the [[repository admin page|Infrastructure/git/RepositoryAdmin]]. 
+The [[GitHub freedesktop mirror|https://github.com/freedesktop]] is controlled by us, and run from kemper. Each repo has a `post-receive` hook which writes the repo path into a socket; a daemon then runs and pushes out as a full mirror to GitHub with a magic hidden SSH key.
 
-
-## cia.vc integration
-
-If you want your notifications on IRC, we support integration with CIA.vc.  File a ticket to have your hook scripts updated, and make sure to tell us what the cia.vc project name is. 
-
-
-## Migration from CVS
-
-Instructions on [[migrating from CVS|Infrastructure/git/Migration]] are available. 
-
-
-## Wishlist
-
-We are also maintaining a rough wishlist of what we'd like to see [[changed in git|Infrastructure/git/UIFlaws]]. 
-
-
-## More Resources
-
-More documentation for both users and developers can be found at these sites: 
-
-* [[GitWiki: Git Documentation|http://git.or.cz/gitwiki/GitDocumentation]] 
-* [[The Git Community Book|http://book.git-scm.com/]] 
-* [[The Git Parable|http://tom.preston-werner.com/2009/05/19/the-git-parable.html]] 
+This means that pushes are doubly chained: the user pushes to gitlab.fd.o, which synchronously runs a `post-receive` hook that pushes to git.fd.o; git.fd.o synchronously runs its `post-receive` hooks, with the GitHub mirror running asynchronously. This means that pushes to GitLab may hang, or return errors, if git.fd.o is unavailable or its hooks fail.
