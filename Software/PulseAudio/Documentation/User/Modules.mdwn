@@ -629,12 +629,19 @@ Takes care of any bluetooth specific policy. Currently two features are implemen
 
 * Load module-loopback automatically for A2DP and HFGW sources, so that the received audio is automatically played back to some output.
 
+* Switch the card automatically between HSP/HFP and A2DP for headsets based on heuristics
+
 Supported arguments:
 
 * a2dp_source
    * A boolean argument controlling whether the module-loopback loading should be enabled for A2DP sources.
 * hfgw
    * A boolean argument controlling whether the module-loopback loading should be enabled for HFGW sources.
+* auto_switch
+   * An integer argument controlling whether Bluetooth devices (like headsets) should be switched between HFP and A2DP modes based on active streams
+   * If set to 0, this is disabled
+   * If set to 1, the switch happens when a capture stream with the "media.role" property set to "phone" appears (default)
+   * If set to 2, the switch happens based on some heuristics to detect whether there is a real need for a capture device to be available
 
 ### module-bluetooth-proximity
 
