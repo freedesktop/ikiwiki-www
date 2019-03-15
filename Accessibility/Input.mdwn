@@ -1,14 +1,18 @@
-### Only a keyboard
+# Use cases
 
-Needs keyboard shortcuts, MouseKeys.
+### Users who can only use a keyboard
 
-### Only a joystick
+Needs keyboard shortcuts
 
-Being able to use it as a mouse.
+Needs to be able to drive the mouse (-> MouseKeys)
 
-### Only a mouse or button
+### Users who can only use a joystick
 
-Using a virtual keyboard.
+Need to be able to drive the mouse
+
+### Users who can only use a mouse or a button
+
+Need to use a virtual keyboard.
 
 ### Half-keyboard
 
@@ -19,12 +23,34 @@ For people with one hand, using a toggle to "mirror" the keyboard layout. Some i
 
 Done in Xorg, in progress in Wayland
 
-* StickyKeys DONE
-* MouseKeys DONE
-* SlowKeys DONE
-* RepeatKeys ?
-* ToggleKeys DONE
-* BounceKeys DONE
+* StickyKeys: modifiers are sticky so the user does not have to be able to press several keys at the same time
+* MouseKeys: mouse can be driven from the keyboard
+* SlowKeys: only keys that are held for a longtime produce a key event.
+* RepeatKeys: the repeat delay can be set to a very long time.
+* ToggleKeys: makes an audible feedback when a toggle (capslock, numlock) is enabled (beep once) or disabled (beep twice)
+* BounceKeys: ignores rapide, repeated key events for the same key
+
+### Navigation shortcuts
+
+The user uses shortcuts to tell the screen reader specific actions (read the current line, the current character, spell the current word, detail the attributes of the text, get the content of the status bar, change feedback verbosity level, navigate the interface with global view)
+
+To avoid interfering with usual shortcuts, this is typically done with a "screen reader" key that needs to be pressed like a modifier. Typically, insert and capslock are used. For instance, one types insert-v to change the verbosity level. Double-typing that key however allows to achieve the original behavior.
+
+### Braille typing
+
+Some Braille output devices have braille keys, numbered from dot 1 to dot 8. One would for instance type dot 1 to type "a", which is sent by the device to the computer as "a" (not as dot1), which needs to be interpreted as such by the application. Pressing dot 1 and dot 2 at the same time produces "b", which is sent as such by the device, and so one.
+
+Some people can not afford a Braille output device with such keys, and would use the keyboard to type Braille, using keys 'a', 's', 'd', 'f', 'j', 'k', 'l', ';' in a chord. For instance, the 'f' keyboard key is dot 1, and thus typing it alone produces "a". The 'd' keyboard key is dot 2, and thus typing both 'f' and 'd' at the same time produces "b".
+
+Braille contains abreviations. For instance, dot1 ("a") followed by dot1+dot2 ("b") is a contraction for "about". Typing dot1 alone then dot1 and dot2 together, then a word separator character, should expand the contraction to produce "about".
+
+### Global positioning
+
+The user uses e.g. a touchpad as a global positioning device within a virtual field, while another device provides tactile feedback of the virtual field. For instance, allows to get feedback on the frames of the windows of the desktop.
+
+### To be continued...
+
+# Ways to achieve them
 
 ### Mouse event injection
 
