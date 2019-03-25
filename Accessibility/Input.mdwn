@@ -117,13 +117,18 @@ User would use a touchscreen in review mode: while moving the finger around the 
 
 ### Braille typing
 
-Some Braille output devices have braille keys, numbered from dot 1 to dot 8. One would for instance type dot 1 to type "a", which is sent by the device to the computer as "a" (not as dot1), which needs to be interpreted as such by the application. Pressing dot 1 and dot 2 at the same time produces "b", which is sent as such by the device, and so one.
+Some Braille output devices have braille keys, numbered from dot 1 to dot 8. One would for instance type dot 1 to type "a", which is sent by the device to the computer as "a" (not as dot1), which needs to be interpreted as such by the application. Pressing dot 1 and dot 2 at the same time produces "b", which is sent as such by the device, and so one. This is delivered through the brlapi protocol.
+
+* -> either compositor or libinput could have a libbrlapi driver.
+* -> need to use the text protocol to deliver the text to applications.
 
 Some people can not afford a Braille output device with such keys, and would use the keyboard to type Braille, using keys 'a', 's', 'd', 'f', 'j', 'k', 'l', ';' in a chord. For instance, the 'f' keyboard key is dot 1, and thus typing it alone produces "a". The 'd' keyboard key is dot 2, and thus typing both 'f' and 'd' at the same time produces "b".
 
 Braille contains abreviations. For instance, dot1 ("a") followed by dot1+dot2 ("b") is a contraction for "about". Typing dot1 alone then dot1 and dot2 together, then a word separator character, should expand the contraction to produce "about".
 
 We want the screen reader to be able to provide feedback (optionally "a" and "b", and always "about")
+
+* This can probably be implemented as an input method. 
 
 ### Global positioning
 
