@@ -4,42 +4,59 @@
 
 Need keyboard shortcuts for all actions in applications.
 
-Need to be able to drive the pointer for positioning actions (-> MouseKeys)
+Need to be able to drive the pointer for positioning actions
+
+* -> MouseKeys, currently implemented in mutter,
+* could be moved to a separate library to make it shared with other compositors?
+  * needs to intercept keypad presses/releases, and emit events for a virtual mouse (relative positioning)
 
 ### Users who can only use a joystick
 
-Need to be able to drive the pointer -> [[support in libinput?|https://gitlab.freedesktop.org/libinput/libinput/issues/255]]
+Need to be able to drive the pointer
+
+* -> [[support in libinput?|https://gitlab.freedesktop.org/libinput/libinput/issues/255]]
 
 ### Users who can only drive the pointer, or just use a button
 
 Need to use a virtual keyboard.
 
+* -> virtual keyboard application needs to be able to inject keyboard events
+
 ### Users who can only move an eye
 
 Need to use eye-tracking, e.g. with http://viacam.org , which needs to drive the pointer.
 
-It also needs to detect when the user is using the traditional mouse, to disable the tracker when somebody else is assisting the user.
+It also needs to detect when the user is using the traditional mouse, to disable the tracker when somebody else is assisting the user. Otherwise we can easily get stuck with eye-tracking and not be able to control the computer any more.
+
+* -> needs to be able to emit events for a virtual mouse (absolute positioning)
+* -> needs to be able to know when events happen from another mouse.
 
 ### Users who can not afford any of these, but can speak
 
 Need to use speech recognition.
 
-Triggered actions should be not only keypresses, but also high-level actions, to avoid having to know and spell the keypresses to use to achieve the action, i.e. "copy", "paste", not "control-c", "control-v".
+Triggered actions should be keypresses, but also high-level actions, to avoid having to know and spell the keypresses to use to achieve the action, i.e. "copy", "paste", not "control-c", "control-v".
 
 The actions can also be selecting e.g. an icon by its name.
+
+* -> needs to be able to emit keyboard events. high-level actions should probably go through at-spi.
 
 ### Selecting a region
 
 shouldn't require using a mouse. Mark & point method needs to be available.
 
+* should probably go through at-spi.
+
 ### Half-keyboard
 
 For people with one hand, using a toggle to "mirror" the keyboard layout. Some implementations use xkb: 
-[[http://blog.xkcd.com/2007/08/14/mirrorboard-a-one-handed-keyboard-layout-for-the-lazy/]] , others use extensions: [[http://kieranbingham.co.uk/implementing-xhk/]] , [[https://github.com/kbingham/xhk]]
+[[http://blog.xkcd.com/2007/08/14/mirrorboard-a-one-handed-keyboard-layout-for-the-lazy/]] , others use extensions: [[http://kieranbingham.co.uk/implementing-xhk/]] , [[https://github.com/kbingham/xhk]]. In principle this would be at the physical level, but depending on the layout details may vary. A generic implementation would already be useful, though.
+
+* Could be implemented like AccessX
 
 ### AccessX
 
-Done in Xorg, done in mutter
+Done in Xorg, done in mutter, could be moved to a shared library so that other compositors can share it?
 
 * [[StickyKeys|https://en.wikipedia.org/wiki/Sticky_keys]]: modifiers are sticky so the user does not have to be able to press several keys at the same time
 * [[MouseKeys|https://en.wikipedia.org/wiki/Mouse_keys]]: mouse can be driven from the keyboard
@@ -48,23 +65,46 @@ Done in Xorg, done in mutter
 * [[ToggleKeys|https://en.wikipedia.org/wiki/ToggleKeys]]: makes an audible feedback when a toggle (capslock, numlock) is enabled (beep once) or disabled (beep twice)
 * [[BounceKeys|https://en.wikipedia.org/wiki/Bounce_keys]]: ignores rapid, repeated key events for the same key
 
+Basically, these intercept keyboard events, and deliver (possibly other) events for virtual keyboard/mouse devices.
+
 ### Navigation shortcuts
 
 The user uses shortcuts to tell the screen reader specific actions (read the current line, the current character, spell the current word, detail the attributes of the text, get the content of the status bar, change feedback verbosity level, navigate the interface with global view, etc.)
 
-To avoid interfering with usual shortcuts in some situations, some of these are done with a "screen reader" key that needs to be pressed like a modifier. Typically, insert and capslock are used. For instance, one types insert-v to change the verbosity level. Double-typing that "screen reader" key however should allow to achieve the original behavior.
+To avoid interfering with usual shortcuts in some situations, some of these are done with a "screen reader" key that needs to be pressed like a modifier. Typically, insert or capslock are used. For instance, one types insert-v to change the verbosity level. Double-typing that "screen reader" key however should allow to achieve the original behavior.
+
+* Currently, this snooping is done within the toolkits, but this is getting pushed out, see [[https://gitlab.gnome.org/GNOME/gtk/issues/1739]]
+* This is a sensitive question because we don't want to allow keyloggers.
+* We do not want to include the screen reader within the compositor, at least just because it's written in Python.
+* We do not want to have to wait, for each keypress, for the screen reader to tell whether it wants it or not.
+* The compositor could expose an API for the screen reader to register the shortcuts it is interested in.
+* the screen reader key, in the end, should act either as a modifier (and thus be affected by StickyKeys for instance) to trigger screen reader shortcuts, or as a normal key (if it's pressed alone).
 
 ### key typing feedback
 
 Users needs to have audio feedback of what they are typing, i.e. not the physical key, but the label of the key that was pressed. 
 
+* -> the screen reader needs to get a notification (can be async) of all keypresses
+* Same remarks as above for security. This event can be always async
+* -> The compositor could expose an API for the screen reader to get notifications of keypresses.
+
 In the case of the Compose key, the resulting output should be spoken.
 
+* Only the toolkit really knows what composition rule was used,
+* -> so this (async) notification needs to be done from the toolkit, to provide the eventual string.
+
 In the case of input methods, the resulting output should be spoken as well.
+
+* The input method and the toolkit know the eventual string.
+* -> It could be either of them to notify of the result.
 
 ### Mouse review
 
 User needs feedback on what is under the pointer, to be sure what s⋅he clicks on. The screen reader thus either needs the coordinates of the pointer to determine what widget is at these coordinates, or hover feedback from the widget itself.
+
+* Only the compositor knows where windows are and the absolute pointer position
+* toolkits only provide the relative positions of widgets within the window.
+* -> The compositor could expose an API for the screen reader to get notifications of mouse movement, over which window it currently is, and the position of the window.
 
 ### Touchscreen review
 
