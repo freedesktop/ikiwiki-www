@@ -35,12 +35,15 @@ Getting it started by hand (normally done by the Desktop Environment session man
 
         $ dbus-monitor --address unix:abstract=/tmp/dbus-6fNHBTP2lK,guid=9d17aaa3ca64ff4b66f0c5985442999e
 
-* Some applications need explicit accessibility enabling:
+* Whether applications should enable their at-spi2 support is defined by the IsEnabled property of org.a11y.Status in the accessibility bus.
+
+* One can force enabling accessibility (but ideally it should be automatic thanks to the property mentioned above):
 
         export GTK_MODULES=gail:atk-bridge
         export OOO_FORCE_DESKTOP=gnome
         export GNOME_ACCESSIBILITY=1
         export QT_ACCESSIBILITY=1
+        export QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1
 
 * Accessibility enabling can be tested with this script:
 
