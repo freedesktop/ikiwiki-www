@@ -19,7 +19,7 @@ There are relatively few geometry descriptions that are currently available. Peo
 
 * adding new <i>xkb_symbols</i> section to <i>symbols/inet</i>
 * extending <i>$inetkbds</i> list in <i>rules/base.lists.part</i>
-* adding new <i>model</i> section to <i>rules/base.xml.in</i> (in <i>modelList</i>)
+* adding new <i>model</i> section to <i>rules/base.xml</i> (in <i>modelList</i>)
 
 2. It is recommended to use **{v}{m}** pattern for the model name, where **{v}** is abbreviated vendor name. **{m}** is the model name. Recommended vendor abbreviations:
 
@@ -34,9 +34,9 @@ There are relatively few geometry descriptions that are currently available. Peo
 * 'microsoft' - Microsoft
 * 'samsung' - Samsung
 
-3. The name of <i>xkb_symbols</i> section (in <i>symbols/inet</i>) should be same as the new element in the <i>$inetkbds</i> list (in <i>base.lists.part</i>), same as <i>name</i> element (in <i>base.xml.in</i>).
+3. The name of <i>xkb_symbols</i> section (in <i>symbols/inet</i>) should be same as the new element in the <i>$inetkbds</i> list (in <i>base.lists.part</i>), same as <i>name</i> element (in <i>base.xml</i>).
 
-4. The <i>vendor</i> element in <i>base.xml.in</i> has to be specified.
+4. The <i>vendor</i> element in <i>base.xml</i> has to be specified.
 
 5. While defining <i>xkb_symbols</i>, it is strongly recommended to include (where applicable) shared sections for the media and navigation keys:
 
@@ -56,7 +56,7 @@ There are relatively few geometry descriptions that are currently available. Peo
 
 6. The key mappings have to be sorted alphabetically, by the keycode name.
 
-7. If your keyboard model mapping is entirely covered by some existing section <i>symbols/inet</i> (some keycodes may be not actually used by your keyboard), do not create a new section consisting of a single <i>include</i> statement. Instead, create an alias in <i>rules/base.m_s.part</i> file and add it into <i>rules/base.xml.in</i>, as usual.
+7. If your keyboard model mapping is entirely covered by some existing section <i>symbols/inet</i> (some keycodes may be not actually used by your keyboard), do not create a new section consisting of a single <i>include</i> statement. Instead, create an alias in <i>rules/base.m_s.part</i> file and add it into <i>rules/base.xml</i>, as usual.
 
 <a name="LV"></a>
 # Layouts, Variants
@@ -65,7 +65,7 @@ There are relatively few geometry descriptions that are currently available. Peo
 
 2. Every layout/variant has to be defined for some particular country, it should go into the file <i>symbols/{cc}</i> where <i>{cc}</i> is 2-letter country code from [[ISO 3166-1 alpha 2|http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2]]. The language-based layout/file names are not accepted. If several countries are using the same layout (for example, several countries share the same language), it should be fully defined for one country only - and included by reference into the files for other countries
 
-3. Every layout/variant has to be registered in <i>rules/base.xml.in</i>.
+3. Every layout/variant has to be registered in <i>rules/base.xml</i>.
 
 	There is only one exception: default variants. These are the variants which are either marked by "default" keyword in the symbols file (it is recommended to put them first and name them <i>basic</i>), or used as default because of some rule in the <i>rules/base</i> file (usually by modifying <i>rules/base.ml_s.part</i> component).
 
@@ -80,13 +80,11 @@ There are relatively few geometry descriptions that are currently available. Peo
 * 'us' - for variants which are using standard American layout as a basis, adding some national characters
 * 'winkeys' - for variants which are not standardized nationally but used in Microsoft Windows
 
-5. Every layout/variant has to provide a full description. First - as the group name in the symbols file, second - as the translatable description in <i>rules/base.xml.in</i>.
+5. Every layout/variant has to provide a full description. First - as the group name in the symbols file, second - as the translatable description in <i>rules/base.xml</i>.
 
-	The general approach for the descriptions is to follow "<Language>" or <"Language> (<variation>)" convention, for example: "English" or "Russian (legacy)". The usual practice is to use the country name as variation name, for example: "French (Canada)". The language has to be chosen as the one that is most frequently used with that layout/variant. That language has to be put first into the languageList attribute in base.xml.in (if the variant record does not have own languageList, the parent layout's languages are used).
+	The general approach for the descriptions is to follow "<Language>" or <"Language> (<variation>)" convention, for example: "English" or "Russian (legacy)". The usual practice is to use the country name as variation name, for example: "French (Canada)". The language has to be chosen as the one that is most frequently used with that layout/variant. That language has to be put first into the languageList attribute in base.xml (if the variant record does not have own languageList, the parent layout's languages are used).
 
-	Descriptions have to be put into base.xml.in with the underscore in the tag name: <_description>Romanian (Germany)</_description>. This is necessary for i18n.
-
-6. For the layouts/variants that are "exotic", it is recommended to use base.extras.xml.in instead of base.xml.in. The word "exotic" is used in statistical sense only.
+6. For the layouts/variants that are "exotic", it is recommended to use base.extras.xml instead of base.xml. The word "exotic" is used in statistical sense only.
 
 	There is no formal definition of "exotic", because in most cases it is not possible to prove the actual number of users. There are several "usual suspects" for the "exotic" section:
 
@@ -104,7 +102,7 @@ There are relatively few geometry descriptions that are currently available. Peo
 
 	    // EXTRAS:
 
-7. The short description (shortDescription tag) is recommended for the indicators that use labels (as opposite to flags) for providing the user with the information about currently used layout/variant. This description is expected to contain the 2-letter [[ISO639-1 code|http://www.loc.gov/standards/iso639-2/php/code_list.php]] (in lowercase) of the primary language - or, if no ISO639-1 exists for that language, it can be 3-letter code from ISO639-2 or ISO639-3. That code is made translatable (please use <_shortDescription> in base.xml.in and base.extras.xml.in), so that localized GUI can display some abbreviations suitable for the current locale. If some variant does not provide own short description, the short description from the parent layout is expected to be used.
+7. The short description (shortDescription tag) is recommended for the indicators that use labels (as opposite to flags) for providing the user with the information about currently used layout/variant. This description is expected to contain the 2-letter [[ISO639-1 code|http://www.loc.gov/standards/iso639-2/php/code_list.php]] (in lowercase) of the primary language - or, if no ISO639-1 exists for that language, it can be 3-letter code from ISO639-2 or ISO639-3. That code is made translatable, so that localized GUI can display some abbreviations suitable for the current locale. If some variant does not provide own short description, the short description from the parent layout is expected to be used.
 
 8. For layouts/variants using more than 2 shift levels, it is highly recommended to include <i>level3(ralt_switch)</i> symbols definition - for standard switching to levels 3 and 4 using AltGr key.
 
