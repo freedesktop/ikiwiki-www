@@ -10,6 +10,21 @@
 * Unicode 12.1 support
 * Bug fixes
 
+Speaking more for flatpak rework, fontconfig relies on font paths to determine cache filename and the path is used to generate MD5. this means fontconfig re-generates caches when paths are changed even if they have same fonts.  This affects the performance a lot on Flatpak applications because they share fonts from host on different paths and then re-generating caches at first run.
+So we put and UUID into .uuid at a font directory as an unique indentifier, and generate caches with it instead of MD5.  However this affects the reproducible builds now because UUID is randomly generated and it is impossible to predict.  So we've reverted this and implemented new one to share caches. it can be done in configuration now:
+
+>  &lt;remap-dir as-path="/usr/share/fonts"&gt;/run/host/fonts&lt;/remap-dir&gt;
+
+which means mapping a path "/usr/share/fonts" to /run/host/fonts. when accessing a font under /run/host/fonts, fontconfig will be going to find out a cache of name MD5("/usr/share/fonts") instead of MD5("/run/host/fonts").
+So what if having own fonts under /usr/share/fonts ?
+To address this, fontconfig extends dir element to give a salt to allow generating different cache name:
+
+>  &lt;dir salt="unique identifier"&gt;/usr/share/fonts&lt;/dir&gt;
+
+This change allows to deal with a set of different fonts in same paths between hosts and containers say.
+
+&lt;reset-dirs/&gt; removes all of fonts directories where added by dir elements. this is useful when you want to override fonts directories without modifying fonts.conf.
+
 ### Fontconfig 2.12.93
 
 * Bug fixes
