@@ -127,11 +127,20 @@ Some Braille output devices have braille keys, numbered from dot 1 to dot 8. One
 
 Some people can not afford a Braille output device with such keys, and would use the keyboard to type Braille, using keys 'a', 's', 'd', 'f', 'j', 'k', 'l', ';' in a chord. For instance, the 'f' keyboard key is dot 1, and thus typing it alone produces "a". The 'd' keyboard key is dot 2, and thus typing both 'f' and 'd' at the same time produces "b".
 
+Some people have only one hand, and thus need to type Braille pattern in two halves, typically typing dots 1237 first then 4568.
+
 Braille contains abreviations. For instance, dot1 ("a") followed by dot1+dot2 ("b") is a contraction for "about". Typing dot1 alone then dot1 and dot2 together, then a word separator character, should expand the contraction to produce "about".
 
 We want the screen reader to be able to provide feedback (optionally "a" and "b", and always "about")
 
-* This can probably be implemented as an input method. 
+Typing includes various kinds of cases:
+
+- simple press of physical keys, possibly with extra modifiers
+- press of key symbols: "a", "A", "À", possibly with extra modifiers
+- suite of Braille patterns to be uncontracted
+
+* Some of this can probably be implemented as an input method.
+* But some of this can not (e.g. typing keyboard shortcut such as control-c)
 
 ### Global positioning
 
@@ -147,13 +156,6 @@ It should be possible to make touchpad gestures act as key presses (e.g. arrows)
 * -> be able to interpret gestures and prevent the touch pad from moving the pointer.
 * be able to emit key presses
 * can't really stuff it all completely in the compositor (has to interact with at-spi for the high-level actions)
-
-### Note
-
-Key injection includes all kinds of cases:
-
-- simple press of physical keys, possibly with extra modifiers
-- press of key symbols: "a", "A", "À", possibly with extra modifiers
 
 ### To be continued...
 
