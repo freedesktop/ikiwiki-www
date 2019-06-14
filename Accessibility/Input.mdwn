@@ -142,6 +142,13 @@ Typing includes various kinds of cases:
 * Some of this can probably be implemented as an input method.
 * But some of this can not (e.g. typing keyboard shortcut such as control-c)
 
+One way to see it is with several layers of translation, and depending on the kind of typing (PC keyboard, Braille keyboard with separate key events, Braille keyboard with whole chord, Braille keyboard providing directly the translated letter):
+
+* Pure Braille key presses, showing up as 0xfff1-8 braille dot keysyms.
+* Some processing turns this into braille pattern keysyms (currently handled in libX11, but could be around libinput), possibly with handling typing Braille by halves
+* Some processing turns some of this into keysyms (for keyboard shortcuts) to be delivered to applications
+* Others are passed a such to applications, to be translated by an input method.
+
 ### Global positioning
 
 The user uses e.g. a touchpad as a global positioning device within a virtual field, while another device provides tactile feedback of the virtual field. For instance, allows to get feedback on the frames of the windows of the desktop.
