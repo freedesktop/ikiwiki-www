@@ -5,7 +5,8 @@
 ## Changes at a glance
 
 * Added support for Dolby TrueHD and DTS-HD Master Audio
-* Improved initial card profile selection
+* Improved initial card profile selection for ALSA cards
+* Bluetooth card profile choices aren't persistent any more by default
 * Added support for SteelSeries Arctis 5 USB headset
 * New "max_latency_msec" module argument for module-loopback
 * New "stream_name" module argument for module-rtp-send
@@ -14,7 +15,7 @@
 * New "avoid_resampling" module argument for module-udev-detect and module-alsa-card
 * New function to enable realtime scheduling for client threads
 * Removed BlueZ 4 support
-* Drop intltool
+* Dropped intltool
 * Some initial work on a Meson build system
 
 ## Notes for end users
@@ -23,9 +24,13 @@
 
 It's now possible to play Dolby TrueHD and DTS-HD Master Audio encoded audio in passthrough mode. TODO: Are there any caveats? There were some complications related to these formats...
 
-### Improved initial card profile selection
+### Improved initial card profile selection for ALSA cards
 
 When a new card shows up (during PulseAudio startup or hotplugged), PulseAudio needs to pick the initial profile for the card. Unavailable profiles shouldn't be picked, but module-alsa-card sometimes marked unavailable profiles as available, causing bad initial profile choices. Specifically, if a profile contains a sink and a source, and only one of them is available, the profile should be marked as unavailable, but previously it was marked as available. As a result PulseAudio might pick a profile with a non-working output. That's now fixed.
+
+### Bluetooth card profile choices aren't persistent any more by default
+
+Which profile to use with bluetooth is highly context dependent (HSP/HFP for phone calls, A2DP for everything else), so there's not much point in saving user's profile choices. It's better to just use A2DP by default and switch to HSP when necessary (automatically when possible). It's still possible to enable persistent profile choices by passing "restore_bluetooth_profile=true" as an argument to module-card-restore.
 
 ### Added support for SteelSeries Arctis 5 USB headset
 
@@ -63,7 +68,7 @@ pa_thread_make_realtime() is a new utility function that can be used to enable r
 
 BlueZ 5.0 was released in 2012, and the 4.x series has been unmaintained since then. Now PulseAudio has dropped support for BlueZ 4.
 
-### Drop intltool
+### Dropped intltool
 
 PulseAudio now uses a newer gettext version that removes the need to use intltool. The required minimum gettext version is now 0.19.3.
 
