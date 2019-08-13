@@ -43,7 +43,7 @@ Accessibility support is needed in applications, through [[Accessibility/AT-SPI2
 [[!img at-spi.png align="center" alt="at-spi stack overview"]]
 ([[source|at-spi.fig]])
 
-Toolkits can either implement the at-spi dbus protocol themselves (as is done by qt5), or use Atk to do the at-spi marshalling for them. In such a case, a tree of AtkObject can either be built along the toolkit widget tree (as is done externally and even lazily by java-atk-wrapper), or within the toolkit widget tree itself: for instance gtk's base GtkWindow object contains an AtkObject *accessible field.
+Toolkits can either implement the at-spi dbus protocol themselves (as is done by qt5), or use Atk to do the at-spi marshalling for them. In such a case, a tree of AtkObject can either be built along the toolkit widget tree (as is done externally and even lazily by java-atk-wrapper), or within the toolkit widget tree itself: for instance gtk's base GtkWindow object contains an AtkObject *accessible field, subclass initialization functions specify with gtk_widget_class_set_accessible_type which precise accessible type should be used, and gtk will eventually create the right AtkAccessible subclass in gtk_widget_real_get_accessible.
 
 
 A [[Accessibility/Walkthrough/]] documents the RPC and function calls details.
