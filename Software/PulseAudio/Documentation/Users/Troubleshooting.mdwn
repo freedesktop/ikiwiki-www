@@ -11,6 +11,12 @@ $ which pulseaudio
 
 ## Is Pulseaudio running?
 
+[[!format txt """
+$ ps aux | grep pulseaudio
+xxxxxxx+  9255  1.2  0.0 602168  8832 ?        S<l  Aug12  34:15 /usr/local/bin/pulseaudio --start --log-target=syslog
+xxxxxxx+ 27742  0.0  0.0  18940   928 pts/0    S+   16:21   0:00 grep --color=auto pulseaudio
+"""]]
+
 This is the software equivalent of the "is it turned on at the wall" question! You can run the command `ps aux | grep pulseaudio` to see if there is a pulseaudio process currently running (ignore the grep command if it shows up in the list returned!). If pulseaudio is not running, you can start it by running `pulseaudio -D`, although it is probably better to understand **why** it is not running. Different distributions start pulseaudio in different ways, and, as of v0.9.11, pulseaudio will actually autospawn itself whenever anything needs to make use of it. Typically, to start pulse at X11 login and keep it running (so it can detect removable, bluetooth and network sound devices), an XDG _.desktop_ file is used to run the script `start-pulseaudio-x11`. Please ask your distro support group for more info if you are interested in the startup procedure. 
 
 
