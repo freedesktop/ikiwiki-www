@@ -10,9 +10,12 @@ Repositories and the PostgreSQL database are both stored on persistent disks map
 
 Docker Registry images, file uploads and attachments, and backups, are all stored within Google Cloud Storage buckets. Backups are retained for one week.
 
-There are two shared runners available for all GitLab CI jobs:
+There are several shared runners available for all GitLab CI jobs:
 * fdo-gitlab-gce-runner3 executes 4 concurrent jobs, and is a 22 vCPU, 128GB RAM worker hosted in GCE's us-east1, with 1TB of NVMe storage
-* gst-gitlab-htz-runner1 executes 6 concurrent jobs, and is a 24 vCPU, 128GB RAM worker hosted in Hetzner Germany, with 256GB of SSD storage
+* fdo-gitlab-packet-runner2 and fdo-gitlab-packet-runner3 execute 2 concurrent jobs, and are 8 vCPU, 32GB RAM workers hosted in Packet's SJC1, with 240GB of NVMe storage
+* gst-gitlab-htz-runner2 and gst-gitlab-htz-runner3 execute 6 concurrent jobs, and are a 48 vCPU, 128GB RAM workers hosted in Hetzner Germany, with 1.8TB of SSD storage
+* Windows: gst-gitlab-htz-runner4 executes 6 concurrent jobs, and is a 24 vCPU, 128GB RAM worker hosted in Hetzner Germany, with 256GB of SSD storage
+* AArch64: fdo-gitlab-packet-arm-runner1 executes 4 concurrent jobs, and is a 32 vCPU, 128GB RAM worker hosted in Packet SJC1, with 480GB of SSD storage
 
 Given the level of concurrency, you should aim for each job to parallelise with 4 concurrent processes.
 
@@ -28,7 +31,7 @@ All the other services are run on a small fleet of machines hosted at Portland S
 
 This list is not quite complete.
 
-* fruit.fd.o (admin only): runs OpenLDAP and a very ancient fork of Debian's userdir-ldap, used to produce our user account database which is then distributed to all the other machines with rsync
+Primary service hosts:
 * gabe.fd.o (restricted access): serves DNS with Bind for fd.o and X.Org; MX with Postfix for all incoming fd.o/x.org mail and the only outgoing mail relay; runs Apache for web access to Mailman lists; hosts some confidential X.Org Board of Directors information; is still somehow 32-bit
 * kemper.fd.o (restricted access): git.fd.o host for master Git repo storage; users can push with Git but not get a shell; exports read-only NFS mountpoint for git
 * annarchy.fd.o (open access): serves HTTP with Apache for most project-specific pages, the www.fd.o wiki, and people.fd.o; general shell host; much abused for arbitrary user file storage and exchange; serves home directories over NFS
@@ -37,11 +40,13 @@ This list is not quite complete.
 * emeril.fd.o (restricted access): serves Patchwork (in Python venv) and members.x.org (in Docker container); runs Postfix for incoming Patchwork mail
 
 Virtual machines:
-* patrick.fd.o (admin only): used for adminstering VMs?
-* ray.fd.o (admin only): VM host?
-* todd.fd.o (admin only): VM host?
-* cornelius.fd.o (admin only): VM host?
-* patrick2, lyle, teodor (admin only): ?
+* lyle.fd.o (amdin only): Ganeti VM cluster control host, Ganeti VM host
+* teodor.fd.o (admin only): Ganeti VM host
+* cornelius.fd.o (admin only): Bacula backup master
+* fruit.fd.o (admin only): runs OpenLDAP and a very ancient fork of Debian's userdir-ldap, used to produce our user account database which is then distributed to all the other machines with rsync
+* patrick.fd.o (admin only): admin VM
+* ray.fd.o (admin only): ?
+* todd.fd.o (admin only): ?
 
 ## Plans
 
