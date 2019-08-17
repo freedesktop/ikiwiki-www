@@ -13,16 +13,18 @@
 * Fixed S/PDIF for CMEDIA USB2.0 High-Speed True HD Audio
 * Use source sample spec and channel map by default in module-loopback
 * New "avoid_resampling" module argument for module-udev-detect and module-alsa-card
+* "avoid_resampling" also tries to avoid format conversion if the ALSA device supports it
 * New function to enable realtime scheduling for client threads
 * Removed BlueZ 4 support
 * Dropped intltool
-* Some initial work on a Meson build system
+* Introduction of the Meson build system
+* Const-ification of parameters across headers
 
 ## Notes for end users
 
 ### Added support for Dolby TrueHD and DTS-HD Master Audio
 
-It's now possible to play Dolby TrueHD and DTS-HD Master Audio encoded audio in passthrough mode. TODO: Are there any caveats? There were some complications related to these formats...
+It's now possible to play Dolby TrueHD and DTS-HD Master Audio encoded audio in passthrough mode. Players need to be updated to expose support for these formats.
 
 ### Improved initial card profile selection for ALSA cards
 
@@ -32,9 +34,11 @@ When a new card shows up (during PulseAudio startup or hotplugged), PulseAudio n
 
 Which profile to use with bluetooth is highly context dependent (HSP/HFP for phone calls, A2DP for everything else), so there's not much point in saving user's profile choices. It's better to just use A2DP by default and switch to HSP when necessary (automatically when possible). It's still possible to enable persistent profile choices by passing "restore_bluetooth_profile=true" as an argument to module-card-restore.
 
-### Added support for SteelSeries Arctis 5 USB headset
+### Added support for some SteelSeries Arctis 5 USB headset
 
 The Arctis headsets are unusual in that they provide separate outputs with separate volume controls for speech and other audio (which is useful with gaming), which requires some custom configuration in PulseAudio. PulseAudio 12.0 added support for the Arctis 7 headset, and now PulseAudio 13.0 adds support for the Arctis 5 headset too.
+
+We are still discovering new USB product IDs for this series, and support for more headsets will be coming.
 
 ### New "max_latency_msec" module argument for module-loopback
 
@@ -42,7 +46,7 @@ The "max_latency_msec" module argument can be used to set an upper limit for the
 
 ### New "stream_name" module argument for module-rtp-send
 
-module-rtp-send has so far used "PulseAudio RTP Stream on &lt;address>" as the name for the RTP stream that it creates. If a different name is desired, it can be set with the new "stream_name" module argument.
+module-rtp-send has so far used "PulseAudio RTP Stream on &lt;address&gt;" as the name for the RTP stream that it creates. If a different name is desired, it can be set with the new "stream_name" module argument.
 
 ### Fixed S/PDIF for CMEDIA USB2.0 High-Speed True HD Audio
 
@@ -56,11 +60,19 @@ Previously module-loopback used the sink sample spec and channel map by default,
 
 The global "avoid-resampling" option in daemon.conf can now be overridden for all ALSA cards in module-udev-card and for a specific card in module-alsa-card with the "avoid_resampling" module argument. This isn't very useful for end users currently, though, because configuring the option per-card is rather complicated. The new feature is mainly useful for system integrators who want to set a fixed sample rate for the "main" sound card (because that's the rate they test, and other sample rates are a risk), but want to allow e.g. USB sound cards to use any sample rate. To do that, daemon.conf should have "avoid-resampling=yes" set, and udev needs to be configured to set the PULSE_IGNORE variable for the main sound card so that module-udev-detect doesn't load the card, and then module-alsa-card needs to be explicitly loaded for the main sound card in default.pa with "avoid_resampling=no".
 
+### "avoid_resampling" also tries to avoid format conversion if the ALSA device supports it
+
+In addition to reconfiguring the sample rate on the ALSA device to avoid resampling, we also try to reconfigure the sample format. This would allow, for example, switching between 16- and 24-bit audio based on the file being played if the hardware supports it.
+
 ## Notes for application developers
 
 ### New function to enable realtime scheduling for client threads
 
 pa_thread_make_realtime() is a new utility function that can be used to enable realtime scheduling for the calling thread. That is useful if the application developer doesn't want to figure out the operating system's APIs by themself. The function uses [[RealtimeKit|http://git.0pointer.net/rtkit.git/tree/README]] when available, otherwise operating system specific low-level interfaces are used.
+
+###  Const-ification of parameters across headers
+
+A number of parameters across heads have been marked with the "const" qualifier where applicable. This should not have a visible impact, other than in some corner cases. We are aware that the QT project uses a mix of their own declarations and system headers (there is a [[bug to track this|https://gitlab.freedesktop.org/pulseaudio/pulseaudio/issues/707]]).
 
 ## Notes for packagers
 
@@ -72,9 +84,9 @@ BlueZ 5.0 was released in 2012, and the 4.x series has been unmaintained since t
 
 PulseAudio now uses a newer gettext version that removes the need to use intltool. The required minimum gettext version is now 0.19.3.
 
-### Some initial work on a Meson based build system
+### Introduction of the Meson build system
 
-The plan is to move to a [[Meson|https://mesonbuild.com/]] based build system. There is some initial work done on the Meson migration, but for now the build definitions are not complete enough to be ready for production.
+The plan is to move to a [[Meson|https://mesonbuild.com/]] based build system. This should be considered to be in "beta". Packagers are encourage to use it and report issues to allow for a smooth migration. *There are known potential performance issues while the meson build on ARM. This will be addressed in the next release.*
 
 ## git shortlog
 
