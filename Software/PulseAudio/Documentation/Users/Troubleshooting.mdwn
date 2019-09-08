@@ -8,7 +8,25 @@ Most applications use the alsa interface to playback or capture audio.
 
 application<->default_pcm<->pulseaudio<->alsa<->soundcard
 
-- describe how the default pcm routes through pulseaudio
+[[!format txt """
+$ cat /usr/share/alsa/pulse-alsa.conf 
+# This file is referred to by /usr/share/alsa/pulse.conf to set pulseaudio as
+# the default output plugin for applications using alsa when PulseAudio is
+# running.
+
+pcm.!default {
+    type pulse
+    hint {
+        show on
+        description "Playback/recording through the PulseAudio sound server"
+    }
+}
+
+ctl.!default {
+    type pulse
+}
+"""]]
+
 [[!format txt """
 $ aplay -L | head -n2
 default
