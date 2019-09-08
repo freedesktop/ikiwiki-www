@@ -8,6 +8,8 @@ Most applications use the alsa interface to playback or capture audio.
 
 application<->default_pcm<->pulseaudio<->alsa<->soundcard
 
+Most distros come with alsa configured similar to the following. This configuration overrides the default pcm so that it routes through pulseaudio.
+ 
 [[!format txt """
 $ cat /usr/share/alsa/pulse-alsa.conf 
 # This file is referred to by /usr/share/alsa/pulse.conf to set pulseaudio as
@@ -26,6 +28,8 @@ ctl.!default {
     type pulse
 }
 """]]
+
+You can verify that the route is present and correct with the following command. 
 
 [[!format txt """
 $ aplay -L | head -n2
