@@ -59,7 +59,7 @@ Previously module-loopback used the sink sample spec and channel map by default,
 
 ### New "avoid_resampling" module argument for module-udev-detect and module-alsa-card
 
-The global "avoid-resampling" option in daemon.conf can now be overridden for all ALSA cards in module-udev-card and for a specific card in module-alsa-card with the "avoid_resampling" module argument. This isn't very useful for end users currently, though, because configuring the option per-card is rather complicated. The new feature is mainly useful for system integrators who want to set a fixed sample rate for the "main" sound card (because that's the rate they test, and other sample rates are a risk), but want to allow e.g. USB sound cards to use any sample rate. To do that, daemon.conf should have "avoid-resampling=yes" set, and udev needs to be configured to set the PULSE_IGNORE variable for the main sound card so that module-udev-detect doesn't load the card, and then module-alsa-card needs to be explicitly loaded for the main sound card in default.pa with "avoid_resampling=no".
+The global "avoid-resampling" option in daemon.conf can now be overridden for all ALSA cards in module-udev-detect and for a specific card in module-alsa-card with the "avoid_resampling" module argument. This isn't very useful for end users currently, though, because configuring the option per-card is rather complicated. The new feature is mainly useful for system integrators who want to set a fixed sample rate for the "main" sound card (because that's the rate they test, and other sample rates are a risk), but want to allow e.g. USB sound cards to use any sample rate. To do that, daemon.conf should have "avoid-resampling=yes" set, and udev needs to be configured to set the PULSE_IGNORE variable for the main sound card so that module-udev-detect doesn't load the card, and then module-alsa-card needs to be explicitly loaded for the main sound card in default.pa with "avoid_resampling=no".
 
 ### "avoid_resampling" also tries to avoid format conversion if the ALSA device supports it
 
@@ -87,10 +87,586 @@ PulseAudio now uses a newer gettext version that removes the need to use intltoo
 
 ### Introduction of the Meson build system
 
-The plan is to move to a [[Meson|https://mesonbuild.com/]] based build system. This should be considered to be in "beta". Packagers are encourage to use it and report issues to allow for a smooth migration. *The meson build does not use any compiler optimisations by default, so you will need to specify them manually (for example, with the `--optimization` argument to not have a performance regression (this can be ~10x for some compute-intensive tasks on ARM-based systems). The autotools build uses `-O2` by default.*
+The plan is to move to a [[Meson|https://mesonbuild.com/]] based build system. This should be considered to be in "beta". Packagers are encourage to use it and report issues to allow for a smooth migration. *The meson build does not use any compiler optimisations by default, so you will need to specify them manually (for example, with the `--optimization` argument) to not have a performance regression (this can be ~10x for some compute-intensive tasks on ARM-based systems). The autotools build uses `-O2` by default.*
 
 ## git shortlog
 
 <pre>
-TODO
+Alan Coopersmith (3):
+      meson: fix builds on platorms without libsystemd
+      meson: check for sys/filio.h
+      core-util: Use /proc/fd on Solaris as well in pa_close_all
+
+Alexander E. Patrakov (1):
+      resampler: Fix confusion between rear and side channels for 5.1 layouts
+
+Alexander Potashev (1):
+      i18n: Update Russian translation
+
+Andika Triwidada (1):
+      i18n: update the Indonesian translation
+
+Arnaud Rebillout (118):
+      build-sys: meson: Generate version.h
+      gitlab-ci: Create two different jobs for autotools and meson builds
+      core: Fix a log function when HAVE_SYSTEMD_JOURNAL && !HAVE_SYSLOG
+      meson: Define HAVE_UDEV when udev is found
+      meson: modules/alsa: Add udev support
+      meson: modules/alsa: Make alsa-util a shared library
+      meson: modules/alsa: Fix udev-util include path
+      meson: Add systemd-login to core dependencies
+      meson: Propagate systemd dep to libpulsecommon and daemon
+      meson: Make systemd-login module depend on systemd
+      meson: Make equalizer-sink modulde depend on fftw, add fftw dependency
+      meson: Add pulsecore internal libraries
+      meson: Add the rtp module library
+      meson: Comment bluez5 modules for now
+      meson: Build modules with '-Wl,no-undefined'
+      meson: Fix all the missing dependencies uncovered by -Wl,--no-undefined
+      meson: Enable dbus-protocol module
+      meson: Enable jack modules, add jack dependency
+      meson: Enable raop-sink module, add raop lib, add openssl dependency
+      meson: modules/raop: Fix rtsp_client.h include path
+      meson: Enable raop-discover module, add avahi dependency
+      meson: Enable x11 modules, add x11 related dependencies
+      meson: Enable zeroconf modules
+      meson: Enable mmkbd-evdev module
+      meson: Enable lirc module, add lirc dependency
+      meson: Enable console-kit module
+      meson: Do not build dbus files as a library
+      meson: Enable bluetooth modules, add bluez_util lib, add bluez and sbc dependencies
+      meson: Enable oss module and padsp util
+      meson: Enable ladspa module
+      meson: Enable echo-cancel module, add libwebrtc_util lib, add speex and webrtc dependencies
+      webrtc: Silence -Wsign-compare warning
+      meson: Build and install man pages
+      dockerfile: Install Meson from upstream tarball
+      meson: Add pulsedspdir option
+      meson: Add a sanity check to the prefix option
+      meson: Create bindir and libdir variables
+      meson: Add a comment to mark the beginning of the configuration data section
+      meson: Tighter coupling of XOrg dependencies
+      meson: Make x11 optional, bump meson requirement
+      meson: Build pax11publish only if X11 is found
+      meson: Install start-pulseaudio-x11 if x11 is found
+      meson: Adjust fixme comment for daemon
+      meson: Make dbus optional, fix build with dbus disabled
+      module-stream-restore: Silence compiler warnings when dbus is disabled
+      meson: Make alsa optional
+      meson: Also set HAVE_ALSA when alsa is enabled
+      meson: Make systemd optional
+      meson: Make avahi optional
+      meson: Make bluez optional
+      meson: Fix bluez5 version requirement
+      meson: Use assert() to validate the prefix
+      meson: Make jack optional
+      meson: Make fftw optional
+      meson: Make lirc optional
+      meson: Make openssl optional, fix build when openssl is disabled
+      meson: Make speex optional
+      meson: Make udev optional
+      meson: Make hal-compat optional
+      meson: Make webrtc optional
+      meson: adrian-aec requires libm
+      meson: Make Adrian echo canceller optional
+      meson: Add a sanity check regarding echo cancellers
+      meson: Add optional GLib support
+      meson: Add optional libpulse-mainloop-glib
+      meson: Add optional Gtk+ support
+      meson: Add optional GSettings support
+      meson: Add optional Async NS support
+      meson: Add optional IPv6 support
+      meson: Add optional SoX Resampler support
+      meson: Add optional libsamplerate support
+      meson: Add optional legacy-database-entry-format support
+      meson: Typo in man/meson.build
+      meson: Display summary and warnings at the end of the meson configure step
+      meson: Sort the core dependencies a bit
+      meson: Process and install files: default.pa, system.pa, daemon.conf, client.conf
+      meson: Fix HAVE_AF_UNIX, add check for mkfifo function
+      meson: Add some platform specific configuration data
+      meson: Add a dependency object for libpulse_mainloop_glib
+      meson: Add a check for sys/eventfd.h header
+      meson: Add some symbol checks
+      meson: Move shm_dep check where it belongs
+      meson: Add libpulse simple
+      meson: Enable (almost) all tests
+      meson: Boolean options default to true, no need to say it
+      meson: Define HAVE_SYS_UN_H, this was forgotten
+      meson: Enable echo-cancel test
+      .gitlab-ci: Add meson test-daemon
+      test-daemon: No need to define dl-search-path
+      meson: Install completion files
+      meson: Make man page build and install conditional
+      meson: Handle man pages symlinks with a meson install script
+      meson: Fix man install dir
+      meson: Install vala apis
+      meson: Install pkg-config files
+      meson: Fix pulsedspdir
+      meson: Add systemduserunitdir option
+      meson: Add udevrulesdir option
+      meson: Fix various install scripts
+      meson: Install ALSA udevrules
+      meson: Add basic po support
+      meson: Translate and install desktop file
+      meson: Build daemon custom targets by default
+      meson: Fix install paths
+      meson: Install dbus policy file
+      meson: Fix udevrulesdir
+      meson: Move oss-util in a library
+      meson: Install utils symlinks, install qpaeq
+      meson: Build libwebrtc-util as a shared library
+      meson: Install systemd user service
+      meson: Install cmake files
+      meson: Install headers
+      meson: Disable esound modules
+      meson: Add ORC support
+      meson: Add support for gcov
+      meson: Increase timeout for tests
+      meson: Add running-from-build-tree option
+      meson: Disable alsa-mixer-path-test
+
+Arun Raghavan (63):
+      build-sys: First pass at a meson-ified build system
+      PROTOCOL: Bump to version 33
+      core: Expose API to elevate a thread to realtime priority
+      null-sink,null-source: Use realtime scheduling if possible
+      map-file: Fix typo while adding pa_thread_make_realtime
+      build-sys: Update meson.build based on recent changes
+      travis: Update gettext along with other packages
+      format: Expose pa_format_info convenience getters in API
+      build-sys: Drop ancient check for dbus_watch_get_unix_fd()
+      build-sys: Add some missing header/function checks to meson build
+      build-sys: Update meson version dependency
+      gitignore: Ignore build* directories
+      doc: Update README to point to GitLab
+      bluetooth: Re-add rtp.h to Makefile.am
+      gitlab: Add support for GitLab CI
+      gitlab: Add meson build to CI
+      Adopt a Code of Conduct
+      build-sys: Add CoC to the dist'ed files
+      gitlab: Update Dockerfile to pull xmllint
+      man: Fix a syntax issue in pacat xml
+      build-sys: Set minimum required meson version to 0.44.0
+      i18n: Provide *ngettext() stubs when NLS is diabled
+      build-sys: Fix meson version detection logic
+      null-sink: Add support for reconfiguration and non-PCM formats
+      tests: Add a unit test for passthrough support
+      passthrough-test: Add a test for volume set/restore
+      gitignore: Ignore cscope files
+      system.pa: Drop mention of module-hal-detect
+      meson: Fix some config generation warnings
+      build-sys: Add the ability to disable maintainer mode
+      tests: Shorten how long daemon tests take to run
+      pactl: Fix some corner cases when setting sink formats
+      protocol-native: Fix format ownership while creating record streams
+      source: Fix a bad condition that made source events not be emitted
+      thread-mainloop: Add API for running a callback unlocked
+      build-sys: Update meson dependency to 0.50.0
+      build-sys: Fix up meson install paths
+      daemon: Drop empty fields in desktop file
+      meson: Skip norun tests
+      meson: Duplicate split of long daemon tests from autotools build
+      core-util: Fix detection when running in a VM
+      build-sys: Bump libpulse soversion
+      build-sys: Fixes for i18n parts of the meson build
+      build-sys: meson: Disable coverage by default
+      svolume: Mark channel parameter as earlyclobber
+      build-sys: meson: Add -Wl,no-delete to relevant libraries
+      build-sys: meson: Correctly set up RPATH
+      build-sys: meson: Fix some defines for default.pa generation
+      build-sys: meson: Add symbol versioning as in autotools
+      build-sys: meson: Fix minor typo in orc build
+      build-sys: Move svolume-*.c to libpulsecore
+      build-sys: autotools: Add meson build files to EXTRA_DIST
+      build-sys: meson: Add atomic ops related checks
+      build-sys: meson: Add ARMv6 instruction check
+      build-sys: meson: Add a check for fast 64-bit operations
+      build-sys: meson: Add some missing declaration checks
+      build-sys: meson: Add mkfifo checks for module-pipe-*
+      build-sys: meson: Add a bunch of missing checks
+      build-sys: meson: Give ourselves a little more timeout headroom
+      build-sys: meson: Fixes for some ARM compiler checks
+      build-sys: meson: Process subdirectories before generating configuration
+      build-sys: Bump version info for libpulse
+      build-sys: Fix documentation of version info
+
+Bert Hekman (1):
+      alsa-mixer: add support for SteelSeries Arctis 5 and renamed Arctis 7 files appropriately
+
+Carlos Garnacho (1):
+      client-conf: Avoid loading X11 properties unless SSH_CONNECTION is set
+
+Danny O'Brien (1):
+      man: Add description of pactl special names.
+
+David Emett (1):
+      dbus: fix ActiveProfile setting
+
+David Heidelberg (2):
+      meson: fix build with simple
+      meson: when avahi is disabled, do not build it's code
+
+David Hewitt (3):
+      vala: Fix card profile array bindings
+      vala: add pa_card_port_info bindings
+      Remove active_profile
+
+Diego Viola (1):
+      memblockq: fix typo: yepp -> yep
+
+Felipe Sateler (1):
+      i18n: Don't compile with -ffast-math
+
+Fran Diéguez (1):
+      i18n: Update Galician translations
+
+Friedel Wolff (1):
+      i18n: New translation for Afrikaans (af)
+
+Frédéric Danis (2):
+      bluetooth: Fix crash in setup_stream()
+      bluetooth: Fix crash when disabling Bluetooth adapter
+
+Georg Chini (12):
+      core-util: correct error in set_nonblock()
+      virtual-source: Fix crash in combination with module-loopback
+      loopback: Add option fast_adjust_threshold_msec
+      alsa: Improve resume logic after alsa suspend
+      sink, source: Call sink input suspend callback also on suspend cause change
+      ladspa-sink: Suspend virtual sink when master is suspended
+      null-source: fix multiple bugs
+      core-util: Avoid usage of pa_strbuf in pa_escape()
+      core: add simple message interface
+      source-output: Fix rewinding bug
+      sink-input: fix rewriting render memblockq when nothing should be rewound
+      Commit fd9e3452 removed -ffast-math from the compile flags. Under some conditions this may lead to massive slowdown of floating point operations when underflows or denormals are encountered. In particular, this problem was observed with the soxr resampler after applying https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/120
+
+Hans de Goede (1):
+      alsa-ucm: Fix UCM devices which names share a prefix being seen as the same
+
+Hongxu Jia (1):
+      build-sys: introduce a special build flag to explicitly disables running from build tree
+
+Hui Wang (1):
+      stream-restore: Don't restore if the active_port is PA_AVAILABLE_NO
+
+Ing. Jaroslav Safka (1):
+      rtp-send: add configurable RTP stream name
+
+Jan Alexander Steffens (heftig) (6):
+      build-sys: Install cmedia-high-speed-true-hdaudio.conf
+      meson: Fix build of padsp
+      meson: Fix library versioning to match Autotools
+      meson: Fix installation of headers
+      build-sys: meson: Add some missing checks
+      build-sys: meson: Fix 2 cases of joining paths w/o join_paths
+
+Javier Jardón (1):
+      Use upstream gettext instead intltool
+
+Jean-Philippe Guillemin (1):
+      alsa-mixer: add a profile-set file to fix iec958 input and output on CMEDIA USB2.0 High-Speed True HD Audio
+
+Jordi Mas (1):
+      Fixes to Catalan translation
+
+Josef Andersson (1):
+      Update Swedish Translation
+
+Joseph Herlant (22):
+      Fix typo: controling -> controlling
+      Fix typo: Retreive -> Retrieve
+      Fix typo: occurrencies -> occurrences
+      Fix typo: occured -> occurred
+      Fix typo: dependancy -> dependency
+      Fix typo: Doulbe -> Double
+      Fix typo: Extention -> Extension
+      Fix typo: differnt -> different
+      Fix typo: explicitely -> explicitly
+      Fix typo: properies -> properties
+      Fix typo: distuingish -> distinguish
+      Fix typo: recieved -> received
+      Fix typo: comming -> coming
+      Fix typo: prefered -> preferred
+      Fix typo: definately -> definitely
+      Fix typo: transmited -> transmitted
+      Fix typo: substract -> subtract
+      Fix typo: managable -> manageable
+      Fix typo: documenation -> documentation
+      fix typo: satisifed -> satisfied
+      fix typo: existance -> existence
+      volume-test: Allow rounding without having to allow a random number of errors
+
+João Paulo Rechi Vita (18):
+      bluetooth: backend-ofono: Demote registration failure to info
+      card-restore: Don't restore profile on Bluetooth cards by default
+      bluetooth: Add missing argument to module's usage
+      bluetooth: Remove leftover references to the BlueZ 4/5 split
+      switch-on-port-available: Improve readability
+      switch-on-connect: Improve readability
+      switch-on-connect: Clean-up tabs used for identation
+      switch-on-connect: Add debug logs
+      module-rescue-streams: Fix tab used for identation
+      card: Fix typo in comments
+      card: Create pa_available_to_string
+      cli-text: Use pa_available_to_string
+      device-port: Use pa_available_to_string
+      card: Log initial profile selection
+      switch-on-connect: Do not ignore HDMI sinks
+      switch-on-port-available: Check if we need to change the active profile
+      module-alsa-card: Update the active profile's availability last
+      card: Only fire the profile available changed hook for linked cards
+
+Kaleb Ercanbrack (1):
+      alsa-mixer: Add a missing USB product ID for SteelSeries Arctis 7
+
+Lucas Stach (3):
+      meson: fix build files list when building with NEON
+      meson: allow to build bluez support without libbluetooth
+      meson: add stdint.h to checked headers
+
+Luiz Augusto von Dentz (3):
+      bluetooth: ofono: Use Acquire method if available
+      bluetooth: Remove BlueZ 4 support
+      bluetooth: policy: Remove BlueZ 4 related code
+
+Lyndon Brown (44):
+      hashmap: constify hashmap ptr for various functions
+      hashmap: constify pointer of private hash_scan function
+      hashmap: constify pointer of pa_hashmap_get
+      proplist: add and use const version of MAKE_HASHMAP macro
+      proplist: pa_proplist_iterate: constify proplist pointer
+      proplist: pa_proplist_get: constify proplist pointer
+      proplist: pa_proplist_gets: constify proplist pointer
+      tagstruct: pa_tagstruct_put_proplist: constify proplist pointer
+      tagstruct: pa_tagstruct_put_format_info: constify format pointer
+      context: pa_context_proplist_update: constify proplist pointer
+      proplist: pa_proplist_to_string[_sep]: constify proplist pointer
+      proplist: pa_proplist_contains: constify proplist pointer
+      proplist: pa_proplist_[size|isempty]: constify proplist pointer
+      proplist: pa_proplist_equal: constify proplist pointers
+      scache: pa_context_play_sample_with_proplist: clarify proplist param
+      scache: pa_context_play_sample_with_proplist: constify proplist param
+      volume: pa_cvolume_get_position: constify
+      context: pa_context_new_with_proplist: constify proplist param
+      context: pa_context_get_protocol_version: constify
+      context: pa_context_get_state: constify
+      mainloop: constify get_retval functions
+      operation: pa_operation_get_state: constify
+      stream: pa_stream_get_state: constify
+      stream: pa_stream_get_context: constify
+      stream: pa_stream_get_index: constify
+      stream: pa_stream_get_device_[index|name]: constify
+      stream: pa_stream_is_[suspended|corked]: constify
+      stream: pa_stream_[writable|readable]_size: constify
+      stream: pa_stream_get_underflow_index: constify
+      stream: pa_stream_get_format_info: constify
+      stream: pa_stream_get_monitor_stream: constify
+      stream: constify internal functions
+      context: hide error attr behind pointer
+      context: pa_context_errno: constify
+      context: pa_context_rttime_new: constify context pointer
+      context: pa_context_rttime_restart: constify context pointer
+      context: pa_context_is_pending: constify
+      context: pa_context_is_local: constify
+      context: pa_context_get_server: constify
+      context: pa_context_get_server_protocol_version: constify
+      context: pa_context_get_index: constify
+      context: pa_context_get_tile_size: constify
+      mainloop: constify is_our_api api ref
+      operation: avoid state change from final state
+
+Marek Cernocky (2):
+      i18n: Updated Czech translation
+      i18n: Fixed plural forms handling
+
+Mark Filion (1):
+      i18n: Fix copyright information in pt_BR.po
+
+Milo Casagrande (3):
+      i18n: update Italian translation
+      i18n: update Italian translation
+      l10n: Update Italian translation
+
+Moo (2):
+      l10n: Update lt.po
+      l10n: Update lt.po
+
+Mr. M (2):
+      i18n: update the Lithuanian translation
+      i18n: update the Lithuanian translation
+
+Nate Brown (1):
+      Expose control param to alsa-card module
+
+Nazar Mokrynskyi (2):
+      alsa-mixer: More output modes for SB Omni Surround 5.1 and cleanup
+      alsa-mixer: Don't move LFE in 2.1 and 4.1 modes on SB Omni Surround 5.1
+
+Nicolas Fella (1):
+      daemon: Drop KDE-specific loading of module-device-manager
+
+Olaf Hering (1):
+      alsa: Use correct header path
+
+Pali Rohár (10):
+      bluetooth: policy: Remove BlueZ 4 related code
+      bluetooth: Update a2dp-codecs.h from upstream bluez project
+      bluetooth: Modular API for A2DP codecs
+      bluetooth: Add missing validations for SBC codec parameters
+      bluetooth: Clean up SBC bitpool calculation
+      bluetooth: Set correct endianity of audio samples for SBC codec
+      bluetooth: Fix usage of MTU, buffer sizes and return values of encode/decode methods
+      bluetooth: Change A2DP codec API of reset() method to indicate failure
+      bluetooth: Fix usage of RTP structures in SBC codec
+      bluetooth: Only perform write-related calculations when we have a sink
+
+Pierre-Louis Bossart (1):
+      format: Add support for Dolby TrueHD and DTS-HD HBR passthrough
+
+Piotr Drąg (4):
+      Remove bad characters from Malayalam translation
+      i18n: update Polish translation
+      i18n: update Polish translation
+      i18n: update Polish translation
+
+RODRIGUEZ Christophe (1):
+      raop: Fix infinite loop in raop-sink with UDP mode
+
+Rafael Fontenelle (3):
+      Update Brazilian Portuguese translation
+      Update Brazilian Portuguese translation
+      po: Update Brazilian Portuguese translation
+
+Raman Shyshniou (3):
+      loopback: add max_latency_msec argument
+      loopback: use source sample spec and channel map by default
+      optimize set_state_in_io_thread() callbacks
+
+Russell Treleaven (4):
+      give users a template that encourages complete bug reports
+      add script to collect information for bug reports
+      Update Bug.md to encourage users to attach pa-info output to bug reports
+      gitlab: white space change to Bug.md
+
+S Page (1):
+      pasuspender: explain program argument in help
+
+Sangchul Lee (12):
+      rtp-send: remove dead code
+      udev-detect, alsa-card: Adopt avoid resampling option from daemon.conf
+      i18n: Update the Korean translation
+      alsa-util/sink/source: Add infrastructure for supported sample formats
+      alsa-sink/source: Rename a variable for supported sample rates in userdata
+      alsa-sink/source, sink, source: Consider sample format for avoid-resampling/passthrough
+      core-util: Use size_t for out parameter of pa_split_*in_place()
+      stream-interaction: Support for triggering ducking/cork by source-output
+      stream-interaction: Use PA_IDXSET_FOREACH macro to iterate idxset
+      role-ducking, role-cork: Add use_source_trigger argument
+      stream-interaction: Remove useless condition
+      sink: Set monitor source's avoid-resampling value to its sink's
+
+Sascha Silbe (3):
+      tests: fix possible segfault in cpu-remap-test
+      tests: test NEON 2-channel->4-channel rearrange
+      remap: support S32NE work format
+
+Stefan Huber (1):
+      pacat: Fix code style
+
+Takashi Iwai (1):
+      alsa: Fix inclusion of use-case.h
+
+Takashi Sakamoto (2):
+      alsa: Suppress udev detection of sound card for some units on IEEE 1394 bus
+      alsa-mixer: distinguish Focusrite Saffire Pro 10 i/o from Liquid Saffire 56
+
+Tanu Kaskinen (36):
+      alsa-card: improve the profile availability logic
+      set exit_idle_time to 0 when we detect a session
+      .gitignore: add m4/extern-inline.m4 and remove-ptcdate.sed
+      core-format: fix TrueHD and DTS-HD channel maps
+      alsa-mixer: make the mono mapping a fallback only
+      context: constify pa_context_set_error()
+      switch-on-port-available: ignore bluetooth cards
+      sink-input: remove the DRAINED state
+      sink-input, source-output: remove the state getters
+      sink, source: remove the state getters
+      ladspa-sink: fix search path
+      pipe-sink, pipe-source: fix file permissions
+      update NEWS
+      update NEWS
+      i18n: update translation bug reporting links
+      daemon-conf: fix printing avoid-resampling in pa_daemon_conf_dump()
+      .gitignore: add passthrough-test
+      alsa-mixer: don't make lineout unavailable when headphones are plugged in
+      alsa-mixer: swap lineout and headphone priorities
+      raop: add error handling to rsa_encrypt()
+      raop: fix typo: modules -> modulus
+      bluez5-device: use correct RTP payload type
+      alsa-mixer: improve a comment in udev rules
+      build-sys: Lower the minimum gettext version
+      build-sys: Fix the Meson build
+      i18n: a couple of improvements to the Spanish translation
+      core: send subscription events when the configured default sink or source changes
+      loopback: remove an unnecessary level of pointer dereferencing
+      loopback: fix callback name in comment
+      sink, source: Don't change suspend cause when unlinking
+      .gitignore: add atomic-test
+      a2dp-codec-sbc: get rid of compiler warnings
+      main: Log more information when executing default.pa fails
+      bootstrap.sh: don't set sysconfdir and localstatedir configure options
+      update NEWS
+      build-sys: Add missing files to release tarballs
+
+Thomas Hutschenreuther (1):
+      atomic: fix load and store for armv7 and higher
+
+Tomaz Solc (1):
+      cli-command: Report error in pa_play_file.
+
+Topi Miettinen (1):
+      daemon: Harden systemd service
+
+Wellington Wallace (5):
+      null-sink: add an option that allows rewinds to be disabled
+      null-sink: add an option that allows rewinds to be disabled
+      Merge branch 'allow-to-disable-null-sink-rewinds' of https://gitlab.freedesktop.org/wwmm/pulseaudio into allow-to-disable-null-sink-rewinds
+      null-sink: add an option that allows rewinds to be disabled
+      null-sink: setting maximum latency to 50 ms when rewinds are disabled
+
+Will Stott (1):
+      alsa: Support the older model of NI's Traktor Audio 2 DJ
+
+Yclept Nemo (1):
+      object: Fix pa_object_new macro (missing close paren)
+
+Yuri Chornoivan (3):
+      i18n: update the Ukrainian translation
+      [l10n] Update Ukrainian translation
+      po: update Ukrainian translation
+
+Zakhary Husak (1):
+      alsa-mixer: Add support for 2018 Arctis 7
+
+jorisc90 (1):
+      alsa-mixer: Update to support Arctis Pro Wireless headset
+
+muzena (1):
+      Update Croatian translation
+
+scootergrisen (9):
+      Add missing space
+      Remove "module" from "module user requested module"
+      "e g " to "e.g."
+      Remove space in "Digital Passthrough  (IEC958)"
+      channel/s to channel(s)
+      Change "!" to "." to match other identical string.
+      Replace "!" to "." so string is identical with other string.
+      i18n: Add danish translation
+      i18n: Update Danish translation
+
+shdown (1):
+      mainloop: fix timeout assignment in pa_mainloop_prepare
 </pre>
