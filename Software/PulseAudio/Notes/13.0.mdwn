@@ -15,6 +15,7 @@
 * New "avoid_resampling" module argument for module-udev-detect and module-alsa-card
 * "avoid_resampling" also tries to avoid format conversion if the ALSA device supports it
 * New function to enable realtime scheduling for client threads
+* New convenience functions for getting parameters from pa_format_info
 * Removed BlueZ 4 support
 * Dropped intltool
 * Introduction of the Meson build system
@@ -70,6 +71,10 @@ In addition to reconfiguring the sample rate on the ALSA device to avoid resampl
 ### New function to enable realtime scheduling for client threads
 
 pa_thread_make_realtime() is a new utility function that can be used to enable realtime scheduling for the calling thread. That is useful if the application developer doesn't want to figure out the operating system's APIs by themself. The function uses [[RealtimeKit|http://git.0pointer.net/rtkit.git/tree/README]] when available, otherwise operating system specific low-level interfaces are used.
+
+### New convenience functions for getting parameters from pa_format_info
+
+Reading the sample rate, sample format, channel count and channel map parameters from pa_format_info can now be done with pa_format_info_get_rate(), pa_format_info_get_sample_format(), pa_format_info_get_channels() and pa_format_info_get_channel_map(), respectively.
 
 ###  Const-ification of parameters across headers
 
