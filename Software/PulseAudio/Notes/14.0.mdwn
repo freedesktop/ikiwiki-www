@@ -5,12 +5,17 @@
 ## Changes at a glance
 
 * Flat volumes are now disabled by default
+* module-null-sink's compressed format support can now be configured at run-time
 
 ## Notes for end users
 
 ### Flat volumes are now disabled by default
 
 Flat volumes have always been a controversial feature in PulseAudio. With flat volumes the stream volumes control also the sink volume. In the simple case of only one stream, the stream and the sink volume are always the same. In case of multiple streams, the sink volume is set to the maximum of the stream volumes. The purpose of this is to simplify the volume control of an application: the full volume range is always available via the application volume slider, so there's no need to think about the sink volume. In practice, however, this has caused more harm than good (the worst problem is that some applications automatically set their stream volume to 100%, causing the audio to be played at the maximum volume that the hardware can produce), and most large distributions have patched PulseAudio to disable flat volumes by default. Now that patching won't be needed any more.
+
+### module-null-sink's compressed format support can now be configured at run-time
+
+In the previous release it became possible to configure module-null-sink to accept compressed formats. That had to be done with module arguments when loading the module, now the configuration can be done at any time using "pactl set-sink-formats" or pavucontrol (pavucontrol 4.0 has a bug that prevents this from working, though, but the next pavucontrol version will have that bug fixed).
 
 ## Notes for application developers
 
