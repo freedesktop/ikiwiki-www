@@ -13,6 +13,10 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/24]]
   * Simple bugfix. It needs to be checked what g_markup_escape_text() does exactly (the patch submitter is worried about memory leaks). Or alternate fix: does set_text() exist that could be used instead of set_markup()?
 
+* switch-on-connect: Add blacklisting
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/205[[
+  * New feature. Pretty simple. Seems generally useful, and can be a base for fixing this release blocker bug: [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/issues/749]]
+
 * derive PA_SYSTEM_RUNTIME_PATH from runstatedir
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/200]]
   * Simple patch. It needs to be checked whether the change actually makes sense. Also, does Meson need the same fix?
@@ -20,10 +24,6 @@ The patches have been ordered by priority, with the highest priority patches at 
 * raop: Allow channel map module argument
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/186]]
   * New feature. Simple change. It's unclear who actually needs this, but it's a good change nevertheless. If it's possible to configure the channel count, it should be possible to configure the channel map too.
-
-* man: remove outdated information about real-time scheduling
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/204]]
-  * Simple documentation fix.
 
 * Messaging API v2
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/51]]
@@ -58,6 +58,10 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Fixes unsynchronized volume updates (hw volume is updated immediately, soft volume takes 2 seconds to take effect). Very small code change.
   * Comment from Tanu: I suspect it's too simple. I think there should be two modes: either hardware volume, which is fast but doesn't allow different volumes for different channels, or soft volume, which is very slow but supports per-channel volumes. Then there's the question whether the hardware volume mode should support decibel volumes or not. Not supporting decibel volumes would have the benefit that UIs would show a continuous volume scale, whereas with decibel volumes the volume couldn't be set below 32% (which is -30dB, the minimum volume allowed by the protocol).
 
+* Introduce meson-based build
+  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/17]]
+  * New feature. Medium sized change.
+
 * Split the enable-lfe-remixing setting into two
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/199]]
   * New feature. Seems pretty simple, although the patch is not small.
@@ -77,10 +81,6 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Fixes crackling during volume changes caused by resampler resets. Big change.
   * Comment from Tanu: I started to review it, and I disagreed with Georg how the new history queue should be managed. I got demotivated due to the complexity of the code and Georg's unwillingness to accept my proposal that would make it easier for me to understand the system (according to Georg, my proposal is even more complex than his).
 
-* Introduce meson-based build
-  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/17]]
-  * New feature. Medium sized change.
-
 * Tunnel and combine-sink latency fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/53]]
   * Fixes latency calculations. Adds a latency configuration modarg to module-tunnel. A somewhat large change, but it's split into 6 patches so the individual patches should be pretty manageable.
@@ -95,7 +95,8 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * Added 3 columns (`mute-state`, `volume` and `default sink`) to output of `pactl list short sinks`.
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/159]]
-  * New feature. Adds more information to "pactl list sinks short" (corresponding change for sources is missing). Pretty simple change. I'm not sure we want this - to make scripting easier, we could also add separate commands for getting the individual attributes.
+  * New feature. Adds more information to "pactl list sinks short" (corresponding change for sources is missing). Pretty simple change.
+  * Comment from Tanu: I'm not sure we want this - to make scripting easier, we could also add separate commands for getting the individual attributes.
 
 * Permit root-owned home directory
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/134]]
@@ -122,16 +123,3 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/55]]
   * Improves at least module-loopback's latency stability. Pretty large change, and probably math-heavy.
   * Comment from Tanu: Based on a quick glance at [[https://www.freedesktop.org/software/pulseaudio/misc/rate_estimator.odt]], the improvement is big in relative terms, but small in absolute terms (less than one millisecond).
-
-* X11: Add xauthority parameter
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/169]]
-  * New feature. Pretty simple change.
-  * Comment from Tanu: I don't know what this is needed for, which reduces the priority a lot.
-
-* Various fix for MSVC build
-  * [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/merge_requests/4]]
-  * Enables building with MSVC. The first patch only modifies the meson build system, the rest of the patches modify the code, which we probably don't want to do (the patches should be submitted to webrtc upstream).
-
-* Adds SBC XQ negotiated at the best of capabilities of the BT device
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/177]]
-  * New feature. Improves A2DP playback quality. There were concerns that some buggy headsets stop working with this patch. The current plan seems to be to not merge this patch, and instead wait for Pali's A2DP codec patches to be merged. Pali said that XQ negotiation is implemented in his patches, but it's unclear whether that's true only for the fixed-quality modes or can XQ be enabled also for the automatic-quality mode. MR 177 contains a good description of SBC XQ, which can perhaps be reused somewhere.
