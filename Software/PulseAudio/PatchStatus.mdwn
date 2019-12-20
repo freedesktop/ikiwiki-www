@@ -104,11 +104,13 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Apparently fixes an issue of creating card profiles that aren't supported by the local bluetooth adapter. Marked as WIP, because the patches expose some bug in the kernel.
   * Comment from Tanu: I don't know what would be a concrete example of the problem, so it's hard to say how important this fix is.
 
-* Loopback patches
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/56]]
-  * Various improvements to module-loopback. How big improvements? Hard to say from a quick glance. As a whole it's a somewhat big change, but it's split into 10 patches, so individual patches aren't that big (but the math-heavy topic can make reviewing more difficult).
-
 * Add alternative time smoother implementation
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/55]]
   * Improves at least module-loopback's latency stability. Pretty large change, and probably math-heavy.
   * Comment from Tanu: Based on a quick glance at [[https://www.freedesktop.org/software/pulseaudio/misc/rate_estimator.odt]], the improvement is big in relative terms, but small in absolute terms (less than one millisecond).
+  * When asked for more concrete description of what problems the patches solve, Georg said this: "I never systematically compared absolute values of the latencies, I just verified that they are in the same range. What rate_estimator.odt shows is just the stability of the reported value. The stability has a big impact on loopback and combine sink because they amplify those small fluctuations. Otherwise I cannot put a finger on specific problems but still I have the impression that overall I am getting less glitches."
+  * Comment from Georg: Since it is providing an alternative implementation and not a replacement I think it would be more or less sufficient to review patches 2 - 10 and "believe" patch 1. (which is what we currently do with the old smoother code or do you understand that?)
+
+* Loopback patches
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/56]]
+  * Various improvements to module-loopback. How big improvements? Hard to say from a quick glance. As a whole it's a somewhat big change, but it's split into 10 patches, so individual patches aren't that big (but the math-heavy topic can make reviewing more difficult).
