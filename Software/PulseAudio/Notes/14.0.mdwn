@@ -6,6 +6,7 @@
 
 * Flat volumes are now disabled by default
 * module-null-sink's compressed format support can now be configured at run-time
+* New GStreamer-based RTP implementation
 * qpaeq switched from Python 2 to Python 3
 
 ## Notes for end users
@@ -25,6 +26,12 @@ In the previous release it became possible to configure module-null-sink to acce
 (Nothing here yet.)
 
 ## Notes for packagers
+
+### New GStreamer-based RTP implementation
+
+module-rtp-send and module-rtp-recv can now use GStreamer to implement the RTP protocol. The old RTP implementation is still available as a compile time option (`--disable-gstreamer` with Autotools or `-Dgstreamer=disabled` with Meson), but the GStreamer implementation is used by default. The purpose of using GStreamer is to make it easier to add more advanced RTP features such as RTCP, non-PCM audio, and potentially synchronized playback.
+
+This adds new dependencies: gstreamer-1.0, gstreamer-app-1.0 and gstreamer-rtp-1.0. TODO: Which tarballs provide these libraries? Are there additional runtime dependencies (required plugins)?
 
 ### qpaeq switched from Python 2 to Python 3
 
