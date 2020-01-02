@@ -8,6 +8,10 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/29]]
   * Fixes a crash when exiting pavucontrol with ctrl-q. Looks pretty simple.
 
+* Improvements to reconfiguration
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/24]]
+  * Using the Dolby TrueHD and DTS-HD Master Audio formats requires using 8 channels, and these patches implement the necessary reconfiguration logic. This was supposed to work already in 13.0 (the release notes promised that), so these patches should probably have a very high priority.
+
 * Messaging API v2
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/51]]
   * Implements new infrastructure that is expected to be used for many features in the future. Tanu has already reviewed some of the patches. Big change.
@@ -19,6 +23,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 * qpaeq: fix: resizing on HiDPI (!41)
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/41]]
   * Fixes infinite recalculations when resizing the qpaeq window on a HiDPI system. Pretty small change, but not trivial.
+
+* WIP: #303: unload bt modules
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/10]]
+  * Disables bluetooth whenever the user is not active. This is an important fix - currently distributions need to apply workarounds for gdm to ensure that gdm doesn't interfere with the real user's bluetooth use, and probably not all distributions do that, meaning that we can never be sure if the reason behind broken bluetooth is that gdm is interfering with it. Medium sized change.
 
 * raop: Improve volume management
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/129]]
@@ -91,14 +99,6 @@ The patches have been ordered by priority, with the highest priority patches at 
   * The first patch should be included soon as it fixes a bug. Patches 2 - 4 significantly improve the stability of the latency while patch 5 improves the readability of the debug output. Patches 6 - 10 add new parameters and small enhancements that aim to get the last possible bit of precision out of the module. Therefore it should be evaluated if any of patches 6 - 10 should be included at all.  
 
 ### Patches that need to be prioritized
-
-* WIP: #303: unload bt modules
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/10]]
-  * Disables bluetooth whenever the user is not active. This is an important fix - currently distributions need to apply workarounds for gdm to ensure that gdm doesn't interfere with the real user's bluetooth use, and probably not all distributions do that, meaning that we can never be sure if the reason behind broken bluetooth is that gdm is interfering with it. Medium sized change.
-
-* Improvements to reconfiguration
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/24]]
-  * Using the Dolby TrueHD and DTS-HD Master Audio formats requires using 8 channels, and these patches implement the necessary reconfiguration logic. This was supposed to work already in 13.0 (the release notes promised that), so these patches should probably have a very high priority.
 
 * Better module-jackdbus-detect options
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/37]]
