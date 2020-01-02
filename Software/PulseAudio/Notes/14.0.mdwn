@@ -4,18 +4,28 @@
 
 ## Changes at a glance
 
+* New blacklist argument for module-switch-on-connect
 * Flat volumes are now disabled by default
+* New xauthority argument for X11 modules
 * module-null-sink's compressed format support can now be configured at run-time
 * New GStreamer-based RTP implementation
 * qpaeq switched from Python 2 to Python 3
 
 ## Notes for end users
 
+### New blacklist argument for module-switch-on-connect
+
+PulseAudio 13.0 started to switch output to HDMI automatically when module-switch-on-connect is loaded (upstream PulseAudio doesn't load it by default, but some distributions do). This change was not intentional, and caused very annoying behaviour in cases where waking up the monitor from sleep appears as a plug-in event in ALSA. Now module-switch-on-connect has a configurable blacklist, which by default prevents switching to HDMI devices. The blacklist is configured with a module argument, named "blacklist", which takes a regular expression that is matched against sink and source names. The default blacklist regular expression is "hdmi". To disable all blacklisting, you can pass "" (empty string) as the module argument value.
+
 ### Flat volumes are now disabled by default
 
 Flat volumes have always been a controversial feature in PulseAudio. With flat volumes the stream volumes control also the sink volume. In the simple case of only one stream, the stream and the sink volume are always the same. In case of multiple streams, the sink volume is set to the maximum of the stream volumes. The purpose of this is to simplify the volume control of an application: the full volume range is always available via the application volume slider, so there's no need to think about the sink volume. In practice, however, this has caused more harm than good (the worst problem is that some applications automatically set their stream volume to 100%, causing the audio to be played at the maximum volume that the hardware can produce), and most large distributions have patched PulseAudio to disable flat volumes by default. Now that patching won't be needed any more.
 
 Flat volumes can be enabled by setting "flat-volumes = yes" in ~/.config/pulse/daemon.conf.
+
+### New xauthority argument for X11 modules
+
+The X11 modules (module-x11-bell, module-x11-cork-request, module-x11-publish and module-x11-xsmp) now accept the "xauthority" module argument. It's used by the start-pulseaudio-x11 to pass the value of the `XAUTHORITY` environment variable to the PulseAudio daemon so that the daemon can set the same environment variable in its own environment. This is required in some systems to make it possible for the X11 modules to connect to the X11 server.
 
 ### module-null-sink's compressed format support can now be configured at run-time
 
