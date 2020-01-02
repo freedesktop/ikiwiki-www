@@ -4,6 +4,18 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
+* Better module-jackdbus-detect options
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/37]]
+  * Adds separate channel arguments for sinks and sources in module-jackdbus-detect. Arun has already reviewed this, but didn't merge due to 13.0 freeze. Merging this during the 14.0 development cycle was forgotten, and now we're in 14.0 freeze, so this will have to wait for a bit more still.
+
+* First two patches from "Bluetooth A2DP codecs" series
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/226]]
+  * Already reviewed by Georg, to be merged when the freeze ends.
+
+* Fix ustring initialization from a NULL pointer
+  * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/6]]
+  * Fixes a crash when requesting PackageKit to install missing modules.
+
 * Migrate away from deprecated Gtk interfaces
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/31]]
   * Seems pretty straightforward. Fixes also a crash when quitting with ctrl-q.
@@ -15,6 +27,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Messaging API v2
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/51]]
   * Implements new infrastructure that is expected to be used for many features in the future. Tanu has already reviewed some of the patches. Big change.
+
+* Bluetooth A2DP codecs
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/227]]
+  * Adds support for more codecs. Big change. Georg has been reviewing some of the patches. The next step is to agree how to implement the codec switching (at least Tanu and Arun don't like Pali's proposal to use the card profile switching mechanism for choosing the codec).
 
 * pavuapplication: allow one window per server
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/11]]
@@ -50,15 +66,15 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/53]]
   * Fixes latency calculations. Adds a latency configuration modarg to module-tunnel. A somewhat large change, but it's split into 6 patches so the individual patches should be pretty manageable.
 
-* WIP: Add a way to set the intended roles for mappings
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/71]]
-  * This is supposed to make phone streams go automatically to the chat channel of the Arctis headsets, but the patch author reported that the routing isn't working even though the sink has the intended-roles property correctly set, which is why the patch is marked as WIP. The patch author didn't respond to Arun's question. The patch is pretty simple, and seems like a pretty good change, so it could be worth trying to reproduce the issue (by writing some custom configuration, intended roles could be tested without the Arctis headset).
-
 * bluetooth: HFP profile implementation
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/94]]
   * Improves hardware support. HFP-only headsets can't currently be used without oFono, and using them with oFono is difficult. Apparently this patch was developed independently from James Bottomley's earlier implementation - what are the differences between the two implementations? Medium sized change.
   * The newest version (as of 2019-11-27) of James's patches are at [[https://git.kernel.org/pub/scm/linux/kernel/git/jejb/pulseaudio.git/log/?h=jejb-v13]]
   * There's also this version that has some improvements on top of James's patches: [[https://github.com/paravoid/pulseaudio/commits/hfp-v7]]
+
+* alsa-mixer: add mono input support for Behringer UMC22
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/223]]
+  * As the commit message says, adds a mono mapping for Behringer UMC22 (with the default configuration only stereo is available). Simple change, but there's some disagreement about what is the correct fix.
 
 * Unload bluez5 devices when bluez5-discover is unloaded
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/42]]
@@ -100,22 +116,4 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* Better module-jackdbus-detect options
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/37]]
-  * Adds separate channel arguments for sinks and sources in module-jackdbus-detect. Arun has already reviewed this, but didn't merge due to 13.0 freeze. Merging this during the 14.0 development cycle was forgotten, and now we're in 14.0 freeze, so this will have to wait for a bit more still.
-
-* alsa-mixer: add mono input support for Behringer UMC22
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/223]]
-  * As the commit message says, adds a mono mapping for Behringer UMC22 (with the default configuration only stereo is available). Simple change, but there's some disagreement about what is the correct fix.
-
-* First two patches from "Bluetooth A2DP codecs" series
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/226]]
-  * Already reviewed by Georg, to be merged when the freeze ends.
-
-* Bluetooth A2DP codecs
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/227]]
-  * Adds support for more codecs. Big change. Georg has been reviewing some of the patches. The next step is to agree how to implement the codec switching (at least Tanu and Arun don't like Pali's proposal to use the card profile switching mechanism for choosing the codec).
-
-* Fix ustring initialization from a NULL pointer
-  * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/6]]
-  * Fixes a crash when requesting PackageKit to install missing modules.
+(nothing here right now)
