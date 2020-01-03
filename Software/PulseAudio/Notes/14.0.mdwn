@@ -4,18 +4,45 @@
 
 ## Changes at a glance
 
-* New blacklist argument for module-switch-on-connect
+* Changing the default sink moves streams from the old default sink to the new
+* Moving a stream to the default sink removes the "manually routed" status of the stream
+* Manually routed streams move automatically to/from a sink when the sink changes status between available and unavailable.
+* Automatic switching to HDMI is now disabled by default
+* Better support for some USB gaming headsets
 * Flat volumes are now disabled by default
 * New xauthority argument for X11 modules
 * module-null-sink's compressed format support can now be configured at run-time
+* Workaround for Gnome sound settings stream routing behaviour
+* module-rescue-streams is deprecated, functionality moved to the core
 * New GStreamer-based RTP implementation
 * qpaeq switched from Python 2 to Python 3
 
 ## Notes for end users
 
-### New blacklist argument for module-switch-on-connect
+### Changing the default sink moves streams from the old default sink to the new
+
+It used to be so that when the default sink changes, new streams went to the new default sink, but existing streams stayed on the old sink. Now streams are moved from the old default sink to the new one. This doesn't apply to streams that have been manually moved, so the per-stream routing is retained.
+
+### Moving a stream to the default sink removes the "manually routed" status of the stream
+
+When a stream is playing to a non-default sink and the user moves it to the current default sink, that is now interpreted as a request to remove the "manually routed" status from the stream, so from that point on the stream will automatically move when the default sink changes. Previously it was a problem that if an application was once moved manually, the choice was remembered permanently and there was no good way to clear the manual routing choice.
+
+### If a sink changes status to available, streams that prefer that sink move there automatically
+
+Let's assume a situation where a stream has been moved manually to a sink, and then the sink changes status to unavailable but is not removed (this can happen for example when headphones are unplugged). Let's also assume that some other sink is the default sink. The stream is now automatically moved to the default sink in this situation, and when the unavailable sink becomes available again, the stream moves back to that.
+
+### Automatic switching to HDMI is now disabled by default
 
 PulseAudio 13.0 started to switch output to HDMI automatically when module-switch-on-connect is loaded (upstream PulseAudio doesn't load it by default, but some distributions do). This change was not intentional, and caused very annoying behaviour in cases where waking up the monitor from sleep appears as a plug-in event in ALSA. Now module-switch-on-connect has a configurable blacklist, which by default prevents switching to HDMI devices. The blacklist is configured with a module argument, named "blacklist", which takes a regular expression that is matched against sink and source names. The default blacklist regular expression is "hdmi". To disable all blacklisting, you can pass "" (empty string) as the module argument value.
+
+### Better support for some USB gaming headsets
+
+Custom configuration was enabled for a few headset models:
+* LucidSound LS31
+* SteelSeries Arctis 5 (2019 edition)
+* SteelSeries Arctis Pro (2019 edition)
+
+PulseAudio now creates separate stereo and mono (voice) sinks for these headsets.
 
 ### Flat volumes are now disabled by default
 
@@ -30,6 +57,16 @@ The X11 modules (module-x11-bell, module-x11-cork-request, module-x11-publish an
 ### module-null-sink's compressed format support can now be configured at run-time
 
 In the previous release it became possible to configure module-null-sink to accept compressed formats. That had to be done with module arguments when loading the module, now the configuration can be done at any time using "pactl set-sink-formats" or pavucontrol (pavucontrol 4.0 has a bug that prevents this from working, though, but the next pavucontrol version will have that bug fixed).
+
+### Workaround for Gnome sound settings' stream routing behaviour
+
+When changing the output device in Gnome sound settings, it tries to improve the user experience by moving existing streams to the selected device. It also changes the routing database so that also applications that aren't currently running get routed to the new device, so all applications behave consistently. To PulseAudio this looks like all applications have been manually moved by the user, which causes problems when the default device changess, because manually moved streams don't follow default sink changes.
+
+Despite those problems, it made sense for Gnome sound settings to do this, because the alternative was considered worse: streams didn't move when changing the default device. Now that PulseAudio handles the automatic stream moving, there's no more justification for doing manual stream moving and stream database modifications in Gnome sound settings. We can't remove the functionality from Gnome sound settings when updating to the new PulseAudio version, but we wanted to solve this anyway without waiting for a new Gnome version, so we ended up adding some special code that ignores the stream routing changes when the changes come from Gnome sound settings.
+
+### module-rescue-streams is deprecated, functionality moved to the core
+
+module-rescue-stream doesn't do anything any more, and is deprecated. When a device is removed, the module used to move streams on that device to some other device, but that is now handled by the core, so the module has nothing to do. If you have custom configuration that loads module-rescue-streams, you should remove the module from the configuration. Having it in the configuration doesn't do harm, but there will be warnings in the PulseAudio log.
 
 ## Notes for application developers
 
