@@ -10,6 +10,7 @@
 * Automatic switching to HDMI is now disabled by default
 * Better support for some USB gaming headsets
 * Flat volumes are now disabled by default
+* Improved support for ALSA UCM
 * New xauthority argument for X11 modules
 * module-null-sink's compressed format support can now be configured at run-time
 * Workaround for Gnome sound settings stream routing behaviour
@@ -50,6 +51,10 @@ PulseAudio now creates separate stereo and mono (voice) sinks for these headsets
 Flat volumes have always been a controversial feature in PulseAudio. With flat volumes the stream volumes control also the sink volume. In the simple case of only one stream, the stream and the sink volume are always the same. In case of multiple streams, the sink volume is set to the maximum of the stream volumes. The purpose of this is to simplify the volume control of an application: the full volume range is always available via the application volume slider, so there's no need to think about the sink volume. In practice, however, this has caused more harm than good (the worst problem is that some applications automatically set their stream volume to 100%, causing the audio to be played at the maximum volume that the hardware can produce), and most large distributions have patched PulseAudio to disable flat volumes by default. Now that patching won't be needed any more.
 
 Flat volumes can be enabled by setting "flat-volumes = yes" in ~/.config/pulse/daemon.conf.
+
+### Improved support for ALSA UCM
+
+It's now possible to use multiple sound cards with the same name simultaneously with UCM. An example of this situation is having multiple identical USB sound cards plugged in. This requires alsa-lib version 1.2.1 or higher.
 
 ### New xauthority argument for X11 modules
 
