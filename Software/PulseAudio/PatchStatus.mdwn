@@ -6,6 +6,7 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * Update module directory logic
   * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/7]]
+  * The plan is to remove the version number from the module directory in PulseAudio 15.0. paprefs needs to adapt to that, preferably before the change happens so that the transition to the new directory goes without glitches. High priority, because Tanu wants to release a new paprefs version ASAP, and this is the only thing blocking the release.
 
 * core, modules: Remove useless EINTR tests
   * [[https://patchwork.freedesktop.org/patch/307341/]]
@@ -34,6 +35,7 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * build-sys: Remove version number from installed files
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/230]]
+  * Causes less file name changes during updates, which can make life easier for packagers.
 
 * pavuapplication: allow one window per server
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/11]]
@@ -54,6 +56,7 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * core-util: Set nice value for the task group
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/234]]
+  * Apparently the "high-priority" option doesn't currently have any effect on many systems, because the nice value is set relative to other processes in the same task group, and PulseAudio is the only process in its task group. This change is supposed to apply the nice value to the task group instead of the process, which should restore the intended behaviour.
 
 * Introduce meson-based build
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/17]]
@@ -115,6 +118,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * module-jackdbus-detect: Add channel_map argument for sink
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/233]]
+
+* core, modules: Remove useless EINTR tests
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/238]]
 
 ### Patches that need to be prioritized
 
