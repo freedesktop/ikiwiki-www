@@ -740,18 +740,22 @@ This module implements a PulseAudio sink that connects to JACK and registers as 
 
 * sink_name
    * The name for the PulseAudio sink. If omitted defaults to jack_out.
+* sink_properties
+   * Extra properties to be stored in the sink's property list.
 * server_name
    * The JACK server to connect to. If omitted defaults to the default server.
 * client_name
    * The client name to tell the JACK server. If omitted defaults to PulseAudio.
-* channel_map channels
+* channels
    * Number of channels to register. If omitted defaults to the number of physical playback ports of the JACK server.
+* channel_map
+   * Channel map. A list of comma-separated channel names. Must have the same number of channels as the channels argument.
 * connect
    * Takes a boolean value. If enabled (the default) PulseAudio will try to connect its ports to the physical playback ports of the JACK server
 
 ### module-jack-source
 
-This module implements a PulseAudio source that connects to JACK and registers as many input ports as requested. Takes the same arguments as module-jack-sink, except for sink_name which is replaced by source_name (with a default of jack_in) for obvious reasons.
+This module implements a PulseAudio source that connects to JACK and registers as many input ports as requested. Takes the same arguments as module-jack-sink, except for sink_name which is replaced by source_name (with a default of jack_in) and sink_properties which is replaced by source_properties for obvious reasons.
 
 
 ### module-jackdbus-detect
@@ -760,6 +764,22 @@ This module automatically adds JACK sinks and sources whenever the JACK server i
 
 * channels
    * The number of channels to create for both module-jack-sink and module-jack-source. If omitted, the sink will use the number of physical output ports and the source will use the number of physical input ports registered in the JACK server.
+* sink_name, sink_properties
+   * Will be passed through to module-jack-sink as-is.
+* sink_client_name
+   * Will be passed through to module-jack-sink as client_name.
+* sink_channels
+   * Will be passed through to module-jack-sink as channels. Overrides the unified sink/source channels argument.
+* sink_channel_map
+   * Will be passed through to module-jack-sink as channel_map.
+* source_name, source_properties
+   * Will be passed through to module-jack-source as-is.
+* source_client_name
+   * Will be passed through to module-jack-source as client_name.
+* source_channels
+   * Will be passed through to module-jack-source as channels. Overrides the unified sink/source channels argument.
+* source_channel_map
+   * Will be passed through to module-jack-source as channel_map.
 * connect
    * Takes a boolean value. If enabled (the default) PulseAudio will try to connect its ports to the physical playback ports of the JACK server.
 
