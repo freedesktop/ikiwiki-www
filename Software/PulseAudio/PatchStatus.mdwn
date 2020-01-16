@@ -4,6 +4,9 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
+* Update module directory logic
+  * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/7]]
+
 * Migrate away from deprecated Gtk interfaces
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/31]]
   * Seems pretty straightforward. Fixes also a crash when quitting with ctrl-q.
@@ -19,6 +22,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Bluetooth A2DP codecs
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/227]]
   * Adds support for more codecs. Big change. Georg has been reviewing some of the patches. The next step is to agree how to implement the codec switching (at least Tanu and Arun don't like Pali's proposal to use the card profile switching mechanism for choosing the codec).
+
+* build-sys: Remove version number from installed files
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/230]]
 
 * pavuapplication: allow one window per server
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/11]]
@@ -36,6 +42,9 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/129]]
   * Fixes unsynchronized volume updates (hw volume is updated immediately, soft volume takes 2 seconds to take effect). Very small code change.
   * Comment from Tanu: I suspect it's too simple. I think there should be two modes: either hardware volume, which is fast but doesn't allow different volumes for different channels, or soft volume, which is very slow but supports per-channel volumes. Then there's the question whether the hardware volume mode should support decibel volumes or not. Not supporting decibel volumes would have the benefit that UIs would show a continuous volume scale, whereas with decibel volumes the volume couldn't be set below 32% (which is -30dB, the minimum volume allowed by the protocol).
+
+* core-util: Set nice value for the task group
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/234]]
 
 * Introduce meson-based build
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/17]]
@@ -81,6 +90,9 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/88]]
   * Reduces code duplication in virtual sinks. The resampler rewind patches (!120) should be reviewed first, after which Georg will rebase these patches. Big change.
 
+* module-jackdbus-detect: Add channel_map argument for sink
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/233]]
+
 * WIP: virtual sinks/sources: Fix crash with stacked virtual sinks or sources
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/78]]
   * Crash fix. Arun has reviewed this, but the plan is to wait for the virtual sink consolidation patches (!88) to land first.
@@ -104,20 +116,8 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* build-sys: Remove version number from installed files
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/230]]
-
-* module-jackdbus-detect: Add channel_map argument for sink
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/233]]
-
-* Update module directory logic
-  * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/7]]
-
 * FreeBSD support
   * [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/merge_requests/6]]
-
-* core-util: Set nice value for the task group
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/234]]
 
 * l10n: zh_TW: update translation
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/235]]
