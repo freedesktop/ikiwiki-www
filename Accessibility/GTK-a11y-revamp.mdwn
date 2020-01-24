@@ -19,6 +19,7 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 
 * the screen reader uses an IPC to get information on application's widget.
 * The toolkit used by the application implements the server hooks.
+* The toolkit sends notifications for events that are useful to screen readers
 * Some IPCs do have effect in the application
 
 ### Strong issues ###
@@ -26,6 +27,12 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 * AT-SPI allows any application to access information, act on the application etc.
 * key snooping makes *all* keypresses go through the screen reader, thus making the whole desktop slower
 * key snooping doesn't work on wayland, making screen readers very difficult to use, [[https://gitlab.gnome.org/GNOME/mutter/issues/9]]
+
+### Usage needs
+
+* Getting audio feedback for the currently-focused widget: when going from one to the other, when the current widget changes, when a notification widget notifies of something.
+* Getting audio feedback of what is being typed, thus the translated key, not only the keycode.
+* Screen reader driven through shortcuts, to e.g. spell a letter, spell a word, read the current selection, speak the current logical position (window, panel, group, widget), change feedback verbosity, etc.
 
 ### Ideas for solutions
 
