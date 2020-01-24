@@ -1,0 +1,21 @@
+# Revamping the GTK accessibility stack?
+
+### URLs
+
+Discussion sort-of started here (but not only)
+
+https://gitlab.gnome.org/GNOME/gtk/issues/1739#note_685570
+
+
+### Strong issues
+
+* AT-SPI allows any application to access information, act on the application etc.
+* key snooping makes *all* keypresses go through the screen reader, thus making the whole desktop slower
+
+
+### Ideas for solutions
+
+* Checking authorization before allowing connection to AT-SPI
+* Separating out key press notification from keyboard shortcuts:
+  * key press notification can be asynchronous, thus not slowing desktop down
+  * only keyboard shortcut would have to go through the screen reader
