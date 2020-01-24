@@ -25,10 +25,18 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 
 * AT-SPI allows any application to access information, act on the application etc.
 * key snooping makes *all* keypresses go through the screen reader, thus making the whole desktop slower
+* key snooping doesn't work on wayland, making screen readers very difficult to use, https://gitlab.gnome.org/GNOME/mutter/issues/9
 
 ### Ideas for solutions
 
 * Checking authorization before allowing connection to AT-SPI
+
 * Separating out key press notification from keyboard shortcuts:
   * key press notification can be asynchronous, thus not slowing desktop down
   * only keyboard shortcut would have to go through the screen reader
+
+* key press/shortcut transmission
+  * through XInput? Not available on Wayland
+  * through AT-SPI or another protocol? We want authorization to avoid arbitrary key snooping, if we add authorization over the whole AT-SPI that should be fine
+  * A bridge for dogtail was implemented on https://gitlab.gnome.org/ofourdan/gnome-ponytail-daemon but this is more of a hack
+  * A macro daemon is currently in development on https://gitlab.freedesktop.org/whot/macrod/
