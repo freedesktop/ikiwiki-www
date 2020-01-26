@@ -13,14 +13,14 @@ Input questions are detailed on [[Accessibility/Input]]
 We most probably want to keep coherent with other interfaces:
 
 * Microsoft's UIA/IA2/MSAA
-* Apple's interface?
+* OS X's NSAccessibility
 
 The technical IPC mechanism details and the IPC interface details vary, but the ground principle is the same:
 
-* the screen reader uses an IPC to get information on application's widget.
+* The screen reader uses an IPC to get information from application's widgets.
 * The toolkit used by the application implements the server hooks.
-* The toolkit sends notifications for events that are useful to screen readers
-* Some IPCs do have effect in the application
+* The toolkit sends notifications for events that are useful to screen readers (e.g. text change)
+* Some IPCs do have effect/actions in the application
 
 ### Strong issues ###
 
@@ -32,6 +32,9 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 ### Issues ###
 
 * The ATK key event seems too raw and clenched on X11 specifics [[https://bugzilla.gnome.org/show_bug.cgi?id=649559#c3]]
+* ATK itself is cumbersome
+  * at-spi2-core + at-spi2-atk + atk + gtk
+  * while gtk could directly talk at-spi (like Qt does).
 
 ### Usage needs
 
