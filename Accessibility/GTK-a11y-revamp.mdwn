@@ -39,7 +39,7 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 
 * AT-SPI allows any application to access information, act on the application etc.
   * [[https://gitlab.gnome.org/GNOME/at-spi2-atk/issues/12]]
-  * Only orca, compiz' ezoom, on-screen adaptative keyboard caribou/florence, terminal reader brltty, text editor from speech dasher, accerciser, should have access
+  * Only orca, gnome-shell's zoom, compiz' ezoom, on-screen adaptative keyboard caribou/florence, terminal reader brltty, text editor from speech dasher, accerciser, should have access
 * key snooping makes *all* keypresses go through the screen reader, thus making the whole desktop slower
 * key snooping doesn't work on wayland, making screen readers very difficult to use, [[https://gitlab.gnome.org/GNOME/mutter/issues/9]]
 * Stealing key events from gtk is considered wrong, it should go through other means [[https://gitlab.gnome.org/GNOME/gtk/issues/1739#note_458183]]
@@ -50,6 +50,7 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 * The ATK key event seems too raw and clenched on X11 specifics [[https://bugzilla.gnome.org/show_bug.cgi?id=649559#c3]]
 * ATK itself is cumbersome
   * at-spi2-core + at-spi2-atk + atk + gtk
+  * Adding a feature requires adding there all, having just one library would make development much easier
 * at-spi contains interfaces which have not really been implemented (e.g. boundary details in the AtkText interface)
 * clench between GtkWidget and GtkAccessible classes.
 
@@ -114,11 +115,13 @@ Just ideas randomly thrown here, no particular order/priority/applicability inte
   * only keyboard shortcut would have to go through the screen reader
 
 * key press/shortcut transmission
-  * through XInput? (Requires a window, but at-spi2-core could create one ; wayland needs something else)
+  * through XInput2? (Requires a window, but at-spi2-core could create one ; wayland needs something else)
   * through AT-SPI or another protocol? We want authorization to avoid arbitrary key snooping, if we add authorization over the whole AT-SPI that should be fine
   * A bridge for dogtail was implemented on [[https://gitlab.gnome.org/ofourdan/gnome-ponytail-daemon]] but this is more of a hack
   * A macro daemon is currently in development on [[https://gitlab.freedesktop.org/whot/macrod/]]
   * Wayland security module [[https://lists.freedesktop.org/archives/wayland-devel/2015-March/020474.html]]
+  * Should be stuffed within at-spi2, so that AT developers do not have to re-do it (badly)
+  * Introduce something new both for Wayland and X11, or leave X11 with XInput2?
 
 * key press feedback
   * Key presses
@@ -134,6 +137,7 @@ Just ideas randomly thrown here, no particular order/priority/applicability inte
 * Involve the compositor
   * for keypresses / shortcuts?
   * for getting absolute window position
+  * Define an interface that all compositor would have to implement
 
 * Turn AtkObject into an interface, so implementors can decide between dedicated objects or just implement the interface
 * gtk could directly talk at-spi (like Qt does), and get rid of the atk layer
