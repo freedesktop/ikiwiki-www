@@ -54,8 +54,17 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 
 * blind people
   * Getting audio feedback for the currently-focused widget: when going from one to the other, when the current widget changes, when a notification widget notifies of something.
-  * Getting audio feedback of what is being typed, thus the translated key, not only the keycode.
-  * Getting audio feedback of what is getting selected
+    * What the widget actually is: a checkbox to be ticked, a radio button, a button, an entry to be typed, ... and the current state
+  * Getting audio feedback of what was done:
+    * what was typed, thus the translated key, not only the keycode.
+    * what is getting selected
+    * what text was pasted
+    * the new value of a spin button
+    * that a row or column was added in an array
+    * that a new tab was added
+    * that some text showed up (e.g. "no occurence found")
+    * that a window opened up / was closed, or switched to another application
+    * etc.
   * Speak text: current word, current sentence, current line, all the text
     * Have the textview scrolled while it is spoken, in case the speech goes beyond what is visible, for sighted co-worker to see it.
   * Move caret to where user interrupted the speech.
@@ -67,10 +76,11 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
   * Getting zoomed area to show the text currently being spoken by the screen reader
     * Have the textview scrolled while it is spoken, in case the speech goes beyond what is visible
   * Speak the content that is under the mouse
+    * And be able to act on it safely, i.e. be sure to be acting on what was spoken last
 * people with limited typing capabilities
   * Produce an on-screen keyboard which contains the actions that can be achieved in the software, and use one-button + timing to efficiently reach them
-  * typing from eye-tracking
-  * typing from speech recognition
+  * typing / actions from eye-tracking
+  * typing / actions from speech recognition
 
 ### technical needs
 
@@ -104,7 +114,9 @@ Just randomly thrown here, no particular order intended
   * and it's then not toolkit agnostic
 
 * key press/shortcut transmission
-  * through XInput? Not available on Wayland
+  * through XInput?
+    * Not available on Wayland
+    * Requires a window ; at-spi2-core could create one
   * through AT-SPI or another protocol? We want authorization to avoid arbitrary key snooping, if we add authorization over the whole AT-SPI that should be fine
   * A bridge for dogtail was implemented on [[https://gitlab.gnome.org/ofourdan/gnome-ponytail-daemon]] but this is more of a hack
   * A macro daemon is currently in development on [[https://gitlab.freedesktop.org/whot/macrod/]]
