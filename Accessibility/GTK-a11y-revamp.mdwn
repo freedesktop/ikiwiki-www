@@ -12,8 +12,10 @@ Input questions are detailed on [[Accessibility/Input]]
 
 We most probably want to keep coherent with other interfaces:
 
-* Microsoft's UIA/IA2/MSAA
-* OS X's NSAccessibility
+* Microsoft's UIA (https://docs.microsoft.com/en-us/windows/win32/winauto/entry-uiauto-win32) / IA2 (https://github.com/LinuxA11y/IAccessible2) / MSAA (https://docs.microsoft.com/en-us/previous-versions//ms697707(v=vs.85)?redirectedfrom=MSDN)
+* OS X's NSAccessibility (https://developer.apple.com/documentation/appkit/nsaccessibility)
+* Aria (https://w3c.github.io/aria/ https://w3c.github.io/core-aam https://w3c.github.io/aria-practices/)
+
 
 The technical IPC mechanism details and the IPC interface details vary, but the ground principle is the same:
 
@@ -34,14 +36,22 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 * The ATK key event seems too raw and clenched on X11 specifics [[https://bugzilla.gnome.org/show_bug.cgi?id=649559#c3]]
 * ATK itself is cumbersome
   * at-spi2-core + at-spi2-atk + atk + gtk
-  * while gtk could directly talk at-spi (like Qt does).
+* at-spi contains interfaces which have not really been implemented (e.g. boundary details in the AtkText interface)
 
 ### Usage needs
 
-* Getting audio feedback for the currently-focused widget: when going from one to the other, when the current widget changes, when a notification widget notifies of something.
-* Getting audio feedback of what is being typed, thus the translated key, not only the keycode.
-* Screen reader driven through shortcuts, to e.g. spell a letter, spell a word, read the current selection, speak the current logical position (window, panel, group, widget), change feedback verbosity, etc.
-* Simulate mouse clicks (for when there is no keyboard shortcut defined)
+* blind people
+  * Getting audio feedback for the currently-focused widget: when going from one to the other, when the current widget changes, when a notification widget notifies of something.
+  * Getting audio feedback of what is being typed, thus the translated key, not only the keycode.
+  * Screen reader driven through shortcuts, to e.g. spell a letter, spell a word, read the current selection, speak the current logical position (window, panel, group, widget), change feedback verbosity, etc.
+  * Simulate mouse clicks (for when there is no keyboard shortcut defined)
+* people with low vision
+  * Getting zoomed area to show the currently-focused widget, and the current caret position
+  * Getting zoomed area to show the text currently being spoken by the screen reader
+* people with limited typing capabilities
+  * Produce an on-screen keyboard which contains the actions that can be achieved in the software, and use one-button + timing to efficiently reach them
+  * typing from eye-tracking
+  * typing from speech recognition
 
 ### technical needs
 
@@ -50,6 +60,8 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 * Mouse click simulation
 
 ### Ideas for solutions
+
+Just randomy thrown here, no particular order intended
 
 * Checking authorization before allowing connection to AT-SPI
 
@@ -76,3 +88,6 @@ The technical IPC mechanism details and the IPC interface details vary, but the 
 * key press feedback
   * Key presses
   * But also input method expansions
+
+* gtk could directly talk at-spi (like Qt does), and get rid of the atk layer
+* Or even use an aria layer, independent from the transport technology actually used
