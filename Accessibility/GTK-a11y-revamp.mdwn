@@ -16,16 +16,15 @@ Previous discussions:
 
 [[https://wiki.gnome.org/Accessibility/Hackfests/GUADEC2013]]
 
-Input questions are detailed on [[Accessibility/Input]]
+Some input questions are discussed on [[Accessibility/Input]]
 
 ### Coherency ###
 
-We most probably want to keep coherent with other interfaces (while avoiding the bad ideas):
+For various reasons, we most probably want to keep coherent with other interfaces (while avoiding the bad ideas):
 
 * Microsoft's UIA ([[https://docs.microsoft.com/en-us/windows/win32/winauto/entry-uiauto-win32]]) / IA2 ([[https://github.com/LinuxA11y/IAccessible2]]) / MSAA ([[https://docs.microsoft.com/en-us/previous-versions//ms697707(v=vs.85)]])
 * OS X's NSAccessibility (https://developer.apple.com/documentation/appkit/nsaccessibility)
 * Aria (https://w3c.github.io/aria/ https://w3c.github.io/core-aam https://w3c.github.io/aria-practices/)
-
 
 The technical IPC mechanism details and the IPC interface details vary, but the ground principle is the same:
 
@@ -88,15 +87,15 @@ people with limited typing capabilities
 * typing / actions from eye-tracking
 * typing / actions from speech recognition
 
-### technical needs
+### notable entailed technical needs
 
 * key press events with translated key, not only the keycode
-* keyboard shortcut 
+* keyboard shortcuts
 * Mouse click simulation
 
 ### Ideas for solutions
 
-Just randomly thrown here, no particular order intended
+Just ideas randomly thrown here, no particular order intended
 
 * Check how it's done in other OSes
 
@@ -109,16 +108,13 @@ Just randomly thrown here, no particular order intended
   * key press notification can be asynchronous, thus not slowing desktop down
   * only keyboard shortcut would have to go through the screen reader
 
-* Implementing keyboard shortcuts for accessibility within the toolkit itself
-  * But the screen reader has its own state (e.g. feedback verbosity level)
-
 * Implement accessibility support (such as "read current line") within the toolkit itself
-  * There are a *lot* of such things that would need to be implemented to make working with speech feedback workable.
+  * There are a *lot* of such things that would need to be implemented to make working with speech feedback workable, and not shared with other toolkits
+  * The screen reader has its own state (e.g. feedback verbosity level)
   * That makes integration with other screen reader behavior extremely difficult (We need to have it interrupted by e.g. desktop notifications, focus change, etc.)
-  * and it's then not toolkit agnostic
 
 * key press/shortcut transmission
-  * through XInput? (Not available on Wayland ; Requires a window ; at-spi2-core could create one)
+  * through XInput? (Requires a window, but at-spi2-core could create one ; wayland needs something else)
   * through AT-SPI or another protocol? We want authorization to avoid arbitrary key snooping, if we add authorization over the whole AT-SPI that should be fine
   * A bridge for dogtail was implemented on [[https://gitlab.gnome.org/ofourdan/gnome-ponytail-daemon]] but this is more of a hack
   * A macro daemon is currently in development on [[https://gitlab.freedesktop.org/whot/macrod/]]
