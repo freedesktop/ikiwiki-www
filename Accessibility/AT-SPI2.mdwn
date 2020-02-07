@@ -35,7 +35,9 @@ Getting it started by hand (normally done by the Desktop Environment session man
 
         $ dbus-monitor --address unix:abstract=/tmp/dbus-6fNHBTP2lK,guid=9d17aaa3ca64ff4b66f0c5985442999e
 
-* Whether applications should enable their at-spi2 support is defined by the IsEnabled property of org.a11y.Status in the accessibility bus (see proposal [[https://mail.gnome.org/archives/desktop-devel-list/2011-May/msg00397.html]] and implementation [[https://mail.gnome.org/archives/commits-list/2011-August/msg06285.html]])
+* Whether applications should enable their at-spi2 support is defined by the IsEnabled property of org.a11y.Status in the accessibility bus (see proposal [[https://mail.gnome.org/archives/desktop-devel-list/2011-May/msg00397.html]] and implementation [[https://mail.gnome.org/archives/commits-list/2011-August/msg06285.html]]). If an application does not enable at-spi2 support by default, it should monitor that property, in order to dynamically enable at-spi2 support if it changes to true (e.g. as done by a screen reader on startup)
+
+* Whether a screen reader will be started automatically by the session is defined by the ScreenReaderEnabled property of org.a11y.Status in the accessibility  bus. Applications should not use this to determine whether to enable at-spi2 support or not, since the screen reader could be started by hand instead of by the session. They should use IsEnabled instead, see above.
 
 * One can force enabling accessibility (but ideally it should be automatic thanks to the property mentioned above):
 
