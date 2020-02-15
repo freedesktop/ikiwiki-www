@@ -11,6 +11,7 @@
 * Better support for some USB gaming headsets
 * Flat volumes are now disabled by default
 * Improved support for ALSA UCM
+* Support for ALSA mixer elements with non-zero index
 * New xauthority argument for X11 modules
 * module-null-sink's compressed format support can now be configured at run-time
 * Workaround for Gnome sound settings stream routing behaviour
@@ -54,7 +55,13 @@ Flat volumes can be enabled by setting "flat-volumes = yes" in ~/.config/pulse/d
 
 ### Improved support for ALSA UCM
 
+PulseAudio now supports hardware volume when using ALSA UCM. Hardware mute support is still missing.
+
 It's now possible to use multiple sound cards with the same name simultaneously with UCM. An example of this situation is having multiple identical USB sound cards plugged in. This requires alsa-lib version 1.2.1 or higher.
+
+### Support for ALSA mixer controls with non-zero index
+
+On some hardware there can be multiple ALSA mixer controls with the same name, in which case they're distinguished by their index. PulseAudio has so far always used only the control with index 0, now it's possible to write configuration for hardware that requires using non-zero indexes. Wherever a mixer control name could be used before, it's now possible to append the index to the name using a comma as the separator. For example: `Headphone,1`.
 
 ### New xauthority argument for X11 modules
 
