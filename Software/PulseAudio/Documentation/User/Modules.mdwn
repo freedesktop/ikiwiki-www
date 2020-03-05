@@ -1118,10 +1118,19 @@ Disadvantages: When pulseaudio gives up the backend, and the backend is not capa
 
 ### module-switch-on-connect
 
-Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source, and will move all currently running streams to the new sink/source.
+Whenever a new sink or source appears, this module will switch the default sink/source to be the new sink/source. Prior to PulseAudio 14.0, the module also moved all currently running streams to the new sink/source (now it's done automatically by the core when the default device changes).
 
+* blacklist
+   * **Since 14.0.** Takes a regular expression. The regular expression is matched against device names, and devices that match are ignored. An empty string disables the blacklist. Default: "hdmi".
+* ignore_virtual
+   * **Since 12.0.** Takes a boolean value. If set to true, new virtual sinks and sources don't trigger a device switch. Default: true.
 * only_from_unavailable
    * Takes a boolean value. If set to true, the device switch is only done if the current default device is currently marked as unavailable.
+
+
+### module-switch-on-port-available
+
+Automatically switches the card profile and/or device port when a port changes its availablility status. In practice this happens when plugging in or out something to/from a 3.5mm connector (not on USB sound cards, though, since they don't support jack detection) or a HDMI connector.
 
 
 ### module-systemd-login
