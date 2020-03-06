@@ -11,11 +11,11 @@ Repositories and the PostgreSQL database are both stored on persistent disks map
 Docker Registry images, file uploads and attachments, and backups, are all stored within Google Cloud Storage buckets. Backups are retained for one week.
 
 There are several shared runners available for all GitLab CI jobs:
-* fdo-gitlab-gce-runner3 executes 4 concurrent jobs, and is a 22 vCPU, 128GB RAM worker hosted in GCE's us-east1, with 1TB of NVMe storage
-* fdo-gitlab-packet-runner2 and fdo-gitlab-packet-runner3 execute 2 concurrent jobs, and are 8 vCPU, 32GB RAM workers hosted in Packet's SJC1, with 240GB of NVMe storage
-* gst-gitlab-htz-runner2 and gst-gitlab-htz-runner3 execute 6 concurrent jobs, and are a 48 vCPU, 128GB RAM workers hosted in Hetzner Germany, with 1.8TB of SSD storage
-* Windows: gst-gitlab-htz-runner4 executes 6 concurrent jobs, and is a 24 vCPU, 128GB RAM worker hosted in Hetzner Germany, with 256GB of SSD storage
-* AArch64: fdo-gitlab-packet-arm-runner1 executes 4 concurrent jobs, and is a 32 vCPU, 128GB RAM worker hosted in Packet SJC1, with 480GB of SSD storage
+* fdo-packet-m1xl-* execute 8 concurrent jobs, and are 24 vCPU, 256GB RAM workers hosted in Packet's EWR1, with 2.8TB of SSD storage, sponsored by [Packet](https://www.packet.com)
+* gst-gitlab-htz-runner* execute 6 concurrent jobs, and are a 48 vCPU, 128GB RAM workers hosted in Hetzner Germany, with 1.8TB of SSD storage, sponsored by the GStreamer Foundation
+* AArch64: fdo-packet-arm-* execute 4 concurrent jobs, and are 32 vCPU, 128GB RAM workers hosted in Packet SJC1, with 480GB of SSD storage, under the `aarch64` tag, sponsored by [Packet](https://www.packet.com)
+* macOS: gst-mac-catalina* are macOS Catalina workers, under the `gst-macos-10.15` tag, sponsored by the GStreamer Foundation
+* Windows: gst-gitlab-htz-runner4-windows-1809 executes 6 concurrent jobs, and is a 24 vCPU, 128GB RAM worker hosted in Hetzner Germany, with 256GB of SSD storage, under the `windows` and `1809` tags, sponsored by the GStreamer Foundation
 
 Given the level of concurrency, you should aim for each job to parallelise with 4 concurrent processes.
 
