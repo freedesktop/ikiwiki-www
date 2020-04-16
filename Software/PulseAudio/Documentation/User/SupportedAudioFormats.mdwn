@@ -1,0 +1,46 @@
+
+[[!inline pages="Software/PulseAudio/TOC" quick="yes" raw="yes"]] 
+
+
+# Supported audio formats in PulseAudio
+
+PulseAudio is primarily designed for PCM audio, and can handle almost any number of channels and any sample rate (it's possible to come up with weird use cases that are not supported). PulseAudio can also play some compressed audio formats in passthrough mode via S/PDIF and HDMI outputs, but with those formats PulseAudio can't mix streams, apply volume or do resampling, or do any other audio modification (that's why it's called "passthrough mode").
+
+
+## PCM sample formats
+
+Below is a list of all supported PCM sample formats. The code at the beginning of each line is used whenever a textual identifier for a format is needed (for example in configuration files or on the command line).
+
+* `u8`: unsigned 8-bit integer
+* `aLaw`: [[A-law|https://en.wikipedia.org/wiki/A-law_algorithm]] encoded 8-bit integer
+* `uLaw`: [[μ-law|https://en.wikipedia.org/wiki/%CE%9C-law_algorithm]] encoded 8-bit integer
+* `s16le`: signed 16-bit little-endian integer
+* `s16be`: signed 16-bit big-endian integer
+* `s16ne`: native-endian alias for `s16le` or `s16be`
+* `float32le`: 32-bit little-endian float
+* `float32be`: 32-bit big-endian float
+* `float32ne`: native-endian alias for `float32le` or `float32be`
+* `s32le`: signed 32-bit little-endian integer
+* `s32be`: signed 32-bit big-endian integer
+* `s32ne`: native-encoding alias for `s32le` or `s32be`
+* `s24le`: signed 24-bit little-endian integer (note: ALSA calls this "S24_3LE")
+* `s24be`: signed 24-bit big-endian integer (note: ALSA calls this "S24_3BE")
+* `s24ne`: native-endian alias for `s24le` or `s24be`
+* `s24-32le`: signed 24-bit little-endian integer, packed into a 32-bit integer so that the 8 most significant bits are ignored (note: ALSA calls this "S24_LE")
+* `s24-32be`: signed 24-bit big-endian integer, packed into a 32-bit integer so that the 8 most significant bits are ignored (note: ALSA calls this "S24_BE")
+* `s24-32ne`: native-endian alias for `s24-32le` or `s24-32be`
+
+
+## Compressed audio formats
+
+Below is a list of all supported compressed formats. The code at the beginning of each line is used whenever a textual identifier for a format is needed (for example in configuration files or on the command line). The formats whose identifier ends with `-iec61937` have to be wrapped in IEC 61937 frames, which makes the compressed audio look more like normal PCM audio.
+
+* `ac3-iec61937`: AC3
+* `eac3-iec61937`: EAC3
+* `mpeg-iec61937`: MPEG-1 or MPEG-2 (Part 3, not AAC)
+* `dts-iec61937`: DTS
+* `mpeg2-aac-iec61937`: MPEG-2 AAC (supported since PulseAudio 4.0)
+* `truehd-iec61937`: Dolby TrueHD (added in PulseAudio 13.0, but doesn't work yet in practice)
+* `dtshd-iec61937`: DTS-HD Master Audio (added in PulseAudio 13.0, but doesn't work yet in practice)
+* `pcm`: PCM (not a compressed format, but listed here, because `pcm` is one of the recognized encoding identifiers)
+* `any`: (special identifier for indicating that any encoding can be used)
