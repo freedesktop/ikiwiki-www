@@ -12,23 +12,13 @@ All device driver modules support the following parameters:
 * sink_name, source_name
    * Name for the sink (resp. source). Allowed characters in the name are a-z, A-Z, numbers, period (.) and underscore (_). The length must be 1-128 characters.
 * format
-   * The sample format (one of u8, s16, s16be, s16le, float32, float32be, float32le, alaw, ulaw) (defaults to s16)
+   * The sample format, see [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values (defaults to `s16`)
 * rate
    * The sample rate (defaults to 44100)
 * channels
    * Audio channels (defaults to 2)
 * channel_map
    * Channel map. A list of comma-separated channel names. The currently defined channel names are: left, right, mono, center, front-left, front-right, front-center, rear-center, rear-left, rear-right, lfe, subwoofer, front-left-of-center, front-right-of-center, side-left, side-right, aux0, aux1 to aux15, top-center, top-front-left, top-front-right, top-front-center, top-rear-left, top-rear-right, top-rear-center, (Default depends on the number of channels and the driver)
-
-**Since 0.9.8**
-
-* format
-   * The sample format can be signed 32 bit (s32, s32le, s32be)
-
-**Since 0.9.15**
-
-* format
-   * The sample format can be signed 24 bit, packed in 3 or 4 bytes (s24, s24le, s24be, s24-32, s24-32le, s24-32be)
 
 **Since 0.9.16**
 
@@ -67,7 +57,7 @@ Provides a simple null sink. All data written to this sink is silently dropped. 
 In addition to the common sink arguments (`sink_name`, `sink_properties`, `format`, `rate`, `channels` and `channel_map`), this module supports the following arguments:
 
 * formats
-   * **Since 13.0.** List of encoding formats, separated by semicolons. For example, `pcm;ac3-iec61937` allows applications to play normal PCM or AC3-encoded audio to the null sink. The supported encodings are: `pcm`, `ac3-iec61937`, `eac3-iec61937`, `mpeg-iec61937`, `dts-iec61937`, `mpeg2-aac-iec61937`, `truehd-iec61937` and `dtshd-iec61937`.
+   * **Since 13.0.** List of encoding formats, separated by semicolons. For example, `pcm;ac3-iec61937` allows applications to play normal PCM or AC3-encoded audio to the null sink. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values. By default the null sink accepts only PCM audio.
 
 
 ### module-alsa-sink
@@ -131,7 +121,7 @@ Creates a PulseAudio card for an ALSA card. The "device_id" argument is mandator
 * device_id
    * The alsa card identifier. Can be the card index or the name. See `/proc/asound/cards` for the list of available cards and their identifiers.
 * format
-   * The sample format to be used by the card's sinks and sources.
+   * The sample format to be used by the card's sinks and sources. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values.
 * rate
    * The sample rate to be used by the card's sinks and sources.
 * name
@@ -259,7 +249,7 @@ Here's an example for creating a virtual stereo sink that will play to the rear 
  * master_channel_map
     * The master source's channels from which audio should be captured.
  * format
-    * The remapped source sample format.
+    * The remapped source sample format. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values.
  * rate
     * The remapped source sample rate.
  * channels
@@ -307,7 +297,7 @@ This is a reimplementation of module-tunnel-sink. Once this new version is ready
 * sink
    * The remote sink to connect to.
 * format
-   * The sample format of the local sink (the local format is also what will be used in the stream that is sent over the network).
+   * The sample format of the local sink (the local format is also what will be used in the stream that is sent over the network). See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values.
 * channels
    * The number of channels of the local sink (the local channel count is also what will be used in the stream that is sent over the network).
 * channel_map
@@ -333,7 +323,7 @@ This is a reimplementation of module-tunnel-source. Once this new version is rea
 * source
    * The remote source to connect to.
 * format
-   * The sample format of the local source (the local format is also what will be used in the stream that is received over the network).
+   * The sample format of the local source (the local format is also what will be used in the stream that is received over the network). See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values.
 * channels
    * The number of channels of the local source (the local channel count is also what will be used in the stream that is received over the network).
 * channel_map
@@ -397,7 +387,7 @@ See module-cli-protocol-{unix,tcp} for more information about the two possible s
 In addition to the options supported by module-cli-protocol-*, this module supports:
 
 * rate, format, channels
-   * Sample format for streams connecting to this service.
+   * Sample format for streams connecting to this service. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values for the format argument.
 * playback, record
    * Enable/disable playback/recording
 * sink, source
@@ -673,7 +663,7 @@ In combination with the monitor source of module-null-sink you can use this modu
  * source
     * The source to read the audio data from.
  * format
-    * The sample format.
+    * The sample format. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values.
  * channels
     * The number of channels.
  * rate
@@ -813,7 +803,7 @@ Used to perform acoustic echo cancellation between a designated sink and source.
 * adjust_threshold
    * **Since 2.0.** How much drift to readjust after (in milliseconds)
 * format
-   * The sample format of the virtual sink and source.
+   * The sample format of the virtual sink and source. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values.
 * rate
    * The sample rate of the virtual sink and source.
 * channels
@@ -1025,11 +1015,11 @@ The filtering list is hard-coded, and currently there is only one situation wher
 * latency_msec
    * The desired latency in milliseconds, from 1 to 2000. Defaults to 200. (Note that this is only a friendly request, the actual latency might be higher or lower than this value.)
 * format
-   * The sample format. Defaults to that of specified sink.
+   * The sample format. See [[supported audio formats|Software/PulseAudio/Documentation/User/SupportedAudioFormats]] for possible values. Defaults to that of the specified source, or if that's unspecified, then to that of the specified sink, or that's unspecified too, then to that of the source that the loopback gets assigned.
 * rate
-   * The sample rate. Defaults to that of specified sink.
+   * The sample rate. Defaults to that of the specified source, or if that's unspecified, then to that of the specified sink, or that's unspecified too, then to that of the source that the loopback gets assigned.
 * channels
-   * Number of source channels to use. Defaults to that of specified sink.
+   * Number of source channels to use. Defaults to that of the specified source, or if that's unspecified, then to that of the specified sink, or that's unspecified too, then to that of the source that the loopback gets assigned.
 * channel_map
    * List of the channels to connect to the sink.
 * sink_input_properties
