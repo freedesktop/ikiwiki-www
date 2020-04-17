@@ -41,7 +41,11 @@ When connected to a HSP or HFP device, the bluetooth card in PulseAudio will hav
 
 When PulseAudio is acting as a headset or a hands-free unit, it's rarely necessary to manually change the card profile. When the audio gateway initiates audio streaming, module-bluetooth-policy will automatically change to the appropriate profile. module-bluetooth-policy will also load module-loopback instances to loop the audio from bluetooth to the local speakers and microphone.
 
-Being able to use HFP headsets without oFono would be nice, and James Bottomley has submitted patches for that: [[1|https://patchwork.freedesktop.org/patch/178198/]], [[2|https://patchwork.freedesktop.org/patch/178199/]], [[3|https://patchwork.freedesktop.org/patch/178200/]], [[4|https://patchwork.freedesktop.org/patch/178201/]]. The patches need still some work, help with finishing them would be appreciated.
+Being able to use HFP headsets without oFono would be nice, and there are patches for implementing HFP support in PulseAudio [[here|https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/94]]. Pali Rohár is pursuing a different approach, he wants to create a new "hsphfpd" daemon that handles the communication with the headset (including some non-audio bits that don't really fit in PulseAudio) and provides an API for PulseAudio (or some other sound server) for passing audio to and from the headset. You can read about hsphfpd here: [[https://lists.freedesktop.org/archives/pulseaudio-discuss/2019-December/031506.html]]
+
+## Supported codecs
+
+The bluetooth standard allows using many different codecs with A2DP, and there are some options for HFP too. Currently PulseAudio supports only SBC with A2DP and CVSD with HSP and HFP. (Note that the CVSD encoding is done by the bluetooth adapter hardware, PulseAudio sends plain PCM audio to the hardware when using HSP or HFP.) Support for more codecs is being worked on.
 
 ## Using bluetooth when running PulseAudio in the system mode
 
