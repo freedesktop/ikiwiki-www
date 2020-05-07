@@ -5,15 +5,27 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* Don't assume that version_split have at least 2 elements
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/289]]
+  * Small patch, but it doesn't really make sense. The version should always have at least 2 elements. The problem that this patch fixes needs to be investigated further.
+
 * WIP: Device port extensions for shared jacks
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/283]]
   * Adds information about shared jacks between ports to the client API. Also adds device type information to ports.
   * Pretty large change.
   * Important, because this is required to fix Gnome's "What did you plug in?" dialog, which doesn't work with UCM.
 
+* alsa-ucm: create profiles per conflicting device group
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/290]]
+  * Important improvement to the UCM profile generation logic (currently we may generate profiles that have two conflicting devices active at the same time).
+
 * alsa-mixer: add support for Sennheiser GSX 1000 gaming DAC
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/257]]
-  * Simple change. Tanu reviewed the first version, changes requested.
+  * Simple change. Tanu reviewed the first version, changes requested. See also the next MR, !286.
+
+* Add udev rules and a profile for Sennheiser GSX devices.
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/286]]
+  * This is probably pretty much the same as the previous MR, !257.
 
 * Update module directory logic
   * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/7]]
@@ -43,6 +55,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * Support Dual Jacks
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/272]]
+
+* alsa-mixer: support up to 8 channels per mixer element
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/292]]
+  * Improves hardware volume handling. Important now that UCM is starting to have configuration for hardware with this kind of mixer elements. With UCM we can't gracefully fall back to software volume, because UCM will set the volume to zero when switching away from the device, so we must support hardware volume properly.
 
 * Rewind and resampler fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/120]]
@@ -101,11 +117,16 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/53]]
   * Fixes latency calculations. Adds a latency configuration modarg to module-tunnel. A somewhat large change, but it's split into 6 patches so the individual patches should be pretty manageable.
 
+* WIP: Bluetooth HSP and HFP profiles implementation via hsphpfd daemon
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/288]]
+  * See also the next MR, !94.
+
 * bluetooth: HFP profile implementation
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/94]]
   * Improves hardware support. HFP-only headsets can't currently be used without oFono, and using them with oFono is difficult. Apparently this patch was developed independently from James Bottomley's earlier implementation - what are the differences between the two implementations? Medium sized change.
   * The newest version (as of 2019-11-27) of James's patches are at [[https://git.kernel.org/pub/scm/linux/kernel/git/jejb/pulseaudio.git/log/?h=jejb-v13]]
   * There's also this version that has some improvements on top of James's patches: [[https://github.com/paravoid/pulseaudio/commits/hfp-v7]]
+  * See also the previous MR, !288.
 
 * alsa-mixer: add mono input support for Behringer UMC22
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/223]]
@@ -183,25 +204,12 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-mixer: Enable volume control of SteelSeries Arctis stereo output
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/274]]
 
-### Patches that need to be prioritized
-
-* Add udev rules and a profile for Sennheiser GSX devices.
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/286]]
-
 * alsa-sink: increase watermark when there is nothing to rewind
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/287]]
-
-* WIP: Bluetooth HSP and HFP profiles implementation via hsphpfd daemon
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/288]]
-
-* Don't assume that version_split have at least 2 elements
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/289]]
-
-* alsa-ucm: create profiles per conflicting device group
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/290]]
 
 * bluetooth: policy: Remove BlueZ 4 related code
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/291]]
 
-* alsa-mixer: support up to 8 channels per mixer element
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/292]]
+### Patches that need to be prioritized
+
+(nothing here right now)
