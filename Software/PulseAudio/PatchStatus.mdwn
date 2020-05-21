@@ -212,4 +212,23 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-(nothing here right now)
+* alsa-mixer: Respect XDG base directory spec when loading path configs
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/293]]
+  * Allows users to override the ALSA path configuration files in their home directories, which is very useful.
+  * Quite small change.
+  * Tanu already started reviewing.
+
+* alsa-mixer: store the ucm_device with the order of their priority
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/294]]
+  * Workaround in the UCM code for bad decisions made by module-switch-on-port-available.
+  * Pretty small change.
+  * At the time of writing, discussion about what would be the "right" fix is ongoing, but at least Tanu is willing to accept this patch.
+
+* switch-on-port-available: check if need to change the default sink or source
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/295]]
+  * Makes switch-on-port-available set the default sink/source.
+  * Some new laptops have separate sources for internal and external mics, so this is potentially somewhat important. However, at least the initial version of this patch sets the default device too aggressively, and properly implementing this feature may need quite a bit of work.
+
+* Check for pulseaudio daemon by socket instead of by pid
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/296]]
+  * Simple change, but might not be what we want. The proposed implementation will start the daemon if socket activation or autospawning is enabled.
