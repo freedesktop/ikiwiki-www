@@ -5,6 +5,20 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* WIP: Disable UCM devices on suspend
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/307]]
+  * Various UCM cleanups, in addition to the main patch that implements a possible power consumption improvement with UCM.
+  * There's a bug that needs to be fixed before this can be merged.
+  * Arun reviewed the first version, and we agreed to have this in 14.0 once the bug is fixed.
+
+* alsa-mixer: Respect XDG base directory spec when loading profile sets
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/311]]
+  * Completes the work started in MR 293 (which is reviewed and waiting for the freeze to end).
+
+* ucm: add possibility to skip the UCM card completely (Linked)
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/305]]
+  * Implements a new UCM feature, required for some hardware.
+
 * Don't assume that version_split have at least 2 elements
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/289]]
   * Small patch, but it doesn't really make sense. The version should always have at least 2 elements. The problem that this patch fixes needs to be investigated further.
@@ -47,8 +61,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-ucm: allow binding same mic to multiple profiles
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/271]]
 
-* Support Dual Jacks
+* Support jack index
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/272]]
+  * Adds support for jack controls with index other than zero. Adds some new jacks to the path configurations.
+  * Tanu already reviewed the first version (changes requested).
 
 * alsa-mixer: support up to 8 channels per mixer element
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/292]]
@@ -115,6 +131,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Tunnel and combine-sink latency fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/53]]
   * Fixes latency calculations. Adds a latency configuration modarg to module-tunnel. A somewhat large change, but it's split into 6 patches so the individual patches should be pretty manageable.
+
+* bluetooth-legacy: Create bluetooth legacy as copy of current bluetooth codebase
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/314]]
 
 * WIP: Bluetooth HSP and HFP profiles implementation via hsphpfd daemon
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/288]]
@@ -216,39 +235,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-mixer: Respect XDG base directory spec when loading path configs
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/293]]
 
-### Patches that need to be prioritized
-
-* Support jack index
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/272]]
-  * Adds support for jack controls with index other than zero. Adds some new jacks to the path configurations.
-  * Tanu already reviewed the first version (changes requested).
-
-* man: Explain the limitations of "pulseaudio --check"
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/303]]
-  * Small documentation improvement.
-
 * alsa-mixer: Pick at most one fallback mapping
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/304]]
-  * Fixes cases where we use fallback mappings and multiple fallbacks are available.
-  * Very small change, but reviewing requires understanding some complex code (but nothing horrible).
 
-* ucm: add possibility to skip the UCM card completely (Linked)
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/305]]
-  * Implements a new UCM feature, required for some hardware.
-  * Tanu plans to review soon, but others can take this too.
+### Patches that need to be prioritized
 
-* WIP: Disable UCM devices on suspend
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/307]]
-  * Various UCM cleanups, in addition to the main patch that implements a possible power consumption improvement with UCM.
-  * There's a bug that needs to be fixed before this can be merged.
-
-* device-port: queue CARD CHANGE event before update default sink
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/310]]
-  * I should rebase and merge this once https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/308 finishes merging.
-
-* alsa-mixer: Respect XDG base directory spec when loading profile sets
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/311]]
-  * Completes the work started in MR 293 (which is reviewed and waiting for the freeze to end).
-
-* bluetooth-legacy: Create bluetooth legacy as copy of current bluetooth codebase
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/314]]
+(nothing here right now)
