@@ -1,4 +1,3 @@
-
 # Shared configuration system
 
 All desktops currently have their own configuration systems. They should be unified so that: 
@@ -20,26 +19,16 @@ All desktops currently have their own configuration systems. They should be unif
  * Should allow settings to be shared over the network (if different applications on your desktop are running on different machines).
  * Keep different users' settings separate.
  * Standard API / sample library implementation to access the database.
-Useful bonus features: 
-
- * Light-weight enough that boot processes and small utilities can use it (possibly read-only?).
+ * Light-weight enough that boot processes and small utilities can use it.
  * Human readable storage format (edit config with vi, keep under version control, use diff, etc).
+ * Change notification should be done using [[D-BUS|Software/dbus]]. 
 
-## Issues
 
- * A schema system to describe what values keys can have, plus translatable comments, is useful for tools like gconf-editor. There is some debate as to whether schema files are required to use the system, or an optional layer built on top of the system with the low-level backends simply storing strings (KDE and ROX store strings, with application libraries interpreting them according to a schema, while GNOME applications install schema files which are understood by the underlying configuration daemon).
- * Are only preferences to be stored? A network-transparent per-user storage system with change notification could be useful for many things, such as storing bookmarks, your address book, a list of recently edited files, etc. We must make sure that the project does not try to do everything.
- * Do we have a single way of actually storing the settings, or just an API with pluggable backends? Pluggable backends allow the same API to be used in different environments; a system daemon might want to store values to a local text file without change notification, while a desktop application in a large company might access settings via a remote SQL database. A single backend can't cover all cases, and would prevent some people from adopting the system. The effect of this would be that programmers would choose a configuration system per-application, rather than sysadmins choosing a system per-computer.
+## Status 05.08.2020
 
-## Plan
+As discussed in the [[XDG list|https://lists.freedesktop.org/archives/xdg/2020-August/014366.html]],
+[[Elektra|https://www.libelektra.org/]] is preparing a specification which fulfills all the requirements above.
 
-This specification is expected to use the [[Base directory spec|Specifications/basedir-spec]] for the location of configuration files (under *~/.config* by default). 
-
-Ideally, the system should be fast but also network transparent. Possibly, applications could read the database directly if running on the same machine as the config files, or read them via the notification process if not. 
-
-We should define a simple API for setting and getting configuration settings and provide a small library that implements it. It should be possible to use multiple backends (XML files, database, etc) to actually store the settings. 
-
-Change notification could be done using [[D-BUS|Software/dbus]]. 
 
 
 ## References
