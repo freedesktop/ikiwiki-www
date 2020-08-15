@@ -47,6 +47,17 @@ Finally, recover the original places for the program files:
     $> sudo mv /ModemManager /usr/sbin/
     $> sudo mv /NetworkManager /usr/sbin/
 
+### Additional qmi-proxy or mbim-proxy verbose logs
+
+Sometimes debugging problems in ModemManager requires not only ModemManager daemon's own debug log, but also the verbose logs of the `qmi-proxy` or `mbim-proxy` processes, which are the ones synchronizing the access to the QMI or MBI cdc-wdm ports. In order to gather these additional logs, explicitly kill the processes and manually launch them in a separate terminal BEFORE running `ModemManager --debug`:
+
+    $> sudo killall mbim-proxy
+    $> sudo /usr/libexec/mbim-proxy --no-exit --verbose
+
+    $> sudo killall qmi-proxy
+    $> sudo /usr/libexec/qmi-proxy --no-exit --verbose
+
+Usually only one of these proxies is used, there is no need to debug both at the same time.
 
 ## mmcli
 
