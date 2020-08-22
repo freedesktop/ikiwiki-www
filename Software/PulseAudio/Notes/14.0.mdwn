@@ -7,6 +7,7 @@
 * Changing the default sink moves streams from the old default sink to the new
 * Moving a stream to the default sink removes the "manually routed" status of the stream
 * Manually routed streams move automatically to/from a sink when the sink changes status between available and unavailable.
+* The same changes have been applied to the source stream routing
 * Automatic switching to HDMI is now disabled by default
 * Better support for some USB gaming headsets
 * Flat volumes are now disabled by default
@@ -16,6 +17,7 @@
 * module-null-sink's compressed format support can now be configured at run-time
 * Workaround for Gnome sound settings stream routing behaviour
 * module-rescue-streams is deprecated, functionality moved to the core
+* New rescue-streams option in daemon.conf
 * New GStreamer-based RTP implementation
 * qpaeq switched from Python 2 to Python 3
 
@@ -32,6 +34,10 @@ When a stream is playing to a non-default sink and the user moves it to the curr
 ### If a sink changes status to available, streams that prefer that sink move there automatically
 
 Let's assume a situation where a stream has been moved manually to a sink, and then the sink changes status to unavailable but is not removed (this can happen for example when headphones are unplugged). Let's also assume that some other sink is the default sink. The stream is now automatically moved to the default sink in this situation, and when the unavailable sink becomes available again, the stream moves back to that.
+
+### The same changes have been applied to the source stream routing
+
+A similar logic is applied to source streams. Changing the default source will move streams from the old to the new default source, manually moving a stream to the default source will remove the "manually routed" status and streams will be moved to the preferred source if it becomes available.
 
 ### Automatic switching to HDMI is now disabled by default
 
@@ -80,6 +86,10 @@ Despite those problems, it made sense for Gnome sound settings to do this, becau
 ### module-rescue-streams is deprecated, functionality moved to the core
 
 module-rescue-stream doesn't do anything any more, and is deprecated. When a device is removed, the module used to move streams on that device to some other device, but that is now handled by the core, so the module has nothing to do. If you have custom configuration that loads module-rescue-streams, you should remove the module from the configuration. Having it in the configuration doesn't do harm, but there will be warnings in the PulseAudio log.
+
+### New rescue-streams option in daemon.conf
+
+After moving the rescue functionality to the core, stream rescuing could no longer be disabled. Therefore a new boolean option rescue-streams was added to daemon.conf which is true by default. Set it to false to disable stream rescuing.
 
 ## Notes for application developers
 
