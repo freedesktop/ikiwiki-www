@@ -18,8 +18,10 @@
 * Workaround for Gnome sound settings stream routing behaviour
 * module-rescue-streams is deprecated, functionality moved to the core
 * New rescue-streams option in daemon.conf
+* The enable-lfe-remixing option was split into remixing-produce-lfe and remixing-consume-lfe
 * New GStreamer-based RTP implementation
 * qpaeq switched from Python 2 to Python 3
+* compile-time option to forget pre-14.0 stream routing
 
 ## Notes for end users
 
@@ -91,6 +93,10 @@ module-rescue-stream doesn't do anything any more, and is deprecated. When a dev
 
 After moving the rescue functionality to the core, stream rescuing could no longer be disabled. Therefore a new boolean option rescue-streams was added to daemon.conf which is true by default. Set it to false to disable stream rescuing.
 
+### The enable-lfe-remixing option was split into remixing-produce-lfe and remixing-consume-lfe
+
+Splitting the option into two allows to separately control the use of the lfe channel in upmixing and downmixing. The old enable-lfe-remixing option is deprecated and should be replaced. If the old option is encountered, both new options will be set to the value of enable-lfe-remixing. 
+
 ## Notes for application developers
 
 (Nothing here yet.)
@@ -106,6 +112,10 @@ This adds new dependencies: gstreamer-1.0, gstreamer-app-1.0 and gstreamer-rtp-1
 ### qpaeq switched from Python 2 to Python 3
 
 The Python interpreter that qpaeq invokes was switched from python to python3. Also, qpaeq doesn't import the SIP module any more (it wasn't used anyway), so if your qpaeq package currently has an explicit dependency to python-sip, that can be dropped. (There's still an implicit dependency to SIP via PyQt, though.)
+
+### compile-time option to forget pre-14.0 stream routing
+
+A new --enable-stream-restore-clear-old-devices (Autotools) or -Dstream-restore-clear-old-devices=true (Meson) build option was introduced which instructs pulesaudio to discard pre-14.0 stream routing information. This was necessary because, prior to 14.0, GNOME sound settings used to manipulate the stream-restore database when the default device was switched. The resulting old settings can conflict with the current changed routing logic and can lead to inconsistent stream routing. See https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832. The option is disabled by default because it will cause data loss but should be enabled in distributions using GNOME. 
 
 ## git shortlog
 
