@@ -5,6 +5,21 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* alsa-mixer: Add support for HP Thunderbolt Dock
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/353]]
+  * Pretty simple configuration addition.
+
+* alsa-card: add dynamic priority bonus base for alsa profiles
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/355]]
+  * Small but possibly a bit tricky profile priority/availability patch.
+  * Fixes a significant problem with UCM: UCM doesn't generate profiles for all device permutations, wihch with the current logic leads to important profiles being marked as unavailable if any component device in them is unavailable.
+
+* tests: Fix incompatible pointer type on Debian kfreebsd
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/356]]
+
+* alsa-ucm: Make sure UCM uses DisableSequence
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/357]]
+
 * clear compiling warning
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/330]]
   * Simple patches, Tanu reviewed them but they need some polishing.
@@ -191,6 +206,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * FreeBSD support
   * [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/merge_requests/6]]
 
+* Use WAVEFORMATEXTENSIBLE for multi-channel audio output on Windows.
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/359]]
+
 * virtual-surround-sink: Use FFTW3 instead of naive approach
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/240]]
   * What are the benefits? Better performance? More supported use cases? Large change, rewrites module-virtual-surround-sink.
@@ -261,26 +279,9 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/352]]
   * Small change, but the purpose is unclear. Something to do with systemd lingering sessions?
 
-* alsa-mixer: Add support for HP Thunderbolt Dock
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/353]]
-  * Pretty simple configuration addition.
-
 * switch-on-port-available: checking the off profile when switching profile
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/354]]
   * Simple patch. Allows automatic switching away from the off profile.
   * Does this change the profile even if the user has intentionally set the profile to off?
   * Fixes a problem on some UCM hardware.
-
-* alsa-card: add dynamic priority bonus base for alsa profiles
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/355]]
-  * Small but possibly a bit tricky profile priority/availability patch.
-  * Fixes a significant problem with UCM: UCM doesn't generate profiles for all device permutations, wihch with the current logic leads to important profiles being marked as unavailable if any component device in them is unavailable.
-
-* tests: Fix incompatible pointer type on Debian kfreebsd
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/356]]
-
-* alsa-ucm: Make sure UCM uses DisableSequence
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/357]]
-
-* Use WAVEFORMATEXTENSIBLE for multi-channel audio output on Windows.
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/359]]
+  * The use case in the problem description is weird, why do speakers become unavailable when unplugging a headset?
