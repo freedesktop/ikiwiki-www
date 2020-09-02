@@ -22,6 +22,7 @@
 * New GStreamer-based RTP implementation
 * qpaeq switched from Python 2 to Python 3
 * compile-time option to forget pre-14.0 stream routing
+* Heads-up: dropping EsounD support is considered, tell us if you still need it
 
 ## Notes for end users
 
@@ -115,7 +116,11 @@ The Python interpreter that qpaeq invokes was switched from python to python3. A
 
 ### compile-time option to forget pre-14.0 stream routing
 
-A new --enable-stream-restore-clear-old-devices (Autotools) or -Dstream-restore-clear-old-devices=true (Meson) build option was introduced which instructs pulesaudio to discard pre-14.0 stream routing information. This was necessary because, prior to 14.0, GNOME sound settings used to manipulate the stream-restore database when the default device was switched. The resulting old settings can conflict with the current changed routing logic and can lead to inconsistent stream routing. See <a href=https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832>https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832</a>. The option is disabled by default because it will cause data loss but should be enabled in distributions using GNOME. 
+A new --enable-stream-restore-clear-old-devices (Autotools) or -Dstream-restore-clear-old-devices=true (Meson) build option was introduced which instructs pulesaudio to discard pre-14.0 stream routing information. This was necessary because, prior to 14.0, GNOME sound settings used to manipulate the stream-restore database when the default device was switched. The resulting old settings can conflict with the current changed routing logic and can lead to inconsistent stream routing. See <a href=https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832>https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832</a>. The option is disabled by default because it will cause data loss but should be enabled in distributions using GNOME.
+
+### Heads-up: dropping EsounD support is considered, tell us if you still need it
+
+EsounD has been obsolete for over 10 years, but PulseAudio still supports EsounD applications by implementing the EsounD protocol. We plan to drop all EsounD functionality in 15.0, because probably nobody needs it. Please tell us if you still use an application that requires EsounD support.
 
 ## git shortlog
 
