@@ -296,4 +296,16 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-(nothing here right now)
+* sink: Increase JACK device priority
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/369]]
+  * High device priority enables automatic device switch from ALSA to JACK when JACK starts (but only if the old default sink hasn't been set manually). Small change.
+
+* module-switch-on-port-available: check default sink/source before switch
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/370]]
+  * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
+  * Tanu reviewed the first version and suggested a different fix. Discussion is ongoing about the correct fix.
+
+* alsa: fix the legacy availability group settings
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/371]]
+  * Assigning the availability groups to "legacy" ports is pretty badly broken, this tries to fix it.
+  * Arun and Tanu have looked at the patch, we'll probably fix the bug differently.
