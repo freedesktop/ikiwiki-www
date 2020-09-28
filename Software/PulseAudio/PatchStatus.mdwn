@@ -5,10 +5,14 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
-* modules: rtp: rtp-gstreamer: Fix sending of small packets
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/363]]
-  * Fixes a performance regression compared to the old "native" RTP implementation.
-  * Arun has started reviewing this.
+* alsa: fix the legacy availability group settings
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/371]]
+  * Assigning the availability groups to "legacy" ports is pretty badly broken, this tries to fix it.
+  * Arun and Tanu have looked at the patch, we'll probably fix the bug differently.
+
+* Added Razer Kraken Tournament Edition USB headset Support
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/377]]
+  * Very simple patch. Will merge in 14.0, but needs rebasing first.
 
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
@@ -18,6 +22,11 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/355]]
   * Small but possibly a bit tricky profile priority/availability patch.
   * Fixes a significant problem with UCM: UCM doesn't generate profiles for all device permutations, wihch with the current logic leads to important profiles being marked as unavailable if any component device in them is unavailable.
+
+* module-switch-on-port-available: check default sink/source before switch
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/370]]
+  * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
+  * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
 
 * tests: Fix incompatible pointer type on Debian kfreebsd
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/356]]
@@ -294,6 +303,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-mixer: Add support for the Center/LFE element
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/362]]
 
+* sink: Increase JACK device priority
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/369]]
+
 * main: set LC_NUMERIC to C
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/375]]
 
@@ -302,26 +314,8 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* sink: Increase JACK device priority
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/369]]
-  * High device priority enables automatic device switch from ALSA to JACK when JACK starts (but only if the old default sink hasn't been set manually). Small change.
-
-* module-switch-on-port-available: check default sink/source before switch
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/370]]
-  * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
-  * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
-
-* alsa: fix the legacy availability group settings
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/371]]
-  * Assigning the availability groups to "legacy" ports is pretty badly broken, this tries to fix it.
-  * Arun and Tanu have looked at the patch, we'll probably fix the bug differently.
-
 * echo-cancel: preliminary support for WebRTC AEC3
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/374]]
   * Adds support for a newer WebRTC echo canceller version. It's mutually exclusive with the old version, the decision is done at build time.
   * The new version doesn't depend on libwebrtc-audio-processing, it depends on building upstream WebRTC as a static library.
   * The change is pretty big, but most of it is the new file webrtc-aec3.cc, which is probably largely copy-pasted from the old webrtc.cc file. The rest of the change is pretty straightforward build system stuff, so reviewing this shouldn't be too daunting.
-
-* Added Razer Kraken Tournament Edition USB headset Support
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/377]]
-  * Very simple patch. OK to merge for 14.0?
