@@ -294,6 +294,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * mutex-posix: Log pthread_mutex_unlock() error
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/376]]
 
+* raop-sink: Don't set device.intended_roles=music
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/383]]
+
 ### Patches that need to be prioritized
 
 * echo-cancel: preliminary support for WebRTC AEC3
@@ -301,3 +304,11 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Adds support for a newer WebRTC echo canceller version. It's mutually exclusive with the old version, the decision is done at build time.
   * The new version doesn't depend on libwebrtc-audio-processing, it depends on building upstream WebRTC as a static library.
   * The change is pretty big, but most of it is the new file webrtc-aec3.cc, which is probably largely copy-pasted from the old webrtc.cc file. The rest of the change is pretty straightforward build system stuff, so reviewing this shouldn't be too daunting.
+
+* Fix availability groups
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/379]]
+  * The logic that assigns availability groups to ports was badly broken. Smallish change, fixes a release blocker bug.
+
+* [RFC] alsa-mixer: remove alsa mixer 2 channels max limit
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/382]]
+  * Fixes the same issue as !292.
