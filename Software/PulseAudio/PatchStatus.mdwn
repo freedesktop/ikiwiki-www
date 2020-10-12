@@ -5,6 +5,10 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* Fix availability groups
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/379]]
+  * The logic that assigns availability groups to ports was badly broken. Smallish change, fixes a release blocker bug.
+
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
   * Improves sink naming with UCM. Very small change, but it would be good to understand why the duplication happens in the first place, so reviewing isn't that trivial (it may be still be easy once someone spends more than a few seconds looking at the code).
@@ -98,6 +102,11 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-mixer: support up to 8 channels per mixer element
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/292]]
   * Improves hardware volume handling. Important now that UCM is starting to have configuration for hardware with this kind of mixer elements. With UCM we can't gracefully fall back to software volume, because UCM will set the volume to zero when switching away from the device, so we must support hardware volume properly.
+  * See also !382, which fixes the same issue.
+
+* [RFC] alsa-mixer: remove alsa mixer 2 channels max limit
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/382]]
+  * Fixes the same issue as !292.
 
 * Rewind and resampler fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/120]]
@@ -304,11 +313,3 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Adds support for a newer WebRTC echo canceller version. It's mutually exclusive with the old version, the decision is done at build time.
   * The new version doesn't depend on libwebrtc-audio-processing, it depends on building upstream WebRTC as a static library.
   * The change is pretty big, but most of it is the new file webrtc-aec3.cc, which is probably largely copy-pasted from the old webrtc.cc file. The rest of the change is pretty straightforward build system stuff, so reviewing this shouldn't be too daunting.
-
-* Fix availability groups
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/379]]
-  * The logic that assigns availability groups to ports was badly broken. Smallish change, fixes a release blocker bug.
-
-* [RFC] alsa-mixer: remove alsa mixer 2 channels max limit
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/382]]
-  * Fixes the same issue as !292.
