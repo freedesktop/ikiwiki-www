@@ -14,6 +14,7 @@ For users:
 * Better support for some USB gaming headsets
 * Flat volumes are now disabled by default
 * The RAOP sink can be configured to automatically reconnect on connection failures
+* Separate sink_channels and source_channels for module-jackdbus-detect
 * Improved support for ALSA UCM
 * Support for ALSA mixer elements with non-zero index
 * It's now possible to set intended roles for devices in the ALSA profile configuration
@@ -24,16 +25,17 @@ For users:
 * New rescue-streams option in daemon.conf
 * The enable-lfe-remixing option in daemon.conf was split into remixing-produce-lfe and remixing-consume-lfe
 * New GStreamer-based RTP implementation
-* New module argument for module-raop-sink: channel_map
+* New channel_map argument for module-raop-sink
 
 For application developers:
 
+* New availability_group and type fields in the port info structs
 * New macros: PA_LIKELY(), PA_UNLIKELY(), PA_CLAMP() and PA_CLAMP_UNLIKELY()
 
 For packagers:
 
 * qpaeq switched from Python 2 to Python 3
-* compile-time option to forget pre-14.0 stream routing
+* Compile-time option to forget pre-14.0 stream routing
 * Heads-up: dropping EsounD support is considered, tell us if you still need it
 
 ## Notes for end users
@@ -80,6 +82,10 @@ When a RAOP sink is created by manually loading module-raop-sink (rather than au
 
 The RAOP sink acts as a "null sink" (discarding audio played to it) during the time the connection is down.
 
+### Separate sink_channels and source_channels for module-jackdbus-detect
+
+Previously module-jackdbus-detect had only a single channels argument, which was used for configuring how many channels the JACK sink and source would have. New sink_channels and source_channels arguments have been added that allows configuring different channel count for output and input.
+
 ### Improved support for ALSA UCM
 
 PulseAudio now supports hardware volume when using ALSA UCM. Hardware mute is supported with the PlaybackMasterElem and CaptureMasterElem options but not yet with PlaybackSwitch or CaptureSwitch.
@@ -122,11 +128,15 @@ After moving the rescue functionality to the core, stream rescuing could no long
 
 Splitting the option into two allows to separately control the use of the lfe channel in upmixing and downmixing. The old enable-lfe-remixing option is deprecated and should be replaced. If the old option is encountered, both new options will be set to the value of enable-lfe-remixing. 
 
-### New module argument for module-raop-sink: channel_map
+### New channel_map argument for module-raop-sink
 
 The channel_map module argument allows setting a different channel map for the RAOP sink than the default map that is configured in deamon.conf.
 
 ## Notes for application developers
+
+### New availability_group and type fields in the port info structs
+
+The pa_sink_port_info, pa_source_port_info and pa_card_port_info structs have two new fields: availability_group (string) and type (enum). These were added in order to provide a better API for the "What did you plug in?" dialog that at least GNOME shows when a device is plugged in to a connector that supports headphones, headsets and microphones but doesn't provide information about which one was plugged in. The availability group is used to mark ports that share jack detection with each other. The type field can be more generally useful if applications want to know the type of a device.
 
 ### New macros: PA_LIKELY(), PA_UNLIKELY(), PA_CLAMP() and PA_CLAMP_UNLIKELY()
 
@@ -144,7 +154,7 @@ This adds new dependencies: gstreamer-1.0, gstreamer-app-1.0 and gstreamer-rtp-1
 
 The Python interpreter that qpaeq invokes was switched from python to python3. Also, qpaeq doesn't import the SIP module any more (it wasn't used anyway), so if your qpaeq package currently has an explicit dependency to python-sip, that can be dropped. (There's still an implicit dependency to SIP via PyQt, though.)
 
-### compile-time option to forget pre-14.0 stream routing
+### Compile-time option to forget pre-14.0 stream routing
 
 A new --enable-stream-restore-clear-old-devices (Autotools) or -Dstream-restore-clear-old-devices=true (Meson) build option was introduced which instructs pulesaudio to discard pre-14.0 stream routing information. This was necessary because, prior to 14.0, GNOME sound settings used to manipulate the stream-restore database when the default device was switched. The resulting old settings can conflict with the current changed routing logic and can lead to inconsistent stream routing. See <a href=https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832>https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832</a>. The option is disabled by default because it will cause data loss but should be enabled in distributions using GNOME.
 
