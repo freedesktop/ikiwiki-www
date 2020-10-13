@@ -28,6 +28,16 @@ Arch doesn't have a simple way to install debug symbols, but you can install the
 
 Also, make sure to include the verbose output of PA when this problem happens.
 
+### Getting logs from PulseAudio (existing session)
+
+If you just want to enable verbose logging on an existing PulseAudio instances, use `pacmd set-log-level 4` and you can see the logs in your system logger (syslog / journal).
+
+### Getting logs from PulseAudio (new session)
+
+If you just want to enable verbose logging on PulseAudio startup, add `log-level =  debug` to `/etc/pulse/daemon.conf`, and restart PulseAudio.
+
+If your system uses systemd to manage user sessions, you can restart with `systemctl --user restart pulseaudio.services`. If not, and you've not disabled autospawn (see next session), `pulseaudio -k` should do the trick.
+
 ### Running PulseAudio manually
 
 First, you might need to stop your existing daemon. If your system uses systemd to manage user sessions, you can just do a "systemctl --user stop pulseaudio.{socket,service}".
