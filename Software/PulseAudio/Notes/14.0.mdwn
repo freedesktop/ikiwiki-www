@@ -2,64 +2,45 @@
 
 # PulseAudio 14.0 release notes (draft)
 
-## Changes at a glance
-
-For users:
-
-* Changing the default sink moves streams from the old default sink to the new
-* Moving a stream to the default sink removes the "manually routed" status of the stream
-* Manually routed streams move automatically to/from a sink when the sink changes status between available and unavailable.
-* The same changes have been applied to the source stream routing
-* Automatic switching to HDMI is now disabled by default
-* Better support for some USB gaming headsets
-* Flat volumes are now disabled by default
-* The RAOP sink can be configured to automatically reconnect on connection failures
-* Separate sink_channels and source_channels for module-jackdbus-detect
-* Improved support for ALSA UCM
-* Support for ALSA mixer elements with non-zero index
-* It's now possible to set intended roles for devices in the ALSA profile configuration
-* Ports now have a type associated with them
-* New xauthority argument for X11 modules
-* module-null-sink's compressed format support can now be configured at run-time
-* Workaround for Gnome sound settings stream routing behaviour
-* module-rescue-streams is deprecated, functionality moved to the core
-* New rescue-streams option in daemon.conf
-* The enable-lfe-remixing option in daemon.conf was split into remixing-produce-lfe and remixing-consume-lfe
-* New GStreamer-based RTP implementation
-* New channel_map argument for module-raop-sink
-
-For application developers:
-
-* New availability_group and type fields in the port info structs
-* New macros: PA_LIKELY(), PA_UNLIKELY(), PA_CLAMP() and PA_CLAMP_UNLIKELY()
-
-For packagers:
-
-* qpaeq switched from Python 2 to Python 3
-* Compile-time option to forget pre-14.0 stream routing
-* Heads-up: dropping EsounD support is considered, tell us if you still need it
+[[!toc startlevel=2 levels=3]]
 
 ## Notes for end users
 
-### Changing the default sink moves streams from the old default sink to the new
+### Significant routing changes to default sinks/sources
 
-It used to be so that when the default sink changes, new streams went to the new default sink, but existing streams stayed on the old sink. Now streams are moved from the old default sink to the new one. This doesn't apply to streams that have been manually moved, so the per-stream routing is retained.
+#### Changing the default sink moves streams from the old default sink to the new
 
-### Moving a stream to the default sink removes the "manually routed" status of the stream
+Previously, when the default sink changed, new streams were routed to the new default sink, but existing streams stayed on the old sink. Now streams are moved from the old default sink to the new one as well. This doesn't apply to streams that have been manually moved, so per-stream routing is retained.
+
+#### Moving a stream to the default sink removes the "manually routed" status of the stream
 
 When a stream is playing to a non-default sink and the user moves it to the current default sink, that is now interpreted as a request to remove the "manually routed" status from the stream, so from that point on the stream will automatically move when the default sink changes. Previously it was a problem that if an application was once moved manually, the choice was remembered permanently and there was no good way to clear the manual routing choice.
 
-### If a sink changes status to available, streams that prefer that sink move there automatically
+#### If a sink changes status to available, streams that prefer that sink move there automatically
 
 Let's assume a situation where a stream has been moved manually to a sink, and then the sink is removed or changes status to unavailable (this can happen for example when headphones are unplugged). Let's also assume that some other sink is the default sink. The stream is now automatically moved to the default sink in this situation, and when the unavailable sink becomes available again, the stream moves back to that.
 
-### The same changes have been applied to the source stream routing
+#### The same changes have been applied to the source stream routing
 
 A similar logic is applied to source streams. Changing the default source will move streams from the old to the new default source, manually moving a stream to the default source will remove the "manually routed" status and streams will be moved to the preferred source if it becomes available.
 
+#### Workaround for GNOME Sound Settings' stream routing behaviour
+
+When changing the output device in GNOME Sound Settings, it tries to improve the user experience by moving existing streams to the selected device. It also changes the routing database so that also applications that aren't currently running get routed to the new device, so all applications behave consistently. To PulseAudio this looks like all applications have been manually moved by the user, which causes problems when the default device changes, because manually moved streams don't follow default sink changes.
+
+Despite those problems, it made sense for GNOME Sound Settings to do this, because the alternative was considered worse: streams didn't move when changing the default device. Now that PulseAudio handles the automatic stream moving, there's no more justification for doing manual stream moving and stream database modifications in GNOME Sound Settings. We can't remove the functionality from GNOME Sound Settings when updating to the new PulseAudio version, but we wanted to solve this anyway without waiting for a new GNOME version, so we ended up adding some special code that ignores the stream routing changes when the changes come from GNOME Sound Settings.
+
+#### module-rescue-streams is deprecated, functionality moved to the core
+
+module-rescue-stream doesn't do anything any more, and is deprecated. When a device is removed, the module used to move streams on that device to some other device, but that is now handled by the core, so the module has nothing to do. If you have custom configuration that loads module-rescue-streams, you should remove the module from the configuration. Having it in the configuration doesn't do harm, but there will be warnings in the PulseAudio log.
+
+#### New rescue-streams option in daemon.conf
+
+After moving the rescue functionality to the core, stream rescuing could no longer be disabled. Therefore a new boolean option rescue-streams was added to daemon.conf which is true by default. Set it to false to disable stream rescuing.
+
 ### Automatic switching to HDMI is now disabled by default
 
-PulseAudio 13.0 started to switch output to HDMI automatically when module-switch-on-connect is loaded (upstream PulseAudio doesn't load it by default, but some distributions do). This change was not intentional, and caused very annoying behaviour in cases where waking up the monitor from sleep appears as a plug-in event in ALSA. Now module-switch-on-connect has a configurable blacklist, which by default prevents switching to HDMI devices. The blacklist is configured with a module argument, named "blacklist", which takes a regular expression that is matched against sink and source names. The default blacklist regular expression is "hdmi". To disable all blacklisting, you can pass "" (empty string) as the module argument value.
+PulseAudio 13.0 started to switch output to HDMI automatically when module-switch-on-connect was loaded (upstream PulseAudio doesn't load it by default, but some distributions do). This change was not intentional, and caused very annoying behaviour in cases where waking up the monitor from sleep appears as a plug-in event in ALSA. Now module-switch-on-connect has a configurable blacklist, which by default prevents switching to HDMI devices. The blacklist is configured with a module argument, named "blacklist", which takes a regular expression that is matched against sink and source names. The default blacklist regular expression is "hdmi". To disable all blacklisting, you can pass "" (empty string) as the module argument value.
 
 ### Better support for some USB gaming headsets
 
@@ -115,20 +96,6 @@ The X11 modules (module-x11-bell, module-x11-cork-request, module-x11-publish an
 
 In the previous release it became possible to configure module-null-sink to accept compressed formats. That had to be done with module arguments when loading the module, now the configuration can be done at any time using "pactl set-sink-formats" or pavucontrol (pavucontrol 4.0 has a bug that prevents this from working, though, but the next pavucontrol version will have that bug fixed).
 
-### Workaround for Gnome sound settings' stream routing behaviour
-
-When changing the output device in Gnome sound settings, it tries to improve the user experience by moving existing streams to the selected device. It also changes the routing database so that also applications that aren't currently running get routed to the new device, so all applications behave consistently. To PulseAudio this looks like all applications have been manually moved by the user, which causes problems when the default device changes, because manually moved streams don't follow default sink changes.
-
-Despite those problems, it made sense for Gnome sound settings to do this, because the alternative was considered worse: streams didn't move when changing the default device. Now that PulseAudio handles the automatic stream moving, there's no more justification for doing manual stream moving and stream database modifications in Gnome sound settings. We can't remove the functionality from Gnome sound settings when updating to the new PulseAudio version, but we wanted to solve this anyway without waiting for a new Gnome version, so we ended up adding some special code that ignores the stream routing changes when the changes come from Gnome sound settings.
-
-### module-rescue-streams is deprecated, functionality moved to the core
-
-module-rescue-stream doesn't do anything any more, and is deprecated. When a device is removed, the module used to move streams on that device to some other device, but that is now handled by the core, so the module has nothing to do. If you have custom configuration that loads module-rescue-streams, you should remove the module from the configuration. Having it in the configuration doesn't do harm, but there will be warnings in the PulseAudio log.
-
-### New rescue-streams option in daemon.conf
-
-After moving the rescue functionality to the core, stream rescuing could no longer be disabled. Therefore a new boolean option rescue-streams was added to daemon.conf which is true by default. Set it to false to disable stream rescuing.
-
 ### The enable-lfe-remixing option in daemon.conf was split into remixing-produce-lfe and remixing-consume-lfe
 
 Splitting the option into two allows to separately control the use of the lfe channel in upmixing and downmixing. The old enable-lfe-remixing option is deprecated and should be replaced. If the old option is encountered, both new options will be set to the value of enable-lfe-remixing. 
@@ -151,9 +118,11 @@ The "likely" macro provides a hint for the compiler that the condition is usuall
 
 ### New GStreamer-based RTP implementation
 
-module-rtp-send and module-rtp-recv can now use GStreamer to implement the RTP protocol. The old RTP implementation is still available as a compile time option (`--disable-gstreamer` with Autotools or `-Dgstreamer=disabled` with Meson), but the GStreamer implementation is used by default. The purpose of using GStreamer is to make it easier to add more advanced RTP features such as RTCP, non-PCM audio, and potentially synchronized playback.
+module-rtp-send and module-rtp-recv can now use GStreamer to implement the RTP protocol. The old RTP implementation is still available as a compile time option (`--disable-gstreamer` with Autotools or `-Dgstreamer=disabled` with Meson), but the GStreamer implementation is used by default. The GStreamer implementation should be considered experimental for this release, and testing is welcome.
 
-This adds new dependencies: gstreamer-1.0, gstreamer-app-1.0 and gstreamer-rtp-1.0. TODO: Which tarballs provide these libraries? Are there additional runtime dependencies (required plugins)?
+The purpose of using GStreamer is to make it easier to add more advanced RTP features in the future such as RTCP, non-PCM audio, and potentially synchronized playback.
+
+This adds new dependencies: `gstreamer-1.0`, `gstreamer-app-1.0` and `gstreamer-rtp-1.0`. GStreamer plugins from the `gst-plugins-good` package are required as well for the `udpsrc` and `rtpbin` elements (there is no compile-time check for these).
 
 ### qpaeq switched from Python 2 to Python 3
 
@@ -162,6 +131,10 @@ The Python interpreter that qpaeq invokes was switched from python to python3. A
 ### Compile-time option to forget pre-14.0 stream routing
 
 A new --enable-stream-restore-clear-old-devices (Autotools) or -Dstream-restore-clear-old-devices=true (Meson) build option was introduced which instructs pulesaudio to discard pre-14.0 stream routing information. This was necessary because, prior to 14.0, GNOME sound settings used to manipulate the stream-restore database when the default device was switched. The resulting old settings can conflict with the current changed routing logic and can lead to inconsistent stream routing. See <a href=https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832>https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832</a>. The option is disabled by default because it will cause data loss but should be enabled in distributions using GNOME.
+
+### Heads-up: dropping autotools build system
+
+Given that the meson build system runs much faster and is now is more-or-less on par with the autotools build, we will be dropping support for the autotools build in 15.0. Please let us know if you have a dependency on autotools for any reason.
 
 ### Heads-up: dropping EsounD support is considered, tell us if you still need it
 
