@@ -5,6 +5,10 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* Fix Segfault von Ctrl-Q
+  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/48]]
+  * Will merge once the MR is rebased.
+
 * Fix availability groups
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/379]]
   * The logic that assigns availability groups to ports was badly broken. Smallish change, fixes a release blocker bug.
@@ -23,11 +27,23 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
   * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
 
+* switch-on-port-available: handle the port which becomes avl_unknown
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/390]]
+  * Fixes automatic source switching when plugging in a headset on some Dell machines that don't have an internal mic.
+  * Small diff, but the patch is not trivial due to possible corner cases.
+
 * tests: Fix incompatible pointer type on Debian kfreebsd
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/356]]
 
 * alsa-ucm: Make sure UCM uses DisableSequence
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/357]]
+
+* alsa: mixer - fix the override_map for the multichannel support
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/389]]
+  * This implements two things: support for volume elements with more than 2 channels, and support for channel override maps for such elements.
+  * Medium sized change.
+  * Target is 14.1, because some UCM hardware needs this.
+  * Tanu has started reviewing this.
 
 * clear compiling warning
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/330]]
@@ -63,9 +79,16 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/286]]
   * This is probably pretty much the same as the previous MR, !257.
 
+* alsa-mixer: Add an profile for EVO4 interface
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/397]]
+
 * Fix up Meson build support for Windows / Add AF_UNIX support for Windows
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/360]]
   * Important, because without this we'd lose Windows support when dropping Autotools.
+
+* Draft: Update for recent webrtc AEC
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/395]]
+  * The "big" changes are already mostly reviewed by Arun (those changes were made by Eero Nurkkala).
 
 * Update module directory logic
   * [[https://gitlab.freedesktop.org/pulseaudio/paprefs/merge_requests/7]]
@@ -291,26 +314,6 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* echo-cancel: preliminary support for WebRTC AEC3
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/374]]
-  * Adds support for a newer WebRTC echo canceller version. It's mutually exclusive with the old version, the decision is done at build time.
-  * The new version doesn't depend on libwebrtc-audio-processing, it depends on building upstream WebRTC as a static library.
-  * The change is pretty big, but most of it is the new file webrtc-aec3.cc, which is probably largely copy-pasted from the old webrtc.cc file. The rest of the change is pretty straightforward build system stuff, so reviewing this shouldn't be too daunting.
-
 * Update to recent webrtc code
   * [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/-/merge_requests/9]]
-
-* alsa: mixer - fix the override_map for the multichannel support
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/389]]
-
-* switch-on-port-available: handle the port which becomes avl_unknown
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/390]]
-
-* Draft: Update for recent webrtc AEC
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/395]]
-
-* Fix Segfault von Ctrl-Q
-  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/48]]
-
-* alsa-mixer: Add an profile for EVO4 interface
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/397]]
+  * We agreed to merge this in the meeting on 2020-10-26, but there seems to be an open issue about the MR: [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/-/issues/3]]
