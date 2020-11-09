@@ -5,14 +5,6 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
-* Fix Segfault von Ctrl-Q
-  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/48]]
-  * Will merge once the MR is rebased.
-
-* Fix availability groups
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/379]]
-  * The logic that assigns availability groups to ports was badly broken. Smallish change, fixes a release blocker bug.
-
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
   * Improves sink naming with UCM. Very small change, but it would be good to understand why the duplication happens in the first place, so reviewing isn't that trivial (it may be still be easy once someone spends more than a few seconds looking at the code).
@@ -48,10 +40,6 @@ The patches have been ordered by priority, with the highest priority patches at 
 * clear compiling warning
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/330]]
   * Simple patches, Tanu reviewed them but they need some polishing.
-
-* utils: Eliminate compilation warnings
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/331]]
-  * Disables a warning (`-Wno-logical-op`) without a proper explanation. If the submitter doesn't reply soon, this can be closed.
 
 * WIP: Disable UCM devices on suspend
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/307]]
@@ -312,8 +300,26 @@ The patches have been ordered by priority, with the highest priority patches at 
 * raop-sink: Don't set device.intended_roles=music
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/383]]
 
+* filter-apply: Look for filter parameters also in device properties
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/400]]
+
+
 ### Patches that need to be prioritized
 
-* Update to recent webrtc code
-  * [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/-/merge_requests/9]]
-  * We agreed to merge this in the meeting on 2020-10-26, but there seems to be an open issue about the MR: [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/-/issues/3]]
+* combine-sink: Set origin_sink for each output stream
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/399]]
+  * One-liner, looks good if the current usage of origin_sink can handle module-combine-sink.
+
+* alsa-mixer: Drop availability groups with only one port
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/401]]
+  * Pretty small change.
+  * Tanu reviewed the first version and requested moving the group dropping code to a different place.
+
+* alsa-mixer: add environment variables for profiles and paths
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/404]]
+  * Fixes the same problem as !293 (for paths, merged) and !311 (for profiles, waiting for review).
+
+* null-sink: Change block size to 50 msec when norewinds is set
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/406]]
+  * It seems that this fixes a bug. The code already intends to set the latency to 50 ms on norewinds, but apparently it doesn't work right after loading the null sink.
+  * Pretty small change.
