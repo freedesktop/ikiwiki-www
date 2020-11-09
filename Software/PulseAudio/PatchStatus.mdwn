@@ -5,6 +5,16 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* null-sink: Change block size to 50 msec when norewinds is set
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/406]]
+  * It seems that this fixes a bug. The code already intends to set the latency to 50 ms on norewinds, but apparently it doesn't work right after loading the null sink.
+  * Pretty small change.
+
+* alsa-mixer: Drop availability groups with only one port
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/401]]
+  * Pretty small change.
+  * Tanu reviewed the first version and requested moving the group dropping code to a different place.
+
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
   * Improves sink naming with UCM. Very small change, but it would be good to understand why the duplication happens in the first place, so reviewing isn't that trivial (it may be still be easy once someone spends more than a few seconds looking at the code).
@@ -47,9 +57,18 @@ The patches have been ordered by priority, with the highest priority patches at 
   * There's a bug that needs to be fixed before this can be merged.
   * Arun reviewed the first version, and we agreed to have this in 14.0 once the bug is fixed.
 
+* combine-sink: Set origin_sink for each output stream
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/399]]
+  * One-liner, looks good if the current usage of origin_sink can handle module-combine-sink.
+
 * alsa-mixer: Respect XDG base directory spec when loading profile sets
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/311]]
   * Completes the work started in MR 293 (which is reviewed and waiting for the freeze to end).
+
+* alsa-mixer: add environment variables for profiles and paths
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/404]]
+  * Fixes the same problem as !293 (for paths, reviewed but not merged) and !311 (for profiles, waiting for review).
+  * Arun prefers to merge this anyway to provide support for more targeted environment variables, and Tanu is fine with that.
 
 * Don't assume that version_split have at least 2 elements
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/289]]
@@ -306,20 +325,4 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* combine-sink: Set origin_sink for each output stream
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/399]]
-  * One-liner, looks good if the current usage of origin_sink can handle module-combine-sink.
-
-* alsa-mixer: Drop availability groups with only one port
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/401]]
-  * Pretty small change.
-  * Tanu reviewed the first version and requested moving the group dropping code to a different place.
-
-* alsa-mixer: add environment variables for profiles and paths
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/404]]
-  * Fixes the same problem as !293 (for paths, reviewed but not merged) and !311 (for profiles, waiting for review).
-
-* null-sink: Change block size to 50 msec when norewinds is set
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/406]]
-  * It seems that this fixes a bug. The code already intends to set the latency to 50 ms on norewinds, but apparently it doesn't work right after loading the null sink.
-  * Pretty small change.
+(nothing here right now)
