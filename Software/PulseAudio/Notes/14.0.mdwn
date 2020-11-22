@@ -49,6 +49,7 @@ Custom configuration was enabled for a few headset models:
 * LucidSound LS31
 * SteelSeries Arctis 5 (2019 edition)
 * SteelSeries Arctis Pro (2019 edition)
+* HyperX Cloud Orbit S
 
 PulseAudio now creates separate stereo and mono (voice) sinks for these headsets.
 
@@ -87,6 +88,10 @@ There's a new `intended-roles` option in the `[Mapping]` section of the profile-
 ### Ports now have a type associated with them
 
 The port type tells what kind of device it corresponds to (speakers, headphones, microphone etc.). The type is automatically set for bluetooth and ALSA UCM devices, for non-UCM ALSA devices it's configured with the `type` option in the `[General]` section of the path configuration files. `pactl list cards` shows the type in the port list.
+
+### Mappings have a new "description-key" option in the ALSA profile configuration
+
+There's a new `description-key` option in the `[Mapping]` section of the profile-set configuration files. Usually the mapping description is looked up using the mapping name as the key, but the `description-key` option can be used to set some other key. This is currently used in the USB gaming headset configuration, which defines separate mono and stereo mappings for chat audio (some headsets support stereo and some support mono audio). Those mappings have different names, but they should use the same description, which is why the description-key option was added.
 
 ### New xauthority argument for X11 modules
 
@@ -131,6 +136,10 @@ The Python interpreter that qpaeq invokes was switched from python to python3. A
 ### Compile-time option to forget pre-14.0 stream routing
 
 A new --enable-stream-restore-clear-old-devices (Autotools) or -Dstream-restore-clear-old-devices=true (Meson) build option was introduced which instructs pulesaudio to discard pre-14.0 stream routing information. This was necessary because, prior to 14.0, GNOME sound settings used to manipulate the stream-restore database when the default device was switched. The resulting old settings can conflict with the current changed routing logic and can lead to inconsistent stream routing. See <a href=https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832>https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/832</a>. The option is disabled by default because it will cause data loss but should be enabled in distributions using GNOME.
+
+### The install path of the ALSA configuration files is now configurable
+
+Previously the ALSA configuration files were always installed to `$datadir/pulseaudio/alsa-mixer`, now the location can be customized using the `-Dalsadatadir` Meson option or the `--with-alsa-data-dir` Autoconf option. At least Arch uses this to install the files to `/usr/share/alsa-card-profile` to make it easier to share the files between PulseAudio and PipeWire.
 
 ### Heads-up: dropping autotools build system
 
