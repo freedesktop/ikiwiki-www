@@ -167,5 +167,407 @@ PulseAudio 12.0 introduced module-gsettings, which superseded the old module-gco
 ## git shortlog
 
 <pre>
-TODO
+Alexander E. Patrakov (1):
+      man: Deprecate the enable-remixing option
+
+Alexander Patrakov (1):
+      Split the enable-lfe-remixing setting into two
+
+Arun Raghavan (28):
+      rtp: Make init return a value for success/failure
+      rtp: Don't use cookie for SSRC
+      rtp: Drop support for non-L16 media
+      rtp: Move MTU handling to the RTP implementation
+      rtp: Hide RTP implementation details from module-rtp-*
+      rtpoll: Separate out before/after/work callback userdata
+      rtp: Add a GStreamer-based RTP implementation
+      rtp: Add some logging to know what backend is being used
+      switch-on-connect: Fix warning on discarded const qualifier
+      alsa-ucm: Support Playback/CaptureVolume
+      gitlab: Make container updates automatic
+      build: Bump soversion for libpulse
+      ci: Update for changes in CI template
+      ci: Go back to using CI templates from master
+      alsa-mixer: Add an explicit profile-set for Audigy devices
+      build-sys: Bump soversions
+      build-sys: Add doxygen/meson.build to distfiles
+      build-sys: Bump gettext dependency
+      Revert "alsa-mixer: support up to 8 channels per mixer element"
+      build-sys: meson: Add libm dep to raop module
+      rtp: gstreamer: Don't count on buffer DTS for capture time
+      rtp: gstreamer: Account for rounding errors in RTP timestamp conversion
+      build-sys: Set the GStreamer RTP backend to disabled by default
+      sink, source: Skip filter streams while changing default sink/source
+      switch-on-port-available: Switch to headphones on unknown availability
+      module-alsa-card: Drop availability groups with only one port
+      Revert "mainloop: fix timeout assignment in pa_mainloop_prepare"
+      build-sys: Bump libpulse soversion
+
+Balázs Meskó (1):
+      Translated using Weblate (Hungarian)
+
+Baurzhan Muftakhidinov (1):
+      i18n: Add initial Kazakh translation
+
+Ben Buchwald (2):
+      module-jackdbus-detect: Allow omitting channels argument
+      module-jackdbus-detect: Separate sink/source channels arguments
+
+Daniil Kovalev (1):
+      Fix memory leak in context_free
+
+Dave Chiluk (1):
+      alsa-mixer: add support for LucidSound LS31, and create usb-gaming-headset profile
+
+David Heidelberg (2):
+      meson: convert post-install.sh to python
+      meson: convert to install_headers
+
+Dusan Kazik (1):
+      Translated using Weblate (Slovak)
+
+Eero Nurkkala (3):
+      alsa-ucm: disallow null mdev argument into pa_alsa_open_mixer_by_name()
+      tests: hashmap-test.c: fix memory leak
+      tests: cpu-remap-test.c: fix memory leaks
+
+Emanuil Novachev (1):
+      Translated using Weblate (Bulgarian)
+
+Emilio Herrera (1):
+      Translated using Weblate (Spanish)
+
+Felipe Sateler (2):
+      qpaeq: Drop unused imports
+      qpaeq: use python3 instead of python 2
+
+Felix Yan (1):
+      shell-completion: zsh: Correct a typo
+
+Geert Warrink (1):
+      Translated using Weblate (Dutch)
+
+Georg Chini (5):
+      virtual sources: Propagate asyncmsgq change after source-output move
+      sink-input, source-output: Fix stream rescue if a move fails
+      daemon.conf: Add boolean rescue_streams parameter
+      sink, source: Fix stream rescue from sinks or sources without port
+      stream-restore: Restore preferred device for new streams
+
+Göran Uddeborg (1):
+      Translated using Weblate (Swedish)
+
+Hugo Osvaldo Barrera (1):
+      Delete .travis.yml
+
+Hui Wang (19):
+      sink-input: change bool save_sink to char *preferred_sink
+      sink-input: add a new API pa_sink_input_set_preferred_sink
+      sink-input: clear the preferred_sink if it is default_sink
+      core: move sink-inputs conditionally when update default_sink
+      sink: move streams to new appeared sinks if they prefer these sinks
+      device-port: moving streams due to changing the status of active_port
+      sink: move the streams to the default_sink when the sink is unlinked
+      stream-restore: skip entries setting action from gnome-control-center
+      source-output: change bool save_source to char *preferred_source
+      source-output: add a new API pa_source_output_set_preferred_source
+      source-output: clear the preferred_source if it is default_source
+      core: move source-outputs conditionally when update default_source
+      source: move streams to new appeared sources if they prefer these sources
+      device-port: moving streams since active_port on source changes status
+      source: move the streams to the default_source when the source unlink
+      stream-restore: skip entries set on source from gnome-control-center
+      alsa-mixer: store the ucm_device with the order of their priority
+      alsa: make the unsuspend more robust
+      alsa: adjust ucm sink/source priority according to ports priority
+
+Igor V. Kovalenko (9):
+      module-stream-restore: log error writing volume/mute/device entry to database
+      module-stream-restore: check if dbus entry exists in dbus_entries map before creating it
+      device-port: fire port available changed hook after streams are moved
+      build-sys: meson: adjust path to gsettings-helper runing from build tree
+      module-bluez5-discover: avoid use after free on de-init
+      pactl: explicitly print if port availability is unknown
+      i18n: Update pulseaudio.pot
+      module-alsa-card: Add debug logging if availability group was pruned
+      switch-on-port-available: Add logging for port availability group
+
+Jan Alexander Steffens (heftig) (5):
+      autotools: Put module-tunnel-source X11_CFLAGS into CFLAGS instead of LDFLAGS
+      meson: Define TUNNEL_SINK for module-tunnel-sink
+      build-sys: meson: Fix detection of SYS_memfd_create
+      meson: Add missing thread_dep to atomic-test
+      build: Make alsadatadir configurable
+
+Jarno Suni (2):
+      shell-completions/bash: Add pactl set-default-sink and set-default-source
+      shell-completion: Do not use 'awk -e' in bash completion
+
+Jaroslav Kysela (40):
+      alsa-ucm: use ucm2 name for the direct card index open
+      alsa-ucm: add mixer IDs to ucm_items
+      alsa-mixer: handle the index for ALSA mixer element identifiers
+      alsa-mixer: improve alsa_id_decode() function
+      alsa-ucm: use the correct mixer identifiers as first
+      alsa-ucm: add support for master volume
+      alsa-ucm: split correctly JackHWMute device names
+      alsa-ucm: fix parsing for JackControl
+      alsa-ucm: add comments to ucm_get_mixer_id()
+      alsa-ucm: validate access to PA_DEVICE_PORT_DATA()
+      alsa-ucm: parse correctly the device values
+      alsa-ucm: do not try to use UCM device name as jack name by default
+      alsa-util: do not try to guess the mixer name from the PCM name
+      alsa-ucm: add control and mixer device items
+      alsa-ucm: get the mixer names from ucm, don't guess
+      alsa-ucm: use the proper mixer name for ucm pcm sink/source
+      alsa-mixer: handle interface type (CARD,PCM) for mixer element lookups
+      alsa: rewrite mixer open/close, cache mixer accesses in probe
+      alsa-ucm: add support for HDMI ELD
+      alsa-mixer: do the quick card number lookup to save mixer instances
+      alsa-mixer: improve check for the empty path set for sink/source
+      alsa-ucm: allow to set profile priority from UCM value
+      alsa-ucm: correct the channel default logic (stereo)
+      alsa ucm: do not assign JackHWMute when JackControl is missing for the UCM device
+      ucm: fix the port / ucm device activation on boot
+      alsa sink/source: fix the mixer initialization
+      device-port: introduce available_group member
+      device-port: add type member
+      protocol: describe v34 (available_group, port type)
+      alsa-ucm: set available_group (use jack name)
+      alsa: legacy card - set available_group
+      alsa: legacy card - implement device port type parser and assignment
+      alsa ucm: set device port type
+      pactl: print device port type and available group
+      ucm: add possibility to skip the UCM card completely (Linked)
+      alsa: mixer - reorder the type field in path parser
+      alsa: fix analog-input-microphone-headset device type
+      alsa: fix type for legacy hdmi devices
+      alsa-mixer: support up to 8 channels per mixer element
+      alsa: move the exceptionally large value errors from error to debug level
+
+Jaska Uimonen (1):
+      alsa-ucm: Fix volume control based on review
+
+Jean-Baptiste Holcroft (1):
+      Translated using Weblate (French)
+
+Josh (1):
+      alsa-mixer: add support for SteelSeries Arctis Pro 2019 headset
+
+Juliano de Souza Camargo (1):
+      Update Portuguese translation
+
+Kai-Heng Feng (3):
+      alsa: Skip resume PCM if hardware doesn't support it
+      alsa-mixer: Recognize USB audio jack mixer
+      module-alsa-card: Set a minimum profile priority if it's not set
+
+Karl Ove Hufthammer (1):
+      Translated using Weblate (Norwegian Nynorsk)
+
+Khem Raj (1):
+      remap/arm: Adjust inline asm constraints
+
+Krzysztof Stasiowski (1):
+      alsa-mixer: Add support for SteelSeries Arctis 5 2019 headset
+
+Laurent Bigonville (2):
+      alsa-mixer: Add the ability to pass the intended-role to the mapping
+      alsa-mixer: Set the intended-role of Steelseries Arctis 5/7 headset as phone
+
+Libin Yang (2):
+      core-subscribe: add PA_SUBSCRIPTION_EVENT_CARD in dump_event
+      device-port: queue CARD CHANGE event before update default sink
+
+Marc Ranolfi (1):
+      card-restore: prevent segfault caused by 'restore_bluetooth_profile=true'
+
+Michael Pivonka (1):
+      alsa-mixer: Add Razer Kraken Tournament Edition USB headset
+
+Milo Casagrande (2):
+      l10n: Update Italian translation
+      Translated using Weblate (Italian)
+
+Milo Ivir (1):
+      Translated using Weblate (Croatian)
+
+Nick Moriarty (1):
+      Permit root-owned home directory
+
+Oğuz Ersen (1):
+      Translated using Weblate (Turkish)
+
+Pali Rohár (5):
+      bluetooth: Implement reading SO_TIMESTAMP for A2DP source
+      bluetooth: Print SO_TIMESTAMP warning for SCO source only once
+      bluetooth: Ensure that only one A2DP codec is registered to bluez
+      bluetooth: policy: Remove BlueZ 4 related code
+      alsa: Fix compile warnings
+
+Peter Levine (1):
+      atomic: Explicitly cast void* to unsigned long
+
+Peter Meerwald (1):
+      macro: Move PA_LIKELY()/PA_UNLIKELY(), PA_CLAMP()/PA_CLAMP_UNLIKELY() to pulse/gccmacro.h
+
+Philip Withnall (1):
+      daemon: Add --log-target=journal to pulseaudio.service
+
+Piotr Drąg (1):
+      Translated using Weblate (Polish)
+
+RODRIGUEZ Christophe (1):
+      raop: Allow channel map module argument
+
+Rafael Fontenelle (3):
+      i18n: Update Brazilian Portuguese translation
+      Update Brazilian Portuguese translation
+      Update Brazilian Portuguese translation
+
+Ralph Seichter (1):
+      macos: Add missing import statement
+
+Rasmus Thomsen (1):
+      meson: link libintl if it's not provided by libc
+
+Rickie Schroeder (1):
+      start-pulseaudio-x11: fix KDE version check
+
+Rosen Penev (2):
+      modules: fix wrong formats under 32-bit
+      raop-crypto: add missing header
+
+Ryszard Knop (1):
+      switch-on-connect: Add blacklisting
+
+Sanchayan Maity (2):
+      modules: rtp-gstreamer: Fix RTP sound lag
+      rtp: Fix sending of small packets
+
+Sebastian Dröge (3):
+      rtp: Use yes/no in configure instead of 1/0
+      rtp: Use udpsink instead of fdsink for the GStreamer RTP implementation
+      rtp: Properly timestamp buffers in the GStreamer sender pipeline
+
+Sebastien (1):
+      Update configure.ac to fix the enable_gstreamer summary
+
+StefanBruens (1):
+      raop: Send initial timing packet to prime UDP connection tracking
+
+Taahir Ahmed (1):
+      Add a basic test suite for pa_hashmap
+
+Tanu Kaskinen (56):
+      Update NEWS
+      alsa-mixer-path-test: Hide unused functions when building with Meson
+      daemon-conf: disable flat-volumes by default
+      null-sink: allow clients to configure the supported formats
+      alsa-mixer: recognize the "Speaker Jack" control
+      man: remove outdated information about real-time scheduling
+      gitlab: explain the container image tag better
+      stream: clarify the meaning of NULL device
+      core-util: Handle zero-length volume string
+      switch-on-connect: Blacklist HDMI devices by default
+      virtual-source: Don't process the rewind during requesting it
+      virtual-surround-sink: Use correct sample spec with memblockq
+      sink, source: Fix inaccurate log message
+      alsa: Document that mixer elements can be identified by a combination of name and index
+      ucm: Don't log errors during normal operation
+      protocol-native: Fix error code
+      i18n: Import Bulgarian translation from fedora.zanata.org
+      i18n: Merge Catalan translation from fedora.zanata.org
+      i18n: Replace po/ja.po with the Fedora Zanata version
+      i18n: Replace po/es.po with the Fedora Zanata version
+      i18n: Add pulseaudio.pot to version control
+      meson: Remove libpulse dep from libpulsecore
+      Point to SupportedAudioFormats wiki page where appropriate
+      thread-mainloop: Extend the locking documentation a bit
+      stream-restore: Drop the version field from the entry struct
+      stream-restore: Fix a potential crash in pa_namereg_is_valid_name()
+      stream-restore: Forget pre-14.0 stream routing
+      raop-sink: Fix compiler warnings
+      sink, source: Use the global configuration for the avoid_resampling default
+      man: Explain the limitations of "pulseaudio --check"
+      alsa-ucm: Fix NULL pointer handling
+      i18n: Update pulseaudio.pot
+      build-sys: meson: bump protocol version
+      remap_neon: use register r12 instead of r7
+      device-port: send sink and source change events when availability changes
+      build-sys: Build atomic-test only if pthread_setaffinity_np() is available
+      meson: Build atomic-test
+      udev: fix too long card name with HyperX Cloud Orbit S
+      gitignore: Ignore hashmap-test
+      build-sys: Configure doxygen.conf.in a bit differently
+      meson: Add doxygen target
+      Improve the port available_group and type documentation
+      alsa-mixer: Fix mapping_group_available() logic
+      Rename "available group" to "availability group"
+      alsa-mixer: Fix indentation
+      i18n: Update pulseaudio.pot
+      man: client.conf: Explain that autospawn=no doesn't disable systemd autostarting
+      alsa-mixer: Document the intended-roles mapping option
+      ci: Fix comment
+      alsa-mixer: Set availability groups once per card
+      alsa-mixer: Fix jack name comparison
+      gitlab: Remove trailing whitespace from the issue template
+      alsa-mixer: Remove references to non-existent multichannel paths
+      alsa-mixer: Document the description and description-key mapping options
+      switch-on-port-available: Fix switching away from unplugged headphones
+      build-sys: Disable GStreamer by default with Autotools
+
+Timo Gurr (1):
+      meson: allow to disable installing completions
+
+Tom Yan (2):
+      main, core: check idle after loading conf
+      man: mention that exit-idle-time is complied if the user is lingering
+
+Tomasz Kontusz (4):
+      alsa-mixer: Fix well-known descriptions for steelseries game/chat outputs
+      alsa-mixer: Remove unused iec958-passthrough* descriptions
+      alsa-mixer: add description-key to Mappings and Profiles
+      alsa-mixer: add support for Astro A50 gaming headset
+
+Vasilis Tsiligiannis (1):
+      start-pulseaudio-x11: Make 'plasma' version check shell portable
+
+Wim Taymans (5):
+      X11: Add xauthority parameter
+      alsa: handle unavailbale HW volume in UCM
+      alsa-ucm: use the right profile name
+      modules: fix some small memory leaks
+      alsa-util: fix check for digit
+
+Yi-Jyun Pan (1):
+      l10n: zh_TW: update translation
+
+Yuri Chornoivan (1):
+      i18n: Update poulseaudio.pot
+
+ckdo (8):
+      raop: Fix non working tcp mode
+      rtp: Fix reverted test for INHIBIT_AUTO_SUSPEND_ONLY_WITH_NON_MONITOR_SOURCES
+      raop: Fix soft volume not applied on initial volume
+      raop: Fix rewinding handling : process just after request received
+      raop: Fix callback call in raop client after auth : only call once everything is freed
+      raop: Code clarification : Detect raop_client recording state in a proper way
+      raop: Code clarification : Only free the I/O thread when everything is initialized
+      raop: Add autoreconnect feature
+
+efim (1):
+      add comma
+
+itsthem (1):
+      pulsecore: Replace gendered pronouns with gender neutral ones
+
+muzena (1):
+      i18n: Update the Croatian translation
+
+roshal (1):
+      man: remove space
+
+zhaochengyi (1):
+      pulsecore: Add exception judgment to fix the crash when playing music
 </pre>
