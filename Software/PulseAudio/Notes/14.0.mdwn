@@ -112,6 +112,10 @@ The channel_map module argument allows setting a different channel map for the R
 
 ## Notes for application developers
 
+### pa_mainloop_prepare interprets the timeout argument as microseconds again
+
+PulseAudio 13.0 accidentally changed the `pa_mainloop_prepare` timeout argument interpretation from microseconds to milliseconds. That change is now reverted - we apologize for this breaking API change. We hope reverting the change will cause less harm than keeping the code from 13.0.
+
 ### New availability_group and type fields in the port info structs
 
 The pa_sink_port_info, pa_source_port_info and pa_card_port_info structs have two new fields: availability_group (string) and type (enum). These were added in order to provide a better API for the "What did you plug in?" dialog that at least GNOME shows when a device is plugged in to a connector that supports headphones, headsets and microphones but doesn't provide information about which one was plugged in. The availability group is used to mark ports that share jack detection with each other. The type field can be more generally useful if applications want to know the type of a device.
@@ -128,7 +132,7 @@ module-rtp-send and module-rtp-recv can now use GStreamer to implement the RTP p
 
 The purpose of using GStreamer is to make it easier to add more advanced RTP features in the future such as RTCP, non-PCM audio, and potentially synchronized playback.
 
-This adds new dependencies: `gstreamer-1.0`, `gstreamer-app-1.0` and `gstreamer-rtp-1.0`. GStreamer plugins from the `gst-plugins-good` package are required as well for the `udpsrc` and `rtpbin` elements (there is no compile-time check for these).
+This adds new dependencies: `gstreamer-1.0`, `gstreamer-app-1.0` and `gstreamer-rtp-1.0`. GStreamer plugins from the `gst-plugins-good` package are required as well for the `udpsrc` and `rtpbin` elements (the plugins are a run-time dependency, there is no compile-time check for these).
 
 ### qpaeq switched from Python 2 to Python 3
 
@@ -150,9 +154,15 @@ A newer gettext version was needed for distcheck to work with a checked-in pulse
 
 Given that the meson build system runs much faster and is now is more-or-less on par with the autotools build, we will be dropping support for the autotools build in 15.0. Please let us know if you have a dependency on autotools for any reason.
 
+One difference from Autotools is that the `--disable-neon-opt` option for disabling NEON optimizations doesn't have a counterpart with Meson due to how Meson's NEON detection works. NEON will always be enabled if the compiler supports it, but even if the target machine doesn't support NEON, that shouldn't be a problem, because PulseAudio disables NEON at run-time if the processor doesn't support it.
+
 ### Heads-up: dropping EsounD support is considered, tell us if you still need it
 
 EsounD has been obsolete for over 10 years, but PulseAudio still supports EsounD applications by implementing the EsounD protocol. We plan to drop all EsounD functionality in 15.0, because probably nobody needs it. Please tell us if you still use an application that requires EsounD support.
+
+### Heads-up: dropping GConf support
+
+PulseAudio 12.0 introduced module-gsettings, which superseded the old module-gconf, but module-gconf was kept around for making transitioning easier. Both modules are used (or at least supposed to be used) only by paprefs to save its settings, which requires module-gconf prior to version 1.0 and module-gsettings from version 1.0 onwards. The plan is to remove module-gconf in PulseAudio 15.0.
 
 ## git shortlog
 
