@@ -156,6 +156,8 @@ Given that the meson build system runs much faster and is now is more-or-less on
 
 One difference from Autotools is that the `--disable-neon-opt` option for disabling NEON optimizations doesn't have a counterpart in Meson due to how Meson's NEON detection works. NEON will always be enabled if the compiler supports it, but even if the target machine doesn't support NEON, that shouldn't be a problem, because PulseAudio disables NEON at run-time if the processor doesn't support it.
 
+**Update 2020-11-28:** With Meson the database files in ~/.config/pulse/ have different names than with Autotools, which means that when switching to Meson, user settings will be forgotten. This needs to be fixed, the bug is tracked here: [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/1062]]
+
 ### Heads-up: dropping EsounD support is considered, tell us if you still need it
 
 EsounD has been obsolete for over 10 years, but PulseAudio still supports EsounD applications by implementing the EsounD protocol. We plan to drop all EsounD functionality in 15.0, because probably nobody needs it. Please tell us if you still use an application that requires EsounD support.
