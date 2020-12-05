@@ -30,10 +30,10 @@ Also, make sure to include the verbose output of PA when this problem happens.
 
 ### Getting vebose server logs from PulseAudio
 
-This procedure stops the normal background pulseaudio process, starts pulseaudio in a terminal with logs going to /tmp/pulse.log, stops pulseaudio with a ctrl-c keypress, and finally starts the normal background pulseaudio process again.
+This procedure stops the normal background pulseaudio process, starts pulseaudio in a terminal with timestamped logs going to /tmp/pulse.log, stops pulseaudio with a ctrl-c keypress, and finally starts the normal background pulseaudio process again.
 
     systemctl --user stop pulseaudio.service pulseaudio.socket
-    pulseaudio -vv 2> /tmp/pulse.log
+    pulseaudio -vv --log-time 2> /tmp/pulse.log
     <ctrl-c>
     systemctl --user start pulseaudio.service pulseaudio.socket
 
