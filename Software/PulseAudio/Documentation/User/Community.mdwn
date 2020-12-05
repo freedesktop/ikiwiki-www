@@ -43,7 +43,7 @@ First, you might need to stop your existing daemon. If your system uses systemd 
 
     $ systemctl --user stop pulseaudio.{socket,service}
 
-If you're not using systemd, you might need to stop a running PA first by issuing "pulseaudio -k". If autospawning is enabled (which it now is by default) you might have to race against it when restarting PA, so it might be a good idea to issue "pulseaudio -k ; pulseaudio -vv" in a single command and try a few times. Usually that should work well enough to win the race. If it doesn't, adding "autospawn=no" to ~/.config/pulse/client.conf will disable autospawning. Removing that line (or that file) will restore your default autospawn behaviour.
+If you're not using systemd, you might need to stop a running PA first by issuing "pulseaudio -k". If autospawning is enabled (which it is by default when not using systemd) you might have to race against it when restarting PA, so it might be a good idea to issue "pulseaudio -k ; pulseaudio -vv" in a single command and try a few times. Usually that should work well enough to win the race. If it doesn't, adding "autospawn=no" to ~/.config/pulse/client.conf will disable autospawning. Removing that line (or that file) will restore your default autospawn behaviour.
 
 Now, you can run "pulseaudio -vv" in a terminal and try to reproduce your issue. 
 
