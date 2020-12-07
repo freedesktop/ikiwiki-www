@@ -5,19 +5,10 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
-* Draft: mainloop: Document timeout units for pa_mainloop_prepare()
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/408]]
-  * Small documentation change, but we decided to revert back to microseconds, so the patch needs to be updated.
-
 * null-sink: Change block size to 50 msec when norewinds is set
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/406]]
   * It seems that this fixes a bug. The code already intends to set the latency to 50 ms on norewinds, but apparently it doesn't work right after loading the null sink.
   * Pretty small change.
-
-* alsa-mixer: Drop availability groups with only one port
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/401]]
-  * Pretty small change.
-  * Tanu reviewed the first version and requested moving the group dropping code to a different place.
 
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
@@ -238,20 +229,11 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that have been reviewed and can be merged after the freeze ends
 
-* Messaging API v2
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/51]]
-
-* alsa-mixer: add mono input support for Behringer UMC22
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/223]]
-
 * module-jackdbus-detect: Add channel_map argument for sink
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/233]]
 
 * core, modules: Remove useless EINTR tests
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/238]]
-
-* virtual-surround-sink: Use FFTW3 instead of naive approach
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/240]]
 
 * module-zeroconf-discovery: Add parameter for switching to new tunnel modules
   * [[https://patchwork.freedesktop.org/patch/304205/]]
@@ -282,48 +264,20 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-sink: increase watermark when there is nothing to rewind
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/287]]
 
-* bluetooth: policy: Remove BlueZ 4 related code
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/291]]
-
 * alsa-mixer: Respect XDG base directory spec when loading path configs
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/293]]
 
 * alsa-mixer: Pick at most one fallback mapping
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/304]]
 
-* alsa-mixer: add support for Astro A50
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/321]]
-
-* Warning fixes
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/333]]
-
 * pulsecore: thread-posix.c: remove unnecessary assignment
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/335]]
-
-* alsa-mixer: Add support for HP Thunderbolt Dock
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/353]]
-  * Pretty simple configuration addition.
 
 * switch-on-port-available: checking the off profile when switching profile
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/354]]
 
-* Add default.pa.d folder support
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/361]]
-
-* alsa-mixer: Add support for the Center/LFE element
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/362]]
-
 * sink: Increase JACK device priority
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/369]]
-
-* main: set LC_NUMERIC to C
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/375]]
-
-* mutex-posix: Log pthread_mutex_unlock() error
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/376]]
-
-* raop-sink: Don't set device.intended_roles=music
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/383]]
 
 * filter-apply: Look for filter parameters also in device properties
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/400]]
@@ -331,4 +285,29 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-(nothing here right now)
+* module-switch-on-port-available: Also blacklist HDMI devices by default
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/420]]
+  * Avoids automatically switching to HDMI when monitor is turned on.
+  * Medium sized change.
+  * The initial version is probably too aggressive: if HDMI is configured as the default sink, we should automatically switch to it when it becomes available.
+  * Milestone set to 14.1.
+
+* Add OnePlus Bullets udev rule
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/421]]
+  * Removes irrelevant profiles, for some reason there are HDMI profiles even though the device is a headset.
+  * Simple change.
+
+* Draft: build-sys: meson: add canonical-host-arch parameter
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/424]]
+  * Simple workaround for the database name change issue, pushes the problem to packagers.
+  * Milestone set to 14.1.
+
+* database: handle compatible implementaiton architecture name prefix
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/425]]
+  * Tries to solve the database name change issue, at least the initial version doesn't work for all architectures.
+  * Milestone set to 14.1.
+
+* module-role-cork: corking groups
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/427]]
+  * Implements more flexible corking rules. The same as what is already supported for ducking rules? It's a bit difficult to fully understand the feature just from the commit message.
+  * Medium sized change.
