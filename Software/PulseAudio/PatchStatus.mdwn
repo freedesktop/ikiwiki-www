@@ -5,6 +5,26 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* module-switch-on-port-available: Also blacklist HDMI devices by default
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/420]]
+  * Avoids automatically switching to HDMI when monitor is turned on.
+  * Medium sized change.
+  * The initial version is probably too aggressive: if HDMI is configured as the default sink, we should automatically switch to it when it becomes available.
+  * Milestone set to 14.1.
+
+* Draft: build-sys: meson: add canonical-host-arch parameter
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/424]]
+  * Simple workaround for the database name change issue, pushes the problem to packagers.
+  * Milestone set to 14.1.
+
+* database: handle compatible implementaiton architecture name prefix
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/425]]
+  * Tries to solve the database name change issue, at least the initial version doesn't work for all architectures.
+  * Milestone set to 14.1.
+
+* pactl: add `get-default-sink` command
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/430]]
+
 * null-sink: Change block size to 50 msec when norewinds is set
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/406]]
   * It seems that this fixes a bug. The code already intends to set the latency to 50 ms on norewinds, but apparently it doesn't work right after loading the null sink.
@@ -83,6 +103,11 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * alsa-mixer: Add an profile for EVO4 interface
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/397]]
+
+* module-role-cork: corking groups
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/427]]
+  * Implements more flexible corking rules. The same as what is already supported for ducking rules? It's a bit difficult to fully understand the feature just from the commit message.
+  * Medium sized change.
 
 * Fix up Meson build support for Windows / Add AF_UNIX support for Windows
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/360]]
@@ -284,25 +309,3 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 
 ### Patches that need to be prioritized
-
-* module-switch-on-port-available: Also blacklist HDMI devices by default
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/420]]
-  * Avoids automatically switching to HDMI when monitor is turned on.
-  * Medium sized change.
-  * The initial version is probably too aggressive: if HDMI is configured as the default sink, we should automatically switch to it when it becomes available.
-  * Milestone set to 14.1.
-
-* Draft: build-sys: meson: add canonical-host-arch parameter
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/424]]
-  * Simple workaround for the database name change issue, pushes the problem to packagers.
-  * Milestone set to 14.1.
-
-* database: handle compatible implementaiton architecture name prefix
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/425]]
-  * Tries to solve the database name change issue, at least the initial version doesn't work for all architectures.
-  * Milestone set to 14.1.
-
-* module-role-cork: corking groups
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/427]]
-  * Implements more flexible corking rules. The same as what is already supported for ducking rules? It's a bit difficult to fully understand the feature just from the commit message.
-  * Medium sized change.
