@@ -6,7 +6,17 @@
 
 ## Notes for end users
 
-(nothing here yet)
+### module-virtual-surround-sink rewritten
+
+TODO
+
+### Improved support for HP Thunderbolt Dock 120W G2
+
+HP Thunderbolt Dock 120W G2 has a 3.5 mm headset connector, and there's a separate audio module sold for the dock that provides speakerphone functionality (integrated microphone and speaker with echo cancellation). PulseAudio now has configuration that improves the device descriptions shown to the user and marks the speakerphone as a preferred device for voice audio.
+
+### Improved support for Behringer U-Phoria UMC22
+
+Behringer U-Phoria UMC22 has two mono microphone inputs, which show up as a single stereo device in ALSA. PulseAudio now has custom configuration for this sound card, allowing the user to select a profile that enables only one or the other of the channels. That way recording applications don't end up recording a stereo track that has audio only on one channel.
 
 ## Notes for application developers
 
@@ -14,7 +24,9 @@
 
 ## Notes for packagers
 
-(nothing here yet)
+### The startup script can now read additional configuration from the /etc/pulse/default.pa.d/ directory
+
+PulseAudio's startup script (default.pa for the normal per-user mode and system.pa for the system mode) defines the set of modules to load automatically on startup. At the end of the scripts there is now an include directive that loads files from /etc/pulse/default.pa.d/ or /etc/pulse/system.pa.d/. This is primarily meant for distributions when they want to add some module to the configuration when installing a package. Users can of course use this mechanism too if they prefer to add a module to the configuration without modifying the original script.
 
 ## git shortlog
 
