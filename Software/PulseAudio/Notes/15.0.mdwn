@@ -6,9 +6,26 @@
 
 ## Notes for end users
 
+### ALSA path configuration files can now be placed in user home directory
+
+The code that loads the ALSA path configuration files now checks if the files exist in the directories specified with the `XDG_DATA_HOME` or `XDG_DATA_DIRS` environment variables (under `pulseaudio/alsa-mixer/paths` subdirectory). Those environment variables are defined by the [XDG Base Directory Spec](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html), and even if those environment variables aren't set, the XDG Base Directory Spec defines default locations that PulseAudio uses. In particular, in the usual case where `XDG_DATA_HOME` isn't set, the default value is `$HOME/.local/share`, so PulseAudio will look for path configuration files from that directory under the user's home. This is useful when it's necessary to customize the path configuration files. Previously the files in `/usr/share/pulseaudio/alsa-mixer/paths` had to be modified, and the modifications were lost whenever upgrading PulseAudio.
+
 ### module-virtual-surround-sink rewritten
 
 TODO
+
+### More options for module-jackdbus-detect
+
+module-jackdbus-detect automatically loads a JACK sink and source when JACK starts. It's now possible to better configure the parameters of the sink and source. module-jackdbus-detect accepts these new arguments:
+
+ * `sink_name` - Name for the JACK sink
+ * `source_name` - Name for the JACK source
+ * `sink_properties` - Additional properties to set on the JACK sink
+ * `sink_channel_map` - Channel map for the JACK sink
+ * `source_channel_map` - Channel map for the JACK source
+ * `source_properties` - Additional properties to set on the JACK source
+ * `sink_client_name` - The name that the JACK sink uses when it registers a client with JACK
+ * `source_client_name` - The name that the JACK source uses when it registers a client with JACK
 
 ### Improved support for HP Thunderbolt Dock 120W G2
 
@@ -18,15 +35,53 @@ HP Thunderbolt Dock 120W G2 has a 3.5 mm headset connector, and there's a separa
 
 Behringer U-Phoria UMC22 has two mono microphone inputs, which show up as a single stereo device in ALSA. PulseAudio now has custom configuration for this sound card, allowing the user to select a profile that enables only one or the other of the channels. That way recording applications don't end up recording a stereo track that has audio only on one channel.
 
+### Improved support for OnePlus Type-C Bullets
+
+OnePlus Type-C Bullets is a simple USB-C headset device. It works with the default configuration too, but custom configuration was added to hide card profiles that don't make sense (for example, HDMI showed up as a supported profile with the default configuration).
+
+### Improved support for Sennheiser GSX 1000/1200 PRO
+
+Sennheiser GSX 1000 and 1200 PRO are USB DACs designed for gaming. They have a separate mono output for voice audio, and they also provide a virtual surround device that downmixes 7.1 surround audio to headphones in hardware. Custom configuration was added to expose these devices properly.
+
+### New udev variable: PULSE_MODARGS
+
+It's now possible to set module-alsa-card module arguments via udev configuration by using the PULSE_MODARGS variable. This allows for example setting `tsched=false` for a particular sound card that has trouble with the timer-based scheduling. Previously the options were to pass the tsched option to module-udev-detect in default.pa, causing all sound cards to be affected, or to give up automatic sound card detection and hotplug support altogether and configure each sound card manually in default.pa.
+
+### max_latency_msec argument added to module-null-source
+
+It's now possible to configure the upper limit for latency of module-null-source with the `max_latency_msec` module argument.
+
+### module-filter-apply can take filter parameters from device properties
+
+module-filter-apply automatically loads a filter module when a stream wants to be filtered (i.e. has the `filter.want` property). Previously additional filter module arguments could be provided by the stream in the `filter.apply.<filter>.paramaters` property, now it's possible to set `filter.apply.<filter>.parameters` also in the hardware sink/source properties, so a stream can simply request a filter without specifying the parameters, and the hardware device can set the (possibly hardware specific) parameters.
+
+### module-match can now be loaded multiple times
+
+The original expectation was that there wouldn't be need for loading module-match multiple times, so it was marked as a module that isn't meant to (and can't) be loaded multiple times. However, it turned out to be useful to match against different properties with different configuration files, so the module can now be loaded multiple times.
+
+### Windows support added to Meson
+
+PulseAudio's Meson build system was lagging behind the old Autotools build system when it came to building for Windows, now it should be possible to build PulseAudio for Windows with Meson using MinGW. There are also various fixes for Windows.
+
 ## Notes for application developers
 
-(nothing here yet)
+### New API for sending messages from clients to modules
+
+The new "message API" was added to make it easier to implement client interfaces in modules. This new infrastructure isn't yet used in any modules, so for now applications have no reason to start using the API. TODO: Better documentation is being worked on, link to the docs once they're available.
 
 ## Notes for packagers
 
 ### The startup script can now read additional configuration from the /etc/pulse/default.pa.d/ directory
 
 PulseAudio's startup script (default.pa for the normal per-user mode and system.pa for the system mode) defines the set of modules to load automatically on startup. At the end of the scripts there is now an include directive that loads files from `/etc/pulse/default.pa.d/` or `/etc/pulse/system.pa.d/`. This is primarily meant for distributions when they want to add some module to the configuration when installing a package: it's now easy to install a file containing the configuration for the installed package. Users can of course use this mechanism too if they prefer to add a module to the configuration without modifying the original startup script.
+
+### OSS support is now configurable in Meson
+
+The `oss-output` Meson option can be used to explicitly enable or disable OSS support (previously, when using Meson instead of Autotools, OSS support was automatically enabled when the `sys/soundcard.h` header was found).
+
+### Valgrind support is now configurable in Meson
+
+The `valgrind` Meson option can be used to explicitly enable or disable Valgrind support (previously Valgrind support was automatically enabled when the `valgrind/memcheck.h` header was found).
 
 ## git shortlog
 
