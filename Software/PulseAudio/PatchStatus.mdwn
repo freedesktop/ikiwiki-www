@@ -39,23 +39,8 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
   * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
 
-* switch-on-port-available: handle the port which becomes avl_unknown
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/390]]
-  * Fixes automatic source switching when plugging in a headset on some Dell machines that don't have an internal mic.
-  * Small diff, but the patch is not trivial due to possible corner cases.
-
-* tests: Fix incompatible pointer type on Debian kfreebsd
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/356]]
-
 * alsa-ucm: Make sure UCM uses DisableSequence
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/357]]
-
-* alsa: mixer - fix the override_map for the multichannel support
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/389]]
-  * This implements two things: support for volume elements with more than 2 channels, and support for channel override maps for such elements.
-  * Medium sized change.
-  * Target is 14.1, because some UCM hardware needs this.
-  * Tanu has started reviewing this.
 
 * clear compiling warning
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/330]]
@@ -88,13 +73,9 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/290]]
   * Important improvement to the UCM profile generation logic (currently we may generate profiles that have two conflicting devices active at the same time).
 
-* alsa-mixer: add support for Sennheiser GSX 1000 gaming DAC
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/257]]
-  * Simple change. Tanu reviewed the first version, changes requested. See also the next MR, !286.
-
 * Add udev rules and a profile for Sennheiser GSX devices.
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/286]]
-  * This is probably pretty much the same as the previous MR, !257.
+  * This is probably pretty much the same as another MR, !257, which has been merged.
 
 * alsa-mixer: Add an profile for EVO4 interface
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/397]]
@@ -108,10 +89,6 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Implements more flexible corking rules. The same as what is already supported for ducking rules? It's a bit difficult to fully understand the feature just from the commit message.
   * Medium sized change.
 
-* Fix up Meson build support for Windows / Add AF_UNIX support for Windows
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/360]]
-  * Important, because without this we'd lose Windows support when dropping Autotools.
-
 * Draft: Update for recent webrtc AEC
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/395]]
   * The "big" changes are already mostly reviewed by Arun (those changes were made by Eero Nurkkala).
@@ -124,10 +101,6 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/24]]
   * Using the Dolby TrueHD and DTS-HD Master Audio formats requires using 8 channels, and these patches implement the necessary reconfiguration logic. This was supposed to work already in 13.0 (the release notes promised that), so these patches should probably have a very high priority.
 
-* Bluetooth A2DP codecs
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/227]]
-  * Adds support for more codecs. Big change. Georg has been reviewing some of the patches. The next step is to agree how to implement the codec switching (at least Tanu and Arun don't like Pali's proposal to use the card profile switching mechanism for choosing the codec).
-
 * alsa-ucm: allow binding same mic to multiple profiles
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/271]]
 
@@ -135,10 +108,6 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/272]]
   * Adds support for jack controls with index other than zero. Adds some new jacks to the path configurations.
   * Tanu already reviewed the first version (changes requested).
-
-* alsa-mixer: support up to 8 channels per mixer element
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/292]]
-  * Improves hardware volume handling. Important now that UCM is starting to have configuration for hardware with this kind of mixer elements. With UCM we can't gracefully fall back to software volume, because UCM will set the volume to zero when switching away from the device, so we must support hardware volume properly.
 
 * Rewind and resampler fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/120]]
@@ -196,13 +165,6 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Tunnel and combine-sink latency fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/53]]
   * Fixes latency calculations. Adds a latency configuration modarg to module-tunnel. A somewhat large change, but it's split into 6 patches so the individual patches should be pretty manageable.
-
-* bluetooth-legacy: Create bluetooth legacy as copy of current bluetooth codebase
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/314]]
-
-* WIP: Bluetooth HSP and HFP profiles implementation via hsphpfd daemon
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/288]]
-  * See also the next MR, !94.
 
 * bluetooth: HFP profile implementation
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/94]]
