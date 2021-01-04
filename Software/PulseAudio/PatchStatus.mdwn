@@ -5,6 +5,14 @@ This page tracks the status of submitted patches that haven't been merged yet. T
 The patches have been ordered by priority, with the highest priority patches at the top. If your patch is low in the list, there's a real risk that it won't be reviewed at all, because patches are currently submitted at a higher rate than they are reviewed. This is a sad situation, and if you don't like it, please volunteer to become a reviewer!
 
 
+* loopback: Fix sink latency calculation if source is alsa source with fixed latency
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/451]]
+  * In the meeting on 2021-01-04, Arun said that the patch is good, although he'd put the line before the change in an else block, and Tanu suggested adding a comment explaining the calculation. If Georg does those two changes, this should be then ready to merge.
+
+* alsa-mixer: disable has_dB if max_dB is negative
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/447]]
+  * Small patch, already reviewed but had some small things to fix.
+
 * module-switch-on-port-available: Also blacklist HDMI devices by default
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/420]]
   * Avoids automatically switching to HDMI when monitor is turned on.
@@ -28,16 +36,25 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
   * Improves sink naming with UCM. Very small change, but it would be good to understand why the duplication happens in the first place, so reviewing isn't that trivial (it may be still be easy once someone spends more than a few seconds looking at the code).
+  * Milestone set to 14.1.
 
 * alsa-card: add dynamic priority bonus base for alsa profiles
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/355]]
   * Small but possibly a bit tricky profile priority/availability patch.
   * Fixes a significant problem with UCM: UCM doesn't generate profiles for all device permutations, wihch with the current logic leads to important profiles being marked as unavailable if any component device in them is unavailable.
+  * Milestone set to 14.1.
 
 * module-switch-on-port-available: check default sink/source before switch
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/370]]
   * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
   * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
+  * Milestone set to 14.1.
+
+* Add support for bluetooth A2DP codecs and codec switching
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/440]]
+
+* Draft: card: implement bluetooth profile codec selection
+  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/54]]
 
 * alsa-ucm: Make sure UCM uses DisableSequence
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/357]]
@@ -55,15 +72,25 @@ The patches have been ordered by priority, with the highest priority patches at 
 * combine-sink: Set origin_sink for each output stream
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/399]]
   * One-liner, looks good if the current usage of origin_sink can handle module-combine-sink.
+  * Milestone set to 15.0.
 
 * alsa-mixer: Respect XDG base directory spec when loading profile sets
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/311]]
   * Completes the work started in MR 293 (which is reviewed and waiting for the freeze to end).
+  * Milestone set to 15.0.
 
 * alsa-mixer: add environment variables for profiles and paths
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/404]]
   * Fixes the same problem as !293 (for paths, reviewed but not merged) and !311 (for profiles, waiting for review).
   * Arun prefers to merge this anyway to provide support for more targeted environment variables, and Tanu is fine with that.
+
+* Add signal sending capability
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/453]]
+
+* Add message commands to enable/disable jack detection per port
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/452]]
+  * This is WIP until Georg gets around to adding persistence support.
+  * Tanu suggested also adding notifications using signals in the message API, but that may happen in a separate MR.
 
 * Don't assume that version_split have at least 2 elements
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/289]]
@@ -72,6 +99,7 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-ucm: create profiles per conflicting device group
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/290]]
   * Important improvement to the UCM profile generation logic (currently we may generate profiles that have two conflicting devices active at the same time).
+  * Milestone set to 14.1.
 
 * Add udev rules and a profile for Sennheiser GSX devices.
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/286]]
@@ -83,6 +111,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 * WIP: module-switch-on-port-available: stick to user profile choice
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/438]]
   * Attempts to fix the problem with HDMI getting automatically selected after turning on the monitor, even if the user has chosen the off profile.
+
+* Draft: cardwidget: add flag to lock profile from switching automatically
+  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/52]]
+  * Implements pavucontrol support for the PulseAudio feature added in MR 438.
 
 * module-role-cork: corking groups
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/427]]
@@ -104,15 +136,14 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-ucm: allow binding same mic to multiple profiles
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/271]]
 
-* Support jack index
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/272]]
-  * Adds support for jack controls with index other than zero. Adds some new jacks to the path configurations.
-  * Tanu already reviewed the first version (changes requested).
-
 * Rewind and resampler fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/120]]
   * Fixes crackling during volume changes caused by resampler resets. Big change.
   * Comment from Tanu: I started to review it, and I disagreed with Georg how the new history queue should be managed. I got demotivated due to the complexity of the code and Georg's unwillingness to accept my proposal that would make it easier for me to understand the system (according to Georg, my proposal is even more complex than his).
+  * Milestone set to 15.0.
+
+* Draft: log: add async logging
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/459]]
 
 * FreeBSD support: meson build, import downstream patches, more improvements
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/277]]
@@ -144,6 +175,7 @@ The patches have been ordered by priority, with the highest priority patches at 
 * bluetooth: Unify A2DP sink/source volumes with AVRCP Absolute Volume.
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/239]]
   * New feature. Very useful. Somewhat large change.
+  * Milestone set to 15.0.
 
 * raop: Improve volume management
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/129]]
@@ -209,6 +241,12 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Use WAVEFORMATEXTENSIBLE for multi-channel audio output on Windows.
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/359]]
 
+* win32: Fix WSAStartup issues
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/456]]
+
+* win32: Various fixes
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/458]]
+
 * Check for pulseaudio daemon by socket instead of by pid
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/296]]
   * Simple change, but might not be what we want. The proposed implementation will start the daemon if socket activation or autospawning is enabled.
@@ -235,44 +273,14 @@ The patches have been ordered by priority, with the highest priority patches at 
   * One-liner fixing MinGW compilation. It needs to be decided whether to accept this or try to get the fix upstream.
   * In the 2020-12-21 meeting Arun suggested creating a "patches" subdirectory for patches that aren't upstreamable, that sounds like a good plan for this patch.
 
-* Add support for bluetooth A2DP codecs and codec switching
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/440]]
-
-* Draft: cardwidget: add flag to lock profile from switching automatically
-  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/52]]
-
-* Draft: card: implement bluetooth profile codec selection
-  * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/54]]
-
-* daemon: fix default daemon.conf when running from build tree
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/446]]
-
-* alsa-mixer: disable has_dB if max_dB is negative
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/447]]
-
-* loopback: Fix sink latency calculation if source is alsa source with fixed latency
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/451]]
-
-* Add message commands to enable/disable jack detection per port
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/452]]
-
-* Add signal sending capability
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/453]]
-
 * cli: Fix crash when using .include with an empty directory
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/454]]
+  * Georg reviewed and approved this, but we couldn't merge due to a weird CI failure.
 
 * client: Make auto_connect_localhost respect HAVE_IPv6 and OS_IS_WIN32
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/455]]
-
-* win32: Fix WSAStartup issues
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/456]]
+  * Tanu reviewed and approved this, but we couldn't merge due to a weird CI failure.
 
 * waveout: Fix compile warnings
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/457]]
-
-* win32: Various fixes
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/458]]
-
-* Draft: log: add async logging
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/459]]
+  * Tanu reviewed and approved this, but we couldn't merge due to a weird CI failure.
