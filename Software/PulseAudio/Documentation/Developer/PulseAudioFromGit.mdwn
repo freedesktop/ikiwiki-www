@@ -17,16 +17,10 @@ These commands will create a new subdirectory with name "pulseaudio" in the curr
 
 After getting the source, go to the pulseaudio directory and run these commands:
 
-    ./bootstrap.sh
-    make
+    meson build
+    ninja -C build
 
-It's good to know that bootstrap.sh runs also the configure script, using this command line:
-
-    CFLAGS="$CFLAGS -g -O0" ./configure --enable-force-preopen
-
-Arguments passed to bootstrap.sh will be passed on to the configure script. If you don't want bootstrap.sh to run configure, use this:
-
-    NOCONFIGURE=1 ./bootstrap.sh
+The first command configures the project and creates the subdirectory "build" where build artifacts go. The second command builds the code.
 
 If there are complaints about something not being found, then you need to install the missing things. The list of build dependencies may be useful: [[http://www.freedesktop.org/wiki/Software/PulseAudio/Download/]]
 
@@ -36,8 +30,7 @@ On Debian and its derivatives (Ubuntu etc.) it's possible to use "apt-get build-
 
 If you want to install PulseAudio to a custom location (i.e. a prefix install), you can do the following:
 
-    NOCONFIGURE=1 ./bootstrap.sh
-    ./configure --prefix=<prefix-path-here> --with-udev-rules-dir='${prefix}/lib/udev/rules.d' --with-systemduserunitdir='${prefix}/etc/systemd/user'
+    meson --prefix=<prefix-path-here> build
 
 ## Installing and Running
 
@@ -47,10 +40,10 @@ This is the simplest method. The drawback is that it will affect the whole syste
 
 Two commands:
 
-    sudo make install
+    sudo ninja -C build install
     sudo ldconfig
 
-Uninstalling the self-compiled version is a matter of deleting all pulseaudio files under the /usr/local hierarchy (TODO: the exact rm commands would be nice here). "sudo make uninstall" works too, but it will only remove the files that were installed by the last "sudo make install" command, so if you over time install many versions without uninstalling in between, the old installations may have files that are not included in the latest install, and in such case "sudo make uninstall" will not remove everything. Also, if "sudo make install" installed something in the same place where the distribution installs files, then those are removed too, and that may cause trouble (such trouble should be fixable by forcing a reinstall of the distribution's pulseaudio packages).
+Uninstalling the self-compiled version is a matter of deleting all pulseaudio files under the /usr/local hierarchy (TODO: the exact rm commands would be nice here). "sudo ninja -C build uninstall" works too, but it will only remove the files that were installed by the last "sudo ninja -C build install" command, so if you over time install many versions without uninstalling in between, the old installations may have files that are not included in the latest install, and in such case "sudo ninja -C build uninstall" will not remove everything. Also, if "sudo ninja -C build install" installed something in the same place where the distribution installs files, then those are removed too, and that may cause trouble (such trouble should be fixable by forcing a reinstall of the distribution's pulseaudio packages).
 
 Also note that some system-installed files (udev and systemd user units) will be overwritten.
 
@@ -59,13 +52,13 @@ Also note that some system-installed files (udev and systemd user units) will be
 
 You need to use the instructions from "Building to install to a custom location" above. With that done, you can install to the prefix you chose with:
 
-    make install
+    ninja -C build install
 
 That's it, the binaries, modules and configuration are all installed in the prefix path.
 
 Note that certain files that involve interaction with the system will not take effect (at the moment this includes udev rules, systemd user units, and bash/zsh completion).
 
-Uninstalling in this setup can be done with a "make uninstall" or simply deleting the prefix directory (assuming you have nothing else of value there).
+Uninstalling in this setup can be done with a "ninja -C build uninstall" or simply deleting the prefix directory (assuming you have nothing else of value there).
 
 
 ### Method 3: Running From the Build Tree Without Installing
