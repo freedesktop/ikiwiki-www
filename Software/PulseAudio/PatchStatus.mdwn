@@ -262,3 +262,19 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Translations update from Weblate
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/490]]
   * 2021-02-01: Merging is blocked, because the weblate user doesn't have CI enabled, and merging is allowed only after a successful CI run.
+
+* Draft: [simplify] Make GStreamer encoder/decoder synchronous
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/494]]
+  * Run GStreamer in PA's IO thread, without extra threads, semaphores and buffer copies.
+
+* alsa-mixer: increase the max number of HDMI/DP output device to 11
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/495]]
+  * The patch looks good, but the driver may be changed to not need these extra ports. We should merge this only if alsa decides to go forward with this pin allocation scheme.
+
+* pactl: add format flag for JSON output
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/497]]
+
+* module-stream-restore: respect preferred_sink/source on multiple stream
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/503]]
+  * Fixes a regression in 14.0. Small change, but it's probably not good, because routing decisions that are done outside module-stream-restore end up in the stream-restore database.
+  * Milestone set to 15.0.
