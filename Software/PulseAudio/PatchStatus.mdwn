@@ -26,6 +26,11 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
   * Milestone set to 14.3.
 
+* module-stream-restore: respect preferred_sink/source on multiple stream
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/503]]
+  * Fixes a regression in 14.0. Small change, but it's probably not good, because routing decisions that are done outside module-stream-restore end up in the stream-restore database.
+  * Milestone set to 15.0.
+
 * Draft: card: implement bluetooth profile codec selection
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/merge_requests/54]]
 
@@ -71,6 +76,10 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/478]]
   * Two smallish patches.
   * This avoids sending clients a list of codecs that includes entries that aren't really supported.
+
+* Draft: [simplify] Make GStreamer encoder/decoder synchronous
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/494]]
+  * Run GStreamer in PA's IO thread, without extra threads, semaphores and buffer copies.
 
 * Draft: bluetooth: Add AAC support via GStreamer
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/473]]
@@ -233,6 +242,9 @@ The patches have been ordered by priority, with the highest priority patches at 
 * FreeBSD support
   * [[https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing/merge_requests/6]]
 
+* pactl: add format flag for JSON output
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/497]]
+
 * Use WAVEFORMATEXTENSIBLE for multi-channel audio output on Windows.
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/359]]
 
@@ -262,19 +274,3 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Translations update from Weblate
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/490]]
   * 2021-02-01: Merging is blocked, because the weblate user doesn't have CI enabled, and merging is allowed only after a successful CI run.
-
-* Draft: [simplify] Make GStreamer encoder/decoder synchronous
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/494]]
-  * Run GStreamer in PA's IO thread, without extra threads, semaphores and buffer copies.
-
-* alsa-mixer: increase the max number of HDMI/DP output device to 11
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/495]]
-  * The patch looks good, but the driver may be changed to not need these extra ports. We should merge this only if alsa decides to go forward with this pin allocation scheme.
-
-* pactl: add format flag for JSON output
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/497]]
-
-* module-stream-restore: respect preferred_sink/source on multiple stream
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/503]]
-  * Fixes a regression in 14.0. Small change, but it's probably not good, because routing decisions that are done outside module-stream-restore end up in the stream-restore database.
-  * Milestone set to 15.0.
