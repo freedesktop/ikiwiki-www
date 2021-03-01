@@ -261,6 +261,27 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* Translations update from Weblate
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/490]]
-  * 2021-02-01: Merging is blocked, because the weblate user doesn't have CI enabled, and merging is allowed only after a successful CI run.
+* Airplay2
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/505]]
+  * Resubmission of !129 and !194 by a different person, done because the original author doesn't seem to be responsive any more.
+  * Earlier comments about !129:
+    * Fixes unsynchronized volume updates (hw volume is updated immediately, soft volume takes 2 seconds to take effect). Very small code change.
+    * Comment from Tanu: I suspect it's too simple. I think there should be two modes: either hardware volume, which is fast but doesn't allow different volumes for different channels, or soft volume, which is very slow but supports per-channel volumes. Then there's the question whether the hardware volume mode should support decibel volumes or not. Not supporting decibel volumes would have the benefit that UIs would show a continuous volume scale, whereas with decibel volumes the volume couldn't be set below 32% (which is -30dB, the minimum volume allowed by the protocol).
+  * Earlier comments about !194:
+    * Improves hardware support. 2 commits. Not a small change, but not huge either.
+
+* WIP: bluetooth: WBS for native backend
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/507]]
+  * Large patchset.
+
+* WIP: Astro Mixamp TR gaming headset support
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/508]]
+  * The submitted version simply uses usb-gaming-heaset.conf for this headset, which sort of works, but the submitter said he's going to do further work with this MR.
+
+* rtp: Enable support for OPUS
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/510]]
+  * Large-ish patch, but from a quick look the changes seem pretty straightforward.
+
+* console-kit: remove ConsoleKit module
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/513]]
+  * It seems that some BSDs still use ConsoleKit (or ConsoleKit2, which is a fork of the original project). We probably shouldn't drop ConsoleKit support.
