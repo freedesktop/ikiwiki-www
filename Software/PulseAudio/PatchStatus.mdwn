@@ -85,6 +85,10 @@ The patches have been ordered by priority, with the highest priority patches at 
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/480]]
   * Enable switching from A2DP source to A2DP sink profile and vice-versa, when two devices capable of supporting both (ie. two machines running PulseAudio) are connected.
 
+* WIP: bluetooth: WBS for native backend
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/507]]
+  * Large patchset.
+
 * Add message commands to enable/disable jack detection per port
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/452]]
   * This is WIP until Georg gets around to adding persistence support.
@@ -105,6 +109,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * alsa-mixer: Add an profile for EVO4 interface
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/397]]
+
+* WIP: Astro Mixamp TR gaming headset support
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/508]]
+  * The submitted version simply uses usb-gaming-heaset.conf for this headset, which sort of works, but the submitter said he's going to do further work with this MR.
 
 * WIP: module-switch-on-port-available: stick to user profile choice
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/438]]
@@ -133,6 +141,10 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * alsa-ucm: allow binding same mic to multiple profiles
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/271]]
+
+* rtp: Enable support for OPUS
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/510]]
+  * Large-ish patch, but from a quick look the changes seem pretty straightforward.
 
 * Rewind and resampler fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/120]]
@@ -171,10 +183,14 @@ The patches have been ordered by priority, with the highest priority patches at 
   * New feature. Very useful. Somewhat large change.
   * Milestone set to 15.0.
 
-* raop: Improve volume management
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/129]]
-  * Fixes unsynchronized volume updates (hw volume is updated immediately, soft volume takes 2 seconds to take effect). Very small code change.
-  * Comment from Tanu: I suspect it's too simple. I think there should be two modes: either hardware volume, which is fast but doesn't allow different volumes for different channels, or soft volume, which is very slow but supports per-channel volumes. Then there's the question whether the hardware volume mode should support decibel volumes or not. Not supporting decibel volumes would have the benefit that UIs would show a continuous volume scale, whereas with decibel volumes the volume couldn't be set below 32% (which is -30dB, the minimum volume allowed by the protocol).
+* Airplay2
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/505]]
+  * Resubmission of !129 and !194 by a different person, done because the original author doesn't seem to be responsive any more.
+  * Earlier comments about !129:
+    * Fixes unsynchronized volume updates (hw volume is updated immediately, soft volume takes 2 seconds to take effect). Very small code change.
+    * Comment from Tanu: I suspect it's too simple. I think there should be two modes: either hardware volume, which is fast but doesn't allow different volumes for different channels, or soft volume, which is very slow but supports per-channel volumes. Then there's the question whether the hardware volume mode should support decibel volumes or not. Not supporting decibel volumes would have the benefit that UIs would show a continuous volume scale, whereas with decibel volumes the volume couldn't be set below 32% (which is -30dB, the minimum volume allowed by the protocol).
+  * Earlier comments about !194:
+    * Improves hardware support. 2 commits. Not a small change, but not huge either.
 
 * core-util: Set nice value for the task group
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/234]]
@@ -183,10 +199,6 @@ The patches have been ordered by priority, with the highest priority patches at 
 * Introduce meson-based build
   * [[https://gitlab.freedesktop.org/pulseaudio/pavucontrol/merge_requests/17]]
   * New feature. Medium sized change.
-
-* WIP: Support of Airplay2 devices
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/194]]
-  * Improves hardware support. 2 commits. Unfinished work. Not a small change, but not huge either.
 
 * Tunnel and combine-sink latency fixes
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/53]]
@@ -260,27 +272,6 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 
 ### Patches that need to be prioritized
-
-* Airplay2
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/505]]
-  * Resubmission of !129 and !194 by a different person, done because the original author doesn't seem to be responsive any more.
-  * Earlier comments about !129:
-    * Fixes unsynchronized volume updates (hw volume is updated immediately, soft volume takes 2 seconds to take effect). Very small code change.
-    * Comment from Tanu: I suspect it's too simple. I think there should be two modes: either hardware volume, which is fast but doesn't allow different volumes for different channels, or soft volume, which is very slow but supports per-channel volumes. Then there's the question whether the hardware volume mode should support decibel volumes or not. Not supporting decibel volumes would have the benefit that UIs would show a continuous volume scale, whereas with decibel volumes the volume couldn't be set below 32% (which is -30dB, the minimum volume allowed by the protocol).
-  * Earlier comments about !194:
-    * Improves hardware support. 2 commits. Not a small change, but not huge either.
-
-* WIP: bluetooth: WBS for native backend
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/507]]
-  * Large patchset.
-
-* WIP: Astro Mixamp TR gaming headset support
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/508]]
-  * The submitted version simply uses usb-gaming-heaset.conf for this headset, which sort of works, but the submitter said he's going to do further work with this MR.
-
-* rtp: Enable support for OPUS
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/510]]
-  * Large-ish patch, but from a quick look the changes seem pretty straightforward.
 
 * console-kit: remove ConsoleKit module
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/513]]
