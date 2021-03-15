@@ -273,15 +273,17 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 * build-sys: drop autotools build system
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/516]]
-  * Also fixes (or implements?) the `dist` build target for Meson.
+  * Also fixes the `dist` build target for Meson.
   * Milestone set to 15.0.
 
 * bluetooth: Only use hardware volume callbacks for peer attenuation (hsp/hfp)
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/519]]
+  * When PulseAudio is a HSP/HFP headset, it has to notify the peer about volume changes. This MR changes the code so that the notifications don't also enable the "hw volume" flag, which is incorrect/confusing when it's PulseAudio that does the attenuation.
   * Milestone set to 15.0.
 
 * bluetooth: Perform software attenuation until HF/HS reports gain control
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/521]]
+  * Depends on !519.
 
 * Draft: bluetooth: assume software volume control until peer replies
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/522]]
