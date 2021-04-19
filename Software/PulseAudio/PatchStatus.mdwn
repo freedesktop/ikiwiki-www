@@ -10,7 +10,7 @@ The patches have been ordered by priority, with the highest priority patches at 
   * Avoids automatically switching to HDMI when monitor is turned on.
   * Medium sized change.
   * The initial version is probably too aggressive: if HDMI is configured as the default sink, we should automatically switch to it when it becomes available.
-  * Milestone set to 14.3.
+  * Milestone set to 15.0.
 
 * pactl: add `get-default-sink` command
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/430]]
@@ -18,17 +18,12 @@ The patches have been ordered by priority, with the highest priority patches at 
 * alsa-ucm: Avoid unnecessary duplication in mapping descriptions
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/366]]
   * Improves sink naming with UCM. Very small change, but it would be good to understand why the duplication happens in the first place, so reviewing isn't that trivial (it may be still be easy once someone spends more than a few seconds looking at the code).
-  * Milestone set to 14.3.
+  * Milestone set to 15.0.
 
 * module-switch-on-port-available: check default sink/source before switch
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/370]]
   * Attempts to fix a UCM related bug: when there are multiple sinks or sources on one profile, module-switch-on-port-available does sometimes nonsensical port switches.
   * Tanu reviewed the first version and suggested a different fix. As of 2020-09-28, discussion is ongoing about the correct fix.
-  * Milestone set to 14.3.
-
-* module-stream-restore: respect preferred_sink/source on multiple stream
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/503]]
-  * Fixes a regression in 14.0. Small change, but it's probably not good, because routing decisions that are done outside module-stream-restore end up in the stream-restore database.
   * Milestone set to 15.0.
 
 * alsa-ucm: Make sure UCM uses DisableSequence
@@ -44,15 +39,18 @@ The patches have been ordered by priority, with the highest priority patches at 
   * There's a bug that needs to be fixed before this can be merged.
   * Arun reviewed the first version, and we agreed to have this in 14.0 once the bug is fixed.
 
+* build-sys: meson: allow building client libraries only
+  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/540]]
+
 * combine-sink: Set origin_sink for each output stream
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/399]]
   * One-liner, looks good if the current usage of origin_sink can handle module-combine-sink.
-  * Milestone set to 15.0.
+  * Milestone set to 16.0.
 
 * alsa-mixer: Respect XDG base directory spec when loading profile sets
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/311]]
   * Completes the work started in MR 293 (which is reviewed and waiting for the freeze to end).
-  * Milestone set to 15.0.
+  * Milestone set to 16.0.
 
 * alsa-mixer: add environment variables for profiles and paths
   * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/404]]
@@ -281,9 +279,4 @@ The patches have been ordered by priority, with the highest priority patches at 
 
 ### Patches that need to be prioritized
 
-* alsa-mixer: Allow selected fallback mappings in all profile sets
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/539]]
-  * Milestone set to 15.0.
-
-* build-sys: meson: allow building client libraries only
-  * [[https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/merge_requests/540]]
+(nothing here at the moment)
